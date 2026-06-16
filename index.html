@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXONTECH · Gestión de Ventas</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#006d8a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AXONTECH">
+  <link rel="apple-touch-icon" href="/iconos/icon-192.png">
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body data-page="gestor">
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="brand">
+    <div class="brand-icon" id="brandTap">AX</div>
+    <div>
+      <div class="brand-name">AXONTECH</div>
+      <div class="brand-sub">GESTIÓN DE VENTAS</div>
+    </div>
+  </div>
+  <span id="headerGestorName"></span>
+  <div class="header-right">
+    <div class="header-date" id="headerDate"></div>
+    <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
+    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+  </div>
+</header>
+
+<!-- ══════════ GESTOR LAYOUT ══════════ -->
+<div class="layout active" id="layoutGestor">
+
+  <!-- Col 1: Selector + mis vales -->
+  <div class="col col-left">
+    <div class="lbl">¿Quién eres?</div>
+    <div id="gestoresList">
+      <div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>
+    </div>
+    <div class="g-change" onclick="changeGestor()">← Cambiar gestor</div>
+    <!-- Novedades de stock -->
+    <div id="gestorNotifsSection">
+      <div class="notif-header-row" style="margin-top:20px;">
+        <div class="lbl" style="margin:0;">📢 Novedades <span id="notifUnreadBadge" class="notif-badge" style="display:none;position:relative;top:0;font-size:9px;padding:1px 5px;"></span></div>
+        <button class="notif-clear-btn" onclick="clearGestorNotifs()">Limpiar</button>
+      </div>
+      <div id="gestorNotifsList"></div>
+    </div>
+
+  </div>
+
+  <!-- Col 2: Vale form -->
+  <div class="col col-mid">
+    <div id="mobileBackBar">
+      <button onclick="changeGestor()">← Volver</button>
+      <span id="mobileBackName" style="font-size:13px;font-weight:700;color:var(--blue-dk);"></span>
+    </div>
+    <div class="card" id="gestorBanner" style="background:var(--blue-lt);border-color:var(--blue-bd);display:none;align-items:center;gap:10px;margin-bottom:14px;">
+      <div class="g-avatar" id="bannerAvatar" style="width:40px;height:40px;font-size:14px;background:var(--gray-300);">?</div>
+      <div>
+        <div style="font-size:10px;color:var(--gray-400);font-weight:700;letter-spacing:.5px;" id="bannerLbl">SELECCIONA TU NOMBRE</div>
+        <div style="font-size:15px;font-weight:700;color:var(--blue-dk);" id="bannerName">Selecciona tu nombre →</div>
+      </div>
+    </div>
+
+    <!-- Ranking de gestores (visible solo cuando no hay gestor seleccionado) -->
+    <div id="gestorRankingSection" style="margin-bottom:14px;">
+      <div class="lbl" style="margin-top:0;">🏆 Top Gestores</div>
+      <div class="card" style="padding:14px 16px;">
+        <div id="rankingList"><div class="es"><div class="es-text">Sin datos aún</div></div></div>
+      </div>
+    </div>
+
+    <div id="valeFormWrapper">
+    <div class="vale-form-header">
+      <h2>Bienvenido a "AXONTECH" 🔥</h2>
+      <p>VALE DEL GESTOR — completa los campos y envía</p>
+    </div>
+    <div class="vale-form-body">
+
+      <div class="vf-row vf-auto">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Promotor <span style="color:var(--blue);font-size:9px;">● Auto</span></span></div>
+          <input type="text" id="vf-promotor" readonly placeholder="Selecciona tu nombre arriba">
+        </div>
+      </div>
+
+      <hr class="vf-sep">
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Nombre Cliente <span class="vf-req">*</span></span></div>
+          <input type="text" id="vf-cliente" placeholder="Nombre completo del cliente" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Teléfono Cliente <span class="vf-req">*</span></span></div>
+          <input type="tel" id="vf-telefono" placeholder="Número de teléfono" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Dirección Cliente <span class="vf-req">*</span></span></div>
+          <input type="text" id="vf-direccion" placeholder="Dirección de entrega" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Mensajería / costo</span></div>
+          <input type="text" id="vf-mensajeria" placeholder="Ej: Gratis / $2 USD" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label">
+            <span>Artículo y cantidad <span class="vf-req">*</span></span>
+            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 8px;" onclick="openProductPicker()">📦 Catálogo</button>
+          </div>
+          <div id="selectedProductsList" style="display:none;"></div>
+          <textarea id="vf-articulo" rows="2" placeholder="Escribe o selecciona del catálogo ↑" oninput="onFormInput()"></textarea>
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Precio USD / Zelle</span></div>
+          <input type="text" id="vf-precioUSD" placeholder="Ej: $45 USD" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Precio CUP</span></div>
+          <input type="text" id="vf-precioCUP" placeholder="Ej: 4500 CUP" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Vuelto</span></div>
+          <input type="text" id="vf-vuelto" placeholder="Ej: 500 CUP / 0" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row">
+        <span class="vf-emoji">🔸</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Total a pagar <span class="vf-req">*</span></span></div>
+          <input type="text" id="vf-total" placeholder="Total final" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <hr class="vf-sep">
+
+      <div class="vf-row">
+        <span class="vf-emoji">★</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Garantía</span></div>
+          <input type="text" id="vf-garantia" placeholder="Ej: 6 meses" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <div class="vf-row vf-auto">
+        <span class="vf-emoji">📅</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Fecha y hora de Venta <span style="color:var(--blue);font-size:9px;">● Auto</span></span></div>
+          <input type="text" id="vf-fecha" readonly>
+        </div>
+      </div>
+
+      <hr class="vf-sep">
+
+      <div class="vf-fixed">
+        <b>🧭 Dirección de la tienda:</b><br>
+        * Amistad #313% San Rafael y San José, Centro Habana.<br><br>
+        <b>🚨 ATENCIÓN 🚨</b><br>
+        • Horarios de atención: 8:00am - 8:00pm.<br>
+        * Solo aceptamos hasta cinco billetes de 1 USD por compra.<br>
+        * Los pagos en CUP deben ser con denominación de 50 en adelante.<br>
+        * Solo se aceptan billetes en buen estado (ni rotos ni manchados)
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div id="previewCard" class="card" style="display:none;">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;">Vista previa del vale</div>
+      <div class="vale-preview" id="valePreviewText" style="font-size:11px;max-height:200px;overflow-y:auto;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
+        <button class="btn btn-ghost btn-full btn-sm" onclick="copyValePreview()">📋 Copiar</button>
+        <button class="btn btn-wa btn-full btn-sm" onclick="shareToAdminWA()">💬 WhatsApp</button>
+        <button class="btn btn-blue btn-full btn-sm" id="sendValeBtn" onclick="sendVale()" disabled>📤 Enviar</button>
+      </div>
+    </div>
+    </div><!-- /valeFormWrapper -->
+
+    <!-- Mis Vales (aquí para que se vea en móvil cuando hay gestor seleccionado) -->
+    <div id="gestorMyValesSection" style="display:none;padding-top:4px;">
+      <div class="lbl" style="margin-top:14px;">Mis Vales de Hoy</div>
+      <div id="gestorMyVales"></div>
+    </div>
+
+  </div>
+</div><!-- /layoutGestor -->
+
+<!-- ── MODAL: Contraseña Gestor ── -->
+<div class="modal-bg" id="gestorPassModal">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-title">🔐 Acceso Gestor</div>
+    <div class="modal-sub" id="gestorPassModalSub">Ingresa tu contraseña</div>
+    <input type="password" id="gestorPassInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')submitGestorPass()">
+    <div class="pass-error" id="gestorPassError">Contraseña incorrecta</div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost btn-full" onclick="closeGestorPassModal()">Cancelar</button>
+      <button class="btn btn-blue btn-full" onclick="submitGestorPass()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Product Picker ── -->
+<div class="modal-bg" id="productPickerModal">
+  <div class="modal" style="max-width:580px;width:92%;">
+    <div class="modal-title">📦 Catálogo de Productos</div>
+    <input type="search" id="pickerSearch" placeholder="Buscar producto..." oninput="renderPickerProducts()" style="margin-bottom:10px;">
+    <div id="pickerCatTabs" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;"></div>
+    <div id="pickerProductGrid" style="max-height:280px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:6px;padding:2px;"></div>
+    <hr class="modal-sep">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-600);margin-bottom:6px;">Seleccionados:</div>
+    <div id="pickerSelectedList" style="min-height:28px;"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost btn-full" onclick="closeProductPicker()">Cancelar</button>
+      <button class="btn btn-blue btn-full" onclick="confirmPickerSelection()">Agregar al vale ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Catálogo Gestor (solo lectura) ── -->
+<div class="modal-bg" id="gestorCatalogModal">
+  <div class="modal" style="max-width:500px;width:94%;">
+    <div class="modal-title">📦 Catálogo de Productos</div>
+    <input type="search" id="catalogSearch" placeholder="Buscar producto..." oninput="renderGestorCatalog()" style="margin-bottom:8px;">
+    <div id="catalogCatTabs" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;"></div>
+    <div id="gestorCatalogList" style="max-height:360px;overflow-y:auto;"></div>
+    <div class="modal-btns" style="margin-top:10px;">
+      <button class="btn btn-blue btn-full" onclick="document.getElementById('gestorCatalogModal').classList.remove('show')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Confirmar Acción ── -->
+<div class="modal-bg" id="confirmActionModal">
+  <div class="modal" style="max-width:320px;">
+    <div class="modal-title" id="confirmActionTitle">¿Confirmar acción?</div>
+    <div class="modal-sub" id="confirmActionSub"></div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeConfirmAction()">Cancelar</button>
+      <button type="button" class="btn btn-blue btn-full" id="confirmActionOk">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Módulos refactorizados (db.js primero) -->
+<script src="js/db.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/ranking.js"></script>
+<script src="js/vales.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/comisiones.js"></script>
+<script src="js/core.js"></script>
+
+<!-- App principal -->
+<script src="./app.js"></script>
+</body>
+</html>
