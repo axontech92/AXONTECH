@@ -2083,7 +2083,7 @@ function saveGhConfig() {
   const cfg=getConfig();
   cfg.ghToken=document.getElementById('gh-token').value.trim();
   cfg.ghRepo=document.getElementById('gh-repo').value.trim();
-  cfg.ghPath=document.getElementById('gh-path').value.trim()||'data/axontech.json';
+  cfg.ghPath=document.getElementById('gh-path').value.trim()||'data.json';
   cfg.ghAutoSync=document.getElementById('gh-autosync').checked;
   saveConfig(cfg);
   showToast('Configuración GitHub guardada ✓');
@@ -2098,7 +2098,7 @@ function loadGhConfigUI() {
   const metaStatus=document.getElementById('metaPuntosStatus');
   if(tok)tok.value=cfg.ghToken||'';
   if(repo)repo.value=cfg.ghRepo||'';
-  if(path)path.value=cfg.ghPath||'data/axontech.json';
+  if(path)path.value=cfg.ghPath||'data.json';
   if(auto)auto.checked=!!cfg.ghAutoSync;
   if(meta)meta.value=cfg.metaPuntos||'';
   if(metaStatus&&cfg.metaPuntos)metaStatus.innerHTML=`<span style="color:var(--green);">✓ Meta actual: ${cfg.metaPuntos} pts</span>`;
@@ -2400,12 +2400,16 @@ window.addEventListener('storage', e => {
 });
 
 // ══════════════════════════════════════════
-//  INITIAL DATA LOAD
+//  INITIAL DATA LOAD & GESTOR PULL
 // ══════════════════════════════════════════
 async function loadInitialData() {
-  if (getGestores().length || getProductos().length) return; // already has data
+  if (getGestores().length || getProductos().length) {
+    // If user is gestor, silently try to pull updates in background
+    if(!IS_ADMIN) pullGestorUpdates(true);
+    return;
+  }
   try {
-    const res = await fetch('./data.json');
+    const res = await fetch('./data.json?t=' + Date.now());
     if (!res.ok) return;
     const data = await res.json();
     if (data.gestores  && data.gestores.length)  saveGestores(data.gestores);
@@ -2413,6 +2417,31 @@ async function loadInitialData() {
     if (data.productos && data.productos.length)  saveProductos(data.productos);
     if (data.categorias&& data.categorias.length) saveCategorias(data.categorias);
   } catch(e) {}
+}
+
+async function pullGestorUpdates(silent = false) {
+  if (IS_ADMIN) return; // Admins use the config panel
+  try {
+    if(!silent) showToast('Descargando actualizaciones...');
+    const res = await fetch('./data.json?t=' + Date.now());
+    if (!res.ok) throw new Error('No se pudo descargar data.json');
+    const data = await res.json();
+    
+    // Only update non-destructive data for Gestores (passwords, products, categories)
+    if (data.gestores) saveGestores(data.gestores);
+    if (data.mensajeros) saveMensajeros(data.mensajeros);
+    if (data.productos) saveProductos(data.productos);
+    if (data.categorias) saveCategorias(data.categorias);
+    
+    // Refresh UI
+    renderGestores();
+    if(document.getElementById('gestorCatalogModal')?.classList.contains('show')){
+      renderGestorCatalog();
+    }
+    if(!silent) showToast('¡Datos, contraseñas y catálogo actualizados! ✓');
+  } catch(e) {
+    if(!silent) showToast('Error al actualizar: ' + e.message);
+  }
 }
 
 // ══════════════════════════════════════════
