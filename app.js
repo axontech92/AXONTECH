@@ -172,7 +172,13 @@ function renderGestorNotifs() {
   const cutoff = Date.now() - 72*60*60*1000;
   const recent = notifs.filter(n => {
     if(new Date(n.ts).getTime() <= cutoff) return false;
-    if(['vale_confirmed','sale_product','vale_assigned'].includes(n.type) && n.gestorId && activeGestorId && n.gestorId !== activeGestorId) return false;
+    
+    // Personal notifications: only visible to the specific gestor (and NOT visible in the general lobby)
+    if(['vale_confirmed', 'vale_assigned'].includes(n.type)) {
+      if(!activeGestorId || n.gestorId !== activeGestorId) return false;
+    }
+    
+    // sale_product and other stock notifications are global
     return true;
   });
   const sec = document.getElementById('gestorNotifsSection');
