@@ -66,7 +66,6 @@ function fbRemoveVale(v) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId
 function refreshUI() {
   if(IS_ADMIN) {
     if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
-    if(typeof renderGestores === 'function') renderGestores();
     if(typeof renderAdminGestores === 'function') renderAdminGestores();
     if(typeof renderInbox === 'function') renderInbox();
     if(typeof renderMensajeros === 'function') renderMensajeros();
@@ -452,6 +451,7 @@ function submitPass() {
 function renderGestores() {
   const gestores=getGestores();
   const c=document.getElementById('gestoresList');
+  if(!c) return;
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>';return;}
   c.innerHTML=gestores.map(g=>{
     const act=g.id===activeGestorId;
@@ -647,6 +647,7 @@ function removeGestor(id) {
 function renderAdminGestoresList() {
   const list=getGestores();
   const c=document.getElementById('adminGestoresPanel-list');
+  if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
   c.innerHTML=list.map(g=>{
     const vales=getVales().filter(v=>v.gestorId===g.id);
@@ -734,6 +735,7 @@ function renderInbox() {
     const cnt=document.getElementById('inboxSearchCount');if(cnt)cnt.style.display='none';
   }
   const c=document.getElementById('inboxList');
+  if(!c) return;
   if(!all.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">Sin vales aquí</div></div>';return;}
   const sMap={
     pending:{label:'Pendiente',cls:'sp-pending'},assigned:{label:'Con mensajero',cls:'sp-assigned'},
@@ -773,6 +775,7 @@ function selectVale(id) {
 function renderValeDetail() {
   const v=getVales().find(x=>x.id===selectedValeId);
   const c=document.getElementById('valeDetail');
+  if(!c) return;
   if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
   const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
   const sMap={
@@ -1034,6 +1037,7 @@ function removeMensajero(id) {
 }
 function renderMensajeros() {
   const list=getMensajeros();const c=document.getElementById('mensajerosList');
+  if(!c) return;
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
     const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
@@ -1065,6 +1069,7 @@ function saveEditMensajero() {
 function renderConfirmados() {
   const today=getVales().filter(v=>v.status==='confirmed'&&new Date(v.ts).toDateString()===todayStr()).reverse();
   const c=document.getElementById('confirmadosList');
+  if(!c) return;
   if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
   c.innerHTML=today.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
@@ -1073,7 +1078,8 @@ function renderConfirmados() {
 }
 function renderPendienteCobro() {
   const c=document.getElementById('pendienteList');
-  if(!c)return;
+  if(!c) return;
+   if(!c)return;
   const pend=getVales().filter(v=>v.status==='pending_payment').reverse();
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
@@ -1112,6 +1118,7 @@ function renderPendingCobroSection() {
 // ══════════════════════════════════════════
 function renderMyVales() {
   const c=document.getElementById('gestorMyVales');
+  if(!c) return;
   if(!c||!activeGestorId)return;
   const mine=todayValesOf(activeGestorId).reverse();
   if(!mine.length){c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Aún no has enviado vales hoy</div></div>';return;}
@@ -1278,6 +1285,7 @@ function renderPickerProducts() {
   if(pickerCatFilter!==null)prods=prods.filter(p=>p.catId===pickerCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   const c=document.getElementById('pickerProductGrid');
+  if(!c) return;
   if(!prods.length){c.innerHTML='<div style="width:100%;text-align:center;padding:20px;color:var(--gray-400);">Sin productos disponibles</div>';return;}
   c.innerHTML=prods.map(p=>{
     const qty=pickerSelected[p.id]||0;
@@ -1304,6 +1312,7 @@ function pickerAdj(pid,delta) {
 function renderPickerSelected() {
   const items=Object.entries(pickerSelected).map(([id,qty])=>({id:parseInt(id),qty}));
   const c=document.getElementById('pickerSelectedList');
+  if(!c) return;
   if(!items.length){c.innerHTML='<span style="color:var(--gray-400);font-size:11px;">Ningún producto seleccionado</span>';return;}
   c.innerHTML=items.map(({id,qty})=>{
     const p=productoOf(id);
@@ -1346,6 +1355,7 @@ function confirmPickerSelection() {
 }
 function renderSelectedProductsUI() {
   const c=document.getElementById('selectedProductsList');
+  if(!c) return;
   if(!selectedProductsUI.length){c.style.display='none';return;}
   c.style.display='block';
   c.innerHTML=selectedProductsUI.map(i=>`<span class="tag-chip">${i.name} ×${i.qty}</span>`).join('')+
@@ -1359,6 +1369,7 @@ function renderStockCategorias() {
   const cats=getCategorias();
   const prods=getProductos();
   const c=document.getElementById('categoriasList');
+  if(!c) return;
   c.innerHTML=
     `<button type="button" class="pcat-tab ${stockCatFilter===null?'active':''}" onclick="setStockCat(null)" style="flex-shrink:0;">
       📦 Todos <span style="opacity:.7;">(${prods.length})</span>
@@ -1447,6 +1458,7 @@ function renderProductGrid() {
   if(stockCatFilter!==null)prods=prods.filter(p=>p.catId===stockCatFilter);
   const cats=getCategorias();
   const c=document.getElementById('productGrid');
+  if(!c) return;
   if(!prods.length){
     c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos. Haz clic en "+ Nuevo producto".</div></div>';return;
   }
@@ -1837,6 +1849,7 @@ function renderGestorCatalog() {
   if(catalogCatFilter!==null)prods=prods.filter(p=>p.catId===catalogCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search));
   const c=document.getElementById('gestorCatalogList');
+  if(!c) return;
   if(!prods.length){c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos</div></div>';return;}
   c.innerHTML=prods.map(p=>{
     const exp=expandedCatalogId===p.id;
@@ -2432,7 +2445,8 @@ function renderHistorial() {
   const toEl=document.getElementById('histDateTo');
   const gestorEl=document.getElementById('histGestorFilter');
   const c=document.getElementById('historialList');
-  if(!c)return;
+  if(!c) return;
+   if(!c)return;
   // Populate gestor filter
   const gestores=getGestores();
   const curGFilter=gestorEl?gestorEl.value:'';
