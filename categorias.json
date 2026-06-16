@@ -1,0 +1,27 @@
+{
+  "nombres": [
+    "WIFI",
+    "ENERGIA",
+    "CELULARES",
+    "UTILES",
+    "CARROS",
+    "ROPA",
+    "LENCERIA",
+    "SEGURIDAD",
+    "HOGAR",
+    "JUEGOS",
+    "MOTOS",
+    "PC Y LAPTOPS",
+    "GYM"
+  ],
+  "iconos": {
+    "LENCERIA": "👙",
+    "SEGURIDAD": "🔒",
+    "HOGAR": "🏠",
+    "JUEGOS": "🎮",
+    "MOTOS": "🛵",
+    "LENCERÍA": "👙",
+    "PC Y LAPTOPS": "💻",
+    "GYM": "🏋️"
+  }
+}
