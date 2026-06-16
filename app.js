@@ -170,41 +170,33 @@ function addNotif(type, productName, productId, extra, gestorId) {
 function renderGestorNotifs() {
   const notifs = getNotifs();
   const cutoff = Date.now() - 72*60*60*1000;
-  const recent = notifs.filter(n => {
-    if(new Date(n.ts).getTime() <= cutoff) return false;
-    
-    // Personal notifications: only visible to the specific gestor (and NOT visible in the general lobby)
-    if(['vale_confirmed', 'vale_assigned'].includes(n.type)) {
-      if(!activeGestorId || n.gestorId !== activeGestorId) return false;
-    }
-    
-    // sale_product and other stock notifications are global
-    return true;
-  });
+  
+  const validNotifs = notifs.filter(n => new Date(n.ts).getTime() > cutoff);
+  
+  // Separate into Global and Personal
+  const globalNotifs = validNotifs.filter(n => !['vale_confirmed', 'vale_assigned'].includes(n.type));
+  const personalNotifs = validNotifs.filter(n => ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId);
+
   const sec = document.getElementById('gestorNotifsSection');
-  if(!sec) return;
-  if(!recent.length){sec.style.display='none';return;}
-  sec.style.display='block';
-  const unread = recent.filter(n=>!n.read).length;
-  const badge = document.getElementById('notifUnreadBadge');
-  if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
+  const personalSec = document.getElementById('gestorPersonalNotifsSection');
+  
   const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵'};
-  document.getElementById('gestorNotifsList').innerHTML = recent.map(n=>{
+  
+  const renderItem = n => {
     const icon=icons[n.type]||'📢';
     const age=timeAgo(n.ts);
     const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned'].includes(n.type)?'ok':'';
     const cls=!n.read?'unread':`type-${typeClass}`;
-    // Build human-readable message per type
     let msg='';
     if(n.type==='sale_product'){
       const parts=(n.extra||'').split('|');
       const qty=parseInt(parts[0])||1;
       const left=parseInt(parts[1]);
-      msg=`<b>Se vendió${qty>1?` <span style="color:var(--blue);font-weight:800;">${qty}</span>`:''}</b> ${n.productName}${!isNaN(left)?` — quedan <b style="color:${left===0?'var(--red)':left<=LOW_STOCK_THRESHOLD?'var(--yellow)':'var(--green)'};">${left}</b>`:''}`;
+      msg=`<b>Se vendió${qty>1?` <span style="color:var(--blue);font-weight:800;">${qty}</span>`:``}</b> ${n.productName}${!isNaN(left)?` — quedan <b style="color:${left===0?'var(--red)':left<=LOW_STOCK_THRESHOLD?'var(--yellow)':'var(--green)'};">${left}</b>`:``}`;
     } else if(n.type==='vale_assigned'){
       msg=`🛵 Tu venta está con el mensajero`;
     } else if(n.type==='vale_confirmed'){
-      msg=`<b>¡Venta completada! ✅</b> · ${n.productName}${n.extra?` <span style="color:var(--gray-400);font-size:10px;">(${n.extra})</span>`:''}`;
+      msg=`<b>¡Venta completada! ✅</b> · ${n.productName}${n.extra?` <span style="color:var(--gray-400);font-size:10px;">(${n.extra})</span>`:``}`;
     } else if(n.type==='out_of_stock'){
       msg=`<b>Agotado:</b> ${n.productName}`;
     } else if(n.type==='low_stock'){
@@ -212,24 +204,40 @@ function renderGestorNotifs() {
     } else if(n.type==='restocked'){
       msg=`<b>Repuesto:</b> ${n.productName} <span style="color:var(--green);">(${n.extra})</span>`;
     } else if(n.type==='new_product'){
-      msg=`<b>Nuevo producto:</b> ${n.productName}${n.extra?` · ${n.extra}`:''}`;
+      msg=`<b>Nuevo producto:</b> ${n.productName}${n.extra?` · ${n.extra}`:``}`;
     } else {
-      msg=`${n.productName}${n.extra?` (${n.extra})`:''}`;
+      msg=`${n.productName}${n.extra?` (${n.extra})`:``}`;
     }
-    return `<div class="gnotif-item ${cls}" onclick="markNotifRead(${n.id})">
-      <span class="gnotif-icon">${icon}</span>
-      <div class="gnotif-text" style="line-height:1.5;">${msg}</div>
-      <span class="gnotif-time">${age}</span>
+    return `<div class="notif-item ${cls}">
+      <div class="notif-icon">${icon}</div>
+      <div class="notif-body">
+        <div class="notif-text">${msg}</div>
+        <div class="notif-time">${age}</div>
+      </div>
     </div>`;
-  }).join('');
-}
+  };
 
-function markNotifRead(id) {
-  const notifs = getNotifs();
-  const n = notifs.find(x=>x.id===id);
-  if (n) { n.read=true; saveNotifs(notifs); renderGestorNotifs(); }
-}
+  if(sec) {
+    if(!globalNotifs.length) {
+      sec.style.display='none';
+    } else {
+      sec.style.display='block';
+      const unread = globalNotifs.filter(n=>!n.read).length;
+      const badge = document.getElementById('notifUnreadBadge');
+      if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
+      document.getElementById('gestorNotifsList').innerHTML = globalNotifs.map(renderItem).join('');
+    }
+  }
 
+  if(personalSec) {
+    if(!personalNotifs.length || !activeGestorId) {
+      personalSec.style.display='none';
+    } else {
+      personalSec.style.display='block';
+      document.getElementById('gestorPersonalNotifsList').innerHTML = personalNotifs.map(renderItem).join('');
+    }
+  }
+}
 function clearGestorNotifs() {
   saveNotifs([]); renderGestorNotifs();
 }
@@ -848,7 +856,7 @@ function renderValeDetail() {
       </div>
       <table style="width:100%;font-size:12px;border-collapse:collapse;">
         ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio CUP',v.precioCUP],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia]]
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia]]
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
             <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:80px;">${k}</td>
@@ -1184,10 +1192,51 @@ function adminDeleteVale(id) {
 const REQUIRED=['vf-cliente','vf-telefono','vf-direccion','vf-articulo','vf-total'];
 const fVal = id => (document.getElementById(id)?.value||'').trim();
 
+function calcAutoTotal() {
+  const pUSD = document.getElementById('vf-precioUSD')?.value || '';
+  const pMN = document.getElementById('vf-precioMN')?.value || '';
+  const mens = document.getElementById('vf-mensajeria')?.value || '';
+  
+  let usdTotal = 0;
+  let mnTotal = 0;
+  
+  const addVal = (str) => {
+    const s = str.toUpperCase();
+    const num = parsePrecioNum(s);
+    if(num === 0) return;
+    if(s.includes('MN') || s.includes('CUP')) mnTotal += num;
+    else if(s.includes('USD') || s.includes('ZELLE')) usdTotal += num;
+    else if(s.includes('$')) usdTotal += num;
+    else {
+      if(num > 500) mnTotal += num;
+      else usdTotal += num;
+    }
+  };
+  
+  addVal(pUSD);
+  addVal(pMN);
+  addVal(mens);
+  
+  let out = [];
+  if(usdTotal > 0) out.push(`$${usdTotal} USD`);
+  if(mnTotal > 0) out.push(`${mnTotal} MN`);
+  
+  const totalInput = document.getElementById('vf-total');
+  if(out.length > 0 && totalInput) {
+    totalInput.value = out.join(' + ');
+  } else if (totalInput && !pUSD && !pMN && !mens) {
+    totalInput.value = '';
+  }
+}
+
 function onFormInput() {
+  const activeId = document.activeElement?.id;
+  if(['vf-mensajeria', 'vf-precioUSD', 'vf-precioMN'].includes(activeId)) {
+    calcAutoTotal();
+  }
   const allFilled=!!activeGestorId&&REQUIRED.every(id=>fVal(id).length>0);
   const btn=document.getElementById('sendValeBtn');if(btn)btn.disabled=!allFilled;
-  const anyFilled=REQUIRED.some(id=>fVal(id).length>0)||['vf-mensajeria','vf-precioUSD','vf-precioCUP','vf-vuelto','vf-garantia'].some(id=>fVal(id).length>0);
+  const anyFilled=REQUIRED.some(id=>fVal(id).length>0)||['vf-mensajeria','vf-precioUSD','vf-precioMN','vf-vuelto','vf-garantia'].some(id=>fVal(id).length>0);
   const pc=document.getElementById('previewCard');
   if(pc){
     if(activeGestorId&&anyFilled){pc.style.display='block';document.getElementById('valePreviewText').textContent=buildValeText();}
@@ -1204,7 +1253,7 @@ function buildValeText() {
     `🔸Mensajería/ costo: ${fVal('vf-mensajeria')}`,
     `🔸 Artículo y cantidad: ${fVal('vf-articulo')}`,
     `🔸Precio USD/ zelle: ${fVal('vf-precioUSD')}`,
-    `🔸Precio CUP: ${fVal('vf-precioCUP')}`,
+    `🔸Precio MN: ${fVal('vf-precioMN')}`,
     `🔸 Vuelto: ${fVal('vf-vuelto')}`,
     `🔸 Total a pagar: ${fVal('vf-total')}`, '',
     `*Garantía: ${fVal('vf-garantia')}`,
@@ -1212,7 +1261,7 @@ function buildValeText() {
     '🧭Dirección de la tienda:','* Amistad #313% San Rafael y San José, Centro Habana.','',
     '🚨ATENCIÓN🚨','•   Horarios de atención al cliente:','    8:00am - 8:00pm.',
     '* Solo aceptamos hasta cinco billetes de 1 USD por compra.',
-    '* Los pagos en CUP deben ser con denominación de 50 en adelante.',
+    '* Los pagos en MN deben ser con denominación de 50 en adelante.',
     '* Solo se aceptan billetes en buen estado (ni rotos ni manchados)'].join('\n');
 }
 function copyValePreview() {
@@ -1230,7 +1279,7 @@ function saveAdminPhone() {
 }
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-mensajeria','vf-articulo',
-   'vf-precioUSD','vf-precioCUP','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
+   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
   selectedProductsUI=[];currentValeProductos=[];renderSelectedProductsUI();onFormInput();
@@ -1247,7 +1296,7 @@ function sendVale() {
     id:Date.now(),valeNum:getNextValeNum(),gestorId:activeGestorId,ts:new Date().toISOString(),
     cliente:fVal('vf-cliente'),telefono:fVal('vf-telefono'),direccion:fVal('vf-direccion'),
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
-    precioUSD:fVal('vf-precioUSD'),precioCUP:fVal('vf-precioCUP'),
+    precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),
     valeProductos:currentValeProductos,valeText:buildValeText(),
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
@@ -1345,12 +1394,12 @@ function confirmPickerSelection() {
   items.forEach(({id,qty})=>{
     const p=productoOf(id);if(!p||!p.precio)return;
     total+=parsePrecioNum(p.precio)*qty;
-    if(p.precio.includes('CUP'))cur='CUP';
+    if(p.precio.includes('MN'))cur='MN';
   });
   if(total>0){
     const fmt=`$${total} ${cur}`;
-    document.getElementById('vf-precioUSD').value=fmt;
-    document.getElementById('vf-total').value=fmt;
+    if(cur==='MN'){document.getElementById('vf-precioMN').value=fmt;document.getElementById('vf-precioUSD').value='';}else{document.getElementById('vf-precioUSD').value=fmt;document.getElementById('vf-precioMN').value='';}
+    calcAutoTotal();
   }
   // auto-fill garantia from first product that has one
   if(!document.getElementById('vf-garantia').value){
@@ -1516,10 +1565,10 @@ function openEditProductModal(id) {
   document.getElementById('pm-comision').value=p.comision||'';
   // Parse comision into amount + currency fields
   {const com=p.comision||'';
-   const isCUP=com.toUpperCase().includes('CUP');
+   const isMN=com.toUpperCase().includes('MN');
    const num=parseFloat(com.replace(/[^0-9.]/g,''))||'';
    document.getElementById('pm-comision-amount').value=num;
-   document.getElementById('pm-comision-currency').value=isCUP?'CUP':'USD';}
+   document.getElementById('pm-comision-currency').value=isMN?'MN':'USD';}
   document.getElementById('pm-foto').value=p.photo||'';
   document.getElementById('pm-foto-file').value='';
   populateCatSelect(p.catId);
@@ -1560,7 +1609,7 @@ function saveProduct() {
     stock:parseInt(document.getElementById('pm-stock').value)||0,
     puntos:parseInt(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
-    comision:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);const cur=document.getElementById('pm-comision-currency').value;return amt>0?(cur==='CUP'?`${amt} CUP`:`$${amt} USD`):''})(),
+    comision:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);const cur=document.getElementById('pm-comision-currency').value;return amt>0?(cur==='MN'?`${amt} MN`:`$${amt} USD`):''})(),
     photo:document.getElementById('pm-foto').value.trim(),
     catId:catVal?parseInt(catVal):null,
   };
@@ -1760,13 +1809,13 @@ function loadDemo() {
   const h     = (n) => new Date(now.getTime() - n*60*60*1000).toISOString();
 
   saveVales([
-    { id:2001, gestorId:1, ts:h(0.5),  cliente:'Roberto Silva',   telefono:'55551234', direccion:'Calle 23 #456, Vedado',       mensajeria:'$2 USD',  articulo:'iPhone 15 Pro x1',    precioUSD:'$950 USD', precioCUP:'',        vuelto:'',      total:'$950 USD',  garantia:'6 meses', valeProductos:[{id:100,name:'iPhone 15 Pro',qty:1}],    valeText:'', status:'pending',         mensajeroId:null, confirmedTs:null,  isNew:true  },
-    { id:2002, gestorId:2, ts:h(1.2),  cliente:'María Torres',    telefono:'55559876', direccion:'Av 5ta #88 e/8 y 10',         mensajeria:'Gratis',  articulo:'AirPods Pro 2 x2',    precioUSD:'$360 USD', precioCUP:'',        vuelto:'',      total:'$360 USD',  garantia:'3 meses', valeProductos:[{id:102,name:'AirPods Pro 2',qty:2}],    valeText:'', status:'assigned',        mensajeroId:50,   confirmedTs:null,  deliveredTs:null,  isNew:false },
-    { id:2007, gestorId:3, ts:h(1.8),  cliente:'Diana Vázquez',   telefono:'55552468', direccion:'Neptuno #89, Centro Habana',   mensajeria:'$2 USD',  articulo:'Laptop HP Victus x1', precioUSD:'$680 USD', precioCUP:'',        vuelto:'',      total:'$680 USD',  garantia:'12 meses',valeProductos:[{id:104,name:'Laptop HP Victus',qty:1}],  valeText:'', status:'delivered',       mensajeroId:51,   confirmedTs:null,  deliveredTs:h(0.3),isNew:false },
-    { id:2003, gestorId:1, ts:h(2.0),  cliente:'Luis Pérez',      telefono:'55554321', direccion:'Obispo #12, Habana Vieja',    mensajeria:'$1 USD',  articulo:'Funda iPhone 15 x3',  precioUSD:'$45 USD',  precioCUP:'4050 CUP',vuelto:'0',     total:'$45 USD',   garantia:'',         valeProductos:[{id:103,name:'Funda iPhone 15',qty:3}],  valeText:'', status:'confirmed',       mensajeroId:51,   confirmedTs:h(0.8),isNew:false },
-    { id:2004, gestorId:3, ts:h(3.1),  cliente:'Carmen Díaz',     telefono:'55557890', direccion:'23 y 12 #234, Vedado',        mensajeria:'$2 USD',  articulo:'Samsung Galaxy S24 x1',precioUSD:'$780 USD',precioCUP:'',        vuelto:'',      total:'$780 USD',  garantia:'6 meses', valeProductos:[{id:101,name:'Samsung Galaxy S24',qty:1}],valeText:'', status:'pending_payment', mensajeroId:50,   confirmedTs:null,  isNew:false },
-    { id:2005, gestorId:4, ts:h(4.5),  cliente:'Oscar Fernández', telefono:'55553456', direccion:'Línea #78 esq L',             mensajeria:'$3 USD',  articulo:'Laptop HP Victus x1', precioUSD:'$680 USD', precioCUP:'',        vuelto:'',      total:'$680 USD',  garantia:'12 meses',valeProductos:[{id:104,name:'Laptop HP Victus',qty:1}],  valeText:'', status:'pending',         mensajeroId:null, confirmedTs:null,  isNew:true  },
-    { id:2006, gestorId:2, ts:h(5.0),  cliente:'Yolanda Cruz',    telefono:'55558765', direccion:'Reina #302, Centro Habana',   mensajeria:'Gratis',  articulo:'iPhone 15 Pro x1',    precioUSD:'$950 USD', precioCUP:'',        vuelto:'',      total:'$950 USD',  garantia:'6 meses', valeProductos:[{id:100,name:'iPhone 15 Pro',qty:1}],    valeText:'', status:'confirmed',       mensajeroId:51,   confirmedTs:h(3.0),isNew:false },
+    { id:2001, gestorId:1, ts:h(0.5),  cliente:'Roberto Silva',   telefono:'55551234', direccion:'Calle 23 #456, Vedado',       mensajeria:'$2 USD',  articulo:'iPhone 15 Pro x1',    precioUSD:'$950 USD', precioMN:'',        vuelto:'',      total:'$950 USD',  garantia:'6 meses', valeProductos:[{id:100,name:'iPhone 15 Pro',qty:1}],    valeText:'', status:'pending',         mensajeroId:null, confirmedTs:null,  isNew:true  },
+    { id:2002, gestorId:2, ts:h(1.2),  cliente:'María Torres',    telefono:'55559876', direccion:'Av 5ta #88 e/8 y 10',         mensajeria:'Gratis',  articulo:'AirPods Pro 2 x2',    precioUSD:'$360 USD', precioMN:'',        vuelto:'',      total:'$360 USD',  garantia:'3 meses', valeProductos:[{id:102,name:'AirPods Pro 2',qty:2}],    valeText:'', status:'assigned',        mensajeroId:50,   confirmedTs:null,  deliveredTs:null,  isNew:false },
+    { id:2007, gestorId:3, ts:h(1.8),  cliente:'Diana Vázquez',   telefono:'55552468', direccion:'Neptuno #89, Centro Habana',   mensajeria:'$2 USD',  articulo:'Laptop HP Victus x1', precioUSD:'$680 USD', precioMN:'',        vuelto:'',      total:'$680 USD',  garantia:'12 meses',valeProductos:[{id:104,name:'Laptop HP Victus',qty:1}],  valeText:'', status:'delivered',       mensajeroId:51,   confirmedTs:null,  deliveredTs:h(0.3),isNew:false },
+    { id:2003, gestorId:1, ts:h(2.0),  cliente:'Luis Pérez',      telefono:'55554321', direccion:'Obispo #12, Habana Vieja',    mensajeria:'$1 USD',  articulo:'Funda iPhone 15 x3',  precioUSD:'$45 USD',  precioMN:'4050 MN',vuelto:'0',     total:'$45 USD',   garantia:'',         valeProductos:[{id:103,name:'Funda iPhone 15',qty:3}],  valeText:'', status:'confirmed',       mensajeroId:51,   confirmedTs:h(0.8),isNew:false },
+    { id:2004, gestorId:3, ts:h(3.1),  cliente:'Carmen Díaz',     telefono:'55557890', direccion:'23 y 12 #234, Vedado',        mensajeria:'$2 USD',  articulo:'Samsung Galaxy S24 x1',precioUSD:'$780 USD',precioMN:'',        vuelto:'',      total:'$780 USD',  garantia:'6 meses', valeProductos:[{id:101,name:'Samsung Galaxy S24',qty:1}],valeText:'', status:'pending_payment', mensajeroId:50,   confirmedTs:null,  isNew:false },
+    { id:2005, gestorId:4, ts:h(4.5),  cliente:'Oscar Fernández', telefono:'55553456', direccion:'Línea #78 esq L',             mensajeria:'$3 USD',  articulo:'Laptop HP Victus x1', precioUSD:'$680 USD', precioMN:'',        vuelto:'',      total:'$680 USD',  garantia:'12 meses',valeProductos:[{id:104,name:'Laptop HP Victus',qty:1}],  valeText:'', status:'pending',         mensajeroId:null, confirmedTs:null,  isNew:true  },
+    { id:2006, gestorId:2, ts:h(5.0),  cliente:'Yolanda Cruz',    telefono:'55558765', direccion:'Reina #302, Centro Habana',   mensajeria:'Gratis',  articulo:'iPhone 15 Pro x1',    precioUSD:'$950 USD', precioMN:'',        vuelto:'',      total:'$950 USD',  garantia:'6 meses', valeProductos:[{id:100,name:'iPhone 15 Pro',qty:1}],    valeText:'', status:'confirmed',       mensajeroId:51,   confirmedTs:h(3.0),isNew:false },
   ]);
 
   // Notificaciones de ejemplo
@@ -1805,7 +1854,7 @@ function buildDemoVale(v) {
     `🔸 Nombre Cliente: ${v.cliente}`,`🔸Teléfono Cliente: ${v.telefono}`,
     `🔸Dirección Cliente: ${v.direccion}`,`🔸Mensajería/ costo: ${v.mensajeria}`,
     `🔸 Artículo y cantidad: ${v.articulo}`,`🔸Precio USD/ zelle: ${v.precioUSD}`,
-    `🔸Precio CUP: ${v.precioCUP}`,`🔸 Vuelto: ${v.vuelto}`,`🔸 Total a pagar: ${v.total}`,'',
+    `🔸Precio MN: ${v.precioMN}`,`🔸 Vuelto: ${v.vuelto}`,`🔸 Total a pagar: ${v.total}`,'',
     `*Garantía: ${v.garantia}`,`*Fecha y hora de Venta: ${new Date(v.ts).toLocaleString('es-ES')}`,'',
     '🧭Dirección de la tienda:','* Amistad #313% San Rafael y San José, Centro Habana.','',
     '🚨ATENCIÓN🚨','•   Horarios de atención: 8:00am - 8:00pm.'].join('\n');
@@ -1906,7 +1955,7 @@ function getValeCommissionParts(v) {
         const amt=Math.round(priceNum*(pct/100)*qty*100)/100;
         total+=amt;
         parts.push({label,com:`${pct}% = $${amt.toFixed(2)}`});
-        if((p.precio||'').includes('CUP'))currency='CUP';
+        if((p.precio||'').includes('MN'))currency='MN';
       } else {
         parts.push({label,com});computable=false;
       }
@@ -1914,7 +1963,7 @@ function getValeCommissionParts(v) {
       const num=parsePrecioNum(com);
       if(num>0){total+=num*qty;parts.push({label,com:`${com}${qty>1?` ×${qty}`:''}`});}
       else{parts.push({label,com});computable=false;}
-      if(com.includes('CUP'))currency='CUP';
+      if(com.includes('MN'))currency='MN';
     }
   });
   return{parts,total:computable&&parts.length?total:null,currency};
@@ -1951,9 +2000,9 @@ function renderComisiones() {
     const paid=allVales.filter(v=>v.commissionPaid);
     const isOpen=activeComisionGestorId===g.id;
     // Compute grand total for pending split by currency
-    let gtUSD=0,gtCUP=0,gtAllComputed=true;
-    pending.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){gtAllComputed=false;}else{if(r.currency==='CUP')gtCUP+=r.total;else gtUSD+=r.total;}});
-    const gtBadgeParts=[];if(gtUSD>0)gtBadgeParts.push(`$${gtUSD.toFixed(2)} USD`);if(gtCUP>0)gtBadgeParts.push(`${Math.round(gtCUP)} CUP`);
+    let gtUSD=0,gtMN=0,gtAllComputed=true;
+    pending.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){gtAllComputed=false;}else{if(r.currency==='MN')gtMN+=r.total;else gtUSD+=r.total;}});
+    const gtBadgeParts=[];if(gtUSD>0)gtBadgeParts.push(`$${gtUSD.toFixed(2)} USD`);if(gtMN>0)gtBadgeParts.push(`${Math.round(gtMN)} MN`);
     const gtBadge=gtAllComputed&&gtBadgeParts.length?gtBadgeParts.join(' + '):null;
     return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:8px;border-color:${isOpen?'var(--blue)':'var(--border)'};">
       <div onclick="toggleComisionGestor(${g.id})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:${isOpen?'var(--blue-lt)':'var(--surface)'};">
@@ -1982,9 +2031,9 @@ function renderComisionBody(g,pending,paid) {
     // ── PENDING ──
     if(pending.length){
       // Total summary
-      let sumUSD=0,sumCUP=0,canSum=true;
-      pending.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='CUP')sumCUP+=r.total;else sumUSD+=r.total;}});
-      const sumParts=[];if(sumUSD>0)sumParts.push(`$${sumUSD.toFixed(2)} USD`);if(sumCUP>0)sumParts.push(`${Math.round(sumCUP)} CUP`);
+      let sumUSD=0,sumMN=0,canSum=true;
+      pending.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='MN')sumMN+=r.total;else sumUSD+=r.total;}});
+      const sumParts=[];if(sumUSD>0)sumParts.push(`$${sumUSD.toFixed(2)} USD`);if(sumMN>0)sumParts.push(`${Math.round(sumMN)} MN`);
       html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
         <span style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;">⏳ Por pagar (${pending.length})</span>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2021,7 +2070,7 @@ function renderComisionBody(g,pending,paid) {
           <div style="text-align:right;flex-shrink:0;">
             <div style="font-size:9px;color:var(--green);font-weight:700;">✓ Pagado</div>
             ${ts?`<div style="font-size:9px;color:var(--gray-400);">${ts}</div>`:''}
-            <button style="background:none;border:none;cursor:pointer;font-size:9px;color:var(--gray-400);padding:2px 0;margin-top:2px;" onclick="unpayCommission(${v.id},event)">↩ Revertir</button>
+            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 8px;margin-top:4px;color:var(--orange);" onclick="unpayCommission(${v.id},event)">↩ Revertir</button>
           </div>
         </div>`;
       }).join('');

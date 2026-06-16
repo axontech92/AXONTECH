@@ -67,6 +67,12 @@
       </div>
     </div>
 
+    <!-- Notificaciones personales (visible solo para el gestor logueado) -->
+    <div id="gestorPersonalNotifsSection" style="display:none;margin-bottom:14px;">
+      <div class="lbl" style="margin-top:0;">🔔 Mis Alertas</div>
+      <div id="gestorPersonalNotifsList"></div>
+    </div>
+
     <!-- Ranking de gestores (visible solo cuando no hay gestor seleccionado) -->
     <div id="gestorRankingSection" style="margin-bottom:14px;">
       <div class="lbl" style="margin-top:0;">🏆 Top Gestores</div>
@@ -147,8 +153,8 @@
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
-          <div class="vf-label"><span>Precio CUP</span></div>
-          <input type="text" id="vf-precioCUP" placeholder="Ej: 4500 CUP" oninput="onFormInput()">
+          <div class="vf-label"><span>Precio MN</span></div>
+          <input type="text" id="vf-precioMN" placeholder="Ej: 4500 MN" oninput="onFormInput()">
         </div>
       </div>
 
@@ -156,7 +162,7 @@
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Vuelto</span></div>
-          <input type="text" id="vf-vuelto" placeholder="Ej: 500 CUP / 0" oninput="onFormInput()">
+          <input type="text" id="vf-vuelto" placeholder="Ej: 500 MN / 0" oninput="onFormInput()">
         </div>
       </div>
 
@@ -194,7 +200,7 @@
         <b>🚨 ATENCIÓN 🚨</b><br>
         • Horarios de atención: 8:00am - 8:00pm.<br>
         * Solo aceptamos hasta cinco billetes de 1 USD por compra.<br>
-        * Los pagos en CUP deben ser con denominación de 50 en adelante.<br>
+        * Los pagos en MN deben ser con denominación de 50 en adelante.<br>
         * Solo se aceptan billetes en buen estado (ni rotos ni manchados)
       </div>
     </div>
