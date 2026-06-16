@@ -118,14 +118,41 @@ if (IS_ADMIN) {
 }
 
 let gestorValesListener = null;
+let firstLoadVales = true;
 function listenToMyVales(gId) {
   if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+  firstLoadVales = true;
   gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
     isSyncingFromFirebase = true;
     const val = snap.val();
-    const myVales = val ? Object.values(val) : [];
-    myVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-    localStorage.setItem('axon_vales', JSON.stringify(myVales));
+    const newVales = val ? Object.values(val) : [];
+    newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+    
+    if (!firstLoadVales) {
+      const oldVales = getVales();
+      newVales.forEach(nv => {
+        const ov = oldVales.find(x => x.id === nv.id);
+        if (ov && ov.status !== nv.status) {
+          const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name}` : p.name).join(', ');
+          
+          if (nv.status === 'pending_payment') {
+            sendBrowserNotif('Vale en espera ⌛', '...');
+          } else if (nv.status === 'assigned') {
+            sendBrowserNotif('Venta en camino 🛵', '...');
+            playSound('confirm');
+          } else if (nv.status === 'delivered') {
+            sendBrowserNotif('Venta entregada 🎉', prodNames);
+            playSound('confirm');
+          } else if (nv.status === 'confirmed') {
+            sendBrowserNotif('Venta cobrada 💰', prodNames);
+            playSound('confirm');
+          }
+        }
+      });
+    }
+    firstLoadVales = false;
+    
+    localStorage.setItem('axon_vales', JSON.stringify(newVales));
     isSyncingFromFirebase = false;
     refreshUI();
   });
@@ -490,6 +517,7 @@ function selectGestor(id) {
   }
 }
 function doSelectGestor(id) {
+  requestNotifPermission();
   listenToMyVales(id);
   activeGestorId=id;const g=gestorOf(id);
   document.getElementById('bannerAvatar').textContent=g.initials;
