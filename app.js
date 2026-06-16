@@ -4,39 +4,14 @@
 const IS_ADMIN = document.body.dataset.page === 'admin';
 
 // ══════════════════════════════════════════
-//  DATA LAYER
+//  DATA LAYER → ahora viene de js/db.js
 // ══════════════════════════════════════════
-const getGestores   = () => JSON.parse(localStorage.getItem('axon_gestores')   || '[]');
-const saveGestores  = v  => localStorage.setItem('axon_gestores',  JSON.stringify(v));
-const getVales      = () => JSON.parse(localStorage.getItem('axon_vales')      || '[]');
-const saveVales     = v  => localStorage.setItem('axon_vales',     JSON.stringify(v));
-const getMensajeros = () => JSON.parse(localStorage.getItem('axon_mensajeros') || '[]');
-const saveMensajeros= v  => localStorage.setItem('axon_mensajeros',JSON.stringify(v));
-const getProductos  = () => JSON.parse(localStorage.getItem('axon_productos')  || '[]');
-const saveProductos = v  => localStorage.setItem('axon_productos', JSON.stringify(v));
-const getCategorias = () => JSON.parse(localStorage.getItem('axon_categorias') || '[]');
-const saveCategorias= v  => localStorage.setItem('axon_categorias',JSON.stringify(v));
-const getConfig     = () => JSON.parse(localStorage.getItem('axon_config')     || '{}');
-const saveConfig    = v  => localStorage.setItem('axon_config',    JSON.stringify(v));
-const getNotifs     = () => JSON.parse(localStorage.getItem('axon_notifs')     || '[]');
-const saveNotifs    = v  => localStorage.setItem('axon_notifs',    JSON.stringify(v));
+// Las funciones getGestores, saveVales, patchProducto, etc.
+// se definen en js/db.js (cargado antes que app.js)
 
-function patchVale(id, changes) {
-  const all = getVales(); const i = all.findIndex(v=>v.id===id);
-  if (i!==-1){all[i]={...all[i],...changes};saveVales(all);}
-}
-function getNextValeNum() {
-  const cfg = getConfig();
-  const n = (cfg.nextValeNum || 1);
-  saveConfig({...cfg, nextValeNum: n + 1});
-  return n;
-}
+// Solo mantenemos funciones que aún no están en db.js
 function valeNumStr(v) {
   return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
-}
-function patchProducto(id, changes) {
-  const all = getProductos(); const i = all.findIndex(p=>p.id===id);
-  if (i!==-1){all[i]={...all[i],...changes};saveProductos(all);}
 }
 
 // ══════════════════════════════════════════
