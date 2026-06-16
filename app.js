@@ -17,27 +17,130 @@ function escapeHTML(str) {
 }
 
 // ══════════════════════════════════════════
-//  DATA LAYER
+//  FIREBASE SETUP & DATA LAYER
 // ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU",
+  authDomain: "axontech.firebaseapp.com",
+  databaseURL: "https://axontech-default-rtdb.firebaseio.com",
+  projectId: "axontech",
+  storageBucket: "axontech.firebasestorage.app",
+  messagingSenderId: "780537360829",
+  appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let isSyncingFromFirebase = false;
+
+const setFB = (path, v) => {
+  if(!isSyncingFromFirebase) db.ref(path).set(v).catch(e => console.error("Firebase err:", e));
+};
+
 const getGestores   = () => JSON.parse(localStorage.getItem('axon_gestores')   || '[]');
-const saveGestores  = v  => localStorage.setItem('axon_gestores',  JSON.stringify(v));
+const saveGestores  = v  => { localStorage.setItem('axon_gestores',  JSON.stringify(v)); setFB('gestores', v); };
+
 const getVales      = () => JSON.parse(localStorage.getItem('axon_vales')      || '[]');
-const saveVales     = v  => localStorage.setItem('axon_vales',     JSON.stringify(v));
+// Remove auto-sync of ALL vales to prevent race conditions. Vales will be synced individually.
+const saveVales     = v  => { localStorage.setItem('axon_vales',     JSON.stringify(v)); };
+
 const getMensajeros = () => JSON.parse(localStorage.getItem('axon_mensajeros') || '[]');
-const saveMensajeros= v  => localStorage.setItem('axon_mensajeros',JSON.stringify(v));
+const saveMensajeros= v  => { localStorage.setItem('axon_mensajeros',JSON.stringify(v)); setFB('mensajeros', v); };
+
 const getProductos  = () => JSON.parse(localStorage.getItem('axon_productos')  || '[]');
-const saveProductos = v  => localStorage.setItem('axon_productos', JSON.stringify(v));
+const saveProductos = v  => { localStorage.setItem('axon_productos', JSON.stringify(v)); setFB('productos', v); };
+
 const getCategorias = () => JSON.parse(localStorage.getItem('axon_categorias') || '[]');
-const saveCategorias= v  => localStorage.setItem('axon_categorias',JSON.stringify(v));
+const saveCategorias= v  => { localStorage.setItem('axon_categorias',JSON.stringify(v)); setFB('categorias', v); };
+
 const getConfig     = () => JSON.parse(localStorage.getItem('axon_config')     || '{}');
-const saveConfig    = v  => localStorage.setItem('axon_config',    JSON.stringify(v));
+const saveConfig    = v  => { localStorage.setItem('axon_config',    JSON.stringify(v)); setFB('config', v); };
+
 const getNotifs     = () => JSON.parse(localStorage.getItem('axon_notifs')     || '[]');
-const saveNotifs    = v  => localStorage.setItem('axon_notifs',    JSON.stringify(v));
+const saveNotifs    = v  => { localStorage.setItem('axon_notifs',    JSON.stringify(v)); setFB('notifs', v); };
+
+// Custom Firebase Vale individual operations
+function fbAddVale(v) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).set(v); }
+function fbUpdateVale(v, changes) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).update(changes); }
+function fbRemoveVale(v) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).remove(); }
+
+function refreshUI() {
+  if(IS_ADMIN) {
+    if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
+    if(typeof renderGestores === 'function') renderGestores();
+    if(typeof renderAdminGestores === 'function') renderAdminGestores();
+    if(typeof renderInbox === 'function') renderInbox();
+    if(typeof renderMensajeros === 'function') renderMensajeros();
+    if(typeof renderProductGrid === 'function') renderProductGrid();
+    if(typeof renderStockCategorias === 'function') renderStockCategorias();
+    if(typeof renderValeDetail === 'function' && typeof selectedValeId !== 'undefined' && selectedValeId) renderValeDetail();
+  } else {
+    if(typeof renderGestores === 'function') renderGestores();
+    if(typeof renderGestorNotifs === 'function') renderGestorNotifs();
+    if(typeof renderMyVales === 'function') renderMyVales();
+    if(typeof renderGestorRanking === 'function') renderGestorRanking();
+    if(typeof renderGestorCatalog === 'function') {
+       if(document.getElementById('gestorCatalogModal')?.classList.contains('show')) {
+           renderGestorCatalog();
+       }
+    }
+  }
+}
+
+// Base Listeners (Everything except vales)
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs'].forEach(node => {
+  db.ref(node).on('value', snap => {
+    isSyncingFromFirebase = true;
+    const val = snap.val();
+    if (val) localStorage.setItem('axon_'+node, JSON.stringify(val));
+    else localStorage.setItem('axon_'+node, node==='config'?'{}':'[]');
+    isSyncingFromFirebase = false;
+    refreshUI();
+  });
+});
+
+// Vales Listeners
+if (IS_ADMIN) {
+  // Admin listens to ALL vales from all gestores
+  db.ref('vales').on('value', snap => {
+    isSyncingFromFirebase = true;
+    const val = snap.val();
+    let flatVales = [];
+    if (val) {
+      Object.values(val).forEach(gVales => {
+        if(gVales) flatVales.push(...Object.values(gVales));
+      });
+    }
+    // Order by descending timestamp
+    flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+    localStorage.setItem('axon_vales', JSON.stringify(flatVales));
+    isSyncingFromFirebase = false;
+    refreshUI();
+  });
+}
+
+let gestorValesListener = null;
+function listenToMyVales(gId) {
+  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
+    isSyncingFromFirebase = true;
+    const val = snap.val();
+    const myVales = val ? Object.values(val) : [];
+    myVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+    localStorage.setItem('axon_vales', JSON.stringify(myVales));
+    isSyncingFromFirebase = false;
+    refreshUI();
+  });
+}
 
 function patchVale(id, changes) {
   const all = getVales(); const i = all.findIndex(v=>v.id===id);
-  if (i!==-1){all[i]={...all[i],...changes};saveVales(all);}
+  if (i!==-1){
+    all[i]={...all[i],...changes};
+    saveVales(all);
+    fbUpdateVale(all[i], changes);
+  }
 }
+
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
@@ -373,6 +476,7 @@ function selectGestor(id) {
   }
 }
 function doSelectGestor(id) {
+  listenToMyVales(id);
   activeGestorId=id;const g=gestorOf(id);
   document.getElementById('bannerAvatar').textContent=g.initials;
   document.getElementById('bannerAvatar').style.background=g.color;
@@ -1039,7 +1143,9 @@ function cancelVale(id) {
   const v=getVales().find(x=>x.id===id);
   if(!v||v.status!=='pending'){showToast('No se puede cancelar este vale');return;}
   showConfirmAction('¿Cancelar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Sí, cancelar','btn-red',()=>{
+    const v_del = getVales().find(x=>x.id===id);
     saveVales(getVales().filter(x=>x.id!==id));
+    if(v_del) fbRemoveVale(v_del);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Vale cancelado');
     renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();maybeAutoSync();
@@ -1050,7 +1156,9 @@ function adminDeleteVale(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   if(v.status==='confirmed'){showToast('Revertir la confirmación antes de eliminar');return;}
   showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
+    const v_del = getVales().find(x=>x.id===id);
     saveVales(getVales().filter(x=>x.id!==id));
+    if(v_del) fbRemoveVale(v_del);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Vale eliminado');
     renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();maybeAutoSync();
@@ -1132,6 +1240,7 @@ function sendVale() {
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
   };
   const all=getVales();all.push(vale);saveVales(all);
+  fbAddVale(vale);
   resetForm();renderGestores();renderMyVales();updateAdminBadge();
   playSound('vale');maybeAutoSync();
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
@@ -2050,7 +2159,15 @@ function importData(input) {
       if(data.mensajeros)saveMensajeros(data.mensajeros);
       if(data.productos)saveProductos(data.productos);
       if(data.categorias)saveCategorias(data.categorias);
-      if(data.vales)saveVales(data.vales);
+      if(data.vales) {
+        saveVales(data.vales);
+        const obj = {};
+        data.vales.forEach(v => {
+           if(!obj[v.gestorId]) obj[v.gestorId] = {};
+           obj[v.gestorId][v.id] = v;
+        });
+        db.ref('vales').set(obj);
+      }
       if(data.notifs)saveNotifs(data.notifs);
       // Reload UI
       activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
@@ -2156,7 +2273,15 @@ async function loadFromGitHub() {
     if(data.mensajeros)saveMensajeros(data.mensajeros);
     if(data.productos)saveProductos(data.productos);
     if(data.categorias)saveCategorias(data.categorias);
-    if(data.vales)saveVales(data.vales);
+    if(data.vales) {
+        saveVales(data.vales);
+        const obj = {};
+        data.vales.forEach(v => {
+           if(!obj[v.gestorId]) obj[v.gestorId] = {};
+           obj[v.gestorId][v.id] = v;
+        });
+        db.ref('vales').set(obj);
+      }
     if(statusEl)statusEl.innerHTML='<span style="color:var(--green);">✓ Datos restaurados desde GitHub</span>';
     activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
     renderGestores();renderGestorRanking();renderAdminGestores();renderInbox();
@@ -2377,27 +2502,6 @@ function toggleTheme() {
   const btn=document.getElementById('btnTheme');if(btn)btn.textContent=isDark?'☀️':'🌙';
 }
 
-// ══════════════════════════════════════════
-//  CROSS-TAB SYNC (STORAGE EVENT)
-// ══════════════════════════════════════════
-window.addEventListener('storage', e => {
-  if (e.key && e.key.startsWith('axon_')) {
-    // Reload state if modified in another tab
-    if(IS_ADMIN) {
-      renderAdminGestoresList();
-      renderGestores();
-      renderAdminGestores();
-      renderInbox();
-      renderMensajeros();
-      renderProductGrid();
-    } else {
-      renderGestores();
-      renderGestorNotifs();
-      renderMyVales();
-      renderGestorRanking();
-    }
-  }
-});
 
 // ══════════════════════════════════════════
 //  INITIAL DATA LOAD & GESTOR PULL
@@ -2405,7 +2509,7 @@ window.addEventListener('storage', e => {
 async function loadInitialData() {
   if (getGestores().length || getProductos().length) {
     // If user is gestor, silently try to pull updates in background
-    if(!IS_ADMIN) pullGestorUpdates(true);
+    
     return;
   }
   try {
@@ -2419,30 +2523,6 @@ async function loadInitialData() {
   } catch(e) {}
 }
 
-async function pullGestorUpdates(silent = false) {
-  if (IS_ADMIN) return; // Admins use the config panel
-  try {
-    if(!silent) showToast('Descargando actualizaciones...');
-    const res = await fetch('./data.json?t=' + Date.now());
-    if (!res.ok) throw new Error('No se pudo descargar data.json');
-    const data = await res.json();
-    
-    // Only update non-destructive data for Gestores (passwords, products, categories)
-    if (data.gestores) saveGestores(data.gestores);
-    if (data.mensajeros) saveMensajeros(data.mensajeros);
-    if (data.productos) saveProductos(data.productos);
-    if (data.categorias) saveCategorias(data.categorias);
-    
-    // Refresh UI
-    renderGestores();
-    if(document.getElementById('gestorCatalogModal')?.classList.contains('show')){
-      renderGestorCatalog();
-    }
-    if(!silent) showToast('¡Datos, contraseñas y catálogo actualizados! ✓');
-  } catch(e) {
-    if(!silent) showToast('Error al actualizar: ' + e.message);
-  }
-}
 
 // ══════════════════════════════════════════
 //  INIT

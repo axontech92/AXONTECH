@@ -5,21 +5,21 @@
       "name": "Carlos",
       "initials": "C",
       "color": "#2563EB",
-      "password": "7ZQDJY"
+      "password": "DA7N96"
     },
     {
       "id": 1781533153566,
       "name": "Pedro",
       "initials": "P",
       "color": "#7C3AED",
-      "password": "VBUBM2"
+      "password": "ZVSTP4"
     },
     {
       "id": 1781533160002,
       "name": "Karla",
       "initials": "K",
       "color": "#059669",
-      "password": "8E5C4A"
+      "password": "AEP43K"
     }
   ],
   "mensajeros": [
@@ -756,6 +756,167 @@
       "name": "Gym"
     }
   ],
-  "vales": [],
-  "timestamp": "2026-06-16T20:47:07.104Z"
+  "vales": [
+    {
+      "id": 1781533261043,
+      "gestorId": 1781533160002,
+      "ts": "2026-06-15T14:21:01.043Z",
+      "cliente": "Bsjj",
+      "telefono": "4646",
+      "direccion": "Jejej",
+      "mensajeria": "Wiwi",
+      "articulo": "Router x1",
+      "precioUSD": "Bsjs",
+      "precioCUP": "Hwjwj",
+      "vuelto": "Jwjwk",
+      "total": "Wjjwkw",
+      "garantia": "",
+      "valeProductos": [
+        {
+          "id": 1781533209591,
+          "name": "Router",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Bsjj\n🔸Teléfono Cliente: 4646\n🔸Dirección Cliente: Jejej\n🔸Mensajería/ costo: Wiwi\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: Bsjs\n🔸Precio CUP: Hwjwj\n🔸 Vuelto: Jwjwk\n🔸 Total a pagar: Wjjwkw\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 10:20\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "status": "delivered",
+      "mensajeroId": 1781533316958,
+      "confirmedTs": null,
+      "isNew": false,
+      "deliveredTs": "2026-06-15T14:22:34.287Z"
+    },
+    {
+      "id": 1781545219507,
+      "gestorId": 1781533148554,
+      "ts": "2026-06-15T17:40:19.507Z",
+      "cliente": "Bwhej",
+      "telefono": "61616",
+      "direccion": "Jeueue",
+      "mensajeria": "Ueueu",
+      "articulo": "Router x1",
+      "precioUSD": "$68 USD",
+      "precioCUP": "Jeueueu",
+      "vuelto": "5",
+      "total": "$68 USD",
+      "garantia": "",
+      "valeProductos": [
+        {
+          "id": 1781533209591,
+          "name": "Router",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Bwhej\n🔸Teléfono Cliente: 61616\n🔸Dirección Cliente: Jeueue\n🔸Mensajería/ costo: Ueueu\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: $68 USD\n🔸Precio CUP: Jeueueu\n🔸 Vuelto: 5\n🔸 Total a pagar: $68 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 13:39\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "status": "confirmed",
+      "mensajeroId": 1781533316958,
+      "confirmedTs": "2026-06-15T17:43:18.512Z",
+      "isNew": false,
+      "deliveredTs": "2026-06-15T17:41:50.921Z",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-15T19:31:18.803Z"
+    },
+    {
+      "id": 1781546431233,
+      "gestorId": 1781533148554,
+      "ts": "2026-06-15T18:00:31.234Z",
+      "cliente": "Jwjej",
+      "telefono": "9494",
+      "direccion": "Bendj",
+      "mensajeria": "Jeje",
+      "articulo": "Router x1",
+      "precioUSD": "$68 USD",
+      "precioCUP": "Hwjeje",
+      "vuelto": "2yu2",
+      "total": "$68 USD",
+      "garantia": "",
+      "valeProductos": [
+        {
+          "id": 1781533209591,
+          "name": "Router",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Jwjej\n🔸Teléfono Cliente: 9494\n🔸Dirección Cliente: Bendj\n🔸Mensajería/ costo: Jeje\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: $68 USD\n🔸Precio CUP: Hwjeje\n🔸 Vuelto: 2yu2\n🔸 Total a pagar: $68 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 13:59\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "status": "confirmed",
+      "mensajeroId": null,
+      "confirmedTs": "2026-06-15T18:01:07.184Z",
+      "isNew": false,
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-15T19:31:26.544Z"
+    },
+    {
+      "id": 1781546582461,
+      "gestorId": 1781533148554,
+      "ts": "2026-06-15T18:03:02.461Z",
+      "cliente": "Bejej",
+      "telefono": "61646",
+      "direccion": "Hejeue",
+      "mensajeria": "Wyue7",
+      "articulo": "Yeyeuei",
+      "precioUSD": "Eueu",
+      "precioCUP": "5373737",
+      "vuelto": "5",
+      "total": "J2j2",
+      "garantia": "",
+      "valeProductos": [],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Bejej\n🔸Teléfono Cliente: 61646\n🔸Dirección Cliente: Hejeue\n🔸Mensajería/ costo: Wyue7\n🔸 Artículo y cantidad: Yeyeuei\n🔸Precio USD/ zelle: Eueu\n🔸Precio CUP: 5373737\n🔸 Vuelto: 5\n🔸 Total a pagar: J2j2\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 14:02\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "status": "delivered",
+      "mensajeroId": 1781533321165,
+      "confirmedTs": null,
+      "isNew": false,
+      "deliveredTs": "2026-06-15T20:24:05.783Z"
+    },
+    {
+      "id": 1781555740351,
+      "gestorId": 1781533153566,
+      "ts": "2026-06-15T20:35:40.351Z",
+      "cliente": "Uwieie",
+      "telefono": "313232",
+      "direccion": "Ejkekie",
+      "mensajeria": "Ueeiei",
+      "articulo": "Ruter",
+      "precioUSD": "65",
+      "precioCUP": "Ueue",
+      "vuelto": "Jeje",
+      "total": "Jejej",
+      "garantia": "",
+      "valeProductos": [],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Pedro\n\n🔸 Nombre Cliente: Uwieie\n🔸Teléfono Cliente: 313232\n🔸Dirección Cliente: Ejkekie\n🔸Mensajería/ costo: Ueeiei\n🔸 Artículo y cantidad: Ruter\n🔸Precio USD/ zelle: 65\n🔸Precio CUP: Ueue\n🔸 Vuelto: Jeje\n🔸 Total a pagar: Jejej\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 16:34\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "status": "confirmed",
+      "mensajeroId": null,
+      "confirmedTs": "2026-06-15T20:36:11.402Z",
+      "isNew": false,
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-15T20:36:51.784Z"
+    },
+    {
+      "id": 1781556172163,
+      "gestorId": 1781533153566,
+      "ts": "2026-06-15T20:42:52.163Z",
+      "cliente": "Heiei",
+      "telefono": "916261",
+      "direccion": "Hejeje",
+      "mensajeria": "6",
+      "articulo": "Casa x1",
+      "precioUSD": "$60 USD",
+      "precioCUP": "",
+      "vuelto": "5",
+      "total": "$60 USD",
+      "garantia": "",
+      "valeProductos": [
+        {
+          "id": 1781556054777,
+          "name": "Casa",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Pedro\n\n🔸 Nombre Cliente: Heiei\n🔸Teléfono Cliente: 916261\n🔸Dirección Cliente: Hejeje\n🔸Mensajería/ costo: 6\n🔸 Artículo y cantidad: Casa x1\n🔸Precio USD/ zelle: $60 USD\n🔸Precio CUP: \n🔸 Vuelto: 5\n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 16:42\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "status": "confirmed",
+      "mensajeroId": 1781533316958,
+      "confirmedTs": "2026-06-15T20:46:02.547Z",
+      "isNew": false,
+      "deliveredTs": "2026-06-15T20:44:09.650Z"
+    }
+  ],
+  "timestamp": "2026-06-16T00:43:34.755Z"
 }

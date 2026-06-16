@@ -27,7 +27,6 @@
   <span id="headerGestorName"></span>
   <div class="header-right">
     <div class="header-date" id="headerDate"></div>
-    <button onclick="pullGestorUpdates()" title="Actualizar precios y contraseñas" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">🔄 Sync</button>
     <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
     <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
   </div>
@@ -279,6 +278,8 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
