@@ -86,7 +86,7 @@ function refreshUI() {
 }
 
 // Base Listeners (Everything except vales)
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs'].forEach(node => {
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'ranking_summary'].forEach(node => {
   db.ref(node).on('value', snap => {
     isSyncingFromFirebase = true;
     const val = snap.val();
@@ -114,6 +114,15 @@ if (IS_ADMIN) {
     localStorage.setItem('axon_vales', JSON.stringify(flatVales));
     isSyncingFromFirebase = false;
     refreshUI();
+
+    // Push ranking summary for Gestores
+    const gestores = getGestores();
+    const summary = gestores.map(g => {
+      const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+        .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+      return { id: g.id, pts };
+    });
+    db.ref('ranking_summary').set(summary);
   });
 }
 
@@ -2118,11 +2127,24 @@ function renderGestorRanking() {
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-text">Sin gestores configurados</div></div>';return;}
   const meta=getConfig().metaPuntos||0;
   if(rankingCache&&(Date.now()-rankingCache.ts<15000)){c.innerHTML=rankingCache.html;return;}
-  const vales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
+  
+  const sumStr = localStorage.getItem('axon_ranking_summary');
+  let summary = [];
+  if (sumStr) {
+    summary = JSON.parse(sumStr);
+  } else {
+    // fallback if no summary
+    const vales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
+    summary = gestores.map(g=>{
+      const pts=vales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+        sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+      return {id: g.id, pts};
+    });
+  }
+
   const ranked=gestores.map(g=>{
-    const pts=vales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-    return{...g,pts};
+    const s = summary.find(x => x.id === g.id);
+    return {...g, pts: s ? s.pts : 0};
   }).sort((a,b)=>b.pts-a.pts);
   const medals=['🥇','🥈','🥉'];
   const barGradients=[
