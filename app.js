@@ -391,9 +391,9 @@ function closeGestorPassModal(){
   pendingGestorId=null;
 }
 function submitGestorPass() {
-  const val=document.getElementById('gestorPassInput').value;
+  const val=document.getElementById('gestorPassInput').value.trim().toUpperCase();
   const g=gestorOf(pendingGestorId);if(!g)return;
-  if(val===g.password){
+  if(val===(g.password?g.password.toUpperCase():'')){
     const id=pendingGestorId;   // save before closeGestorPassModal sets it to null
     closeGestorPassModal();
     doSelectGestor(id);
