@@ -120,8 +120,24 @@ if (IS_ADMIN) {
   db.ref(node).on('value', snap => {
     isSyncingFromFirebase = true;
     const val = snap.val();
-    if (val) localStorage.setItem('axon_'+node, JSON.stringify(val));
-    else localStorage.setItem('axon_'+node, node==='config'?'{}':'[]');
+    
+    // If Firebase is completely empty but we have local data (e.g. from data.json),
+    // don't wipe it out immediately. Instead, if we are Admin, we will push it.
+    // If we are Gestor, we just wait.
+    if (!val) {
+      const local = localStorage.getItem('axon_'+node);
+      if (!local || local === '[]' || local === '{}') {
+        localStorage.setItem('axon_'+node, node==='config'?'{}':'[]');
+      }
+    } else {
+      let parsedVal = val;
+      // Convert Firebase objects with numeric keys back to real arrays
+      if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
+        parsedVal = Object.values(val);
+      }
+      localStorage.setItem('axon_'+node, JSON.stringify(parsedVal));
+    }
+    
     isSyncingFromFirebase = false;
     refreshUI();
   });
@@ -2620,21 +2636,24 @@ function toggleTheme() {
 // ══════════════════════════════════════════
 //  INITIAL DATA LOAD & GESTOR PULL
 // ══════════════════════════════════════════
+
 async function loadInitialData() {
-  if (getGestores().length || getProductos().length) {
-    // If user is gestor, silently try to pull updates in background
-    
-    return;
+  // Always try to load data.json if localStorage is empty
+  if (getGestores().length === 0 && getProductos().length === 0) {
+    try {
+      const res = await fetch('./data.json?t=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        // Skip Firebase save during initial local fallback load
+        isSyncingFromFirebase = true;
+        if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+        if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+        if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+        if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+        isSyncingFromFirebase = false;
+      }
+    } catch(e) {}
   }
-  try {
-    const res = await fetch('./data.json?t=' + Date.now());
-    if (!res.ok) return;
-    const data = await res.json();
-    if (data.gestores  && data.gestores.length)  saveGestores(data.gestores);
-    if (data.mensajeros&& data.mensajeros.length) saveMensajeros(data.mensajeros);
-    if (data.productos && data.productos.length)  saveProductos(data.productos);
-    if (data.categorias&& data.categorias.length) saveCategorias(data.categorias);
-  } catch(e) {}
 }
 
 
