@@ -20,7 +20,7 @@
     body.dark .col-left, body.dark .col-right { background:var(--surface); }
     body.dark .col-mid { background:var(--surface2); }
     body.dark .card { background:var(--surface); border-color:var(--border); }
-    body.dark input, body.dark select, body.dark textarea { background:var(--input-bg); border-color:var(--border); color:var(--text); }
+    body.dark input, body.dark select, body.dark textarea { background:var(--surface); border-color:var(--gray-400); color:var(--text); }
     body.dark input::placeholder, body.dark textarea::placeholder { color:var(--gray-400); }
     body.dark .btn-ghost { background:var(--gray-100); color:var(--gray-700); border-color:var(--border); }
     body.dark .btn-ghost:hover { background:var(--gray-200); }
@@ -209,7 +209,7 @@
     .lbl { font-size:10px; font-weight:700; letter-spacing:1.5px; color:var(--gray-400); text-transform:uppercase; margin-bottom:8px; margin-top:16px; }
     .lbl:first-child { margin-top:0; }
     .card { background:white; border:1px solid var(--gray-200); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
-    input, select, textarea { width:100%; border:1px solid var(--gray-200); border-radius:8px; padding:8px 11px; font-size:13px; color:var(--gray-900); outline:none; background:white; transition:border-color .15s,box-shadow .15s; font-family:inherit; resize:vertical; }
+    input, select, textarea { width:100%; border:1px solid var(--gray-300); border-radius:8px; padding:8px 11px; font-size:13px; color:var(--gray-900); outline:none; background:white; transition:border-color .15s,box-shadow .15s; font-family:inherit; resize:vertical; }
     input:focus, select:focus, textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-lt); }
     .btn { border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
     .btn-blue   { background:var(--blue); color:white; }

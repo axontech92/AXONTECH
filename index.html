@@ -26,6 +26,9 @@
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
+    <button onclick="openNotifsModal()" title="Ver Novedades" style="position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+      📢 Novedades <span id="notifUnreadBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 5px;font-size:9px;"></span>
+    </button>
     <div class="header-date" id="headerDate"></div>
     <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
     <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
@@ -42,14 +45,7 @@
       <div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>
     </div>
     <div class="g-change" onclick="changeGestor()">← Cambiar gestor</div>
-    <!-- Novedades de stock -->
-    <div id="gestorNotifsSection">
-      <div class="notif-header-row" style="margin-top:20px;">
-        <div class="lbl" style="margin:0;">📢 Novedades <span id="notifUnreadBadge" class="notif-badge" style="display:none;position:relative;top:0;font-size:9px;padding:1px 5px;"></span></div>
-        <button class="notif-clear-btn" onclick="clearGestorNotifs()">Limpiar</button>
-      </div>
-      <div id="gestorNotifsList"></div>
-    </div>
+
 
   </div>
 
@@ -283,6 +279,23 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ── MODAL: Novedades ── -->
+<div class="modal-bg" id="notifsModal">
+  <div class="modal" style="max-width:400px;width:92%;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin:0;">📢 Novedades</div>
+      <button class="btn btn-ghost btn-sm" onclick="clearGestorNotifs()" style="font-size:10px;padding:4px 8px;">Limpiar</button>
+    </div>
+    <div id="gestorNotifsSection" style="display:block;">
+      <div id="gestorNotifsList" style="max-height:60vh;overflow-y:auto;padding-right:4px;"></div>
+    </div>
+    <div class="modal-btns" style="margin-top:14px;">
+      <button class="btn btn-blue btn-full" onclick="closeNotifsModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>

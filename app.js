@@ -203,26 +203,57 @@ function addNotif(type, productName, productId, extra, gestorId) {
   renderGestorNotifs();
 }
 
+function openNotifsModal() {
+  const gId = activeGestorId ? activeGestorId : 'global';
+  localStorage.setItem('axon_viewed_ts_' + gId, Date.now());
+  renderGestorNotifs();
+  document.getElementById('notifsModal').classList.add('show');
+}
+function closeNotifsModal() {
+  document.getElementById('notifsModal').classList.remove('show');
+}
+function clearGestorNotifs() {
+  const gId = activeGestorId ? activeGestorId : 'global';
+  localStorage.setItem('axon_cleared_ts_' + gId, Date.now());
+  renderGestorNotifs();
+  closeNotifsModal();
+}
 function renderGestorNotifs() {
   const notifs = getNotifs();
   const cutoff = Date.now() - 72*60*60*1000;
   
-  const validNotifs = notifs.filter(n => new Date(n.ts).getTime() > cutoff);
+  const gId = activeGestorId ? activeGestorId : 'global';
+  const clearedTs = parseInt(localStorage.getItem('axon_cleared_ts_' + gId) || '0');
+  const viewedTs = parseInt(localStorage.getItem('axon_viewed_ts_' + gId) || '0');
+
+  // Global Notifs
+  const globalNotifs = notifs.filter(n => {
+    const nTs = new Date(n.ts).getTime();
+    return nTs > cutoff && nTs > clearedTs && !['vale_confirmed', 'vale_assigned'].includes(n.type);
+  });
   
-  // Separate into Global and Personal
-  const globalNotifs = validNotifs.filter(n => !['vale_confirmed', 'vale_assigned'].includes(n.type));
-  const personalNotifs = validNotifs.filter(n => ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId);
+  // Personal Notifs (never cleared by the global clear button, just fade after 72 hours)
+  const personalNotifs = notifs.filter(n => {
+    const nTs = new Date(n.ts).getTime();
+    return nTs > cutoff && ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
+  });
 
   const sec = document.getElementById('gestorNotifsSection');
   const personalSec = document.getElementById('gestorPersonalNotifsSection');
   
   const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵'};
   
-  const renderItem = n => {
+  const renderItem = (n, isPersonal) => {
     const icon=icons[n.type]||'📢';
     const age=timeAgo(n.ts);
     const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned'].includes(n.type)?'ok':'';
-    const cls=!n.read?'unread':`type-${typeClass}`;
+    const nTs = new Date(n.ts).getTime();
+    
+    // For personal, we don't track unread badge in the header, so just style them normally
+    // For global, style as unread if newer than viewedTs
+    const isUnread = !isPersonal && (nTs > viewedTs);
+    const cls=isUnread?'unread':`type-${typeClass}`;
+    
     let msg='';
     if(n.type==='sale_product'){
       const parts=(n.extra||'').split('|');
@@ -254,14 +285,14 @@ function renderGestorNotifs() {
   };
 
   if(sec) {
+    const unread = globalNotifs.filter(n => new Date(n.ts).getTime() > viewedTs).length;
+    const badge = document.getElementById('notifUnreadBadge');
+    if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
+    
     if(!globalNotifs.length) {
-      sec.style.display='none';
+      document.getElementById('gestorNotifsList').innerHTML = '<div class="es" style="padding:10px;"><div class="es-text">No hay alertas recientes.</div></div>';
     } else {
-      sec.style.display='block';
-      const unread = globalNotifs.filter(n=>!n.read).length;
-      const badge = document.getElementById('notifUnreadBadge');
-      if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
-      document.getElementById('gestorNotifsList').innerHTML = globalNotifs.map(renderItem).join('');
+      document.getElementById('gestorNotifsList').innerHTML = globalNotifs.map(n => renderItem(n, false)).join('');
     }
   }
 
@@ -270,93 +301,9 @@ function renderGestorNotifs() {
       personalSec.style.display='none';
     } else {
       personalSec.style.display='block';
-      document.getElementById('gestorPersonalNotifsList').innerHTML = personalNotifs.map(renderItem).join('');
+      document.getElementById('gestorPersonalNotifsList').innerHTML = personalNotifs.map(n => renderItem(n, true)).join('');
     }
   }
-}
-function clearGestorNotifs() {
-  saveNotifs([]); renderGestorNotifs();
-}
-
-function timeAgo(ts) {
-  const diff = Date.now() - new Date(ts).getTime();
-  const m = Math.floor(diff/60000);
-  if (m < 1) return 'ahora';
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m/60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h/24)}d`;
-}
-
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let activeGestorId    = null;
-let activeMensajeroId = null;
-let adminActive       = false;
-let selectedValeId    = null;
-let inboxFilter       = 'all';
-let adminGestorFilter = null;
-let shareTargetId     = null;
-let currentAdminTab   = 'vales';
-let stockCatFilter    = null;
-let editingProductId  = null;
-let pickerSelected    = {};   // {productId: qty}
-let pickerCatFilter   = null;
-let catalogCatFilter  = null;
-let expandedCatalogId = null;
-let selectedProductsUI= [];   // [{id,name,qty}] for current vale form
-let currentValeProductos = []; // saved on sendVale
-let pendingGestorId      = null;  // for gestor pass modal
-let activeComisionGestorId = null; // for commissions panel
-// Lazy loading flags
-let gestoresTabDirty = true;
-let statsTabDirty    = true;
-// Ranking cache
-let rankingCache = null; // {data: [...], ts: 0}
-// Confirm action callback
-let confirmActionCb  = null;
-
-// ══════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════
-const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#BE185D','#1D4ED8'];
-const gestorOf    = id => getGestores().find(g=>g.id===id);
-const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
-const productoOf  = id => getProductos().find(p=>p.id===id);
-const todayStr    = () => new Date().toDateString();
-const timeStr     = ts => new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-const nowDateTime = () => new Date().toLocaleDateString('es-ES')+' '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
-const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
-const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
-
-// ══════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════
-function checkPass(input) {
-  return btoa(input)===(localStorage.getItem('axon_admin_hash')||btoa('axon2024'));
-}
-function changePass() {
-  const np = document.getElementById('newPassInput').value.trim();
-  if (!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
-  localStorage.setItem('axon_admin_hash',btoa(np));
-  document.getElementById('newPassInput').value='';
-  showToast('Contraseña actualizada ✓');
-}
-
-// ══════════════════════════════════════════
-//  SOUND
-// ══════════════════════════════════════════
-function playSound(type) {
-  try {
-    const ac=new(window.AudioContext||window.webkitAudioContext)();
-    const g=ac.createGain();g.connect(ac.destination);
-    g.gain.setValueAtTime(0.08,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);
-    const tones={login:[[880,0],[1100,.15]],vale:[[660,0],[800,.18]],confirm:[[440,0],[660,.15],[880,.3]]};
-    (tones[type]||[]).forEach(([f,d])=>{const o=ac.createOscillator();o.connect(g);o.frequency.value=f;o.start(ac.currentTime+d);o.stop(ac.currentTime+d+.18);});
-  } catch(e){}
 }
 
 // ══════════════════════════════════════════
@@ -380,7 +327,18 @@ function updateDate() {
   if(fEl)fEl.value=nowDateTime();
 }
 function requestNotifPermission() {
-  if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();
+  if('Notification' in window) {
+    Notification.requestPermission().then(p => {
+       if(p === 'granted') {
+          showToast('Notificaciones activadas ✓');
+          doSelectGestor(activeGestorId);
+       } else {
+          showToast('Permiso denegado por el navegador');
+       }
+    });
+  } else {
+    showToast('Este navegador no soporta notificaciones push');
+  }
 }
 function sendBrowserNotif(title,body) {
   if('Notification'in window&&Notification.permission==='granted'){
@@ -533,6 +491,13 @@ function doSelectGestor(id) {
   document.getElementById('bannerAvatar').style.background=g.color;
   document.getElementById('bannerLbl').textContent='HOLA, ESTÁS EN TU ÁREA';
   document.getElementById('bannerName').textContent=g.name;
+
+    const perms = ('Notification' in window && Notification.permission);
+    let nBtn = '';
+    if(perms === 'default' || perms === 'denied') {
+      nBtn = `<button type="button" onclick="requestNotifPermission()" style="background:rgba(239,68,68,.1);border:1px solid var(--red);color:var(--red);border-radius:6px;font-size:10px;padding:3px 8px;font-weight:700;margin-top:6px;cursor:pointer;">🔔 Activar alertas push</button>`;
+    }
+  document.getElementById('bannerName').innerHTML = g.name + (nBtn ? '<br>'+nBtn : '');
   document.getElementById('headerGestorName').textContent='· '+g.name;
   document.getElementById('vf-promotor').value=g.name;
   document.getElementById('mobileBackName').textContent=g.name;
