@@ -58,6 +58,52 @@ const saveConfig    = v  => { localStorage.setItem('axon_config',    JSON.string
 const getNotifs     = () => JSON.parse(localStorage.getItem('axon_notifs')     || '[]');
 const saveNotifs    = v  => { localStorage.setItem('axon_notifs',    JSON.stringify(v)); setFB('notifs', v); };
 
+let gestorValesListener = null;
+let firstLoadVales = true;
+function listenToMyVales(gId) {
+  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+  firstLoadVales = true;
+  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
+    isSyncingFromFirebase = true;
+    const val = snap.val();
+    const newVales = val ? Object.values(val) : [];
+    newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+    
+    if (!firstLoadVales) {
+      const oldVales = getVales();
+      newVales.forEach(nv => {
+        const ov = oldVales.find(x => x.id === nv.id);
+        if (ov && ov.status !== nv.status) {
+          const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name}` : p.name).join(', ');
+          
+          if (nv.status === 'assigned') {
+            sendBrowserNotif('Venta en camino 🛵', '...');
+            playSound('confirm');
+          } else if (nv.status === 'delivered') {
+            sendBrowserNotif('Venta entregada 🎉', prodNames);
+            playSound('confirm');
+          } else if (nv.status === 'confirmed') {
+            let amtStr = '';
+            if(typeof getValeCommissionParts === 'function'){
+              const cp = getValeCommissionParts(nv);
+              if(cp.total !== null && cp.total > 0) {
+                 amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+              }
+            }
+            sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+            playSound('confirm');
+          }
+        }
+      });
+    }
+    firstLoadVales = false;
+    
+    localStorage.setItem('axon_vales', JSON.stringify(newVales));
+    isSyncingFromFirebase = false;
+    refreshUI();
+  });
+}
+
 // Custom Firebase Vale individual operations
 function fbAddVale(v) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).set(v); }
 function fbUpdateVale(v, changes) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).update(changes); }
