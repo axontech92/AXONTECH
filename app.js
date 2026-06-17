@@ -88,139 +88,32 @@ function refreshUI() {
 
 // Initialize empty Firebase from local if Admin
 if (IS_ADMIN) {
-  db.ref('.info/connected').on('value', function(snap) {
-    if (snap.val() === true) {
+  setTimeout(() => {
+    db.ref('.info/connected').once('value').then(() => {
       db.ref('gestores').once('value').then(s => {
-        if (!s.val() && (getGestores().length > 0 || getProductos().length > 0)) {
-           // Database is completely empty, but Admin has local data. Push to cloud!
-           isSyncingFromFirebase = true;
-           setFB('gestores', getGestores());
-           setFB('mensajeros', getMensajeros());
-           setFB('productos', getProductos());
-           setFB('categorias', getCategorias());
-           setFB('config', getConfig());
-           
-           // Repackage vales by Gestor
-           const localVales = getVales();
-           const valesObj = {};
-           localVales.forEach(v => {
-             if(!valesObj[v.gestorId]) valesObj[v.gestorId] = {};
-             valesObj[v.gestorId][v.id] = v;
-           });
-           db.ref('vales').set(valesObj);
-           isSyncingFromFirebase = false;
+        if (!s.val()) {
+           const lGestores = getGestores();
+           if(lGestores.length > 0) {
+             console.log("Pushing initial data to Firebase...");
+             setFB('gestores', lGestores);
+             setFB('mensajeros', getMensajeros());
+             setFB('productos', getProductos());
+             setFB('categorias', getCategorias());
+             setFB('config', getConfig());
+             const localVales = getVales();
+             const valesObj = {};
+             localVales.forEach(v => {
+               if(!valesObj[v.gestorId]) valesObj[v.gestorId] = {};
+               valesObj[v.gestorId][v.id] = v;
+             });
+             db.ref('vales').set(valesObj);
+           }
         }
       });
-    }
-  });
-}
-
-// Base Listeners (Everything except vales)
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'ranking_summary'].forEach(node => {
-  db.ref(node).on('value', snap => {
-    isSyncingFromFirebase = true;
-    const val = snap.val();
-    
-    // If Firebase is completely empty but we have local data (e.g. from data.json),
-    // don't wipe it out immediately. Instead, if we are Admin, we will push it.
-    // If we are Gestor, we just wait.
-    if (!val) {
-      const local = localStorage.getItem('axon_'+node);
-      if (!local || local === '[]' || local === '{}') {
-        localStorage.setItem('axon_'+node, node==='config'?'{}':'[]');
-      }
-    } else {
-      let parsedVal = val;
-      // Convert Firebase objects with numeric keys back to real arrays
-      if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
-        parsedVal = Object.values(val);
-      }
-      localStorage.setItem('axon_'+node, JSON.stringify(parsedVal));
-    }
-    
-    isSyncingFromFirebase = false;
-    refreshUI();
-  });
-});
-
-// Vales Listeners
-if (IS_ADMIN) {
-  // Admin listens to ALL vales from all gestores
-  db.ref('vales').on('value', snap => {
-    isSyncingFromFirebase = true;
-    const val = snap.val();
-    let flatVales = [];
-    if (val) {
-      Object.values(val).forEach(gVales => {
-        if(gVales) flatVales.push(...Object.values(gVales));
-      });
-    }
-    // Order by descending timestamp
-    flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-    localStorage.setItem('axon_vales', JSON.stringify(flatVales));
-    isSyncingFromFirebase = false;
-    refreshUI();
-
-    // Push ranking summary for Gestores
-    const gestores = getGestores();
-    const summary = gestores.map(g => {
-      const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
-        .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-      return { id: g.id, pts };
     });
-    db.ref('ranking_summary').set(summary);
-  });
+  }, 1500);
 }
 
-let gestorValesListener = null;
-let firstLoadVales = true;
-function listenToMyVales(gId) {
-  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
-  firstLoadVales = true;
-  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
-    isSyncingFromFirebase = true;
-    const val = snap.val();
-    const newVales = val ? Object.values(val) : [];
-    newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-    
-    if (!firstLoadVales) {
-      const oldVales = getVales();
-      newVales.forEach(nv => {
-        const ov = oldVales.find(x => x.id === nv.id);
-        if (ov && ov.status !== nv.status) {
-          const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name}` : p.name).join(', ');
-          
-          if (nv.status === 'pending_payment') {
-            sendBrowserNotif('Vale en espera ⌛', '...');
-          } else if (nv.status === 'assigned') {
-            sendBrowserNotif('Venta en camino 🛵', '...');
-            playSound('confirm');
-          } else if (nv.status === 'delivered') {
-            sendBrowserNotif('Venta entregada 🎉', prodNames);
-            playSound('confirm');
-          } else if (nv.status === 'confirmed') {
-            sendBrowserNotif('Venta cobrada 💰', prodNames);
-            playSound('confirm');
-          }
-        }
-      });
-    }
-    firstLoadVales = false;
-    
-    localStorage.setItem('axon_vales', JSON.stringify(newVales));
-    isSyncingFromFirebase = false;
-    refreshUI();
-  });
-}
-
-function patchVale(id, changes) {
-  const all = getVales(); const i = all.findIndex(v=>v.id===id);
-  if (i!==-1){
-    all[i]={...all[i],...changes};
-    saveVales(all);
-    fbUpdateVale(all[i], changes);
-  }
-}
 
 function getNextValeNum() {
   const cfg = getConfig();
