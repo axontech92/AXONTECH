@@ -259,6 +259,11 @@ function showToast(msg) {
 // ══════════════════════════════════════════
 //  DATE / NOTIFICATIONS
 // ══════════════════════════════════════════
+function nowDateTime() {
+  const d=new Date();
+  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
 function updateDate() {
   const hd=document.getElementById('headerDate');
   if(hd)hd.textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
