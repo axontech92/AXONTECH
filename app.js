@@ -115,6 +115,50 @@ if (IS_ADMIN) {
 }
 
 
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let activeGestorId    = null;
+let activeMensajeroId = null;
+let adminActive       = false;
+let selectedValeId    = null;
+let inboxFilter       = 'all';
+let adminGestorFilter = null;
+let shareTargetId     = null;
+let currentAdminTab   = 'vales';
+let stockCatFilter    = null;
+let editingProductId  = null;
+let pickerSelected    = {};   // {productId: qty}
+let pickerCatFilter   = null;
+let catalogCatFilter  = null;
+let expandedCatalogId = null;
+let selectedProductsUI= [];   // [{id,name,qty}] for current vale form
+let currentValeProductos = []; // saved on sendVale
+let pendingGestorId      = null;  // for gestor pass modal
+let activeComisionGestorId = null; // for commissions panel
+// Lazy loading flags
+let gestoresTabDirty = true;
+let statsTabDirty    = true;
+// Ranking cache
+let rankingCache = null; // {data: [...], ts: 0}
+// Confirm action callback
+let confirmActionCb  = null;
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#BE185D','#1D4ED8'];
+const gestorOf    = id => getGestores().find(g=>g.id===id);
+const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
+const productoOf  = id => getProductos().find(p=>p.id===id);
+const todayStr    = () => new Date().toDateString();
+const timeStr     = ts => new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+// nowDateTime was added below in earlier step, skipping it here to avoid duplication.
+const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
+const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
+const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
+
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
