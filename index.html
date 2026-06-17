@@ -214,9 +214,12 @@
     </div><!-- /valeFormWrapper -->
 
     <!-- Mis Vales (aquí para que se vea en móvil cuando hay gestor seleccionado) -->
-    <div id="gestorMyValesSection" style="display:none;padding-top:4px;">
-      <div class="lbl" style="margin-top:14px;">Mis Vales de Hoy</div>
+        <div id="gestorMyValesSection" style="display:none;padding-top:4px;">
+      <div class="lbl" style="margin-top:14px;">Mis Vales Activos</div>
       <div id="gestorMyVales"></div>
+      
+      <div class="lbl" style="margin-top:20px;">Historial (Completados)</div>
+      <div id="gestorHistorialList"></div>
     </div>
 
   </div>
@@ -279,6 +282,18 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ── MODAL: Detalle de Vale Gestor ── -->
+<div class="modal-bg" id="gestorValeModal">
+  <div class="modal" style="max-width:360px;width:92%;">
+    <div class="modal-title" style="margin-bottom:12px;">📋 Detalle de la Venta</div>
+    <div id="gestorValeModalContent" style="font-size:13px;line-height:1.6;color:var(--text);margin-bottom:16px;"></div>
+    <div class="modal-btns">
+      <button class="btn btn-blue btn-full" onclick="document.getElementById('gestorValeModal').classList.remove('show')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- ── MODAL: Novedades ── -->
 <div class="modal-bg" id="notifsModal">

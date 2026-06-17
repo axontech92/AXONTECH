@@ -444,8 +444,16 @@ function requestNotifPermission() {
   }
 }
 function sendBrowserNotif(title,body) {
-  if('Notification'in window&&Notification.permission==='granted'){
-    new Notification(title,{body});
+  if('Notification' in window && Notification.permission==='granted'){
+    if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+      navigator.serviceWorker.ready.then(reg => {
+        reg.showNotification(title, {body, icon: './iconos/icon-192.png'});
+      }).catch(() => {
+        new Notification(title,{body, icon: './iconos/icon-192.png'});
+      });
+    } else {
+      new Notification(title,{body, icon: './iconos/icon-192.png'});
+    }
   }
 }
 
@@ -1237,35 +1245,84 @@ function renderPendingCobroSection() {
 //  MY VALES (gestor)
 // ══════════════════════════════════════════
 function renderMyVales() {
-  const c=document.getElementById('gestorMyVales');
-  if(!c) return;
-  if(!c||!activeGestorId)return;
-  const mine=todayValesOf(activeGestorId).reverse();
-  if(!mine.length){c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Aún no has enviado vales hoy</div></div>';return;}
+  const c = document.getElementById('gestorMyVales');
+  const hList = document.getElementById('gestorHistorialList');
+  if(!c || !hList || !activeGestorId) return;
+
+  const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
+  const activeVales = mine.filter(v => ['pending','assigned','pending_payment'].includes(v.status));
+  const historyVales = mine.filter(v => ['delivered','confirmed'].includes(v.status));
+
   const sMap={
     pending:{label:'Enviado · admin pendiente',color:'var(--blue)',icon:'🔵'},
     assigned:{label:'Con mensajero',color:'var(--orange)',icon:'🛵'},
-    delivered:{label:'Entregado · esperando confirmación admin',color:'#7C3AED',icon:'📦'},
+    delivered:{label:'Entregado',color:'#7C3AED',icon:'📦'},
     confirmed:{label:'Venta confirmada ✅',color:'var(--green)',icon:'✅'},
     pending_payment:{label:'Pendiente de cobro',color:'var(--yellow)',icon:'⏳'},
   };
-  c.innerHTML=mine.map(v=>{
-    const s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
-    const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
-    const canCancel=v.status==='pending';
-    return `<div class="mv-card st-${v.status}">
-      <div class="mv-head">
-        <span class="mv-time">${valeNumStr(v)?`<b style="color:var(--blue);">${valeNumStr(v)}</b> `:''}${timeStr(v.ts)}</span>
-        <div style="display:flex;align-items:center;gap:6px;">
-          ${pts>0?`<span style="font-size:10px;color:var(--blue);font-weight:700;">⭐ ${pts} pts</span>`:''}
-          ${canCancel?`<button type="button" onclick="cancelVale(${v.id})" style="background:rgba(239,68,68,.12);border:none;color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Cancelar vale">✕ Cancelar</button>`:''}
+
+  // 1. ACTIVE VALES
+  if(!activeVales.length){
+    c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Sin vales activos</div></div>';
+  } else {
+    c.innerHTML=activeVales.map(v=>{
+      const s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
+      const canCancel=v.status==='pending';
+      return `<div class="mv-card st-${v.status}">
+        <div class="mv-head">
+          <span class="mv-time">${valeNumStr(v)?`<b style="color:var(--blue);">${valeNumStr(v)}</b> `:``}${timeStr(v.ts)}</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${pts>0?`<span style="font-size:10px;color:var(--blue);font-weight:700;">⭐ ${pts} pts</span>`:``}
+            ${canCancel?`<button type="button" onclick="cancelVale(${v.id})" style="background:rgba(239,68,68,.12);border:none;color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Cancelar vale">✕ Cancelar</button>`:``}
+          </div>
         </div>
-      </div>
-      <div class="mv-info">${v.cliente||'—'} · ${v.articulo||'—'}</div>
-      <div class="mv-foot"><span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span></div>
-    </div>`;
-  }).join('');
+        <div class="mv-info">${v.cliente||'—'} · ${v.articulo||'—'}</div>
+        <div class="mv-foot"><span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // 2. HISTORY VALES
+  if(!historyVales.length){
+    hList.innerHTML='<div class="es"><div class="es-text">Sin historial</div></div>';
+  } else {
+    hList.innerHTML=historyVales.map(v=>{
+      const s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      return `<div class="mv-card st-${v.status}" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; opacity:0.85; border-left: 3px solid var(--gray-300);">
+        <div class="mv-head">
+          <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
+        </div>
+        <div class="mv-info" style="color:var(--text);font-weight:600;">${v.cliente||'—'}</div>
+        <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${v.articulo||'—'}</div>
+        <div class="mv-foot" style="margin-top:6px;"><span class="mv-status" style="color:${s.color};font-size:10px;">${s.icon} ${s.label}</span></div>
+      </div>`;
+    }).join('');
+  }
 }
+
+function openGestorValeModal(id) {
+  const v = getVales().find(x=>x.id===id); if(!v) return;
+  const sMap={
+    delivered:{label:'Entregado',color:'#7C3AED',icon:'📦'},
+    confirmed:{label:'Venta confirmada ✅',color:'var(--green)',icon:'✅'}
+  };
+  const s = sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+  const content = `
+    <div style="font-size:16px;font-weight:800;color:var(--blue-dk);margin-bottom:12px;">${valeNumStr(v)} ${v.cliente}</div>
+    <div style="margin-bottom:6px;"><b>📱 Teléfono:</b> ${v.telefono||'—'}</div>
+    <div style="margin-bottom:6px;"><b>📍 Dirección:</b> ${v.direccion||'—'}</div>
+    <div style="margin-bottom:6px;"><b>📦 Artículo:</b> ${v.articulo||'—'}</div>
+    <div style="margin-bottom:6px;"><b>💰 Total:</b> ${v.total||'—'}</div>
+    <div style="margin-bottom:12px;"><b>⚙️ Garantía:</b> ${v.garantia||'—'}</div>
+    <div style="padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-weight:700;color:${s.color};text-align:center;">
+      ${s.icon} ${s.label}
+    </div>
+  `;
+  document.getElementById('gestorValeModalContent').innerHTML = content;
+  document.getElementById('gestorValeModal').classList.add('show');
+}
+
 function cancelVale(id) {
   const v=getVales().find(x=>x.id===id);
   if(!v||v.status!=='pending'){showToast('No se puede cancelar este vale');return;}
@@ -1735,7 +1792,44 @@ function saveProduct() {
 function removeProducto(id) {
   if(!confirm('¿Eliminar este producto?'))return;
   saveProductos(getProductos().filter(p=>p.id!==id));
-  renderProductGrid();renderStockCategorias();showToast('Producto eliminado');maybeAutoSync();
+  renderProductGrid();renderStockCategorias();showToast('Producto eliminado');
+}
+
+
+function venderDirecto(id) {
+  const p=productoOf(id);if(!p)return;
+  const q = prompt(`¿Cuántas unidades de ${p.name} se vendieron directamente en la tienda?`, '1');
+  if(q === null) return;
+  const qty = parseInt(q);
+  if(isNaN(qty) || qty <= 0) return showToast('Cantidad inválida');
+  if(qty > (p.stock||0)) return showToast('Stock insuficiente');
+  
+  // Deduct stock
+  const newStock = p.stock - qty;
+  patchProducto(id, {stock: newStock});
+  
+  if(newStock===0 && p.stock>0) addNotif('out_of_stock',p.name,id,'stock agotado');
+  else if(newStock>0 && newStock<=LOW_STOCK_THRESHOLD && p.stock>LOW_STOCK_THRESHOLD) addNotif('low_stock',p.name,id,`quedan ${newStock}`);
+  
+  // Create vale record for stats
+  const vale={
+    id:Date.now(),valeNum:getNextValeNum(),gestorId:'admin',ts:new Date().toISOString(),
+    cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',
+    mensajeria:'',articulo:`${p.name} x${qty}`,
+    precioUSD:p.precio,precioMN:'',
+    vuelto:'',total:'Venta Local',garantia:p.garantia||'',
+    valeProductos:[{id:p.id,name:p.name,qty}],valeText:'Venta en tienda',
+    status:'confirmed',mensajeroId:null,confirmedTs:new Date().toISOString(),isNew:false,adminNotes:'Venta directa sin gestor',
+    commissionPaid:true,commissionPaidTs:new Date().toISOString()
+  };
+  const all=getVales();all.push(vale);saveVales(all);
+  if(typeof fbAddVale === 'function') {
+     db.ref(`vales/admin/${vale.id}`).set(vale);
+  }
+  
+  renderProductGrid();
+  statsTabDirty=true;
+  showToast('Venta directa registrada ✓');
 }
 function adjustStock(id) {
   const p=productoOf(id);if(!p)return;
