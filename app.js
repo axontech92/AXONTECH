@@ -1427,6 +1427,85 @@ function buildValeText() {
     '* Los pagos en MN deben ser con denominación de 50 en adelante.',
     '* Solo se aceptan billetes en buen estado (ni rotos ni manchados)'].join('\n');
 }
+
+function openTicketModal() {
+  const g = gestorOf(activeGestorId);
+  document.getElementById('tk-gestor').textContent = g ? g.name : '';
+  document.getElementById('tk-cliente').textContent = fVal('vf-cliente') || 'Sin nombre';
+  document.getElementById('tk-articulo').textContent = fVal('vf-articulo') || 'Sin artículo';
+  document.getElementById('tk-total').textContent = fVal('vf-total') || '—';
+  
+  document.getElementById('ticketModal').classList.add('show');
+}
+
+
+async function shareTicketImage() {
+  if (typeof html2canvas === 'undefined') {
+    showToast('Cargando creador de imágenes, intenta de nuevo...');
+    return;
+  }
+  const ticketEl = document.getElementById('ticketVisual');
+  showToast('Generando imagen...');
+  
+  try {
+    const canvas = await html2canvas(ticketEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], 'ticket_axontech.png', { type: 'image/png' });
+      
+      // Check if mobile sharing is supported
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: 'Ticket de Recogida',
+            text: 'Muestra esta imagen al llegar a la tienda.',
+            files: [file]
+          });
+        } catch(e) {
+          // If user cancels or it fails, fallback to download
+          if(e.name !== 'AbortError') {
+             downloadBlob(blob, 'ticket_axontech.png');
+          }
+        }
+      } else {
+        // Fallback for PC or unsupported browsers
+        downloadBlob(blob, 'ticket_axontech.png');
+        showToast('Imagen descargada ✓');
+      }
+    }, 'image/png');
+  } catch (e) {
+    console.error(e);
+    showToast('Error al generar la imagen');
+  }
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyTicketText() {
+  const g = gestorOf(activeGestorId);
+  const text = `🏪 *TICKET DE RECOGIDA - AXONTECH* 🏪
+-----------------------------------
+👤 *Atendido por:* ${g ? g.name : ''}
+👤 *Cliente:* ${fVal('vf-cliente') || 'Sin nombre'}
+📦 *Artículo:* ${fVal('vf-articulo') || 'Sin artículo'}
+💰 *Total a pagar:* ${fVal('vf-total') || '—'}
+-----------------------------------
+📍 *Dirección de Tienda:* 
+Amistad #313 % San Rafael y San José, Centro Habana.
+
+⚠️ *Importante:* Por favor, muestre este mensaje en el mostrador al llegar a la tienda para que le entreguen su pedido rápidamente y se le asigne la venta a su promotor.`;
+
+  navigator.clipboard.writeText(text).then(() => showToast('¡Texto del Ticket copiado! ✓')).catch(() => showToast('Error al copiar'));
+}
+
 function copyValePreview() {
   navigator.clipboard.writeText(document.getElementById('valePreviewText').textContent)
     .then(()=>showToast('Vale copiado ✓')).catch(()=>showToast('No se pudo copiar'));

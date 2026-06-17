@@ -205,11 +205,17 @@
     <div id="previewCard" class="card" style="display:none;">
       <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;">Vista previa del vale</div>
       <div class="vale-preview" id="valePreviewText" style="font-size:11px;max-height:200px;overflow-y:auto;"></div>
+      
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
         <button class="btn btn-ghost btn-full btn-sm" onclick="copyValePreview()">📋 Copiar</button>
         <button class="btn btn-wa btn-full btn-sm" onclick="shareToAdminWA()">💬 WhatsApp</button>
         <button class="btn btn-blue btn-full btn-sm" id="sendValeBtn" onclick="sendVale()" disabled>📤 Enviar</button>
       </div>
+      <div id="ticketClientSection" style="margin-top:14px;border-top:1px dashed var(--gray-300);padding-top:12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:8px;">— Opciones para el Cliente —</div>
+        <button class="btn btn-full btn-sm" style="background:#F59E0B;color:white;" onclick="openTicketModal()">🎫 Generar Ticket de Recogida</button>
+      </div>
+
     </div>
     </div><!-- /valeFormWrapper -->
 
@@ -283,6 +289,42 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- ── MODAL: Ticket de Cliente ── -->
+<div class="modal-bg" id="ticketModal">
+  <div class="modal" style="max-width:340px;width:92%;background:transparent;box-shadow:none;padding:0;">
+    
+    <!-- The Ticket Visual -->
+    <div class="ticket" id="ticketVisual" style="background: white; color: #111827; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative;">
+      <div class="t-head" style="background: #f3f4f6; text-align: center; padding: 20px 15px; border-bottom: 2px dashed #d1d5db; position: relative;">
+        <div style="font-size: 20px; font-weight: 900; color: #006d8a; letter-spacing: 2px; margin-bottom: 4px;">AXONTECH</div>
+        <div style="font-size: 10px; color: #6b7280; text-transform: uppercase; font-weight: 800; letter-spacing: 1px;">Pase de Recogida en Tienda</div>
+      </div>
+      <div class="t-body" style="padding: 20px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;"><span style="color:#6b7280; font-weight:600;">Atendido por:</span><span id="tk-gestor" style="color:#006d8a; font-weight:800; font-size:15px; text-align:right;"></span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;"><span style="color:#6b7280; font-weight:600;">Cliente:</span><span id="tk-cliente" style="font-weight:800; text-align:right; max-width:60%;"></span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;"><span style="color:#6b7280; font-weight:600;">Artículo:</span><span id="tk-articulo" style="font-weight:800; text-align:right; max-width:60%;"></span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;"><span style="color:#6b7280; font-weight:600;">Total a Pagar:</span><span id="tk-total" style="font-weight:800; text-align:right; max-width:60%; font-size:15px;"></span></div>
+        
+        <div style="background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 8px; font-size: 11px; margin-top: 20px; color: #b45309; font-weight: 700; text-align: center; line-height: 1.5;">
+          📍 Muestre esta pantalla en el mostrador para que le entreguen su pedido rápidamente y se asigne la venta a su promotor.
+        </div>
+      </div>
+      <div class="t-foot" style="text-align: center; padding: 15px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600;">
+        Amistad #313 % San Rafael y San José, Centro Habana.
+      </div>
+    </div>
+    
+    <!-- Controls -->
+    <div style="margin-top: 15px; background:#1f2937; padding:15px; border-radius:14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-full" style="background: #3b82f6; color: white;" onclick="shareTicketImage()">📸 Compartir como Imagen</button>
+      <button class="btn btn-full" style="background: #10B981; color: white;" onclick="copyTicketText()">💬 Copiar texto para WhatsApp</button>
+      <button class="btn btn-ghost btn-full" style="background:rgba(255,255,255,0.1); border:none; color:white;" onclick="document.getElementById('ticketModal').classList.remove('show')">Cerrar</button>
+    </div>
+
+  </div>
+</div>
+
+
 <!-- ── MODAL: Detalle de Vale Gestor ── -->
 <div class="modal-bg" id="gestorValeModal">
   <div class="modal" style="max-width:360px;width:92%;">
@@ -314,6 +356,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
