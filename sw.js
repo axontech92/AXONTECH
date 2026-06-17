@@ -1,4 +1,4 @@
-const CACHE = 'axontech-v36';
+const CACHE = 'axontech-v40';
 const STATIC = ['./', './index.html', './admin.html', './app.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -20,13 +20,12 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   const isHTML = url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname === '';
   if (isHTML) {
-    // HTML siempre de red; sin conexión usa caché
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))
     );
     return;
   }
-  // CSS / JS / assets: caché primero, actualiza en segundo plano
+  
   e.respondWith(
     caches.match(e.request).then(cached => {
       const networkFetch = fetch(e.request).then(r => {
@@ -39,10 +38,6 @@ self.addEventListener('fetch', e => {
         });
         return r;
       });
-      return cached || networkFetch;
-    })
-  );
-});
       return cached || networkFetch;
     })
   );
