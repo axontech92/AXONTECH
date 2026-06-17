@@ -301,7 +301,10 @@ function addNotif(type, productName, productId, extra, gestorId) {
 
 function openNotifsModal() {
   const gId = activeGestorId ? activeGestorId : 'global';
-  localStorage.setItem('axon_viewed_ts_' + gId, Date.now());
+  const notifs = getNotifs();
+  if (notifs.length > 0) {
+    localStorage.setItem('axon_viewed_id_' + gId, notifs[0].id);
+  }
   renderGestorNotifs();
   document.getElementById('notifsModal').classList.add('show');
 }
@@ -310,28 +313,32 @@ function closeNotifsModal() {
 }
 function clearGestorNotifs() {
   const gId = activeGestorId ? activeGestorId : 'global';
-  localStorage.setItem('axon_cleared_ts_' + gId, Date.now());
+  const notifs = getNotifs();
+  if (notifs.length > 0) {
+    localStorage.setItem('axon_cleared_id_' + gId, notifs[0].id);
+  }
   renderGestorNotifs();
   closeNotifsModal();
 }
 function renderGestorNotifs() {
   const notifs = getNotifs();
-  const cutoff = Date.now() - 72*60*60*1000;
-  
   const gId = activeGestorId ? activeGestorId : 'global';
-  const clearedTs = parseInt(localStorage.getItem('axon_cleared_ts_' + gId) || '0');
-  const viewedTs = parseInt(localStorage.getItem('axon_viewed_ts_' + gId) || '0');
+  const viewedId = parseInt(localStorage.getItem('axon_viewed_id_' + gId) || '0');
+  const clearedId = parseInt(localStorage.getItem('axon_cleared_id_' + gId) || '0');
+
+  // Find indexes
+  const viewedIdx = notifs.findIndex(n => n.id === viewedId);
+  const clearedIdx = notifs.findIndex(n => n.id === clearedId);
+  
+  // Slicing arrays
+  const visibleNotifs = clearedIdx !== -1 ? notifs.slice(0, clearedIdx) : notifs;
 
   // Global Notifs
-  const globalNotifs = notifs.filter(n => {
-    const nTs = new Date(n.ts).getTime();
-    return nTs > cutoff && nTs > clearedTs && !['vale_confirmed', 'vale_assigned'].includes(n.type);
-  });
+  const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned'].includes(n.type));
   
-  // Personal Notifs (never cleared by the global clear button, just fade after 72 hours)
+  // Personal Notifs (never cleared by the global clear button)
   const personalNotifs = notifs.filter(n => {
-    const nTs = new Date(n.ts).getTime();
-    return nTs > cutoff && ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
+    return ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
   });
 
   const sec = document.getElementById('gestorNotifsSection');
@@ -343,11 +350,10 @@ function renderGestorNotifs() {
     const icon=icons[n.type]||'📢';
     const age=timeAgo(n.ts);
     const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned'].includes(n.type)?'ok':'';
-    const nTs = new Date(n.ts).getTime();
     
-    // For personal, we don't track unread badge in the header, so just style them normally
-    // For global, style as unread if newer than viewedTs
-    const isUnread = !isPersonal && (nTs > viewedTs);
+    // Unread logic
+    const nIdx = notifs.findIndex(x => x.id === n.id);
+    const isUnread = !isPersonal && (viewedIdx === -1 || nIdx < viewedIdx);
     const cls=isUnread?'unread':`type-${typeClass}`;
     
     let msg='';
@@ -381,7 +387,10 @@ function renderGestorNotifs() {
   };
 
   if(sec) {
-    const unread = globalNotifs.filter(n => new Date(n.ts).getTime() > viewedTs).length;
+    const unread = globalNotifs.filter(n => {
+       const idx = notifs.findIndex(x => x.id === n.id);
+       return viewedIdx === -1 || idx < viewedIdx;
+    }).length;
     const badge = document.getElementById('notifUnreadBadge');
     if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
     
@@ -648,28 +657,26 @@ function changeGestor() {
 //  MENSAJERO PANEL
 // ══════════════════════════════════════════
 function renderMensajeroSelector() {
-  const list=getMensajeros();
   const c=document.getElementById('mensajeroSelectorList');if(!c)return;
-  if(!list.length){c.innerHTML='<div style="color:var(--gray-400);font-size:12px;padding:4px 0;">Sin mensajeros registrados</div>';return;}
+  const list=getMensajeros();
   const vales=getVales();
-  c.innerHTML=list.map((m,idx)=>{
-    const act=m.id===activeMensajeroId;
-    const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  if(!list.length){c.innerHTML='<div class="es" style="grid-column:1/-1;padding:4px 0;"><div class="es-text" style="font-size:12px;">Sin mensajeros registrados</div></div>';return;}
+  c.innerHTML=list.map(m=>{
     const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
-    const pend=vales.filter(v=>v.mensajeroId===m.id&&v.status==='pending_payment').length;
-    const active=assigned+pend;
-    const dotColor=pend>0?'var(--orange)':'var(--blue)';
-    const badgeBg=pend>0?'var(--orange)':'var(--blue)';
-    const col=GESTOR_COLORS[(idx+4)%GESTOR_COLORS.length];
-    return `<div class="m-chip ${act?'active':''}" onclick="selectMensajero(${m.id})">
-      <div class="g-avatar-wrap">
-        <div class="g-avatar" style="background:${col};width:28px;height:28px;font-size:10px;">${ini}</div>
-        ${active>0?`<span class="m-pend-dot" style="background:${dotColor};"></span>`:''}
+    const act=m.id===activeMensajeroId;
+    return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
+      <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
+      <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
+      
+      <div style="display:flex; gap:6px; margin-top:8px; border-top:1px solid var(--border); padding-top:6px;">
+         <button type="button" style="flex:1; background:none; border:1px solid var(--border); border-radius:4px; font-size:10px; padding:3px 0; color:var(--text); cursor:pointer;" onclick="event.stopPropagation(); openEditMensajeroModal(${m.id})">✏️ Editar</button>
+         <button type="button" style="flex:1; background:none; border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:10px; padding:3px 0; color:var(--red); cursor:pointer;" onclick="event.stopPropagation(); removeMensajero(${m.id})">🗑️ Borrar</button>
       </div>
-      <span class="m-chip-name">${m.name}</span>
-      ${active>0?`<span style="background:${badgeBg};color:white;border-radius:8px;font-size:9px;font-weight:700;padding:1px 5px;margin-left:2px;">${active}</span>`:''}
     </div>`;
   }).join('');
+}
+function renderMensajeros() {
+  // Obsolete function, merged into renderMensajeroSelector
 }
 function selectMensajero(id) {
   activeMensajeroId=id;
@@ -1522,9 +1529,19 @@ function saveAdminPhone() {
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-mensajeria','vf-articulo',
    'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.value='';
-  });
-  selectedProductsUI=[];currentValeProductos=[];renderSelectedProductsUI();onFormInput();
+     const el=document.getElementById(id);if(el)el.value='';
+   });
+  currentValeProductos=[];selectedProductsUI=[];
+  renderSelectedProductsUI();
+  
+  const btn=document.getElementById('sendValeBtn');
+  if(btn) {
+    btn.disabled=true;
+    btn.textContent='📤 Enviar';
+    btn.classList.replace('btn-green', 'btn-blue');
+  }
+  document.getElementById('previewCard').style.display='none';
+  showToast('Formulario limpio ✨');
 }
 
 // ══════════════════════════════════════════
