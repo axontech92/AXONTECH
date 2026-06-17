@@ -159,6 +159,35 @@ const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
 const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
 const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
 
+// ══════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════
+function checkPass(input) {
+  return btoa(input)===(localStorage.getItem('axon_admin_hash')||btoa('axon2024'));
+}
+function changePass() {
+  const np = document.getElementById('newPassInput').value.trim();
+  if (!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
+  localStorage.setItem('axon_admin_hash',btoa(np));
+  document.getElementById('newPassInput').value='';
+  showToast('Contraseña actualizada ✓');
+}
+
+// ══════════════════════════════════════════
+//  SOUND
+// ══════════════════════════════════════════
+function playSound(type) {
+  try {
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const g=ac.createGain();g.connect(ac.destination);
+    g.gain.setValueAtTime(0.08,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);
+    const tones={login:[[880,0],[1100,.15]],vale:[[660,0],[800,.18]],confirm:[[440,0],[660,.15],[880,.3]]};
+    (tones[type]||tones.login).forEach(t=>{const o=ac.createOscillator();o.type='sine';o.frequency.value=t[0];o.connect(g);o.start(ac.currentTime+t[1]);o.stop(ac.currentTime+t[1]+0.2);});
+  } catch(e){}
+}
+
+
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
