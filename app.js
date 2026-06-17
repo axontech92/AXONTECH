@@ -348,7 +348,9 @@ function requestNotifPermission() {
     Notification.requestPermission().then(p => {
        if(p === 'granted') {
           showToast('Notificaciones activadas ✓');
-          doSelectGestor(activeGestorId);
+          if (!IS_ADMIN && activeGestorId) {
+             doSelectGestor(activeGestorId);
+          }
        } else {
           showToast('Permiso denegado por el navegador');
        }
@@ -501,7 +503,6 @@ function selectGestor(id) {
   }
 }
 function doSelectGestor(id) {
-  requestNotifPermission();
   listenToMyVales(id);
   activeGestorId=id;const g=gestorOf(id);
   document.getElementById('bannerAvatar').textContent=g.initials;
