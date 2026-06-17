@@ -264,6 +264,14 @@ function playSound(type) {
 }
 
 
+function patchVale(id, changes) {
+  const all = getVales(); const i = all.findIndex(v=>v.id===id);
+  if (i!==-1){
+    all[i]={...all[i],...changes};
+    saveVales(all);
+    if(typeof fbUpdateVale === 'function') fbUpdateVale(all[i], changes);
+  }
+}
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
@@ -899,11 +907,11 @@ function renderValeDetail() {
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
   let actHTML='';
   if(v.status==='pending'){
-    actHTML=`<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">📤 Compartir con mensajero</button>
+    actHTML=`<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
     <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Entregado</button>
-      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Pendiente cobro</button>
+      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
+      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
     </div>`;
   } else if(v.status==='assigned'){
     actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?m.name:'—'}</div>
@@ -1103,7 +1111,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     if(newStock===0&&oldStock>0) addNotif('out_of_stock',prod.name,pid,'stock agotado');
     else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prod.name,pid,`quedan ${newStock}`);
   });
-  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
   patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   playSound('confirm');
@@ -2481,6 +2489,19 @@ async function maybeAutoSync() {
     try{await syncToGitHub(true);}catch(e){}
   }
 }
+
+function factoryResetVales() {
+  showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
+    saveVales([]);
+    if (!isSyncingFromFirebase) {
+       db.ref('vales').remove();
+    }
+    showToast('Todos los vales eliminados');
+    selectedValeId=null;
+    refreshUI();
+  });
+}
+
 function changePassCfg() {
   const np=document.getElementById('newPassInputCfg').value.trim();
   if(!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
