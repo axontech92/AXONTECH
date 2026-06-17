@@ -131,8 +131,36 @@ function refreshUI() {
   }
 }
 
+\n
+// Vales Listeners
+if (IS_ADMIN) {
+  // Admin listens to ALL vales from all gestores
+  db.ref('vales').on('value', snap => {
+    isSyncingFromFirebase = true;
+    const val = snap.val();
+    let flatVales = [];
+    if (val) {
+      Object.values(val).forEach(gVales => {
+        if(gVales) flatVales.push(...Object.values(gVales));
+      });
+    }
+    // Order by descending timestamp
+    flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+    localStorage.setItem('axon_vales', JSON.stringify(flatVales));
+    isSyncingFromFirebase = false;
+    refreshUI();
 
-// Initialize empty Firebase from local if Admin
+    // Push ranking summary for Gestores
+    const gestores = getGestores();
+    const summary = gestores.map(g => {
+      const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+        .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+      return { id: g.id, pts };
+    });
+    db.ref('ranking_summary').set(summary);
+  });
+}
+\n// Initialize empty Firebase from local if Admin
 if (IS_ADMIN) {
   setTimeout(() => {
     db.ref('.info/connected').once('value').then(() => {
