@@ -2637,6 +2637,7 @@ function toggleTheme() {
 //  INITIAL DATA LOAD & GESTOR PULL
 // ══════════════════════════════════════════
 
+
 async function loadInitialData() {
   // Always try to load data.json if localStorage is empty
   if (getGestores().length === 0 && getProductos().length === 0) {
@@ -2651,6 +2652,24 @@ async function loadInitialData() {
         if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
         if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
         isSyncingFromFirebase = false;
+        
+        // Push this loaded data immediately to Firebase if Admin!
+        if (IS_ADMIN) {
+           const localGestores = getGestores();
+           if(localGestores.length > 0) {
+              db.ref('gestores').set(localGestores);
+              db.ref('mensajeros').set(getMensajeros());
+              db.ref('productos').set(getProductos());
+              db.ref('categorias').set(getCategorias());
+              const localVales = getVales();
+              const valesObj = {};
+              localVales.forEach(v => {
+                if(!valesObj[v.gestorId]) valesObj[v.gestorId] = {};
+                valesObj[v.gestorId][v.id] = v;
+              });
+              db.ref('vales').set(valesObj);
+           }
+        }
       }
     } catch(e) {}
   }
