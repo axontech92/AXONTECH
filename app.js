@@ -85,6 +85,36 @@ function refreshUI() {
   }
 }
 
+
+// Initialize empty Firebase from local if Admin
+if (IS_ADMIN) {
+  db.ref('.info/connected').on('value', function(snap) {
+    if (snap.val() === true) {
+      db.ref('gestores').once('value').then(s => {
+        if (!s.val() && (getGestores().length > 0 || getProductos().length > 0)) {
+           // Database is completely empty, but Admin has local data. Push to cloud!
+           isSyncingFromFirebase = true;
+           setFB('gestores', getGestores());
+           setFB('mensajeros', getMensajeros());
+           setFB('productos', getProductos());
+           setFB('categorias', getCategorias());
+           setFB('config', getConfig());
+           
+           // Repackage vales by Gestor
+           const localVales = getVales();
+           const valesObj = {};
+           localVales.forEach(v => {
+             if(!valesObj[v.gestorId]) valesObj[v.gestorId] = {};
+             valesObj[v.gestorId][v.id] = v;
+           });
+           db.ref('vales').set(valesObj);
+           isSyncingFromFirebase = false;
+        }
+      });
+    }
+  });
+}
+
 // Base Listeners (Everything except vales)
 ['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'ranking_summary'].forEach(node => {
   db.ref(node).on('value', snap => {
