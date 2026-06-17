@@ -81,14 +81,7 @@
       </div>
       <!-- Col 3 -->
       <div class="col col-right">
-        <div class="lbl">Mensajeros</div>
-        <div class="card" style="padding:10px 14px;">
-          <div class="add-row" style="margin-bottom:8px;">
-            <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero">
-            <button class="btn btn-blue btn-sm" onclick="addMensajero()">+</button>
-          </div>
-          <div id="mensajerosList"><div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div></div>
-        </div>
+
         <div class="lbl">Confirmados Hoy ✅</div>
         <div id="confirmadosList"><div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div></div>
         <div class="lbl" style="margin-top:20px;">⏳ Pendientes de Cobro</div>
@@ -277,7 +270,15 @@
 
     <!-- ── MENSAJEROS PANEL ── -->
     <div id="adminMensajerosPanel" class="admin-panel-full" style="display:none;">
-      <div id="mensajeroTopBar">
+            <div id="mensajeroTopBar">
+        <div class="card" style="padding:10px 14px;margin-bottom:14px;">
+          <div class="lbl" style="margin-top:0;">Gestionar Mensajeros</div>
+          <div class="add-row" style="margin-bottom:8px;">
+            <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero">
+            <button class="btn btn-blue btn-sm" onclick="addMensajero()">+</button>
+          </div>
+          <div id="mensajerosList"><div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div></div>
+        </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div class="lbl" style="margin:0;">Mensajeros</div>
           <button id="mensajeroChangeBtn" onclick="changeMensajero()" style="display:none;background:none;border:none;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;padding:2px 0;">← Cambiar</button>

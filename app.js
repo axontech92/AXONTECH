@@ -530,7 +530,8 @@ function closeGestorPassModal(){
 function submitGestorPass() {
   const val=document.getElementById('gestorPassInput').value.trim().toUpperCase();
   const g=gestorOf(pendingGestorId);if(!g)return;
-  if(val===(g.password?g.password.toUpperCase():'')){
+  const sysPass = (g.password || '').trim().toUpperCase();
+  if(val === sysPass){
     const id=pendingGestorId;   // save before closeGestorPassModal sets it to null
     closeGestorPassModal();
     doSelectGestor(id);
@@ -667,7 +668,7 @@ function addGestor() {
 }
 function resetGestorPass(id) {
   const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
-  const np=genPassword();list[i].password=np;saveGestores(list);
+  const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
   gestoresTabDirty=true;
   renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
 }
