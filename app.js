@@ -131,7 +131,8 @@ function refreshUI() {
   }
 }
 
-\n
+
+
 // Vales Listeners
 if (IS_ADMIN) {
   // Admin listens to ALL vales from all gestores
@@ -160,7 +161,8 @@ if (IS_ADMIN) {
     db.ref('ranking_summary').set(summary);
   });
 }
-\n// Initialize empty Firebase from local if Admin
+
+// Initialize empty Firebase from local if Admin
 if (IS_ADMIN) {
   setTimeout(() => {
     db.ref('.info/connected').once('value').then(() => {
@@ -1040,7 +1042,8 @@ function updateSharePreview() {
 }
 function buildShareText(v,m) {
   const g=gestorOf(v.gestorId);
-  const numLine=valeNumStr(v)?`${valeNumStr(v)}\n`:'';
+  const numLine=valeNumStr(v)?`${valeNumStr(v)}
+`:'';
   return [numLine+'Bienvenido a "AXONTECH" 🔥','','VALE DE ENTREGA','',
     `🔸Promotor: ${g?g.name:'—'}`,`🛵Mensajero: ${m?m.name:'—'}`,'',
     `🔸 Nombre Cliente: ${v.cliente||''}`,`🔸Teléfono Cliente: ${v.telefono||''}`,
@@ -1728,7 +1731,8 @@ function removeProducto(id) {
 }
 function adjustStock(id) {
   const p=productoOf(id);if(!p)return;
-  const n=prompt(`Stock actual: ${p.stock||0}\nNuevo stock:`,p.stock||0);
+  const n=prompt(`Stock actual: ${p.stock||0}
+Nuevo stock:`,p.stock||0);
   if(n===null)return;const num=parseInt(n);
   if(isNaN(num)||num<0){showToast('Número inválido');return;}
   const oldStock=p.stock||0;
@@ -2278,7 +2282,8 @@ async function syncFromTiendaMax() {
       const catId  = catMap[p.categoria] || null;
       const subcat = p.subcategoria || '';
       let desc = p.descripcion || '';
-      if (subcat && !desc.includes(subcat)) desc = `[${subcat}]\n${desc}`;
+      if (subcat && !desc.includes(subcat)) desc = `[${subcat}]
+${desc}`;
       return {
         id:          p.id,
         name:        p.nombre,
@@ -2326,7 +2331,7 @@ function exportData() {
 }
 function importData(input) {
   const file=input.files[0];if(!file)return;
-  if(!confirm(`¿Importar datos desde "${file.name}"?\nEsto reemplazará todos los datos locales actuales.`)){input.value='';return;}
+  if(!confirm(`¿Importar datos desde \"${file.name}\"?\nEsto reemplazará todos los datos locales actuales.`)){input.value='';return;}
   const reader=new FileReader();
   reader.onload=e=>{
     try {
