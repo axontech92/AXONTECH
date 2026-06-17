@@ -1,4 +1,4 @@
-const CACHE = 'axontech-v28';
+const CACHE = 'axontech-v36';
 const STATIC = ['./', './index.html', './admin.html', './app.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', e => {
@@ -30,9 +30,19 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(cached => {
       const networkFetch = fetch(e.request).then(r => {
-        if (r.ok) caches.open(CACHE).then(c => c.put(e.request, r.clone()));
+        if (!r || r.status !== 200 || r.type !== 'basic') {
+          return r;
+        }
+        const responseToCache = r.clone();
+        caches.open(CACHE).then(c => {
+          c.put(e.request, responseToCache);
+        });
         return r;
       });
+      return cached || networkFetch;
+    })
+  );
+});
       return cached || networkFetch;
     })
   );
