@@ -713,7 +713,6 @@ function changeGestor() {
 //  MENSAJERO PANEL
 // ══════════════════════════════════════════
 
-let mensajeroManagerExpanded = false;
 function toggleMensajeroManager() {
   mensajeroManagerExpanded = !mensajeroManagerExpanded;
   document.getElementById('mensajeroManagerSection').style.display = mensajeroManagerExpanded ? 'block' : 'none';
@@ -1523,7 +1522,6 @@ function renderPendienteCobro() {
     return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?g.name:'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${v.cliente||''} · ${v.total||''}</div><div class="sc-m">${m?'🛵 '+m.name:''}</div><button class="btn btn-green btn-full btn-sm" style="margin-top:7px;" onclick="markAsPaid(${v.id})">✅ Cobrado</button></div>`;
   }).join('');
 }
-let pendingCobroExpanded=false;
 function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
 function renderPendingCobroSection() {
   const c=document.getElementById('pendingCobroSection');if(!c)return;
