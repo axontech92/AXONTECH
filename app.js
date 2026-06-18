@@ -228,7 +228,7 @@ let activeGestorId    = null;
 let activeMensajeroId = null;
 let adminActive       = false;
 let selectedValeId    = null;
-let inboxFilter       = 'all';
+let inboxFilter       = 'pending';
 let adminGestorFilter = null;
 let shareTargetId     = null;
 let currentAdminTab   = 'vales';
@@ -908,8 +908,8 @@ function setGestorFilter(gId){adminGestorFilter=gId;renderAdminGestores();render
 // ══════════════════════════════════════════
 function setFilter(f) {
   inboxFilter=f;
-  ['All','Pend','Done'].forEach(x=>{const el=document.getElementById('f'+x);if(el){el.style.background='';el.style.fontWeight='';}});
-  const map={all:'All',pending:'Pend',done:'Done'};
+  ['Pend','Done'].forEach(x=>{const el=document.getElementById('f'+x);if(el){el.style.background='';el.style.fontWeight='';}});
+  const map={pending:'Pend',done:'Done'};
   const el=document.getElementById('f'+map[f]);if(el){el.style.background='white';el.style.fontWeight='700';}
   renderInbox();
 }

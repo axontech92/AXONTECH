@@ -64,8 +64,7 @@
             <span id="inboxCountBadge" style="background:var(--red);color:white;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;display:none;">0</span>
           </div>
           <div style="display:flex;gap:4px;margin-bottom:8px;background:var(--gray-100);border-radius:8px;padding:3px;">
-            <button class="btn btn-sm" id="fAll"  style="flex:1;border-radius:6px;font-size:10px;background:white;" onclick="setFilter('all')">Todos</button>
-            <button class="btn btn-sm" id="fPend" style="flex:1;border-radius:6px;font-size:10px;" onclick="setFilter('pending')">Pendientes</button>
+            <button class="btn btn-sm" id="fPend" style="flex:1;border-radius:6px;font-size:10px;background:white;" onclick="setFilter('pending')">Pendientes</button>
             <button class="btn btn-sm" id="fDone" style="flex:1;border-radius:6px;font-size:10px;" onclick="setFilter('done')">Cerrados</button>
           </div>
           <input type="search" id="valeSearchInput" placeholder="Buscar por cliente o teléfono…" oninput="renderInbox()" style="margin-bottom:6px;font-size:12px;">
@@ -233,12 +232,7 @@
           </div>
           <div id="metaPuntosStatus" style="font-size:11px;color:var(--gray-400);margin-top:6px;"></div>
         </div>
-        <div class="lbl">🛍️ Sincronizar productos desde TiendaMax</div>
-        <div class="card">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Carga automáticamente los productos, categorías y subcategorías directamente desde los archivos de TiendaMax. Los gestores, mensajeros y vales no se tocan.</div>
-          <button type="button" class="btn btn-blue btn-sm" onclick="syncFromTiendaMax()">🔄 Sincronizar desde TiendaMax</button>
-          <div id="syncTiendaMaxStatus" style="font-size:11px;margin-top:8px;"></div>
-        </div>
+        
         <div class="lbl">💾 Datos locales (exportar / importar)</div>
         <div class="card">
           <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Exporta todos los datos como un archivo <code>axontech-data.json</code> para hacer copia de seguridad o moverlos a otro dispositivo. Para restaurar, importa el mismo archivo.</div>
