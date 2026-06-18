@@ -717,9 +717,14 @@ function renderMensajeroSelector() {
   c.innerHTML=list.map(m=>{
     const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
     const act=m.id===activeMensajeroId;
-    return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
-      <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
-      <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
+    const ini = m.name.charAt(0).toUpperCase();
+    const color = GESTOR_COLORS[m.id % GESTOR_COLORS.length] || '#7C3AED';
+    return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})" style="display:flex;align-items:center;gap:12px;padding:12px 14px;text-align:left;border:1px solid ${act?'var(--blue)':'var(--border)'};background:${act?'var(--blue-lt)':'var(--surface)'};">
+      <div style="width:40px;height:40px;border-radius:50%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">${ini}</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);font-size:12px;margin-left:4px;">✓</span>':''}</div>
+        <div style="font-size:12px;color:var(--orange);font-weight:600;">${assigned} entregas</div>
+      </div>
     </div>`;
   }).join('');
   if(mensajeroManagerExpanded) renderMensajerosEditList();
@@ -824,6 +829,14 @@ function removeGestor(id) {
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();
 }
+
+let gestorManagerExpanded = false;
+function toggleGestorManager() {
+  gestorManagerExpanded = !gestorManagerExpanded;
+  document.getElementById('gestorManagerSection').style.display = gestorManagerExpanded ? 'block' : 'none';
+  if(gestorManagerExpanded) renderAdminGestoresList();
+}
+
 function renderAdminGestoresList() {
   const list=getGestores();
   const c=document.getElementById('adminGestoresPanel-list');
