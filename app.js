@@ -36,27 +36,28 @@ const setFB = (path, v) => {
   if(!isSyncingFromFirebase) db.ref(path).set(v).catch(e => console.error("Firebase err:", e));
 };
 
-const getGestores   = () => JSON.parse(localStorage.getItem('axon_gestores')   || '[]');
+const safeGet = (key, def) => { try { const v = localStorage.getItem(key); return v && v !== 'undefined' ? JSON.parse(v) : def; } catch(e) { return def; } };
+
+const getGestores   = () => safeGet('axon_gestores', []);
 const saveGestores  = v  => { localStorage.setItem('axon_gestores',  JSON.stringify(v)); setFB('gestores', v); };
 
-const getVales      = () => JSON.parse(localStorage.getItem('axon_vales')      || '[]');
-// Remove auto-sync of ALL vales to prevent race conditions. Vales will be synced individually.
+const getVales      = () => safeGet('axon_vales', []);
 const saveVales     = v  => { localStorage.setItem('axon_vales',     JSON.stringify(v)); };
 
-const getMensajeros = () => JSON.parse(localStorage.getItem('axon_mensajeros') || '[]');
+const getMensajeros = () => safeGet('axon_mensajeros', []);
 const saveMensajeros= v  => { localStorage.setItem('axon_mensajeros',JSON.stringify(v)); setFB('mensajeros', v); };
 
-const getProductos  = () => JSON.parse(localStorage.getItem('axon_productos')  || '[]');
+const getProductos  = () => safeGet('axon_productos', []);
 const saveProductos = v  => { localStorage.setItem('axon_productos', JSON.stringify(v)); setFB('productos', v); };
 
-const getCategorias = () => JSON.parse(localStorage.getItem('axon_categorias') || '[]');
+const getCategorias = () => safeGet('axon_categorias', []);
 const saveCategorias= v  => { localStorage.setItem('axon_categorias',JSON.stringify(v)); setFB('categorias', v); };
 
-const getConfig     = () => JSON.parse(localStorage.getItem('axon_config')     || '{}');
+const getConfig     = () => safeGet('axon_config', {});
 const saveConfig    = v  => { localStorage.setItem('axon_config',    JSON.stringify(v)); setFB('config', v); };
 
-const getNotifs     = () => JSON.parse(localStorage.getItem('axon_notifs')     || '[]');
-const saveNotifs    = v  => { localStorage.setItem('axon_notifs',    JSON.stringify(v)); setFB('notifs', v); };
+const getNotifs     = () => safeGet('axon_notifs', []);
+const saveNotifs    = v  => { localStorage.setItem('axon_notifs', JSON.stringify(v)); setFB('notifs', v); };
 
 let gestorValesListener = null;
 let firstLoadVales = true;
@@ -822,24 +823,6 @@ function resetGestorPass(id) {
   const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
   gestoresTabDirty=true;
   renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
-}
-function removeGestor(id) {
-  const g = gestorOf(id);
-  if (!g) return;
-  const hasVales = getVales().some(v=>v.gestorId===id);
-  const sub = hasVales ? 'Tiene vales registrados. Si lo borras, quedarán huérfanos.' : 'El gestor será borrado del sistema.';
-  showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
-    const newList = getGestores().filter(x=>x.id!==id);
-    // Overwrite in Local AND Firebase specifically
-    saveGestores(newList);
-    if (!isSyncingFromFirebase) {
-       db.ref('gestores').set(newList);
-    }
-    gestoresTabDirty=true;rankingCache=null;
-    renderAdminGestoresList();renderGestores();renderAdminGestores();
-    if(typeof renderComisiones === 'function') renderComisiones();
-    showToast('Gestor eliminado ✓');
-  });
 }
 
 function openGestorValeModal(id) {
@@ -2447,7 +2430,7 @@ function toggleTheme() {
 
 
 async function loadInitialData() {
-  if (getGestores().length === 0 && getProductos().length === 0) {
+  if (getGestores().length === 0 || getProductos().length === 0) {
     try {
       const res = await fetch('./data.json?t=' + Date.now());
       if (res.ok) {

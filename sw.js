@@ -1,5 +1,5 @@
-const CACHE = 'axontech-v60-fuego';
-const STATIC = ['./', './index.html', './admin.html', './app.css?v=60', './app.js?v=60', './manifest.json'];
+const CACHE = 'axontech-v62-fuego';
+const STATIC = ['./', './index.html', './admin.html', './app.css?v=62', './app.js?v=62', './manifest.json'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
