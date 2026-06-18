@@ -32,32 +32,89 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let isSyncingFromFirebase = false;
 
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let activeGestorId    = null;
+let activeMensajeroId = null;
+let adminActive       = false;
+let selectedValeId    = null;
+let inboxFilter       = 'pending';
+let adminGestorFilter = null;
+let shareTargetId     = null;
+let currentAdminTab   = 'vales';
+let stockCatFilter    = null;
+let editingProductId  = null;
+let pickerSelected    = {};
+let pickerCatFilter   = null;
+let catalogCatFilter  = null;
+let expandedCatalogId = null;
+let selectedProductsUI= [];
+let currentValeProductos = [];
+let pendingGestorId      = null;
+let activeComisionGestorId = null;
+let gestoresTabDirty = true;
+let statsTabDirty    = true;
+let rankingCache = null;
+let confirmActionCb  = null;
+let adminGestorMenuExpanded = false;
+let mensajeroManagerExpanded = false;
+let pendingCobroExpanded = false;
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#BE185D','#1D4ED8'];
+const gestorOf    = id => getGestores().find(g=>g.id===id);
+const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
+const productoOf  = id => getProductos().find(p=>p.id===id);
+const todayStr    = () => new Date().toDateString();
+const timeStr     = ts => new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+function nowDateTime() {
+  const d=new Date();
+  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+function timeAgo(dateString) {
+  const d=new Date(dateString);const now=new Date();const diffMs=now-d;
+  const diffMins=Math.round(diffMs/60000);
+  if(diffMins<1)return 'Ahora';
+  if(diffMins<60)return diffMins+'m';
+  const diffHours=Math.floor(diffMins/60);
+  if(diffHours<24)return diffHours+'h';
+  const diffDays=Math.floor(diffHours/24);
+  return diffDays+'d';
+}
+const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
+const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
+const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
+
+
+
 const setFB = (path, v) => {
   if(!isSyncingFromFirebase) db.ref(path).set(v).catch(e => console.error("Firebase err:", e));
 };
 
-const safeGet = (key, def) => { try { const v = localStorage.getItem(key); return v && v !== 'undefined' ? JSON.parse(v) : def; } catch(e) { return def; } };
-
-const getGestores   = () => safeGet('axon_gestores', []);
+const getGestores   = () => JSON.parse(localStorage.getItem('axon_gestores')   || '[]');
 const saveGestores  = v  => { localStorage.setItem('axon_gestores',  JSON.stringify(v)); setFB('gestores', v); };
 
-const getVales      = () => safeGet('axon_vales', []);
+const getVales      = () => JSON.parse(localStorage.getItem('axon_vales')      || '[]');
+// Remove auto-sync of ALL vales to prevent race conditions. Vales will be synced individually.
 const saveVales     = v  => { localStorage.setItem('axon_vales',     JSON.stringify(v)); };
 
-const getMensajeros = () => safeGet('axon_mensajeros', []);
+const getMensajeros = () => JSON.parse(localStorage.getItem('axon_mensajeros') || '[]');
 const saveMensajeros= v  => { localStorage.setItem('axon_mensajeros',JSON.stringify(v)); setFB('mensajeros', v); };
 
-const getProductos  = () => safeGet('axon_productos', []);
+const getProductos  = () => JSON.parse(localStorage.getItem('axon_productos')  || '[]');
 const saveProductos = v  => { localStorage.setItem('axon_productos', JSON.stringify(v)); setFB('productos', v); };
 
-const getCategorias = () => safeGet('axon_categorias', []);
+const getCategorias = () => JSON.parse(localStorage.getItem('axon_categorias') || '[]');
 const saveCategorias= v  => { localStorage.setItem('axon_categorias',JSON.stringify(v)); setFB('categorias', v); };
 
-const getConfig     = () => safeGet('axon_config', {});
+const getConfig     = () => JSON.parse(localStorage.getItem('axon_config')     || '{}');
 const saveConfig    = v  => { localStorage.setItem('axon_config',    JSON.stringify(v)); setFB('config', v); };
 
-const getNotifs     = () => safeGet('axon_notifs', []);
-const saveNotifs    = v  => { localStorage.setItem('axon_notifs', JSON.stringify(v)); setFB('notifs', v); };
+const getNotifs     = () => JSON.parse(localStorage.getItem('axon_notifs')     || '[]');
+const saveNotifs    = v  => { localStorage.setItem('axon_notifs',    JSON.stringify(v)); setFB('notifs', v); };
 
 let gestorValesListener = null;
 let firstLoadVales = true;
@@ -149,12 +206,18 @@ function refreshUI() {
     isSyncingFromFirebase = true;
     const val = snap.val();
     
+    // Only update local storage IF Firebase actually has data.
     if (val) {
       let parsedVal = val;
       if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
         parsedVal = Object.values(val);
       }
       localStorage.setItem('axon_'+node, JSON.stringify(parsedVal));
+    } else {
+      const local = localStorage.getItem('axon_'+node);
+      if (!local || local === '[]' || local === '{}') {
+        localStorage.setItem('axon_'+node, node==='config'?'{}':'[]');
+      }
     }
     
     isSyncingFromFirebase = false;
@@ -200,7 +263,6 @@ if (IS_ADMIN) {
         if (!s.val()) {
            const lGestores = getGestores();
            if(lGestores.length > 0) {
-             console.log("Pushing initial data to Firebase...");
              setFB('gestores', lGestores);
              setFB('mensajeros', getMensajeros());
              setFB('productos', getProductos());
@@ -222,78 +284,17 @@ if (IS_ADMIN) {
 
 
 
-// ══════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════
-let activeGestorId    = null;
-let activeMensajeroId = null;
-let adminActive       = false;
-let selectedValeId    = null;
-let inboxFilter       = 'pending';
-let adminGestorFilter = null;
-let shareTargetId     = null;
-let currentAdminTab   = 'vales';
-let stockCatFilter    = null;
-let editingProductId  = null;
-let pickerSelected    = {};   // {productId: qty}
-let pickerCatFilter   = null;
-let catalogCatFilter  = null;
-let expandedCatalogId = null;
-let selectedProductsUI= [];   // [{id,name,qty}] for current vale form
-let currentValeProductos = []; // saved on sendVale
-let pendingGestorId      = null;  // for gestor pass modal
-let activeComisionGestorId = null; // for commissions panel
-// Lazy loading flags
-let gestoresTabDirty = true;
-let statsTabDirty    = true;
-// Ranking cache
-let rankingCache = null; // {data: [...], ts: 0}
-// Confirm action callback
-let confirmActionCb  = null;
 
-// ══════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════
-const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#BE185D','#1D4ED8'];
-const gestorOf    = id => getGestores().find(g=>g.id===id);
-const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
-const productoOf  = id => getProductos().find(p=>p.id===id);
-const todayStr    = () => new Date().toDateString();
-const timeStr     = ts => new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-// nowDateTime was added below in earlier step, skipping it here to avoid duplication.
-const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
-const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
-const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
-
-// ══════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════
-function checkPass(input) {
-  return btoa(input)===(localStorage.getItem('axon_admin_hash')||btoa('axon2024'));
+function timeAgo(dateString) {
+  const d=new Date(dateString);const now=new Date();const diffMs=now-d;
+  const diffMins=Math.round(diffMs/60000);
+  if(diffMins<1)return 'Ahora';
+  if(diffMins<60)return diffMins+'m';
+  const diffHours=Math.floor(diffMins/60);
+  if(diffHours<24)return diffHours+'h';
+  const diffDays=Math.floor(diffHours/24);
+  return diffDays+'d';
 }
-function changePass() {
-  const np = document.getElementById('newPassInput').value.trim();
-  if (!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
-  localStorage.setItem('axon_admin_hash',btoa(np));
-  document.getElementById('newPassInput').value='';
-  showToast('Contraseña actualizada ✓');
-}
-
-// ══════════════════════════════════════════
-//  SOUND
-// ══════════════════════════════════════════
-function playSound(type) {
-  try {
-    const ac=new(window.AudioContext||window.webkitAudioContext)();
-    const g=ac.createGain();g.connect(ac.destination);
-    g.gain.setValueAtTime(0.08,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);
-    const tones={login:[[880,0],[1100,.15]],vale:[[660,0],[800,.18]],confirm:[[440,0],[660,.15],[880,.3]]};
-    (tones[type]||tones.login).forEach(t=>{const o=ac.createOscillator();o.type='sine';o.frequency.value=t[0];o.connect(g);o.start(ac.currentTime+t[1]);o.stop(ac.currentTime+t[1]+0.2);});
-  } catch(e){}
-}
-
-
 function patchVale(id, changes) {
   const all = getVales(); const i = all.findIndex(v=>v.id===id);
   if (i!==-1){
@@ -603,6 +604,31 @@ function submitPass() {
   }
 }
 
+
+// ══════════════════════════════════════════
+//  AUTH & SOUND
+// ══════════════════════════════════════════
+function checkPass(input) {
+  return btoa(input)===(localStorage.getItem('axon_admin_hash')||btoa('axon2024'));
+}
+function changePass() {
+  const np = document.getElementById('newPassInput').value.trim();
+  if (!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
+  localStorage.setItem('axon_admin_hash',btoa(np));
+  document.getElementById('newPassInput').value='';
+  showToast('Contraseña actualizada ✓');
+}
+function playSound(type) {
+  try {
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const g=ac.createGain();g.connect(ac.destination);
+    g.gain.setValueAtTime(0.08,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);
+    const tones={login:[[880,0],[1100,.15]],vale:[[660,0],[800,.18]],confirm:[[440,0],[660,.15],[880,.3]]};
+    (tones[type]||tones.login).forEach(t=>{const o=ac.createOscillator();o.type='sine';o.frequency.value=t[0];o.connect(g);o.start(ac.currentTime+t[1]);o.stop(ac.currentTime+t[1]+0.2);});
+  } catch(e){}
+}
+
 // ══════════════════════════════════════════
 //  GESTOR SELECTOR
 // ══════════════════════════════════════════
@@ -718,14 +744,9 @@ function renderMensajeroSelector() {
   c.innerHTML=list.map(m=>{
     const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
     const act=m.id===activeMensajeroId;
-    const ini = m.name.charAt(0).toUpperCase();
-    const color = GESTOR_COLORS[m.id % GESTOR_COLORS.length] || '#7C3AED';
-    return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})" style="display:flex;align-items:center;gap:12px;padding:12px 14px;text-align:left;border:1px solid ${act?'var(--blue)':'var(--border)'};background:${act?'var(--blue-lt)':'var(--surface)'};">
-      <div style="width:40px;height:40px;border-radius:50%;background:${color};color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;">${ini}</div>
-      <div style="flex:1;">
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);font-size:12px;margin-left:4px;">✓</span>':''}</div>
-        <div style="font-size:12px;color:var(--orange);font-weight:600;">${assigned} entregas</div>
-      </div>
+    return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
+      <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
+      <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
     </div>`;
   }).join('');
   if(mensajeroManagerExpanded) renderMensajerosEditList();
@@ -804,6 +825,88 @@ function genPassword() {
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
 }
+
+let gestorManagerExpanded = false;
+function toggleGestorManager() {
+  gestorManagerExpanded = !gestorManagerExpanded;
+  const sec = document.getElementById('gestorManagerSection');
+  if(sec) sec.style.display = gestorManagerExpanded ? 'block' : 'none';
+  if(gestorManagerExpanded) renderAdminGestoresList();
+}
+
+function renderAdminGestoresList() {
+  const list=getGestores();
+  const c=document.getElementById('adminGestoresPanel-list');
+  if(!c) return;
+  if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
+  c.innerHTML=list.map(g=>{
+    const vales=getVales().filter(v=>v.gestorId===g.id);
+    const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
+    const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
+      .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
+    return `<div class="gp-card">
+      <div class="g-avatar" style="background:${g.color};width:40px;height:40px;font-size:13px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
+      <div style="flex:1;min-width:140px;">
+        <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
+          <span style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);">🔑 ${g.password||'—'}</span>
+          <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
+          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);align-self:flex-start;flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
+    </div>`;
+  }).join('');
+}
+
+function openEditGestorModal(id) {
+  const g=gestorOf(id);if(!g)return;
+  document.getElementById('editGestorInput').value=g.name;
+  document.getElementById('editGestorModal').dataset.gestorId=id;
+  document.getElementById('editGestorModal').classList.add('show');
+}
+function closeEditGestorModal(){document.getElementById('editGestorModal').classList.remove('show');}
+function saveEditGestor() {
+  const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
+  const newName=document.getElementById('editGestorInput').value.trim();
+  if(!newName){showToast('El nombre no puede estar vacío');return;}
+  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
+  if(list.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
+  list[i].name=newName;
+  list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  saveGestores(list);
+  closeEditGestorModal();
+  gestoresTabDirty=true;rankingCache=null;
+  renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
+  showToast('Gestor editado ✓');
+}
+
+function resetGestorPass(id) {
+  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
+  const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
+  gestoresTabDirty=true;
+  renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
+}
+
+function removeGestor(id) {
+  const g = gestorOf(id);
+  if (!g) return;
+  const hasVales = getVales().some(v=>v.gestorId===id);
+  const sub = hasVales ? 'Tiene vales registrados. Si lo borras, quedarán huérfanos.' : 'El gestor será borrado del sistema.';
+  showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
+    const newList = getGestores().filter(x=>x.id!==id);
+    saveGestores(newList);
+    if (!isSyncingFromFirebase) {
+       db.ref('gestores').set(newList);
+    }
+    gestoresTabDirty=true;rankingCache=null;
+    renderAdminGestoresList();renderGestores();renderAdminGestores();
+    if(typeof renderComisiones === 'function') renderComisiones();
+    showToast('Gestor eliminado ✓');
+  });
+}
+
 function addGestor() {
   const inp=document.getElementById('newGestorInput');
   const name=inp.value.trim();if(!name)return;
@@ -823,6 +926,687 @@ function resetGestorPass(id) {
   const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
   gestoresTabDirty=true;
   renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
+}
+function removeGestor(id) {
+  if(getVales().some(v=>v.gestorId===id)){showToast('Tiene vales registrados');return;}
+  saveGestores(getGestores().filter(g=>g.id!==id));
+  gestoresTabDirty=true;rankingCache=null;
+  renderAdminGestoresList();renderGestores();renderAdminGestores();
+}
+function renderAdminGestoresList() {
+  const list=getGestores();
+  const c=document.getElementById('adminGestoresPanel-list');
+  if(!c) return;
+  if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
+  c.innerHTML=list.map(g=>{
+    const vales=getVales().filter(v=>v.gestorId===g.id);
+    const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
+    const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
+      .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
+    return `<div class="gp-card">
+      <div class="g-avatar" style="background:${g.color};width:40px;height:40px;font-size:13px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
+      <div style="flex:1;min-width:140px;">
+        <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
+          <span style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);">🔑 ${g.password||'—'}</span>
+          <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
+          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);align-self:flex-start;flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
+    </div>`;
+  }).join('');
+}
+function openEditGestorModal(id) {
+  const g=gestorOf(id);if(!g)return;
+  document.getElementById('editGestorInput').value=g.name;
+  document.getElementById('editGestorModal').dataset.gestorId=id;
+  document.getElementById('editGestorModal').classList.add('show');
+}
+function closeEditGestorModal(){document.getElementById('editGestorModal').classList.remove('show');}
+function saveEditGestor() {
+  const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
+  const newName=document.getElementById('editGestorInput').value.trim();
+  if(!newName){showToast('El nombre no puede estar vacío');return;}
+  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
+  const initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  list[i]={...list[i],name:newName,initials};
+  saveGestores(list);
+  closeEditGestorModal();
+  renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
+  showToast('Gestor actualizado ✓');
+}
+
+// ══════════════════════════════════════════
+//  ADMIN GESTORES FILTER (inbox)
+// ══════════════════════════════════════════
+function renderAdminGestores() {
+  const c = document.getElementById('adminGestoresList');
+  if(!c) return;
+  const gestores = getGestores();
+  const vales = getVales();
+
+  let html = '';
+  
+  // Only show gestores that have AT LEAST ONE pending vale
+  const gestoresConPendientes = gestores.filter(g => {
+     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered');
+  });
+
+  if(gestoresConPendientes.length === 0) {
+     c.innerHTML = '<div class="es"><div class="es-icon">🎉</div><div class="es-text" style="font-weight:600;">No hay ningún vale pendiente.</div></div>';
+     return;
+  }
+
+  gestoresConPendientes.forEach(g => {
+    // Only fetch active (not confirmed/delivered)
+    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered').reverse();
+    const isOpen = adminGestorFilter === g.id;
+
+    html += `<div style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid ${isOpen?'var(--blue)':'var(--border)'};border-radius:10px;padding:12px 14px;cursor:pointer;font-weight:700;font-size:14px;transition:0.2s;" onclick="setGestorFilter(${isOpen ? 'null' : g.id})">
+         <div style="display:flex;align-items:center;gap:12px;">
+           <div class="ag-avatar" style="background:${g.color};width:32px;height:32px;font-size:12px;color:white;display:flex;align-items:center;justify-content:center;border-radius:50%;">${escapeHTML(g.initials)}</div>
+           <span>${escapeHTML(g.name)}</span>
+         </div>
+         <div style="display:flex;align-items:center;gap:12px;">
+           ${pendingVales.length > 0 ? `<span style="background:var(--red);color:white;border-radius:12px;padding:3px 9px;font-size:11px;">${pendingVales.length}</span>` : ''}
+           <span style="color:var(--gray-400);font-size:12px;">${isOpen ? '▲' : '▼'}</span>
+         </div>
+      </div>`;
+
+    if (isOpen) {
+      html += `<div style="padding:10px 0 10px 14px; border-left:3px solid var(--blue); margin-left:16px; margin-bottom:16px;">`;
+      html += pendingVales.map(v => buildInboxCard(v)).join('');
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+
+  c.innerHTML = html;
+}
+
+function setGestorFilter(gId){
+  adminGestorFilter=gId;
+  renderAdminGestores();
+}
+
+// ══════════════════════════════════════════
+//  ADMIN INBOX
+// ══════════════════════════════════════════
+function buildInboxCard(v) {
+  const sMap={
+    pending:{label:'Pendiente',cls:'sp-pending'},
+    assigned:{label:'Con mensajero',cls:'sp-assigned'},
+    delivered:{label:'Entregado',cls:'sp-delivered'},
+    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'}
+  };
+  const s=sMap[v.status]||{label:v.status,cls:''};
+  const isNew=v.isNew&&v.status==='pending';
+  const sel=v.id===selectedValeId;
+  return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}">
+    ${isNew?'<div class="new-dot"></div>':''}
+    <div class="ic-head" style="margin-bottom:4px;">
+      <span class="ic-time">${timeStr(v.ts)}</span>
+    </div>
+    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}</div>
+    <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
+    ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
+    <div class="ic-foot" style="margin-top:8px;">
+      <span class="sp ${s.cls}" style="font-size:10px;">${s.label}</span>
+      <span style="font-size:12px;color:var(--text);font-weight:800;">${v.total||''}</span>
+    </div>
+  </div>`;
+}
+
+function selectVale(id) {
+  selectedValeId=id;patchVale(id,{isNew:false});
+  updateAdminBadge();renderAdminGestores();renderValeDetail();
+}
+
+// ══════════════════════════════════════════
+//  VALE DETAIL
+// ══════════════════════════════════════════
+function renderValeDetail() {
+  const v=getVales().find(x=>x.id===selectedValeId);
+  const c=document.getElementById('valeDetail');
+  if(!c) return;
+  if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
+  const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
+  const sMap={
+    pending:{label:'Pendiente',cls:'sp-pending',icon:'🔵'},
+    assigned:{label:'Con mensajero',cls:'sp-assigned',icon:'🛵'},
+    confirmed:{label:'Confirmado',cls:'sp-confirmed',icon:'✅'},
+    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
+  };
+  const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
+  const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
+  let actHTML='';
+  if(v.status==='pending'){
+    actHTML=`<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
+    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
+      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
+    </div>`;
+  } else if(v.status==='assigned'){
+    actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?m.name:'—'}</div>
+      <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
+  } else if(v.status==='delivered'){
+    actHTML=`<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
+      <div style="font-size:24px;margin-bottom:4px;">🛵</div>
+      <div style="font-weight:700;color:#7C3AED;">Entregado por mensajero</div>
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:''}
+    </div>
+    <button class="btn btn-green btn-full" onclick="confirmSale(${v.id},'confirmed')" style="margin-bottom:8px;">✅ Confirmar venta + Entregado</button>
+    <button class="btn btn-orange btn-full" onclick="confirmSale(${v.id},'pending_payment')">⏳ Confirmar venta + Pendiente de cobro</button>`;
+  } else if(v.status==='confirmed'){
+    actHTML=`<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:26px;margin-bottom:4px;">✅</div>
+      <div style="font-weight:700;color:var(--green);">Venta confirmada y cobrada</div>
+      ${m?`<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Mensajero: ${m.name}</div>`:''}
+      ${v.confirmedTs?`<div style="font-size:11px;color:var(--gray-400);">${new Date(v.confirmedTs).toLocaleDateString('es-ES')} ${timeStr(v.confirmedTs)}</div>`:''}
+    </div>
+    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir a Entregado</button>`;
+  } else if(v.status==='pending_payment'){
+    actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
+      <div style="font-size:26px;margin-bottom:4px;">⏳</div>
+      <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:''}
+    </div>
+    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>`;
+  }
+  const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
+  const notesHighlight=v.adminNotes?`<div style="background:#FFFBEB;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--gray-700);margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
+  c.innerHTML=`
+    <div class="lbl" style="margin-top:0;">Detalle del Vale</div>
+    <div class="card">
+      ${numBadge}
+      <div class="det-gestor-row">
+        <div class="g-avatar" style="background:${g?g.color:'#888'};width:34px;height:34px;font-size:12px;">${g?escapeHTML(g.initials):'?'}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;">${g?escapeHTML(g.name):'—'}</div>
+          <div style="font-size:11px;color:var(--gray-400);">${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="sp ${s.cls}">${s.icon} ${s.label}</span>
+          ${pts>0?`<div style="font-size:10px;color:var(--blue);font-weight:700;margin-top:3px;">⭐ ${pts} pts</div>`:''}
+        </div>
+      </div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia]]
+          .filter(([,val])=>val)
+          .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
+            <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:80px;">${k}</td>
+            <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
+      </table>
+      ${notesHighlight}
+    </div>
+    <div class="card" style="padding:10px 14px;display:flex;gap:6px;">
+      ${v.status!=='confirmed'?`<button type="button" class="btn btn-ghost btn-full btn-sm" onclick="openEditValeModal(${v.id})">✏️ Editar vale</button>`:''}
+      <button type="button" class="btn btn-sm btn-full" style="background:rgba(239,68,68,.1);color:var(--red);border:none;" onclick="adminDeleteVale(${v.id})">🗑️ Eliminar vale</button>
+    </div>
+    ${actHTML?`<div class="card"><div class="det-actions">${actHTML}</div></div>`:''}
+    <div class="card" style="padding:10px 14px;">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">📝 Notas (admin)</div>
+      <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin-bottom:6px;">${v.adminNotes||''}</textarea>
+      <button type="button" class="btn btn-ghost btn-sm btn-full" onclick="saveValeNotes(${v.id})">Guardar nota</button>
+    </div>
+    <div class="lbl">Vale completo</div>
+    <div class="card" style="padding:10px 12px;">
+      <div class="vale-preview" style="font-size:11px;">${v.valeText||''}</div>
+      <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.querySelector('#valeDetail .vale-preview').textContent).then(()=>showToast('Copiado ✓'))">📋 Copiar vale</button>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+//  VALE NOTES (admin)
+// ══════════════════════════════════════════
+function saveValeNotes(id) {
+  const ta=document.getElementById('valeNotesInput');
+  if(!ta)return;
+  patchVale(id,{adminNotes:ta.value.trim()});
+  renderValeDetail();
+  showToast('Nota guardada ✓');
+}
+
+// ══════════════════════════════════════════
+//  EDIT VALE MODAL
+// ══════════════════════════════════════════
+function openEditValeModal(id) {
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  document.getElementById('ev-cliente').value=v.cliente||'';
+  document.getElementById('ev-telefono').value=v.telefono||'';
+  document.getElementById('ev-direccion').value=v.direccion||'';
+  document.getElementById('ev-mensajeria').value=v.mensajeria||'';
+  document.getElementById('ev-total').value=v.total||'';
+  document.getElementById('ev-garantia').value=v.garantia||'';
+  document.getElementById('editValeModal').dataset.valeId=id;
+  document.getElementById('editValeModal').classList.add('show');
+}
+function closeEditValeModal(){document.getElementById('editValeModal').classList.remove('show');}
+function saveEditVale() {
+  const id=parseInt(document.getElementById('editValeModal').dataset.valeId);
+  const changes={
+    cliente:document.getElementById('ev-cliente').value.trim(),
+    telefono:document.getElementById('ev-telefono').value.trim(),
+    direccion:document.getElementById('ev-direccion').value.trim(),
+    mensajeria:document.getElementById('ev-mensajeria').value.trim(),
+    total:document.getElementById('ev-total').value.trim(),
+    garantia:document.getElementById('ev-garantia').value.trim(),
+  };
+  patchVale(id,changes);
+  closeEditValeModal();
+  renderValeDetail();
+  showToast('Vale actualizado ✓');
+}
+
+// ══════════════════════════════════════════
+//  SHARE MODAL
+// ══════════════════════════════════════════
+function openShareModal(valeId) {
+  const mensajeros=getMensajeros();
+  if(!mensajeros.length){showToast('Agrega mensajeros primero');return;}
+  shareTargetId=valeId;
+  const v=getVales().find(x=>x.id===valeId);const g=gestorOf(v.gestorId);
+  document.getElementById('shareModalSub').textContent=`Vale de ${g?g.name:'—'} · ${v.cliente||'cliente'}`;
+  const sel=document.getElementById('mensajeroSelect');
+  sel.innerHTML=mensajeros.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  if(v.mensajeroId)sel.value=v.mensajeroId;
+  updateSharePreview();sel.onchange=updateSharePreview;
+  document.getElementById('shareModal').classList.add('show');
+}
+
+// Missing UI pieces added back safely
+function renderValeDetail() {
+  const v=getVales().find(x=>x.id===selectedValeId);
+  const c=document.getElementById('valeDetail');
+  if(!c) return;
+  if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
+  const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
+  const sMap={
+    pending:{label:'Pendiente',cls:'sp-pending',icon:'🔵'},
+    assigned:{label:'Con mensajero',cls:'sp-assigned',icon:'🛵'},
+    confirmed:{label:'Confirmado',cls:'sp-confirmed',icon:'✅'},
+    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
+  };
+  const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
+  const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
+  let actHTML='';
+  if(v.status==='pending'){
+    actHTML=`<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
+    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
+      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
+    </div>`;
+  } else if(v.status==='assigned'){
+    actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?m.name:'—'}</div>
+      <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
+      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
+  } else if(v.status==='delivered'){
+    actHTML=`<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
+      <div style="font-size:24px;margin-bottom:4px;">🛵</div>
+      <div style="font-weight:700;color:#7C3AED;">Entregado por mensajero</div>
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:``}
+    </div>
+    <button class="btn btn-green btn-full" onclick="confirmSale(${v.id},'confirmed')" style="margin-bottom:8px;">✅ Confirmar venta + Entregado</button>
+    <button class="btn btn-orange btn-full" onclick="confirmSale(${v.id},'pending_payment')">⏳ Confirmar venta + Pendiente de cobro</button>`;
+  } else if(v.status==='confirmed'){
+    actHTML=`<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:26px;margin-bottom:4px;">✅</div>
+      <div style="font-weight:700;color:var(--green);">Venta Confirmada y Cobrada</div>
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Entregada por: ${m.name}</div>`:``}
+    </div>
+    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir a Entregado</button>`;
+  } else if(v.status==='pending_payment'){
+    actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
+      <div style="font-size:26px;margin-bottom:4px;">⏳</div>
+      <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:``}
+    </div>
+    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>`;
+  }
+  const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
+  const notesHighlight=v.adminNotes?`<div style="background:#FFFBEB;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--gray-700);margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
+  c.innerHTML=`
+    <div class="lbl" style="margin-top:0;">Detalle del Vale</div>
+    <div class="card">
+      ${numBadge}
+      <div class="det-gestor-row">
+        <div class="g-avatar" style="background:${g?g.color:'#888'};width:34px;height:34px;font-size:12px;">${g?escapeHTML(g.initials):'?'}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;">${g?escapeHTML(g.name):'—'}</div>
+          <div style="font-size:11px;color:var(--gray-400);">${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="sp ${s.cls}">${s.icon} ${s.label}</span>
+          ${pts>0?`<div style="font-size:10px;color:var(--blue);font-weight:700;margin-top:3px;">⭐ ${pts} pts</div>`:``}
+        </div>
+      </div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+        ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia]]
+          .filter(([,val])=>val)
+          .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
+            <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:80px;">${k}</td>
+            <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
+      </table>
+      ${notesHighlight}
+    </div>
+    <div class="card" style="padding:10px 14px;display:flex;gap:6px;">
+      ${v.status!=='confirmed'?`<button type="button" class="btn btn-ghost btn-full btn-sm" onclick="openEditValeModal(${v.id})">✏️ Editar vale</button>`:``}
+      <button type="button" class="btn btn-sm btn-full" style="background:rgba(239,68,68,.1);color:var(--red);border:none;" onclick="adminDeleteVale(${v.id})">🗑️ Eliminar vale</button>
+    </div>
+    ${actHTML?`<div class="card"><div class="det-actions">${actHTML}</div></div>`:``}
+    <div class="card" style="padding:10px 14px;">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">📝 Notas (admin)</div>
+      <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin-bottom:6px;">${v.adminNotes||''}</textarea>
+      <button type="button" class="btn btn-ghost btn-sm btn-full" onclick="saveValeNotes(${v.id})">Guardar nota</button>
+    </div>
+    <div class="lbl">Vale completo</div>
+    <div class="card" style="padding:10px 12px;">
+      <div class="vale-preview" style="font-size:11px;">${v.valeText||''}</div>
+      <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.querySelector('#valeDetail .vale-preview').textContent).then(()=>showToast('Copiado ✓'))">📋 Copiar vale</button>
+    </div>`;
+}
+
+function saveValeNotes(id) {
+  const ta=document.getElementById('valeNotesInput');
+  if(!ta)return;
+  patchVale(id,{adminNotes:ta.value.trim()});
+  renderAdminGestores();renderValeDetail();
+  showToast('Nota guardada ✓');
+}
+
+function openEditValeModal(id) {
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  ['cliente','telefono','direccion','mensajeria','total','garantia'].forEach(k=>{
+    const el=document.getElementById('ev-'+k);if(el)el.value=v[k]||'';
+  });
+  document.getElementById('editValeModal').dataset.valeId=id;
+  document.getElementById('editValeModal').classList.add('show');
+}
+function closeEditValeModal(){document.getElementById('editValeModal').classList.remove('show');}
+function saveEditVale() {
+  const id=parseInt(document.getElementById('editValeModal').dataset.valeId);
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  const changes={};
+  ['cliente','telefono','direccion','mensajeria','total','garantia'].forEach(k=>{
+    const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
+  });
+  patchVale(id,changes);
+  closeEditValeModal();
+  renderAdminGestores();renderValeDetail();
+  showToast('Vale editado ✓');
+}
+
+function openShareModal(valeId) {
+  const mensajeros=getMensajeros();
+  if(!mensajeros.length){showToast('Agrega mensajeros primero');return;}
+  shareTargetId=valeId;
+  const v=getVales().find(x=>x.id===valeId);const g=gestorOf(v.gestorId);
+  document.getElementById('shareModalSub').textContent=`Vale de ${g?g.name:'—'} · ${v.cliente||'cliente'}`;
+  const sel=document.getElementById('mensajeroSelect');
+  sel.innerHTML=mensajeros.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  if(v.mensajeroId)sel.value=v.mensajeroId;
+  updateSharePreview();sel.onchange=updateSharePreview;
+  document.getElementById('shareModal').classList.add('show');
+}
+
+function updateSharePreview() {
+  const v=getVales().find(x=>x.id===shareTargetId);if(!v)return;
+  const m=mensajeroOf(parseInt(document.getElementById('mensajeroSelect').value));
+  document.getElementById('shareValePreview').textContent=buildShareText(v,m);
+}
+function buildShareText(v,m) {
+  const g=gestorOf(v.gestorId);
+  const numLine=valeNumStr(v)?`${valeNumStr(v)}
+`:'';
+  return [numLine+'Bienvenido a "AXONTECH" 🔥','','VALE DE ENTREGA','',
+    `🔸Promotor: ${g?g.name:'—'}`,`🛵Mensajero: ${m?m.name:'—'}`,'',
+    `🔸 Nombre Cliente: ${v.cliente||''}`,`🔸Teléfono Cliente: ${v.telefono||''}`,
+    `🔸Dirección Cliente: ${v.direccion||''}`,`🔸Mensajería/ costo: ${v.mensajeria||''}`,
+    `🔸 Artículo y cantidad: ${v.articulo||''}`,`🔸 Total a pagar: ${v.total||''}`, '',
+    `*Fecha: ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}`,'',
+    '🧭Amistad #313% San Rafael y San José, Centro Habana.'].join('\n');
+}
+function shareViaWA() {
+  const text=document.getElementById('shareValePreview').textContent;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+}
+function closeShareModal(){document.getElementById('shareModal').classList.remove('show');shareTargetId=null;}
+function copyAndAssign() {
+  if(!shareTargetId)return;
+  const mId=parseInt(document.getElementById('mensajeroSelect').value);
+  const m=mensajeroOf(mId);
+  navigator.clipboard.writeText(document.getElementById('shareValePreview').textContent).catch(()=>{});
+  const vAsign=getVales().find(x=>x.id===shareTargetId);
+  patchVale(shareTargetId,{status:'assigned',mensajeroId:mId});
+  if(vAsign) addNotif('vale_assigned',vAsign.cliente||'Tu cliente',null,m?m.name:'',vAsign.gestorId);
+  closeShareModal();selectedValeId=shareTargetId;
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderConfirmados();renderPendienteCobro();
+  updateMensajeroBadge();
+  showToast(`Asignado a ${m?m.name:'mensajero'} y copiado ✓`);
+}
+
+// ══════════════════════════════════════════
+//  CONFIRM / PENDING
+// ══════════════════════════════════════════
+// Mensajero marca entrega física — sin tocar stock
+function mensajeroEntrega(id) {
+  patchVale(id,{status:'delivered',deliveredTs:new Date().toISOString()});
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderPendienteCobro();renderMensajeroVales();
+  updateAdminBadge();updateMensajeroBadge();
+  showToast('Marcado como entregado 🛵');
+}
+// Admin confirma venta: descuenta stock + notifica gestor + fija estado de cobro
+function confirmSale(id, paymentStatus, skipConfirm) {
+  if(!skipConfirm) {
+    const v=getVales().find(x=>x.id===id);if(!v)return;
+    const title=paymentStatus==='confirmed'?'¿Confirmar venta cobrada?':'¿Confirmar — cobro pendiente?';
+    const sub=paymentStatus==='confirmed'?`${v.cliente||''} · ${v.total||''}`:`${v.cliente||''}`;
+    showConfirmAction(title,sub,paymentStatus==='confirmed'?'Confirmar cobrada':'Confirmar pendiente','btn-blue',()=>confirmSale(id,paymentStatus,true));
+    return;
+  }
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
+    const prod=productoOf(pid);if(!prod)return;
+    const oldStock=prod.stock||0;
+    const newStock=Math.max(0,oldStock-qty);
+    patchProducto(pid,{stock:newStock});
+    // Notificación de venta por producto: "Se vendió X nombre, quedan Y"
+    addNotif('sale_product',prod.name,pid,`${qty}|${newStock}`,v.gestorId);
+    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prod.name,pid,'stock agotado');
+    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prod.name,pid,`quedan ${newStock}`);
+  });
+  if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString()});
+  gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
+  playSound('confirm');
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();
+  renderProductGrid();renderGestorRanking();
+  if(currentAdminTab==='gestores'){renderComisiones();}
+  checkGoalReached(v.gestorId, id);
+  maybeAutoSync();
+  showToast(paymentStatus==='confirmed'?'Venta confirmada y cobrada ✅':'Venta confirmada — cobro pendiente ⏳');
+}
+// Admin registra cobro recibido — sin tocar stock (ya se descontó al confirmar)
+function markAsPaid(id, skipConfirm) {
+  if(!skipConfirm) {
+    const v=getVales().find(x=>x.id===id);if(!v)return;
+    showConfirmAction('¿Registrar cobro recibido?',`${v.cliente||''} · ${v.total||''}`,'Registrar cobro','btn-green',()=>markAsPaid(id,true));
+    return;
+  }
+  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
+  gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();renderMensajeroSelector();updateMensajeroBadge();
+  renderGestorRanking();
+  if(currentAdminTab==='gestores'){renderComisiones();}
+  checkGoalReached(getVales().find(x=>x.id===id)?.gestorId, id);
+  maybeAutoSync();
+  showToast('Cobro registrado ✅');
+}
+
+// ══════════════════════════════════════════
+//  MENSAJEROS
+// ══════════════════════════════════════════
+function addMensajero() {
+  const inp=document.getElementById('newMensajeroInput');
+  const name=inp.value.trim();if(!name)return;
+  const list=getMensajeros();list.push({id:Date.now(),name});saveMensajeros(list);
+  inp.value='';renderMensajeros();showToast('Mensajero agregado');
+}
+const _nmi=document.getElementById('newMensajeroInput');if(_nmi)_nmi.addEventListener('keydown',e=>{if(e.key==='Enter')addMensajero();});
+function removeMensajero(id) {
+  if(getVales().some(v=>v.mensajeroId===id&&['assigned','pending_payment'].includes(v.status))){showToast('Tiene vales activos');return;}
+  saveMensajeros(getMensajeros().filter(m=>m.id!==id));renderMensajeros();
+}
+function renderMensajeros() {
+  const list=getMensajeros();const c=document.getElementById('mensajerosList');
+  if(!c) return;
+  if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
+  c.innerHTML=list.map(m=>{
+    const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return `<div class="m-item"><div class="m-av">${ini}</div><div class="m-name">${m.name}</div><button class="m-del" style="font-size:13px;margin-right:4px;" onclick="openEditMensajeroModal(${m.id})" title="Editar">✏️</button><button class="m-del" onclick="removeMensajero(${m.id})">×</button></div>`;
+  }).join('');
+}
+function openEditMensajeroModal(id) {
+  const m=mensajeroOf(id);if(!m)return;
+  document.getElementById('editMensajeroInput').value=m.name;
+  document.getElementById('editMensajeroModal').dataset.mensajeroId=id;
+  document.getElementById('editMensajeroModal').classList.add('show');
+}
+function closeEditMensajeroModal(){document.getElementById('editMensajeroModal').classList.remove('show');}
+function saveEditMensajero() {
+  const id=parseInt(document.getElementById('editMensajeroModal').dataset.mensajeroId);
+  const newName=document.getElementById('editMensajeroInput').value.trim();
+  if(!newName){showToast('El nombre no puede estar vacío');return;}
+  const list=getMensajeros();const i=list.findIndex(m=>m.id===id);if(i===-1)return;
+  list[i]={...list[i],name:newName};
+  saveMensajeros(list);
+  closeEditMensajeroModal();
+  renderMensajeros();renderMensajeroSelector();
+  showToast('Mensajero actualizado ✓');
+}
+
+// ══════════════════════════════════════════
+//  CONFIRMADOS / PENDIENTES
+// ══════════════════════════════════════════
+function renderConfirmados() {
+  const today=getVales().filter(v=>v.status==='confirmed'&&new Date(v.ts).toDateString()===todayStr()).reverse();
+  const c=document.getElementById('confirmadosList');
+  if(!c) return;
+  if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
+  c.innerHTML=today.map(v=>{
+    const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
+    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?g.name:'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${v.cliente||''}</div><div class="sc-m">${m?'🛵 '+m.name:''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div>`;
+  }).join('');
+}
+function renderPendienteCobro() {
+  const c=document.getElementById('pendienteList');
+  if(!c) return;
+   if(!c)return;
+  const pend=getVales().filter(v=>v.status==='pending_payment').reverse();
+  if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
+  c.innerHTML=pend.map(v=>{
+    const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
+    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?g.name:'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${v.cliente||''} · ${v.total||''}</div><div class="sc-m">${m?'🛵 '+m.name:''}</div><button class="btn btn-green btn-full btn-sm" style="margin-top:7px;" onclick="markAsPaid(${v.id})">✅ Cobrado</button></div>`;
+  }).join('');
+}
+let pendingCobroExpanded=false;
+function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
+function renderPendingCobroSection() {
+  const c=document.getElementById('pendingCobroSection');if(!c)return;
+  const pend=getVales().filter(v=>v.status==='pending_payment').reverse();
+  if(!pend.length){c.innerHTML='';return;}
+  const body=pendingCobroExpanded?`<div style="margin-top:8px;">${pend.map(v=>{
+    const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
+    return `<div class="mv-card" style="border-left:3px solid var(--red);background:rgba(239,68,68,.05);margin-bottom:6px;">
+      <div class="mv-head"><span class="mv-time">${timeStr(v.confirmedTs||v.ts)}</span><span style="color:var(--red);font-size:9px;font-weight:700;padding:2px 6px;background:rgba(239,68,68,.12);border-radius:4px;">⏳ Pend. cobro</span></div>
+      <div class="mv-info"><b>${v.cliente||'—'}</b> · <span style="color:var(--red);font-weight:700;">${v.total||'—'}</span></div>
+      ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${g.name}</div>`:''}
+      ${m?`<div style="font-size:11px;color:var(--gray-400);">🛵 ${m.name}</div>`:''}
+      <button class="btn btn-green btn-full btn-sm" style="margin-top:8px;" onclick="markAsPaid(${v.id})">💵 Registrar cobro</button>
+    </div>`;
+  }).join('')}</div>`:'' ;
+  c.innerHTML=`<div onclick="togglePendingCobro()" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.3);border-radius:9px;cursor:pointer;margin-bottom:${pendingCobroExpanded?'0':'12px'};">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:16px;">⏳</span>
+      <span style="font-weight:700;font-size:13px;color:var(--red);">Pendientes de cobro</span>
+      <span style="background:var(--red);color:white;border-radius:10px;font-size:10px;font-weight:700;padding:1px 7px;">${pend.length}</span>
+    </div>
+    <span style="color:var(--red);font-size:14px;">${pendingCobroExpanded?'▲':'▼'}</span>
+  </div>${body}`;
+}
+
+// ══════════════════════════════════════════
+//  MY VALES (gestor)
+// ══════════════════════════════════════════
+function renderMyVales() {
+  const c = document.getElementById('gestorMyVales');
+  const hList = document.getElementById('gestorHistorialList');
+  if(!c || !hList || !activeGestorId) return;
+
+  const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
+  const activeVales = mine.filter(v => ['pending','assigned','pending_payment'].includes(v.status));
+  const historyVales = mine.filter(v => ['delivered','confirmed'].includes(v.status));
+
+  const sMap={
+    pending:{label:'Enviado · admin pendiente',color:'var(--blue)',icon:'🔵'},
+    assigned:{label:'Con mensajero',color:'var(--orange)',icon:'🛵'},
+    delivered:{label:'Entregado',color:'#7C3AED',icon:'📦'},
+    confirmed:{label:'Venta confirmada ✅',color:'var(--green)',icon:'✅'},
+    pending_payment:{label:'Pendiente de cobro',color:'var(--yellow)',icon:'⏳'},
+  };
+
+  // 1. ACTIVE VALES
+  if(!activeVales.length){
+    c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Sin vales activos</div></div>';
+  } else {
+    c.innerHTML=activeVales.map(v=>{
+      const s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
+      const canCancel=v.status==='pending';
+      return `<div class="mv-card st-${v.status}">
+        <div class="mv-head">
+          <span class="mv-time">${valeNumStr(v)?`<b style="color:var(--blue);">${valeNumStr(v)}</b> `:``}${timeStr(v.ts)}</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${pts>0?`<span style="font-size:10px;color:var(--blue);font-weight:700;">⭐ ${pts} pts</span>`:``}
+            ${canCancel?`<button type="button" onclick="cancelVale(${v.id})" style="background:rgba(239,68,68,.12);border:none;color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Cancelar vale">✕ Cancelar</button>`:``}
+          </div>
+        </div>
+        <div class="mv-info">${v.cliente||'—'} · ${v.articulo||'—'}</div>
+        <div class="mv-foot"><span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  // 2. HISTORY VALES
+  if(!historyVales.length){
+    hList.innerHTML='<div class="es"><div class="es-text">Sin historial</div></div>';
+  } else {
+    hList.innerHTML=historyVales.map(v=>{
+      const s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      return `<div class="mv-card st-${v.status}" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; opacity:0.85; border-left: 3px solid var(--gray-300);">
+        <div class="mv-head">
+          <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
+        </div>
+        <div class="mv-info" style="color:var(--text);font-weight:600;">${v.cliente||'—'}</div>
+        <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${v.articulo||'—'}</div>
+        <div class="mv-foot" style="margin-top:6px;"><span class="mv-status" style="color:${s.color};font-size:10px;">${s.icon} ${s.label}</span></div>
+      </div>`;
+    }).join('');
+  }
 }
 
 function openGestorValeModal(id) {
@@ -2430,74 +3214,105 @@ function toggleTheme() {
 
 
 
-async function forceHardReset() {
-  if (window.location.search.includes('reset=1') && IS_ADMIN) {
-    console.log("HARD RESET TRIGGERED");
-    try {
-      const res = await fetch('./data.json?t=' + Date.now());
-      if (res.ok) {
-        const data = await res.json();
-        
-        // 1. Wipe Firebase entirely
-        await db.ref('/').remove();
-        
-        // 2. Wipe Local Storage
-        localStorage.clear();
-        
-        // 3. Inject new fresh data
-        if(data.gestores) {
-           localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-           await db.ref('gestores').set(data.gestores);
-        }
-        if(data.mensajeros) {
-           localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-           await db.ref('mensajeros').set(data.mensajeros);
-        }
-        if(data.productos) {
-           localStorage.setItem('axon_productos', JSON.stringify(data.productos));
-           await db.ref('productos').set(data.productos);
-        }
-        if(data.categorias) {
-           localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-           await db.ref('categorias').set(data.categorias);
-        }
-        if(data.vales) {
-           localStorage.setItem('axon_vales', JSON.stringify(data.vales));
-           const valesObj = {};
-           data.vales.forEach(v => {
-             if(!valesObj[v.gestorId]) valesObj[v.gestorId] = {};
-             valesObj[v.gestorId][v.id] = v;
-           });
-           await db.ref('vales').set(valesObj);
-        }
-        
-        alert('RESET COMPLETADO CON ÉXITO. QUITANDO ?reset=1 DE LA URL...');
-        window.location.href = window.location.pathname;
-      }
-    } catch(e) {
-      alert("Error en Hard Reset: " + e.message);
+
+async function nukeAndRebuild() {
+  if(!confirm("¿Estás seguro? Esto borrará Firebase entero y cargará la base limpia.")) return;
+  try {
+    showToast("Descargando data.json limpio...");
+    const res = await fetch('./data.json?t=' + Date.now());
+    if(!res.ok) throw new Error("No se pudo leer data.json");
+    const data = await res.json();
+    
+    showToast("Borrando Firebase completamente...");
+    await db.ref('/').remove();
+    
+    showToast("Vaciando memoria del navegador...");
+    localStorage.clear();
+    
+    showToast("Inyectando base de datos limpia...");
+    const updates = {};
+    if(data.gestores) {
+       localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+       updates['gestores'] = data.gestores;
     }
-    return true; // prevent normal boot
+    if(data.mensajeros) {
+       localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+       updates['mensajeros'] = data.mensajeros;
+    }
+    if(data.productos) {
+       localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+       updates['productos'] = data.productos;
+    }
+    if(data.categorias) {
+       localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+       updates['categorias'] = data.categorias;
+    }
+    updates['vales'] = null; // Ensure vales are empty
+    updates['notifs'] = null;
+    updates['ranking_summary'] = null;
+    
+    await db.ref('/').update(updates);
+    
+    showToast("¡Listo! Recargando...");
+    setTimeout(() => { window.location.href = './admin.html'; }, 1500);
+  } catch(e) {
+    alert("Error: " + e.message);
   }
-  return false;
+}
+
+
+
+async function nukeAndRebuild() {
+  if(!confirm("¿Estás seguro? Esto borrará Firebase entero y meterá los 25 gestores nuevos.")) return;
+  try {
+    showToast("Descargando gestores...");
+    const res = await fetch('./data.json?t=' + Date.now());
+    if(!res.ok) throw new Error("No se pudo leer data.json");
+    
+    const data = await res.json();
+    
+    showToast("Borrando Firebase...");
+    await db.ref('/').remove();
+    
+    showToast("Limpiando celular...");
+    localStorage.clear();
+    
+    showToast("Inyectando 25 gestores...");
+    if(data.gestores) {
+       localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+       await db.ref('gestores').set(data.gestores);
+    }
+    
+    showToast("¡Listo! Recargando...");
+    setTimeout(() => {
+       window.location.href = './admin.html';
+    }, 1500);
+    
+  } catch(e) {
+    alert("Error: " + e.message);
+  }
 }
 
 async function loadInitialData() {
-  if (getGestores().length === 0 || getProductos().length === 0) {
+  if (getGestores().length === 0 && getProductos().length === 0) {
     try {
       const res = await fetch('./data.json?t=' + Date.now());
       if (res.ok) {
         const data = await res.json();
-        // Skip Firebase save during initial local fallback load
         isSyncingFromFirebase = true;
         if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
         if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
         if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
         if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-        if (data.vales) localStorage.setItem('axon_vales', JSON.stringify(data.vales));
         isSyncingFromFirebase = false;
         
-        // Let the Admin UI know data is loaded to draw the password modal immediately
+        if (IS_ADMIN) {
+           const localGestores = getGestores();
+           if(localGestores.length > 0) {
+              db.ref('gestores').set(localGestores);
+              db.ref('mensajeros').set(getMensajeros());
+           }
+        }
       }
     } catch(e) {}
   }
@@ -2508,8 +3323,6 @@ async function loadInitialData() {
 //  INIT
 // ══════════════════════════════════════════
 async function init() {
-  if(await forceHardReset()) return;
-
   applyTheme(localStorage.getItem('axon_theme')==='dark');
   updateDate();
   setInterval(updateDate, 60000);
