@@ -114,7 +114,7 @@ function refreshUI() {
   if(IS_ADMIN) {
     if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
     if(typeof renderAdminGestores === 'function') renderAdminGestores();
-    if(typeof renderInbox === 'function') renderInbox();
+    if(typeof renderInbox === 'function') 
     if(typeof renderMensajeros === 'function') renderMensajeros();
     if(typeof renderProductGrid === 'function') renderProductGrid();
     if(typeof renderStockCategorias === 'function') renderStockCategorias();
@@ -555,7 +555,7 @@ function adminTab(tab) {
     const el=document.getElementById(pid);
     if(el){el.style.display=t===tab?(t==='vales'?'grid':'block'):'none';}
   });
-  if(tab==='vales'){renderAdminGestores();renderInbox();renderMensajeros();renderConfirmados();renderPendienteCobro();}
+  if(tab==='vales'){renderAdminGestores();renderMensajeros();renderConfirmados();renderPendienteCobro();}
   if(tab==='stock'){renderStockCategorias();renderProductGrid();}
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
@@ -824,7 +824,18 @@ function resetGestorPass(id) {
   renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
 }
 function removeGestor(id) {
-  if(getVales().some(v=>v.gestorId===id)){showToast('Tiene vales registrados');return;}
+  const g = gestorOf(id);
+  if (!g) return;
+  const hasVales = getVales().some(v=>v.gestorId===id);
+  const sub = hasVales ? 'Tiene vales registrados. Si lo borras, quedarán huérfanos.' : 'El gestor será borrado del sistema.';
+  showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
+    saveGestores(getGestores().filter(x=>x.id!==id));
+    gestoresTabDirty=true;rankingCache=null;
+    renderAdminGestoresList();renderGestores();renderAdminGestores();
+    if(typeof renderComisiones === 'function') renderComisiones();
+    showToast('Gestor eliminado ✓');
+  });
+}
   saveGestores(getGestores().filter(g=>g.id!==id));
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();
@@ -886,80 +897,87 @@ function saveEditGestor() {
 //  ADMIN GESTORES FILTER (inbox)
 // ══════════════════════════════════════════
 function renderAdminGestores() {
-  const gestores=getGestores();
-  const totalPend=pendingCount();
-  document.getElementById('adminGestoresList').innerHTML=
-    `<div class="ag-all ${adminGestorFilter===null?'active':''}" onclick="setGestorFilter(null)">
-      <span>Todos los gestores</span>${totalPend>0?`<span class="ag-count">${totalPend}</span>`:''}
-    </div>`+
-    gestores.map(g=>{
-      const pend=pendingOf(g.id);const todayN=todayValesOf(g.id).length;
-      return `<div class="ag-item ${adminGestorFilter===g.id?'active':''}" onclick="setGestorFilter(${g.id})">
-        <div class="ag-avatar" style="background:${g.color}">${escapeHTML(g.initials)}</div>
-        <div><div class="ag-name">${escapeHTML(g.name)}</div><div style="font-size:10px;color:var(--gray-400);">${todayN} vale${todayN!==1?'s':''} hoy</div></div>
-        ${pend>0?`<span class="ag-count">${pend}</span>`:''}
+  const c = document.getElementById('adminGestoresList');
+  if(!c) return;
+  const gestores = getGestores();
+  const vales = getVales();
+
+  let html = '';
+  
+  // Only show gestores that have AT LEAST ONE pending vale
+  const gestoresConPendientes = gestores.filter(g => {
+     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered');
+  });
+
+  if(gestoresConPendientes.length === 0) {
+     c.innerHTML = '<div class="es"><div class="es-icon">🎉</div><div class="es-text" style="font-weight:600;">No hay ningún vale pendiente.</div></div>';
+     return;
+  }
+
+  gestoresConPendientes.forEach(g => {
+    // Only fetch active (not confirmed/delivered)
+    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered').reverse();
+    const isOpen = adminGestorFilter === g.id;
+
+    html += `<div style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid ${isOpen?'var(--blue)':'var(--border)'};border-radius:10px;padding:12px 14px;cursor:pointer;font-weight:700;font-size:14px;transition:0.2s;" onclick="setGestorFilter(${isOpen ? 'null' : g.id})">
+         <div style="display:flex;align-items:center;gap:12px;">
+           <div class="ag-avatar" style="background:${g.color};width:32px;height:32px;font-size:12px;color:white;display:flex;align-items:center;justify-content:center;border-radius:50%;">${escapeHTML(g.initials)}</div>
+           <span>${escapeHTML(g.name)}</span>
+         </div>
+         <div style="display:flex;align-items:center;gap:12px;">
+           ${pendingVales.length > 0 ? `<span style="background:var(--red);color:white;border-radius:12px;padding:3px 9px;font-size:11px;">${pendingVales.length}</span>` : ''}
+           <span style="color:var(--gray-400);font-size:12px;">${isOpen ? '▲' : '▼'}</span>
+         </div>
       </div>`;
-    }).join('');
+
+    if (isOpen) {
+      html += `<div style="padding:10px 0 10px 14px; border-left:3px solid var(--blue); margin-left:16px; margin-bottom:16px;">`;
+      html += pendingVales.map(v => buildInboxCard(v)).join('');
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+
+  c.innerHTML = html;
 }
-function setGestorFilter(gId){adminGestorFilter=gId;renderAdminGestores();renderInbox();}
+
+function setGestorFilter(gId){
+  adminGestorFilter=gId;
+  renderAdminGestores();
+}
 
 // ══════════════════════════════════════════
 //  ADMIN INBOX
 // ══════════════════════════════════════════
-function setFilter(f) {
-  inboxFilter=f;
-  ['Pend','Done'].forEach(x=>{const el=document.getElementById('f'+x);if(el){el.style.background='';el.style.fontWeight='';}});
-  const map={pending:'Pend',done:'Done'};
-  const el=document.getElementById('f'+map[f]);if(el){el.style.background='white';el.style.fontWeight='700';}
-  renderInbox();
-}
-function renderInbox() {
-  let all=getVales().reverse();
-  if(adminGestorFilter!==null)all=all.filter(v=>v.gestorId===adminGestorFilter);
-  if(inboxFilter==='pending')all=all.filter(v=>v.status==='pending');
-  else if(inboxFilter==='done')all=all.filter(v=>v.status!=='pending');
-  const searchEl=document.getElementById('valeSearchInput');
-  const searchQ=searchEl?searchEl.value.trim().toLowerCase():'';
-  if(searchQ){
-    all=all.filter(v=>(v.cliente||'').toLowerCase().includes(searchQ)||(v.telefono||'').toLowerCase().includes(searchQ));
-    const cnt=document.getElementById('inboxSearchCount');
-    if(cnt){cnt.textContent=`${all.length} resultado${all.length!==1?'s':''}`;cnt.style.display='block';}
-  } else {
-    const cnt=document.getElementById('inboxSearchCount');if(cnt)cnt.style.display='none';
-  }
-  const c=document.getElementById('inboxList');
-  if(!c) return;
-  if(!all.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">Sin vales aquí</div></div>';return;}
+function buildInboxCard(v) {
   const sMap={
-    pending:{label:'Pendiente',cls:'sp-pending'},assigned:{label:'Con mensajero',cls:'sp-assigned'},
+    pending:{label:'Pendiente',cls:'sp-pending'},
+    assigned:{label:'Con mensajero',cls:'sp-assigned'},
     delivered:{label:'Entregado',cls:'sp-delivered'},
-    confirmed:{label:'Confirmado',cls:'sp-confirmed'},pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
+    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'}
   };
-  c.innerHTML=all.map(v=>{
-    const g=gestorOf(v.gestorId);const s=sMap[v.status]||{label:v.status,cls:''};
-    const isNew=v.isNew&&v.status==='pending';const sel=v.id===selectedValeId;
-    return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':''}">
-      ${isNew?'<div class="new-dot"></div>':''}
-      <div class="ic-head">
-        <span class="ic-gestor">
-          <span style="width:20px;height:20px;border-radius:50%;background:${g?g.color:'#888'};display:inline-flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:700;flex-shrink:0;">${g?escapeHTML(g.initials):'?'}</span>
-          ${g?escapeHTML(g.name):'—'}
-        </span>
-        <span class="ic-time">${timeStr(v.ts)}</span>
-      </div>
-      <div class="ic-cliente">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}</div>
-      <div class="ic-preview">${escapeHTML(v.articulo||'Sin artículo')}</div>
-      ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
-      <div class="ic-foot">
-        <span class="sp ${s.cls}">${s.label}</span>
-        <span style="font-size:11px;color:var(--gray-400);">${v.total||''}</span>
-      </div>
-    </div>`;
-  }).join('');
+  const s=sMap[v.status]||{label:v.status,cls:''};
+  const isNew=v.isNew&&v.status==='pending';
+  const sel=v.id===selectedValeId;
+  return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}">
+    ${isNew?'<div class="new-dot"></div>':''}
+    <div class="ic-head" style="margin-bottom:4px;">
+      <span class="ic-time">${timeStr(v.ts)}</span>
+    </div>
+    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}</div>
+    <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
+    ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
+    <div class="ic-foot" style="margin-top:8px;">
+      <span class="sp ${s.cls}" style="font-size:10px;">${s.label}</span>
+      <span style="font-size:12px;color:var(--text);font-weight:800;">${v.total||''}</span>
+    </div>
+  </div>`;
 }
+
 function selectVale(id) {
   selectedValeId=id;patchVale(id,{isNew:false});
-  updateAdminBadge();renderAdminGestores();renderInbox();renderValeDetail();
+  updateAdminBadge();renderAdminGestores();renderValeDetail();
 }
 
 // ══════════════════════════════════════════
@@ -1067,7 +1085,7 @@ function saveValeNotes(id) {
   const ta=document.getElementById('valeNotesInput');
   if(!ta)return;
   patchVale(id,{adminNotes:ta.value.trim()});
-  renderInbox();renderValeDetail();
+  renderValeDetail();
   showToast('Nota guardada ✓');
 }
 
@@ -1098,7 +1116,7 @@ function saveEditVale() {
   };
   patchVale(id,changes);
   closeEditValeModal();
-  renderInbox();renderValeDetail();
+  renderValeDetail();
   showToast('Vale actualizado ✓');
 }
 
@@ -1148,7 +1166,7 @@ function copyAndAssign() {
   patchVale(shareTargetId,{status:'assigned',mensajeroId:mId});
   if(vAsign) addNotif('vale_assigned',vAsign.cliente||'Tu cliente',null,m?m.name:'',vAsign.gestorId);
   closeShareModal();selectedValeId=shareTargetId;
-  renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();
+  renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();
   updateMensajeroBadge();
   showToast(`Asignado a ${m?m.name:'mensajero'} y copiado ✓`);
@@ -1160,7 +1178,7 @@ function copyAndAssign() {
 // Mensajero marca entrega física — sin tocar stock
 function mensajeroEntrega(id) {
   patchVale(id,{status:'delivered',deliveredTs:new Date().toISOString()});
-  renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();
+  renderAdminGestores();renderValeDetail();renderMyVales();
   renderPendienteCobro();renderMensajeroVales();
   updateAdminBadge();updateMensajeroBadge();
   showToast('Marcado como entregado 🛵');
@@ -1189,7 +1207,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
   patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   playSound('confirm');
-  renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();
+  renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();
   renderProductGrid();renderGestorRanking();
   if(currentAdminTab==='gestores'){renderComisiones();}
@@ -1206,7 +1224,7 @@ function markAsPaid(id, skipConfirm) {
   }
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
-  renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();
+  renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();renderMensajeroSelector();updateMensajeroBadge();
   renderGestorRanking();
   if(currentAdminTab==='gestores'){renderComisiones();}
@@ -1398,7 +1416,7 @@ function cancelVale(id) {
     if(v_del) fbRemoveVale(v_del);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Vale cancelado');
-    renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();maybeAutoSync();
+    renderAdminGestores();renderValeDetail();renderMyVales();maybeAutoSync();
   });
 }
 
@@ -1411,7 +1429,7 @@ function adminDeleteVale(id) {
     if(v_del) fbRemoveVale(v_del);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Vale eliminado');
-    renderAdminGestores();renderInbox();renderValeDetail();renderMyVales();maybeAutoSync();
+    renderAdminGestores();renderValeDetail();renderMyVales();maybeAutoSync();
   });
 }
 
@@ -1638,7 +1656,7 @@ function sendVale() {
   if(adminActive){
     const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g.name} acaba de enviar un vale`;
     const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
-    renderAdminGestores();renderInbox();
+    renderAdminGestores();
   }
 }
 
@@ -2622,7 +2640,7 @@ function importData(input) {
       expandedCatalogId=null;activeComisionGestorId=null;
       rankingCache=null;gestoresTabDirty=true;statsTabDirty=true;
       renderGestores();renderGestorRanking();renderGestorNotifs();
-      renderAdminGestores();renderInbox();renderValeDetail();
+      renderAdminGestores();renderValeDetail();
       renderAdminGestoresList();renderComisiones();
       renderMensajeros();renderMensajeroSelector();
       renderStockCategorias();renderProductGrid();
@@ -2732,7 +2750,7 @@ async function loadFromGitHub() {
       }
     if(statusEl)statusEl.innerHTML='<span style="color:var(--green);">✓ Datos restaurados desde GitHub</span>';
     activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
-    renderGestores();renderGestorRanking();renderAdminGestores();renderInbox();
+    renderGestores();renderGestorRanking();renderAdminGestores();
     renderAdminGestoresList();renderMensajeros();renderMensajeroSelector();
     renderStockCategorias();renderProductGrid();
     updateAdminBadge();updateMensajeroBadge();
@@ -2877,7 +2895,7 @@ function revertConfirmSale(id, skipConfirm) {
   });
   patchVale(id,{status:'delivered',confirmedTs:null,commissionPaid:false,commissionPaidTs:null});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
-  renderAdminGestores();renderInbox();renderValeDetail();
+  renderAdminGestores();renderValeDetail();
   renderConfirmados();renderPendienteCobro();
   renderGestorRanking();renderProductGrid();
   if(currentAdminTab==='gestores'){renderComisiones();}
@@ -3031,7 +3049,7 @@ function initGestorPage() {
 }
 function initAdminPage() {
   updateAdminBadge(); updateMensajeroBadge();
-  setFilter('all');
+  
   if (adminActive) {
     activateAdminMode();
   } else {

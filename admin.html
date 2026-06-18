@@ -52,25 +52,12 @@
     <div id="adminValesPanel" class="admin-panel-3col">
       <!-- Col 1 -->
       <div class="col col-left">
-        <div class="lbl">Gestores</div>
-        <div id="adminGestoresList"></div>
-        <div style="margin-top:14px;">
-          <div class="notif-banner" id="notifBanner">
-            <span id="notifBannerText">Nuevo vale recibido</span>
-            <button class="notif-close" onclick="document.getElementById('notifBanner').classList.remove('show')">×</button>
-          </div>
-          <div class="lbl" style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
-            <span>Bandeja de Vales</span>
-            <span id="inboxCountBadge" style="background:var(--red);color:white;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;display:none;">0</span>
-          </div>
-          <div style="display:flex;gap:4px;margin-bottom:8px;background:var(--gray-100);border-radius:8px;padding:3px;">
-            <button class="btn btn-sm" id="fPend" style="flex:1;border-radius:6px;font-size:10px;background:white;" onclick="setFilter('pending')">Pendientes</button>
-            <button class="btn btn-sm" id="fDone" style="flex:1;border-radius:6px;font-size:10px;" onclick="setFilter('done')">Cerrados</button>
-          </div>
-          <input type="search" id="valeSearchInput" placeholder="Buscar por cliente o teléfono…" oninput="renderInbox()" style="margin-bottom:6px;font-size:12px;">
-          <div id="inboxSearchCount" style="font-size:10px;color:var(--gray-400);margin-bottom:4px;display:none;"></div>
-          <div id="inboxList"></div>
+        <div class="lbl" style="margin-bottom:12px;">Vales Pendientes por Gestor</div>
+        <div class="notif-banner" id="notifBanner" style="margin-bottom:14px;">
+          <span id="notifBannerText">Nuevo vale recibido</span>
+          <button class="notif-close" onclick="document.getElementById('notifBanner').classList.remove('show')">×</button>
         </div>
+        <div id="adminGestoresList"></div>
       </div>
       <!-- Col 2 -->
       <div class="col col-mid">
