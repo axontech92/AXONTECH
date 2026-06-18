@@ -2429,6 +2429,59 @@ function toggleTheme() {
 
 
 
+
+async function forceHardReset() {
+  if (window.location.search.includes('reset=1') && IS_ADMIN) {
+    console.log("HARD RESET TRIGGERED");
+    try {
+      const res = await fetch('./data.json?t=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        
+        // 1. Wipe Firebase entirely
+        await db.ref('/').remove();
+        
+        // 2. Wipe Local Storage
+        localStorage.clear();
+        
+        // 3. Inject new fresh data
+        if(data.gestores) {
+           localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+           await db.ref('gestores').set(data.gestores);
+        }
+        if(data.mensajeros) {
+           localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+           await db.ref('mensajeros').set(data.mensajeros);
+        }
+        if(data.productos) {
+           localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+           await db.ref('productos').set(data.productos);
+        }
+        if(data.categorias) {
+           localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+           await db.ref('categorias').set(data.categorias);
+        }
+        if(data.vales) {
+           localStorage.setItem('axon_vales', JSON.stringify(data.vales));
+           const valesObj = {};
+           data.vales.forEach(v => {
+             if(!valesObj[v.gestorId]) valesObj[v.gestorId] = {};
+             valesObj[v.gestorId][v.id] = v;
+           });
+           await db.ref('vales').set(valesObj);
+        }
+        
+        alert('RESET COMPLETADO CON ÉXITO. QUITANDO ?reset=1 DE LA URL...');
+        window.location.href = window.location.pathname;
+      }
+    } catch(e) {
+      alert("Error en Hard Reset: " + e.message);
+    }
+    return true; // prevent normal boot
+  }
+  return false;
+}
+
 async function loadInitialData() {
   if (getGestores().length === 0 || getProductos().length === 0) {
     try {
@@ -2455,6 +2508,8 @@ async function loadInitialData() {
 //  INIT
 // ══════════════════════════════════════════
 async function init() {
+  if(await forceHardReset()) return;
+
   applyTheme(localStorage.getItem('axon_theme')==='dark');
   updateDate();
   setInterval(updateDate, 60000);
