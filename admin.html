@@ -59,8 +59,8 @@
             <span id="notifBannerText">Nuevo vale recibido</span>
             <button class="notif-close" onclick="document.getElementById('notifBanner').classList.remove('show')">×</button>
           </div>
-          <div class="lbl" style="display:flex;justify-content:space-between;align-items:center;">
-            <span>Bandeja</span>
+          <div class="lbl" style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;">
+            <span>Bandeja de Vales</span>
             <span id="inboxCountBadge" style="background:var(--red);color:white;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;display:none;">0</span>
           </div>
           <div style="display:flex;gap:4px;margin-bottom:8px;background:var(--gray-100);border-radius:8px;padding:3px;">
@@ -277,7 +277,7 @@
           <button id="mensajeroChangeBtn" onclick="changeMensajero()" style="display:none;background:none;border:none;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;padding:2px 0;">← Cambiar</button>
         </div>
         
-        <div id="mensajeroSelectorList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-bottom:10px;">
+        <div id="mensajeroSelectorList" style="display:flex;flex-direction:column;gap:6px;padding-bottom:10px;">
           <div class="es" style="grid-column:1/-1;padding:4px 0;"><div class="es-text" style="font-size:12px;">Sin mensajeros registrados</div></div>
         </div>
       </div>

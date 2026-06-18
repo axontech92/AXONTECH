@@ -938,7 +938,7 @@ function renderInbox() {
   c.innerHTML=all.map(v=>{
     const g=gestorOf(v.gestorId);const s=sMap[v.status]||{label:v.status,cls:''};
     const isNew=v.isNew&&v.status==='pending';const sel=v.id===selectedValeId;
-    return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})">
+    return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':''}">
       ${isNew?'<div class="new-dot"></div>':''}
       <div class="ic-head">
         <span class="ic-gestor">
@@ -947,9 +947,9 @@ function renderInbox() {
         </span>
         <span class="ic-time">${timeStr(v.ts)}</span>
       </div>
-      <div class="ic-cliente">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:''}${escapeHTML(v.cliente||'Sin nombre')}</div>
+      <div class="ic-cliente">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}</div>
       <div class="ic-preview">${escapeHTML(v.articulo||'Sin artículo')}</div>
-      ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:''}
+      ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
       <div class="ic-foot">
         <span class="sp ${s.cls}">${s.label}</span>
         <span style="font-size:11px;color:var(--gray-400);">${v.total||''}</span>
