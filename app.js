@@ -118,6 +118,14 @@ function refreshUI() {
     if(typeof renderMensajeros === 'function') renderMensajeros();
     if(typeof renderProductGrid === 'function') renderProductGrid();
     if(typeof renderStockCategorias === 'function') renderStockCategorias();
+    if(typeof renderConfirmados === 'function') renderConfirmados();
+    if(typeof renderPendienteCobro === 'function') renderPendienteCobro();
+    if(typeof renderPendingCobroSection === 'function') renderPendingCobroSection();
+    if(typeof renderMensajeroVales === 'function') renderMensajeroVales();
+    if(typeof renderMensajeroSelector === 'function') renderMensajeroSelector();
+    if(typeof renderComisiones === 'function' && typeof currentAdminTab !== 'undefined' && currentAdminTab === 'gestores') renderComisiones();
+    if(typeof updateAdminBadge === 'function') updateAdminBadge();
+    if(typeof updateMensajeroBadge === 'function') updateMensajeroBadge();
     if(typeof renderValeDetail === 'function' && typeof selectedValeId !== 'undefined' && selectedValeId) renderValeDetail();
   } else {
     if(typeof renderGestores === 'function') renderGestores();
@@ -677,6 +685,30 @@ function changeGestor() {
 // ══════════════════════════════════════════
 //  MENSAJERO PANEL
 // ══════════════════════════════════════════
+
+let mensajeroManagerExpanded = false;
+function toggleMensajeroManager() {
+  mensajeroManagerExpanded = !mensajeroManagerExpanded;
+  document.getElementById('mensajeroManagerSection').style.display = mensajeroManagerExpanded ? 'block' : 'none';
+  if(mensajeroManagerExpanded) renderMensajerosEditList();
+}
+
+function renderMensajerosEditList() {
+  const c = document.getElementById('mensajerosEditList');
+  if(!c) return;
+  const list = getMensajeros();
+  if(!list.length) { c.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Sin mensajeros registrados</div>'; return; }
+  c.innerHTML = list.map(m => {
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+      <span style="font-size:13px;font-weight:700;">${m.name}</span>
+      <div style="display:flex;gap:6px;">
+         <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;" onclick="openEditMensajeroModal(${m.id})">✏️</button>
+         <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;color:var(--red);" onclick="removeMensajero(${m.id})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function renderMensajeroSelector() {
   const c=document.getElementById('mensajeroSelectorList');if(!c)return;
   const list=getMensajeros();
@@ -688,16 +720,9 @@ function renderMensajeroSelector() {
     return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
       <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
       <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
-      
-      <div style="display:flex; gap:6px; margin-top:8px; border-top:1px solid var(--border); padding-top:6px;">
-         <button type="button" style="flex:1; background:none; border:1px solid var(--border); border-radius:4px; font-size:10px; padding:3px 0; color:var(--text); cursor:pointer;" onclick="event.stopPropagation(); openEditMensajeroModal(${m.id})">✏️ Editar</button>
-         <button type="button" style="flex:1; background:none; border:1px solid rgba(239,68,68,0.3); border-radius:4px; font-size:10px; padding:3px 0; color:var(--red); cursor:pointer;" onclick="event.stopPropagation(); removeMensajero(${m.id})">🗑️ Borrar</button>
-      </div>
     </div>`;
   }).join('');
-}
-function renderMensajeros() {
-  // Obsolete function, merged into renderMensajeroSelector
+  if(mensajeroManagerExpanded) renderMensajerosEditList();
 }
 function selectMensajero(id) {
   activeMensajeroId=id;
@@ -1564,9 +1589,6 @@ function resetForm() {
   document.getElementById('previewCard').style.display='none';
   showToast('Formulario limpio ✨');
 }
-  document.getElementById('previewCard').style.display='none';
-  showToast('Formulario limpio ✨');
-}
 
 // ══════════════════════════════════════════
 //  SEND VALE
@@ -1599,7 +1621,7 @@ function sendVale() {
   playSound('vale');
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
   showToast('Vale enviado al administrador ✓');
-}
+
   if(adminActive){
     const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g.name} acaba de enviar un vale`;
     const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');

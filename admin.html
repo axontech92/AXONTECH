@@ -270,18 +270,27 @@
 
     <!-- ── MENSAJEROS PANEL ── -->
     <div id="adminMensajerosPanel" class="admin-panel-full" style="display:none;">
-            <div id="mensajeroTopBar">
-        <div class="card" style="padding:10px 14px;margin-bottom:14px;">
-          <div class="lbl" style="margin-top:0;">Agregar Mensajero</div>
-          <div class="add-row">
-            <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero">
-            <button class="btn btn-blue btn-sm" onclick="addMensajero()">+</button>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div id="mensajeroTopBar">
+        
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <div class="lbl" style="margin:0;">Mensajeros</div>
+          <button class="btn btn-ghost btn-sm" onclick="toggleMensajeroManager()">⚙️ Gestión de Mensajeros</button>
+        </div>
+        
+        <div id="mensajeroManagerSection" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px;">
+           <div class="lbl" style="margin-top:0;">Agregar Mensajero</div>
+           <div class="add-row" style="margin-bottom:12px;">
+             <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero">
+             <button class="btn btn-blue btn-sm" onclick="addMensajero()">+</button>
+           </div>
+           <div class="lbl">Editar / Borrar</div>
+           <div id="mensajerosEditList"></div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <button id="mensajeroChangeBtn" onclick="changeMensajero()" style="display:none;background:none;border:none;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;padding:2px 0;">← Cambiar</button>
         </div>
+        
         <div id="mensajeroSelectorList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-bottom:10px;">
           <div class="es" style="grid-column:1/-1;padding:4px 0;"><div class="es-text" style="font-size:12px;">Sin mensajeros registrados</div></div>
         </div>
