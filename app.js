@@ -66,39 +66,40 @@ function listenToMyVales(gId) {
   gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
     isSyncingFromFirebase = true;
     const val = snap.val();
-    const newVales = val ? Object.values(val) : [];
-    newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-    
-    if (!firstLoadVales) {
-      const oldVales = getVales();
-      newVales.forEach(nv => {
-        const ov = oldVales.find(x => x.id === nv.id);
-        if (ov && ov.status !== nv.status) {
-          const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name}` : p.name).join(', ');
-          
-          if (nv.status === 'assigned') {
-            sendBrowserNotif('Venta en camino 🛵', '...');
-            playSound('confirm');
-          } else if (nv.status === 'delivered') {
-            sendBrowserNotif('Venta entregada 🎉', prodNames);
-            playSound('confirm');
-          } else if (nv.status === 'confirmed') {
-            let amtStr = '';
-            if(typeof getValeCommissionParts === 'function'){
-              const cp = getValeCommissionParts(nv);
-              if(cp.total !== null && cp.total > 0) {
-                 amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+    if (val) {
+      const newVales = Object.values(val);
+      newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+      
+      if (!firstLoadVales) {
+        const oldVales = getVales();
+        newVales.forEach(nv => {
+          const ov = oldVales.find(x => x.id === nv.id);
+          if (ov && ov.status !== nv.status) {
+            const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name}` : p.name).join(', ');
+            
+            if (nv.status === 'assigned') {
+              sendBrowserNotif('Venta en camino 🛵', '...');
+              playSound('confirm');
+            } else if (nv.status === 'delivered') {
+              sendBrowserNotif('Venta entregada 🎉', prodNames);
+              playSound('confirm');
+            } else if (nv.status === 'confirmed') {
+              let amtStr = '';
+              if(typeof getValeCommissionParts === 'function'){
+                const cp = getValeCommissionParts(nv);
+                if(cp.total !== null && cp.total > 0) {
+                   amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+                }
               }
+              sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+              playSound('confirm');
             }
-            sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
-            playSound('confirm');
           }
-        }
-      });
+        });
+      }
+      localStorage.setItem('axon_vales', JSON.stringify(newVales));
     }
     firstLoadVales = false;
-    
-    localStorage.setItem('axon_vales', JSON.stringify(newVales));
     isSyncingFromFirebase = false;
     refreshUI();
   });
@@ -139,26 +140,27 @@ if (IS_ADMIN) {
   db.ref('vales').on('value', snap => {
     isSyncingFromFirebase = true;
     const val = snap.val();
-    let flatVales = [];
+    
     if (val) {
+      let flatVales = [];
       Object.values(val).forEach(gVales => {
         if(gVales) flatVales.push(...Object.values(gVales));
       });
+      flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+      localStorage.setItem('axon_vales', JSON.stringify(flatVales));
+      
+      // Push ranking summary for Gestores
+      const gestores = getGestores();
+      const summary = gestores.map(g => {
+        const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+          .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+        return { id: g.id, pts };
+      });
+      db.ref('ranking_summary').set(summary);
     }
-    // Order by descending timestamp
-    flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-    localStorage.setItem('axon_vales', JSON.stringify(flatVales));
+    
     isSyncingFromFirebase = false;
     refreshUI();
-
-    // Push ranking summary for Gestores
-    const gestores = getGestores();
-    const summary = gestores.map(g => {
-      const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
-        .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-      return { id: g.id, pts };
-    });
-    db.ref('ranking_summary').set(summary);
   });
 }
 
@@ -1543,6 +1545,9 @@ function resetForm() {
   document.getElementById('previewCard').style.display='none';
   showToast('Formulario limpio ✨');
 }
+  document.getElementById('previewCard').style.display='none';
+  showToast('Formulario limpio ✨');
+}
 
 // ══════════════════════════════════════════
 //  SEND VALE
@@ -1561,11 +1566,21 @@ function sendVale() {
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
   };
   const all=getVales();all.push(vale);saveVales(all);
-  fbAddVale(vale);
-  resetForm();renderGestores();renderMyVales();updateAdminBadge();
-  playSound('vale');maybeAutoSync();
+  if(typeof fbAddVale === 'function') fbAddVale(vale);
+  
+  // Transform Send button to Sent state, DO NOT CLEAR FORM YET
+  const btn=document.getElementById('sendValeBtn');
+  if(btn) {
+    btn.disabled=true;
+    btn.textContent='¡Enviado! ✓';
+    btn.classList.replace('btn-blue', 'btn-green');
+  }
+  
+  renderGestores();renderMyVales();updateAdminBadge();
+  playSound('vale');
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
   showToast('Vale enviado al administrador ✓');
+}
   if(adminActive){
     const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g.name} acaba de enviar un vale`;
     const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
@@ -2914,6 +2929,7 @@ async function loadInitialData() {
         if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
         if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
         if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+        if (data.vales) localStorage.setItem('axon_vales', JSON.stringify(data.vales));
         isSyncingFromFirebase = false;
         
         // Let the Admin UI know data is loaded to draw the password modal immediately
