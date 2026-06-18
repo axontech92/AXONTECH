@@ -134,6 +134,25 @@ function refreshUI() {
 
 
 
+// Base Listeners (Everything except vales)
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'ranking_summary'].forEach(node => {
+  db.ref(node).on('value', snap => {
+    isSyncingFromFirebase = true;
+    const val = snap.val();
+    
+    if (val) {
+      let parsedVal = val;
+      if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
+        parsedVal = Object.values(val);
+      }
+      localStorage.setItem('axon_'+node, JSON.stringify(parsedVal));
+    }
+    
+    isSyncingFromFirebase = false;
+    refreshUI();
+  });
+});
+
 // Vales Listeners
 if (IS_ADMIN) {
   // Admin listens to ALL vales from all gestores
