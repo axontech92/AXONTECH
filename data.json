@@ -1,179 +1,137 @@
 {
   "gestores": [
     {
-      "color": "#D97706",
-      "id": 1781761257068,
+      "color": "#2563EB",
+      "id": 1781761257100,
       "initials": "R",
-      "name": "Ruber",
-      "password": "E9QLHE"
-    },
-    {
-      "color": "#D97706",
-      "id": 1781761257069,
-      "initials": "DB",
-      "name": "Daniel Blanco",
-      "password": "FWC2F6"
+      "name": "Rafael",
+      "password": "613YUL"
     },
     {
       "color": "#7C3AED",
-      "id": 1781761257070,
-      "initials": "CR",
-      "name": "Carlos Rivero",
-      "password": "EU258C"
-    },
-    {
-      "color": "#D97706",
-      "id": 1781761257071,
-      "initials": "A",
-      "name": "Alejandro",
-      "password": "6G865M"
-    },
-    {
-      "color": "#0891B2",
-      "id": 1781761257072,
-      "initials": "Y",
-      "name": "Yoandris",
-      "password": "69R84N"
-    },
-    {
-      "color": "#1D4ED8",
-      "id": 1781761257073,
-      "initials": "A",
-      "name": "Ariel",
-      "password": "VA67M5"
-    },
-    {
-      "color": "#0891B2",
-      "id": 1781761257074,
-      "initials": "D",
-      "name": "Daylan",
-      "password": "5X9GB2"
-    },
-    {
-      "color": "#7C3AED",
-      "id": 1781761257075,
-      "initials": "FP",
-      "name": "Frank Pantoja",
-      "password": "4458GZ"
-    },
-    {
-      "color": "#2563EB",
-      "id": 1781761257076,
-      "initials": "D",
-      "name": "Dany",
-      "password": "RTNV9W"
-    },
-    {
-      "color": "#1D4ED8",
-      "id": 1781761257077,
-      "initials": "JO",
-      "name": "Jorge Orozco",
-      "password": "AGFU39"
-    },
-    {
-      "color": "#DC2626",
-      "id": 1781761257078,
-      "initials": "JM",
-      "name": "Jose Manuel",
-      "password": "SXBNGE"
-    },
-    {
-      "color": "#DC2626",
-      "id": 1781761257079,
-      "initials": "JE",
-      "name": "Jorge el Grande",
-      "password": "H45R42"
-    },
-    {
-      "color": "#0891B2",
-      "id": 1781761257080,
-      "initials": "AL",
-      "name": "Andres L",
-      "password": "3EL2W3"
-    },
-    {
-      "color": "#0891B2",
-      "id": 1781761257081,
-      "initials": "KP",
-      "name": "Kevin Perez",
-      "password": "ZYYN7J"
-    },
-    {
-      "color": "#1D4ED8",
-      "id": 1781761257082,
-      "initials": "J",
-      "name": "Jairo",
-      "password": "5Q794E"
-    },
-    {
-      "color": "#0891B2",
-      "id": 1781761257083,
-      "initials": "J",
-      "name": "Jancel",
-      "password": "NCAJ52"
-    },
-    {
-      "color": "#2563EB",
-      "id": 1781761257084,
-      "initials": "JD",
-      "name": "Jose Daniel",
-      "password": "CVUYQT"
-    },
-    {
-      "color": "#DC2626",
-      "id": 1781761257085,
-      "initials": "LM",
-      "name": "Leo M",
-      "password": "8BTDPC"
+      "id": 1781761257101,
+      "initials": "B",
+      "name": "Brianna",
+      "password": "WTWUNH"
     },
     {
       "color": "#059669",
-      "id": 1781761257086,
+      "id": 1781761257102,
+      "initials": "S",
+      "name": "Sanjoni",
+      "password": "DHPWRN"
+    },
+    {
+      "color": "#DC2626",
+      "id": 1781761257103,
+      "initials": "K",
+      "name": "Kevin",
+      "password": "CDFK3V"
+    },
+    {
+      "color": "#D97706",
+      "id": 1781761257104,
+      "initials": "B",
+      "name": "Betty",
+      "password": "IE32K8"
+    },
+    {
+      "color": "#0891B2",
+      "id": 1781761257105,
       "initials": "R",
-      "name": "Rene",
-      "password": "AECTZB"
+      "name": "Rachelys",
+      "password": "GIHGQR"
     },
     {
-      "color": "#D97706",
-      "id": 1781761257087,
-      "initials": "Y",
-      "name": "Yansel",
-      "password": "5Z27NA"
-    },
-    {
-      "color": "#D97706",
-      "id": 1781761257088,
-      "initials": "LD",
-      "name": "Luis Daniel",
-      "password": "78VRQH"
-    },
-    {
-      "color": "#7C3AED",
-      "id": 1781761257089,
-      "initials": "KP",
-      "name": "Kevin P",
-      "password": "BWRP8F"
+      "color": "#BE185D",
+      "id": 1781761257106,
+      "initials": "L",
+      "name": "Lily",
+      "password": "X6YLV6"
     },
     {
       "color": "#1D4ED8",
-      "id": 1781761257090,
-      "initials": "L",
-      "name": "Lázaro",
-      "password": "X99R33"
+      "id": 1781761257107,
+      "initials": "K",
+      "name": "Karla",
+      "password": "PF5AWM"
     },
     {
-      "color": "#D97706",
-      "id": 1781761257091,
-      "initials": "ER",
-      "name": "Ernesto R",
-      "password": "HBH5UN"
+      "color": "#2563EB",
+      "id": 1781761257108,
+      "initials": "H",
+      "name": "Hilario",
+      "password": "AUCMBX"
     },
     {
       "color": "#7C3AED",
-      "id": 1781761257092,
+      "id": 1781761257109,
+      "initials": "T",
+      "name": "Thalia",
+      "password": "S1A7C2"
+    },
+    {
+      "color": "#059669",
+      "id": 1781761257110,
+      "initials": "N",
+      "name": "Nahomi",
+      "password": "FDPR0W"
+    },
+    {
+      "color": "#DC2626",
+      "id": 1781761257111,
+      "initials": "J",
+      "name": "Jennifer",
+      "password": "PNVT6J"
+    },
+    {
+      "color": "#D97706",
+      "id": 1781761257112,
+      "initials": "L",
+      "name": "Leyser",
+      "password": "QAZDL4"
+    },
+    {
+      "color": "#0891B2",
+      "id": 1781761257113,
       "initials": "A",
-      "name": "Andres",
-      "password": "TK9Y2T"
+      "name": "Adrian",
+      "password": "CYJRKB"
+    },
+    {
+      "color": "#BE185D",
+      "id": 1781761257114,
+      "initials": "L",
+      "name": "Loraine",
+      "password": "97ZN3D"
+    },
+    {
+      "color": "#1D4ED8",
+      "id": 1781761257115,
+      "initials": "E",
+      "name": "Edward",
+      "password": "76GA03"
+    },
+    {
+      "color": "#2563EB",
+      "id": 1781761257116,
+      "initials": "E",
+      "name": "Emily",
+      "password": "SSNK0W"
+    },
+    {
+      "color": "#7C3AED",
+      "id": 1781761257117,
+      "initials": "C",
+      "name": "Chabelis",
+      "password": "LY9BFK"
+    },
+    {
+      "color": "#059669",
+      "id": 1781761257118,
+      "initials": "D",
+      "name": "Danny",
+      "password": "P5DZ5M"
     }
   ],
   "mensajeros": [
@@ -1066,5 +1024,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-20T17:57:05.614Z"
+  "timestamp": "2026-06-20T18:08:39.068Z"
 }
