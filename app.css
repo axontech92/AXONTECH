@@ -1,8 +1,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --blue:#00b4d8; --blue-dk:#006d8a; --blue-lt:#e0f7fc; --blue-bd:#80ddf0;
-      --gray-50:#F8FAFC; --gray-100:#F1F5F9; --gray-200:#E2E8F0;
-      --gray-400:#94A3B8; --gray-600:#475569; --gray-700:#334155; --gray-900:#0F172A;
+      --gray-50:#F8FAFC; --gray-100:#F1F5F9; --gray-200:#E2E8F0; --gray-300:#D1D5DB;
+      --gray-400:#94A3B8; --gray-500:#6B7280; --gray-600:#475569; --gray-700:#334155; --gray-900:#0F172A;
       --green:#10B981; --yellow:#F59E0B; --red:#EF4444; --orange:#F97316;
       --surface:#ffffff; --surface2:var(--gray-50); --border:var(--gray-200);
       --text:var(--gray-900); --text-muted:var(--gray-600); --input-bg:#ffffff;
@@ -10,8 +10,8 @@
     /* ── DARK MODE ── */
     body.dark {
       --blue:#00b4d8; --blue-lt:#062830; --blue-bd:#0a4a5c; --blue-dk:#084050;
-      --gray-50:#0a0f1a; --gray-100:#111827; --gray-200:#1f2937;
-      --gray-400:#4b5563; --gray-600:#9ca3af; --gray-700:#d1d5db; --gray-900:#f9fafb;
+      --gray-50:#0a0f1a; --gray-100:#111827; --gray-200:#1f2937; --gray-300:#374151;
+      --gray-400:#4b5563; --gray-500:#9CA3AF; --gray-600:#9ca3af; --gray-700:#d1d5db; --gray-900:#f9fafb;
       --surface:#111827; --surface2:#0a0f1a; --border:#1f2937;
       --text:#f9fafb; --text-muted:#9ca3af; --input-bg:#111827;
     }
@@ -220,8 +220,10 @@
     .btn-orange:hover { background:#EA580C; }
     .btn-ghost  { background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-200); }
     .btn-ghost:hover { background:var(--gray-200); }
-    .btn-wa { background:#25D366; color:white; border:1px solid #25D366; }
+    .btn-wa  { background:#25D366; color:white; border:1px solid #25D366; }
     .btn-wa:hover { background:#128C7E; }
+    .btn-red { background:var(--red); color:white; }
+    .btn-red:hover { background:#DC2626; }
     .btn-full { width:100%; }
     .btn-sm   { padding:5px 11px; font-size:12px; }
     .btn:disabled { opacity:.4; cursor:not-allowed; }
@@ -359,6 +361,9 @@
     .mensajero-row { font-size:13px; font-weight:600; padding:8px 0; }
 
     /* ── MENSAJEROS ── */
+    .m-card { border:1.5px solid var(--gray-200); border-radius:10px; padding:10px 12px; cursor:pointer; background:var(--surface); transition:all .13s; }
+    .m-card:hover { border-color:var(--gray-400); background:var(--gray-50); }
+    .m-card.active { border-color:var(--blue); background:var(--blue-lt); }
     .m-item { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--gray-100); }
     .m-item:last-child { border-bottom:none; }
     .m-av   { width:28px; height:28px; border-radius:50%; background:var(--blue); color:white; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }

@@ -172,7 +172,7 @@ function refreshUI() {
   if(IS_ADMIN) {
     if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
     if(typeof renderAdminGestores === 'function') renderAdminGestores();
-    if(typeof renderInbox === 'function') 
+    if(typeof renderInbox === 'function') renderInbox();
     if(typeof renderMensajeros === 'function') renderMensajeros();
     if(typeof renderProductGrid === 'function') renderProductGrid();
     if(typeof renderStockCategorias === 'function') renderStockCategorias();
@@ -285,16 +285,6 @@ if (IS_ADMIN) {
 
 
 
-function timeAgo(dateString) {
-  const d=new Date(dateString);const now=new Date();const diffMs=now-d;
-  const diffMins=Math.round(diffMs/60000);
-  if(diffMins<1)return 'Ahora';
-  if(diffMins<60)return diffMins+'m';
-  const diffHours=Math.floor(diffMins/60);
-  if(diffHours<24)return diffHours+'h';
-  const diffDays=Math.floor(diffHours/24);
-  return diffDays+'d';
-}
 function patchVale(id, changes) {
   const all = getVales(); const i = all.findIndex(v=>v.id===id);
   if (i!==-1){
@@ -408,12 +398,10 @@ function renderGestorNotifs() {
     } else {
       msg=`${n.productName}${n.extra?` (${n.extra})`:``}`;
     }
-    return `<div class="notif-item ${cls}">
-      <div class="notif-icon">${icon}</div>
-      <div class="notif-body">
-        <div class="notif-text">${msg}</div>
-        <div class="notif-time">${age}</div>
-      </div>
+    return `<div class="gnotif-item ${cls}">
+      <div class="gnotif-icon">${icon}</div>
+      <div class="gnotif-text">${msg}</div>
+      <div class="gnotif-time">${age}</div>
     </div>`;
   };
 
@@ -456,11 +444,6 @@ function showToast(msg) {
 // ══════════════════════════════════════════
 //  DATE / NOTIFICATIONS
 // ══════════════════════════════════════════
-function nowDateTime() {
-  const d=new Date();
-  return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
-}
-
 function updateDate() {
   const hd=document.getElementById('headerDate');
   if(hd)hd.textContent=new Date().toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
@@ -699,6 +682,10 @@ function submitGestorPass() {
   }
 }
 function changeGestor() {
+  if (gestorValesListener && activeGestorId) {
+    db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+    gestorValesListener = null;
+  }
   activeGestorId=null;
   document.getElementById('layoutGestor').classList.remove('has-gestor');
   document.getElementById('gestorBanner').style.display='none';
@@ -920,63 +907,6 @@ function addGestor() {
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
   showToast(`Gestor agregado ✓ · Clave: ${password}`);
 }
-function resetGestorPass(id) {
-  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
-  const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
-  gestoresTabDirty=true;
-  renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
-}
-function removeGestor(id) {
-  if(getVales().some(v=>v.gestorId===id)){showToast('Tiene vales registrados');return;}
-  saveGestores(getGestores().filter(g=>g.id!==id));
-  gestoresTabDirty=true;rankingCache=null;
-  renderAdminGestoresList();renderGestores();renderAdminGestores();
-}
-function renderAdminGestoresList() {
-  const list=getGestores();
-  const c=document.getElementById('adminGestoresPanel-list');
-  if(!c) return;
-  if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
-  c.innerHTML=list.map(g=>{
-    const vales=getVales().filter(v=>v.gestorId===g.id);
-    const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
-    const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
-      .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
-    return `<div class="gp-card">
-      <div class="g-avatar" style="background:${g.color};width:40px;height:40px;font-size:13px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
-      <div style="flex:1;min-width:140px;">
-        <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
-          <span style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);">🔑 ${g.password||'—'}</span>
-          <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
-          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
-        </div>
-      </div>
-      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);align-self:flex-start;flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
-    </div>`;
-  }).join('');
-}
-function openEditGestorModal(id) {
-  const g=gestorOf(id);if(!g)return;
-  document.getElementById('editGestorInput').value=g.name;
-  document.getElementById('editGestorModal').dataset.gestorId=id;
-  document.getElementById('editGestorModal').classList.add('show');
-}
-function closeEditGestorModal(){document.getElementById('editGestorModal').classList.remove('show');}
-function saveEditGestor() {
-  const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
-  const newName=document.getElementById('editGestorInput').value.trim();
-  if(!newName){showToast('El nombre no puede estar vacío');return;}
-  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
-  const initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  list[i]={...list[i],name:newName,initials};
-  saveGestores(list);
-  closeEditGestorModal();
-  renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
-  showToast('Gestor actualizado ✓');
-}
-
 // ══════════════════════════════════════════
 //  ADMIN GESTORES FILTER (inbox)
 // ══════════════════════════════════════════
@@ -1065,146 +995,6 @@ function selectVale(id) {
 }
 
 // ══════════════════════════════════════════
-//  VALE DETAIL
-// ══════════════════════════════════════════
-function renderValeDetail() {
-  const v=getVales().find(x=>x.id===selectedValeId);
-  const c=document.getElementById('valeDetail');
-  if(!c) return;
-  if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
-  const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-  const sMap={
-    pending:{label:'Pendiente',cls:'sp-pending',icon:'🔵'},
-    assigned:{label:'Con mensajero',cls:'sp-assigned',icon:'🛵'},
-    confirmed:{label:'Confirmado',cls:'sp-confirmed',icon:'✅'},
-    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
-  };
-  const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
-  const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
-  let actHTML='';
-  if(v.status==='pending'){
-    actHTML=`<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
-    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
-      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
-    </div>`;
-  } else if(v.status==='assigned'){
-    actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?m.name:'—'}</div>
-      <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
-  } else if(v.status==='delivered'){
-    actHTML=`<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
-      <div style="font-size:24px;margin-bottom:4px;">🛵</div>
-      <div style="font-weight:700;color:#7C3AED;">Entregado por mensajero</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:''}
-    </div>
-    <button class="btn btn-green btn-full" onclick="confirmSale(${v.id},'confirmed')" style="margin-bottom:8px;">✅ Confirmar venta + Entregado</button>
-    <button class="btn btn-orange btn-full" onclick="confirmSale(${v.id},'pending_payment')">⏳ Confirmar venta + Pendiente de cobro</button>`;
-  } else if(v.status==='confirmed'){
-    actHTML=`<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:14px;text-align:center;">
-      <div style="font-size:26px;margin-bottom:4px;">✅</div>
-      <div style="font-weight:700;color:var(--green);">Venta confirmada y cobrada</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Mensajero: ${m.name}</div>`:''}
-      ${v.confirmedTs?`<div style="font-size:11px;color:var(--gray-400);">${new Date(v.confirmedTs).toLocaleDateString('es-ES')} ${timeStr(v.confirmedTs)}</div>`:''}
-    </div>
-    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir a Entregado</button>`;
-  } else if(v.status==='pending_payment'){
-    actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
-      <div style="font-size:26px;margin-bottom:4px;">⏳</div>
-      <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:''}
-    </div>
-    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>`;
-  }
-  const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
-  const notesHighlight=v.adminNotes?`<div style="background:#FFFBEB;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--gray-700);margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
-  c.innerHTML=`
-    <div class="lbl" style="margin-top:0;">Detalle del Vale</div>
-    <div class="card">
-      ${numBadge}
-      <div class="det-gestor-row">
-        <div class="g-avatar" style="background:${g?g.color:'#888'};width:34px;height:34px;font-size:12px;">${g?escapeHTML(g.initials):'?'}</div>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;">${g?escapeHTML(g.name):'—'}</div>
-          <div style="font-size:11px;color:var(--gray-400);">${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</div>
-        </div>
-        <div style="text-align:right;">
-          <span class="sp ${s.cls}">${s.icon} ${s.label}</span>
-          ${pts>0?`<div style="font-size:10px;color:var(--blue);font-weight:700;margin-top:3px;">⭐ ${pts} pts</div>`:''}
-        </div>
-      </div>
-      <table style="width:100%;font-size:12px;border-collapse:collapse;">
-        ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia]]
-          .filter(([,val])=>val)
-          .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
-            <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:80px;">${k}</td>
-            <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
-      </table>
-      ${notesHighlight}
-    </div>
-    <div class="card" style="padding:10px 14px;display:flex;gap:6px;">
-      ${v.status!=='confirmed'?`<button type="button" class="btn btn-ghost btn-full btn-sm" onclick="openEditValeModal(${v.id})">✏️ Editar vale</button>`:''}
-      <button type="button" class="btn btn-sm btn-full" style="background:rgba(239,68,68,.1);color:var(--red);border:none;" onclick="adminDeleteVale(${v.id})">🗑️ Eliminar vale</button>
-    </div>
-    ${actHTML?`<div class="card"><div class="det-actions">${actHTML}</div></div>`:''}
-    <div class="card" style="padding:10px 14px;">
-      <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">📝 Notas (admin)</div>
-      <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin-bottom:6px;">${v.adminNotes||''}</textarea>
-      <button type="button" class="btn btn-ghost btn-sm btn-full" onclick="saveValeNotes(${v.id})">Guardar nota</button>
-    </div>
-    <div class="lbl">Vale completo</div>
-    <div class="card" style="padding:10px 12px;">
-      <div class="vale-preview" style="font-size:11px;">${v.valeText||''}</div>
-      <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.querySelector('#valeDetail .vale-preview').textContent).then(()=>showToast('Copiado ✓'))">📋 Copiar vale</button>
-    </div>`;
-}
-
-// ══════════════════════════════════════════
-//  VALE NOTES (admin)
-// ══════════════════════════════════════════
-function saveValeNotes(id) {
-  const ta=document.getElementById('valeNotesInput');
-  if(!ta)return;
-  patchVale(id,{adminNotes:ta.value.trim()});
-  renderValeDetail();
-  showToast('Nota guardada ✓');
-}
-
-// ══════════════════════════════════════════
-//  EDIT VALE MODAL
-// ══════════════════════════════════════════
-function openEditValeModal(id) {
-  const v=getVales().find(x=>x.id===id);if(!v)return;
-  document.getElementById('ev-cliente').value=v.cliente||'';
-  document.getElementById('ev-telefono').value=v.telefono||'';
-  document.getElementById('ev-direccion').value=v.direccion||'';
-  document.getElementById('ev-mensajeria').value=v.mensajeria||'';
-  document.getElementById('ev-total').value=v.total||'';
-  document.getElementById('ev-garantia').value=v.garantia||'';
-  document.getElementById('editValeModal').dataset.valeId=id;
-  document.getElementById('editValeModal').classList.add('show');
-}
-function closeEditValeModal(){document.getElementById('editValeModal').classList.remove('show');}
-function saveEditVale() {
-  const id=parseInt(document.getElementById('editValeModal').dataset.valeId);
-  const changes={
-    cliente:document.getElementById('ev-cliente').value.trim(),
-    telefono:document.getElementById('ev-telefono').value.trim(),
-    direccion:document.getElementById('ev-direccion').value.trim(),
-    mensajeria:document.getElementById('ev-mensajeria').value.trim(),
-    total:document.getElementById('ev-total').value.trim(),
-    garantia:document.getElementById('ev-garantia').value.trim(),
-  };
-  patchVale(id,changes);
-  closeEditValeModal();
-  renderValeDetail();
-  showToast('Vale actualizado ✓');
-}
-
-// ══════════════════════════════════════════
 //  SHARE MODAL
 // ══════════════════════════════════════════
 function openShareModal(valeId) {
@@ -1220,7 +1010,6 @@ function openShareModal(valeId) {
   document.getElementById('shareModal').classList.add('show');
 }
 
-// Missing UI pieces added back safely
 function renderValeDetail() {
   const v=getVales().find(x=>x.id===selectedValeId);
   const c=document.getElementById('valeDetail');
@@ -1343,19 +1132,6 @@ function saveEditVale() {
   closeEditValeModal();
   renderAdminGestores();renderValeDetail();
   showToast('Vale editado ✓');
-}
-
-function openShareModal(valeId) {
-  const mensajeros=getMensajeros();
-  if(!mensajeros.length){showToast('Agrega mensajeros primero');return;}
-  shareTargetId=valeId;
-  const v=getVales().find(x=>x.id===valeId);const g=gestorOf(v.gestorId);
-  document.getElementById('shareModalSub').textContent=`Vale de ${g?g.name:'—'} · ${v.cliente||'cliente'}`;
-  const sel=document.getElementById('mensajeroSelect');
-  sel.innerHTML=mensajeros.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
-  if(v.mensajeroId)sel.value=v.mensajeroId;
-  updateSharePreview();sel.onchange=updateSharePreview;
-  document.getElementById('shareModal').classList.add('show');
 }
 
 function updateSharePreview() {
@@ -1514,7 +1290,6 @@ function renderConfirmados() {
 function renderPendienteCobro() {
   const c=document.getElementById('pendienteList');
   if(!c) return;
-   if(!c)return;
   const pend=getVales().filter(v=>v.status==='pending_payment').reverse();
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
@@ -3134,7 +2909,6 @@ function renderHistorial() {
   const gestorEl=document.getElementById('histGestorFilter');
   const c=document.getElementById('historialList');
   if(!c) return;
-   if(!c)return;
   // Populate gestor filter
   const gestores=getGestores();
   const curGFilter=gestorEl?gestorEl.value:'';
@@ -3253,39 +3027,6 @@ async function nukeAndRebuild() {
     
     showToast("¡Listo! Recargando...");
     setTimeout(() => { window.location.href = './admin.html'; }, 1500);
-  } catch(e) {
-    alert("Error: " + e.message);
-  }
-}
-
-
-
-async function nukeAndRebuild() {
-  if(!confirm("¿Estás seguro? Esto borrará Firebase entero y meterá los 25 gestores nuevos.")) return;
-  try {
-    showToast("Descargando gestores...");
-    const res = await fetch('./data.json?t=' + Date.now());
-    if(!res.ok) throw new Error("No se pudo leer data.json");
-    
-    const data = await res.json();
-    
-    showToast("Borrando Firebase...");
-    await db.ref('/').remove();
-    
-    showToast("Limpiando celular...");
-    localStorage.clear();
-    
-    showToast("Inyectando 25 gestores...");
-    if(data.gestores) {
-       localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-       await db.ref('gestores').set(data.gestores);
-    }
-    
-    showToast("¡Listo! Recargando...");
-    setTimeout(() => {
-       window.location.href = './admin.html';
-    }, 1500);
-    
   } catch(e) {
     alert("Error: " + e.message);
   }
