@@ -275,7 +275,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 4
+      "stock": 3
     },
     {
       "catId": 20,
@@ -873,6 +873,8 @@
       "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
       "cliente": "Bwjej",
+      "confirmedTs": "2026-06-22T16:03:35.309Z",
+      "deliveredTs": "2026-06-22T16:03:30.227Z",
       "direccion": "Ueueiir",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -882,7 +884,7 @@
       "mensajeroId": 1781533316958,
       "precioMN": "-",
       "precioUSD": "$25 USD",
-      "status": "assigned",
+      "status": "confirmed",
       "telefono": "616565-",
       "total": "$25 USD",
       "ts": "2026-06-22T16:00:58.596Z",
@@ -1082,5 +1084,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-22T16:02:57.821Z"
+  "timestamp": "2026-06-22T16:03:35.323Z"
 }
