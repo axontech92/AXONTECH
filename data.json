@@ -901,7 +901,7 @@
       "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
       "cliente": "Bwjej",
-      "confirmedTs": "2026-06-22T16:01:53.859Z",
+      "confirmedTs": "2026-06-22T16:02:57.800Z",
       "deliveredTs": "2026-06-22T15:59:08.603Z",
       "direccion": "Ueueiir",
       "garantia": "",
@@ -912,7 +912,7 @@
       "mensajeroId": 1781533321165,
       "precioMN": "-",
       "precioUSD": "$25 USD",
-      "status": "pending_payment",
+      "status": "confirmed",
       "telefono": "616565-",
       "total": "$25 USD",
       "ts": "2026-06-22T15:52:09.453Z",
@@ -1082,5 +1082,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-22T16:01:53.883Z"
+  "timestamp": "2026-06-22T16:02:57.821Z"
 }
