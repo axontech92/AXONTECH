@@ -275,7 +275,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 5
+      "stock": 4
     },
     {
       "catId": 20,
@@ -870,6 +870,64 @@
   ],
   "vales": [
     {
+      "adminNotes": "",
+      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
+      "cliente": "Bwjej",
+      "direccion": "Ueueiir",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1782144058589,
+      "isNew": false,
+      "mensajeria": "Kekeiei",
+      "mensajeroId": 1781533316958,
+      "precioMN": "-",
+      "precioUSD": "$25 USD",
+      "status": "assigned",
+      "telefono": "616565-",
+      "total": "$25 USD",
+      "ts": "2026-06-22T16:00:58.596Z",
+      "valeNum": 2,
+      "valeProductos": [
+        {
+          "id": 1778103856933,
+          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "-"
+    },
+    {
+      "adminNotes": "",
+      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
+      "cliente": "Bwjej",
+      "confirmedTs": "2026-06-22T16:01:53.859Z",
+      "deliveredTs": "2026-06-22T15:59:08.603Z",
+      "direccion": "Ueueiir",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1782143529445,
+      "isNew": false,
+      "mensajeria": "Kekeiei",
+      "mensajeroId": 1781533321165,
+      "precioMN": "-",
+      "precioUSD": "$25 USD",
+      "status": "pending_payment",
+      "telefono": "616565-",
+      "total": "$25 USD",
+      "ts": "2026-06-22T15:52:09.453Z",
+      "valeNum": 1,
+      "valeProductos": [
+        {
+          "id": 1778103856933,
+          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 11:51\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "-"
+    },
+    {
       "articulo": "Casa x1",
       "cliente": "Heiei",
       "confirmedTs": "2026-06-15T20:46:02.547Z",
@@ -1024,5 +1082,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-20T18:09:50.232Z"
+  "timestamp": "2026-06-22T16:01:53.883Z"
 }
