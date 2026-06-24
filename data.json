@@ -215,7 +215,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924315386.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 18
+      "stock": 19
     },
     {
       "catId": 10,
@@ -239,7 +239,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102507659.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 7
+      "stock": 8
     },
     {
       "catId": 40,
@@ -299,7 +299,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104287395.webp",
       "precio": "$130 USD",
       "puntos": 2,
-      "stock": 0
+      "stock": 1
     },
     {
       "catId": 20,
@@ -539,7 +539,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384646214_ext.webp",
       "precio": "$20 USD",
       "puntos": 1,
-      "stock": 19
+      "stock": 20
     },
     {
       "catId": 50,
@@ -873,7 +873,7 @@
       "adminNotes": "",
       "articulo": "ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1",
       "cliente": "Juan Carlos",
-      "confirmedTs": "2026-06-24T16:26:49.005Z",
+      "commissionPaid": false,
       "deliveredTs": "2026-06-24T16:26:30.323Z",
       "direccion": "Kvucyfydtdydyfyfy",
       "garantia": "",
@@ -884,7 +884,7 @@
       "mensajeroId": 1781533321165,
       "precioMN": "",
       "precioUSD": "$200 USD",
-      "status": "confirmed",
+      "status": "delivered",
       "telefono": "5555558855",
       "total": "$200 USD + 500 MN",
       "ts": "2026-06-24T16:23:29.654Z",
@@ -1129,5 +1129,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-24T16:26:49.039Z"
+  "timestamp": "2026-06-24T16:28:44.066Z"
 }
