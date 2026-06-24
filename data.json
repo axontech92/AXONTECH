@@ -215,7 +215,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924315386.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 19
+      "stock": 18
     },
     {
       "catId": 10,
@@ -239,7 +239,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102507659.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 8
+      "stock": 7
     },
     {
       "catId": 40,
@@ -299,7 +299,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104287395.webp",
       "precio": "$130 USD",
       "puntos": 2,
-      "stock": 1
+      "stock": 0
     },
     {
       "catId": 20,
@@ -539,7 +539,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384646214_ext.webp",
       "precio": "$20 USD",
       "puntos": 1,
-      "stock": 20
+      "stock": 19
     },
     {
       "catId": 50,
@@ -871,6 +871,51 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1",
+      "cliente": "Juan Carlos",
+      "confirmedTs": "2026-06-24T16:26:49.005Z",
+      "deliveredTs": "2026-06-24T16:26:30.323Z",
+      "direccion": "Kvucyfydtdydyfyfy",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1782318209645,
+      "isNew": false,
+      "mensajeria": "500 cup",
+      "mensajeroId": 1781533321165,
+      "precioMN": "",
+      "precioUSD": "$200 USD",
+      "status": "confirmed",
+      "telefono": "5555558855",
+      "total": "$200 USD + 500 MN",
+      "ts": "2026-06-24T16:23:29.654Z",
+      "valeNum": 3,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "name": "ADAPTADOR POE UBIQUITI",
+          "qty": 1
+        },
+        {
+          "id": 1778102507659,
+          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
+          "qty": 1
+        },
+        {
+          "id": 1777924315386,
+          "name": "REPETIDOR WIFI 5",
+          "qty": 1
+        },
+        {
+          "id": 1778104287395,
+          "name": "EL ENRUTADOR WIFI DE 1.150MBPS",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan Carlos\n🔸Teléfono Cliente: 5555558855\n🔸Dirección Cliente: Kvucyfydtdydyfyfy\n🔸Mensajería/ costo: 500 cup\n🔸 Artículo y cantidad: ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/6/2026 12:23\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
       "cliente": "Bwjej",
       "confirmedTs": "2026-06-22T16:03:35.309Z",
@@ -1084,5 +1129,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-24T16:12:41.682Z"
+  "timestamp": "2026-06-24T16:26:49.039Z"
 }
