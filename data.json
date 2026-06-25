@@ -975,6 +975,8 @@
       "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
       "cliente": "Bwjej",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-25T05:24:36.517Z",
       "confirmedTs": "2026-06-22T16:02:57.800Z",
       "deliveredTs": "2026-06-22T15:59:08.603Z",
       "direccion": "Ueueiir",
@@ -1156,5 +1158,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-25T05:24:09.248Z"
+  "timestamp": "2026-06-25T05:24:36.556Z"
 }
