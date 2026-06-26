@@ -75,20 +75,6 @@
         <div id="confirmadosList"><div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div></div>
         <div class="lbl" style="margin-top:20px;">⏳ Pendientes de Cobro</div>
         <div id="pendienteList"><div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div></div>
-        <div class="lbl" style="margin-top:20px;">Configuración</div>
-        <div class="card" style="padding:10px 14px;">
-          <label class="field-lbl">📱 WhatsApp Admin (para compartir)</label>
-          <div class="add-row">
-            <input type="text" id="adminPhoneInput" placeholder="Ej: 5355551234" style="font-size:12px;">
-            <button class="btn btn-blue btn-sm" onclick="saveAdminPhone()">✓</button>
-          </div>
-          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Número sin + ni espacios</div>
-          <label class="field-lbl" style="margin-top:10px;">🔐 Cambiar contraseña admin</label>
-          <div class="add-row">
-            <input type="password" id="newPassInput" placeholder="Nueva contraseña" style="font-size:12px;">
-            <button class="btn btn-ghost btn-sm" onclick="changePass()">✓</button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -238,11 +224,14 @@
           </div>
           <div id="metaPuntosStatus" style="font-size:11px;color:var(--gray-400);margin-top:6px;"></div>
         </div>
-        <div class="lbl">🛍️ Sincronizar productos desde TiendaMax</div>
+        <div class="lbl">📱 WhatsApp Admin</div>
         <div class="card">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Carga automáticamente los productos, categorías y subcategorías directamente desde los archivos de TiendaMax. Los gestores, mensajeros y vales no se tocan.</div>
-          <button type="button" class="btn btn-blue btn-sm" onclick="syncFromTiendaMax()">🔄 Sincronizar desde TiendaMax</button>
-          <div id="syncTiendaMaxStatus" style="font-size:11px;margin-top:8px;"></div>
+          <label class="field-lbl">Número para recibir notificaciones de nuevos vales</label>
+          <div class="add-row">
+            <input type="text" id="adminPhoneInput" placeholder="Ej: 5355551234" style="font-size:12px;">
+            <button class="btn btn-blue btn-sm" onclick="saveAdminPhone()">✓</button>
+          </div>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Número sin + ni espacios</div>
         </div>
         <div class="lbl">💾 Datos locales (exportar / importar)</div>
         <div class="card">
