@@ -235,7 +235,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780510811569.webp",
       "precio": "$30 USD",
       "puntos": 1,
-      "stock": 8
+      "stock": 9
     },
     {
       "catId": 40,
@@ -283,7 +283,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 4
+      "stock": 5
     },
     {
       "catId": 20,
@@ -878,68 +878,6 @@
   ],
   "vales": [
     {
-      "adminNotes": "",
-      "articulo": "SWITCH DE 8 PUERTOS x1",
-      "cliente": "Jeje",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-25T05:24:38.931Z",
-      "confirmedTs": "2026-06-25T05:24:09.206Z",
-      "direccion": "Jejej",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782318671309,
-      "isNew": false,
-      "mensajeria": "Euie",
-      "precioMN": "-",
-      "precioUSD": "$30 USD",
-      "status": "confirmed",
-      "telefono": "61626",
-      "total": "$30 USD",
-      "ts": "2026-06-24T16:31:11.317Z",
-      "valeNum": 4,
-      "valeProductos": [
-        {
-          "id": 1778102214012,
-          "name": "SWITCH DE 8 PUERTOS",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jeje\n🔸Teléfono Cliente: 61626\n🔸Dirección Cliente: Jejej\n🔸Mensajería/ costo: Euie\n🔸 Artículo y cantidad: SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/6/2026 12:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "-"
-    },
-    {
-      "adminNotes": "",
-      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
-      "cliente": "Bwjej",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-25T05:24:38.141Z",
-      "confirmedTs": "2026-06-22T16:03:35.309Z",
-      "deliveredTs": "2026-06-22T16:03:30.227Z",
-      "direccion": "Ueueiir",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782144058589,
-      "isNew": false,
-      "mensajeria": "Kekeiei",
-      "mensajeroId": 1781533316958,
-      "precioMN": "-",
-      "precioUSD": "$25 USD",
-      "status": "confirmed",
-      "telefono": "616565-",
-      "total": "$25 USD",
-      "ts": "2026-06-22T16:00:58.596Z",
-      "valeNum": 2,
-      "valeProductos": [
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "-"
-    },
-    {
       "articulo": "Casa x1",
       "cliente": "Heiei",
       "confirmedTs": "2026-06-15T20:46:02.547Z",
@@ -1094,5 +1032,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-26T16:22:25.709Z"
+  "timestamp": "2026-06-26T16:22:43.975Z"
 }
