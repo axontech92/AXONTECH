@@ -331,7 +331,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 1
+      "stock": 0
     },
     {
       "catId": 20,
@@ -415,7 +415,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778213413973.webp",
       "precio": "$150 USD",
       "puntos": 2,
-      "stock": 7
+      "stock": 6
     },
     {
       "catId": 40,
@@ -439,7 +439,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780510827238.webp",
       "precio": "$20 USD",
       "puntos": 1,
-      "stock": 20
+      "stock": 18
     },
     {
       "catId": 10,
@@ -571,7 +571,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384840618_ext.webp",
       "precio": "$30 USD",
       "puntos": 1,
-      "stock": 12
+      "stock": 11
     },
     {
       "catId": 100,
@@ -727,7 +727,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780873635709.jpg",
       "precio": "$110 USD",
       "puntos": 2,
-      "stock": 6
+      "stock": 5
     },
     {
       "catId": 10,
@@ -989,6 +989,7 @@
       "adminNotes": "",
       "articulo": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1",
       "cliente": "Tuiop",
+      "confirmedTs": "2026-06-26T17:47:46.314Z",
       "direccion": "Amistad 311",
       "garantia": "",
       "gestorId": 1781761257101,
@@ -997,7 +998,7 @@
       "mensajeria": "3600",
       "precioMN": "",
       "precioUSD": "$1570 USD",
-      "status": "pending",
+      "status": "confirmed",
       "telefono": "99948678",
       "total": "$1570 USD + 3600 MN",
       "ts": "2026-06-26T17:31:00.555Z",
@@ -1026,6 +1027,7 @@
       "adminNotes": "",
       "articulo": "SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1",
       "cliente": "Jose",
+      "confirmedTs": "2026-06-26T17:47:38.088Z",
       "direccion": "Amistad",
       "garantia": "",
       "gestorId": 1781761257107,
@@ -1034,7 +1036,7 @@
       "mensajeria": "4500",
       "precioMN": "",
       "precioUSD": "$180 USD",
-      "status": "pending",
+      "status": "confirmed",
       "telefono": "52238448",
       "total": "$180 USD + 4500 MN",
       "ts": "2026-06-26T17:31:00.163Z",
@@ -1093,5 +1095,5 @@
       "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-06-26T17:47:33.708Z"
+  "timestamp": "2026-06-26T17:47:46.340Z"
 }
