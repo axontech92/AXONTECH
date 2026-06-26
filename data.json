@@ -1003,34 +1003,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Bwhej\n🔸Teléfono Cliente: 61616\n🔸Dirección Cliente: Jeueue\n🔸Mensajería/ costo: Ueueu\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: $68 USD\n🔸Precio CUP: Jeueueu\n🔸 Vuelto: 5\n🔸 Total a pagar: $68 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 13:39\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "5"
-    },
-    {
-      "articulo": "Router x1",
-      "cliente": "Bsjj",
-      "deliveredTs": "2026-06-15T14:22:34.287Z",
-      "direccion": "Jejej",
-      "garantia": "",
-      "gestorId": 1781533160002,
-      "id": 1781533261043,
-      "isNew": false,
-      "mensajeria": "Wiwi",
-      "mensajeroId": 1781533316958,
-      "precioCUP": "Hwjwj",
-      "precioUSD": "Bsjs",
-      "status": "delivered",
-      "telefono": "4646",
-      "total": "Wjjwkw",
-      "ts": "2026-06-15T14:21:01.043Z",
-      "valeProductos": [
-        {
-          "id": 1781533209591,
-          "name": "Router",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Bsjj\n🔸Teléfono Cliente: 4646\n🔸Dirección Cliente: Jejej\n🔸Mensajería/ costo: Wiwi\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: Bsjs\n🔸Precio CUP: Hwjwj\n🔸 Vuelto: Jwjwk\n🔸 Total a pagar: Wjjwkw\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 10:20\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-26T16:22:43.975Z"
+  "timestamp": "2026-06-26T16:23:04.594Z"
 }
