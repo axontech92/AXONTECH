@@ -132,6 +132,14 @@
       "initials": "D",
       "name": "Danny",
       "password": "P5DZ5M"
+    },
+    {
+      "color": "#DC2626",
+      "id": 1782489503525,
+      "initials": "J",
+      "name": "Julio",
+      "password": "9E6MS6",
+      "phone": ""
     }
   ],
   "mensajeros": [
@@ -275,7 +283,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 3
+      "stock": 4
     },
     {
       "catId": 20,
@@ -873,6 +881,8 @@
       "adminNotes": "",
       "articulo": "SWITCH DE 8 PUERTOS x1",
       "cliente": "Jeje",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-25T05:24:38.931Z",
       "confirmedTs": "2026-06-25T05:24:09.206Z",
       "direccion": "Jejej",
       "garantia": "",
@@ -899,52 +909,10 @@
     },
     {
       "adminNotes": "",
-      "articulo": "ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1",
-      "cliente": "Juan Carlos",
-      "deliveredTs": "2026-06-24T16:26:30.323Z",
-      "direccion": "Kvucyfydtdydyfyfy",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782318209645,
-      "isNew": false,
-      "mensajeria": "500 cup",
-      "mensajeroId": 1781533321165,
-      "precioMN": "",
-      "precioUSD": "$200 USD",
-      "status": "delivered",
-      "telefono": "5555558855",
-      "total": "$200 USD + 500 MN",
-      "ts": "2026-06-24T16:23:29.654Z",
-      "valeNum": 3,
-      "valeProductos": [
-        {
-          "id": 1778384646214,
-          "name": "ADAPTADOR POE UBIQUITI",
-          "qty": 1
-        },
-        {
-          "id": 1778102507659,
-          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
-          "qty": 1
-        },
-        {
-          "id": 1777924315386,
-          "name": "REPETIDOR WIFI 5",
-          "qty": 1
-        },
-        {
-          "id": 1778104287395,
-          "name": "EL ENRUTADOR WIFI DE 1.150MBPS",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan Carlos\n🔸Teléfono Cliente: 5555558855\n🔸Dirección Cliente: Kvucyfydtdydyfyfy\n🔸Mensajería/ costo: 500 cup\n🔸 Artículo y cantidad: ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/6/2026 12:23\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    },
-    {
-      "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
       "cliente": "Bwjej",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-25T05:24:38.141Z",
       "confirmedTs": "2026-06-22T16:03:35.309Z",
       "deliveredTs": "2026-06-22T16:03:30.227Z",
       "direccion": "Ueueiir",
@@ -969,38 +937,6 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "-"
-    },
-    {
-      "adminNotes": "",
-      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
-      "cliente": "Bwjej",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-25T05:24:36.517Z",
-      "confirmedTs": "2026-06-22T16:02:57.800Z",
-      "deliveredTs": "2026-06-22T15:59:08.603Z",
-      "direccion": "Ueueiir",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782143529445,
-      "isNew": false,
-      "mensajeria": "Kekeiei",
-      "mensajeroId": 1781533321165,
-      "precioMN": "-",
-      "precioUSD": "$25 USD",
-      "status": "confirmed",
-      "telefono": "616565-",
-      "total": "$25 USD",
-      "ts": "2026-06-22T15:52:09.453Z",
-      "valeNum": 1,
-      "valeProductos": [
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 11:51\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "-"
     },
     {
@@ -1158,5 +1094,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-25T05:24:36.556Z"
+  "timestamp": "2026-06-26T16:22:25.709Z"
 }
