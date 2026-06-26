@@ -132,6 +132,14 @@
       "initials": "D",
       "name": "Danny",
       "password": "P5DZ5M"
+    },
+    {
+      "color": "#DC2626",
+      "id": 1782489503525,
+      "initials": "J",
+      "name": "Julio",
+      "password": "9E6MS6",
+      "phone": ""
     }
   ],
   "mensajeros": [
@@ -1162,5 +1170,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-26T15:56:50.985Z"
+  "timestamp": "2026-06-26T15:58:23.550Z"
 }
