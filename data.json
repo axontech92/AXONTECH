@@ -881,6 +881,8 @@
       "adminNotes": "",
       "articulo": "REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4",
       "cliente": "Pdjddh",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:34.379Z",
       "confirmedTs": "2026-06-26T17:47:33.679Z",
       "direccion": "San jose",
       "garantia": "",
@@ -954,6 +956,8 @@
       "adminNotes": "",
       "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
       "cliente": "Jekdkek",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:22.668Z",
       "confirmedTs": "2026-06-26T17:37:12.998Z",
       "deliveredTs": "2026-06-26T17:36:21.860Z",
       "direccion": "Uwueje",
@@ -989,6 +993,8 @@
       "adminNotes": "",
       "articulo": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1",
       "cliente": "Tuiop",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:21.364Z",
       "confirmedTs": "2026-06-26T17:47:46.314Z",
       "direccion": "Amistad 311",
       "garantia": "",
@@ -1027,6 +1033,8 @@
       "adminNotes": "",
       "articulo": "SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1",
       "cliente": "Jose",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:34.379Z",
       "confirmedTs": "2026-06-26T17:47:38.088Z",
       "direccion": "Amistad",
       "garantia": "",
@@ -1097,5 +1105,5 @@
       "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-06-26T17:49:19.153Z"
+  "timestamp": "2026-06-26T17:49:34.434Z"
 }
