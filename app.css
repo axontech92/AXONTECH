@@ -437,16 +437,16 @@
       .btn-sm { min-height: 36px; }
       /* Modal ocupa casi toda la pantalla */
       .modal { margin: 6px; padding: 16px; max-height: 95vh; }
-      /* Grilla de mensajeros: 2 columnas en móvil */
-      #mensajeroSelectorList { grid-template-columns: repeat(2,1fr) !important; }
-      /* Gestores: 2 columnas */
-      #gestoresList { grid-template-columns: repeat(2,1fr); }
-      /* Stats: 2 columnas */
-      #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr 1fr !important; }
+      /* Grillas: 3 columnas en móvil */
+      #mensajeroSelectorList { grid-template-columns: repeat(3,1fr) !important; }
+      #gestoresList { grid-template-columns: repeat(3,1fr); }
+      #pickerProductGrid { grid-template-columns: repeat(3,1fr) !important; }
+      /* Stats: 3 columnas */
+      #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr 1fr 1fr !important; }
       /* Nav de admin: scroll horizontal, texto más pequeño */
       .anav-btn { font-size: 10px; padding: 0 7px; }
       /* Cards de producto más compactas */
-      .prod-card { padding: 8px 10px; }
+      .prod-card { padding: 6px 8px; font-size: 12px; }
       /* Formulario del vale: campos más legibles */
       .vf-row { flex-wrap: wrap; }
       /* Vale detail: tabla responsiva */
@@ -463,7 +463,9 @@
       .brand-name { font-size: 12px; letter-spacing: 2px; }
       header { padding: 0 8px; gap: 6px; }
       .modal { margin: 4px; padding: 12px; }
-      #gestoresList { grid-template-columns: 1fr 1fr; }
+      #gestoresList { grid-template-columns: repeat(3,1fr); }
+      #mensajeroSelectorList { grid-template-columns: repeat(3,1fr) !important; }
+      #pickerProductGrid { grid-template-columns: repeat(3,1fr) !important; }
     }
 
     /* ── GOAL CELEBRATION ── */
