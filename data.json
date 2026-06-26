@@ -1065,6 +1065,8 @@
       "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1",
       "cliente": "Pedro",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:19.118Z",
       "confirmedTs": "2026-06-26T17:47:14.885Z",
       "direccion": "Cortina entre Santa Catalina y Milagros",
       "garantia": "",
@@ -1095,5 +1097,5 @@
       "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-06-26T17:47:46.340Z"
+  "timestamp": "2026-06-26T17:49:19.153Z"
 }
