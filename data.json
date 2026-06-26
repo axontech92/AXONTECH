@@ -283,7 +283,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 5
+      "stock": 4
     },
     {
       "catId": 20,
@@ -331,7 +331,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 3
+      "stock": 2
     },
     {
       "catId": 20,
@@ -879,6 +879,78 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4",
+      "cliente": "Pdjddh",
+      "direccion": "San jose",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "id": 1782495640680,
+      "isNew": true,
+      "mensajeria": "580",
+      "precioMN": "",
+      "precioUSD": "$2435 USD",
+      "status": "pending",
+      "telefono": "595949",
+      "total": "$2435 USD + 580 MN",
+      "ts": "2026-06-26T17:40:40.690Z",
+      "valeNum": 7,
+      "valeProductos": [
+        {
+          "id": 1777924315386,
+          "name": "REPETIDOR WIFI 5",
+          "qty": 5
+        },
+        {
+          "id": 1778102214012,
+          "name": "SWITCH DE 8 PUERTOS",
+          "qty": 2
+        },
+        {
+          "id": 1778102582909,
+          "name": "ANTORCHA PARA SOLDADURA TIG:",
+          "qty": 2
+        },
+        {
+          "id": 1778104287395,
+          "name": "EL ENRUTADOR WIFI DE 1.150MBPS",
+          "qty": 1
+        },
+        {
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+          "qty": 1
+        },
+        {
+          "id": 1778104599386,
+          "name": "INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW",
+          "qty": 1
+        },
+        {
+          "id": 1778104662477,
+          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
+          "qty": 1
+        },
+        {
+          "id": 1778384646214,
+          "name": "ADAPTADOR POE UBIQUITI",
+          "qty": 2
+        },
+        {
+          "id": 1778384769262,
+          "name": "VENTILADOR PARA CARRO",
+          "qty": 2
+        },
+        {
+          "id": 1778384840618,
+          "name": "PROTEGE TU HOGAR",
+          "qty": 4
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Pdjddh\n🔸Teléfono Cliente: 595949\n🔸Dirección Cliente: San jose\n🔸Mensajería/ costo: 580\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4\n🔸Precio USD/ zelle: $2435 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2435 USD + 580 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:39\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
       "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
       "cliente": "Jekdkek",
       "confirmedTs": "2026-06-26T17:37:12.998Z",
@@ -911,7 +983,114 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jekdkek\n🔸Teléfono Cliente: 6465665-5\n🔸Dirección Cliente: Uwueje\n🔸Mensajería/ costo: 4\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $55 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $59 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1",
+      "cliente": "Tuiop",
+      "direccion": "Amistad 311",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "id": 1782495060551,
+      "isNew": false,
+      "mensajeria": "3600",
+      "precioMN": "",
+      "precioUSD": "$1570 USD",
+      "status": "pending",
+      "telefono": "99948678",
+      "total": "$1570 USD + 3600 MN",
+      "ts": "2026-06-26T17:31:00.555Z",
+      "valeNum": 5,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+          "qty": 2
+        },
+        {
+          "id": 1778104662477,
+          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
+          "qty": 1
+        },
+        {
+          "id": 1778213413973,
+          "name": "FORROS DE ASIENTOS DE LUJO PARA AUTOS",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Tuiop\n🔸Teléfono Cliente: 99948678\n🔸Dirección Cliente: Amistad 311\n🔸Mensajería/ costo: 3600\n🔸 Artículo y cantidad: ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1\n🔸Precio USD/ zelle: $1570 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1570 USD + 3600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1",
+      "cliente": "Jose",
+      "direccion": "Amistad",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "id": 1782495060154,
+      "isNew": false,
+      "mensajeria": "4500",
+      "precioMN": "",
+      "precioUSD": "$180 USD",
+      "status": "pending",
+      "telefono": "52238448",
+      "total": "$180 USD + 4500 MN",
+      "ts": "2026-06-26T17:31:00.163Z",
+      "valeNum": 5,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "name": "SWITCH DE 5 PUERTOS",
+          "qty": 2
+        },
+        {
+          "id": 1780873638627,
+          "name": "ROUTER FENVI AX3000 Wi-Fi 6",
+          "qty": 1
+        },
+        {
+          "id": 1778384840618,
+          "name": "PROTEGE TU HOGAR",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Jose\n🔸Teléfono Cliente: 52238448\n🔸Dirección Cliente: Amistad\n🔸Mensajería/ costo: 4500\n🔸 Artículo y cantidad: SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1",
+      "cliente": "Pedro",
+      "confirmedTs": "2026-06-26T17:47:14.885Z",
+      "direccion": "Cortina entre Santa Catalina y Milagros",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1782495058746,
+      "isNew": false,
+      "mensajeria": "800",
+      "precioMN": "",
+      "precioUSD": "$285 USD",
+      "status": "confirmed",
+      "telefono": "52386475",
+      "total": "$285 USD + 800 MN",
+      "ts": "2026-06-26T17:30:58.757Z",
+      "valeNum": 5,
+      "valeProductos": [
+        {
+          "id": 1778103856933,
+          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "qty": 1
+        },
+        {
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 52386475\n🔸Dirección Cliente: Cortina entre Santa Catalina y Milagros\n🔸Mensajería/ costo: 800\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1\n🔸Precio USD/ zelle: $285 USD\n🔸Precio MN: \n🔸 Vuelto: 5 USD\n🔸 Total a pagar: $285 USD + 800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-06-26T17:39:39.334Z"
+  "timestamp": "2026-06-26T17:47:14.910Z"
 }
