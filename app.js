@@ -849,6 +849,7 @@ function renderAdminGestoresList() {
 function openEditGestorModal(id) {
   const g=gestorOf(id);if(!g)return;
   document.getElementById('editGestorInput').value=g.name;
+  const ph=document.getElementById('editGestorPhoneInput');if(ph)ph.value=g.phone||'';
   document.getElementById('editGestorModal').dataset.gestorId=id;
   document.getElementById('editGestorModal').classList.add('show');
 }
@@ -861,10 +862,12 @@ function saveEditGestor() {
   if(list.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
   list[i].name=newName;
   list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  list[i].phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
   saveGestores(list);
   closeEditGestorModal();
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
+  maybeAutoSync();
   showToast('Gestor editado ✓');
 }
 
@@ -872,7 +875,7 @@ function resetGestorPass(id) {
   const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
   const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
   gestoresTabDirty=true;
-  renderAdminGestoresList();showToast(`Nueva clave: ${np}`);
+  renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
 }
 
 function removeGestor(id) {
@@ -889,6 +892,7 @@ function removeGestor(id) {
     gestoresTabDirty=true;rankingCache=null;
     renderAdminGestoresList();renderGestores();renderAdminGestores();
     if(typeof renderComisiones === 'function') renderComisiones();
+    maybeAutoSync();
     showToast('Gestor eliminado ✓');
   });
 }
@@ -896,15 +900,18 @@ function removeGestor(id) {
 function addGestor() {
   const inp=document.getElementById('newGestorInput');
   const name=inp.value.trim();if(!name)return;
+  const phone=(document.getElementById('newGestorPhoneInput')?.value||'').trim();
   const initials=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const list=getGestores();
   if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
   const password=genPassword();
-  list.push({id:Date.now(),name,initials,color,password});
+  list.push({id:Date.now(),name,initials,color,password,phone});
   saveGestores(list);inp.value='';
+  const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
+  maybeAutoSync();
   showToast(`Gestor agregado ✓ · Clave: ${password}`);
 }
 // ══════════════════════════════════════════
@@ -1079,10 +1086,10 @@ function renderValeDetail() {
       </div>
       <table style="width:100%;font-size:12px;border-collapse:collapse;">
         ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia]]
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia],['💰 Comisión gestor',v.comisionGestor]]
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
-            <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:80px;">${k}</td>
+            <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:100px;">${k}</td>
             <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
       </table>
       ${notesHighlight}
@@ -1114,7 +1121,8 @@ function saveValeNotes(id) {
 
 function openEditValeModal(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  ['cliente','telefono','direccion','mensajeria','total','garantia'].forEach(k=>{
+  // Fix 5: incluir comisión del gestor en la edición del vale
+  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor'].forEach(k=>{
     const el=document.getElementById('ev-'+k);if(el)el.value=v[k]||'';
   });
   document.getElementById('editValeModal').dataset.valeId=id;
@@ -1125,7 +1133,7 @@ function saveEditVale() {
   const id=parseInt(document.getElementById('editValeModal').dataset.valeId);
   const v=getVales().find(x=>x.id===id);if(!v)return;
   const changes={};
-  ['cliente','telefono','direccion','mensajeria','total','garantia'].forEach(k=>{
+  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor'].forEach(k=>{
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
   patchVale(id,changes);
@@ -1192,16 +1200,24 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     return;
   }
   const v=getVales().find(x=>x.id===id);if(!v)return;
+  // Fix 1: descuento de stock garantizado
+  const prods=getProductos();
+  let stockChanged=false;
   (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-    const prod=productoOf(pid);if(!prod)return;
-    const oldStock=prod.stock||0;
+    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
+    const oldStock=prods[idx].stock||0;
     const newStock=Math.max(0,oldStock-qty);
-    patchProducto(pid,{stock:newStock});
-    // Notificación de venta por producto: "Se vendió X nombre, quedan Y"
-    addNotif('sale_product',prod.name,pid,`${qty}|${newStock}`,v.gestorId);
-    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prod.name,pid,'stock agotado');
-    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prod.name,pid,`quedan ${newStock}`);
+    prods[idx]={...prods[idx],stock:newStock};
+    stockChanged=true;
+    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
+    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
+    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
   });
+  if(stockChanged){
+    // Guardar en localStorage y forzar escritura en Firebase ignorando la bandera de sync
+    localStorage.setItem('axon_productos',JSON.stringify(prods));
+    db.ref('productos').set(prods).catch(e=>console.error('Stock Firebase error:',e));
+  }
   if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
   patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -1212,6 +1228,15 @@ function confirmSale(id, paymentStatus, skipConfirm) {
   if(currentAdminTab==='gestores'){renderComisiones();}
   checkGoalReached(v.gestorId, id);
   maybeAutoSync();
+  // Fix 2: notificar al gestor por WhatsApp cuando la venta se confirma
+  if(paymentStatus==='confirmed'){
+    const gg=gestorOf(v.gestorId);
+    if(gg&&gg.phone){
+      const numProds=(v.valeProductos||[]).map(p=>p.qty>1?`${p.qty}x ${p.name}`:p.name).join(', ')||v.articulo||'—';
+      const gMsg=`✅ *AXONTECH — Venta confirmada*\n\nCliente: ${v.cliente||'—'}\nArtículo: ${numProds}\nTotal: ${v.total||'—'}\n\n¡Gracias por tu venta!`;
+      window.open(`https://wa.me/${gg.phone}?text=${encodeURIComponent(gMsg)}`,'_blank');
+    }
+  }
   showToast(paymentStatus==='confirmed'?'Venta confirmada y cobrada ✅':'Venta confirmada — cobro pendiente ⏳');
 }
 // Admin registra cobro recibido — sin tocar stock (ya se descontó al confirmar)
@@ -1239,12 +1264,12 @@ function addMensajero() {
   const inp=document.getElementById('newMensajeroInput');
   const name=inp.value.trim();if(!name)return;
   const list=getMensajeros();list.push({id:Date.now(),name});saveMensajeros(list);
-  inp.value='';renderMensajeros();showToast('Mensajero agregado');
+  inp.value='';renderMensajeros();maybeAutoSync();showToast('Mensajero agregado');
 }
 const _nmi=document.getElementById('newMensajeroInput');if(_nmi)_nmi.addEventListener('keydown',e=>{if(e.key==='Enter')addMensajero();});
 function removeMensajero(id) {
   if(getVales().some(v=>v.mensajeroId===id&&['assigned','pending_payment'].includes(v.status))){showToast('Tiene vales activos');return;}
-  saveMensajeros(getMensajeros().filter(m=>m.id!==id));renderMensajeros();
+  saveMensajeros(getMensajeros().filter(m=>m.id!==id));renderMensajeros();maybeAutoSync();
 }
 function renderMensajeros() {
   const list=getMensajeros();const c=document.getElementById('mensajerosList');
@@ -1271,6 +1296,7 @@ function saveEditMensajero() {
   saveMensajeros(list);
   closeEditMensajeroModal();
   renderMensajeros();renderMensajeroSelector();
+  maybeAutoSync();
   showToast('Mensajero actualizado ✓');
 }
 
@@ -1648,6 +1674,12 @@ function sendVale() {
   renderGestores();renderMyVales();updateAdminBadge();
   playSound('vale');
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
+  // Fix 3: notificar al admin por WhatsApp automáticamente cuando llega un vale
+  const _cfg=getConfig();
+  if(_cfg.adminPhone){
+    const _waMsg=`📋 *AXONTECH — Nuevo vale recibido*\n\nGestor: ${g.name}\nCliente: ${vale.cliente}\nArtículo: ${vale.articulo}\nTotal: ${vale.total}\n\nEntra al panel de admin para gestionarlo.`;
+    window.open(`https://wa.me/${_cfg.adminPhone}?text=${encodeURIComponent(_waMsg)}`,'_blank');
+  }
   showToast('Vale enviado al administrador ✓');
 
   if(adminActive){
@@ -2657,6 +2689,7 @@ function saveMetaPuntos() {
   const s=document.getElementById('metaPuntosStatus');
   if(s)s.innerHTML=`<span style="color:var(--green);">✓ Meta fijada en ${val} pts</span>`;
   renderGestorRanking();
+  maybeAutoSync();
   showToast(`Meta fijada: ${val} puntos ⭐`);
 }
 function saveGhConfig() {

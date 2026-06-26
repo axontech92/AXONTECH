@@ -128,9 +128,12 @@
         
         <div id="gestorManagerSection" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:20px;">
           <div class="lbl" style="margin-top:0;">Agregar Gestor</div>
-          <div class="add-row" style="margin-bottom:16px;">
-            <input type="text" id="newGestorInput" placeholder="Nombre completo del gestor" onkeydown="if(event.key==='Enter')addGestor()">
-            <button class="btn btn-blue" onclick="addGestor()">+ Agregar</button>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+            <div class="add-row">
+              <input type="text" id="newGestorInput" placeholder="Nombre completo del gestor" onkeydown="if(event.key==='Enter')addGestor()">
+              <button class="btn btn-blue" onclick="addGestor()">+ Agregar</button>
+            </div>
+            <input type="tel" id="newGestorPhoneInput" placeholder="📱 Teléfono WhatsApp (sin + ni espacios, ej: 5355551234)" style="font-size:12px;">
           </div>
           <div class="lbl">Editar / Borrar / Contraseñas</div>
           <div id="adminGestoresPanel-list"></div>
@@ -407,6 +410,8 @@
     <input type="text" id="ev-total" placeholder="Total a pagar">
     <label class="field-lbl">Garantía</label>
     <input type="text" id="ev-garantia" placeholder="Ej: 6 meses">
+    <label class="field-lbl">💰 Comisión del Gestor</label>
+    <input type="text" id="ev-comisionGestor" placeholder="Ej: $5 USD · monto acordado con el gestor">
     <div class="modal-btns">
       <button type="button" class="btn btn-ghost btn-full" onclick="closeEditValeModal()">Cancelar</button>
       <button type="button" class="btn btn-blue btn-full" onclick="saveEditVale()">Guardar</button>
@@ -420,6 +425,9 @@
     <div class="modal-title">✏️ Editar Gestor</div>
     <label class="field-lbl">Nombre</label>
     <input type="text" id="editGestorInput" placeholder="Nombre completo">
+    <label class="field-lbl">📱 Teléfono WhatsApp (para notificaciones)</label>
+    <input type="tel" id="editGestorPhoneInput" placeholder="Ej: 5355551234 (sin + ni espacios)">
+    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Cuando se confirme una venta, el gestor recibirá un WhatsApp</div>
     <div class="modal-btns">
       <button type="button" class="btn btn-ghost btn-full" onclick="closeEditGestorModal()">Cancelar</button>
       <button type="button" class="btn btn-blue btn-full" onclick="saveEditGestor()">Guardar</button>

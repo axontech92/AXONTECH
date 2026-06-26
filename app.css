@@ -430,6 +430,42 @@
     .picker-pill.out-of-stock .picker-pill-qty button:first-child { pointer-events:none; opacity:0.3; }
     .oos-badge { background:var(--red); color:white; font-size:8px; font-weight:800; padding:1px 5px; border-radius:4px; letter-spacing:.5px; }
 
+    /* ── MOBILE IMPROVEMENTS (Fix 4) ── */
+    @media (max-width: 760px) {
+      /* Botones táctiles con área mínima de 44px */
+      .btn { min-height: 44px; }
+      .btn-sm { min-height: 36px; }
+      /* Modal ocupa casi toda la pantalla */
+      .modal { margin: 6px; padding: 16px; max-height: 95vh; }
+      /* Grilla de mensajeros: 2 columnas en móvil */
+      #mensajeroSelectorList { grid-template-columns: repeat(2,1fr) !important; }
+      /* Gestores: 2 columnas */
+      #gestoresList { grid-template-columns: repeat(2,1fr); }
+      /* Stats: 2 columnas */
+      #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr 1fr !important; }
+      /* Nav de admin: scroll horizontal, texto más pequeño */
+      .anav-btn { font-size: 10px; padding: 0 7px; }
+      /* Cards de producto más compactas */
+      .prod-card { padding: 8px 10px; }
+      /* Formulario del vale: campos más legibles */
+      .vf-row { flex-wrap: wrap; }
+      /* Vale detail: tabla responsiva */
+      .det-gestor-row { flex-wrap: wrap; }
+      /* Acciones en column en móvil */
+      .det-actions { gap: 8px; }
+      /* Comisiones en mobile */
+      #adminComisionesList .card { padding: 10px 12px; }
+      /* Historial: ajuste de columnas internas */
+      #adminHistorialPanel .card[style*="display:flex"] { flex-wrap: wrap; }
+    }
+    @media (max-width: 400px) {
+      .anav-btn { font-size: 9px; padding: 0 5px; }
+      .brand-name { font-size: 12px; letter-spacing: 2px; }
+      header { padding: 0 8px; gap: 6px; }
+      .modal { margin: 4px; padding: 12px; }
+      #gestoresList { grid-template-columns: 1fr 1fr; }
+    }
+
     /* ── GOAL CELEBRATION ── */
     @keyframes slideDown { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }
     @keyframes slideUp   { from{transform:translateY(0);opacity:1}    to{transform:translateY(-110%);opacity:0} }
