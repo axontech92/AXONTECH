@@ -223,7 +223,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924315386.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 18
+      "stock": 13
     },
     {
       "catId": 10,
@@ -235,7 +235,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780510811569.webp",
       "precio": "$30 USD",
       "puntos": 1,
-      "stock": 8
+      "stock": 6
     },
     {
       "catId": 40,
@@ -259,7 +259,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102582909.webp",
       "precio": "$90 USD",
       "puntos": 2,
-      "stock": 10
+      "stock": 8
     },
     {
       "catId": 20,
@@ -307,7 +307,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104287395.webp",
       "precio": "$130 USD",
       "puntos": 2,
-      "stock": 1
+      "stock": 0
     },
     {
       "catId": 20,
@@ -331,7 +331,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 2
+      "stock": 1
     },
     {
       "catId": 20,
@@ -343,7 +343,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104599386.webp",
       "precio": "$550 USD",
       "puntos": 5,
-      "stock": 3
+      "stock": 2
     },
     {
       "catId": 20,
@@ -355,7 +355,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104662477.webp",
       "precio": "$900 USD",
       "puntos": 7,
-      "stock": 1
+      "stock": 0
     },
     {
       "catId": 10,
@@ -547,7 +547,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384646214_ext.webp",
       "precio": "$20 USD",
       "puntos": 1,
-      "stock": 21
+      "stock": 19
     },
     {
       "catId": 50,
@@ -559,7 +559,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384769262_ext.webp",
       "precio": "$35 USD",
       "puntos": 1,
-      "stock": 7
+      "stock": 5
     },
     {
       "catId": 80,
@@ -571,7 +571,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384840618_ext.webp",
       "precio": "$30 USD",
       "puntos": 1,
-      "stock": 16
+      "stock": 12
     },
     {
       "catId": 100,
@@ -881,15 +881,16 @@
       "adminNotes": "",
       "articulo": "REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4",
       "cliente": "Pdjddh",
+      "confirmedTs": "2026-06-26T17:47:33.679Z",
       "direccion": "San jose",
       "garantia": "",
       "gestorId": 1781761257107,
       "id": 1782495640680,
-      "isNew": true,
+      "isNew": false,
       "mensajeria": "580",
       "precioMN": "",
       "precioUSD": "$2435 USD",
-      "status": "pending",
+      "status": "confirmed",
       "telefono": "595949",
       "total": "$2435 USD + 580 MN",
       "ts": "2026-06-26T17:40:40.690Z",
@@ -1092,5 +1093,5 @@
       "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-06-26T17:47:14.910Z"
+  "timestamp": "2026-06-26T17:47:33.708Z"
 }
