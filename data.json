@@ -873,6 +873,8 @@
       "adminNotes": "",
       "articulo": "SWITCH DE 8 PUERTOS x1",
       "cliente": "Jeje",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-25T05:24:38.931Z",
       "confirmedTs": "2026-06-25T05:24:09.206Z",
       "direccion": "Jejej",
       "garantia": "",
@@ -945,6 +947,8 @@
       "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
       "cliente": "Bwjej",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-25T05:24:38.141Z",
       "confirmedTs": "2026-06-22T16:03:35.309Z",
       "deliveredTs": "2026-06-22T16:03:30.227Z",
       "direccion": "Ueueiir",
@@ -1158,5 +1162,5 @@
       "vuelto": "Jwjwk"
     }
   ],
-  "timestamp": "2026-06-25T05:24:36.556Z"
+  "timestamp": "2026-06-26T15:55:53.239Z"
 }
