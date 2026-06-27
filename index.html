@@ -86,7 +86,6 @@
         <h2 style="margin:0;">"AXONTECH" 🔥</h2>
         <p style="margin:4px 0 0;font-size:11px;">Completa los campos y envía</p>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="resetForm()">✨ Nuevo</button>
     </div>
     <div class="vale-form-body">
 
@@ -212,10 +211,8 @@
       <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;">Vista previa del vale</div>
       <div class="vale-preview" id="valePreviewText" style="font-size:11px;max-height:200px;overflow-y:auto;"></div>
       
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;">
-        <button class="btn btn-ghost btn-full btn-sm" onclick="copyValePreview()">📋 Copiar</button>
-        <button class="btn btn-wa btn-full btn-sm" onclick="shareToAdminWA()">💬 WhatsApp</button>
-        <button class="btn btn-blue btn-full btn-sm" id="sendValeBtn" onclick="sendVale()" disabled>📤 Enviar</button>
+      <div style="margin-top:10px;">
+        <button class="btn btn-blue btn-full" id="sendValeBtn" onclick="sendVale()" disabled>📤 Enviar al Admin</button>
       </div>
       <div id="ticketClientSection" style="margin-top:14px;border-top:1px dashed var(--gray-300);padding-top:12px;text-align:center;">
         <div style="font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:8px;">— Opciones para el Cliente —</div>

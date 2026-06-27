@@ -1515,13 +1515,16 @@ function onFormInput() {
 }
 function buildValeText() {
   const g=gestorOf(activeGestorId);
+  const prodLines=currentValeProductos.length
+    ? currentValeProductos.map(p=>`  ×${p.qty} ${p.name}`).join('\n')
+    : fVal('vf-articulo');
   return ['Bienvenido a "AXONTECH" 🔥','','VALE DEL GESTOR:','',
     `🔸Promotor: ${g?g.name:''}`, '',
     `🔸 Nombre Cliente: ${fVal('vf-cliente')}`,
     `🔸Teléfono Cliente: ${fVal('vf-telefono')}`,
     `🔸Dirección Cliente: ${fVal('vf-direccion')}`,
     `🔸Mensajería/ costo: ${fVal('vf-mensajeria')}`,
-    `🔸 Artículo y cantidad: ${fVal('vf-articulo')}`,
+    `🔸 Artículos y cantidades:`,prodLines,
     `🔸Precio USD/ zelle: ${fVal('vf-precioUSD')}`,
     `🔸Precio MN: ${fVal('vf-precioMN')}`,
     `🔸 Vuelto: ${fVal('vf-vuelto')}`,
@@ -1598,14 +1601,18 @@ function downloadBlob(blob, filename) {
 
 function copyTicketText() {
   const g = gestorOf(activeGestorId);
+  const prodLines=currentValeProductos.length
+    ? currentValeProductos.map(p=>`  ×${p.qty} ${p.name}`).join('\n')
+    : (fVal('vf-articulo') || 'Sin artículo');
   const text = `🏪 *TICKET DE RECOGIDA - AXONTECH* 🏪
 -----------------------------------
 👤 *Atendido por:* ${g ? g.name : ''}
 👤 *Cliente:* ${fVal('vf-cliente') || 'Sin nombre'}
-📦 *Artículo:* ${fVal('vf-articulo') || 'Sin artículo'}
+📦 *Artículos:*
+${prodLines}
 💰 *Total a pagar:* ${fVal('vf-total') || '—'}
 -----------------------------------
-📍 *Dirección de Tienda:* 
+📍 *Dirección de Tienda:*
 Amistad #313 % San Rafael y San José, Centro Habana.
 
 ⚠️ *Importante:* Por favor, muestre este mensaje en el mostrador al llegar a la tienda para que le entreguen su pedido rápidamente y se le asigne la venta a su promotor.`;
@@ -1662,22 +1669,16 @@ function sendVale() {
   };
   const all=getVales();all.push(vale);saveVales(all);
   if(typeof fbAddVale === 'function') fbAddVale(vale);
-  
-  // Transform Send button to Sent state, DO NOT CLEAR FORM YET
-  const btn=document.getElementById('sendValeBtn');
-  if(btn) {
-    btn.disabled=true;
-    btn.textContent='¡Enviado! ✓';
-    btn.classList.replace('btn-blue', 'btn-green');
-  }
-  
+
   renderGestores();renderMyVales();updateAdminBadge();
   playSound('vale');
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
-  // Fix 3: notificar al admin por WhatsApp automáticamente cuando llega un vale
   const _cfg=getConfig();
   if(_cfg.adminPhone){
-    const _waMsg=`📋 *AXONTECH — Nuevo vale recibido*\n\nGestor: ${g.name}\nCliente: ${vale.cliente}\nArtículo: ${vale.articulo}\nTotal: ${vale.total}\n\nEntra al panel de admin para gestionarlo.`;
+    const prodLines=(vale.valeProductos||[]).length
+      ? vale.valeProductos.map(p=>`  ×${p.qty} ${p.name}`).join('\n')
+      : vale.articulo;
+    const _waMsg=`📋 *AXONTECH — Nuevo vale recibido*\n\nGestor: ${g.name}\nCliente: ${vale.cliente}\nArtículos:\n${prodLines}\nTotal: ${vale.total}\n\nEntra al panel de admin para gestionarlo.`;
     window.open(`https://wa.me/${_cfg.adminPhone}?text=${encodeURIComponent(_waMsg)}`,'_blank');
   }
   showToast('Vale enviado al administrador ✓');
@@ -1687,6 +1688,7 @@ function sendVale() {
     const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
     renderAdminGestores();
   }
+  resetForm();
 }
 
 // ══════════════════════════════════════════
@@ -1763,7 +1765,7 @@ function confirmPickerSelection() {
   });
   selectedProductsUI=items;currentValeProductos=items;
   renderSelectedProductsUI();
-  document.getElementById('vf-articulo').value=items.map(i=>`${i.name} x${i.qty}`).join(' / ');
+  document.getElementById('vf-articulo').value=items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
   // auto-sum prices
   let total=0;let cur='USD';
   items.forEach(({id,qty})=>{
@@ -1788,8 +1790,12 @@ function renderSelectedProductsUI() {
   if(!c) return;
   if(!selectedProductsUI.length){c.style.display='none';return;}
   c.style.display='block';
-  c.innerHTML=selectedProductsUI.map(i=>`<span class="tag-chip">${i.name} ×${i.qty}</span>`).join('')+
-    `<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 8px;margin-left:4px;" onclick="openProductPicker()">✏️ Editar</button>`;
+  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">`+
+    selectedProductsUI.map(i=>`<div style="display:flex;align-items:center;gap:8px;min-width:0;">
+      <span style="font-weight:800;color:var(--blue);flex-shrink:0;font-size:13px;">×${i.qty}</span>
+      <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${i.name}</span>
+    </div>`).join('')+
+    `</div><button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;" onclick="openProductPicker()">✏️ Editar selección</button>`;
 }
 
 // ══════════════════════════════════════════
