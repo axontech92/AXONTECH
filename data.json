@@ -132,6 +132,14 @@
       "initials": "D",
       "name": "Danny",
       "password": "P5DZ5M"
+    },
+    {
+      "color": "#DC2626",
+      "id": 1782489503525,
+      "initials": "J",
+      "name": "Julio",
+      "password": "9E6MS6",
+      "phone": ""
     }
   ],
   "mensajeros": [
@@ -215,7 +223,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924315386.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 19
+      "stock": 18
     },
     {
       "catId": 10,
@@ -275,7 +283,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 3
+      "stock": 4
     },
     {
       "catId": 20,
@@ -323,7 +331,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 3
+      "stock": 1
     },
     {
       "catId": 20,
@@ -407,7 +415,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778213413973.webp",
       "precio": "$150 USD",
       "puntos": 2,
-      "stock": 7
+      "stock": 6
     },
     {
       "catId": 40,
@@ -431,7 +439,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780510827238.webp",
       "precio": "$20 USD",
       "puntos": 1,
-      "stock": 20
+      "stock": 18
     },
     {
       "catId": 10,
@@ -563,7 +571,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384840618_ext.webp",
       "precio": "$30 USD",
       "puntos": 1,
-      "stock": 16
+      "stock": 15
     },
     {
       "catId": 100,
@@ -719,7 +727,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780873635709.jpg",
       "precio": "$110 USD",
       "puntos": 2,
-      "stock": 6
+      "stock": 5
     },
     {
       "catId": 10,
@@ -871,292 +879,229 @@
   "vales": [
     {
       "adminNotes": "",
-      "articulo": "SWITCH DE 8 PUERTOS x1",
-      "cliente": "Jeje",
-      "confirmedTs": "2026-06-25T05:24:09.206Z",
-      "direccion": "Jejej",
+      "articulo": "REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4",
+      "cliente": "Pdjddh",
+      "commissionPaid": false,
+      "direccion": "San jose",
       "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782318671309,
+      "gestorId": 1781761257107,
+      "id": 1782495640680,
       "isNew": false,
-      "mensajeria": "Euie",
-      "precioMN": "-",
-      "precioUSD": "$30 USD",
-      "status": "confirmed",
-      "telefono": "61626",
-      "total": "$30 USD",
-      "ts": "2026-06-24T16:31:11.317Z",
-      "valeNum": 4,
+      "mensajeria": "580",
+      "precioMN": "",
+      "precioUSD": "$2435 USD",
+      "status": "delivered",
+      "telefono": "595949",
+      "total": "$2435 USD + 580 MN",
+      "ts": "2026-06-26T17:40:40.690Z",
+      "valeNum": 7,
       "valeProductos": [
+        {
+          "id": 1777924315386,
+          "name": "REPETIDOR WIFI 5",
+          "qty": 5
+        },
         {
           "id": 1778102214012,
           "name": "SWITCH DE 8 PUERTOS",
+          "qty": 2
+        },
+        {
+          "id": 1778102582909,
+          "name": "ANTORCHA PARA SOLDADURA TIG:",
+          "qty": 2
+        },
+        {
+          "id": 1778104287395,
+          "name": "EL ENRUTADOR WIFI DE 1.150MBPS",
           "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jeje\n🔸Teléfono Cliente: 61626\n🔸Dirección Cliente: Jejej\n🔸Mensajería/ costo: Euie\n🔸 Artículo y cantidad: SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/6/2026 12:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "-"
-    },
-    {
-      "adminNotes": "",
-      "articulo": "ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1",
-      "cliente": "Juan Carlos",
-      "deliveredTs": "2026-06-24T16:26:30.323Z",
-      "direccion": "Kvucyfydtdydyfyfy",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782318209645,
-      "isNew": false,
-      "mensajeria": "500 cup",
-      "mensajeroId": 1781533321165,
-      "precioMN": "",
-      "precioUSD": "$200 USD",
-      "status": "delivered",
-      "telefono": "5555558855",
-      "total": "$200 USD + 500 MN",
-      "ts": "2026-06-24T16:23:29.654Z",
-      "valeNum": 3,
-      "valeProductos": [
+        },
+        {
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+          "qty": 1
+        },
+        {
+          "id": 1778104599386,
+          "name": "INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW",
+          "qty": 1
+        },
+        {
+          "id": 1778104662477,
+          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
+          "qty": 1
+        },
         {
           "id": 1778384646214,
           "name": "ADAPTADOR POE UBIQUITI",
-          "qty": 1
+          "qty": 2
         },
         {
-          "id": 1778102507659,
-          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
-          "qty": 1
+          "id": 1778384769262,
+          "name": "VENTILADOR PARA CARRO",
+          "qty": 2
         },
+        {
+          "id": 1778384840618,
+          "name": "PROTEGE TU HOGAR",
+          "qty": 4
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Pdjddh\n🔸Teléfono Cliente: 595949\n🔸Dirección Cliente: San jose\n🔸Mensajería/ costo: 580\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4\n🔸Precio USD/ zelle: $2435 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2435 USD + 580 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:39\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
+      "cliente": "Jekdkek",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:22.668Z",
+      "confirmedTs": "2026-06-26T17:37:12.998Z",
+      "deliveredTs": "2026-06-26T17:36:21.860Z",
+      "direccion": "Uwueje",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "id": 1782495061790,
+      "isNew": false,
+      "mensajeria": "4",
+      "mensajeroId": 1781533316958,
+      "precioMN": "",
+      "precioUSD": "$55 USD",
+      "status": "confirmed",
+      "telefono": "6465665-5",
+      "total": "$59 USD",
+      "ts": "2026-06-26T17:31:01.799Z",
+      "valeNum": 5,
+      "valeProductos": [
         {
           "id": 1777924315386,
           "name": "REPETIDOR WIFI 5",
           "qty": 1
         },
         {
-          "id": 1778104287395,
-          "name": "EL ENRUTADOR WIFI DE 1.150MBPS",
+          "id": 1778102214012,
+          "name": "SWITCH DE 8 PUERTOS",
           "qty": 1
         }
       ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan Carlos\n🔸Teléfono Cliente: 5555558855\n🔸Dirección Cliente: Kvucyfydtdydyfyfy\n🔸Mensajería/ costo: 500 cup\n🔸 Artículo y cantidad: ADAPTADOR POE UBIQUITI x1 / PESA / BÁSCULA INTELIGENTE DIGITAL. x1 / REPETIDOR WIFI 5 x1 / EL ENRUTADOR WIFI DE 1.150MBPS x1\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/6/2026 12:23\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jekdkek\n🔸Teléfono Cliente: 6465665-5\n🔸Dirección Cliente: Uwueje\n🔸Mensajería/ costo: 4\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $55 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $59 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
     },
     {
       "adminNotes": "",
-      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
-      "cliente": "Bwjej",
-      "confirmedTs": "2026-06-22T16:03:35.309Z",
-      "deliveredTs": "2026-06-22T16:03:30.227Z",
-      "direccion": "Ueueiir",
+      "articulo": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1",
+      "cliente": "Tuiop",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:21.364Z",
+      "confirmedTs": "2026-06-26T17:47:46.314Z",
+      "direccion": "Amistad 311",
       "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782144058589,
+      "gestorId": 1781761257101,
+      "id": 1782495060551,
       "isNew": false,
-      "mensajeria": "Kekeiei",
-      "mensajeroId": 1781533316958,
-      "precioMN": "-",
-      "precioUSD": "$25 USD",
+      "mensajeria": "3600",
+      "precioMN": "",
+      "precioUSD": "$1570 USD",
       "status": "confirmed",
-      "telefono": "616565-",
-      "total": "$25 USD",
-      "ts": "2026-06-22T16:00:58.596Z",
-      "valeNum": 2,
+      "telefono": "99948678",
+      "total": "$1570 USD + 3600 MN",
+      "ts": "2026-06-26T17:31:00.555Z",
+      "valeNum": 5,
       "valeProductos": [
         {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+          "qty": 2
+        },
+        {
+          "id": 1778104662477,
+          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
+          "qty": 1
+        },
+        {
+          "id": 1778213413973,
+          "name": "FORROS DE ASIENTOS DE LUJO PARA AUTOS",
           "qty": 1
         }
       ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "-"
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Tuiop\n🔸Teléfono Cliente: 99948678\n🔸Dirección Cliente: Amistad 311\n🔸Mensajería/ costo: 3600\n🔸 Artículo y cantidad: ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1\n🔸Precio USD/ zelle: $1570 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1570 USD + 3600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
     },
     {
       "adminNotes": "",
-      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1",
-      "cliente": "Bwjej",
+      "articulo": "SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1",
+      "cliente": "Jose",
       "commissionPaid": true,
-      "commissionPaidTs": "2026-06-25T05:24:36.517Z",
-      "confirmedTs": "2026-06-22T16:02:57.800Z",
-      "deliveredTs": "2026-06-22T15:59:08.603Z",
-      "direccion": "Ueueiir",
+      "commissionPaidTs": "2026-06-26T17:49:34.379Z",
+      "confirmedTs": "2026-06-26T17:47:38.088Z",
+      "direccion": "Amistad",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "id": 1782495060154,
+      "isNew": false,
+      "mensajeria": "4500",
+      "precioMN": "",
+      "precioUSD": "$180 USD",
+      "status": "confirmed",
+      "telefono": "52238448",
+      "total": "$180 USD + 4500 MN",
+      "ts": "2026-06-26T17:31:00.163Z",
+      "valeNum": 5,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "name": "SWITCH DE 5 PUERTOS",
+          "qty": 2
+        },
+        {
+          "id": 1780873638627,
+          "name": "ROUTER FENVI AX3000 Wi-Fi 6",
+          "qty": 1
+        },
+        {
+          "id": 1778384840618,
+          "name": "PROTEGE TU HOGAR",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Jose\n🔸Teléfono Cliente: 52238448\n🔸Dirección Cliente: Amistad\n🔸Mensajería/ costo: 4500\n🔸 Artículo y cantidad: SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1",
+      "cliente": "Pedro",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-06-26T17:49:19.118Z",
+      "confirmedTs": "2026-06-26T17:47:14.885Z",
+      "direccion": "Cortina entre Santa Catalina y Milagros",
       "garantia": "",
       "gestorId": 1781761257100,
-      "id": 1782143529445,
+      "id": 1782495058746,
       "isNew": false,
-      "mensajeria": "Kekeiei",
-      "mensajeroId": 1781533321165,
-      "precioMN": "-",
-      "precioUSD": "$25 USD",
+      "mensajeria": "800",
+      "precioMN": "",
+      "precioUSD": "$285 USD",
       "status": "confirmed",
-      "telefono": "616565-",
-      "total": "$25 USD",
-      "ts": "2026-06-22T15:52:09.453Z",
-      "valeNum": 1,
+      "telefono": "52386475",
+      "total": "$285 USD + 800 MN",
+      "ts": "2026-06-26T17:30:58.757Z",
+      "valeNum": 5,
       "valeProductos": [
         {
           "id": 1778103856933,
           "name": "PISTOLA DE MASAJE RECARGABLE:",
           "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bwjej\n🔸Teléfono Cliente: 616565-\n🔸Dirección Cliente: Ueueiir\n🔸Mensajería/ costo: Kekeiei\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: -\n🔸 Vuelto: -\n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/6/2026 11:51\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "-"
-    },
-    {
-      "articulo": "Casa x1",
-      "cliente": "Heiei",
-      "confirmedTs": "2026-06-15T20:46:02.547Z",
-      "deliveredTs": "2026-06-15T20:44:09.650Z",
-      "direccion": "Hejeje",
-      "garantia": "",
-      "gestorId": 1781533153566,
-      "id": 1781556172163,
-      "isNew": false,
-      "mensajeria": "6",
-      "mensajeroId": 1781533316958,
-      "precioCUP": "",
-      "precioUSD": "$60 USD",
-      "status": "confirmed",
-      "telefono": "916261",
-      "total": "$60 USD",
-      "ts": "2026-06-15T20:42:52.163Z",
-      "valeProductos": [
+        },
         {
-          "id": 1781556054777,
-          "name": "Casa",
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
           "qty": 1
         }
       ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Pedro\n\n🔸 Nombre Cliente: Heiei\n🔸Teléfono Cliente: 916261\n🔸Dirección Cliente: Hejeje\n🔸Mensajería/ costo: 6\n🔸 Artículo y cantidad: Casa x1\n🔸Precio USD/ zelle: $60 USD\n🔸Precio CUP: \n🔸 Vuelto: 5\n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 16:42\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "5"
-    },
-    {
-      "articulo": "Ruter",
-      "cliente": "Uwieie",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-15T20:36:51.784Z",
-      "confirmedTs": "2026-06-15T20:36:11.402Z",
-      "direccion": "Ejkekie",
-      "garantia": "",
-      "gestorId": 1781533153566,
-      "id": 1781555740351,
-      "isNew": false,
-      "mensajeria": "Ueeiei",
-      "precioCUP": "Ueue",
-      "precioUSD": "65",
-      "status": "confirmed",
-      "telefono": "313232",
-      "total": "Jejej",
-      "ts": "2026-06-15T20:35:40.351Z",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Pedro\n\n🔸 Nombre Cliente: Uwieie\n🔸Teléfono Cliente: 313232\n🔸Dirección Cliente: Ejkekie\n🔸Mensajería/ costo: Ueeiei\n🔸 Artículo y cantidad: Ruter\n🔸Precio USD/ zelle: 65\n🔸Precio CUP: Ueue\n🔸 Vuelto: Jeje\n🔸 Total a pagar: Jejej\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 16:34\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "Jeje"
-    },
-    {
-      "articulo": "Yeyeuei",
-      "cliente": "Bejej",
-      "deliveredTs": "2026-06-15T20:24:05.783Z",
-      "direccion": "Hejeue",
-      "garantia": "",
-      "gestorId": 1781533148554,
-      "id": 1781546582461,
-      "isNew": false,
-      "mensajeria": "Wyue7",
-      "mensajeroId": 1781533321165,
-      "precioCUP": "5373737",
-      "precioUSD": "Eueu",
-      "status": "delivered",
-      "telefono": "61646",
-      "total": "J2j2",
-      "ts": "2026-06-15T18:03:02.461Z",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Bejej\n🔸Teléfono Cliente: 61646\n🔸Dirección Cliente: Hejeue\n🔸Mensajería/ costo: Wyue7\n🔸 Artículo y cantidad: Yeyeuei\n🔸Precio USD/ zelle: Eueu\n🔸Precio CUP: 5373737\n🔸 Vuelto: 5\n🔸 Total a pagar: J2j2\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 14:02\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "5"
-    },
-    {
-      "articulo": "Router x1",
-      "cliente": "Jwjej",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-15T19:31:26.544Z",
-      "confirmedTs": "2026-06-15T18:01:07.184Z",
-      "direccion": "Bendj",
-      "garantia": "",
-      "gestorId": 1781533148554,
-      "id": 1781546431233,
-      "isNew": false,
-      "mensajeria": "Jeje",
-      "precioCUP": "Hwjeje",
-      "precioUSD": "$68 USD",
-      "status": "confirmed",
-      "telefono": "9494",
-      "total": "$68 USD",
-      "ts": "2026-06-15T18:00:31.234Z",
-      "valeProductos": [
-        {
-          "id": 1781533209591,
-          "name": "Router",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Jwjej\n🔸Teléfono Cliente: 9494\n🔸Dirección Cliente: Bendj\n🔸Mensajería/ costo: Jeje\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: $68 USD\n🔸Precio CUP: Hwjeje\n🔸 Vuelto: 2yu2\n🔸 Total a pagar: $68 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 13:59\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "2yu2"
-    },
-    {
-      "articulo": "Router x1",
-      "cliente": "Bwhej",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-15T19:31:18.803Z",
-      "confirmedTs": "2026-06-15T17:43:18.512Z",
-      "deliveredTs": "2026-06-15T17:41:50.921Z",
-      "direccion": "Jeueue",
-      "garantia": "",
-      "gestorId": 1781533148554,
-      "id": 1781545219507,
-      "isNew": false,
-      "mensajeria": "Ueueu",
-      "mensajeroId": 1781533316958,
-      "precioCUP": "Jeueueu",
-      "precioUSD": "$68 USD",
-      "status": "confirmed",
-      "telefono": "61616",
-      "total": "$68 USD",
-      "ts": "2026-06-15T17:40:19.507Z",
-      "valeProductos": [
-        {
-          "id": 1781533209591,
-          "name": "Router",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Carlos\n\n🔸 Nombre Cliente: Bwhej\n🔸Teléfono Cliente: 61616\n🔸Dirección Cliente: Jeueue\n🔸Mensajería/ costo: Ueueu\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: $68 USD\n🔸Precio CUP: Jeueueu\n🔸 Vuelto: 5\n🔸 Total a pagar: $68 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 13:39\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "5"
-    },
-    {
-      "articulo": "Router x1",
-      "cliente": "Bsjj",
-      "deliveredTs": "2026-06-15T14:22:34.287Z",
-      "direccion": "Jejej",
-      "garantia": "",
-      "gestorId": 1781533160002,
-      "id": 1781533261043,
-      "isNew": false,
-      "mensajeria": "Wiwi",
-      "mensajeroId": 1781533316958,
-      "precioCUP": "Hwjwj",
-      "precioUSD": "Bsjs",
-      "status": "delivered",
-      "telefono": "4646",
-      "total": "Wjjwkw",
-      "ts": "2026-06-15T14:21:01.043Z",
-      "valeProductos": [
-        {
-          "id": 1781533209591,
-          "name": "Router",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Bsjj\n🔸Teléfono Cliente: 4646\n🔸Dirección Cliente: Jejej\n🔸Mensajería/ costo: Wiwi\n🔸 Artículo y cantidad: Router x1\n🔸Precio USD/ zelle: Bsjs\n🔸Precio CUP: Hwjwj\n🔸 Vuelto: Jwjwk\n🔸 Total a pagar: Wjjwkw\n\n*Garantía: \n*Fecha y hora de Venta: 15/6/2026 10:20\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en CUP deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "Jwjwk"
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 52386475\n🔸Dirección Cliente: Cortina entre Santa Catalina y Milagros\n🔸Mensajería/ costo: 800\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1\n🔸Precio USD/ zelle: $285 USD\n🔸Precio MN: \n🔸 Vuelto: 5 USD\n🔸 Total a pagar: $285 USD + 800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-06-25T05:24:36.556Z"
+  "timestamp": "2026-07-02T19:40:30.138Z"
 }
