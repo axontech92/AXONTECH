@@ -881,6 +881,8 @@
       "adminNotes": "",
       "articulo": "×1 REPETIDOR WIFI 5",
       "cliente": "jetjj",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-07-17T23:02:05.748Z",
       "confirmedTs": "2026-07-17T22:58:10.120Z",
       "deliveredTs": "2026-07-17T22:57:18.923Z",
       "direccion": "hgjkfnbk",
@@ -908,5 +910,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T22:58:10.130Z"
+  "timestamp": "2026-07-17T23:02:05.761Z"
 }
