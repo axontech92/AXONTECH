@@ -991,40 +991,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Jose\n🔸Teléfono Cliente: 52238448\n🔸Dirección Cliente: Amistad\n🔸Mensajería/ costo: 4500\n🔸 Artículo y cantidad: SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
-    },
-    {
-      "adminNotes": "",
-      "articulo": "PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1",
-      "cliente": "Pedro",
-      "commissionPaid": false,
-      "direccion": "Cortina entre Santa Catalina y Milagros",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1782495058746,
-      "isNew": false,
-      "mensajeria": "800",
-      "precioMN": "",
-      "precioUSD": "$285 USD",
-      "status": "delivered",
-      "telefono": "52386475",
-      "total": "$285 USD + 800 MN",
-      "ts": "2026-06-26T17:30:58.757Z",
-      "valeNum": 5,
-      "valeProductos": [
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 1
-        },
-        {
-          "id": 1778104512761,
-          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 52386475\n🔸Dirección Cliente: Cortina entre Santa Catalina y Milagros\n🔸Mensajería/ costo: 800\n🔸 Artículo y cantidad: PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1\n🔸Precio USD/ zelle: $285 USD\n🔸Precio MN: \n🔸 Vuelto: 5 USD\n🔸 Total a pagar: $285 USD + 800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-07-17T17:57:06.356Z"
+  "timestamp": "2026-07-17T17:57:10.615Z"
 }
