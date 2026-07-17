@@ -247,7 +247,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102507659.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 7
+      "stock": 6
     },
     {
       "catId": 40,
@@ -881,6 +881,7 @@
       "adminNotes": "",
       "articulo": "×1 PESA / BÁSCULA INTELIGENTE DIGITAL.",
       "cliente": "ahckhajkcj",
+      "deliveredTs": "2026-07-17T21:48:25.164Z",
       "direccion": "djlkjlkajclk",
       "garantia": "",
       "gestorId": 1781761257113,
@@ -890,7 +891,7 @@
       "mensajeroId": 1781533316958,
       "precioMN": "",
       "precioUSD": "$25 USD",
-      "status": "pending_payment",
+      "status": "confirmed",
       "telefono": "547654672547",
       "total": "$33 USD",
       "ts": "2026-07-17T21:47:50.577Z",
@@ -904,8 +905,8 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Adrian\n\n🔸 Nombre Cliente: ahckhajkcj\n🔸Teléfono Cliente: 547654672547\n🔸Dirección Cliente: djlkjlkajclk\n🔸Mensajería/ costo: 8\n🔸 Artículos y cantidades:\n  ×1 PESA / BÁSCULA INTELIGENTE DIGITAL.\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $33 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 17:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "deliveredTs": "2026-07-17T21:48:25.164Z"
+      "confirmedTs": "2026-07-17T21:50:14.203Z"
     }
   ],
-  "timestamp": "2026-07-17T21:48:25.168Z"
+  "timestamp": "2026-07-17T21:50:14.212Z"
 }
