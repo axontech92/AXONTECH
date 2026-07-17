@@ -439,7 +439,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780510827238.webp",
       "precio": "$20 USD",
       "puntos": 1,
-      "stock": 18
+      "stock": 20
     },
     {
       "catId": 10,
@@ -571,7 +571,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384840618_ext.webp",
       "precio": "$30 USD",
       "puntos": 1,
-      "stock": 15
+      "stock": 16
     },
     {
       "catId": 100,
@@ -727,7 +727,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780873635709.jpg",
       "precio": "$110 USD",
       "puntos": 2,
-      "stock": 5
+      "stock": 6
     },
     {
       "catId": 10,
@@ -956,9 +956,7 @@
       "adminNotes": "",
       "articulo": "SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1",
       "cliente": "Jose",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-26T17:49:34.379Z",
-      "confirmedTs": "2026-06-26T17:47:38.088Z",
+      "commissionPaid": false,
       "direccion": "Amistad",
       "garantia": "",
       "gestorId": 1781761257107,
@@ -967,7 +965,7 @@
       "mensajeria": "4500",
       "precioMN": "",
       "precioUSD": "$180 USD",
-      "status": "confirmed",
+      "status": "delivered",
       "telefono": "52238448",
       "total": "$180 USD + 4500 MN",
       "ts": "2026-06-26T17:31:00.163Z",
@@ -993,5 +991,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T17:57:10.615Z"
+  "timestamp": "2026-07-17T17:57:24.997Z"
 }
