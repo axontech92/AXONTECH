@@ -215,7 +215,7 @@
     },
     {
       "catId": 10,
-      "comision": "$1500 USD",
+      "comision": "1500 MN",
       "description": "[ACCESORIOS]\nRepetidor wifi 5 de doble banda 2.4G y 5G, de 1200 mbps.",
       "garantia": "",
       "id": 1777924315386,
@@ -881,6 +881,7 @@
       "adminNotes": "",
       "articulo": "×1 PESA / BÁSCULA INTELIGENTE DIGITAL.",
       "cliente": "dkjvnkdlsm",
+      "confirmedTs": "2026-07-17T23:44:13.892Z",
       "direccion": "sgoigj",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -902,8 +903,7 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: dkjvnkdlsm\n🔸Teléfono Cliente: 8786904\n🔸Dirección Cliente: sgoigj\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 PESA / BÁSCULA INTELIGENTE DIGITAL.\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $32 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 19:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "confirmedTs": "2026-07-17T23:44:13.892Z"
+      "vuelto": ""
     },
     {
       "adminNotes": "",
@@ -939,5 +939,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T23:44:13.900Z"
+  "timestamp": "2026-07-17T23:44:43.213Z"
 }
