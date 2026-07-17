@@ -876,29 +876,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "e;flke;lf",
-      "cliente": "rgoeijg",
-      "deliveredTs": "2026-07-17T19:33:36.334Z",
-      "direccion": "wepff",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784316784520,
-      "isNew": false,
-      "mensajeria": "efi",
-      "mensajeroId": 1781533316958,
-      "precioMN": "jfw",
-      "precioUSD": "",
-      "status": "delivered",
-      "telefono": "wfjw",
-      "total": "ti3powrktgp",
-      "ts": "2026-07-17T19:33:04.533Z",
-      "valeNum": 10,
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: rgoeijg\n🔸Teléfono Cliente: wfjw\n🔸Dirección Cliente: wepff\n🔸Mensajería/ costo: efi\n🔸 Artículos y cantidades:\ne;flke;lf\n🔸Precio USD/ zelle: \n🔸Precio MN: jfw\n🔸 Vuelto: \n🔸 Total a pagar: ti3powrktgp\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 15:32\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    }
-  ],
-  "timestamp": "2026-07-17T19:34:23.032Z"
+  "vales": [],
+  "timestamp": "2026-07-17T19:34:27.801Z"
 }
