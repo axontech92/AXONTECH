@@ -1381,7 +1381,7 @@ function buildShareText(v,m) {
     `🔸Dirección Cliente: ${v.direccion||''}`,`🔸Mensajería/ costo: ${v.mensajeria||''}`,
     `🔸 Artículo y cantidad: ${v.articulo||''}`,`🔸 Total a pagar: ${v.total||''}`, '',
     `*Fecha: ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}`,'',
-    '🧭Amistad #313% San Rafael y San José, Centro Habana.'].join('\n');
+    '🧭Amistad #311 % San Rafael y San José, Centro Habana.'].join('\n');
 }
 function shareViaWA() {
   const text=document.getElementById('shareValePreview').textContent;
@@ -1846,8 +1846,8 @@ function buildValeText() {
     `🔸 Total a pagar: ${fVal('vf-total')}`, '',
     `*Garantía: ${fVal('vf-garantia')}`,
     `*Fecha y hora de Venta: ${fVal('vf-fecha')||nowDateTime()}`, '',
-    '🧭Dirección de la tienda:','* Amistad #313% San Rafael y San José, Centro Habana.','',
-    '🚨ATENCIÓN🚨','•   Horarios de atención al cliente:','    8:00am - 8:00pm.',
+    '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
+    '🚨ATENCIÓN🚨','•   Horarios de atención al cliente:','    9:00am - 7:00pm.',
     '* Solo aceptamos hasta cinco billetes de 1 USD por compra.',
     '* Los pagos en MN deben ser con denominación de 50 en adelante.',
     '* Solo se aceptan billetes en buen estado (ni rotos ni manchados)'].join('\n');
@@ -1928,7 +1928,7 @@ ${prodLines}
 💰 *Total a pagar:* ${fVal('vf-total') || '—'}
 -----------------------------------
 📍 *Dirección de Tienda:*
-Amistad #313 % San Rafael y San José, Centro Habana.
+Amistad #311 % San Rafael y San José, Centro Habana.
 
 ⚠️ *Importante:* Por favor, muestre este mensaje en el mostrador al llegar a la tienda para que le entreguen su pedido rápidamente y se le asigne la venta a su promotor.`;
 
@@ -2028,6 +2028,12 @@ function renderPickerProducts() {
   let prods=getProductos();
   if(pickerCatFilter!==null)prods=prods.filter(p=>p.catId===pickerCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  // Sort: in-stock first, out-of-stock at the end
+  prods.sort((a,b)=>{
+    const aOos=(a.stock||0)===0?1:0;
+    const bOos=(b.stock||0)===0?1:0;
+    return aOos-bOos;
+  });
   const c=document.getElementById('pickerProductGrid');
   if(!c) return;
   if(!prods.length){c.innerHTML='<div style="width:100%;text-align:center;padding:20px;color:var(--gray-400);">Sin productos disponibles</div>';return;}
@@ -2592,8 +2598,8 @@ function buildDemoVale(v) {
     `🔸 Artículo y cantidad: ${v.articulo}`,`🔸Precio USD/ zelle: ${v.precioUSD}`,
     `🔸Precio MN: ${v.precioMN}`,`🔸 Vuelto: ${v.vuelto}`,`🔸 Total a pagar: ${v.total}`,'',
     `*Garantía: ${v.garantia}`,`*Fecha y hora de Venta: ${new Date(v.ts).toLocaleString('es-ES')}`,'',
-    '🧭Dirección de la tienda:','* Amistad #313% San Rafael y San José, Centro Habana.','',
-    '🚨ATENCIÓN🚨','•   Horarios de atención: 8:00am - 8:00pm.'].join('\n');
+    '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
+    '🚨ATENCIÓN🚨','•   Horarios de atención: 9:00am - 7:00pm.'].join('\n');
 }
 
 // ══════════════════════════════════════════

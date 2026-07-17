@@ -111,7 +111,7 @@
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Teléfono Cliente <span class="vf-req">*</span></span></div>
-          <input type="tel" id="vf-telefono" placeholder="Número de teléfono" oninput="onFormInput()">
+          <input type="tel" id="vf-telefono" placeholder="Número de teléfono" oninput="this.value=this.value.replace(/[^0-9]/g,'');onFormInput()" inputmode="numeric" pattern="[0-9]*">
         </div>
       </div>
 
@@ -197,9 +197,9 @@
 
       <div class="vf-fixed">
         <b>🧭 Dirección de la tienda:</b><br>
-        * Amistad #313% San Rafael y San José, Centro Habana.<br><br>
+        * Amistad #311 % San Rafael y San José, Centro Habana.<br><br>
         <b>🚨 ATENCIÓN 🚨</b><br>
-        • Horarios de atención: 8:00am - 8:00pm.<br>
+        • Horarios de atención: 9:00am - 7:00pm.<br>
         * Solo aceptamos hasta cinco billetes de 1 USD por compra.<br>
         * Los pagos en MN deben ser con denominación de 50 en adelante.<br>
         * Solo se aceptan billetes en buen estado (ni rotos ni manchados)
@@ -313,7 +313,7 @@
         </div>
       </div>
       <div class="t-foot" style="text-align: center; padding: 15px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600;">
-        Amistad #313 % San Rafael y San José, Centro Habana.
+        Amistad #311 % San Rafael y San José, Centro Habana.
       </div>
     </div>
     
