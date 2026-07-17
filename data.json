@@ -881,6 +881,8 @@
       "adminNotes": "",
       "articulo": "×1 REPETIDOR WIFI 5",
       "cliente": "jetjj",
+      "confirmedTs": "2026-07-17T22:58:10.120Z",
+      "deliveredTs": "2026-07-17T22:57:18.923Z",
       "direccion": "hgjkfnbk",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -890,7 +892,7 @@
       "mensajeroId": 1781533316958,
       "precioMN": "",
       "precioUSD": "$25 USD",
-      "status": "pending_payment",
+      "status": "confirmed",
       "telefono": "3625727558",
       "total": "$32 USD",
       "ts": "2026-07-17T22:52:31.934Z",
@@ -903,9 +905,8 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: jetjj\n🔸Teléfono Cliente: 3625727558\n🔸Dirección Cliente: hgjkfnbk\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 REPETIDOR WIFI 5\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $32 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 18:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "deliveredTs": "2026-07-17T22:57:18.923Z"
+      "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T22:57:18.929Z"
+  "timestamp": "2026-07-17T22:58:10.130Z"
 }
