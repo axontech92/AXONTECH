@@ -1,480 +1,566 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AXONTECH · Admin</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#006d8a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="AXONTECH">
-  <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=49">
-</head>
-<body data-page="admin">
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:#00b4d8; --blue-dk:#006d8a; --blue-lt:#e0f7fc; --blue-bd:#80ddf0;
+      --gray-50:#F8FAFC; --gray-100:#F1F5F9; --gray-200:#E2E8F0; --gray-300:#D1D5DB;
+      --gray-400:#94A3B8; --gray-500:#6B7280; --gray-600:#475569; --gray-700:#334155; --gray-900:#0F172A;
+      --green:#10B981; --yellow:#F59E0B; --red:#EF4444; --orange:#F97316;
+      --surface:#ffffff; --surface2:var(--gray-50); --border:var(--gray-200);
+      --text:var(--gray-900); --text-muted:var(--gray-600); --input-bg:#ffffff;
+      --header-bg:#006d8a;
+    }
+    /* ── DARK MODE ── */
+    body.dark {
+      --blue:#00b4d8; --blue-lt:#062830; --blue-bd:#0a4a5c; --blue-dk:#084050;
+      --gray-50:#0a0f1a; --gray-100:#111827; --gray-200:#1f2937; --gray-300:#374151;
+      --gray-400:#4b5563; --gray-500:#9CA3AF; --gray-600:#9ca3af; --gray-700:#d1d5db; --gray-900:#f9fafb;
+      --surface:#111827; --surface2:#0a0f1a; --border:#1f2937;
+      --text:#f9fafb; --text-muted:#9ca3af; --input-bg:#111827;
+      --header-bg:#070d17;
+    }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--gray-50); color:var(--gray-900); min-height:100vh; overflow-x:hidden; overflow-y:auto; }
+    /* Focus visible for keyboard accessibility */
+    :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    button:focus-visible, .g-item:focus-visible, .m-card:focus-visible, .ic:focus-visible, .anav-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+    header { background: var(--header-bg); transition: background .2s; }
+    body.dark .col-left, body.dark .col-right { background:var(--surface); }
+    body.dark .col-mid { background:var(--surface2); }
+    body.dark .card { background:var(--surface); border-color:var(--border); }
+    body.dark input, body.dark select, body.dark textarea { background:var(--surface); border-color:var(--gray-400); color:var(--text); }
+    body.dark input::placeholder, body.dark textarea::placeholder { color:var(--gray-400); }
+    body.dark .btn-ghost { background:var(--gray-100); color:var(--gray-700); border-color:var(--border); }
+    body.dark .btn-ghost:hover { background:var(--gray-200); }
+    body.dark .admin-nav { background:var(--surface); border-color:var(--border); }
+    body.dark .anav-btn { color:var(--gray-400); }
+    body.dark .anav-btn.active { color:#00b4d8; border-color:#00b4d8; }
+    body.dark .vale-form-body { background:var(--surface); border-color:var(--border); }
+    body.dark .vf-fixed { background:var(--gray-100); border-color:var(--border); color:var(--text-muted); }
+    body.dark .vf-fixed b { color:var(--text); }
+    body.dark .vf-auto input { background:var(--blue-lt); border-color:var(--blue-bd); color:#93c5fd; }
+    body.dark .ic { background:var(--surface); border-color:var(--border); }
+    body.dark .ic:hover, body.dark .ic.sel { background:var(--blue-lt); border-color:var(--blue-bd); }
+    body.dark .g-item:hover { background:var(--gray-100); }
+    body.dark .g-item.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    body.dark .ag-item:hover { background:var(--gray-100); }
+    body.dark .ag-item.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    body.dark .ag-all { background:var(--gray-100); border-color:var(--border); }
+    body.dark .ag-all.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    body.dark .cat-item:hover { background:var(--gray-100); }
+    body.dark .cat-item.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    body.dark .prod-card { background:var(--surface); border-color:var(--border); }
+    body.dark .sc { background:var(--surface); border-color:var(--border); }
+    body.dark .m-item { border-color:var(--border); }
+    body.dark .modal { background:var(--surface); color:var(--text); }
+    body.dark .modal-sep { border-color:var(--border); }
+    body.dark .picker-card { background:var(--surface); border-color:var(--border); }
+    body.dark .picker-card.selected { background:var(--blue-lt); border-color:var(--blue-bd); }
+    body.dark .stat-card { background:var(--surface); border-color:var(--border); }
+    body.dark .gp-card { background:var(--surface); border-color:var(--border); }
+    body.dark #adminComisionesList .card { background:var(--surface); border-color:var(--border); }
+    body.dark .gnotif-item { background:var(--surface); border-color:var(--border); }
+    body.dark .gnotif-item.unread { background:var(--blue-lt); }
+    body.dark .gnotif-item.type-agotado { background:#3d1515; }
+    body.dark .gnotif-item.type-low { background:#3d2f00; }
+    body.dark .gnotif-item.type-restocked { background:#0d2e20; }
+    body.dark .mv-card { border-color:var(--border); }
+    body.dark .sp-pending { background:#1e3a5f; color:#93c5fd; }
+    body.dark .sp-assigned { background:#3d2500; color:#fdba74; }
+    body.dark .sp-delivered { background:#2d1b6b; color:#c4b5fd; }
+    body.dark .sp-confirmed { background:#0d2e20; color:#6ee7b7; }
+    body.dark .sp-pending_payment { background:#3d2f00; color:#fcd34d; }
+    body.dark .vale-preview { color:var(--text); }
+    body.dark .prod-cat-tag { background:var(--gray-100); color:var(--text-muted); }
+    body.dark .tag-chip { background:var(--blue-lt); border-color:var(--blue-bd); color:#93c5fd; }
+    body.dark .pcat-tab { background:var(--gray-100); border-color:var(--border); color:var(--text-muted); }
+    body.dark .pcat-tab.active { background:var(--blue); color:white; border-color:var(--blue); }
+    body.dark .stock-section-header { border-color:var(--border); color:var(--gray-400); }
+    body.dark .es { color:var(--gray-400); }
+    /* Theme toggle button */
+    #btnTheme { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.6); border-radius:7px; padding:5px 9px; font-size:14px; cursor:pointer; transition:all .15s; line-height:1; }
+    #btnTheme:hover { background:rgba(255,255,255,.16); color:white; }
 
-<!-- Skip to content link for keyboard users -->
-<a href="#main-content" class="skip-link" style="position:absolute;top:-100px;left:0;background:var(--blue);color:white;padding:8px 16px;z-index:9999;font-size:14px;font-weight:700;text-decoration:none;" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Saltar al contenido</a>
+    /* ── GESTOR CHOSEN STATE (desktop: narrow left col) ── */
+    #layoutGestor.has-gestor { grid-template-columns: 200px 1fr; }
+    #layoutGestor.has-gestor .g-item:not(.active) { display:none; }
+    #layoutGestor.has-gestor .g-change { display:flex !important; }
+    #layoutGestor.has-gestor #gestorRankingSection { display:none !important; }
+    .g-change { display:none; align-items:center; gap:6px; font-size:11px; color:var(--gray-400); padding:6px 10px; cursor:pointer; border-radius:7px; margin-bottom:4px; }
+    .g-change:hover { background:var(--gray-100); color:var(--text); }
 
-<!-- ══ HEADER ══ -->
-<header>
-  <div class="brand">
-    <div class="brand-icon">AX</div>
-    <div>
-      <div class="brand-name">AXONTECH</div>
-      <div class="brand-sub">ADMIN</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <span class="admin-session-label" id="adminLabel" style="display:none;">● Admin</span>
-    <button class="btn-logout" id="btnLogout" onclick="logoutAdmin()" style="display:none;">Cerrar sesión</button>
-    <div class="header-date" id="headerDate"></div>
-    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">🌙</button>
-    <a href="./index.html" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;text-decoration:none;">← Gestores</a>
-  </div>
-</header>
+    /* ── RANKING ── */
+    .rank-row { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-bottom:1px solid var(--gray-200); }
+    .rank-row:last-child { border-bottom:none; padding-bottom:4px; }
+    .rank-pos   { font-size:20px; width:28px; text-align:center; flex-shrink:0; line-height:1; padding-top:2px; }
+    .rank-name  { font-size:13px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .rank-pts   { font-size:12px; font-weight:800; color:var(--blue); white-space:nowrap; flex-shrink:0; }
+    .rank-bar-wrap { background:var(--gray-200); border-radius:20px; height:8px; margin-top:5px; overflow:hidden; }
+    .rank-bar   { height:100%; border-radius:20px; transition:width .6s ease; background:linear-gradient(90deg,#F59E0B,#EF4444); }
+    .rank-hint  { font-size:10px; color:var(--gray-400); margin-top:3px; text-align:right; }
+    .rank-hint b { color:var(--gray-600); }
+    body.dark .rank-row { border-color:var(--border); }
+    body.dark .rank-bar-wrap { background:var(--gray-200); }
 
-<!-- ══════════ ADMIN LAYOUT ══════════ -->
-<div class="layout" id="layoutAdmin" role="main">
+    /* ── MOBILE BACK BAR (visible only on mobile when gestor chosen) ── */
+    #mobileBackBar { display:none; align-items:center; gap:10px; background:var(--blue-lt); border:1px solid var(--blue-bd); border-radius:9px; padding:8px 12px; margin-bottom:10px; }
+    #mobileBackBar button { background:none; border:none; color:var(--blue); font-size:13px; font-weight:700; cursor:pointer; padding:0; }
+    body.dark #mobileBackBar { background:var(--blue-lt); border-color:var(--blue-bd); }
 
-  <!-- Tab nav -->
-  <div class="admin-nav">
-    <button class="anav-btn active" id="anav-vales"      onclick="adminTab('vales')">📋 Vales</button>
-    <button class="anav-btn"        id="anav-mensajeros" onclick="adminTab('mensajeros')" style="position:relative;">🛵 Mensajeros<span id="mensajeroBadge" style="display:none;position:absolute;top:4px;right:4px;background:var(--green);color:white;border-radius:8px;font-size:8px;font-weight:700;min-width:14px;height:14px;line-height:14px;text-align:center;padding:0 3px;">0</span></button>
-    <button class="anav-btn"        id="anav-gestores"   onclick="adminTab('gestores')">👥 Gestores</button>
-    <button class="anav-btn"        id="anav-stats"      onclick="adminTab('stats')">📊 Estadísticas</button>
-    <button class="anav-btn"        id="anav-historial"  onclick="adminTab('historial')">📅 Historial</button>
-    <button class="anav-btn"        id="anav-stock"      onclick="adminTab('stock')">📦 Stock</button>
-    <button class="anav-btn"        id="anav-catalog"    onclick="adminTab('catalog')">📑 Catálogo</button>
-    <button class="anav-btn"        id="anav-config"     onclick="adminTab('config')">⚙️ Config</button>
-  </div>
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      body { overflow-y: auto; overflow-x: hidden; }
+      header { padding: 0 10px; gap: 8px; }
+      .brand-sub { display: none; }
+      .brand-name { font-size: 13px; letter-spacing: 2px; }
+      .header-date { display: none; }
+      #headerGestorName { display: none; }
+      .admin-session-label { font-size: 10px; }
+      #btnDemo { display: none; }
 
-  <div class="admin-content">
+      .layout, .layout.active { height: auto; overflow: visible; }
 
-    <!-- ── VALES PANEL ── -->
-    <div id="adminValesPanel" class="admin-panel-3col">
-      <!-- Col 1 -->
-      <div class="col col-left">
-        <div class="lbl" style="margin-bottom:12px;">Vales Pendientes por Gestor</div>
-        <div class="notif-banner" id="notifBanner" style="margin-bottom:14px;">
-          <span id="notifBannerText">Nuevo vale recibido</span>
-          <button class="notif-close" onclick="document.getElementById('notifBanner').classList.remove('show')">×</button>
-        </div>
-        <div id="adminGestoresList"></div>
-      </div>
-      <!-- Col 2 -->
-      <div class="col col-mid">
-        <div id="valeDetail">
-          <div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>
-        </div>
-      </div>
-      <!-- Col 3 -->
-      <div class="col col-right">
+      /* Gestor layout: flex columna única, sin estiramiento */
+      #layoutGestor.active {
+        display: flex !important;
+        flex-direction: column;
+        height: auto !important;
+        min-height: 0 !important;
+      }
+      #layoutGestor .col { height: auto; overflow: visible; padding: 10px; }
+      #layoutGestor .col-left { border-right: none; border-bottom: 1px solid var(--border); background: var(--surface); }
+      #layoutGestor .col-mid  { background: transparent; }
 
-        <div class="lbl">Confirmados Hoy ✅</div>
-        <div id="confirmadosList"><div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div></div>
-        <div class="lbl" style="margin-top:20px;">⏳ Pendientes de Cobro</div>
-        <div id="pendienteList"><div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div></div>
-      </div>
-    </div>
+      /* Gestor seleccionado: ocultar selector, mostrar formulario full */
+      #layoutGestor.has-gestor .col-left { display: none !important; }
+      #layoutGestor.has-gestor #mobileBackBar { display: flex; }
 
-    <!-- ── STOCK PANEL ── -->
-    <div id="adminStockPanel" class="admin-panel-full" style="display:none;">
-      <div style="padding:10px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:var(--surface);">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
-          <div class="lbl" style="margin:0;" id="stockPanelTitle">Todos los productos</div>
-          <div style="display:flex;gap:6px;flex-shrink:0;">
-            <button type="button" class="btn btn-ghost btn-sm" onclick="toggleCatManager()" id="catManagerToggle" title="Gestionar categorías">🗂️</button>
-            <button class="btn btn-blue btn-sm" onclick="openAddProductModal()">+ Producto</button>
-          </div>
-        </div>
-        <!-- Filtro de categorías (solo navegación, sin borrar) -->
-        <div id="categoriasList" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
-        <!-- Gestión de categorías (colapsable) -->
-        <div id="catManagerPanel" style="display:none;margin-top:8px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;">
-          <div class="field-lbl" style="margin-bottom:6px;">Agregar categoría</div>
-          <div class="add-row" style="margin-bottom:8px;">
-            <input type="text" id="newCatInput" placeholder="Nombre de categoría" style="font-size:12px;padding:5px 10px;" onkeydown="if(event.key==='Enter')addCategoria()">
-            <button type="button" class="btn btn-ghost btn-sm" onclick="addCategoria()">+ Agregar</button>
-          </div>
-          <div class="field-lbl" style="margin-bottom:6px;">Categorías existentes</div>
-          <div id="catManagerList"></div>
-        </div>
-      </div>
-      <div style="padding:12px 14px;" id="productGrid"></div>
-    </div>
+      /* Admin layout */
+      #layoutAdmin.active { height: auto; overflow: visible; }
+      .admin-nav { gap: 0; padding: 0 6px; overflow-x: auto; }
+      .anav-btn { font-size: 11px; padding: 0 10px; white-space: nowrap; }
+      .admin-content { height: auto; overflow: visible; }
+      .admin-panel-full { height: auto; overflow: visible; }
 
-    <!-- ── CATALOG PANEL (shared products, no out-of-stock) ── -->
-    <div id="adminCatalogPanel" class="admin-panel-full" style="display:none;">
-      <div style="padding:10px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:var(--surface);">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
-          <div class="lbl" style="margin:0;">📑 Catálogo de Productos</div>
-        </div>
-        <input type="search" id="catalogAdminSearch" placeholder="Buscar producto..." oninput="renderAdminCatalog()" style="margin-bottom:8px;width:100%;">
-        <div id="catalogAdminCatTabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
-      </div>
-      <div style="padding:12px 14px;" id="catalogAdminGrid"></div>
-    </div>
+      /* Vales 3col → columna única */
+      .admin-panel-3col { grid-template-columns: 1fr !important; height: auto; overflow: visible; }
+      .admin-panel-3col .col-left  { height: auto; overflow: visible; border-right: none; border-bottom: 1px solid var(--border); }
+      .admin-panel-3col .col-mid   { height: auto; overflow: visible; }
+      .admin-panel-3col .col-right { height: auto; overflow: visible; border-left: none; border-top: 1px solid var(--border); }
 
-    <!-- ── GESTORES PANEL ── -->
-    <div id="adminGestoresPanel" class="admin-panel-full" style="display:none;">
-      <div style="max-width:640px;margin:0 auto;padding:20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div class="lbl" style="margin:0;">💰 Comisiones por Gestor</div>
-          <button class="btn btn-ghost btn-sm" onclick="toggleGestorManager()">⚙️ Gestión de Gestores</button>
-        </div>
-        
-        <div id="gestorManagerSection" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:20px;">
-          <div class="lbl" style="margin-top:0;">Agregar Gestor</div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
-            <div class="add-row">
-              <input type="text" id="newGestorInput" placeholder="Nombre completo del gestor" onkeydown="if(event.key==='Enter')addGestor()">
-              <button class="btn btn-blue" onclick="addGestor()">+ Agregar</button>
-            </div>
-            <input type="tel" id="newGestorPhoneInput" placeholder="📱 Teléfono WhatsApp (sin + ni espacios, ej: 5355551234)" style="font-size:12px;">
-          </div>
-          <div class="lbl">Editar / Borrar / Contraseñas</div>
-          <div id="adminGestoresPanel-list"></div>
-        </div>
-        
-        <div id="adminComisionesList"></div>
-      </div>
-    </div>
+      /* Product picker: una sola columna */
+      #pickerProductGrid { grid-template-columns: 1fr !important; }
 
-    <!-- ── STATS PANEL ── -->
-    <div id="adminStatsPanel" class="admin-panel-full" style="display:none;">
-      <div style="padding:20px;max-width:960px;margin:0 auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-          <div class="lbl" style="margin:0;">Estadísticas del período</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span style="font-size:11px;color:var(--gray-400);">Desde</span>
-            <input type="date" id="statsDateFrom" onchange="renderStats()" style="width:150px;">
-            <span style="font-size:11px;color:var(--gray-400);">Hasta</span>
-            <input type="date" id="statsDateTo" onchange="renderStats()" style="width:150px;">
-          </div>
-        </div>
-        <div id="statsSummaryRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div>
-            <div class="lbl">Por Gestor</div>
-            <div id="statsGestorList"></div>
-          </div>
-          <div>
-            <div class="lbl">Productos más vendidos</div>
-            <div id="statsProductList"></div>
-          </div>
-        </div>
+      /* Stats */
+      #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr 1fr !important; }
+      #adminStatsPanel > div > div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
 
-        <!-- ── INVENTARIO ANALYTICS ── -->
-        <div style="margin-top:28px;">
-          <div class="lbl">📦 Inventario</div>
-          <div id="statsInventarioRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-            <div>
-              <div class="lbl">Stock por categoría</div>
-              <div id="statsCatList"></div>
-            </div>
-            <div>
-              <div class="lbl">🏆 Más vendidos (total histórico)</div>
-              <div id="statsTopVendidos"></div>
-            </div>
-          </div>
-        </div>
+      /* Tarjetas y botones */
+      .card { padding: 10px 12px; }
+      .btn { padding: 10px 14px; font-size: 13px; }
+      .btn-sm { padding: 7px 10px; font-size: 12px; }
+      .vale-form-body { padding: 10px 12px; }
+      .vf-row { gap: 6px; }
+      .modal { padding: 16px; margin: 8px; }
+      .modal-btns { flex-wrap: wrap; }
+      .modal-btns .btn { flex: 1; min-width: 100px; }
+    }
 
-      </div>
-    </div>
+    /* ── HEADER ── */
+    header { background:var(--header-bg); color:white; padding:0 20px; height:54px; display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.28); }
+    .brand { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .brand-icon { width:32px; height:32px; background:var(--blue); border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; letter-spacing:1px; }
+    .brand-name { font-size:16px; font-weight:800; letter-spacing:3px; }
+    .brand-sub  { font-size:9px; color:rgba(255,255,255,.4); letter-spacing:2px; }
+    #headerGestorName { font-size:13px; color:rgba(255,255,255,.5); }
+    .header-right { display:flex; align-items:center; gap:10px; margin-left:auto; }
+    .header-date  { font-size:11px; color:rgba(255,255,255,.5); }
+    .admin-session-label { font-size:11px; color:#6EE7B7; display:none; font-weight:600; }
+    .btn-logout { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.7); border-radius:6px; padding:4px 10px; font-size:11px; cursor:pointer; display:none; }
+    .btn-logout:hover { background:rgba(255,255,255,.18); }
+    #btnAdminAccess { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.45); border-radius:7px; padding:5px 10px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all .15s; }
+    #btnAdminAccess:hover { background:rgba(255,255,255,.16); color:rgba(255,255,255,.75); }
+    .notif-badge { background:var(--red); color:white; border-radius:20px; font-size:10px; font-weight:800; padding:1px 6px; min-width:16px; text-align:center; display:none; }
+    .notif-badge.show { display:inline-block; }
 
-    <!-- ── HISTORIAL PANEL ── -->
-    <div id="adminHistorialPanel" class="admin-panel-full" style="display:none;">
-      <div style="padding:20px;max-width:900px;margin:0 auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-          <div class="lbl" style="margin:0;">📅 Historial de Vales</div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <span style="font-size:11px;color:var(--gray-400);">Desde</span>
-            <input type="date" id="histDateFrom" onchange="renderHistorial()" style="width:140px;">
-            <span style="font-size:11px;color:var(--gray-400);">Hasta</span>
-            <input type="date" id="histDateTo" onchange="renderHistorial()" style="width:140px;">
-            <select id="histGestorFilter" onchange="renderHistorial()" style="font-size:12px;width:auto;">
-              <option value="">Todos los gestores</option>
-            </select>
-          </div>
-        </div>
-        <div id="historialList"></div>
-      </div>
-    </div>
+    /* ── LAYOUTS ── */
+    .layout { display:none; height:calc(100vh - 54px); overflow:hidden; }
+    .layout.active { display:flex; flex-direction:column; }
+    #layoutGestor.active { display:grid; grid-template-columns:240px 1fr; }
+    .col { height:100%; overflow-y:auto; padding:14px; }
+    /* Ranking section in col-mid when no gestor selected */
+    #layoutGestor:not(.has-gestor) .col-mid { display:flex; flex-direction:column; justify-content:flex-start; align-items:center; padding:24px; gap:0; }
+    #layoutGestor:not(.has-gestor) .col-mid > * { max-width:700px; width:100%; }
+    #layoutGestor.has-gestor .col-mid { display:block; padding:16px 20px; }
+    /* Wide screens: constrain form width for readability */
+    @media (min-width:1200px) {
+      #layoutGestor.active { grid-template-columns:260px 1fr; }
+      #layoutGestor.has-gestor .col-mid { padding:16px max(20px,calc((100% - 800px)/2)); }
+      #layoutGestor:not(.has-gestor) .col-mid { padding:32px 40px; }
+      #layoutGestor:not(.has-gestor) .col-mid > * { max-width:720px; }
+    }
+    .col-left  { background:var(--surface); border-right:1px solid var(--gray-200); }
+    .col-mid   { background:var(--gray-50); }
+    .col-right { background:var(--surface); border-left:1px solid var(--gray-200); }
 
-    <!-- ── CONFIG PANEL ── -->
-    <div id="adminConfigPanel" class="admin-panel-full" style="display:none;">
-      <div style="max-width:600px;margin:0 auto;padding:20px;">
-        <div class="lbl" style="margin-top:0;">🔄 Sincronización con GitHub</div>
-        <div class="card">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Guarda todos los datos (productos, gestores, vales, mensajeros) en un repositorio de GitHub para que sean persistentes y accesibles desde cualquier dispositivo.</div>
-          <label class="field-lbl">Personal Access Token (PAT) <span style="font-size:9px;color:var(--gray-400);">— permiso <code>repo</code></span></label>
-          <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="font-family:monospace;font-size:12px;">
-          <label class="field-lbl">Repositorio (usuario/nombre)</label>
-          <input type="text" id="gh-repo" placeholder="usuario/mi-tienda" style="font-family:monospace;font-size:12px;">
-          <label class="field-lbl">Ruta del archivo JSON en el repo</label>
-          <input type="text" id="gh-path" placeholder="data.json" style="font-family:monospace;font-size:12px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
-            <input type="checkbox" id="gh-autosync" style="width:auto;cursor:pointer;">
-            <label for="gh-autosync" style="font-size:12px;font-weight:600;cursor:pointer;color:var(--text);">Sincronizar automáticamente al guardar cambios</label>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-            <button class="btn btn-blue btn-sm" onclick="saveGhConfig()">💾 Guardar config</button>
-            <button class="btn btn-green btn-sm" onclick="syncToGitHub()">🔄 Sincronizar ahora</button>
-            <button class="btn btn-ghost btn-sm" onclick="loadFromGitHub()">⬇️ Restaurar desde GitHub</button>
-          </div>
-          <div id="ghSyncStatus" style="margin-top:10px;font-size:11px;min-height:16px;"></div>
-        </div>
-        <div class="lbl">🎯 Meta de Puntos</div>
-        <div class="card">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:10px;">Fija cuántos puntos ⭐ deben acumular los gestores para llegar a la meta. El ranking mostrará el progreso de cada uno hacia ese número.</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input type="number" id="cfg-meta-puntos" placeholder="Ej: 100" min="1" style="font-size:14px;font-weight:700;max-width:120px;">
-            <span style="font-size:12px;color:var(--gray-400);">puntos</span>
-            <button class="btn btn-blue btn-sm" onclick="saveMetaPuntos()">✓ Guardar</button>
-          </div>
-          <div id="metaPuntosStatus" style="font-size:11px;color:var(--gray-400);margin-top:6px;"></div>
-        </div>
-        <div class="lbl">📱 WhatsApp Admin</div>
-        <div class="card">
-          <label class="field-lbl">Número para recibir notificaciones de nuevos vales</label>
-          <div class="add-row">
-            <input type="text" id="adminPhoneInput" placeholder="Ej: 5355551234" style="font-size:12px;">
-            <button class="btn btn-blue btn-sm" onclick="saveAdminPhone()">✓</button>
-          </div>
-          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Número sin + ni espacios</div>
-        </div>
-        <div class="lbl">💾 Datos locales (exportar / importar)</div>
-        <div class="card">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Exporta todos los datos como un archivo <code>axontech-data.json</code> para hacer copia de seguridad o moverlos a otro dispositivo. Para restaurar, importa el mismo archivo.</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-blue btn-sm" onclick="exportData()">⬇️ Exportar datos</button>
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFileInput').click()">⬆️ Importar datos</button>
-            <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importData(this)">
-          </div>
-          <div style="font-size:10px;color:var(--gray-400);margin-top:8px;">⚠️ Importar sobreescribe todos los datos locales actuales</div>
-        </div>
-        <div class="lbl">🔐 Contraseña Administrador</div>
-        <div class="card">
-          <label class="field-lbl">Nueva contraseña (mín. 4 caracteres)</label>
-          <div class="add-row">
-            <input type="password" id="newPassInputCfg" placeholder="Nueva contraseña" style="font-size:12px;">
-            <button class="btn btn-blue btn-sm" onclick="changePassCfg()">✓</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    /* ── ADMIN NAV ── */
+    .admin-nav { background:var(--surface); border-bottom:1px solid var(--gray-200); display:flex; gap:2px; padding:0 16px; height:44px; align-items:center; flex-shrink:0; }
+    .anav-btn { background:none; border:none; border-bottom:2px solid transparent; padding:0 14px; height:44px; font-size:13px; font-weight:600; color:var(--gray-400); cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:6px; margin-bottom:-1px; }
+    .anav-btn:hover { color:var(--gray-700); }
+    .anav-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
 
-    <!-- ── MENSAJEROS PANEL ── -->
-    <div id="adminMensajerosPanel" class="admin-panel-full" style="display:none;">
-      <div id="mensajeroTopBar">
-        
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div class="lbl" style="margin:0;">Mensajeros</div>
-          <button class="btn btn-ghost btn-sm" onclick="toggleMensajeroManager()">⚙️ Gestión de Mensajeros</button>
-        </div>
-        
-        <div id="mensajeroManagerSection" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px;">
-           <div class="lbl" style="margin-top:0;">Agregar Mensajero</div>
-           <div class="add-row" style="margin-bottom:12px;">
-             <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero">
-             <button class="btn btn-blue btn-sm" onclick="addMensajero()">+</button>
-           </div>
-           <div class="lbl">Editar / Borrar</div>
-           <div id="mensajerosEditList"></div>
-        </div>
+    .admin-content { flex:1; overflow:hidden; position:relative; }
+    .admin-panel-full { height:100%; overflow-y:auto; }
+    .admin-panel-3col { display:grid; grid-template-columns:220px 1fr 260px; height:100%; overflow:hidden; }
 
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <button id="mensajeroChangeBtn" onclick="changeMensajero()" style="display:none;background:none;border:none;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;padding:2px 0;">← Cambiar</button>
-        </div>
-        
-        <div id="mensajeroSelectorList" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-bottom:10px;">
-          <div class="es" style="grid-column:1/-1;padding:4px 0;"><div class="es-text" style="font-size:12px;">Sin mensajeros registrados</div></div>
-        </div>
-      </div>
-      <div id="mensajeroValesWrap">
-        <div id="pendingCobroSection"></div>
-        <div id="mensajeroValesList">
-          <div class="es"><div class="es-icon">🛵</div><div class="es-text">Selecciona un mensajero para ver sus entregas</div></div>
-        </div>
-      </div>
-    </div>
+    /* ── SHARED ── */
+    .lbl { font-size:10px; font-weight:700; letter-spacing:1.5px; color:var(--gray-400); text-transform:uppercase; margin-bottom:8px; margin-top:16px; }
+    .lbl:first-child { margin-top:0; }
+    .card { background:var(--surface); border:1px solid var(--gray-200); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+    input, select, textarea { width:100%; border:1px solid var(--gray-300); border-radius:8px; padding:8px 11px; font-size:13px; color:var(--gray-900); outline:none; background:var(--input-bg); transition:border-color .15s,box-shadow .15s; font-family:inherit; resize:vertical; }
+    input:focus, select:focus, textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-lt); }
+    .btn { border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
+    .btn-blue   { background:var(--blue); color:white; }
+    .btn-blue:hover { background:#009ab8; }
+    .btn-green  { background:var(--green); color:white; }
+    .btn-green:hover { background:#059669; }
+    .btn-orange { background:var(--orange); color:white; }
+    .btn-orange:hover { background:#EA580C; }
+    .btn-ghost  { background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-200); }
+    .btn-ghost:hover { background:var(--gray-200); }
+    .btn-wa  { background:#25D366; color:white; border:1px solid #25D366; }
+    .btn-wa:hover { background:#128C7E; }
+    .btn-red { background:var(--red); color:white; }
+    .btn-red:hover { background:#DC2626; }
+    .btn-full { width:100%; }
+    .btn-sm   { padding:5px 11px; font-size:12px; }
+    .btn:disabled { opacity:.4; cursor:not-allowed; }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .es { text-align:center; padding:18px 10px; color:var(--gray-400); }
+    .es-icon { font-size:26px; margin-bottom:5px; }
+    .es-text { font-size:12px; }
+    .add-row { display:flex; gap:6px; }
 
-  </div><!-- /admin-content -->
-</div><!-- /layoutAdmin -->
+    /* ── GESTOR NOTIFICATIONS ── */
+    .gnotif-item { display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border-radius:8px; margin-bottom:4px; border:1px solid var(--gray-200); background:var(--surface); font-size:11px; }
+    .gnotif-item.unread { border-left:3px solid var(--blue); background:var(--blue-lt); }
+    .gnotif-item.type-agotado { border-left-color:var(--red); background:#FEF2F2; }
+    .gnotif-item.type-low { border-left-color:var(--yellow); background:#FFFBEB; }
+    .gnotif-item.type-restocked { border-left-color:var(--green); background:#ECFDF5; }
+    .gnotif-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
+    .gnotif-text { flex:1; line-height:1.4; }
+    .gnotif-time { font-size:9px; color:var(--gray-400); white-space:nowrap; }
+    #gestorNotifsSection { display:none; }
+    .notif-header-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .notif-clear-btn { font-size:10px; color:var(--gray-400); background:none; border:none; cursor:pointer; padding:0; }
+    .notif-clear-btn:hover { color:var(--red); }
 
-<!-- ── MODAL: Contraseña ── -->
-<div class="modal-bg" id="passModal">
-  <div class="modal">
-    <div class="modal-title">🔒 Acceso Administrador</div>
-    <div class="modal-sub">Ingresa la contraseña para continuar</div>
-    <input type="password" id="passInput" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitPass()">
-    <div class="pass-error" id="passError">Contraseña incorrecta</div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost btn-full" onclick="closePassModal()">Cancelar</button>
-      <button class="btn btn-blue btn-full" onclick="submitPass()">Acceder</button>
-    </div>
-  </div>
-</div>
+    /* ── STOCK AGOTADOS ── */
+    .stock-section-header { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gray-400); padding:10px 0 6px; display:flex; align-items:center; gap:8px; border-top:1px solid var(--gray-200); margin-top:16px; }
+    .stock-section-header:first-child { border-top:none; margin-top:0; }
+    .agotado-badge { background:#FEF2F2; color:var(--red); border-radius:20px; font-size:9px; font-weight:700; padding:2px 7px; }
+    .prod-card.agotado { opacity:.75; }
+    .prod-card.agotado .prod-name { color:var(--gray-600); }
 
-<!-- ── MODAL: Compartir con mensajero ── -->
-<div class="modal-bg" id="shareModal">
-  <div class="modal">
-    <div class="modal-title">📤 Compartir con Mensajero</div>
-    <div class="modal-sub" id="shareModalSub"></div>
-    <label class="field-lbl">Mensajero</label>
-    <select id="mensajeroSelect"></select>
-    <hr class="modal-sep">
-    <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">Vale de entrega</div>
-    <div class="vale-preview" id="shareValePreview" style="font-size:10.5px;max-height:150px;overflow-y:auto;"></div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost" onclick="closeShareModal()">Cancelar</button>
-      <button class="btn btn-wa" onclick="shareViaWA()">💬 WhatsApp</button>
-      <button class="btn btn-blue btn-full" onclick="copyAndAssign()">📋 Copiar y Asignar</button>
-    </div>
-  </div>
-</div>
+    /* ── GESTOR LIST ── */
+    .g-item { display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 4px; border-radius:9px; cursor:pointer; border:1px solid transparent; transition:all .13s; text-align:center; }
+    .g-item:hover  { background:var(--gray-100); }
+    .g-item.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    .g-avatar { width:36px; height:36px; border-radius:50%; color:white; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .g-name  { font-size:10px; font-weight:600; line-height:1.2; word-break:break-word; }
+    .g-badge { background:var(--blue); color:white; border-radius:20px; font-size:9px; font-weight:700; padding:1px 5px; }
+    #gestoresList { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    #gestoresList .es { grid-column:1/-1; }
+    .m-pend-dot { position:absolute; top:0; right:0; width:9px; height:9px; border-radius:50%; background:var(--orange); border:2px solid var(--surface); }
+    .g-avatar-wrap { position:relative; display:inline-flex; }
+    .m-chip { display:flex;align-items:center;gap:6px;padding:6px 8px;border:1.5px solid var(--gray-200);border-radius:10px;cursor:pointer;background:var(--surface);transition:all .13s;width:100%; }
+    .m-chip:hover { border-color:var(--gray-400); }
+    .m-chip.active { border-color:var(--blue);background:var(--blue-lt); }
+    .m-chip .g-avatar { width:28px;height:28px;font-size:10px;flex-shrink:0; }
+    .m-chip-name { font-size:11px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0; }
+    #adminMensajerosPanel { display:flex;flex-direction:column;overflow:hidden; }
+    #adminMensajerosPanel.has-sel .m-chip:not(.active) { display:none; }
+    #mensajeroTopBar { padding:10px 14px 0;border-bottom:1px solid var(--border);flex-shrink:0; }
+    #mensajeroValesWrap { flex:1;overflow-y:auto;padding:14px; }
+    /* Vale form hidden until gestor selected */
+    #valeFormWrapper { display:none; }
+    #layoutGestor.has-gestor #valeFormWrapper { display:block; }
+    /* Picker pills */
+    .picker-pill { display:flex; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--gray-200); border-radius:20px; background:var(--surface); transition:border-color .1s,background .1s; }
+    .picker-pill.selected { border-color:var(--blue); background:var(--blue-lt); }
+    .picker-pill-info { flex:1; min-width:0; }
+    .picker-pill-name { font-size:12px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .picker-pill-price { font-size:10px; color:var(--blue); font-weight:600; }
+    .picker-pill-qty { display:flex; align-items:center; gap:3px; flex-shrink:0; }
+    .picker-pill-qty button { width:22px; height:22px; border-radius:50%; border:1px solid var(--gray-300); background:var(--surface); cursor:pointer; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0; line-height:1; transition:background .1s; }
+    .picker-pill-qty button:active { background:var(--blue); color:white; border-color:var(--blue); }
+    .picker-pill-qty span { font-size:12px; font-weight:700; min-width:16px; text-align:center; color:var(--text); }
 
-<!-- ── MODAL: Producto (add/edit) ── -->
-<div class="modal-bg" id="productModal">
-  <div class="modal" style="max-width:480px;">
-    <div class="modal-title" id="productModalTitle">📦 Nuevo Producto</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="grid-column:1/-1;">
-        <label class="field-lbl">Nombre *</label>
-        <input type="text" id="pm-name" placeholder="Nombre del producto">
-      </div>
-      <div style="grid-column:1/-1;">
-        <label class="field-lbl">Descripción</label>
-        <textarea id="pm-desc" rows="2" placeholder="Descripción breve"></textarea>
-      </div>
-      <div>
-        <label class="field-lbl">Precio (referencia)</label>
-        <input type="text" id="pm-precio" placeholder="$50 USD / 4500 MN">
-      </div>
-      <div>
-        <label class="field-lbl">Stock</label>
-        <input type="number" id="pm-stock" placeholder="Ej: 10" min="0" value="0">
-      </div>
-      <div>
-        <label class="field-lbl">Puntos que da ⭐</label>
-        <input type="number" id="pm-puntos" placeholder="Ej: 5" min="0" value="0">
-      </div>
-      <div>
-        <label class="field-lbl">Garantía</label>
-        <input type="text" id="pm-garantia" placeholder="Ej: 6 meses">
-      </div>
-      <div>
-        <label class="field-lbl">Comisión gestor</label>
-        <div style="display:flex;gap:6px;">
-          <input type="number" id="pm-comision-amount" placeholder="0" min="0" step="0.01" style="flex:1;min-width:0;">
-          <select id="pm-comision-currency" style="width:80px;flex-shrink:0;">
-            <option value="USD">USD</option>
-            <option value="MN">MN</option>
-          </select>
-        </div>
-        <input type="hidden" id="pm-comision">
-      </div>
-      <div>
-        <label class="field-lbl">Categoría</label>
-        <select id="pm-cat"></select>
-      </div>
-      <div style="grid-column:1/-1;">
-        <label class="field-lbl">Foto del producto</label>
-        <input type="file" id="pm-foto-file" accept="image/*" onchange="handleProductPhoto(this)" style="display:block;width:100%;padding:5px;border:1px solid var(--gray-200);border-radius:8px;font-size:12px;cursor:pointer;">
-        <input type="hidden" id="pm-foto">
-        <div id="pm-fotoPreview" style="margin-top:6px;"></div>
-      </div>
-    </div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost btn-full" onclick="closeProductModal()">Cancelar</button>
-      <button class="btn btn-blue btn-full" onclick="saveProduct()">Guardar producto</button>
-    </div>
-  </div>
-</div>
+    /* ── VALE FORM ── */
+    .vale-form-header { background:linear-gradient(135deg,#004f66,#00b4d8); color:white; border-radius:10px 10px 0 0; padding:14px 16px; }
+    .vale-form-header h2 { font-size:15px; font-weight:800; letter-spacing:1px; }
+    .vale-form-header p  { font-size:11px; color:rgba(255,255,255,.65); margin-top:2px; }
+    .vale-form-body { background:var(--surface); border:1px solid var(--gray-200); border-top:none; border-radius:0 0 10px 10px; padding:12px 14px; margin-bottom:10px; }
+    .vf-row { display:flex; align-items:flex-start; gap:8px; margin-bottom:10px; }
+    .vf-row:last-child { margin-bottom:0; }
+    .vf-emoji { font-size:14px; margin-top:9px; flex-shrink:0; width:20px; text-align:center; }
+    .vf-inner { flex:1; min-width:0; }
+    .vf-label { font-size:10px; font-weight:700; color:var(--gray-600); letter-spacing:.5px; margin-bottom:3px; display:flex; align-items:center; gap:5px; justify-content:space-between; }
+    .vf-req { color:var(--red); font-size:10px; }
+    .vf-auto input { background:var(--blue-lt); border-color:var(--blue-bd); color:var(--blue-dk); font-weight:700; }
+    .vf-sep { border:none; border-top:1px dashed var(--gray-200); margin:12px 0; }
+    .vf-fixed { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:8px; padding:10px 12px; font-size:11px; color:var(--gray-600); line-height:1.7; }
+    .vf-fixed b { color:var(--gray-900); }
 
-<!-- ── MODAL: Editar Vale ── -->
-<div class="modal-bg" id="editValeModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-title">✏️ Editar Vale</div>
-    <div class="modal-sub">Modifica los datos del vale</div>
-    <label class="field-lbl">Cliente</label>
-    <input type="text" id="ev-cliente" placeholder="Nombre del cliente">
-    <label class="field-lbl">Teléfono</label>
-    <input type="tel" id="ev-telefono" placeholder="Teléfono">
-    <label class="field-lbl">Dirección</label>
-    <input type="text" id="ev-direccion" placeholder="Dirección">
-    <label class="field-lbl">Mensajería</label>
-    <input type="text" id="ev-mensajeria" placeholder="Ej: Gratis / $2 USD">
-    <label class="field-lbl">Total</label>
-    <input type="text" id="ev-total" placeholder="Total a pagar">
-    <label class="field-lbl">Garantía</label>
-    <input type="text" id="ev-garantia" placeholder="Ej: 6 meses">
-    <label class="field-lbl">💰 Comisión del Gestor</label>
-    <input type="text" id="ev-comisionGestor" placeholder="Ej: $5 USD · monto acordado con el gestor">
-    <div class="modal-btns">
-      <button type="button" class="btn btn-ghost btn-full" onclick="closeEditValeModal()">Cancelar</button>
-      <button type="button" class="btn btn-blue btn-full" onclick="saveEditVale()">Guardar</button>
-    </div>
-  </div>
-</div>
+    /* ── SELECTED PRODUCTS CHIPS ── */
+    .tag-chip { background:var(--blue-lt); border:1px solid var(--blue-bd); border-radius:6px; padding:3px 8px; font-size:11px; color:var(--blue-dk); font-weight:600; display:inline-block; margin:2px 2px 2px 0; }
+    #selectedProductsList { margin-bottom:6px; }
 
-<!-- ── MODAL: Editar Gestor ── -->
-<div class="modal-bg" id="editGestorModal">
-  <div class="modal" style="max-width:340px;">
-    <div class="modal-title">✏️ Editar Gestor</div>
-    <label class="field-lbl">Nombre</label>
-    <input type="text" id="editGestorInput" placeholder="Nombre completo">
-    <label class="field-lbl">📱 Teléfono WhatsApp (para notificaciones)</label>
-    <input type="tel" id="editGestorPhoneInput" placeholder="Ej: 5355551234 (sin + ni espacios)">
-    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Cuando se confirme una venta, el gestor recibirá un WhatsApp</div>
-    <div class="modal-btns">
-      <button type="button" class="btn btn-ghost btn-full" onclick="closeEditGestorModal()">Cancelar</button>
-      <button type="button" class="btn btn-blue btn-full" onclick="saveEditGestor()">Guardar</button>
-    </div>
-  </div>
-</div>
+    /* ── MY VALES ── */
+    .mv-card { border:1px solid var(--gray-200); border-radius:9px; padding:10px 12px; margin-bottom:6px; border-left-width:3px; }
+    .mv-card.st-pending         { border-left-color:var(--blue); }
+    .mv-card.st-assigned        { border-left-color:var(--orange); }
+    .mv-card.st-delivered       { border-left-color:#7C3AED; }
+    .mv-card.st-confirmed       { border-left-color:var(--green); }
+    .mv-card.st-pending_payment { border-left-color:var(--yellow); }
+    .mv-head  { display:flex; justify-content:space-between; margin-bottom:4px; }
+    .mv-time  { font-size:11px; font-weight:700; }
+    .mv-info  { font-size:11px; color:var(--gray-600); line-height:1.4; margin-bottom:5px; }
+    .mv-foot  { display:flex; justify-content:space-between; align-items:center; }
+    .mv-status { font-size:10px; font-weight:600; }
+    .vale-preview { white-space:pre-wrap; font-family:'Courier New',monospace; line-height:1.55; }
 
-<!-- ── MODAL: Editar Mensajero ── -->
-<div class="modal-bg" id="editMensajeroModal">
-  <div class="modal" style="max-width:340px;">
-    <div class="modal-title">✏️ Editar Mensajero</div>
-    <label class="field-lbl">Nombre</label>
-    <input type="text" id="editMensajeroInput" placeholder="Nombre completo">
-    <div class="modal-btns">
-      <button type="button" class="btn btn-ghost btn-full" onclick="closeEditMensajeroModal()">Cancelar</button>
-      <button type="button" class="btn btn-blue btn-full" onclick="saveEditMensajero()">Guardar</button>
-    </div>
-  </div>
-</div>
+    /* ── ADMIN GESTOR FILTER ── */
+    .ag-all { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; margin-bottom:4px; font-size:13px; font-weight:600; background:var(--gray-50); border:1px solid var(--gray-200); }
+    .ag-all:hover,.ag-all.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    .ag-item { display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:8px; cursor:pointer; margin-bottom:3px; border:1px solid transparent; transition:all .13s; }
+    .ag-item:hover  { background:var(--gray-100); }
+    .ag-item.active { background:var(--blue-lt); border-color:var(--blue-bd); }
+    .ag-avatar { width:28px; height:28px; border-radius:50%; color:white; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .ag-name { font-size:12px; font-weight:600; }
+    .ag-count { background:var(--red); color:white; border-radius:20px; font-size:9px; font-weight:800; padding:2px 6px; margin-left:auto; }
 
-<!-- ── MODAL: Confirmar Acción ── -->
-<div class="modal-bg" id="confirmActionModal">
-  <div class="modal" style="max-width:320px;">
-    <div class="modal-title" id="confirmActionTitle">¿Confirmar acción?</div>
-    <div class="modal-sub" id="confirmActionSub"></div>
-    <div class="modal-btns" style="margin-top:16px;">
-      <button type="button" class="btn btn-ghost btn-full" onclick="closeConfirmAction()">Cancelar</button>
-      <button type="button" class="btn btn-blue btn-full" id="confirmActionOk">Confirmar</button>
-    </div>
-  </div>
-</div>
+    /* ── INBOX ── */
+    .notif-banner { background:linear-gradient(135deg,var(--blue),var(--blue-dk)); color:white; border-radius:9px; padding:10px 12px; margin-bottom:10px; display:none; align-items:center; gap:8px; }
+    .notif-banner.show { display:flex; }
+    .notif-close { background:rgba(255,255,255,.2); border:none; color:white; border-radius:4px; width:20px; height:20px; cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; margin-left:auto; flex-shrink:0; }
+    .ic { padding:10px 12px; border-radius:9px; cursor:pointer; margin-bottom:5px; border:1px solid var(--gray-200); background:white; position:relative; transition:all .13s; }
+    .ic:hover  { border-color:var(--blue-bd); background:var(--blue-lt); }
+    .ic.sel    { border-color:var(--blue); background:var(--blue-lt); }
+    .ic.is-new { border-left:3px solid var(--blue); }
+    .new-dot   { position:absolute; top:10px; right:10px; width:7px; height:7px; border-radius:50%; background:var(--blue); }
+    .ic-head   { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+    .ic-gestor { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; }
+    .ic-time   { font-size:10px; color:var(--gray-400); }
+    .ic-cliente { font-size:13px; font-weight:700; margin-bottom:1px; }
+    .ic-preview { font-size:11px; color:var(--gray-600); margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ic-foot   { display:flex; justify-content:space-between; align-items:center; }
+    .sp { font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; }
+    .sp-pending        { background:#EFF6FF; color:var(--blue); }
+    .sp-assigned       { background:#FFF7ED; color:var(--orange); }
+    .sp-delivered      { background:#F5F3FF; color:#7C3AED; }
+    .sp-confirmed      { background:#ECFDF5; color:var(--green); }
+    .sp-pending_payment{ background:#FFFBEB; color:var(--yellow); }
 
-<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    /* ── VALE DETAIL ── */
+    .det-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--gray-400); }
+    .det-empty-icon { font-size:40px; margin-bottom:10px; }
+    .det-gestor-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .det-actions { display:flex; flex-direction:column; gap:6px; }
+    .mensajero-row { font-size:13px; font-weight:600; padding:8px 0; }
 
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=49"></script>
-<script>
-// Close modals by clicking backdrop
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('show');
-  });
-});
-</script>
-</body>
-</html>
+    /* ── MENSAJEROS ── */
+    .m-card { border:1.5px solid var(--gray-200); border-radius:10px; padding:10px 12px; cursor:pointer; background:var(--surface); transition:all .13s; }
+    .m-card:hover { border-color:var(--gray-400); background:var(--gray-50); }
+    .m-card.active { border-color:var(--blue); background:var(--blue-lt); }
+    .m-item { display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--gray-100); }
+    .m-item:last-child { border-bottom:none; }
+    .m-av   { width:28px; height:28px; border-radius:50%; background:var(--blue); color:white; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .m-name { font-size:12px; font-weight:600; flex:1; }
+    .m-del  { background:none; border:none; color:var(--gray-400); cursor:pointer; font-size:16px; padding:0; line-height:1; }
+    .m-del:hover { color:var(--red); }
+    .sc { border:1px solid var(--gray-200); border-radius:8px; padding:8px 10px; margin-bottom:5px; }
+    .sc-ok   { border-left:3px solid var(--green); }
+    .sc-pend { border-left:3px solid var(--yellow); }
+    .sc-head { display:flex; justify-content:space-between; margin-bottom:3px; }
+    .sc-g { font-size:11px; font-weight:700; }
+    .sc-t { font-size:10px; color:var(--gray-400); }
+    .sc-m { font-size:10px; color:var(--gray-400); margin-top:2px; }
+
+    /* ── ADMIN CONFIG PANEL ── */
+    .field-lbl { font-size:10px; font-weight:700; color:var(--gray-600); letter-spacing:.5px; display:block; margin-bottom:4px; margin-top:10px; }
+    .field-lbl:first-child { margin-top:0; }
+
+    /* ── STOCK / PRODUCTOS ── */
+    .cat-item { display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:8px; cursor:pointer; margin-bottom:3px; font-size:13px; font-weight:600; border:1px solid transparent; transition:all .12s; }
+    .cat-item:hover  { background:var(--gray-100); }
+    .cat-item.active { background:var(--blue-lt); border-color:var(--blue-bd); color:var(--blue); }
+    .prod-card { background:white; border:1px solid var(--gray-200); border-radius:10px; padding:12px; transition:box-shadow .15s; }
+    .prod-card:hover { box-shadow:0 2px 12px rgba(0,0,0,.08); }
+    .prod-cat-tag { background:var(--gray-100); border-radius:4px; padding:2px 7px; font-size:9px; font-weight:700; color:var(--gray-600); letter-spacing:.5px; text-transform:uppercase; display:inline-block; margin-bottom:4px; }
+    .prod-name  { font-size:14px; font-weight:800; margin-bottom:2px; }
+    .prod-desc  { font-size:11px; color:var(--gray-600); margin-bottom:4px; line-height:1.4; }
+    .prod-price { font-size:13px; font-weight:700; color:var(--blue); margin-bottom:5px; }
+    .prod-meta  { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+    .stock-badge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; background:var(--gray-100); color:var(--gray-700); }
+    .stock-low  { background:#FEF2F2; color:var(--red); }
+
+    /* ── PRODUCT PICKER MODAL ── */
+    .picker-card { background:white; border:1px solid var(--gray-200); border-radius:8px; padding:10px; transition:all .12s; }
+    .picker-card.selected { border-color:var(--blue); background:var(--blue-lt); }
+    .pcat-tab { background:var(--gray-100); border:1px solid var(--gray-200); border-radius:6px; padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer; transition:all .12s; white-space:nowrap; }
+    .pcat-tab:hover  { background:var(--gray-200); }
+    .pcat-tab.active { background:var(--blue); color:white; border-color:var(--blue); }
+
+    /* ── STATS ── */
+    .stat-card { background:white; border:1px solid var(--gray-200); border-radius:10px; padding:16px; text-align:center; }
+    .stat-num  { font-size:32px; font-weight:900; line-height:1; margin-bottom:4px; }
+    .stat-lbl  { font-size:11px; color:var(--gray-400); font-weight:600; letter-spacing:.5px; text-transform:uppercase; }
+
+    /* ── GESTORES PANEL ── */
+    .gp-card { display:flex; align-items:center; flex-wrap:wrap; gap:10px 12px; background:white; border:1px solid var(--gray-200); border-radius:10px; padding:12px 14px; margin-bottom:8px; }
+
+    /* ── MODALS ── */
+    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.38); display:none; align-items:center; justify-content:center; z-index:200; padding:16px; }
+    .modal-bg.show { display:flex; overscroll-behavior: contain; }
+    .modal { background:white; border-radius:14px; padding:22px; width:100%; max-width:420px; box-shadow:0 20px 50px rgba(0,0,0,.18); max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    .modal-title { font-size:17px; font-weight:800; margin-bottom:4px; }
+    .modal-sub   { font-size:13px; color:var(--gray-400); margin-bottom:14px; }
+    .modal-btns  { display:flex; gap:8px; margin-top:16px; }
+    .modal-sep   { border:none; border-top:1px solid var(--gray-200); margin:14px 0; }
+    .pass-error  { color:var(--red); font-size:11px; margin-top:5px; display:none; }
+
+    /* ── TOAST ── */
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(60px); background:var(--gray-900); color:white; padding:10px 18px; border-radius:8px; font-size:13px; font-weight:600; z-index:250; transition:transform .25s; pointer-events:none; white-space:nowrap; will-change:transform; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      body { overflow: visible !important; }
+      header, .admin-nav, .modal-bg:not(.show), .toast, #goalBanner, .glow-overlay, .rank-notif, .rank-notif-card { display: none !important; }
+      .modal-bg.show { position: static; background: none; }
+    }
+    /* ── Z-INDEX SCALE: header:100, modal:200, toast:250, goal-banner:500, glow-overlay:600, rank-notif:550, rank-notif-card:555 ── */
+    #goalBanner { z-index: 500; }
+    #goalBanner button, #goalBanner .btn { pointer-events: auto; }
+
+    /* ── OUT OF STOCK PICKER PILLS ── */
+    .picker-pill.out-of-stock { opacity:0.5; }
+    .picker-pill.out-of-stock .picker-pill-qty button:first-child { pointer-events:none; opacity:0.3; }
+    .oos-badge { background:var(--red); color:white; font-size:8px; font-weight:800; padding:1px 5px; border-radius:4px; letter-spacing:.5px; }
+
+    /* ── MOBILE IMPROVEMENTS ── */
+    @media (max-width: 768px) {
+      /* Botones táctiles con área mínima de 44px */
+      .btn { min-height: 44px; }
+      .btn-sm { min-height: 36px; }
+      /* Modal ocupa casi toda la pantalla */
+      .modal { margin: 6px; padding: 16px; max-height: 95vh; overflow-y: auto; }
+      /* Grillas: 2 columnas en tablet/móvil grande */
+      #mensajeroSelectorList { grid-template-columns: repeat(2,1fr) !important; }
+      #gestoresList { grid-template-columns: repeat(3,1fr); }
+      #pickerProductGrid { grid-template-columns: 1fr 1fr !important; }
+      /* Stats: 2 columnas en móvil */
+      #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr 1fr !important; }
+      /* Nav de admin: scroll horizontal, texto más pequeño */
+      .anav-btn { font-size: 10px; padding: 0 7px; }
+      /* Cards de producto más compactas */
+      .prod-card { padding: 6px 8px; font-size: 12px; }
+      /* Formulario del vale: campos más legibles */
+      .vf-row { flex-wrap: wrap; }
+      /* Vale detail: tabla responsiva */
+      .det-gestor-row { flex-wrap: wrap; }
+      /* Acciones en column en móvil */
+      .det-actions { gap: 8px; }
+      /* Comisiones en mobile */
+      #adminComisionesList .card { padding: 10px 12px; }
+      /* Historial: ajuste de columnas internas */
+      #adminHistorialPanel .card[style*="display:flex"] { flex-wrap: wrap; }
+      /* Intermediate 2-col for admin 3-col panel */
+      .admin-panel-3col { grid-template-columns: 1fr 1fr !important; }
+      .admin-panel-3col .col-right { grid-column: 1 / -1; }
+    }
+    @media (max-width: 480px) {
+      .anav-btn { font-size: 9px; padding: 0 5px; }
+      .brand-name { font-size: 12px; letter-spacing: 2px; }
+      header { padding: 0 8px; gap: 6px; }
+      .modal { margin: 4px; padding: 12px; }
+      #gestoresList { grid-template-columns: repeat(3,1fr); }
+      #mensajeroSelectorList { grid-template-columns: repeat(2,1fr) !important; }
+      #pickerProductGrid { grid-template-columns: 1fr !important; }
+      #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr !important; }
+    }
+
+    /* ── GOAL CELEBRATION ── */
+    @keyframes slideDown { from{transform:translateY(-110%);opacity:0} to{transform:translateY(0);opacity:1} }
+    @keyframes slideUp   { from{transform:translateY(0);opacity:1}    to{transform:translateY(-110%);opacity:0} }
+    #goalBanner { position:fixed;top:54px;left:0;right:0;z-index:500;background:linear-gradient(135deg,#003d52,#00b4d8);color:white;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:slideDown .4s cubic-bezier(.22,1,.36,1); }
+    #goalBanner.hide { animation:slideUp .35s ease forwards; }
+
+    /* ── EPIC GLOW PULSE CELEBRATION ── */
+    .glow-overlay { position:fixed;inset:0;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.92);opacity:0;pointer-events:none;transition:opacity .5s; }
+    .glow-overlay.active { opacity:1;pointer-events:auto; }
+    .glow-rings { position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center; }
+    .glow-ring { position:absolute;border-radius:50%;border:2px solid;animation:glowPulse 3s ease-in-out infinite; }
+    @keyframes glowPulse { 0%,100%{transform:scale(1);opacity:.25} 50%{transform:scale(1.12);opacity:.65} }
+    .glow-announcement { display:flex;flex-direction:column;align-items:center;gap:20px;z-index:2;position:relative;padding:20px; }
+    .glow-title { font-size:28px;font-weight:900;color:#fff;text-align:center;opacity:0;transform:translateY(-20px) scale(.9);transition:all .7s cubic-bezier(.34,1.56,.64,1);text-shadow:0 0 30px rgba(245,158,11,.5);letter-spacing:2px; }
+    .glow-title.show { opacity:1;transform:translateY(0) scale(1); }
+    .glow-winners-list { display:flex;flex-direction:column;gap:12px;width:100%;max-width:420px; }
+    .glow-winner-row { display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 18px;opacity:0;transform:translateX(-40px);transition:all .6s cubic-bezier(.34,1.56,.64,1);cursor:default; }
+    .glow-winner-row.show { opacity:1;transform:translateX(0); }
+    .glow-winner-row:hover { background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2); }
+    .glow-winner-place { font-size:26px;font-weight:900;width:44px;text-align:center;flex-shrink:0; }
+    .glow-winner-avatar { width:44px;height:44px;border-radius:50%;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,.25); }
+    .glow-winner-info { flex:1;min-width:0; }
+    .glow-winner-name { color:#fff;font-size:15px;font-weight:700; }
+    .glow-winner-pts { color:rgba(255,255,255,.55);font-size:12px;margin-top:2px; }
+    .glow-winner-badge { padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;color:#fff;letter-spacing:.3px;flex-shrink:0; }
+    .glow-badge-1 { background:linear-gradient(135deg,#F59E0B,#EF4444); }
+    .glow-badge-2 { background:linear-gradient(135deg,#94A3B8,#64748B); }
+    .glow-badge-3 { background:linear-gradient(135deg,#cd7f32,#92400e); }
+    .glow-close { position:absolute;top:20px;right:20px;z-index:20;background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
+    .glow-close:hover { background:rgba(255,255,255,.22);color:#fff; }
+    .glow-meta-label { font-size:12px;color:rgba(255,255,255,.45);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;z-index:2; }
+
+    /* ── GESTOR PERSONAL RANKING NOTIFICATION ── */
+    .rank-notif { position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-100px);z-index:550;background:var(--surface);border:2px solid var(--yellow);border-radius:16px;padding:16px 28px;box-shadow:0 8px 36px rgba(245,158,11,.3);display:flex;align-items:center;gap:14px;opacity:0;transition:all .6s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:90vw; }
+    .rank-notif.show { transform:translateX(-50%) translateY(0);opacity:1; }
+    .rank-notif-icon { font-size:32px;flex-shrink:0; }
+    .rank-notif-content { display:flex;flex-direction:column;gap:2px; }
+    .rank-notif-place { font-size:20px;font-weight:900; }
+    .rank-notif-text { font-size:13px;color:var(--gray-600); }
+    .rank-notif-pts { font-size:12px;color:var(--blue);font-weight:700; }
+
+    /* ── RANKING NOTIFICATION CARDS (slide-in) ── */
+    .rank-notif-card { position:fixed;bottom:20px;right:20px;z-index:555;background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;padding:14px 18px;box-shadow:0 8px 28px rgba(0,0,0,.15);max-width:340px;transform:translateX(120%);opacity:0;transition:all .5s cubic-bezier(.34,1.56,.64,1);pointer-events:auto; }
+    .rank-notif-card.show { transform:translateX(0);opacity:1; }
+    .rank-notif-card.hide { transform:translateX(120%);opacity:0; }
+    .rank-notif-card-header { display:flex;align-items:center;gap:8px;margin-bottom:8px; }
+    .rank-notif-card-icon { width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .rank-notif-card-title { font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;flex:1; }
+    .rank-notif-card-time { font-size:10px;color:var(--gray-400); }
+    .rank-notif-card-body { font-size:13px;color:var(--gray-600);line-height:1.4; }
+    .rank-notif-card-body b { color:var(--text); }
+    .rank-notif-card-place { display:inline-block;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:800;color:#fff;margin-top:6px; }
+    .rank-place-1 { background:linear-gradient(135deg,#F59E0B,#EF4444); }
+    .rank-place-2 { background:linear-gradient(135deg,#94A3B8,#64748B); }
+    .rank-place-3 { background:linear-gradient(135deg,#cd7f32,#92400e); }
+    body.dark .rank-notif { background:var(--surface);border-color:#F59E0B;box-shadow:0 8px 36px rgba(245,158,11,.2); }
+    body.dark .rank-notif-text { color:var(--gray-600); }
+    body.dark .rank-notif-card { background:var(--surface);border-color:var(--border); }
+
+    @media (max-width: 480px) {
+      .glow-title { font-size:22px; }
+      .glow-winner-row { padding:10px 14px;gap:10px; }
+      .glow-winner-place { font-size:22px;width:36px; }
+      .glow-winner-avatar { width:36px;height:36px;font-size:12px; }
+      .glow-winner-name { font-size:13px; }
+      .glow-winner-badge { font-size:9px;padding:3px 8px; }
+      .glow-winners-list { max-width:320px; }
+      .rank-notif { padding:12px 20px; }
+      .rank-notif-icon { font-size:26px; }
+      .rank-notif-place { font-size:17px; }
+      .rank-notif-card { max-width:280px;right:12px;bottom:12px; }
+    }
