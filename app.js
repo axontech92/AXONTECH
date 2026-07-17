@@ -1049,7 +1049,8 @@ function renderAdminGestoresList() {
         <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
-          <span style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);">🔑 ${escapeHTML(g.password||'—').replace(/./g, '•')}</span>
+          <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id},'${escapeHTML(g.password||'')}')" title="Click para mostrar/ocultar">🔑 ${escapeHTML(g.password||'—').replace(/./g, '•')}</span>
+          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id},'${escapeHTML(g.password||'')}')">📋 Copiar</button>
           <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
           <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
         </div>
@@ -1089,6 +1090,19 @@ function resetGestorPass(id) {
   const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
   gestoresTabDirty=true;
   renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
+}
+function toggleGestorPass(id, pass) {
+  const el=document.getElementById('gpw-'+id);if(!el)return;
+  if(el.dataset.shown==='1'){
+    el.textContent='🔑 '+pass.replace(/./g,'•');
+    el.dataset.shown='0';
+  } else {
+    el.textContent='🔑 '+pass;
+    el.dataset.shown='1';
+  }
+}
+function copyGestorPass(id, pass) {
+  navigator.clipboard.writeText(pass).then(()=>showToast('Contraseña copiada ✓')).catch(()=>showToast('No se pudo copiar'));
 }
 
 function removeGestor(id) {
