@@ -967,23 +967,20 @@ function renderMensajeroVales() {
           <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
             <button class="btn btn-green btn-sm btn-full" onclick="mensajeroEntrega(${v.id})">📦 Entregado</button>
-            <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="mensajeroPendienteCobro(${v.id})">⏳ Pend. cobro</button>
+            <button class="btn btn-green btn-sm btn-full" style="background:#2563EB;color:white;" onclick="mensajeroPagadoDirecto(${v.id})">💰 Pagado</button>
           </div>
         </div>`;
       }).join('');
     }
     if(entregados.length){
-      html+='<div class="lbl" style="margin-top:16px;">Entregados · esperando confirmación</div>';
+      html+='<div class="lbl" style="margin-top:16px;">Entregados · esperando cobro</div>';
       html+=entregados.map(v=>{
         const g=gestorOf(v.gestorId);
         return `<div class="mv-card st-delivered">
           <div class="mv-head"><span class="mv-time">${timeStr(v.deliveredTs||v.ts)}</span><span class="sp-delivered" style="font-size:9px;padding:2px 6px;">📦 Entregado</span></div>
           <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.total||'—')}</div>
           ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
-            <button class="btn btn-green btn-sm btn-full" onclick="mensajeroPagado(${v.id})">💰 Pagado</button>
-            <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="mensajeroPendienteCobro(${v.id})">⏳ Pend. cobro</button>
-          </div>
+          <button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Marcar como Pagado</button>
         </div>`;
       }).join('');
     }
@@ -1409,23 +1406,10 @@ function copyAndAssign() {
 // ══════════════════════════════════════════
 //  CONFIRM / PENDING
 // ══════════════════════════════════════════
-// Mensajero marca entrega física — sin tocar stock
+// Mensajero marca entrega — pasa directo a pendiente de cobro, descuenta stock, notifica gestor
 function mensajeroEntrega(id) {
-  patchVale(id,{status:'delivered',deliveredTs:new Date().toISOString()});
-  renderAdminGestores();renderValeDetail();renderMyVales();
-  renderPendienteCobro();renderMensajeroVales();
-  updateAdminBadge();updateMensajeroBadge();
-  showToast('Marcado como entregado 🛵');
-}
-// Mensajero marca como pendiente de cobro (entregado pero sin cobrar)
-function mensajeroPendienteCobro(id, skipConfirm) {
-  if(!skipConfirm) {
-    const v=getVales().find(x=>x.id===id);if(!v)return;
-    showConfirmAction('¿Marcar como pendiente de cobro?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar','btn-blue',()=>mensajeroPendienteCobro(id,true));
-    return;
-  }
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  // Discount stock first
+  // Descuenta stock
   const prods=getProductos();
   let stockChanged=false;
   (v.valeProductos||[]).forEach(({id:pid,qty})=>{
@@ -1439,14 +1423,51 @@ function mensajeroPendienteCobro(id, skipConfirm) {
     else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
   });
   if(stockChanged) saveProductos(prods);
-  addNotif('vale_assigned',v.cliente||'Cliente',null,'Pendiente de cobro',v.gestorId);
-  patchVale(id,{status:'pending_payment',deliveredTs:new Date().toISOString(),confirmedTs:new Date().toISOString()});
+  // Notifica al gestor que su venta fue entregada y queda pendiente de cobro
+  addNotif('vale_assigned',v.cliente||'Cliente',null,'Entregado · Pendiente de cobro',v.gestorId);
+  patchVale(id,{status:'pending_payment',deliveredTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();renderMyVales();
   renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
   renderProductGrid();renderGestorRanking();updateAdminBadge();updateMensajeroBadge();
   maybeAutoSync();
-  showToast('Marcado como pendiente de cobro ⏳');
+  showToast('Entregado · Pendiente de cobro 🛵⏳');
+}
+// Mensajero marca como pagado directo (sin pasar por pendiente de cobro)
+function mensajeroPagadoDirecto(id, skipConfirm) {
+  if(!skipConfirm) {
+    const v=getVales().find(x=>x.id===id);if(!v)return;
+    showConfirmAction('¿Confirmar venta cobrada?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar cobrada','btn-green',()=>mensajeroPagadoDirecto(id,true));
+    return;
+  }
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  if(v.status==='confirmed'){showToast('Esta venta ya fue confirmada');return;}
+  // Descuenta stock
+  const prods=getProductos();
+  let stockChanged=false;
+  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
+    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
+    const oldStock=prods[idx].stock||0;
+    const newStock=Math.max(0,oldStock-qty);
+    prods[idx]={...prods[idx],stock:newStock};
+    stockChanged=true;
+    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
+    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
+    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
+  });
+  if(stockChanged) saveProductos(prods);
+  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:new Date().toISOString()});
+  gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
+  playSound('confirm');
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
+  renderConfirmados();renderProductGrid();renderGestorRanking();
+  if(currentAdminTab==='gestores'){renderComisiones();}
+  updateAdminBadge();updateMensajeroBadge();
+  checkGoalReached(v.gestorId, id);
+  maybeAutoSync();
+  showToast('Venta cobrada ✅');
 }
 // Mensajero marca como pagado (entregado y cobrado)
 function mensajeroPagado(id, skipConfirm) {
