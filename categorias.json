@@ -15,12 +15,17 @@
     "GYM"
   ],
   "iconos": {
+    "WIFI": "📶",
+    "ENERGIA": "⚡",
+    "CELULARES": "📱",
+    "UTILES": "✏️",
+    "CARROS": "🚗",
+    "ROPA": "👕",
     "LENCERIA": "👙",
     "SEGURIDAD": "🔒",
     "HOGAR": "🏠",
     "JUEGOS": "🎮",
     "MOTOS": "🛵",
-    "LENCERÍA": "👙",
     "PC Y LAPTOPS": "💻",
     "GYM": "🏋️"
   }

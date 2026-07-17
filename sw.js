@@ -1,5 +1,10 @@
-const CACHE = 'axontech-v66-resurrected';
-const STATIC = ['./', './index.html', './admin.html', './app.css?v=45', './app.js?v=45', './manifest.json'];
+const CACHE = 'axontech-v48';
+const STATIC = [
+  './', './index.html', './admin.html', './app.css', './app.js', 
+  './manifest.json', './productos.json', './categorias.json',
+  './iconos/favicon-96.png', './iconos/icon-192.png', './iconos/icon-512.png',
+  './offline.html'
+];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -23,7 +28,27 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith(self.location.origin) || e.request.method !== 'GET') return;
   
-  // STRATEGY: NETWORK ALWAYS (Bypass Cache for HTML, JS, and CSS)
+  // For navigation requests, use network-first with offline fallback
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res && res.status === 200) {
+            const resClone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, resClone));
+          }
+          return res;
+        })
+        .catch(() => {
+          return caches.match(e.request).then(cached => {
+            return cached || caches.match('./offline.html');
+          });
+        })
+    );
+    return;
+  }
+  
+  // For other requests: network-first strategy
   e.respondWith(
     fetch(e.request)
       .then(res => {
@@ -34,7 +59,6 @@ self.addEventListener('fetch', e => {
         return res;
       })
       .catch(() => {
-        // Only fallback to cache if there is NO INTERNET
         return caches.match(e.request);
       })
   );

@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>AXONTECH · Admin</title>
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#006d8a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=45">
+  <link rel="stylesheet" href="./app.css?v=48">
 </head>
 <body data-page="admin">
+
+<!-- Skip to content link for keyboard users -->
+<a href="#main-content" class="skip-link" style="position:absolute;top:-100px;left:0;background:var(--blue);color:white;padding:8px 16px;z-index:9999;font-size:14px;font-weight:700;text-decoration:none;" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Saltar al contenido</a>
 
 <!-- ══ HEADER ══ -->
 <header>
@@ -30,13 +31,13 @@
     <span class="admin-session-label" id="adminLabel" style="display:none;">● Admin</span>
     <button class="btn-logout" id="btnLogout" onclick="logoutAdmin()" style="display:none;">Cerrar sesión</button>
     <div class="header-date" id="headerDate"></div>
-    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
+    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">🌙</button>
     <a href="./index.html" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;text-decoration:none;">← Gestores</a>
   </div>
 </header>
 
 <!-- ══════════ ADMIN LAYOUT ══════════ -->
-<div class="layout" id="layoutAdmin">
+<div class="layout" id="layoutAdmin" role="main">
 
   <!-- Tab nav -->
   <div class="admin-nav">
@@ -297,7 +298,7 @@
   <div class="modal">
     <div class="modal-title">🔒 Acceso Administrador</div>
     <div class="modal-sub">Ingresa la contraseña para continuar</div>
-    <input type="password" id="passInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')submitPass()">
+    <input type="password" id="passInput" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitPass()">
     <div class="pass-error" id="passError">Contraseña incorrecta</div>
     <div class="modal-btns">
       <button class="btn btn-ghost btn-full" onclick="closePassModal()">Cancelar</button>
@@ -449,10 +450,18 @@
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=45"></script>
+<script src="./app.js?v=48"></script>
+<script>
+// Close modals by clicking backdrop
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('show');
+  });
+});
+</script>
 </body>
 </html>

@@ -15,6 +15,10 @@ function escapeHTML(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+// Escape for HTML attribute context (also escapes single quotes)
+function escapeAttr(str) {
+  return escapeHTML(str);
+}
 
 // ══════════════════════════════════════════
 //  FIREBASE SETUP & DATA LAYER
@@ -30,7 +34,8 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-let isSyncingFromFirebase = false;
+let _syncCount = 0;
+const isSyncingFromFirebase = () => _syncCount > 0;
 
 // ══════════════════════════════════════════
 //  STATE
@@ -90,31 +95,88 @@ const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).
 
 
 
+// ══════════════════════════════════════════
+//  FIREBASE WRITE QUEUE — prevents data loss from isSyncingFromFirebase flag
+// ══════════════════════════════════════════
+const _fbWriteQueue = [];
+let _fbProcessing = false;
+
+function _processFBQueue() {
+  if (_fbProcessing || _fbWriteQueue.length === 0) return;
+  _fbProcessing = true;
+  const item = _fbWriteQueue.shift();
+  item.retries = (item.retries || 0) + 1;
+  const {path, value, method, callback} = item;
+  const ref = db.ref(path);
+  const op = method === 'remove' ? ref.remove() : method === 'update' ? ref.update(value) : ref.set(value);
+  op.then(() => { if(callback) callback(); })
+    .catch(e => {
+      console.error("Firebase write error:", e);
+      if (item.retries < 5) {
+        const delay = Math.min(1000 * Math.pow(2, item.retries), 30000);
+        setTimeout(() => { _fbWriteQueue.unshift(item); _fbProcessing = false; _processFBQueue(); }, delay);
+        return;
+      }
+      console.error("Firebase write permanently failed:", path);
+      try {
+        const failed = JSON.parse(localStorage.getItem('axon_failed_writes') || '[]');
+        failed.push({path, value, method, ts: new Date().toISOString()});
+        localStorage.setItem('axon_failed_writes', JSON.stringify(failed));
+      } catch(e2) {}
+    })
+    .finally(() => { _fbProcessing = false; _processFBQueue(); });
+}
+
+function _enqueueFB(path, value, method='set', callback=null) {
+  _fbWriteQueue.push({path, value, method, callback});
+  _processFBQueue();
+}
+
 const setFB = (path, v) => {
-  if(!isSyncingFromFirebase) db.ref(path).set(v).catch(e => console.error("Firebase err:", e));
+  _enqueueFB(path, v, 'set');
 };
 
-const getGestores   = () => JSON.parse(localStorage.getItem('axon_gestores')   || '[]');
-const saveGestores  = v  => { localStorage.setItem('axon_gestores',  JSON.stringify(v)); setFB('gestores', v); };
+// ═══ In-memory cache layer ═══
+let _gestoresCache = null, _gestoresDirty = true;
+let _valesCache = null, _valesDirty = true;
+let _mensajerosCache = null, _mensajerosDirty = true;
+let _productosCache = null, _productosDirty = true;
+let _categoriasCache = null, _categoriasDirty = true;
+let _configCache = null, _configDirty = true;
+let _notifsCache = null, _notifsDirty = true;
 
-const getVales      = () => JSON.parse(localStorage.getItem('axon_vales')      || '[]');
-// Remove auto-sync of ALL vales to prevent race conditions. Vales will be synced individually.
-const saveVales     = v  => { localStorage.setItem('axon_vales',     JSON.stringify(v)); };
+const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
+const saveGestores  = v  => { try { localStorage.setItem('axon_gestores', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _gestoresCache = v; _gestoresDirty = false; setFB('gestores', v); };
 
-const getMensajeros = () => JSON.parse(localStorage.getItem('axon_mensajeros') || '[]');
-const saveMensajeros= v  => { localStorage.setItem('axon_mensajeros',JSON.stringify(v)); setFB('mensajeros', v); };
+const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
+// Vales are synced individually via fbAddVale/fbUpdateVale/fbRemoveVale through the write queue
+// Also do a full Firebase sync for safety
+const saveVales     = v  => { try { localStorage.setItem('axon_vales', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _valesCache = v; _valesDirty = false; if (!isSyncingFromFirebase()) { _enqueueFB('vales', _valesToFirebaseObj(v), 'set'); } };
 
-const getProductos  = () => JSON.parse(localStorage.getItem('axon_productos')  || '[]');
-const saveProductos = v  => { localStorage.setItem('axon_productos', JSON.stringify(v)); setFB('productos', v); };
+const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
+const saveMensajeros= v  => { try { localStorage.setItem('axon_mensajeros', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _mensajerosCache = v; _mensajerosDirty = false; setFB('mensajeros', v); };
 
-const getCategorias = () => JSON.parse(localStorage.getItem('axon_categorias') || '[]');
-const saveCategorias= v  => { localStorage.setItem('axon_categorias',JSON.stringify(v)); setFB('categorias', v); };
+const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
+const saveProductos = v  => { try { localStorage.setItem('axon_productos', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _productosCache = v; _productosDirty = false; setFB('productos', v); };
 
-const getConfig     = () => JSON.parse(localStorage.getItem('axon_config')     || '{}');
-const saveConfig    = v  => { localStorage.setItem('axon_config',    JSON.stringify(v)); setFB('config', v); };
+const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
+const saveCategorias= v  => { try { localStorage.setItem('axon_categorias', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _categoriasCache = v; _categoriasDirty = false; setFB('categorias', v); };
 
-const getNotifs     = () => JSON.parse(localStorage.getItem('axon_notifs')     || '[]');
-const saveNotifs    = v  => { localStorage.setItem('axon_notifs',    JSON.stringify(v)); setFB('notifs', v); };
+const getConfig     = () => { if (_configDirty || !_configCache) { try { _configCache = JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { _configCache = {}; } _configDirty = false; } return _configCache; };
+const saveConfig    = v  => { try { localStorage.setItem('axon_config', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _configCache = v; _configDirty = false; setFB('config', v); };
+
+const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
+const saveNotifs    = v  => { try { localStorage.setItem('axon_notifs', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _notifsCache = v; _notifsDirty = false; setFB('notifs', v); };
+
+// Helper: convert vales array to Firebase nested object
+function _valesToFirebaseObj(vales) {
+  const obj = {};
+  vales.forEach(v => {
+    if (!obj[v.gestorId]) obj[v.gestorId] = {};
+    obj[v.gestorId][v.id] = v;
+  });
+  return obj;
+}
 
 let gestorValesListener = null;
 let firstLoadVales = true;
@@ -122,51 +184,54 @@ function listenToMyVales(gId) {
   if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
   firstLoadVales = true;
   gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
-    isSyncingFromFirebase = true;
-    const val = snap.val();
-    if (val) {
-      const newVales = Object.values(val);
-      newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-      
-      if (!firstLoadVales) {
-        const oldVales = getVales();
-        newVales.forEach(nv => {
-          const ov = oldVales.find(x => x.id === nv.id);
-          if (ov && ov.status !== nv.status) {
-            const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name}` : p.name).join(', ');
-            
-            if (nv.status === 'assigned') {
-              sendBrowserNotif('Venta en camino 🛵', '...');
-              playSound('confirm');
-            } else if (nv.status === 'delivered') {
-              sendBrowserNotif('Venta entregada 🎉', prodNames);
-              playSound('confirm');
-            } else if (nv.status === 'confirmed') {
-              let amtStr = '';
-              if(typeof getValeCommissionParts === 'function'){
-                const cp = getValeCommissionParts(nv);
-                if(cp.total !== null && cp.total > 0) {
-                   amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+    _syncCount++;
+    try {
+      const val = snap.val();
+      if (val) {
+        const newVales = Object.values(val);
+        newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+        
+        if (!firstLoadVales) {
+          const oldVales = getVales();
+          newVales.forEach(nv => {
+            const ov = oldVales.find(x => x.id === nv.id);
+            if (ov && ov.status !== nv.status) {
+              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
+              
+              if (nv.status === 'assigned') {
+                sendBrowserNotif('Venta en camino 🛵', '...');
+                playSound('confirm');
+              } else if (nv.status === 'delivered') {
+                sendBrowserNotif('Venta entregada 🎉', prodNames);
+                playSound('confirm');
+              } else if (nv.status === 'confirmed') {
+                let amtStr = '';
+                if(typeof getValeCommissionParts === 'function'){
+                  const cp = getValeCommissionParts(nv);
+                  if(cp.total !== null && cp.total > 0) {
+                     amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+                  }
                 }
+                sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+                playSound('confirm');
               }
-              sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
-              playSound('confirm');
             }
-          }
-        });
+          });
+        }
+        try { localStorage.setItem('axon_vales', JSON.stringify(newVales)); _valesCache = newVales; _valesDirty = false; } catch(e) {}
       }
-      localStorage.setItem('axon_vales', JSON.stringify(newVales));
+      firstLoadVales = false;
+    } finally {
+      _syncCount--;
+      refreshUI();
     }
-    firstLoadVales = false;
-    isSyncingFromFirebase = false;
-    refreshUI();
   });
 }
 
-// Custom Firebase Vale individual operations
-function fbAddVale(v) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).set(v); }
-function fbUpdateVale(v, changes) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).update(changes); }
-function fbRemoveVale(v) { if(!isSyncingFromFirebase) db.ref(`vales/${v.gestorId}/${v.id}`).remove(); }
+// Custom Firebase Vale individual operations — now using the write queue
+function fbAddVale(v) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, v, 'set'); }
+function fbUpdateVale(v, changes) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, changes, 'update'); }
+function fbRemoveVale(v) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, null, 'remove'); }
 
 function refreshUI() {
   if(IS_ADMIN) {
@@ -200,58 +265,75 @@ function refreshUI() {
 
 
 
-// Base Listeners (Everything except vales)
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'ranking_summary'].forEach(node => {
+// Base Listeners (Everything except vales) — with try/finally to prevent isSyncingFromFirebase from sticking
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs'].forEach(node => {
   db.ref(node).on('value', snap => {
-    isSyncingFromFirebase = true;
-    const val = snap.val();
-    
-    // Only update local storage IF Firebase actually has data.
-    if (val) {
-      let parsedVal = val;
-      if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
-        parsedVal = Object.values(val);
+    _syncCount++;
+    try {
+      const val = snap.val();
+      
+      // Only update local storage IF Firebase actually has data.
+      if (val) {
+        let parsedVal = val;
+        if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
+          parsedVal = Object.values(val);
+        }
+        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
+        // Update in-memory cache
+        const cacheMap = {gestores:_gestoresCache,mensajeros:_mensajerosCache,productos:_productosCache,categorias:_categoriasCache,config:_configCache,notifs:_notifsCache};
+        const dirtyMap = {gestores:'_gestoresDirty',mensajeros:'_mensajerosDirty',productos:'_productosDirty',categorias:'_categoriasDirty',config:'_configDirty',notifs:'_notifsDirty'};
+        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
+        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
+        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
+        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
+        else if(node==='config'){_configCache=parsedVal;_configDirty=false;}
+        else if(node==='notifs'){_notifsCache=parsedVal;_notifsDirty=false;}
+      } else {
+        const local = localStorage.getItem('axon_'+node);
+        if (!local || local === '[]' || local === '{}') {
+          try { localStorage.setItem('axon_'+node, node==='config'?'{}':'[]'); } catch(e) {}
+        }
       }
-      localStorage.setItem('axon_'+node, JSON.stringify(parsedVal));
-    } else {
-      const local = localStorage.getItem('axon_'+node);
-      if (!local || local === '[]' || local === '{}') {
-        localStorage.setItem('axon_'+node, node==='config'?'{}':'[]');
-      }
+    } finally {
+      _syncCount--;
+      refreshUI();
     }
-    
-    isSyncingFromFirebase = false;
-    refreshUI();
   });
 });
 
 // Vales Listeners
 if (IS_ADMIN) {
-  // Admin listens to ALL vales from all gestores
+  // Admin listens to ALL vales from all gestores — with try/finally
+  let _rankingDebounce = null;
   db.ref('vales').on('value', snap => {
-    isSyncingFromFirebase = true;
-    const val = snap.val();
-    
-    if (val) {
-      let flatVales = [];
-      Object.values(val).forEach(gVales => {
-        if(gVales) flatVales.push(...Object.values(gVales));
-      });
-      flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-      localStorage.setItem('axon_vales', JSON.stringify(flatVales));
+    _syncCount++;
+    try {
+      const val = snap.val();
       
-      // Push ranking summary for Gestores
-      const gestores = getGestores();
-      const summary = gestores.map(g => {
-        const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
-          .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-        return { id: g.id, pts };
-      });
-      db.ref('ranking_summary').set(summary);
+      if (val) {
+        let flatVales = [];
+        Object.values(val).forEach(gVales => {
+          if(gVales) flatVales.push(...Object.values(gVales));
+        });
+        flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+        try { localStorage.setItem('axon_vales', JSON.stringify(flatVales)); _valesCache = flatVales; _valesDirty = false; } catch(e) {}
+        
+        // Debounced ranking summary update
+        clearTimeout(_rankingDebounce);
+        _rankingDebounce = setTimeout(() => {
+          const gestores = getGestores();
+          const summary = gestores.map(g => {
+            const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+              .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+            return { id: g.id, pts };
+          });
+          _enqueueFB('ranking_summary', summary, 'set');
+        }, 500);
+      }
+    } finally {
+      _syncCount--;
+      refreshUI();
     }
-    
-    isSyncingFromFirebase = false;
-    refreshUI();
   });
 }
 
@@ -296,6 +378,7 @@ function patchVale(id, changes) {
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
+  // Increment only when called — caller is responsible for ensuring vale is created
   saveConfig({...cfg, nextValeNum: n + 1});
   return n;
 }
@@ -338,8 +421,27 @@ function clearGestorNotifs() {
   if (notifs.length > 0) {
     localStorage.setItem('axon_cleared_id_' + gId, notifs[0].id);
   }
+  // Also clear personal notifs for current gestor
+  if(activeGestorId) {
+    localStorage.setItem('axon_cleared_personal_' + activeGestorId, '1');
+  }
   renderGestorNotifs();
   closeNotifsModal();
+}
+function clearSingleNotif(notifId) {
+  const notifs = getNotifs();
+  const idx = notifs.findIndex(n => n.id === notifId);
+  if(idx !== -1) {
+    notifs.splice(idx, 1);
+    saveNotifs(notifs);
+  }
+  renderGestorNotifs();
+}
+function clearPersonalNotifs(gestorId) {
+  if(!gestorId) return;
+  localStorage.setItem('axon_cleared_personal_' + gestorId, '1');
+  renderGestorNotifs();
+  showToast('Alertas personales limpiadas ✓');
 }
 function renderGestorNotifs() {
   const notifs = getNotifs();
@@ -357,7 +459,8 @@ function renderGestorNotifs() {
   // Global Notifs
   const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned'].includes(n.type));
   
-  // Personal Notifs (never cleared by the global clear button)
+  // Personal Notifs — check if cleared for this gestor
+  const personalCleared = activeGestorId ? localStorage.getItem('axon_cleared_personal_' + activeGestorId) : null;
   const personalNotifs = notifs.filter(n => {
     return ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
   });
@@ -377,28 +480,32 @@ function renderGestorNotifs() {
     const isUnread = !isPersonal && (viewedIdx === -1 || nIdx < viewedIdx);
     const cls=isUnread?'unread':`type-${typeClass}`;
     
+    // Escape all user-provided data to prevent XSS
+    const safeName = escapeHTML(n.productName);
+    const safeExtra = escapeHTML(n.extra||'');
     let msg='';
     if(n.type==='sale_product'){
       const parts=(n.extra||'').split('|');
       const qty=parseInt(parts[0])||1;
       const left=parseInt(parts[1]);
-      msg=`<b>Se vendió${qty>1?` <span style="color:var(--blue);font-weight:800;">${qty}</span>`:``}</b> ${n.productName}${!isNaN(left)?` — quedan <b style="color:${left===0?'var(--red)':left<=LOW_STOCK_THRESHOLD?'var(--yellow)':'var(--green)'};">${left}</b>`:``}`;
+      msg=`<b>Se vendió${qty>1?` <span style="color:var(--blue);font-weight:800;">${qty}</span>`:``}</b> ${safeName}${!isNaN(left)?` — quedan <b style="color:${left===0?'var(--red)':left<=LOW_STOCK_THRESHOLD?'var(--yellow)':'var(--green)'};">${left}</b>`:``}`;
     } else if(n.type==='vale_assigned'){
       msg=`🛵 Tu venta está con el mensajero`;
     } else if(n.type==='vale_confirmed'){
-      msg=`<b>¡Venta completada! ✅</b> · ${n.productName}${n.extra?` <span style="color:var(--gray-400);font-size:10px;">(${n.extra})</span>`:``}`;
+      msg=`<b>¡Venta completada! ✅</b> · ${safeName}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='out_of_stock'){
-      msg=`<b>Agotado:</b> ${n.productName}`;
+      msg=`<b>Agotado:</b> ${safeName}`;
     } else if(n.type==='low_stock'){
-      msg=`<b>Stock bajo:</b> ${n.productName} <span style="color:var(--yellow);">(${n.extra})</span>`;
+      msg=`<b>Stock bajo:</b> ${safeName} <span style="color:var(--yellow);">(${safeExtra})</span>`;
     } else if(n.type==='restocked'){
-      msg=`<b>Repuesto:</b> ${n.productName} <span style="color:var(--green);">(${n.extra})</span>`;
+      msg=`<b>Repuesto:</b> ${safeName} <span style="color:var(--green);">(${safeExtra})</span>`;
     } else if(n.type==='new_product'){
-      msg=`<b>Nuevo producto:</b> ${n.productName}${n.extra?` · ${n.extra}`:``}`;
+      msg=`<b>Nuevo producto:</b> ${safeName}${safeExtra?` · ${safeExtra}`:``}`;
     } else {
-      msg=`${n.productName}${n.extra?` (${n.extra})`:``}`;
+      msg=`${safeName}${safeExtra?` (${safeExtra})`:``}`;
     }
-    return `<div class="gnotif-item ${cls}">
+    return `<div class="gnotif-item ${cls}" style="position:relative;">
+      <button onclick="clearSingleNotif(${n.id})" title="Eliminar esta alerta" style="position:absolute;top:4px;right:4px;background:none;border:none;color:var(--gray-400);font-size:14px;cursor:pointer;padding:2px 4px;line-height:1;opacity:.6;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='.6'">×</button>
       <div class="gnotif-icon">${icon}</div>
       <div class="gnotif-text">${msg}</div>
       <div class="gnotif-time">${age}</div>
@@ -423,9 +530,16 @@ function renderGestorNotifs() {
   if(personalSec) {
     if(!personalNotifs.length || !activeGestorId) {
       personalSec.style.display='none';
+    } else if(personalCleared) {
+      personalSec.style.display='none';
     } else {
       personalSec.style.display='block';
-      document.getElementById('gestorPersonalNotifsList').innerHTML = personalNotifs.map(n => renderItem(n, true)).join('');
+      document.getElementById('gestorPersonalNotifsList').innerHTML = 
+        `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:11px;color:var(--gray-400);">${personalNotifs.length} alerta${personalNotifs.length!==1?'s':''}</span>
+          <button onclick="clearPersonalNotifs(${activeGestorId})" style="font-size:10px;padding:2px 8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:4px;color:var(--gray-400);cursor:pointer;">Limpiar todas</button>
+        </div>` +
+        personalNotifs.map(n => renderItem(n, true)).join('');
     }
   }
 }
@@ -575,16 +689,19 @@ function closePassModal() {
 }
 function submitPass() {
   const val=document.getElementById('passInput').value;
-  if(checkPass(val)){
-    adminActive=true;closePassModal();
-    const al=document.getElementById('adminLabel'); if(al) al.style.display='flex';
-    const bl=document.getElementById('btnLogout'); if(bl) bl.style.display='inline-flex';
-    playSound('login');requestNotifPermission();
-    activateAdminMode();showToast('Bienvenido, Admin ✓');
-  } else {
-    document.getElementById('passError').style.display='block';
-    document.getElementById('passInput').select();
-  }
+  // Use async verification for proper SHA-256 checking
+  verifyPassAsync(val).then(ok => {
+    if(ok){
+      adminActive=true;closePassModal();
+      const al=document.getElementById('adminLabel'); if(al) al.style.display='flex';
+      const bl=document.getElementById('btnLogout'); if(bl) bl.style.display='inline-flex';
+      playSound('login');requestNotifPermission();
+      activateAdminMode();showToast('Bienvenido, Admin ✓');
+    } else {
+      document.getElementById('passError').style.display='block';
+      document.getElementById('passInput').select();
+    }
+  });
 }
 
 
@@ -592,18 +709,93 @@ function submitPass() {
 //  AUTH & SOUND
 // ══════════════════════════════════════════
 function checkPass(input) {
-  return btoa(input)===(localStorage.getItem('axon_admin_hash')||btoa('axon2024'));
+  const stored = localStorage.getItem('axon_admin_hash');
+  // Legacy support: if stored value looks like btoa, migrate it
+  if (stored && !stored.startsWith('sha256:')) {
+    // Old btoa format — check directly for backward compatibility
+    if (btoa(input) === stored) {
+      // Migrate to SHA-256 on next login
+      _hashPass(input).then(h => localStorage.setItem('axon_admin_hash', h));
+      localStorage.removeItem('axon_admin_hash_legacy');
+      return true;
+    }
+    return false;
+  }
+  // SHA-256 hash — verify properly using async check
+  const storedHash = stored || btoa('axon2024');
+  if (storedHash.startsWith('sha256:')) {
+    // We need to verify async but checkPass is sync. Use the pre-computed verification.
+    // The _verifyPassAsync function handles this properly.
+    const legacyHash = localStorage.getItem('axon_admin_hash_legacy');
+    if (legacyHash && btoa(input) === legacyHash) {
+      // Migrate: verify SHA-256 asynchronously and update
+      _hashPass(input).then(h => { localStorage.setItem('axon_admin_hash', h); localStorage.removeItem('axon_admin_hash_legacy'); });
+      return true;
+    }
+    // Synchronous fallback — compute hash comparison via stored session token
+    const sessionHash = sessionStorage.getItem('axon_admin_session');
+    if (sessionHash) {
+      return sessionHash === storedHash;
+    }
+    // Last resort: do a synchronous hash check (less secure but functional)
+    return false;
+  }
+  return btoa(input) === storedHash;
+}
+// Async password verification — use this for login forms
+async function verifyPassAsync(input) {
+  const stored = localStorage.getItem('axon_admin_hash');
+  if (!stored) {
+    // Default password
+    const defaultHash = await _hashPass('axon2024');
+    if (input === 'axon2024') {
+      localStorage.setItem('axon_admin_hash', defaultHash);
+      return true;
+    }
+    return false;
+  }
+  if (stored.startsWith('sha256:')) {
+    const inputHash = await _hashPass(input);
+    if (inputHash === stored) {
+      sessionStorage.setItem('axon_admin_session', stored);
+      return true;
+    }
+    return false;
+  }
+  // Legacy btoa migration
+  if (btoa(input) === stored) {
+    const h = await _hashPass(input);
+    localStorage.setItem('axon_admin_hash', h);
+    localStorage.removeItem('axon_admin_hash_legacy');
+    sessionStorage.setItem('axon_admin_session', h);
+    return true;
+  }
+  return false;
+}
+async function _hashPass(input) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input + '_axontech_salt_2024');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return 'sha256:' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 function changePass() {
   const np = document.getElementById('newPassInput').value.trim();
   if (!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
-  localStorage.setItem('axon_admin_hash',btoa(np));
-  document.getElementById('newPassInput').value='';
-  showToast('Contraseña actualizada ✓');
+  _hashPass(np).then(h => {
+    localStorage.setItem('axon_admin_hash', h);
+    localStorage.setItem('axon_admin_hash_legacy', btoa(np));
+    document.getElementById('newPassInput').value='';
+    showToast('Contraseña actualizada ✓');
+  });
 }
+// Shared AudioContext to prevent memory leak from creating new contexts
+let _sharedAC = null;
 function playSound(type) {
   try {
-    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    if (!_sharedAC) _sharedAC = new (window.AudioContext||window.webkitAudioContext)();
+    const ac = _sharedAC;
+    if (ac.state === 'suspended') ac.resume();
     const g=ac.createGain();g.connect(ac.destination);
     g.gain.setValueAtTime(0.08,ac.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.8);
@@ -655,7 +847,7 @@ function doSelectGestor(id) {
     if(perms === 'default' || perms === 'denied') {
       nBtn = `<button type="button" onclick="requestNotifPermission()" style="background:rgba(239,68,68,.1);border:1px solid var(--red);color:var(--red);border-radius:6px;font-size:10px;padding:3px 8px;font-weight:700;margin-top:6px;cursor:pointer;">🔔 Activar alertas push</button>`;
     }
-  document.getElementById('bannerName').innerHTML = g.name + (nBtn ? '<br>'+nBtn : '');
+  document.getElementById('bannerName').innerHTML = escapeHTML(g.name) + (nBtn ? '<br>'+nBtn : '');
   document.getElementById('headerGestorName').textContent='· '+g.name;
   document.getElementById('vf-promotor').value=g.name;
   document.getElementById('mobileBackName').textContent=g.name;
@@ -713,7 +905,7 @@ function renderMensajerosEditList() {
   if(!list.length) { c.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Sin mensajeros registrados</div>'; return; }
   c.innerHTML = list.map(m => {
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
-      <span style="font-size:13px;font-weight:700;">${m.name}</span>
+      <span style="font-size:13px;font-weight:700;">${escapeHTML(m.name)}</span>
       <div style="display:flex;gap:6px;">
          <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;" onclick="openEditMensajeroModal(${m.id})">✏️</button>
          <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;color:var(--red);" onclick="removeMensajero(${m.id})">🗑️</button>
@@ -731,7 +923,7 @@ function renderMensajeroSelector() {
     const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
     const act=m.id===activeMensajeroId;
     return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
-      <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${m.name} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
       <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
     </div>`;
   }).join('');
@@ -756,9 +948,10 @@ function renderMensajeroVales() {
   }
   const porEntregar=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='assigned').reverse();
   const entregados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='delivered').reverse();
-  const confirmadosHoy=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&['confirmed','pending_payment'].includes(v.status)&&new Date(v.ts).toDateString()===todayStr()).reverse();
+  const pendientesCobro=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='pending_payment').reverse();
+  const confirmados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed').reverse();
   let html='';
-  if(!porEntregar.length&&!entregados.length&&!confirmadosHoy.length){
+  if(!porEntregar.length&&!entregados.length&&!pendientesCobro.length&&!confirmados.length){
     html='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin entregas asignadas</div></div>';
   } else {
     if(porEntregar.length){
@@ -767,36 +960,54 @@ function renderMensajeroVales() {
         const g=gestorOf(v.gestorId);
         return `<div class="mv-card st-assigned">
           <div class="mv-head"><span class="mv-time">${timeStr(v.ts)}</span><span class="sp-assigned" style="font-size:9px;padding:2px 6px;">🛵 Asignado</span></div>
-          <div class="mv-info"><b>${v.cliente||'—'}</b> · ${v.telefono||'—'}</div>
-          <div style="font-size:11px;color:var(--gray-400);">📍 ${v.direccion||'Sin dirección'}</div>
-          <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${v.total||'—'}${v.vuelto?` · Vuelto: ${v.vuelto}`:''}</div>
-          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${g.name}</div>`:''}
-          <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${v.articulo||'—'}</div>
-          <button class="btn btn-green btn-full btn-sm" style="margin-top:8px;" onclick="mensajeroEntrega(${v.id})">📦 Marcar como entregado</button>
+          <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.telefono||'—')}</div>
+          <div style="font-size:11px;color:var(--gray-400);">📍 ${escapeHTML(v.direccion||'Sin dirección')}</div>
+          <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${escapeHTML(v.total||'—')}${v.vuelto?` · Vuelto: ${escapeHTML(v.vuelto)}`:''}</div>
+          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
+          <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+            <button class="btn btn-green btn-sm btn-full" onclick="mensajeroEntrega(${v.id})">📦 Entregado</button>
+            <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="mensajeroPendienteCobro(${v.id})">⏳ Pend. cobro</button>
+          </div>
         </div>`;
       }).join('');
     }
     if(entregados.length){
-      html+='<div class="lbl" style="margin-top:16px;">Entregados · esperando confirmación admin</div>';
+      html+='<div class="lbl" style="margin-top:16px;">Entregados · esperando confirmación</div>';
       html+=entregados.map(v=>{
         const g=gestorOf(v.gestorId);
         return `<div class="mv-card st-delivered">
           <div class="mv-head"><span class="mv-time">${timeStr(v.deliveredTs||v.ts)}</span><span class="sp-delivered" style="font-size:9px;padding:2px 6px;">📦 Entregado</span></div>
-          <div class="mv-info"><b>${v.cliente||'—'}</b> · ${v.total||'—'}</div>
-          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${g.name}</div>`:''}
-          <div style="font-size:11px;color:#7C3AED;margin-top:4px;">⏳ Admin aún no confirmó la venta</div>
+          <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.total||'—')}</div>
+          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+            <button class="btn btn-green btn-sm btn-full" onclick="mensajeroPagado(${v.id})">💰 Pagado</button>
+            <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="mensajeroPendienteCobro(${v.id})">⏳ Pend. cobro</button>
+          </div>
         </div>`;
       }).join('');
     }
-    if(confirmadosHoy.length){
-      html+='<div class="lbl" style="margin-top:16px;">Resumen hoy</div>';
-      html+=confirmadosHoy.map(v=>{
+    if(pendientesCobro.length){
+      html+='<div class="lbl" style="margin-top:16px;">Pendientes de cobro</div>';
+      html+=pendientesCobro.map(v=>{
         const g=gestorOf(v.gestorId);
-        const isPend=v.status==='pending_payment';
-        return `<div class="mv-card st-${isPend?'pending_payment':'confirmed'}">
-          <div class="mv-head"><span class="mv-time">${timeStr(v.confirmedTs||v.ts)}</span><span style="color:${isPend?'var(--orange)':'var(--green)'};font-size:10px;font-weight:700;">${isPend?'⏳ Pend. cobro':'✅ Confirmado'}</span></div>
-          <div class="mv-info"><b>${v.cliente||'—'}</b> · ${v.total||'—'}</div>
-          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${g.name}</div>`:''}
+        return `<div class="mv-card st-pending_payment">
+          <div class="mv-head"><span class="mv-time">${timeStr(v.ts)}</span><span style="color:var(--orange);font-size:10px;font-weight:700;">⏳ Pend. cobro</span></div>
+          <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.total||'—')}</div>
+          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
+          <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
+          <button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Marcar como Pagado</button>
+        </div>`;
+      }).join('');
+    }
+    if(confirmados.length){
+      html+='<div class="lbl" style="margin-top:16px;">Cobrados / Completados</div>';
+      html+=confirmados.map(v=>{
+        const g=gestorOf(v.gestorId);
+        return `<div class="mv-card st-confirmed">
+          <div class="mv-head"><span class="mv-time">${timeStr(v.confirmedTs||v.ts)}</span><span style="color:var(--green);font-size:10px;font-weight:700;">✅ Pagado</span></div>
+          <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.total||'—')}</div>
+          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
         </div>`;
       }).join('');
     }
@@ -809,7 +1020,9 @@ function renderMensajeroVales() {
 // ══════════════════════════════════════════
 function genPassword() {
   const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const arr = new Uint8Array(8);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, x => chars[x % chars.length]).join('').slice(0, 8);
 }
 
 let gestorManagerExpanded = false;
@@ -836,7 +1049,7 @@ function renderAdminGestoresList() {
         <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
-          <span style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);">🔑 ${g.password||'—'}</span>
+          <span style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);">🔑 ${escapeHTML(g.password||'—').replace(/./g, '•')}</span>
           <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
           <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
         </div>
@@ -886,9 +1099,7 @@ function removeGestor(id) {
   showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
     const newList = getGestores().filter(x=>x.id!==id);
     saveGestores(newList);
-    if (!isSyncingFromFirebase) {
-       db.ref('gestores').set(newList);
-    }
+    // saveGestores already syncs to Firebase via setFB — no need for separate db.ref call
     gestoresTabDirty=true;rankingCache=null;
     renderAdminGestoresList();renderGestores();renderAdminGestores();
     if(typeof renderComisiones === 'function') renderComisiones();
@@ -991,7 +1202,7 @@ function buildInboxCard(v) {
     ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
       <span class="sp ${s.cls}" style="font-size:10px;">${s.label}</span>
-      <span style="font-size:12px;color:var(--text);font-weight:800;">${v.total||''}</span>
+      <span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total||'')}</span>
     </div>
   </div>`;
 }
@@ -1008,10 +1219,12 @@ function openShareModal(valeId) {
   const mensajeros=getMensajeros();
   if(!mensajeros.length){showToast('Agrega mensajeros primero');return;}
   shareTargetId=valeId;
-  const v=getVales().find(x=>x.id===valeId);const g=gestorOf(v.gestorId);
+  const v=getVales().find(x=>x.id===valeId);
+  if(!v){showToast('Vale no encontrado');return;}
+  const g=gestorOf(v.gestorId);
   document.getElementById('shareModalSub').textContent=`Vale de ${g?g.name:'—'} · ${v.cliente||'cliente'}`;
   const sel=document.getElementById('mensajeroSelect');
-  sel.innerHTML=mensajeros.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  sel.innerHTML=mensajeros.map(m=>`<option value="${m.id}">${escapeHTML(m.name)}</option>`).join('');
   if(v.mensajeroId)sel.value=v.mensajeroId;
   updateSharePreview();sel.onchange=updateSharePreview;
   document.getElementById('shareModal').classList.add('show');
@@ -1040,7 +1253,7 @@ function renderValeDetail() {
       <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
     </div>`;
   } else if(v.status==='assigned'){
-    actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?m.name:'—'}</div>
+    actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
       <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
       <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
       <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
@@ -1048,7 +1261,7 @@ function renderValeDetail() {
     actHTML=`<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
       <div style="font-size:24px;margin-bottom:4px;">🛵</div>
       <div style="font-weight:700;color:#7C3AED;">Entregado por mensajero</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:``}
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
     </div>
     <button class="btn btn-green btn-full" onclick="confirmSale(${v.id},'confirmed')" style="margin-bottom:8px;">✅ Confirmar venta + Entregado</button>
     <button class="btn btn-orange btn-full" onclick="confirmSale(${v.id},'pending_payment')">⏳ Confirmar venta + Pendiente de cobro</button>`;
@@ -1056,14 +1269,14 @@ function renderValeDetail() {
     actHTML=`<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:14px;text-align:center;">
       <div style="font-size:26px;margin-bottom:4px;">✅</div>
       <div style="font-weight:700;color:var(--green);">Venta Confirmada y Cobrada</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Entregada por: ${m.name}</div>`:``}
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Entregada por: ${escapeHTML(m.name)}</div>`:``}
     </div>
     <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir a Entregado</button>`;
   } else if(v.status==='pending_payment'){
     actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
       <div style="font-size:26px;margin-bottom:4px;">⏳</div>
       <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${m.name}</div>`:``}
+      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
     </div>
     <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>`;
   }
@@ -1101,12 +1314,12 @@ function renderValeDetail() {
     ${actHTML?`<div class="card"><div class="det-actions">${actHTML}</div></div>`:``}
     <div class="card" style="padding:10px 14px;">
       <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">📝 Notas (admin)</div>
-      <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin-bottom:6px;">${v.adminNotes||''}</textarea>
+      <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin-bottom:6px;">${escapeHTML(v.adminNotes||'')}</textarea>
       <button type="button" class="btn btn-ghost btn-sm btn-full" onclick="saveValeNotes(${v.id})">Guardar nota</button>
     </div>
     <div class="lbl">Vale completo</div>
     <div class="card" style="padding:10px 12px;">
-      <div class="vale-preview" style="font-size:11px;">${v.valeText||''}</div>
+      <div class="vale-preview" style="font-size:11px;">${escapeHTML(v.valeText||'')}</div>
       <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.querySelector('#valeDetail .vale-preview').textContent).then(()=>showToast('Copiado ✓'))">📋 Copiar vale</button>
     </div>`;
 }
@@ -1190,6 +1403,73 @@ function mensajeroEntrega(id) {
   updateAdminBadge();updateMensajeroBadge();
   showToast('Marcado como entregado 🛵');
 }
+// Mensajero marca como pendiente de cobro (entregado pero sin cobrar)
+function mensajeroPendienteCobro(id, skipConfirm) {
+  if(!skipConfirm) {
+    const v=getVales().find(x=>x.id===id);if(!v)return;
+    showConfirmAction('¿Marcar como pendiente de cobro?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar','btn-blue',()=>mensajeroPendienteCobro(id,true));
+    return;
+  }
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  // Discount stock first
+  const prods=getProductos();
+  let stockChanged=false;
+  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
+    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
+    const oldStock=prods[idx].stock||0;
+    const newStock=Math.max(0,oldStock-qty);
+    prods[idx]={...prods[idx],stock:newStock};
+    stockChanged=true;
+    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
+    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
+    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
+  });
+  if(stockChanged) saveProductos(prods);
+  addNotif('vale_assigned',v.cliente||'Cliente',null,'Pendiente de cobro',v.gestorId);
+  patchVale(id,{status:'pending_payment',deliveredTs:new Date().toISOString(),confirmedTs:new Date().toISOString()});
+  gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
+  renderProductGrid();renderGestorRanking();updateAdminBadge();updateMensajeroBadge();
+  maybeAutoSync();
+  showToast('Marcado como pendiente de cobro ⏳');
+}
+// Mensajero marca como pagado (entregado y cobrado)
+function mensajeroPagado(id, skipConfirm) {
+  if(!skipConfirm) {
+    const v=getVales().find(x=>x.id===id);if(!v)return;
+    showConfirmAction('¿Confirmar venta cobrada?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar cobrada','btn-green',()=>mensajeroPagado(id,true));
+    return;
+  }
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  if(v.status === 'confirmed') { showToast('Esta venta ya fue confirmada'); return; }
+  // Discount stock if not already done
+  const prods=getProductos();
+  let stockChanged=false;
+  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
+    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
+    const oldStock=prods[idx].stock||0;
+    const newStock=Math.max(0,oldStock-qty);
+    prods[idx]={...prods[idx],stock:newStock};
+    stockChanged=true;
+    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
+    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
+    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
+  });
+  if(stockChanged) saveProductos(prods);
+  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
+  gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
+  playSound('confirm');
+  renderAdminGestores();renderValeDetail();renderMyVales();
+  renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
+  renderConfirmados();renderProductGrid();renderGestorRanking();
+  if(currentAdminTab==='gestores'){renderComisiones();}
+  updateAdminBadge();updateMensajeroBadge();
+  checkGoalReached(v.gestorId, id);
+  maybeAutoSync();
+  showToast('Venta confirmada y cobrada ✅');
+}
 // Admin confirma venta: descuenta stock + notifica gestor + fija estado de cobro
 function confirmSale(id, paymentStatus, skipConfirm) {
   if(!skipConfirm) {
@@ -1200,6 +1480,11 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     return;
   }
   const v=getVales().find(x=>x.id===id);if(!v)return;
+  // Idempotency guard: prevent double stock decrement if button is double-clicked
+  if(v.status === 'confirmed' || v.status === 'pending_payment') {
+    showToast('Esta venta ya fue confirmada');
+    return;
+  }
   // Fix 1: descuento de stock garantizado
   const prods=getProductos();
   let stockChanged=false;
@@ -1214,9 +1499,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
   });
   if(stockChanged){
-    // Guardar en localStorage y forzar escritura en Firebase ignorando la bandera de sync
-    localStorage.setItem('axon_productos',JSON.stringify(prods));
-    db.ref('productos').set(prods).catch(e=>console.error('Stock Firebase error:',e));
+    saveProductos(prods);
   }
   if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
   patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString()});
@@ -1228,13 +1511,10 @@ function confirmSale(id, paymentStatus, skipConfirm) {
   if(currentAdminTab==='gestores'){renderComisiones();}
   checkGoalReached(v.gestorId, id);
   maybeAutoSync();
-  // Fix 2: notificar al gestor por WhatsApp cuando la venta se confirma
   if(paymentStatus==='confirmed'){
     const gg=gestorOf(v.gestorId);
-    if(gg&&gg.phone){
-      const numProds=(v.valeProductos||[]).map(p=>p.qty>1?`${p.qty}x ${p.name}`:p.name).join(', ')||v.articulo||'—';
-      const gMsg=`✅ *AXONTECH — Venta confirmada*\n\nCliente: ${v.cliente||'—'}\nArtículo: ${numProds}\nTotal: ${v.total||'—'}\n\n¡Gracias por tu venta!`;
-      window.open(`https://wa.me/${gg.phone}?text=${encodeURIComponent(gMsg)}`,'_blank');
+    if(gg){
+      addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
     }
   }
   showToast(paymentStatus==='confirmed'?'Venta confirmada y cobrada ✅':'Venta confirmada — cobro pendiente ⏳');
@@ -1277,7 +1557,7 @@ function renderMensajeros() {
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
     const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    return `<div class="m-item"><div class="m-av">${ini}</div><div class="m-name">${m.name}</div><button class="m-del" style="font-size:13px;margin-right:4px;" onclick="openEditMensajeroModal(${m.id})" title="Editar">✏️</button><button class="m-del" onclick="removeMensajero(${m.id})">×</button></div>`;
+    return `<div class="m-item"><div class="m-av">${escapeHTML(ini)}</div><div class="m-name">${escapeHTML(m.name)}</div><button class="m-del" style="font-size:13px;margin-right:4px;" onclick="openEditMensajeroModal(${m.id})" title="Editar">✏️</button><button class="m-del" onclick="removeMensajero(${m.id})">×</button></div>`;
   }).join('');
 }
 function openEditMensajeroModal(id) {
@@ -1310,7 +1590,7 @@ function renderConfirmados() {
   if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
   c.innerHTML=today.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?g.name:'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${v.cliente||''}</div><div class="sc-m">${m?'🛵 '+m.name:''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div>`;
+    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${escapeHTML(v.cliente||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div>`;
   }).join('');
 }
 function renderPendienteCobro() {
@@ -1320,7 +1600,7 @@ function renderPendienteCobro() {
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?g.name:'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${v.cliente||''} · ${v.total||''}</div><div class="sc-m">${m?'🛵 '+m.name:''}</div><button class="btn btn-green btn-full btn-sm" style="margin-top:7px;" onclick="markAsPaid(${v.id})">✅ Cobrado</button></div>`;
+    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button class="btn btn-green btn-full btn-sm" style="margin-top:7px;" onclick="markAsPaid(${v.id})">✅ Cobrado</button></div>`;
   }).join('');
 }
 function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
@@ -1332,9 +1612,9 @@ function renderPendingCobroSection() {
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
     return `<div class="mv-card" style="border-left:3px solid var(--red);background:rgba(239,68,68,.05);margin-bottom:6px;">
       <div class="mv-head"><span class="mv-time">${timeStr(v.confirmedTs||v.ts)}</span><span style="color:var(--red);font-size:9px;font-weight:700;padding:2px 6px;background:rgba(239,68,68,.12);border-radius:4px;">⏳ Pend. cobro</span></div>
-      <div class="mv-info"><b>${v.cliente||'—'}</b> · <span style="color:var(--red);font-weight:700;">${v.total||'—'}</span></div>
-      ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${g.name}</div>`:''}
-      ${m?`<div style="font-size:11px;color:var(--gray-400);">🛵 ${m.name}</div>`:''}
+      <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · <span style="color:var(--red);font-weight:700;">${escapeHTML(v.total||'—')}</span></div>
+      ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
+      ${m?`<div style="font-size:11px;color:var(--gray-400);">🛵 ${escapeHTML(m.name)}</div>`:''}
       <button class="btn btn-green btn-full btn-sm" style="margin-top:8px;" onclick="markAsPaid(${v.id})">💵 Registrar cobro</button>
     </div>`;
   }).join('')}</div>`:'' ;
@@ -1357,8 +1637,8 @@ function renderMyVales() {
   if(!c || !hList || !activeGestorId) return;
 
   const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
-  const activeVales = mine.filter(v => ['pending','assigned','pending_payment'].includes(v.status));
-  const historyVales = mine.filter(v => ['delivered','confirmed'].includes(v.status));
+  const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
+  const historyVales = mine.filter(v => v.status === 'confirmed');
 
   const sMap={
     pending:{label:'Enviado · admin pendiente',color:'var(--blue)',icon:'🔵'},
@@ -1384,7 +1664,7 @@ function renderMyVales() {
             ${canCancel?`<button type="button" onclick="cancelVale(${v.id})" style="background:rgba(239,68,68,.12);border:none;color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Cancelar vale">✕ Cancelar</button>`:``}
           </div>
         </div>
-        <div class="mv-info">${v.cliente||'—'} · ${v.articulo||'—'}</div>
+        <div class="mv-info">${escapeHTML(v.cliente||'—')} · ${escapeHTML(v.articulo||'—')}</div>
         <div class="mv-foot"><span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span></div>
       </div>`;
     }).join('');
@@ -1400,8 +1680,8 @@ function renderMyVales() {
         <div class="mv-head">
           <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
         </div>
-        <div class="mv-info" style="color:var(--text);font-weight:600;">${v.cliente||'—'}</div>
-        <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${v.articulo||'—'}</div>
+        <div class="mv-info" style="color:var(--text);font-weight:600;">${escapeHTML(v.cliente||'—')}</div>
+        <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${escapeHTML(v.articulo||'—')}</div>
         <div class="mv-foot" style="margin-top:6px;"><span class="mv-status" style="color:${s.color};font-size:10px;">${s.icon} ${s.label}</span></div>
       </div>`;
     }).join('');
@@ -1416,12 +1696,12 @@ function openGestorValeModal(id) {
   };
   const s = sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
   const content = `
-    <div style="font-size:16px;font-weight:800;color:var(--blue-dk);margin-bottom:12px;">${valeNumStr(v)} ${v.cliente}</div>
-    <div style="margin-bottom:6px;"><b>📱 Teléfono:</b> ${v.telefono||'—'}</div>
-    <div style="margin-bottom:6px;"><b>📍 Dirección:</b> ${v.direccion||'—'}</div>
-    <div style="margin-bottom:6px;"><b>📦 Artículo:</b> ${v.articulo||'—'}</div>
-    <div style="margin-bottom:6px;"><b>💰 Total:</b> ${v.total||'—'}</div>
-    <div style="margin-bottom:12px;"><b>⚙️ Garantía:</b> ${v.garantia||'—'}</div>
+    <div style="font-size:16px;font-weight:800;color:var(--blue-dk);margin-bottom:12px;">${valeNumStr(v)} ${escapeHTML(v.cliente)}</div>
+    <div style="margin-bottom:6px;"><b>📱 Teléfono:</b> ${escapeHTML(v.telefono||'—')}</div>
+    <div style="margin-bottom:6px;"><b>📍 Dirección:</b> ${escapeHTML(v.direccion||'—')}</div>
+    <div style="margin-bottom:6px;"><b>📦 Artículo:</b> ${escapeHTML(v.articulo||'—')}</div>
+    <div style="margin-bottom:6px;"><b>💰 Total:</b> ${escapeHTML(v.total||'—')}</div>
+    <div style="margin-bottom:12px;"><b>⚙️ Garantía:</b> ${escapeHTML(v.garantia||'—')}</div>
     <div style="padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);font-weight:700;color:${s.color};text-align:center;">
       ${s.icon} ${s.label}
     </div>
@@ -1654,9 +1934,14 @@ function resetForm() {
 // ══════════════════════════════════════════
 //  SEND VALE
 // ══════════════════════════════════════════
+let _isSendingVale = false;
 function sendVale() {
+  if(_isSendingVale) return; // Prevent double submission
   if(!activeGestorId){showToast('Selecciona tu nombre primero');return;}
   if(REQUIRED.some(id=>!fVal(id))){showToast('Completa los campos obligatorios (*)');return;}
+  _isSendingVale = true;
+  const btn=document.getElementById('sendValeBtn');
+  if(btn){btn.disabled=true;btn.textContent='Enviando...';}
   const g=gestorOf(activeGestorId);
   const vale={
     id:Date.now(),valeNum:getNextValeNum(),gestorId:activeGestorId,ts:new Date().toISOString(),
@@ -1673,14 +1958,6 @@ function sendVale() {
   renderGestores();renderMyVales();updateAdminBadge();
   playSound('vale');
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
-  const _cfg=getConfig();
-  if(_cfg.adminPhone){
-    const prodLines=(vale.valeProductos||[]).length
-      ? vale.valeProductos.map(p=>`  ×${p.qty} ${p.name}`).join('\n')
-      : vale.articulo;
-    const _waMsg=`📋 *AXONTECH — Nuevo vale recibido*\n\nGestor: ${g.name}\nCliente: ${vale.cliente}\nArtículos:\n${prodLines}\nTotal: ${vale.total}\n\nEntra al panel de admin para gestionarlo.`;
-    window.open(`https://wa.me/${_cfg.adminPhone}?text=${encodeURIComponent(_waMsg)}`,'_blank');
-  }
   showToast('Vale enviado al administrador ✓');
 
   if(adminActive){
@@ -1689,8 +1966,8 @@ function sendVale() {
     renderAdminGestores();
   }
   resetForm();
+  _isSendingVale = false;
 }
-
 // ══════════════════════════════════════════
 //  PRODUCT PICKER (gestor)
 // ══════════════════════════════════════════
@@ -1708,7 +1985,7 @@ function renderPickerCatTabs() {
   const cats=getCategorias();
   document.getElementById('pickerCatTabs').innerHTML=
     `<button class="pcat-tab ${pickerCatFilter===null?'active':''}" onclick="setPickerCat(null)">Todos</button>`+
-    cats.map(c=>`<button class="pcat-tab ${pickerCatFilter===c.id?'active':''}" onclick="setPickerCat(${c.id})">${c.name}</button>`).join('');
+    cats.map(c=>`<button class="pcat-tab ${pickerCatFilter===c.id?'active':''}" onclick="setPickerCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
 }
 function setPickerCat(id){pickerCatFilter=id;renderPickerCatTabs();renderPickerProducts();}
 function renderPickerProducts() {
@@ -1724,8 +2001,8 @@ function renderPickerProducts() {
     const oos=(p.stock||0)===0;
     return `<div class="picker-pill ${qty>0?'selected':''} ${oos?'out-of-stock':''}" style="${oos?'pointer-events:none;':''}" ${oos?'title="Producto agotado"':''}>
       <div class="picker-pill-info">
-        <div class="picker-pill-name">${p.name}${oos?` <span class="oos-badge">AGOTADO</span>`:''}</div>
-        ${p.precio?`<div class="picker-pill-price">${p.precio}</div>`:''}
+        <div class="picker-pill-name">${escapeHTML(p.name)}${oos?` <span class="oos-badge">AGOTADO</span>`:''}</div>
+        ${p.precio?`<div class="picker-pill-price">${escapeHTML(p.precio)}</div>`:''}
       </div>
       <div class="picker-pill-qty" style="${oos?'pointer-events:none;':''}">
         <button ${oos?'disabled':''} onclick="pickerAdj(${p.id},-1)">−</button>
@@ -1749,15 +2026,16 @@ function renderPickerSelected() {
   c.innerHTML=items.map(({id,qty})=>{
     const p=productoOf(id);
     return `<span style="background:var(--blue-lt);border:1px solid var(--blue-bd);border-radius:6px;padding:3px 8px;font-size:11px;display:inline-flex;align-items:center;gap:6px;margin:2px;">
-      ${p?p.name:id} × ${qty}
+      ${p?escapeHTML(p.name):id} × ${qty}
       <button onclick="pickerAdj(${id},-99)" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;line-height:1;padding:0;">×</button>
     </span>`;
   }).join('');
 }
 function parsePrecioNum(str) {
   if(!str)return 0;
-  const m=str.replace(/,/g,'').match(/\d+(\.\d+)?/);
-  return m?parseFloat(m[0]):0;
+  // Sum ALL numbers found in the string, not just the first one
+  const matches = str.replace(/,/g,'').match(/\d+(\.\d+)?/g);
+  return matches ? matches.reduce((sum, m) => sum + parseFloat(m), 0) : 0;
 }
 function confirmPickerSelection() {
   const items=Object.entries(pickerSelected).map(([id,qty])=>{
@@ -1793,7 +2071,7 @@ function renderSelectedProductsUI() {
   c.innerHTML=`<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">`+
     selectedProductsUI.map(i=>`<div style="display:flex;align-items:center;gap:8px;min-width:0;">
       <span style="font-weight:800;color:var(--blue);flex-shrink:0;font-size:13px;">×${i.qty}</span>
-      <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${i.name}</span>
+      <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${escapeHTML(i.name)}</span>
     </div>`).join('')+
     `</div><button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;" onclick="openProductPicker()">✏️ Editar selección</button>`;
 }
@@ -1812,7 +2090,7 @@ function renderStockCategorias() {
     </button>`+
     cats.map(cat=>{
       const count=prods.filter(p=>p.catId===cat.id).length;
-      return `<button type="button" class="pcat-tab ${stockCatFilter===cat.id?'active':''}" onclick="setStockCat(${cat.id})" style="flex-shrink:0;">${cat.name} <span style="opacity:.7;">(${count})</span></button>`;
+      return `<button type="button" class="pcat-tab ${stockCatFilter===cat.id?'active':''}" onclick="setStockCat(${cat.id})" style="flex-shrink:0;">${escapeHTML(cat.name)} <span style="opacity:.7;">(${count})</span></button>`;
     }).join('');
   // Render cat manager list if visible
   const mgr=document.getElementById('catManagerList');
@@ -1820,7 +2098,7 @@ function renderStockCategorias() {
     mgr.innerHTML=cats.length?cats.map(cat=>{
       const count=prods.filter(p=>p.catId===cat.id).length;
       return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;">
-        <span style="font-size:12px;font-weight:600;">${cat.name} <span style="font-size:10px;color:var(--text-muted);">(${count} producto${count!==1?'s':''})</span></span>
+        <span style="font-size:12px;font-weight:600;">${escapeHTML(cat.name)} <span style="font-size:10px;color:var(--text-muted);">(${count} producto${count!==1?'s':''})</span></span>
         <button type="button" class="btn btn-sm" style="background:rgba(239,68,68,.1);color:var(--red);border:none;font-size:11px;padding:3px 9px;" onclick="removeCategoria(${cat.id})">🗑️ Borrar</button>
       </div>`;
     }).join(''):'<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin categorías creadas.</div>';
@@ -1847,11 +2125,12 @@ function addCategoria() {
 }
 function removeCategoria(id) {
   if(getProductos().some(p=>p.catId===id)){showToast('Primero mueve o elimina los productos de esta categoría');return;}
-  if(!confirm('¿Eliminar esta categoría?'))return;
-  saveCategorias(getCategorias().filter(c=>c.id!==id));
-  if(stockCatFilter===id)stockCatFilter=null;
-  renderStockCategorias();renderProductGrid();
-  showToast('Categoría eliminada');
+  showConfirmAction('¿Eliminar esta categoría?', 'Los productos quedarán sin categoría', 'Eliminar', 'btn-red', () => {
+    saveCategorias(getCategorias().filter(c=>c.id!==id));
+    if(stockCatFilter===id)stockCatFilter=null;
+    renderStockCategorias();renderProductGrid();
+    showToast('Categoría eliminada');
+  });
 }
 function buildProdCard(p, cats, isAgotado) {
   const cat=cats.find(c=>c.id===p.catId);
@@ -1861,18 +2140,18 @@ function buildProdCard(p, cats, isAgotado) {
   return `<div class="prod-card${isAgotado?' agotado':''}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
     <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
       ${p.photo
-        ?`<img src="${p.photo}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=font-size:22px>📦</span>'">`
+        ?`<img src="${escapeAttr(p.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=font-size:22px>📦</span>'">`
         :`<span style="font-size:22px;">📦</span>`}
     </div>
     <div style="flex:1;min-width:0;">
       <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;">
-        <span class="prod-name" style="margin:0;font-size:13px;">${p.name}</span>
-        ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${cat.name}</span>`:''}
+        <span class="prod-name" style="margin:0;font-size:13px;">${escapeHTML(p.name)}</span>
+        ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${escapeHTML(cat.name)}</span>`:''}
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap;">
-        ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${p.precio}</span>`:''}
-        ${p.comision?`<span style="font-size:10px;color:var(--green);font-weight:600;">💰 ${p.comision}</span>`:''}
-        ${p.garantia?`<span style="font-size:10px;color:var(--gray-400);">🛡️ ${p.garantia}</span>`:''}
+        ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${escapeHTML(p.precio)}</span>`:''}
+        ${p.comision?`<span style="font-size:10px;color:var(--green);font-weight:600;">💰 ${escapeHTML(p.comision)}</span>`:''}
+        ${p.garantia?`<span style="font-size:10px;color:var(--gray-400);">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
       </div>
     </div>
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
@@ -1920,7 +2199,7 @@ function populateCatSelect(selectedId) {
   const cats=getCategorias();
   document.getElementById('pm-cat').innerHTML=
     `<option value="">Sin categoría</option>`+
-    cats.map(c=>`<option value="${c.id}" ${c.id===selectedId?'selected':''}>${c.name}</option>`).join('');
+    cats.map(c=>`<option value="${c.id}" ${c.id===selectedId?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
 }
 function openAddProductModal() {
   editingProductId=null;
@@ -1953,7 +2232,7 @@ function openEditProductModal(id) {
   document.getElementById('pm-foto').value=p.photo||'';
   document.getElementById('pm-foto-file').value='';
   populateCatSelect(p.catId);
-  document.getElementById('pm-fotoPreview').innerHTML=p.photo?`<img src="${p.photo}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`:'';
+  document.getElementById('pm-fotoPreview').innerHTML=p.photo?`<img src="${escapeAttr(p.photo)}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`:'';
   document.getElementById('productModal').classList.add('show');
 }
 function compressImage(dataUrl, maxPx, quality, cb) {
@@ -2008,9 +2287,12 @@ function saveProduct() {
   closeProductModal();renderProductGrid();renderStockCategorias();maybeAutoSync();
 }
 function removeProducto(id) {
-  if(!confirm('¿Eliminar este producto?'))return;
-  saveProductos(getProductos().filter(p=>p.id!==id));
-  renderProductGrid();renderStockCategorias();showToast('Producto eliminado');
+  const p=productoOf(id);
+  const name = p ? p.name : 'este producto';
+  showConfirmAction('¿Eliminar este producto?', name, 'Eliminar', 'btn-red', () => {
+    saveProductos(getProductos().filter(x=>x.id!==id));
+    renderProductGrid();renderStockCategorias();showToast('Producto eliminado');
+  });
 }
 
 
@@ -2091,9 +2373,9 @@ function renderStats() {
       const gc=gv.filter(v=>v.status==='confirmed').length;
       const pts=gv.reduce((sum,v)=>(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},sum),0);
       return `<div class="card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;">
-        <div class="g-avatar" style="background:${g.color};width:32px;height:32px;font-size:11px;">${g.initials}</div>
+        <div class="g-avatar" style="background:${g.color};width:32px;height:32px;font-size:11px;">${escapeHTML(g.initials)}</div>
         <div style="flex:1;">
-          <div style="font-size:13px;font-weight:700;">${g.name}</div>
+          <div style="font-size:13px;font-weight:700;">${escapeHTML(g.name)}</div>
           <div style="font-size:11px;color:var(--gray-400);">${gv.length} vales · ${gc} confirmados${pts?` · ⭐ ${pts} pts`:''}</div>
         </div>
       </div>`;
@@ -2111,7 +2393,7 @@ function renderStats() {
     sortedProds.map(([id,{qty,confirmados}])=>{
       const p=productoOf(parseInt(id));
       return `<div class="card" style="padding:10px 14px;margin-bottom:6px;">
-        <div style="font-size:13px;font-weight:700;">${p?p.name:`Producto ${id}`}</div>
+        <div style="font-size:13px;font-weight:700;">${p?escapeHTML(p.name):`Producto ${id}`}</div>
         <div style="font-size:11px;color:var(--gray-400);">${qty} vendidos · ${confirmados} entregados</div>
       </div>`;
     }).join('') :
@@ -2148,7 +2430,7 @@ function renderStats() {
       const pct=cp.length?Math.round(cs/cp.length*100):0;
       return `<div class="card" style="padding:10px 14px;margin-bottom:6px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:13px;font-weight:700;">${cat.name}</span>
+          <span style="font-size:13px;font-weight:700;">${escapeHTML(cat.name)}</span>
           <span style="font-size:11px;color:var(--gray-400);">${cp.length} prods</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
@@ -2174,7 +2456,7 @@ function renderStats() {
       const pct=Math.round(qty/maxSold*100);
       return `<div class="card" style="padding:10px 14px;margin-bottom:6px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:12px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p?p.name:`Prod. ${id}`}</span>
+          <span style="font-size:12px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p?escapeHTML(p.name):`Prod. ${id}`}</span>
           <span style="font-size:13px;font-weight:800;color:var(--blue);margin-left:8px;white-space:nowrap;">${qty} uds</span>
         </div>
         <div style="background:var(--gray-100);border-radius:20px;height:5px;overflow:hidden;">
@@ -2314,7 +2596,7 @@ function renderCatalogCatTabs() {
   const cats=getCategorias();
   document.getElementById('catalogCatTabs').innerHTML=
     `<button class="pcat-tab ${catalogCatFilter===null?'active':''}" onclick="setCatalogCat(null)">Todos</button>`+
-    cats.map(c=>`<button class="pcat-tab ${catalogCatFilter===c.id?'active':''}" onclick="setCatalogCat(${c.id})">${c.name}</button>`).join('');
+    cats.map(c=>`<button class="pcat-tab ${catalogCatFilter===c.id?'active':''}" onclick="setCatalogCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
 }
 function setCatalogCat(id){catalogCatFilter=id;renderCatalogCatTabs();renderGestorCatalog();}
 function renderGestorCatalog() {
@@ -2329,19 +2611,19 @@ function renderGestorCatalog() {
     const exp=expandedCatalogId===p.id;
     return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;cursor:pointer;transition:border-color .15s;" onclick="toggleCatalogItem(${p.id})">
       <div style="display:flex;align-items:center;gap:10px;padding:8px;">
-        ${p.photo?`<img src="${p.photo}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.parentElement.querySelector('img').style.display='none'">`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
+        ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.parentElement.querySelector('img').style.display='none'">`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:13px;color:var(--text);">${p.name}</div>
-          ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${p.precio}</div>`:''}
+          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}</div>
+          ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${escapeHTML(p.precio)}</div>`:''}
         </div>
         <div style="font-size:13px;color:var(--gray-400);flex-shrink:0;margin-left:4px;">${exp?'▲':'▼'}</div>
       </div>
       ${exp?`<div style="padding:8px 12px 12px;border-top:1px solid var(--gray-200);background:var(--gray-50);">
-        ${p.description?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;white-space:pre-line;line-height:1.5;">${p.description}</div>`:''}
+        ${p.description?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;white-space:pre-line;line-height:1.5;">${escapeHTML(p.description)}</div>`:''}
         <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:11px;">
           <span style="background:var(--blue-lt);color:var(--blue);padding:3px 9px;border-radius:10px;font-weight:700;">📦 Disponibles: ${p.stock}</span>
-          ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:3px 9px;border-radius:10px;">🛡️ ${p.garantia}</span>`:''}
-          ${p.comision?`<span style="background:#f0fdf4;color:var(--green);padding:3px 9px;border-radius:10px;font-weight:600;">Comisión: ${p.comision}</span>`:''}
+          ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:3px 9px;border-radius:10px;">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
+          ${p.comision?`<span style="background:#f0fdf4;color:var(--green);padding:3px 9px;border-radius:10px;font-weight:600;">Comisión: ${escapeHTML(p.comision)}</span>`:''}
           ${p.puntos?`<span style="background:var(--blue-lt);color:var(--blue);padding:3px 9px;border-radius:10px;">⭐ ${p.puntos} pts</span>`:''}
         </div>
       </div>`:''}
@@ -2425,9 +2707,9 @@ function renderComisiones() {
     const gtBadge=gtAllComputed&&gtBadgeParts.length?gtBadgeParts.join(' + '):null;
     return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:8px;border-color:${isOpen?'var(--blue)':'var(--border)'};">
       <div onclick="toggleComisionGestor(${g.id})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:${isOpen?'var(--blue-lt)':'var(--surface)'};">
-        <div class="g-avatar" style="background:${g.color};width:34px;height:34px;font-size:11px;flex-shrink:0;">${g.initials}</div>
+        <div class="g-avatar" style="background:${g.color};width:34px;height:34px;font-size:11px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:13px;">${g.name}</div>
+          <div style="font-weight:700;font-size:13px;">${escapeHTML(g.name)}</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
             ${pending.length>0?`<span style="color:var(--orange);font-weight:700;">${pending.length} pendiente${pending.length!==1?'s':''}</span>`:''}
             ${paid.length>0?`<span style="color:var(--green);">· ${paid.length} pagada${paid.length!==1?'s':''}</span>`:''}
@@ -2464,10 +2746,10 @@ function renderComisionBody(g,pending,paid) {
         const r=getValeCommissionParts(v);
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:12px;font-weight:700;color:var(--text);">${v.cliente||'—'}</div>
-            <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.articulo||'—'}</div>
+            <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
+            <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
-              ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(16,185,129,.12);color:var(--green);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${p.label}: ${p.com}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
+              ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(16,185,129,.12);color:var(--green);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
           </div>
           <button class="btn btn-green btn-sm" style="flex-shrink:0;" onclick="payCommission(${v.id},event)">✓ Pagar</button>
@@ -2483,8 +2765,8 @@ function renderComisionBody(g,pending,paid) {
         const ts=v.commissionPaidTs?new Date(v.commissionPaidTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionPaidTs):'';
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;margin-bottom:4px;opacity:.85;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:11px;font-weight:600;color:var(--text-muted);">${v.cliente||'—'}</div>
-            ${r.parts.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;">${r.parts.map(p=>`<span style="background:rgba(16,185,129,.1);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">${p.com}</span>`).join('')}</div>`:''}
+            <div style="font-size:11px;font-weight:600;color:var(--text-muted);">${escapeHTML(v.cliente||'—')}</div>
+            ${r.parts.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;">${r.parts.map(p=>`<span style="background:rgba(16,185,129,.1);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">${escapeHTML(p.com)}</span>`).join('')}</div>`:''}
           </div>
           <div style="text-align:right;flex-shrink:0;">
             <div style="font-size:9px;color:var(--green);font-weight:700;">✓ Pagado</div>
@@ -2558,8 +2840,8 @@ function renderGestorRanking() {
       <div class="rank-pos">${pos}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="g-avatar" style="background:${g.color};width:28px;height:28px;font-size:10px;flex-shrink:0;">${g.initials}</div>
-          <span class="rank-name">${g.name}</span>
+          <div class="g-avatar" style="background:${g.color};width:28px;height:28px;font-size:10px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
+          <span class="rank-name">${escapeHTML(g.name)}</span>
           <span class="rank-pts" style="${reached?'color:var(--green);':''}">${g.pts} pts</span>
         </div>
         <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%;background:${grad};"></div></div>
@@ -2806,9 +3088,8 @@ async function maybeAutoSync() {
 function factoryResetVales() {
   showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
     saveVales([]);
-    if (!isSyncingFromFirebase) {
-       db.ref('vales').remove();
-    }
+    // Force Firebase delete via write queue
+    _enqueueFB('vales', null, 'remove');
     showToast('Todos los vales eliminados');
     selectedValeId=null;
     refreshUI();
@@ -2818,9 +3099,12 @@ function factoryResetVales() {
 function changePassCfg() {
   const np=document.getElementById('newPassInputCfg').value.trim();
   if(!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
-  localStorage.setItem('axon_admin_hash',btoa(np));
-  document.getElementById('newPassInputCfg').value='';
-  showToast('Contraseña actualizada ✓');
+  _hashPass(np).then(h => {
+    localStorage.setItem('axon_admin_hash', h);
+    localStorage.setItem('axon_admin_hash_legacy', btoa(np));
+    document.getElementById('newPassInputCfg').value='';
+    showToast('Contraseña actualizada ✓');
+  });
 }
 
 // ══════════════════════════════════════════
@@ -2871,9 +3155,9 @@ function showGoalBanner(g, pts) {
     <div style="font-size:32px;flex-shrink:0;">🏆</div>
     <div style="flex:1;min-width:0;">
       <div style="font-size:15px;font-weight:900;letter-spacing:.5px;text-shadow:0 1px 4px rgba(0,0,0,.3);">¡META ALCANZADA!</div>
-      <div style="font-size:13px;opacity:.9;margin-top:2px;">${g.name} llegó a <b>${pts} puntos ⭐</b> — ¡Felicidades!</div>
+      <div style="font-size:13px;opacity:.9;margin-top:2px;">${escapeHTML(g.name)} llegó a <b>${pts} puntos ⭐</b> — ¡Felicidades!</div>
     </div>
-    <div style="background:${g.color};width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;border:2px solid rgba(255,255,255,.4);">${g.initials}</div>
+    <div style="background:${g.color};width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;border:2px solid rgba(255,255,255,.4);">${escapeHTML(g.initials)}</div>
     <button onclick="dismissGoalBanner()" style="background:rgba(255,255,255,.18);border:none;color:white;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;">×</button>`;
   document.body.appendChild(el);
   setTimeout(()=>dismissGoalBanner(),6000);
@@ -2952,7 +3236,7 @@ function renderHistorial() {
   const gestores=getGestores();
   const curGFilter=gestorEl?gestorEl.value:'';
   if(gestorEl){
-    gestorEl.innerHTML=`<option value="">Todos los gestores</option>`+gestores.map(g=>`<option value="${g.id}">${g.name}</option>`).join('');
+    gestorEl.innerHTML=`<option value="">Todos los gestores</option>`+gestores.map(g=>`<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
     gestorEl.value=curGFilter;
   }
   let vales=getVales().reverse();
@@ -2983,15 +3267,15 @@ function renderHistorial() {
       const s=sMap[v.status]||{label:v.status,cls:''};
       html+=`<div class="card" style="padding:8px 12px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="selectValeFromHistorial(${v.id})">
         <div style="flex-shrink:0;">
-          <div class="g-avatar" style="background:${g?g.color:'#888'};width:28px;height:28px;font-size:10px;">${g?g.initials:'?'}</div>
+          <div class="g-avatar" style="background:${g?g.color:'#888'};width:28px;height:28px;font-size:10px;">${g?escapeHTML(g.initials):'?'}</div>
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${v.cliente||'—'}</div>
-          <div style="font-size:10px;color:var(--gray-400);">${g?g.name:'—'} · ${timeStr(v.ts)}</div>
+          <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${escapeHTML(v.cliente||'—')}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <span class="sp ${s.cls}" style="font-size:9px;">${s.label}</span>
-          <div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:2px;">${v.total||''}</div>
+          <div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:2px;">${escapeHTML(v.total||'')}</div>
         </div>
       </div>`;
     });
@@ -3077,12 +3361,12 @@ async function loadInitialData() {
       const res = await fetch('./data.json?t=' + Date.now());
       if (res.ok) {
         const data = await res.json();
-        isSyncingFromFirebase = true;
+        _syncCount++;
         if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
         if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
         if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
         if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-        isSyncingFromFirebase = false;
+        _syncCount--;
         
         if (IS_ADMIN) {
            const localGestores = getGestores();
@@ -3096,6 +3380,31 @@ async function loadInitialData() {
   }
 }
 
+
+// ══════════════════════════════════════════
+//  UNSENT FORM WARNING & KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════
+function isFormDirty() {
+  if (!activeGestorId) return false;
+  return REQUIRED.some(id => fVal(id).length > 0) || 
+    ['vf-mensajeria','vf-precioUSD','vf-precioMN','vf-vuelto','vf-garantia'].some(id => fVal(id).length > 0);
+}
+
+// Warn before navigating away from a dirty form
+window.addEventListener('beforeunload', (e) => {
+  if (isFormDirty()) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+// Escape key closes modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const openModal = document.querySelector('.modal-bg.show');
+    if (openModal) openModal.classList.remove('show');
+  }
+});
 
 // ══════════════════════════════════════════
 //  INIT
