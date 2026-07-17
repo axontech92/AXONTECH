@@ -331,7 +331,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 2
+      "stock": 4
     },
     {
       "catId": 20,
@@ -355,7 +355,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104662477.webp",
       "precio": "$900 USD",
       "puntos": 7,
-      "stock": 1
+      "stock": 2
     },
     {
       "catId": 10,
@@ -415,7 +415,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778213413973.webp",
       "precio": "$150 USD",
       "puntos": 2,
-      "stock": 6
+      "stock": 7
     },
     {
       "catId": 40,
@@ -912,46 +912,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jekdkek\n🔸Teléfono Cliente: 6465665-5\n🔸Dirección Cliente: Uwueje\n🔸Mensajería/ costo: 4\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $55 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $59 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
-    },
-    {
-      "adminNotes": "",
-      "articulo": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1",
-      "cliente": "Tuiop",
-      "commissionPaid": false,
-      "confirmedTs": "2026-06-26T17:47:46.314Z",
-      "direccion": "Amistad 311",
-      "garantia": "",
-      "gestorId": 1781761257101,
-      "id": 1782495060551,
-      "isNew": false,
-      "mensajeria": "3600",
-      "precioMN": "",
-      "precioUSD": "$1570 USD",
-      "status": "confirmed",
-      "telefono": "99948678",
-      "total": "$1570 USD + 3600 MN",
-      "ts": "2026-06-26T17:31:00.555Z",
-      "valeNum": 5,
-      "valeProductos": [
-        {
-          "id": 1778104512761,
-          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-          "qty": 2
-        },
-        {
-          "id": 1778104662477,
-          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
-          "qty": 1
-        },
-        {
-          "id": 1778213413973,
-          "name": "FORROS DE ASIENTOS DE LUJO PARA AUTOS",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Tuiop\n🔸Teléfono Cliente: 99948678\n🔸Dirección Cliente: Amistad 311\n🔸Mensajería/ costo: 3600\n🔸 Artículo y cantidad: ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1\n🔸Precio USD/ zelle: $1570 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1570 USD + 3600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T17:57:27.791Z"
+  "timestamp": "2026-07-17T17:57:40.237Z"
 }
