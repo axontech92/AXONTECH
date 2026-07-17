@@ -882,8 +882,9 @@
       "articulo": "×1 ANTORCHA PARA SOLDADURA TIG:",
       "cliente": "eyt89",
       "commissionEnSobreTs": "2026-07-17T23:46:25.368Z",
-      "commissionPaid": false,
-      "commissionStatus": "en_sobre",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-07-17T23:47:52.202Z",
+      "commissionStatus": "cobrado",
       "confirmedTs": "2026-07-17T23:46:15.685Z",
       "direccion": "456849",
       "garantia": "",
@@ -913,8 +914,8 @@
       "articulo": "×1 PESA / BÁSCULA INTELIGENTE DIGITAL.",
       "cliente": "dkjvnkdlsm",
       "commissionEnSobreTs": "2026-07-17T23:45:02.456Z",
-      "commissionPaid": false,
-      "commissionStatus": "en_sobre",
+      "commissionPaid": true,
+      "commissionStatus": "cobrado",
       "confirmedTs": "2026-07-17T23:44:13.892Z",
       "direccion": "sgoigj",
       "garantia": "",
@@ -937,15 +938,16 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: dkjvnkdlsm\n🔸Teléfono Cliente: 8786904\n🔸Dirección Cliente: sgoigj\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 PESA / BÁSCULA INTELIGENTE DIGITAL.\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $32 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 19:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
+      "vuelto": "",
+      "commissionPaidTs": "2026-07-17T23:47:52.202Z"
     },
     {
       "adminNotes": "",
       "articulo": "×1 REPETIDOR WIFI 5",
       "cliente": "jetjj",
       "commissionEnSobreTs": "2026-07-17T23:41:13.264Z",
-      "commissionPaid": false,
-      "commissionStatus": "en_sobre",
+      "commissionPaid": true,
+      "commissionStatus": "cobrado",
       "confirmedTs": "2026-07-17T22:58:10.120Z",
       "deliveredTs": "2026-07-17T22:57:18.923Z",
       "direccion": "hgjkfnbk",
@@ -970,8 +972,9 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: jetjj\n🔸Teléfono Cliente: 3625727558\n🔸Dirección Cliente: hgjkfnbk\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 REPETIDOR WIFI 5\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $32 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 18:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
+      "vuelto": "",
+      "commissionPaidTs": "2026-07-17T23:47:52.202Z"
     }
   ],
-  "timestamp": "2026-07-17T23:46:25.384Z"
+  "timestamp": "2026-07-17T23:47:52.215Z"
 }
