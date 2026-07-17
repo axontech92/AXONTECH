@@ -283,7 +283,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 4
+      "stock": 5
     },
     {
       "catId": 20,
@@ -331,7 +331,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 1
+      "stock": 2
     },
     {
       "catId": 20,
@@ -881,8 +881,7 @@
       "adminNotes": "",
       "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
       "cliente": "Jekdkek",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-26T17:49:22.668Z",
+      "commissionPaid": false,
       "confirmedTs": "2026-06-26T17:37:12.998Z",
       "deliveredTs": "2026-06-26T17:36:21.860Z",
       "direccion": "Uwueje",
@@ -918,8 +917,7 @@
       "adminNotes": "",
       "articulo": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1",
       "cliente": "Tuiop",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-26T17:49:21.364Z",
+      "commissionPaid": false,
       "confirmedTs": "2026-06-26T17:47:46.314Z",
       "direccion": "Amistad 311",
       "garantia": "",
@@ -998,9 +996,7 @@
       "adminNotes": "",
       "articulo": "PISTOLA DE MASAJE RECARGABLE: x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1",
       "cliente": "Pedro",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-06-26T17:49:19.118Z",
-      "confirmedTs": "2026-06-26T17:47:14.885Z",
+      "commissionPaid": false,
       "direccion": "Cortina entre Santa Catalina y Milagros",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -1009,7 +1005,7 @@
       "mensajeria": "800",
       "precioMN": "",
       "precioUSD": "$285 USD",
-      "status": "confirmed",
+      "status": "delivered",
       "telefono": "52386475",
       "total": "$285 USD + 800 MN",
       "ts": "2026-06-26T17:30:58.757Z",
@@ -1030,5 +1026,5 @@
       "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-07-17T17:47:56.115Z"
+  "timestamp": "2026-07-17T17:57:06.356Z"
 }
