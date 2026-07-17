@@ -879,79 +879,6 @@
   "vales": [
     {
       "adminNotes": "",
-      "articulo": "REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4",
-      "cliente": "Pdjddh",
-      "commissionPaid": false,
-      "direccion": "San jose",
-      "garantia": "",
-      "gestorId": 1781761257107,
-      "id": 1782495640680,
-      "isNew": false,
-      "mensajeria": "580",
-      "precioMN": "",
-      "precioUSD": "$2435 USD",
-      "status": "delivered",
-      "telefono": "595949",
-      "total": "$2435 USD + 580 MN",
-      "ts": "2026-06-26T17:40:40.690Z",
-      "valeNum": 7,
-      "valeProductos": [
-        {
-          "id": 1777924315386,
-          "name": "REPETIDOR WIFI 5",
-          "qty": 5
-        },
-        {
-          "id": 1778102214012,
-          "name": "SWITCH DE 8 PUERTOS",
-          "qty": 2
-        },
-        {
-          "id": 1778102582909,
-          "name": "ANTORCHA PARA SOLDADURA TIG:",
-          "qty": 2
-        },
-        {
-          "id": 1778104287395,
-          "name": "EL ENRUTADOR WIFI DE 1.150MBPS",
-          "qty": 1
-        },
-        {
-          "id": 1778104512761,
-          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-          "qty": 1
-        },
-        {
-          "id": 1778104599386,
-          "name": "INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW",
-          "qty": 1
-        },
-        {
-          "id": 1778104662477,
-          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
-          "qty": 1
-        },
-        {
-          "id": 1778384646214,
-          "name": "ADAPTADOR POE UBIQUITI",
-          "qty": 2
-        },
-        {
-          "id": 1778384769262,
-          "name": "VENTILADOR PARA CARRO",
-          "qty": 2
-        },
-        {
-          "id": 1778384840618,
-          "name": "PROTEGE TU HOGAR",
-          "qty": 4
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Pdjddh\n🔸Teléfono Cliente: 595949\n🔸Dirección Cliente: San jose\n🔸Mensajería/ costo: 580\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x5 / SWITCH DE 8 PUERTOS x2 / ANTORCHA PARA SOLDADURA TIG: x2 / EL ENRUTADOR WIFI DE 1.150MBPS x1 / ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x1 / INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW x1 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / ADAPTADOR POE UBIQUITI x2 / VENTILADOR PARA CARRO x2 / PROTEGE TU HOGAR x4\n🔸Precio USD/ zelle: $2435 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2435 USD + 580 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:39\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    },
-    {
-      "adminNotes": "",
       "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
       "cliente": "Jekdkek",
       "commissionPaid": true,
@@ -1103,5 +1030,5 @@
       "vuelto": "5 USD"
     }
   ],
-  "timestamp": "2026-07-02T19:40:30.138Z"
+  "timestamp": "2026-07-17T17:47:56.115Z"
 }
