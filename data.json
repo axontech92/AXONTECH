@@ -223,7 +223,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924315386.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 18
+      "stock": 19
     },
     {
       "catId": 10,
@@ -307,7 +307,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104287395.webp",
       "precio": "$130 USD",
       "puntos": 2,
-      "stock": 1
+      "stock": 0
     },
     {
       "catId": 20,
@@ -879,40 +879,60 @@
   "vales": [
     {
       "adminNotes": "",
-      "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
-      "cliente": "Jekdkek",
-      "commissionPaid": false,
-      "confirmedTs": "2026-06-26T17:37:12.998Z",
-      "deliveredTs": "2026-06-26T17:36:21.860Z",
-      "direccion": "Uwueje",
+      "articulo": "e;flke;lf",
+      "cliente": "rgoeijg",
+      "deliveredTs": "2026-07-17T19:33:36.334Z",
+      "direccion": "wepff",
       "garantia": "",
-      "gestorId": 1781761257102,
-      "id": 1782495061790,
+      "gestorId": 1781761257100,
+      "id": 1784316784520,
+      "isNew": false,
+      "mensajeria": "efi",
+      "mensajeroId": 1781533316958,
+      "precioMN": "jfw",
+      "precioUSD": "",
+      "status": "delivered",
+      "telefono": "wfjw",
+      "total": "ti3powrktgp",
+      "ts": "2026-07-17T19:33:04.533Z",
+      "valeNum": 10,
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: rgoeijg\n🔸Teléfono Cliente: wfjw\n🔸Dirección Cliente: wepff\n🔸Mensajería/ costo: efi\n🔸 Artículos y cantidades:\ne;flke;lf\n🔸Precio USD/ zelle: \n🔸Precio MN: jfw\n🔸 Vuelto: \n🔸 Total a pagar: ti3powrktgp\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 15:32\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW / ×1 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
+      "cliente": "oewru0w",
+      "deliveredTs": "2026-07-17T19:06:20.919Z",
+      "direccion": "qofjqwj",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1784314822505,
       "isNew": false,
       "mensajeria": "4",
-      "mensajeroId": 1781533316958,
+      "mensajeroId": 1781533321165,
       "precioMN": "",
-      "precioUSD": "$55 USD",
-      "status": "confirmed",
-      "telefono": "6465665-5",
-      "total": "$59 USD",
-      "ts": "2026-06-26T17:31:01.799Z",
-      "valeNum": 5,
+      "precioUSD": "$1450 USD",
+      "status": "delivered",
+      "telefono": "qfif",
+      "total": "$1454 USD",
+      "ts": "2026-07-17T19:00:22.513Z",
+      "valeNum": 9,
       "valeProductos": [
         {
-          "id": 1777924315386,
-          "name": "REPETIDOR WIFI 5",
+          "id": 1778104599386,
+          "name": "INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW",
           "qty": 1
         },
         {
-          "id": 1778102214012,
-          "name": "SWITCH DE 8 PUERTOS",
+          "id": 1778104662477,
+          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
           "qty": 1
         }
       ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jekdkek\n🔸Teléfono Cliente: 6465665-5\n🔸Dirección Cliente: Uwueje\n🔸Mensajería/ costo: 4\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $55 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $59 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: oewru0w\n🔸Teléfono Cliente: qfif\n🔸Dirección Cliente: qofjqwj\n🔸Mensajería/ costo: 4\n🔸 Artículos y cantidades:\n  ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW\n  ×1 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED\n🔸Precio USD/ zelle: $1450 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1454 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 14:59\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T17:57:40.237Z"
+  "timestamp": "2026-07-17T19:34:15.805Z"
 }
