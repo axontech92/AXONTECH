@@ -219,6 +219,11 @@ function listenToMyVales(gId) {
           });
         }
         try { localStorage.setItem('axon_vales', JSON.stringify(newVales)); _valesCache = newVales; _valesDirty = false; } catch(e) {}
+      } else {
+        // Firebase has no vales — clear local too
+        try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+        rankingCache = null;
+        try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
       }
       firstLoadVales = false;
     } finally {
@@ -329,6 +334,12 @@ if (IS_ADMIN) {
           });
           _enqueueFB('ranking_summary', summary, 'set');
         }, 500);
+      } else {
+        // Firebase has no vales — clear everything
+        try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+        rankingCache = null;
+        try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+        _enqueueFB('ranking_summary', null, 'remove');
       }
     } finally {
       _syncCount--;
