@@ -1729,7 +1729,11 @@ function renderMyVales() {
     }).join('');
   }
 
-  // 2. HISTORY VALES
+  // 2. HISTORY VALES (in collapsible)
+  const countEl=document.getElementById('gestorHistCount');
+  const clearBtn=document.getElementById('gestorHistClearBtn');
+  if(countEl) countEl.textContent=historyVales.length||'0';
+  if(clearBtn) clearBtn.style.display=historyVales.length?'block':'none';
   if(!historyVales.length){
     hList.innerHTML='<div class="es"><div class="es-text">Sin historial</div></div>';
   } else {
@@ -1745,6 +1749,26 @@ function renderMyVales() {
       </div>`;
     }).join('');
   }
+}
+let _gestorHistOpen=false;
+function toggleGestorHistorial(){
+  _gestorHistOpen=!_gestorHistOpen;
+  const hList=document.getElementById('gestorHistorialList');
+  const arrow=document.getElementById('gestorHistArrow');
+  const clearBtn=document.getElementById('gestorHistClearBtn');
+  if(hList) hList.style.display=_gestorHistOpen?'block':'none';
+  if(arrow) arrow.textContent=_gestorHistOpen?'▲':'▼';
+  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');clearBtn.style.display=hv.length?'block':'none';}
+}
+function clearGestorHistory(){
+  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');
+  if(!confirmed.length){showToast('No hay historial para limpiar');return;}
+  showConfirmAction('¿Limpiar historial?',`Se eliminarán ${confirmed.length} vales completados del historial. Esta acción no se puede deshacer.`,'Limpiar','btn-red',()=>{
+    const all=getVales().filter(v=>!(v.gestorId===activeGestorId&&v.status==='confirmed'));
+    saveVales(all);maybeAutoSync();
+    _gestorHistOpen=false;toggleGestorHistorial();toggleGestorHistorial();
+    renderMyVales();showToast('Historial limpiado ✅');
+  });
 }
 
 function openGestorValeModal(id) {
@@ -2728,7 +2752,6 @@ function renderAdminCatalog() {
           ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
           <div style="${p.photo?'display:none;':''}width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;">📦</div>
           ${cat?`<span style="position:absolute;top:8px;left:8px;background:var(--blue);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">${escapeHTML(cat.name)}</span>`:''}
-          <span style="position:absolute;top:8px;right:8px;background:var(--green);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">📦 ${p.stock}</span>
         </div>
         <div style="padding:12px;">
           <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">${escapeHTML(p.name)}</div>
@@ -2736,12 +2759,93 @@ function renderAdminCatalog() {
           ${p.precio?`<div style="font-weight:800;font-size:16px;color:var(--blue);margin-bottom:6px;">${escapeHTML(p.precio)}</div>`:''}
           <div style="display:flex;flex-wrap:wrap;gap:4px;">
             ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:2px 7px;border-radius:8px;font-size:9px;font-weight:600;">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
-            ${p.comision?`<span style="background:#f0fdf4;color:var(--green);padding:2px 7px;border-radius:8px;font-size:9px;font-weight:600;">💰 ${escapeHTML(p.comision)}</span>`:''}
-            ${p.puntos?`<span style="background:var(--blue-lt);color:var(--blue);padding:2px 7px;border-radius:8px;font-size:9px;font-weight:600;">⭐ ${p.puntos} pts</span>`:''}
           </div>
         </div>
       </div>`;
     }).join('')+`</div>`;
+}
+function exportCatalogPDF(){
+  const cats=getCategorias();
+  const allProds=getProductos().filter(p=>(p.stock||0)>0);
+  if(!allProds.length){showToast('No hay productos para exportar');return;}
+  // Build print-optimized HTML grouped by category
+  let html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>AXONTECH - Catalogo de Productos</title>
+<style>
+  @page{size:A4;margin:15mm 12mm;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;background:#fff;line-height:1.4;}
+  .header{text-align:center;padding:20px 0 16px;border-bottom:3px solid #006d8a;margin-bottom:20px;}
+  .header h1{font-size:24px;color:#006d8a;letter-spacing:3px;font-weight:900;}
+  .header p{font-size:11px;color:#6b7280;margin-top:4px;letter-spacing:1px;}
+  .cat-section{margin-bottom:24px;page-break-inside:avoid;}
+  .cat-title{font-size:16px;font-weight:800;color:#006d8a;padding:8px 12px;background:#e0f7fc;border-radius:6px;margin-bottom:12px;border-left:4px solid #006d8a;}
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+  .product-card{border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;page-break-inside:avoid;}
+  .product-img{height:120px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .product-img img{width:100%;height:100%;object-fit:cover;}
+  .product-img .no-img{font-size:36px;}
+  .product-body{padding:10px;}
+  .product-name{font-weight:700;font-size:13px;color:#111;margin-bottom:3px;}
+  .product-desc{font-size:10px;color:#6b7280;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .product-price{font-weight:800;font-size:15px;color:#006d8a;}
+  .product-garantia{font-size:9px;color:#6b7280;margin-top:4px;background:#f1f5f9;padding:2px 6px;border-radius:4px;display:inline-block;}
+  .footer{text-align:center;padding:16px 0;margin-top:30px;border-top:2px solid #e2e8f0;font-size:9px;color:#9ca3af;}
+  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style></head><body>
+<div class="header"><h1>AXONTECH</h1><p>CATALOGO DE PRODUCTOS</p></div>`;
+  if(cats.length){
+    cats.forEach(cat=>{
+      const prods=allProds.filter(p=>p.catId===cat.id);
+      if(!prods.length)return;
+      html+=`<div class="cat-section"><div class="cat-title">${escapeHTML(cat.name)} (${prods.length})</div><div class="product-grid">`;
+      prods.forEach(p=>{
+        html+=`<div class="product-card">
+  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">📦</div></div>
+  <div class="product-body">
+    <div class="product-name">${escapeHTML(p.name)}</div>
+    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
+    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
+    ${p.garantia?`<div class="product-garantia">🛡️ ${escapeHTML(p.garantia)}</div>`:''}
+  </div></div>`;
+      });
+      html+=`</div></div>`;
+    });
+    // Products without category
+    const noCat=allProds.filter(p=>!p.catId||!cats.find(c=>c.id===p.catId));
+    if(noCat.length){
+      html+=`<div class="cat-section"><div class="cat-title">Sin categoría (${noCat.length})</div><div class="product-grid">`;
+      noCat.forEach(p=>{
+        html+=`<div class="product-card">
+  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">📦</div></div>
+  <div class="product-body">
+    <div class="product-name">${escapeHTML(p.name)}</div>
+    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
+    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
+    ${p.garantia?`<div class="product-garantia">🛡️ ${escapeHTML(p.garantia)}</div>`:''}
+  </div></div>`;
+      });
+      html+=`</div></div>`;
+    }
+  } else {
+    html+=`<div class="product-grid">`;
+    allProds.forEach(p=>{
+      html+=`<div class="product-card">
+  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">📦</div></div>
+  <div class="product-body">
+    <div class="product-name">${escapeHTML(p.name)}</div>
+    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
+    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
+    ${p.garantia?`<div class="product-garantia">🛡️ ${escapeHTML(p.garantia)}</div>`:''}
+  </div></div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`<div class="footer">AXONTECH · Amistad #311 % San Rafael y San José, Centro Habana · Generado: ${new Date().toLocaleDateString('es-ES')}</div></body></html>`;
+  // Open in new window and print
+  const w=window.open('','_blank','width=800,height=900');
+  if(!w){showToast('Permite ventanas emergentes para exportar PDF');return;}
+  w.document.write(html);w.document.close();
+  w.onload=()=>{w.print();};
 }
 
 // ══════════════════════════════════════════

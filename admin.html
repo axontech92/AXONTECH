@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=49">
+  <link rel="stylesheet" href="./app.css?v=50">
 </head>
 <body data-page="admin">
 
@@ -111,6 +111,7 @@
       <div style="padding:10px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:var(--surface);">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
           <div class="lbl" style="margin:0;">📑 Catálogo de Productos</div>
+          <button class="btn btn-blue btn-sm" onclick="exportCatalogPDF()">📄 Compartir PDF</button>
         </div>
         <input type="search" id="catalogAdminSearch" placeholder="Buscar producto..." oninput="renderAdminCatalog()" style="margin-bottom:8px;width:100%;">
         <div id="catalogAdminCatTabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
@@ -467,7 +468,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=49"></script>
+<script src="./app.js?v=50"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
