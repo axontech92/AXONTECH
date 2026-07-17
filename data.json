@@ -951,45 +951,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Tuiop\n🔸Teléfono Cliente: 99948678\n🔸Dirección Cliente: Amistad 311\n🔸Mensajería/ costo: 3600\n🔸 Artículo y cantidad: ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ x2 / INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED x1 / FORROS DE ASIENTOS DE LUJO PARA AUTOS x1\n🔸Precio USD/ zelle: $1570 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1570 USD + 3600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
-    },
-    {
-      "adminNotes": "",
-      "articulo": "SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1",
-      "cliente": "Jose",
-      "commissionPaid": false,
-      "direccion": "Amistad",
-      "garantia": "",
-      "gestorId": 1781761257107,
-      "id": 1782495060154,
-      "isNew": false,
-      "mensajeria": "4500",
-      "precioMN": "",
-      "precioUSD": "$180 USD",
-      "status": "delivered",
-      "telefono": "52238448",
-      "total": "$180 USD + 4500 MN",
-      "ts": "2026-06-26T17:31:00.163Z",
-      "valeNum": 5,
-      "valeProductos": [
-        {
-          "id": 1778336689684,
-          "name": "SWITCH DE 5 PUERTOS",
-          "qty": 2
-        },
-        {
-          "id": 1780873638627,
-          "name": "ROUTER FENVI AX3000 Wi-Fi 6",
-          "qty": 1
-        },
-        {
-          "id": 1778384840618,
-          "name": "PROTEGE TU HOGAR",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Jose\n🔸Teléfono Cliente: 52238448\n🔸Dirección Cliente: Amistad\n🔸Mensajería/ costo: 4500\n🔸 Artículo y cantidad: SWITCH DE 5 PUERTOS x2 / ROUTER FENVI AX3000 Wi-Fi 6 x1 / PROTEGE TU HOGAR x1\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T17:57:24.997Z"
+  "timestamp": "2026-07-17T17:57:27.791Z"
 }
