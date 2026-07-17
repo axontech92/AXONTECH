@@ -881,6 +881,10 @@
       "adminNotes": "",
       "articulo": "×1 ANTORCHA PARA SOLDADURA TIG:",
       "cliente": "eyt89",
+      "commissionEnSobreTs": "2026-07-17T23:46:25.368Z",
+      "commissionPaid": false,
+      "commissionStatus": "en_sobre",
+      "confirmedTs": "2026-07-17T23:46:15.685Z",
       "direccion": "456849",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -902,8 +906,7 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: eyt89\n🔸Teléfono Cliente: 45648769837\n🔸Dirección Cliente: 456849\n🔸Mensajería/ costo: 6\n🔸 Artículos y cantidades:\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $96 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 19:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "confirmedTs": "2026-07-17T23:46:15.685Z"
+      "vuelto": ""
     },
     {
       "adminNotes": "",
@@ -970,5 +973,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-17T23:46:15.693Z"
+  "timestamp": "2026-07-17T23:46:25.384Z"
 }
