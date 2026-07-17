@@ -254,7 +254,7 @@ function refreshUI() {
     if(typeof renderGestores === 'function') renderGestores();
     if(typeof renderGestorNotifs === 'function') renderGestorNotifs();
     if(typeof renderMyVales === 'function') renderMyVales();
-    if(typeof renderGestorRanking === 'function') renderGestorRanking();
+    if(typeof renderGestorRanking === 'function') {rankingCache=null;renderGestorRanking();}
     if(typeof renderGestorCatalog === 'function') {
        if(document.getElementById('gestorCatalogModal')?.classList.contains('show')) {
            renderGestorCatalog();
@@ -2835,17 +2835,13 @@ function renderGestorRanking() {
   
   const sumStr = localStorage.getItem('axon_ranking_summary');
   let summary = [];
-  if (sumStr) {
-    summary = JSON.parse(sumStr);
-  } else {
-    // fallback if no summary
-    const vales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
-    summary = gestores.map(g=>{
-      const pts=vales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-        sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-      return {id: g.id, pts};
-    });
-  }
+  const confirmedVales = getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
+  // Always recalculate from actual vales to avoid stale data
+  summary = gestores.map(g=>{
+    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+    return {id: g.id, pts};
+  });
 
   const ranked=gestores.map(g=>{
     const s = summary.find(x => x.id === g.id);
@@ -3131,6 +3127,11 @@ function factoryResetVales() {
     saveVales([]);
     // Force Firebase delete via write queue
     _enqueueFB('vales', null, 'remove');
+    // Clear ranking cache and summary so points reset to 0
+    rankingCache=null;
+    try { localStorage.removeItem('axon_ranking_summary'); } catch(e){}
+    _enqueueFB('ranking_summary', null, 'remove');
+    gestoresTabDirty=true;statsTabDirty=true;
     showToast('Todos los vales eliminados');
     selectedValeId=null;
     refreshUI();
