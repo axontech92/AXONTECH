@@ -2861,6 +2861,21 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-seri
 /* Empty */
 .empty{text-align:center;padding:60px 20px;color:var(--muted);}
 .empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+/* Product Detail Modal */
+.pmodal-bg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity .25s;pointer-events:none;}
+.pmodal-bg.show{opacity:1;pointer-events:auto;}
+.pmodal{background:var(--card);border-radius:var(--radius);max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(20px);transition:transform .25s;}
+.pmodal-bg.show .pmodal{transform:translateY(0);}
+.pmodal-img{width:100%;height:260px;object-fit:cover;display:block;}
+.pmodal-noimg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.2;background:linear-gradient(145deg,#f8fafc,#eef2f7);}
+.pmodal-cat{display:inline-block;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.pmodal-body{padding:20px 22px 24px;}
+.pmodal-name{font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.pmodal-desc{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px;}
+.pmodal-price{font-weight:900;font-size:24px;color:var(--primary);margin-bottom:10px;}
+.pmodal-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;margin-bottom:16px;}
+.pmodal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .2s;}
+.pmodal-close:hover{background:rgba(0,0,0,.7);}
 /* Responsive */
 @media(max-width:640px){
   .hero{padding:36px 16px 28px;}
@@ -2884,6 +2899,13 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-seri
 </div>
 <div class="nav" id="catNav"></div>
 <div class="container"><div class="grid" id="productGrid"></div></div>
+<!-- Product Detail Modal -->
+<div class="pmodal-bg" id="pmodalBg" onclick="if(event.target===this)closeProduct()">
+  <div class="pmodal" style="position:relative;">
+    <button class="pmodal-close" onclick="closeProduct()">&times;</button>
+    <div id="pmodalContent"></div>
+  </div>
+</div>
 <div class="footer">
   <div class="footer-brand">AXONTECH</div>
   <div class="footer-addr">Amistad #311 % San Rafael y San Jose, Centro Habana</div>
@@ -2914,7 +2936,7 @@ function renderGrid(){
   const filtered=activeCat!==null?products.filter(p=>p.catId===activeCat):products;
   if(!filtered.length){g.innerHTML='<div class="empty"><div class="empty-icon">&#128230;</div><div>No hay productos en esta categoria</div></div>';return;}
   g.innerHTML=filtered.map(p=>\`
-    <div class="card">
+    <div class="card" onclick="openProduct(\${p.id})" style="cursor:pointer;">
       <div class="card-img">
         \${p.photo?\`<img src="\${p.photo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy">\`:''}
         <div class="no-img" style="\${p.photo?'display:none':''}">&#128230;</div>
@@ -2922,16 +2944,32 @@ function renderGrid(){
       </div>
       <div class="card-body">
         <div class="card-name">\${p.name}</div>
-        <div class="card-desc"\${p.desc?' onclick="this.classList.toggle(\\'expanded\\')"':''}>\${p.desc||''}<div class="card-desc-fade"></div></div>
+        <div class="card-desc">\${p.desc||''}<div class="card-desc-fade"></div></div>
         <div class="card-price">\${p.price||''}</div>
         <div class="card-badges">
           \${p.garantia?\`<span class="badge badge-garantia">Garantia: \${p.garantia}</span>\`:''}
         </div>
-        \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:\`<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>\`}
+        \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:\`<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>\`}
       </div>
     </div>\`).join('');
 }
 renderNav();renderGrid();
+function openProduct(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  const c=document.getElementById('pmodalContent');
+  c.innerHTML=\`
+    \${p.photo?\`<img class="pmodal-img" src="\${p.photo}" onerror="this.outerHTML='<div class=\\'pmodal-noimg\\'>&#128230;</div>'">\`:\`<div class="pmodal-noimg">&#128230;</div>\`}
+    <div class="pmodal-body">
+      \${p.catName?\`<div class="pmodal-cat" style="background:\${p.catColor}">\${p.catName}</div>\`:''}
+      <div class="pmodal-name">\${p.name}</div>
+      \${p.desc?\`<div class="pmodal-desc">\${p.desc}</div>\`:''}
+      \${p.price?\`<div class="pmodal-price">\${p.price}</div>\`:''}
+      \${p.garantia?\`<div class="pmodal-badge">Garantia: \${p.garantia}</div>\`:''}
+      \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:''}
+    </div>\`;
+  document.getElementById('pmodalBg').classList.add('show');
+}
+function closeProduct(){document.getElementById('pmodalBg').classList.remove('show');}
 </script>
 </body></html>`;
   // Generate downloadable HTML file instead of about:blank window
