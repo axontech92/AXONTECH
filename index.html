@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=51">
+  <link rel="stylesheet" href="./app.css?v=66">
 </head>
 <body data-page="gestor">
 
@@ -227,8 +227,19 @@
       <div class="lbl" style="margin-top:14px;">Mis Vales Activos</div>
       <div id="gestorMyVales"></div>
       
-      <div class="lbl" style="margin-top:20px;">Historial (Completados)</div>
-      <div id="gestorHistorialList"></div>
+      <div style="margin-top:20px;">
+        <div onclick="toggleGestorHistorial()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
+          <span class="lbl" style="margin:0;">📋 Historial (Completados)</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="gestorHistCount" style="background:var(--gray-200);color:var(--gray-600);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"></span>
+            <span id="gestorHistArrow" style="color:var(--gray-400);font-size:13px;">▼</span>
+          </div>
+        </div>
+        <div id="gestorHistorialList" style="display:none;"></div>
+        <div id="gestorHistClearBtn" style="display:none;margin-top:6px;text-align:center;">
+          <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:11px;" onclick="clearGestorHistory()">🗑️ Limpiar historial</button>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -360,7 +371,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=51"></script>
+<script src="./app.js?v=66"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

@@ -54,6 +54,7 @@ let pickerSelected    = {};
 let pickerCatFilter   = null;
 let catalogCatFilter  = null;
 let expandedCatalogId = null;
+let adminCatalogCatFilter = null;
 let selectedProductsUI= [];
 let currentValeProductos = [];
 let pendingGestorId      = null;
@@ -70,7 +71,7 @@ let pendingCobroExpanded = false;
 //  HELPERS
 // ══════════════════════════════════════════
 const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#BE185D','#1D4ED8'];
-const gestorOf    = id => { if(id===0) return {id:0,name:'Admin',initials:'AD',color:'#DC2626',phone:''}; return getGestores().find(g=>g.id===id); };
+const gestorOf    = id => getGestores().find(g=>g.id===id);
 const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
 const productoOf  = id => getProductos().find(p=>p.id===id);
 const todayStr    = () => new Date().toDateString();
@@ -149,15 +150,225 @@ const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _ge
 const saveGestores  = v  => { try { localStorage.setItem('axon_gestores', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _gestoresCache = v; _gestoresDirty = false; setFB('gestores', v); };
 
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
-// Vales are synced individually via fbAddVale/fbUpdateVale/fbRemoveVale through the write queue
-// Also do a full Firebase sync for safety
+// Vales are synced via saveVales → _enqueueFB('vales', obj, 'set') through the write queue
+// Individual fbUpdateVale was removed from patchVale to prevent race conditions
 const saveVales     = v  => { try { localStorage.setItem('axon_vales', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _valesCache = v; _valesDirty = false; if (!isSyncingFromFirebase()) { _enqueueFB('vales', _valesToFirebaseObj(v), 'set'); } };
 
 const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
 const saveMensajeros= v  => { try { localStorage.setItem('axon_mensajeros', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _mensajerosCache = v; _mensajerosDirty = false; setFB('mensajeros', v); };
 
 const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
-const saveProductos = v  => { try { localStorage.setItem('axon_productos', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _productosCache = v; _productosDirty = false; setFB('productos', v); };
+const saveProductos = v  => { try { localStorage.setItem('axon_productos', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _productosCache = v; _productosDirty = false; setFB('productos', v); triggerAutoPublishCatalog(); };
+
+// ══════════════════════════════════════════
+//  AUTO-PUBLISH CATALOG TO GITHUB
+// ══════════════════════════════════════════
+let _catalogPublishTimer = null;
+function triggerAutoPublishCatalog() {
+  const cfg = getConfig();
+  if (!cfg.ghAutoPublishCatalog || !cfg.ghToken || !cfg.ghRepo) return;
+  clearTimeout(_catalogPublishTimer);
+  _catalogPublishTimer = setTimeout(async () => {
+    try {
+      const html = buildCatalogHTML();
+      if (html) await publishCatalogToGitHub(html);
+    } catch(e) { console.error('Auto-publish catalog error:', e); }
+  }, 5000);
+}
+
+function buildCatalogHTML() {
+  const cats=getCategorias();
+  const allProds=getProductos().filter(p=>(p.stock||0)>0);
+  if(!allProds.length) return null;
+  const cfg=getConfig();
+  const waPhone=cfg.catalogPhone||cfg.adminPhone||'';
+  const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
+  const dateStr=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  let catCardsJS='';
+  if(cats.length){
+    let ci=0;
+    cats.forEach(cat=>{
+      const prods=allProds.filter(p=>p.catId===cat.id);
+      if(!prods.length)return;
+      const color=catColors[ci%catColors.length];ci++;
+      prods.forEach(p=>{catCardsJS+=buildCatalogCardJS(p,cat,color,waPhone);});
+    });
+    const noCat=allProds.filter(p=>!p.catId||!cats.find(c=>c.id===p.catId));
+    if(noCat.length){
+      const color=catColors[ci%catColors.length];ci++;
+      noCat.forEach(p=>{catCardsJS+=buildCatalogCardJS(p,null,color,waPhone);});
+    }
+  } else {
+    allProds.forEach(p=>{catCardsJS+=buildCatalogCardJS(p,null,'#006d8a',waPhone);});
+  }
+  return `<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AXONTECH - Catalogo</title>
+<link rel="icon" href="https://axontech92.github.io/AXONTECH/iconos/favicon-96.png">
+<meta property="og:title" content="AXONTECH - Catalogo de Productos">
+<meta property="og:description" content="Explora nuestros productos disponibles">
+<meta property="og:type" content="website">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--primary:#006d8a;--primary-dk:#004d60;--accent:#00b4d8;--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--muted:#64748b;--radius:16px;--shadow:0 4px 20px rgba(0,0,0,.08);}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.hero{background:linear-gradient(135deg,var(--primary-dk) 0%,var(--primary) 50%,var(--accent) 100%);padding:48px 20px 36px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 60%);animation:heroGlow 8s ease-in-out infinite alternate;}
+@keyframes heroGlow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.hero-logo{font-size:48px;font-weight:900;color:#fff;letter-spacing:10px;text-shadow:0 2px 20px rgba(0,0,0,.3);position:relative;z-index:1;}
+.hero-sub{font-size:14px;letter-spacing:5px;color:rgba(255,255,255,.8);font-weight:300;margin-top:4px;position:relative;z-index:1;}
+.hero-line{width:50px;height:3px;background:rgba(255,255,255,.4);margin:14px auto;border-radius:2px;position:relative;z-index:1;}
+.hero-info{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1px;position:relative;z-index:1;}
+.hero-count{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 18px;font-size:12px;color:rgba(255,255,255,.9);margin-top:12px;font-weight:600;position:relative;z-index:1;}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.06);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
+.nav-btn:hover{border-color:var(--primary);color:var(--primary);}
+.nav-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(0,109,138,.25);}
+.container{max-width:1200px;margin:0 auto;padding:16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;display:flex;flex-direction:column;}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.card-img{height:220px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.card:hover .card-img img{transform:scale(1.05);}
+.card-img .no-img{font-size:64px;opacity:.25;}
+.card-cat{position:absolute;top:12px;left:12px;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.card-body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column;}
+.card-name{font-weight:800;font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.3;min-height:42px;}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;height:58px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease;}
+.card-desc.expanded{max-height:500px;}
+.card-desc-fade{position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#fff);pointer-events:none;transition:opacity .3s;}
+.card-desc.expanded+.card-desc-fade,.card-desc.expanded~.card-desc-fade{opacity:0;}
+.card-price{font-weight:900;font-size:22px;color:var(--primary);margin-bottom:12px;letter-spacing:.3px;min-height:30px;}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:26px;}
+.badge{padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+.badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.3px;margin-top:auto;}
+.wa-btn:hover{transform:scale(1.02);box-shadow:0 4px 14px rgba(37,211,102,.35);}
+.wa-btn:active{transform:scale(.98);}
+.wa-icon{font-size:18px;}
+.footer{text-align:center;padding:32px 20px;margin-top:40px;border-top:1px solid #e2e8f0;background:#fff;}
+.footer-brand{font-size:14px;font-weight:900;color:var(--primary);letter-spacing:4px;margin-bottom:6px;}
+.footer-addr{font-size:11px;color:var(--muted);line-height:1.6;}
+.footer-gen{font-size:9px;color:#cbd5e1;margin-top:8px;}
+.float-wa{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 16px rgba(37,211,102,.4);cursor:pointer;z-index:999;transition:transform .2s;text-decoration:none;border:none;}
+.float-wa:hover{transform:scale(1.1);}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+.pmodal-bg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity .25s;pointer-events:none;}
+.pmodal-bg.show{opacity:1;pointer-events:auto;}
+.pmodal{background:var(--card);border-radius:var(--radius);max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(20px);transition:transform .25s;}
+.pmodal-bg.show .pmodal{transform:translateY(0);}
+.pmodal-img{width:100%;height:260px;object-fit:cover;display:block;}
+.pmodal-noimg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.2;background:linear-gradient(145deg,#f8fafc,#eef2f7);}
+.pmodal-cat{display:inline-block;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.pmodal-body{padding:20px 22px 24px;}
+.pmodal-name{font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.pmodal-desc{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px;}
+.pmodal-price{font-weight:900;font-size:24px;color:var(--primary);margin-bottom:10px;}
+.pmodal-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;margin-bottom:16px;}
+.pmodal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .2s;}
+.pmodal-close:hover{background:rgba(0,0,0,.7);}
+@media(max-width:640px){
+  .hero{padding:36px 16px 28px;}
+  .hero-logo{font-size:36px;letter-spacing:6px;}
+  .hero-sub{font-size:11px;letter-spacing:3px;}
+  .grid{grid-template-columns:1fr;gap:16px;}
+  .card-img{height:200px;}
+  .container{padding:12px;}
+}
+@media(min-width:641px) and (max-width:1024px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head><body>
+<div class="hero">
+  <div class="hero-logo">AXONTECH</div>
+  <div class="hero-sub">CATALOGO DE PRODUCTOS</div>
+  <div class="hero-line"></div>
+  <div class="hero-info">${dateStr}</div>
+  <div class="hero-count">${allProds.length} productos disponibles</div>
+</div>
+<div class="nav" id="catNav"></div>
+<div class="container"><div class="grid" id="productGrid"></div></div>
+<div class="pmodal-bg" id="pmodalBg" onclick="if(event.target===this)closeProduct()">
+  <div class="pmodal" style="position:relative;">
+    <button class="pmodal-close" onclick="closeProduct()">&times;</button>
+    <div id="pmodalContent"></div>
+  </div>
+</div>
+<div class="footer">
+  <div class="footer-brand">AXONTECH</div>
+  <div class="footer-addr">Amistad #311 % San Rafael y San Jose, Centro Habana</div>
+  <div class="footer-gen">Catalogo actualizado: ${dateStr}</div>
+</div>
+${waPhone?`<a class="float-wa" href="https://wa.me/${waPhone}?text=${encodeURIComponent('Hola, vi el catalogo de AXONTECH y me interesa...')}" target="_blank" title="Chat por WhatsApp">&#128172;</a>`:''}
+<script>
+var products=[${catCardsJS}];
+var catNames=[${cats.map((c,i)=>"{id:"+c.id+",name:"+JSON.stringify(c.name)+",color:'"+catColors[i%catColors.length]+"'}").join(',')}${cats.length?'':",{id:0,name:'Todos',color:'#006d8a'}"}];
+var activeCat=null;
+function renderNav(){
+  var n=document.getElementById('catNav');
+  var h='<button class="nav-btn active" onclick="filterCat(null,this)">Todos</button>';
+  catNames.forEach(function(c){
+    var count=products.filter(function(p){return p.catId===c.id}).length;
+    if(count) h+='<button class="nav-btn" onclick="filterCat('+c.id+',this)">'+c.name+' ('+count+')</button>';
+  });
+  n.innerHTML=h;
+}
+function filterCat(id,btn){
+  activeCat=id;
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
+  if(btn)btn.classList.add('active');
+  renderGrid();
+}
+function renderGrid(){
+  var g=document.getElementById('productGrid');
+  var filtered=activeCat!==null?products.filter(function(p){return p.catId===activeCat}):products;
+  if(!filtered.length){g.innerHTML='<div class="empty"><div class="empty-icon">&#128230;</div><div>No hay productos en esta categoria</div></div>';return;}
+  g.innerHTML=filtered.map(function(p){
+    var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
+    s+='<div class="card-img">';
+    if(p.photo){s+='<img src="'+p.photo+'" data-img="1" loading="lazy">';}
+    s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
+    if(p.catName){s+='<div class="card-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
+    s+='</div><div class="card-body">';
+    s+='<div class="card-name">'+p.name+'</div>';
+    s+='<div class="card-desc">'+(p.desc||'')+'<div class="card-desc-fade"></div></div>';
+    s+='<div class="card-price">'+(p.price||'')+'</div>';
+    s+='<div class="card-badges">';
+    if(p.garantia){s+='<span class="badge badge-garantia">Garantia: '+p.garantia+'</span>';}
+    s+='</div>';
+    if(p.waLink){s+='<a class="wa-btn" href="'+p.waLink+'" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
+    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>';}
+    s+='</div></div>';
+    return s;
+  }).join('');
+}
+function openProduct(id){
+  var p=products.find(function(x){return x.id===id});if(!p)return;
+  var c=document.getElementById('pmodalContent');
+  var h='';
+  if(p.photo){h+='<img class="pmodal-img" src="'+p.photo+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
+  else{h+='<div class="pmodal-noimg">&#128230;</div>';}
+  h+='<div class="pmodal-body">';
+  if(p.catName){h+='<div class="pmodal-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
+  h+='<div class="pmodal-name">'+p.name+'</div>';
+  if(p.desc){h+='<div class="pmodal-desc">'+p.desc+'</div>';}
+  if(p.price){h+='<div class="pmodal-price">'+p.price+'</div>';}
+  if(p.garantia){h+='<div class="pmodal-badge">Garantia: '+p.garantia+'</div>';}
+  if(p.waLink){h+='<a class="wa-btn" href="'+p.waLink+'" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
+  h+='</div>';
+  c.innerHTML=h;
+  document.getElementById('pmodalBg').classList.add('show');
+}
+function closeProduct(){document.getElementById('pmodalBg').classList.remove('show');}
+document.addEventListener('error',function(e){var t=e.target;if(t.tagName==='IMG'&&t.dataset.img){t.style.display='none';if(t.nextElementSibling)t.nextElementSibling.style.display='flex';}},true);
+renderNav();renderGrid();
+</script>
+</body></html>`;
+}
 
 const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
 const saveCategorias= v  => { try { localStorage.setItem('axon_categorias', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _categoriasCache = v; _categoriasDirty = false; setFB('categorias', v); };
@@ -167,6 +378,134 @@ const saveConfig    = v  => { try { localStorage.setItem('axon_config', JSON.str
 
 const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
 const saveNotifs    = v  => { try { localStorage.setItem('axon_notifs', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _notifsCache = v; _notifsDirty = false; setFB('notifs', v); };
+
+// ══════════════════════════════════════════
+//  ESTAFA (Scam Blacklist) DATA
+// ══════════════════════════════════════════
+let _estafaCache = null;
+let _estafaDirty = true;
+const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { _estafaCache = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
+const saveEstafa  = v  => { try { localStorage.setItem('axon_estafa', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _estafaCache = v; _estafaDirty = false; setFB('estafa', v); };
+
+function checkEstafaMatch(vale) {
+  const lista = getEstafa();
+  if (!lista.length) return [];
+  const matches = [];
+  const vPhone = (vale.telefono || '').replace(/[\s\-()]/g, '').toLowerCase();
+  const vCliente = (vale.cliente || '').toLowerCase().trim();
+  const vDireccion = (vale.direccion || '').toLowerCase().trim();
+  lista.forEach(e => {
+    const reasons = [];
+    if (e.telefono && vPhone) {
+      const ePhone = e.telefono.replace(/[\s\-()]/g, '').toLowerCase();
+      if (ePhone && vPhone.includes(ePhone)) reasons.push('teléfono: ' + e.telefono);
+    }
+    if (e.nombre && vCliente) {
+      const eNombre = e.nombre.toLowerCase().trim();
+      if (eNombre && (vCliente.includes(eNombre) || eNombre.includes(vCliente))) reasons.push('nombre: ' + e.nombre);
+    }
+    if (e.direccion && vDireccion) {
+      const eDir = e.direccion.toLowerCase().trim();
+      if (eDir && (vDireccion.includes(eDir) || eDir.includes(vDireccion))) reasons.push('dirección: ' + e.direccion);
+    }
+    if (reasons.length) matches.push({ entry: e, reasons: reasons });
+  });
+  return matches;
+}
+
+function showEstafaAlert(vale, matches) {
+  if (!matches.length) return;
+  let detail = matches.map(m => {
+    const r = m.reasons.join(', ');
+    let s = '⚠️ Coincidencia por ' + r;
+    if (m.entry.nota) s += '\n   Nota: ' + m.entry.nota;
+    return s;
+  }).join('\n');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-bg show';
+  overlay.style.zIndex = '10001';
+  const box = document.createElement('div');
+  box.className = 'modal';
+  box.style.cssText = 'max-width:420px;text-align:center;';
+  box.innerHTML = `
+    <div style="font-size:48px;margin-bottom:12px;">🚨</div>
+    <div class="modal-title" style="color:var(--red);margin-bottom:8px;">¡ALERTA DE ESTAFA!</div>
+    <div style="font-size:12px;color:var(--gray-400);margin-bottom:12px;">El vale de <b style="color:var(--text);">${escapeHTML(vale.cliente || '—')}</b> coincide con datos en la lista de estafa</div>
+    <div style="text-align:left;background:var(--surface2);border:1px solid var(--red);border-radius:10px;padding:12px;font-size:12px;line-height:1.7;color:var(--text);margin-bottom:16px;max-height:200px;overflow-y:auto;white-space:pre-line;">${escapeHTML(detail)}</div>
+    <div class="modal-btns" style="flex-direction:column;">
+      <button class="btn btn-red btn-full" onclick="this.closest('.modal-bg').remove()" style="font-weight:700;">⚠️ Entendido — Tener precaución</button>
+    </div>`;
+  overlay.appendChild(box);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function addEstafa() {
+  const tel = document.getElementById('estafaTelefono').value.trim();
+  const nom = document.getElementById('estafaNombre').value.trim();
+  const dir = document.getElementById('estafaDireccion').value.trim();
+  const nota = document.getElementById('estafaNota').value.trim();
+  if (!tel && !nom && !dir) { showToast('Agrega al menos un dato (teléfono, nombre o dirección)'); return; }
+  const lista = getEstafa();
+  const id = Date.now();
+  lista.push({ id, telefono: tel, nombre: nom, direccion: dir, nota: nota, fecha: new Date().toISOString() });
+  saveEstafa(lista);
+  document.getElementById('estafaTelefono').value = '';
+  document.getElementById('estafaNombre').value = '';
+  document.getElementById('estafaDireccion').value = '';
+  document.getElementById('estafaNota').value = '';
+  renderEstafaList();
+  showToast('Registro de estafa agregado 🚫');
+}
+
+function deleteEstafa(id) {
+  showConfirmAction('¿Borrar registro?', 'Se eliminará este registro de la lista de estafa.', 'Borrar', 'btn-red', () => {
+    const lista = getEstafa().filter(e => e.id !== id);
+    saveEstafa(lista);
+    renderEstafaList();
+    showToast('Registro eliminado');
+  });
+}
+
+function renderEstafaList() {
+  const c = document.getElementById('estafaList');
+  if (!c) return;
+  const searchEl = document.getElementById('estafaSearch');
+  const search = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  let lista = getEstafa();
+  if (search) {
+    lista = lista.filter(e =>
+      (e.telefono || '').toLowerCase().includes(search) ||
+      (e.nombre || '').toLowerCase().includes(search) ||
+      (e.direccion || '').toLowerCase().includes(search) ||
+      (e.nota || '').toLowerCase().includes(search)
+    );
+  }
+  const countEl = document.getElementById('estafaCount');
+  if (countEl) countEl.textContent = getEstafa().length;
+  if (!lista.length) {
+    c.innerHTML = '<div class="es"><div class="es-icon">🚫</div><div class="es-text">' + (search ? 'Sin resultados' : 'No hay registros de estafa') + '</div></div>';
+    return;
+  }
+  let html = '';
+  lista.forEach(e => {
+    const fecha = e.fecha ? new Date(e.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+    html += `<div class="card" style="padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:20px;flex-shrink:0;">🚫</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;">${e.nombre ? escapeHTML(e.nombre) : '<span style="color:var(--gray-400);">Sin nombre</span>'}</div>
+        <div style="font-size:11px;color:var(--gray-400);display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">
+          ${e.telefono ? '<span>📱 ' + escapeHTML(e.telefono) + '</span>' : ''}
+          ${e.direccion ? '<span>📍 ' + escapeHTML(e.direccion) + '</span>' : ''}
+        </div>
+        ${e.nota ? '<div style="font-size:11px;color:var(--red);margin-top:3px;font-weight:600;">⚡ ' + escapeHTML(e.nota) + '</div>' : ''}
+        ${fecha ? '<div style="font-size:9px;color:var(--gray-300);margin-top:2px;">' + fecha + '</div>' : ''}
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="deleteEstafa(${e.id})" style="flex-shrink:0;font-size:11px;padding:5px 8px;color:var(--red);">✕</button>
+    </div>`;
+  });
+  c.innerHTML = html;
+}
 
 // Helper: convert vales array to Firebase nested object
 function _valesToFirebaseObj(vales) {
@@ -252,6 +591,7 @@ function refreshUI() {
     if(typeof renderMensajeroVales === 'function') renderMensajeroVales();
     if(typeof renderMensajeroSelector === 'function') renderMensajeroSelector();
     if(typeof renderComisiones === 'function' && typeof currentAdminTab !== 'undefined' && currentAdminTab === 'gestores') renderComisiones();
+    if(typeof renderAdminCatalog === 'function' && typeof currentAdminTab !== 'undefined' && currentAdminTab === 'catalog'){renderAdminCatalogCats();renderAdminCatalog();}
     if(typeof updateAdminBadge === 'function') updateAdminBadge();
     if(typeof updateMensajeroBadge === 'function') updateMensajeroBadge();
     if(typeof renderValeDetail === 'function' && typeof selectedValeId !== 'undefined' && selectedValeId) renderValeDetail();
@@ -321,7 +661,15 @@ if (IS_ADMIN) {
           if(gVales) flatVales.push(...Object.values(gVales));
         });
         flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+        // Check for new vales with estafa matches before saving
+        const oldVales = getVales();
+        const newIds = flatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
         try { localStorage.setItem('axon_vales', JSON.stringify(flatVales)); _valesCache = flatVales; _valesDirty = false; } catch(e) {}
+        // Show estafa alert for new vales that match blacklist
+        newIds.forEach(nv => {
+          const estafaMatches = checkEstafaMatch(nv);
+          if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
+        });
         
         // Debounced ranking summary update
         clearTimeout(_rankingDebounce);
@@ -382,8 +730,10 @@ function patchVale(id, changes) {
   const all = getVales(); const i = all.findIndex(v=>v.id===id);
   if (i!==-1){
     all[i]={...all[i],...changes};
+    // saveVales already writes to Firebase via _enqueueFB — no need for redundant fbUpdateVale
+    // Previously, both saveVales (full 'set') and fbUpdateVale (partial 'update') were called,
+    // causing race conditions where Firebase could overwrite local changes with stale data.
     saveVales(all);
-    if(typeof fbUpdateVale === 'function') fbUpdateVale(all[i], changes);
   }
 }
 function getNextValeNum() {
@@ -468,23 +818,23 @@ function renderGestorNotifs() {
   const visibleNotifs = clearedIdx !== -1 ? notifs.slice(0, clearedIdx) : notifs;
 
   // Global Notifs
-  const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned'].includes(n.type));
+  const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned', 'ranking_top3'].includes(n.type));
   
   // Personal Notifs — check if cleared for this gestor
   const personalCleared = activeGestorId ? localStorage.getItem('axon_cleared_personal_' + activeGestorId) : null;
   const personalNotifs = notifs.filter(n => {
-    return ['vale_confirmed', 'vale_assigned'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
+    return ['vale_confirmed', 'vale_assigned', 'ranking_top3'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
   });
 
   const sec = document.getElementById('gestorNotifsSection');
   const personalSec = document.getElementById('gestorPersonalNotifsSection');
   
-  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵'};
+  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',ranking_top3:'🏆'};
   
   const renderItem = (n, isPersonal) => {
     const icon=icons[n.type]||'📢';
     const age=timeAgo(n.ts);
-    const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned'].includes(n.type)?'ok':'';
+    const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','ranking_top3'].includes(n.type)?'ok':'';
     
     // Unread logic
     const nIdx = notifs.findIndex(x => x.id === n.id);
@@ -512,6 +862,12 @@ function renderGestorNotifs() {
       msg=`<b>Repuesto:</b> ${safeName} <span style="color:var(--green);">(${safeExtra})</span>`;
     } else if(n.type==='new_product'){
       msg=`<b>Nuevo producto:</b> ${safeName}${safeExtra?` · ${safeExtra}`:``}`;
+    } else if(n.type==='ranking_top3'){
+      const parts=(n.extra||'').split('|');
+      const place=parts[0]||'';const pts=parts[1]||'';
+      const placeNum=parseInt(parts[2])||0;
+      const placeEmoji=placeNum===1?'🥇':placeNum===2?'🥈':placeNum===3?'🥉':'🏆';
+      msg=`<b>${placeEmoji} ${place}</b> · ${escapeHTML(n.productName)} con <b>${pts} pts</b>`;
     } else {
       msg=`${safeName}${safeExtra?` (${safeExtra})`:``}`;
     }
@@ -636,6 +992,7 @@ function activateAdminMode() {
   const bl = document.getElementById('btnLogout'); if (bl) bl.style.display = 'inline-flex';
   const cfg = getConfig();
   const ph = document.getElementById('adminPhoneInput'); if (ph && cfg.adminPhone) ph.value = cfg.adminPhone;
+  const cph = document.getElementById('catalogPhoneInput'); if (cph && cfg.catalogPhone) cph.value = cfg.catalogPhone;
   const today = new Date().toISOString().slice(0, 10);
   const sf = document.getElementById('statsDateFrom'); if (sf) sf.value = today;
   const st = document.getElementById('statsDateTo'); if (st) st.value = today;
@@ -659,7 +1016,7 @@ function logoutAdmin() {
 // ══════════════════════════════════════════
 function adminTab(tab) {
   currentAdminTab=tab;
-  ['vales','stock','gestores','stats','mensajeros','config','historial'].forEach(t=>{
+  ['vales','stock','gestores','stats','mensajeros','config','historial','catalog','estafa'].forEach(t=>{
     const btn=document.getElementById('anav-'+t);if(btn)btn.classList.toggle('active',t===tab);
     const pid='admin'+t.charAt(0).toUpperCase()+t.slice(1)+'Panel';
     const el=document.getElementById(pid);
@@ -667,11 +1024,13 @@ function adminTab(tab) {
   });
   if(tab==='vales'){renderAdminGestores();renderMensajeros();renderConfirmados();renderPendienteCobro();}
   if(tab==='stock'){renderStockCategorias();renderProductGrid();}
+  if(tab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
   if(tab==='mensajeros'){renderMensajeroSelector();renderPendingCobroSection();renderMensajeroVales();}
   if(tab==='config'){loadGhConfigUI();}
   if(tab==='historial'){renderHistorial();}
+  if(tab==='estafa'){renderEstafaList();}
 }
 
 // ══════════════════════════════════════════
@@ -1158,20 +1517,17 @@ function renderAdminGestores() {
 
   let html = '';
   
-  // Include Admin (id=0) as a pseudo-gestor for grouping
-  const allActors = [{id:0,name:'Admin',initials:'AD',color:'#DC2626'}, ...gestores];
-  
-  // Only show actors that have AT LEAST ONE pending vale
-  const actoresConPendientes = allActors.filter(g => {
+  // Only show gestores that have AT LEAST ONE pending vale
+  const gestoresConPendientes = gestores.filter(g => {
      return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered');
   });
 
-  if(actoresConPendientes.length === 0) {
+  if(gestoresConPendientes.length === 0) {
      c.innerHTML = '<div class="es"><div class="es-icon">🎉</div><div class="es-text" style="font-weight:600;">No hay ningún vale pendiente.</div></div>';
      return;
   }
 
-  actoresConPendientes.forEach(g => {
+  gestoresConPendientes.forEach(g => {
     // Only fetch active (not confirmed/delivered)
     const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered').reverse();
     const isOpen = adminGestorFilter === g.id;
@@ -1217,12 +1573,15 @@ function buildInboxCard(v) {
   const s=sMap[v.status]||{label:v.status,cls:''};
   const isNew=v.isNew&&v.status==='pending';
   const sel=v.id===selectedValeId;
-  return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}">
+  const estafaMatch=checkEstafaMatch(v);
+  const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
+  const estafaTag=estafaMatch.length?'<span style="background:var(--red);color:white;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;">🚫 ESTAFA</span>':'';
+  return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}${estafaBorder}">
     ${isNew?'<div class="new-dot"></div>':''}
     <div class="ic-head" style="margin-bottom:4px;">
       <span class="ic-time">${timeStr(v.ts)}</span>
     </div>
-    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}</div>
+    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}</div>
     <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
     ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
@@ -1296,19 +1655,26 @@ function renderValeDetail() {
       <div style="font-weight:700;color:var(--green);">Venta Confirmada y Cobrada</div>
       ${m?`<div style="font-size:12px;color:var(--gray-400);">Entregada por: ${escapeHTML(m.name)}</div>`:``}
     </div>
-    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir a Entregado</button>`;
+    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta (restaurar stock)</button>`;
   } else if(v.status==='pending_payment'){
     actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
       <div style="font-size:26px;margin-bottom:4px;">⏳</div>
       <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
       ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
     </div>
-    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>`;
+    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>
+    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
   const notesHighlight=v.adminNotes?`<div style="background:#FFFBEB;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--gray-700);margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
+  const estafaMatches=checkEstafaMatch(v);
+  const estafaDetailHTML=estafaMatches.length?`<div style="background:rgba(239,68,68,.08);border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:10px;">
+    <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px;">🚨 ALERTA DE ESTAFA</div>
+    <div style="font-size:12px;color:var(--text);line-height:1.6;">${estafaMatches.map(m=>'⚠️ Coincidencia por '+m.reasons.join(', ')+(m.entry.nota?' — <i>'+escapeHTML(m.entry.nota)+'</i>':'')).join('<br>')}</div>
+  </div>`:'';
   c.innerHTML=`
     <div class="lbl" style="margin-top:0;">Detalle del Vale</div>
+    ${estafaDetailHTML}
     <div class="card">
       ${numBadge}
       <div class="det-gestor-row">
@@ -1478,6 +1844,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
   renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
   renderConfirmados();renderProductGrid();renderGestorRanking();
   if(currentAdminTab==='gestores'){renderComisiones();}
+  if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   updateAdminBadge();updateMensajeroBadge();
   checkGoalReached(v.gestorId, id);
   maybeAutoSync();
@@ -1514,6 +1881,7 @@ function mensajeroPagado(id, skipConfirm) {
   renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
   renderConfirmados();renderProductGrid();renderGestorRanking();
   if(currentAdminTab==='gestores'){renderComisiones();}
+  if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   updateAdminBadge();updateMensajeroBadge();
   checkGoalReached(v.gestorId, id);
   maybeAutoSync();
@@ -1558,6 +1926,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
   renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();
   renderProductGrid();renderGestorRanking();
   if(currentAdminTab==='gestores'){renderComisiones();}
+  if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   checkGoalReached(v.gestorId, id);
   maybeAutoSync();
   if(paymentStatus==='confirmed'){
@@ -1581,6 +1950,7 @@ function markAsPaid(id, skipConfirm) {
   renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();renderMensajeroSelector();updateMensajeroBadge();
   renderGestorRanking();
   if(currentAdminTab==='gestores'){renderComisiones();}
+  if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   checkGoalReached(getVales().find(x=>x.id===id)?.gestorId, id);
   maybeAutoSync();
   showToast('Cobro registrado ✅');
@@ -1639,7 +2009,7 @@ function renderConfirmados() {
   if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
   c.innerHTML=today.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${escapeHTML(v.cliente||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div>`;
+    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${escapeHTML(v.cliente||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button></div>`;
   }).join('');
 }
 function renderPendienteCobro() {
@@ -1649,7 +2019,7 @@ function renderPendienteCobro() {
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button class="btn btn-green btn-full btn-sm" style="margin-top:7px;" onclick="markAsPaid(${v.id})">✅ Cobrado</button></div>`;
+    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:7px;"><button class="btn btn-green btn-sm btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado</button><button class="btn btn-ghost btn-sm btn-full" style="color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div></div>`;
   }).join('');
 }
 function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
@@ -1719,7 +2089,11 @@ function renderMyVales() {
     }).join('');
   }
 
-  // 2. HISTORY VALES
+  // 2. HISTORY VALES (in collapsible)
+  const countEl=document.getElementById('gestorHistCount');
+  const clearBtn=document.getElementById('gestorHistClearBtn');
+  if(countEl) countEl.textContent=historyVales.length||'0';
+  if(clearBtn) clearBtn.style.display=historyVales.length?'block':'none';
   if(!historyVales.length){
     hList.innerHTML='<div class="es"><div class="es-text">Sin historial</div></div>';
   } else {
@@ -1735,6 +2109,26 @@ function renderMyVales() {
       </div>`;
     }).join('');
   }
+}
+let _gestorHistOpen=false;
+function toggleGestorHistorial(){
+  _gestorHistOpen=!_gestorHistOpen;
+  const hList=document.getElementById('gestorHistorialList');
+  const arrow=document.getElementById('gestorHistArrow');
+  const clearBtn=document.getElementById('gestorHistClearBtn');
+  if(hList) hList.style.display=_gestorHistOpen?'block':'none';
+  if(arrow) arrow.textContent=_gestorHistOpen?'▲':'▼';
+  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');clearBtn.style.display=hv.length?'block':'none';}
+}
+function clearGestorHistory(){
+  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');
+  if(!confirmed.length){showToast('No hay historial para limpiar');return;}
+  showConfirmAction('¿Limpiar historial?',`Se eliminarán ${confirmed.length} vales completados del historial. Esta acción no se puede deshacer.`,'Limpiar','btn-red',()=>{
+    const all=getVales().filter(v=>!(v.gestorId===activeGestorId&&v.status==='confirmed'));
+    saveVales(all);maybeAutoSync();
+    _gestorHistOpen=false;toggleGestorHistorial();toggleGestorHistorial();
+    renderMyVales();showToast('Historial limpiado ✅');
+  });
 }
 
 function openGestorValeModal(id) {
@@ -1962,6 +2356,10 @@ function saveAdminPhone() {
   const phone=document.getElementById('adminPhoneInput').value.trim();
   const cfg=getConfig();cfg.adminPhone=phone;saveConfig(cfg);showToast('Número guardado ✓');
 }
+function saveCatalogPhone() {
+  const phone=document.getElementById('catalogPhoneInput').value.trim();
+  const cfg=getConfig();cfg.catalogPhone=phone;saveConfig(cfg);showToast('Número catálogo guardado ✓');
+}
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-mensajeria','vf-articulo',
    'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
@@ -2013,6 +2411,9 @@ function sendVale() {
     const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g.name} acaba de enviar un vale`;
     const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
     renderAdminGestores();
+    // Check estafa blacklist when admin is active
+    const estafaMatches = checkEstafaMatch(vale);
+    if(estafaMatches.length) showEstafaAlert(vale, estafaMatches);
   }
   resetForm();
   _isSendingVale = false;
@@ -2375,7 +2776,7 @@ function venderDirecto(id) {
     vuelto:'',total:'Venta Local',garantia:p.garantia||'',
     valeProductos:[{id:p.id,name:p.name,qty}],valeText:'Venta en tienda',
     status:'confirmed',mensajeroId:null,confirmedTs:new Date().toISOString(),isNew:false,adminNotes:'Venta directa sin gestor',
-    commissionPaid:true,commissionPaidTs:new Date().toISOString()
+    commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:new Date().toISOString()
   };
   const all=getVales();all.push(vale);saveVales(all);
   if(typeof fbAddVale === 'function') {
@@ -2687,6 +3088,169 @@ function renderGestorCatalog() {
 }
 
 // ══════════════════════════════════════════
+//  ADMIN CATALOG (shared products, no out-of-stock, auto-updates from stock)
+// ══════════════════════════════════════════
+function renderAdminCatalogCats() {
+  const cats=getCategorias();
+  const prods=getProductos().filter(p=>(p.stock||0)>0);
+  const tabEl=document.getElementById('catalogAdminCatTabs');
+  if(!tabEl)return;
+  tabEl.innerHTML=`<button class="pcat-tab ${adminCatalogCatFilter===null?'active':''}" onclick="setAdminCatalogCat(null)" style="flex-shrink:0;">Todos (${prods.length})</button>`+
+    cats.map(c=>{
+      const count=prods.filter(p=>p.catId===c.id).length;
+      return count>0?`<button class="pcat-tab ${adminCatalogCatFilter===c.id?'active':''}" onclick="setAdminCatalogCat(${c.id})" style="flex-shrink:0;">${escapeHTML(c.name)} (${count})</button>`:'';
+    }).join('');
+}
+function setAdminCatalogCat(id){adminCatalogCatFilter=id;renderAdminCatalogCats();renderAdminCatalog();}
+function renderAdminCatalog() {
+  const searchEl=document.getElementById('catalogAdminSearch');
+  const search=searchEl?searchEl.value.toLowerCase():'';
+  let prods=getProductos().filter(p=>(p.stock||0)>0);
+  if(adminCatalogCatFilter!==null)prods=prods.filter(p=>p.catId===adminCatalogCatFilter);
+  if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  const c=document.getElementById('catalogAdminGrid');
+  if(!c)return;
+  if(!prods.length){c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos disponibles</div></div>';return;}
+  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">`+
+    prods.map(p=>{
+      const cat=getCategorias().find(c=>c.id===p.catId);
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .2s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+        <div style="height:140px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+          ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+          <div style="${p.photo?'display:none;':''}width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;">📦</div>
+          ${cat?`<span style="position:absolute;top:8px;left:8px;background:var(--blue);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">${escapeHTML(cat.name)}</span>`:''}
+        </div>
+        <div style="padding:12px;">
+          <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">${escapeHTML(p.name)}</div>
+          ${p.description?`<div style="font-size:11px;color:var(--text-muted);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escapeHTML(p.description)}</div>`:''}
+          ${p.precio?`<div style="font-weight:800;font-size:16px;color:var(--blue);margin-bottom:6px;">${escapeHTML(p.precio)}</div>`:''}
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:2px 7px;border-radius:8px;font-size:9px;font-weight:600;">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
+          </div>
+        </div>
+      </div>`;
+    }).join('')+`</div>`;
+}
+function shareCatalogWeb(){
+  const html=buildCatalogHTML();
+  if(!html){showToast('No hay productos para exportar');return;}
+  const allProds=getProductos().filter(p=>(p.stock||0)>0);
+  // Generate downloadable HTML file
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  // Build modal using DOM to avoid template-literal issues with blob URLs
+  const overlay=document.createElement('div');
+  overlay.className='modal-bg show';
+  overlay.style.zIndex='10000';
+  const box=document.createElement('div');
+  box.className='modal';
+  box.style.cssText='max-width:400px;width:90%;text-align:center;';
+  box.innerHTML=`
+    <div style="font-size:40px;margin-bottom:12px;">🔗</div>
+    <div class="modal-title" style="margin-bottom:6px;">Catálogo Generado</div>
+    <div style="font-size:12.5px;color:var(--muted,#64748b);margin-bottom:20px;line-height:1.5;">${allProds.length} productos listos para compartir.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="catalogShareBtns"></div>
+    <div id="catalogPublishedLink" style="display:none;margin-top:14px;"></div>`;
+  overlay.appendChild(box);
+  // Publish to GitHub button
+  const cfg=getConfig();
+  const hasGitHub=cfg.ghToken&&cfg.ghRepo;
+  if(hasGitHub){
+    const ghBtn=document.createElement('button');
+    ghBtn.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#24292e,#40464d);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;';
+    ghBtn.innerHTML='☁️ Publicar en GitHub (link compartible)';
+    ghBtn.onclick=async()=>{
+      ghBtn.disabled=true;ghBtn.innerHTML='⏳ Publicando...';
+      const publishedUrl=await publishCatalogToGitHub(html);
+      if(publishedUrl){
+        ghBtn.innerHTML='✅ Publicado en GitHub';
+        ghBtn.style.background='var(--green)';
+        const linkDiv=box.querySelector('#catalogPublishedLink');
+        linkDiv.style.display='block';
+        linkDiv.innerHTML=`
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:6px;">Link compartible (tarda ~1 min en actualizarse):</div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:12px;word-break:break-all;font-weight:600;color:var(--blue);margin-bottom:8px;">${publishedUrl}</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-blue btn-sm" style="flex:1;" onclick="navigator.clipboard.writeText('${publishedUrl}').then(()=>showToast('Link copiado ✓'))">📋 Copiar link</button>
+            <a class="btn btn-wa btn-sm" style="flex:1;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;" href="https://wa.me/?text=${encodeURIComponent('Mira nuestro catálogo: '+publishedUrl)}" target="_blank">💬 WhatsApp</a>
+          </div>`;
+      } else {
+        ghBtn.innerHTML='☁️ Reintentar Publicar';
+        ghBtn.style.background='linear-gradient(135deg,#24292e,#40464d)';
+        ghBtn.disabled=false;
+      }
+    };
+    box.querySelector('#catalogShareBtns').appendChild(ghBtn);
+  }
+  // Download button
+  const dlBtn=document.createElement('a');
+  dlBtn.href=url;
+  dlBtn.download='AXONTECH-Catalogo.html';
+  dlBtn.style.cssText='display:block;padding:13px;border-radius:12px;background:linear-gradient(135deg,#006d8a,#00b4d8);color:white;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;';
+  dlBtn.textContent='📥 Descargar HTML';
+  // Preview button
+  const pvBtn=document.createElement('button');
+  pvBtn.style.cssText='padding:13px;border-radius:12px;background:var(--surface2,#f0f4f8);color:var(--text,#1a1a2e);font-size:14px;font-weight:700;border:1px solid var(--border,#e2e8f0);cursor:pointer;';
+  pvBtn.textContent='👁️ Previsualizar';
+  pvBtn.onclick=()=>{window.open(url,'_blank');};
+  // Cancel button
+  const ccBtn=document.createElement('button');
+  ccBtn.style.cssText='padding:10px;border-radius:10px;background:transparent;color:var(--muted,#64748b);font-size:12px;font-weight:600;border:none;cursor:pointer;';
+  ccBtn.textContent='Cerrar';
+  ccBtn.onclick=()=>{overlay.remove();};
+  // Close on backdrop click
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  const btnsDiv=box.querySelector('#catalogShareBtns');
+  btnsDiv.append(dlBtn,pvBtn,ccBtn);
+  document.body.appendChild(overlay);
+  // Auto-cleanup URL after 5 minutes
+  setTimeout(()=>URL.revokeObjectURL(url),300000);
+}
+function buildCatalogCardJS(p,cat,color,waPhone){
+  const pName=p.name||p.nombre||'';
+  const pDesc=p.description||p.descripcion||'';
+  const pPrice=p.precio||p.precioActual||'';
+  const pPhoto=p.photo||p.imagen||'';
+  const pGarantia=p.garantia||'';
+  const esc=s=>JSON.stringify(s).replace(/<\//g,'<\\/');
+  const waMsg=`Hola, me interesa el producto: ${pName}${pPrice?' - '+pPrice:''}. Esta disponible?`;
+  const waLink=waPhone?`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`:'';
+  return `{id:${p.id},catId:${cat?cat.id:0},name:${esc(pName)},desc:${esc(pDesc)},price:${esc(pPrice)},photo:${esc(pPhoto)},catName:${esc(cat?cat.name:'')},catColor:'${color}',garantia:${esc(pGarantia)},waLink:${esc(waLink)}},`;
+}
+
+// ══════════════════════════════════════════
+//  PUBLISH CATALOG TO GITHUB PAGES
+// ══════════════════════════════════════════
+async function publishCatalogToGitHub(htmlContent) {
+  const cfg=getConfig();
+  if(!cfg.ghToken||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
+  const catalogPath='catalogo.html';
+  const content=btoa(unescape(encodeURIComponent(htmlContent)));
+  const parts=cfg.ghRepo.split('/');const owner=parts[0];const repo=parts.slice(1).join('/');
+  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${catalogPath}`;
+  const headers={Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
+  // Get existing SHA if file exists
+  let sha;
+  try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
+  const body={message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,content};
+  if(sha)body.sha=sha;
+  const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+  if(res.ok){
+    // Construct GitHub Pages URL
+    const pagesUrl=`https://${owner}.github.io/${repo}/${catalogPath}`;
+    return pagesUrl;
+  } else {
+    const err=await res.json().catch(()=>({}));
+    showToast(`Error al publicar (${res.status}): ${err.message||''}`);
+    return null;
+  }
+}
+// Keep PDF export as secondary option
+function exportCatalogPDF(){
+  shareCatalogWeb();
+}
+
+// ══════════════════════════════════════════
 //  COMISIONES
 // ══════════════════════════════════════════
 function toggleComisionGestor(id) {
@@ -2724,25 +3288,49 @@ function getValeCommissionParts(v) {
   });
   return{parts,total:computable&&parts.length?total:null,currency};
 }
-function payCommission(valeId,e) {
+function markCommissionEnSobre(valeId,e) {
   if(e)e.stopPropagation();
-  patchVale(valeId,{commissionPaid:true,commissionPaidTs:new Date().toISOString()});
+  patchVale(valeId,{commissionPaid:false,commissionStatus:'en_sobre',commissionEnSobreTs:new Date().toISOString()});
   gestoresTabDirty=true;
   renderComisiones();maybeAutoSync();
-  showToast('Comisión marcada como pagada ✓');
+  showToast('Comisión marcada como En Sobre ✉️');
 }
-function payAllCommissions(gestorId,e) {
+function markCommissionCobrado(valeId,e) {
+  if(e)e.stopPropagation();
+  patchVale(valeId,{commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:new Date().toISOString()});
+  gestoresTabDirty=true;
+  renderComisiones();maybeAutoSync();
+  showToast('Comisión marcada como Cobrado 💰');
+}
+function payCommission(valeId,e) {
+  // Legacy: kept for compatibility, now marks as cobrado
+  markCommissionCobrado(valeId,e);
+}
+function markAllCommissionsEnSobre(gestorId,e) {
+  if(e)e.stopPropagation();
+  const ts=new Date().toISOString();
+  getVales().filter(v=>v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status))
+    .forEach(v=>patchVale(v.id,{commissionPaid:false,commissionStatus:'en_sobre',commissionEnSobreTs:ts}));
+  gestoresTabDirty=true;
+  renderComisiones();maybeAutoSync();
+  showToast('Todas las comisiones marcadas En Sobre ✉️');
+}
+function markAllCommissionsCobrado(gestorId,e) {
   if(e)e.stopPropagation();
   const ts=new Date().toISOString();
   getVales().filter(v=>v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status))
-    .forEach(v=>patchVale(v.id,{commissionPaid:true,commissionPaidTs:ts}));
+    .forEach(v=>patchVale(v.id,{commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:ts}));
   gestoresTabDirty=true;
   renderComisiones();maybeAutoSync();
-  showToast('Todas las comisiones pagadas ✅');
+  showToast('Todas las comisiones marcadas Cobrado 💰');
+}
+function payAllCommissions(gestorId,e) {
+  // Legacy: kept for compatibility, now marks all as cobrado
+  markAllCommissionsCobrado(gestorId,e);
 }
 function unpayCommission(valeId,e) {
   if(e)e.stopPropagation();
-  patchVale(valeId,{commissionPaid:false,commissionPaidTs:null});
+  patchVale(valeId,{commissionPaid:false,commissionStatus:null,commissionPaidTs:null,commissionEnSobreTs:null});
   gestoresTabDirty=true;
   renderComisiones();
 }
@@ -2752,52 +3340,58 @@ function renderComisiones() {
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-text">Sin gestores configurados</div></div>';return;}
   c.innerHTML=gestores.map(g=>{
     const allVales=getVales().filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status));
-    const pending=allVales.filter(v=>!v.commissionPaid);
-    const paid=allVales.filter(v=>v.commissionPaid);
+    // 3 states: pendientes (no status), en_sobre, cobrado
+    const pendientes=allVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre');
+    const enSobre=allVales.filter(v=>v.commissionStatus==='en_sobre');
+    const cobrados=allVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
     const isOpen=activeComisionGestorId===g.id;
-    // Compute grand total for pending split by currency
+    // Compute grand total for pending + en_sobre split by currency
+    const unpaid=[...pendientes,...enSobre];
     let gtUSD=0,gtMN=0,gtAllComputed=true;
-    pending.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){gtAllComputed=false;}else{if(r.currency==='MN')gtMN+=r.total;else gtUSD+=r.total;}});
+    unpaid.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){gtAllComputed=false;}else{if(r.currency==='MN')gtMN+=r.total;else gtUSD+=r.total;}});
     const gtBadgeParts=[];if(gtUSD>0)gtBadgeParts.push(`$${gtUSD.toFixed(2)} USD`);if(gtMN>0)gtBadgeParts.push(`${Math.round(gtMN)} MN`);
     const gtBadge=gtAllComputed&&gtBadgeParts.length?gtBadgeParts.join(' + '):null;
+    // Summary line
+    const summaryParts=[];
+    if(pendientes.length)summaryParts.push(`<span style="color:var(--orange);font-weight:700;">${pendientes.length} pendiente${pendientes.length!==1?'s':''}</span>`);
+    if(enSobre.length)summaryParts.push(`<span style="color:var(--yellow);font-weight:700;">✉️ ${enSobre.length} en sobre</span>`);
+    if(cobrados.length)summaryParts.push(`<span style="color:var(--green);">💰 ${cobrados.length} cobrado${cobrados.length!==1?'s':''}</span>`);
+    if(!summaryParts.length)summaryParts.push('Sin comisiones');
     return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:8px;border-color:${isOpen?'var(--blue)':'var(--border)'};">
       <div onclick="toggleComisionGestor(${g.id})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:${isOpen?'var(--blue-lt)':'var(--surface)'};">
         <div class="g-avatar" style="background:${g.color};width:34px;height:34px;font-size:11px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:700;font-size:13px;">${escapeHTML(g.name)}</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
-            ${pending.length>0?`<span style="color:var(--orange);font-weight:700;">${pending.length} pendiente${pending.length!==1?'s':''}</span>`:''}
-            ${paid.length>0?`<span style="color:var(--green);">· ${paid.length} pagada${paid.length!==1?'s':''}</span>`:''}
-            ${!pending.length&&!paid.length?'Sin comisiones por cobrar':''}
+            ${summaryParts.join(' · ')}
           </div>
         </div>
         ${gtBadge?`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">${gtBadge}</span>`:''}
-        ${pending.length>0&&!gtBadge?`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${pending.length}</span>`:''}
+        ${unpaid.length>0&&!gtBadge?`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${unpaid.length}</span>`:''}
         <span style="color:var(--gray-400);font-size:13px;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
       </div>
-      ${isOpen?renderComisionBody(g,pending,paid):''}
+      ${isOpen?renderComisionBody(g,pendientes,enSobre,cobrados):''}
     </div>`;
   }).join('');
 }
-function renderComisionBody(g,pending,paid) {
+function renderComisionBody(g,pendientes,enSobre,cobrados) {
   let html='<div style="border-top:1px solid var(--border);padding:12px 14px;">';
-  if(!pending.length&&!paid.length){
+  if(!pendientes.length&&!enSobre.length&&!cobrados.length){
     html+='<div class="es" style="padding:8px 0;"><div class="es-text">Sin vales confirmados con comisión</div></div>';
   } else {
-    // ── PENDING ──
-    if(pending.length){
-      // Total summary
+    // ── PENDIENTES ──
+    if(pendientes.length){
       let sumUSD=0,sumMN=0,canSum=true;
-      pending.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='MN')sumMN+=r.total;else sumUSD+=r.total;}});
+      pendientes.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='MN')sumMN+=r.total;else sumUSD+=r.total;}});
       const sumParts=[];if(sumUSD>0)sumParts.push(`$${sumUSD.toFixed(2)} USD`);if(sumMN>0)sumParts.push(`${Math.round(sumMN)} MN`);
       html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
-        <span style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;">⏳ Por pagar (${pending.length})</span>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;">⏳ Pendientes (${pendientes.length})</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           ${canSum&&sumParts.length?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumParts.join(' + ')}</span>`:''}
-          ${pending.length>1?`<button class="btn btn-green btn-sm" onclick="payAllCommissions(${g.id},event)">✅ Pagar todas</button>`:''}
+          ${pendientes.length>1?`<button class="btn btn-sm" style="background:var(--yellow);color:white;flex-shrink:0;" onclick="markAllCommissionsEnSobre(${g.id},event)">✉️ Todo al sobre</button>`:''}
         </div>
       </div>`;
-      html+=pending.map(v=>{
+      html+=pendientes.map(v=>{
         const r=getValeCommissionParts(v);
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
@@ -2807,15 +3401,52 @@ function renderComisionBody(g,pending,paid) {
               ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(16,185,129,.12);color:var(--green);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
           </div>
-          <button class="btn btn-green btn-sm" style="flex-shrink:0;" onclick="payCommission(${v.id},event)">✓ Pagar</button>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+            <button class="btn btn-sm" style="background:var(--yellow);color:white;" onclick="markCommissionEnSobre(${v.id},event)">✉️ En sobre</button>
+            <button class="btn btn-green btn-sm" onclick="markCommissionCobrado(${v.id},event)">💰 Cobrado</button>
+          </div>
         </div>`;
       }).join('');
     }
-    // ── PAID ──
-    if(paid.length){
-      html+=`<div style="margin-top:${pending.length?'14px':'0'};">
-        <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">✅ Pagadas (${paid.length})</div>`;
-      html+=paid.map(v=>{
+    // ── EN SOBRE ──
+    if(enSobre.length){
+      let sumUSD=0,sumMN=0,canSum=true;
+      enSobre.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='MN')sumMN+=r.total;else sumUSD+=r.total;}});
+      const sumParts=[];if(sumUSD>0)sumParts.push(`$${sumUSD.toFixed(2)} USD`);if(sumMN>0)sumParts.push(`${Math.round(sumMN)} MN`);
+      html+=`<div style="margin-top:${pendientes.length?'14px':'0'};">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;">✉️ En sobre (${enSobre.length})</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            ${canSum&&sumParts.length?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumParts.join(' + ')}</span>`:''}
+            ${enSobre.length>1?`<button class="btn btn-green btn-sm" onclick="markAllCommissionsCobrado(${g.id},event)">💰 Cobrar todas</button>`:''}
+          </div>
+        </div>`;
+      html+=enSobre.map(v=>{
+        const r=getValeCommissionParts(v);
+        const ts=v.commissionEnSobreTs?new Date(v.commissionEnSobreTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionEnSobreTs):'';
+        return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:9px;margin-bottom:6px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
+            <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+              ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(245,158,11,.12);color:var(--yellow);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;text-align:right;">
+            <span style="font-size:9px;color:var(--yellow);font-weight:700;">✉️ En sobre</span>
+            ${ts?`<div style="font-size:9px;color:var(--gray-400);">${ts}</div>`:''}
+            <button class="btn btn-green btn-sm" onclick="markCommissionCobrado(${v.id},event)">💰 Cobrado</button>
+            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 8px;color:var(--orange);" onclick="unpayCommission(${v.id},event)">↩ Pendiente</button>
+          </div>
+        </div>`;
+      }).join('');
+      html+='</div>';
+    }
+    // ── COBRADOS ──
+    if(cobrados.length){
+      html+=`<div style="margin-top:${pendientes.length||enSobre.length?'14px':'0'};">
+        <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">💰 Cobrados (${cobrados.length})</div>`;
+      html+=cobrados.map(v=>{
         const r=getValeCommissionParts(v);
         const ts=v.commissionPaidTs?new Date(v.commissionPaidTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionPaidTs):'';
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;margin-bottom:4px;opacity:.85;">
@@ -2824,9 +3455,9 @@ function renderComisionBody(g,pending,paid) {
             ${r.parts.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;">${r.parts.map(p=>`<span style="background:rgba(16,185,129,.1);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">${escapeHTML(p.com)}</span>`).join('')}</div>`:''}
           </div>
           <div style="text-align:right;flex-shrink:0;">
-            <div style="font-size:9px;color:var(--green);font-weight:700;">✓ Pagado</div>
+            <div style="font-size:9px;color:var(--green);font-weight:700;">💰 Cobrado</div>
             ${ts?`<div style="font-size:9px;color:var(--gray-400);">${ts}</div>`:''}
-            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 8px;margin-top:4px;color:var(--orange);" onclick="unpayCommission(${v.id},event)">↩ Revertir</button>
+            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 8px;margin-top:4px;color:var(--orange);" onclick="unpayCommission(${v.id},event)">↩ Pendiente</button>
           </div>
         </div>`;
       }).join('');
@@ -3005,7 +3636,7 @@ function importData(input) {
       if(data.notifs)saveNotifs(data.notifs);
       // Reload UI
       activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
-      expandedCatalogId=null;activeComisionGestorId=null;
+      expandedCatalogId=null;activeComisionGestorId=null;adminCatalogCatFilter=null;
       rankingCache=null;gestoresTabDirty=true;statsTabDirty=true;
       renderGestores();renderGestorRanking();renderGestorNotifs();
       renderAdminGestores();renderValeDetail();
@@ -3037,6 +3668,7 @@ function saveGhConfig() {
   cfg.ghRepo=document.getElementById('gh-repo').value.trim();
   cfg.ghPath=document.getElementById('gh-path').value.trim()||'data.json';
   cfg.ghAutoSync=document.getElementById('gh-autosync').checked;
+  cfg.ghAutoPublishCatalog=document.getElementById('gh-auto-publish-catalog')?.checked||false;
   saveConfig(cfg);
   showToast('Configuración GitHub guardada ✓');
 }
@@ -3052,6 +3684,8 @@ function loadGhConfigUI() {
   if(repo)repo.value=cfg.ghRepo||'';
   if(path)path.value=cfg.ghPath||'data.json';
   if(auto)auto.checked=!!cfg.ghAutoSync;
+  const autoPub=document.getElementById('gh-auto-publish-catalog');
+  if(autoPub)autoPub.checked=!!cfg.ghAutoPublishCatalog;
   if(meta)meta.value=cfg.metaPuntos||'';
   if(metaStatus&&cfg.metaPuntos)metaStatus.innerHTML=`<span style="color:var(--green);">✓ Meta actual: ${cfg.metaPuntos} pts</span>`;
 }
@@ -3069,56 +3703,21 @@ async function syncToGitHub(silent) {
     const json=JSON.stringify(data,null,2);
     const content=btoa(unescape(encodeURIComponent(json)));
     const parts=cfg.ghRepo.split('/');const owner=parts[0];const repo=parts.slice(1).join('/');
+    const url=`https://api.github.com/repos/${owner}/${repo}/contents/${cfg.ghPath}`;
     const headers={Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
-
-    // Helper to upload a file to GitHub
-    async function ghPut(path, fileContent, msg) {
-      const url=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-      let sha;
-      try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
-      const body={message:msg,content:fileContent};
-      if(sha)body.sha=sha;
-      const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
-      return res.ok;
-    }
-
-    // 1. Upload data.json
-    const dataOk=await ghPut(cfg.ghPath, content, `AXONTECH sync ${new Date().toLocaleString('es-ES')}`);
-
-    // 2. Upload productos.json + categorias.json + catalogo.html for GitHub Pages
-    let catalogOk=false;
-    const ghCatalogPath=cfg.ghCatalogPath||'catalogo.html';
-    const ghProductosPath=cfg.ghProductosPath||'productos.json';
-    const ghCategoriasPath=cfg.ghCategoriasPath||'categorias.json';
-
-    // Upload productos.json
-    const prodsJson=JSON.stringify(data.productos,null,2);
-    const prodsContent=btoa(unescape(encodeURIComponent(prodsJson)));
-    await ghPut(ghProductosPath, prodsContent, `AXONTECH productos sync`);
-
-    // Upload categorias.json
-    const catsJson=JSON.stringify(data.categorias,null,2);
-    const catsContent=btoa(unescape(encodeURIComponent(catsJson)));
-    await ghPut(ghCategoriasPath, catsContent, `AXONTECH categorias sync`);
-
-    // Upload catalogo.html (read from local file)
-    try {
-      const catalogResp=await fetch('./catalogo.html');
-      if(catalogResp.ok){
-        const catalogText=await catalogResp.text();
-        const catalogContent=btoa(unescape(encodeURIComponent(catalogText)));
-        catalogOk=await ghPut(ghCatalogPath, catalogContent, `AXONTECH catalogo sync`);
-      }
-    }catch(e){console.error('Error uploading catalog:',e);}
-
-    if(dataOk){
+    let sha;
+    try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
+    const body={message:`AXONTECH sync ${new Date().toLocaleString('es-ES')}`,content};
+    if(sha)body.sha=sha;
+    const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+    if(res.ok){
       const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-      const catalogMsg=catalogOk?' + 📦 Catálogo':'';
-      if(statusEl)statusEl.innerHTML=`<span style="color:var(--green);">✓ Sincronizado ${ts}${catalogMsg}</span>`;
-      if(!silent)showToast(`Guardado en GitHub ✓${catalogMsg}`);
+      if(statusEl)statusEl.innerHTML=`<span style="color:var(--green);">✓ Sincronizado ${ts}</span>`;
+      if(!silent)showToast('Guardado en GitHub ✓');
     } else {
-      if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ Error al sincronizar</span>`;
-      if(!silent)showToast('Error al sincronizar');
+      const err=await res.json().catch(()=>({}));
+      if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ Error ${res.status}: ${err.message||''}</span>`;
+      if(!silent)showToast(`Error al sincronizar (${res.status})`);
     }
   } catch(e) {
     if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ ${e.message}</span>`;
@@ -3199,8 +3798,214 @@ function changePassCfg() {
 }
 
 // ══════════════════════════════════════════
-//  GOAL CELEBRATION
+//  GOAL CELEBRATION — EPIC GLOW PULSE
 // ══════════════════════════════════════════
+
+// Place labels and emojis
+const PLACE_EMOJI=['🥇','🥈','🥉'];
+const PLACE_LABEL=['¡1er Lugar!','¡2do Lugar!','¡3er Lugar!'];
+const PLACE_COLOR=['#F59E0B','#94A3B8','#cd7f32'];
+const PLACE_BADGE=['CAMPEÓN','SUBCAMPEÓN','TERCERO'];
+
+// Get top 3 gestores ranked by confirmed/pending_payment points
+function getTop3Ranked() {
+  const gestores=getGestores();
+  const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
+  const ranked=gestores.map(g=>{
+    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+    return {...g,pts};
+  }).sort((a,b)=>b.pts-a.pts);
+  return ranked.slice(0,3);
+}
+
+// Get a specific gestor's current rank (1-based)
+function getGestorRank(gestorId) {
+  const gestores=getGestores();
+  const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
+  const ranked=gestores.map(g=>{
+    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+    return {id:g.id,pts};
+  }).sort((a,b)=>b.pts-a.pts);
+  const idx=ranked.findIndex(r=>r.id===gestorId);
+  return idx>=0?idx+1:null;
+}
+
+// Get a specific gestor's total points
+function getGestorPoints(gestorId) {
+  const confirmedVales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
+  return confirmedVales.reduce((sum,v)=>
+    sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+}
+
+// Create the glow rings background
+function glowCreateRings() {
+  const container=document.querySelector('.glow-rings');
+  if(!container)return;
+  container.innerHTML='';
+  const rings=[
+    {size:160,color:'#F59E0B',delay:0},
+    {size:240,color:'#7C3AED',delay:.3},
+    {size:320,color:'#00b4d8',delay:.6},
+    {size:400,color:'#EF4444',delay:.9},
+    {size:480,color:'#10B981',delay:1.2}
+  ];
+  rings.forEach(r=>{
+    const el=document.createElement('div');
+    el.className='glow-ring';
+    el.style.width=r.size+'px';el.style.height=r.size+'px';
+    el.style.borderColor=r.color;el.style.animationDelay=r.delay+'s';
+    container.appendChild(el);
+  });
+}
+
+// Celebration sound
+function playCelebrationSound(){
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const notes=[523.25,659.25,783.99,1046.50];
+    notes.forEach((freq,i)=>{
+      const osc=ac.createOscillator();const gain=ac.createGain();
+      osc.type='sine';osc.frequency.value=freq;
+      gain.gain.setValueAtTime(.08,ac.currentTime+i*.12);
+      gain.gain.exponentialRampToValueAtTime(.001,ac.currentTime+i*.12+.4);
+      osc.connect(gain);gain.connect(ac.destination);
+      osc.start(ac.currentTime+i*.12);osc.stop(ac.currentTime+i*.12+.4);
+    });
+  }catch(e){}
+}
+
+// Show personal ranking notification to a specific gestor
+function showGestorRankNotif(gestorId, place, pts) {
+  const g=gestorOf(gestorId);if(!g)return;
+  const pi=Math.min(place,3)-1;
+  // Remove existing rank notif
+  const old=document.querySelector('.rank-notif');if(old)old.remove();
+  const el=document.createElement('div');
+  el.className='rank-notif';
+  el.innerHTML=`
+    <div class="rank-notif-icon">${PLACE_EMOJI[pi]}</div>
+    <div class="rank-notif-content">
+      <div class="rank-notif-place" style="color:${PLACE_COLOR[pi]}">${PLACE_LABEL[pi]}</div>
+      <div class="rank-notif-text">${escapeHTML(g.name)}, ¡alcanzaste la meta!</div>
+      <div class="rank-notif-pts">${pts} pts ⭐</div>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.classList.add('show'),50);
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),600)},6000);
+}
+
+// Show ranking notification cards to ALL gestores about the top 3
+function showRankNotifCards(top3) {
+  top3.forEach((g,i)=>{
+    const card=document.createElement('div');
+    card.className='rank-notif-card';
+    card.style.bottom=(20+i*90)+'px';
+    card.innerHTML=`
+      <div class="rank-notif-card-header">
+        <div class="rank-notif-card-icon" style="background:${g.color}">${escapeHTML(g.initials)}</div>
+        <div class="rank-notif-card-title" style="color:${PLACE_COLOR[i]}">${PLACE_LABEL[i]}</div>
+        <div class="rank-notif-card-time">ahora</div>
+      </div>
+      <div class="rank-notif-card-body"><b>${escapeHTML(g.name)}</b> obtuvo <b>${PLACE_EMOJI[i]} ${PLACE_LABEL[i]}</b> con <b>${g.pts} puntos</b></div>
+      <div class="rank-notif-card-place rank-place-${i+1}">${PLACE_EMOJI[i]} Puesto #${i+1}</div>`;
+    document.body.appendChild(card);
+    setTimeout(()=>card.classList.add('show'),(i+1)*500);
+    setTimeout(()=>{card.classList.add('hide');setTimeout(()=>card.remove(),500)},7000+(i*600));
+  });
+}
+
+// Send browser push notification about ranking to all devices
+function sendRankingPushNotif(top3) {
+  const names=top3.map((g,i)=>`${PLACE_EMOJI[i]} ${g.name} (${g.pts}pts)`).join(' | ');
+  sendBrowserNotif('🏆 ¡Ranking Top 3!',names);
+  // Also write to Firebase notifs for real-time sync
+  top3.forEach((g,i)=>{
+    addNotif('ranking_top3',g.name,null,`${PLACE_LABEL[i]}|${g.pts}|Puesto #${i+1}`,g.id);
+  });
+}
+
+// EPIC GLOW PULSE — Main celebration overlay
+function launchEpicGlowPulse(triggerGestor, triggerPts) {
+  // Remove any existing overlay
+  const existing=document.querySelector('.glow-overlay');if(existing)existing.remove();
+
+  const top3=getTop3Ranked();
+  const meta=getConfig().metaPuntos||0;
+
+  // Build overlay HTML
+  const overlay=document.createElement('div');
+  overlay.className='glow-overlay';
+  overlay.innerHTML=`
+    <div class="glow-rings"></div>
+    <button class="glow-close" onclick="closeEpicGlowPulse()">✕</button>
+    <div class="glow-announcement">
+      ${meta>0?`<div class="glow-meta-label">🎯 Meta: ${meta} pts</div>`:''}
+      <div class="glow-title" id="glowTitle">🏆 ¡META ALCANZADA! 🏆</div>
+      <div class="glow-winners-list" id="glowWinnersList">
+        ${top3.map((g,i)=>`
+          <div class="glow-winner-row" id="glowRow${i}" style="transition-delay:${.3+i*.25}s">
+            <div class="glow-winner-place" style="color:${PLACE_COLOR[i]}">${i===0?'1°':i===1?'2°':'3°'}</div>
+            <div class="glow-winner-avatar" style="background:${g.color}">${escapeHTML(g.initials)}</div>
+            <div class="glow-winner-info">
+              <div class="glow-winner-name">${escapeHTML(g.name)}</div>
+              <div class="glow-winner-pts">${g.pts} pts${i===0&&meta>0&&g.pts>=meta?' ⭐ ¡Meta alcanzada!':''}</div>
+            </div>
+            <div class="glow-winner-badge glow-badge-${i+1}">${PLACE_EMOJI[i]} ${PLACE_BADGE[i]}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  // Animate in
+  requestAnimationFrame(()=>{
+    overlay.classList.add('active');
+    glowCreateRings();
+    playCelebrationSound();
+
+    // Title animation
+    setTimeout(()=>{
+      const title=document.getElementById('glowTitle');
+      if(title)title.classList.add('show');
+    },300);
+
+    // Winner rows staggered animation
+    setTimeout(()=>{
+      top3.forEach((_,i)=>{
+        const row=document.getElementById('glowRow'+i);
+        if(row)row.classList.add('show');
+      });
+    },700);
+
+    // Personal notification to the triggering gestor (on their device/view)
+    if(triggerGestor){
+      const rank=getGestorRank(triggerGestor.id);
+      if(rank&&rank<=3){
+        setTimeout(()=>showGestorRankNotif(triggerGestor.id,rank,triggerPts),1200);
+      }
+    }
+
+    // Notification cards to all gestores about top 3
+    setTimeout(()=>showRankNotifCards(top3),1500);
+
+    // Push notification
+    setTimeout(()=>sendRankingPushNotif(top3),1800);
+  });
+
+  // Auto-dismiss after 12 seconds
+  setTimeout(()=>{if(document.querySelector('.glow-overlay.active'))closeEpicGlowPulse();},12000);
+}
+
+function closeEpicGlowPulse(){
+  const overlay=document.querySelector('.glow-overlay');
+  if(!overlay)return;
+  overlay.classList.remove('active');
+  setTimeout(()=>overlay.remove(),500);
+}
+
+// Legacy confetti kept as fallback for non-goal celebrations
 function launchConfetti() {
   const canvas=document.createElement('canvas');
   canvas.style.cssText='position:fixed;inset:0;z-index:499;pointer-events:none;';
@@ -3259,14 +4064,17 @@ function dismissGoalBanner(){
 }
 
 function checkGoalReached(gestorId, currentValeId) {
-  const meta=getConfig().metaPuntos;if(!meta||gestorId===0||!gestorId)return;
+  const meta=getConfig().metaPuntos;if(!meta||!gestorId)return;
   const g=gestorOf(gestorId);if(!g)return;
-  const vales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
-  const pts=vales.reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+  const pts=getGestorPoints(gestorId);
   if(pts>=meta){
     // Celebrate only if THIS sale crossed the threshold (exclude current vale from prev total)
+    const vales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
     const prev=vales.filter(v=>v.id!==currentValeId).reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-    if(prev<meta){launchConfetti();showGoalBanner(g,pts);}
+    if(prev<meta){
+      // EPIC GLOW PULSE — Full-screen celebration
+      launchEpicGlowPulse(g,pts);
+    }
   }
 }
 
@@ -3292,26 +4100,33 @@ function closeConfirmAction() {
 //  REVERT CONFIRMED SALE
 // ══════════════════════════════════════════
 function revertConfirmSale(id, skipConfirm) {
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  // Allow reverting both 'confirmed' and 'pending_payment' states
+  if(v.status!=='confirmed'&&v.status!=='pending_payment'){showToast('Solo se puede revertir una venta confirmada o pendiente de cobro');return;}
   if(!skipConfirm) {
-    const v=getVales().find(x=>x.id===id);if(!v)return;
-    showConfirmAction('¿Revertir venta confirmada?',`${v.cliente||''} volverá a "Entregado"`,'Revertir','btn-orange',()=>revertConfirmSale(id,true));
+    const targetLabel=v.status==='confirmed'?'Pendiente (enviado)':'Entregado';
+    showConfirmAction('¿Revertir venta?',`${v.cliente||''} volverá a "${targetLabel}" · Stock restaurado`,'Revertir','btn-orange',()=>revertConfirmSale(id,true));
     return;
   }
-  const v=getVales().find(x=>x.id===id);if(!v)return;
   // Restore stock for each product that was decremented when the sale was confirmed
   (v.valeProductos||[]).forEach(({id:pid,qty})=>{
     const prod=productoOf(pid);if(!prod)return;
     const restored=Math.max(0,(prod.stock||0)+qty);
     patchProducto(pid,{stock:restored});
   });
-  patchVale(id,{status:'delivered',confirmedTs:null,commissionPaid:false,commissionPaidTs:null});
+  // Revert to appropriate previous state:
+  // - If it had a mensajero assigned and was delivered before, go back to 'delivered'
+  // - Otherwise go back to 'pending' (original state)
+  const prevStatus=(v.mensajeroId&&v.deliveredTs)?'delivered':'pending';
+  patchVale(id,{status:prevStatus,confirmedTs:null,commissionPaid:false,commissionStatus:null,commissionPaidTs:null,commissionEnSobreTs:null});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();
   renderConfirmados();renderPendienteCobro();
   renderGestorRanking();renderProductGrid();
   if(currentAdminTab==='gestores'){renderComisiones();}
+  if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   maybeAutoSync();
-  showToast('Venta revertida a "Entregado" — stock restaurado');
+  showToast(prevStatus==='delivered'?'Venta revertida a "Entregado" — stock restaurado':'Venta revertida a "Pendiente" — stock restaurado');
 }
 
 // ══════════════════════════════════════════
@@ -3321,6 +4136,7 @@ function renderHistorial() {
   const fromEl=document.getElementById('histDateFrom');
   const toEl=document.getElementById('histDateTo');
   const gestorEl=document.getElementById('histGestorFilter');
+  const searchEl=document.getElementById('histSearchPhone');
   const c=document.getElementById('historialList');
   if(!c) return;
   // Populate gestor filter
@@ -3333,10 +4149,22 @@ function renderHistorial() {
   let vales=getVales().reverse();
   const from=fromEl?fromEl.value:'';
   const to=toEl?toEl.value:'';
+  const search=searchEl?searchEl.value.trim().toLowerCase():'';
   if(from)vales=vales.filter(v=>v.ts.slice(0,10)>=from);
   if(to)  vales=vales.filter(v=>v.ts.slice(0,10)<=to);
   if(curGFilter)vales=vales.filter(v=>String(v.gestorId)===curGFilter);
-  if(!vales.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">Sin vales en el período seleccionado</div></div>';return;}
+  // Search by phone, client name, or vale number
+  if(search){
+    vales=vales.filter(v=>{
+      const phone=(v.telefono||'').toLowerCase().replace(/[\s\-()]/g,'');
+      const cliente=(v.cliente||'').toLowerCase();
+      const valeNum=v.valeNum?String(v.valeNum):'';
+      const art=(v.articulo||'').toLowerCase();
+      const searchClean=search.replace(/[\s\-()]/g,'');
+      return phone.includes(searchClean)||cliente.includes(search)||valeNum.includes(search)||art.includes(search)||(valeNumStr(v).toLowerCase().includes(search));
+    });
+  }
+  if(!vales.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">'+(search?'Sin resultados para "'+escapeHTML(search)+'"':'Sin vales en el periodo seleccionado')+'</div></div>';return;}
   // Group by date
   const groups={};
   vales.forEach(v=>{
@@ -3356,13 +4184,16 @@ function renderHistorial() {
     groups[date].forEach(v=>{
       const g=gestorOf(v.gestorId);
       const s=sMap[v.status]||{label:v.status,cls:''};
-      html+=`<div class="card" style="padding:8px 12px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="selectValeFromHistorial(${v.id})">
+      const estafaMatch=checkEstafaMatch(v);
+      const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
+      const estafaTag=estafaMatch.length?'<span style="background:var(--red);color:white;border-radius:6px;padding:1px 5px;font-size:8px;font-weight:700;margin-left:3px;">🚫</span>':'';
+      html+=`<div class="card" style="padding:8px 12px;margin-bottom:5px;cursor:pointer;display:flex;align-items:center;gap:10px;${estafaBorder}" onclick="selectValeFromHistorial(${v.id})">
         <div style="flex-shrink:0;">
           <div class="g-avatar" style="background:${g?g.color:'#888'};width:28px;height:28px;font-size:10px;">${g?escapeHTML(g.initials):'?'}</div>
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${escapeHTML(v.cliente||'—')}</div>
-          <div style="font-size:10px;color:var(--gray-400);">${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
+          <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${escapeHTML(v.cliente||'—')}${estafaTag}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${v.telefono?escapeHTML(v.telefono)+' · ':''}${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <span class="sp ${s.cls}" style="font-size:9px;">${s.label}</span>
@@ -3505,14 +4336,12 @@ let adminPickerSelected = {};
 let adminPickerCatFilter = null;
 
 function openAdminValeModal() {
-  // Populate gestor selector with Admin option first
   const sel = document.getElementById('av-gestor');
   const gestores = getGestores();
   sel.innerHTML = '<option value="">— Seleccionar —</option>' +
     '<option value="0">👤 Admin</option>' +
     gestores.map(g => `<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
 
-  // Clear form
   ['av-cliente','av-telefono','av-direccion','av-mensajeria','av-articulo',
    'av-precioUSD','av-precioMN','av-vuelto','av-total','av-garantia','av-comisionGestor'].forEach(id => {
     const el = document.getElementById(id);
@@ -3540,7 +4369,6 @@ function onAdminValeInput() {
   if (['av-mensajeria', 'av-precioUSD', 'av-precioMN'].includes(activeId)) {
     calcAdminAutoTotal();
   }
-
   const REQUIRED_AV = ['av-gestor','av-cliente','av-telefono','av-direccion','av-articulo','av-total'];
   const allFilled = REQUIRED_AV.every(id => avVal(id).length > 0);
   const btn = document.getElementById('av-sendBtn');
@@ -3564,10 +4392,7 @@ function calcAdminAutoTotal() {
   const pUSD = document.getElementById('av-precioUSD')?.value || '';
   const pMN = document.getElementById('av-precioMN')?.value || '';
   const mens = document.getElementById('av-mensajeria')?.value || '';
-
-  let usdTotal = 0;
-  let mnTotal = 0;
-
+  let usdTotal = 0, mnTotal = 0;
   const addVal = (str) => {
     const s = str.toUpperCase();
     const num = parsePrecioNum(s);
@@ -3577,21 +4402,13 @@ function calcAdminAutoTotal() {
     else if (s.includes('$')) usdTotal += num;
     else { if (num > 500) mnTotal += num; else usdTotal += num; }
   };
-
-  addVal(pUSD);
-  addVal(pMN);
-  addVal(mens);
-
+  addVal(pUSD); addVal(pMN); addVal(mens);
   let out = [];
   if (usdTotal > 0) out.push(`$${usdTotal} USD`);
   if (mnTotal > 0) out.push(`${mnTotal} MN`);
-
   const totalInput = document.getElementById('av-total');
-  if (out.length > 0 && totalInput) {
-    totalInput.value = out.join(' + ');
-  } else if (totalInput && !pUSD && !pMN && !mens) {
-    totalInput.value = '';
-  }
+  if (out.length > 0 && totalInput) { totalInput.value = out.join(' + '); }
+  else if (totalInput && !pUSD && !pMN && !mens) { totalInput.value = ''; }
 }
 
 function buildAdminValeText() {
@@ -3625,66 +4442,34 @@ let _isSendingAdminVale = false;
 function sendAdminVale() {
   if (_isSendingAdminVale) return;
   const REQUIRED_AV = ['av-gestor','av-cliente','av-telefono','av-direccion','av-articulo','av-total'];
-  if (REQUIRED_AV.some(id => !avVal(id))) {
-    showToast('Completa los campos obligatorios (*)');
-    return;
-  }
-
+  if (REQUIRED_AV.some(id => !avVal(id))) { showToast('Completa los campos obligatorios (*)'); return; }
   _isSendingAdminVale = true;
   const btn = document.getElementById('av-sendBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Generando...'; }
-
   const gId = parseInt(avVal('av-gestor'));
   const g = gestorOf(gId);
-
   const vale = {
-    id: Date.now(),
-    valeNum: getNextValeNum(),
-    gestorId: gId,
-    ts: new Date().toISOString(),
-    cliente: avVal('av-cliente'),
-    telefono: avVal('av-telefono'),
-    direccion: avVal('av-direccion'),
-    mensajeria: avVal('av-mensajeria'),
-    articulo: avVal('av-articulo'),
-    precioUSD: avVal('av-precioUSD'),
-    precioMN: avVal('av-precioMN'),
-    vuelto: avVal('av-vuelto'),
-    total: avVal('av-total'),
-    garantia: avVal('av-garantia'),
-    comisionGestor: avVal('av-comisionGestor'),
-    valeProductos: adminValeProductos,
-    valeText: buildAdminValeText(),
-    status: 'pending',
-    mensajeroId: null,
-    confirmedTs: null,
-    isNew: true,
-    adminNotes: 'Generado por Admin',
+    id: Date.now(), valeNum: getNextValeNum(), gestorId: gId,
+    ts: new Date().toISOString(), cliente: avVal('av-cliente'),
+    telefono: avVal('av-telefono'), direccion: avVal('av-direccion'),
+    mensajeria: avVal('av-mensajeria'), articulo: avVal('av-articulo'),
+    precioUSD: avVal('av-precioUSD'), precioMN: avVal('av-precioMN'),
+    vuelto: avVal('av-vuelto'), total: avVal('av-total'),
+    garantia: avVal('av-garantia'), comisionGestor: avVal('av-comisionGestor'),
+    valeProductos: adminValeProductos, valeText: buildAdminValeText(),
+    status: 'pending', mensajeroId: null, confirmedTs: null,
+    isNew: true, adminNotes: 'Generado por Admin',
   };
-
-  const all = getVales();
-  all.push(vale);
-  saveVales(all);
+  const all = getVales(); all.push(vale); saveVales(all);
   if (typeof fbAddVale === 'function') fbAddVale(vale);
-
-  // Notify gestor if they have a phone number
-  if (g && g.phone) {
-    const text = `📋 *Nuevo vale generado por Admin*%0A%0A🔸 Cliente: ${encodeURIComponent(vale.cliente)}%0A🔸 Artículo: ${encodeURIComponent(vale.articulo)}%0A🔸 Total: ${encodeURIComponent(vale.total)}`;
-    // Don't auto-open WhatsApp, just create the notification
-  }
-
-  renderAdminGestores();
-  renderValeDetail();
-  updateAdminBadge();
+  renderAdminGestores(); renderValeDetail(); updateAdminBadge();
   playSound('vale');
   showToast(`Vale ${valeNumStr(vale)} generado para ${g ? g.name : 'gestor'} ✓`);
-
   closeAdminValeModal();
   _isSendingAdminVale = false;
   maybeAutoSync();
 }
 
-// ── Admin Product Picker ──
 function openAdminProductPicker() {
   if (!getProductos().length) { showToast('No hay productos cargados'); return; }
   adminPickerSelected = {};
@@ -3692,82 +4477,52 @@ function openAdminProductPicker() {
   adminPickerCatFilter = null;
   const searchEl = document.getElementById('av-pickerSearch');
   if (searchEl) searchEl.value = '';
-  renderAdminPickerCatTabs();
-  renderAdminPickerProducts();
-  renderAdminPickerSelected();
+  renderAdminPickerCatTabs(); renderAdminPickerProducts(); renderAdminPickerSelected();
   document.getElementById('adminProductPickerModal').classList.add('show');
 }
-
-function closeAdminProductPicker() {
-  document.getElementById('adminProductPickerModal').classList.remove('show');
-}
+function closeAdminProductPicker() { document.getElementById('adminProductPickerModal').classList.remove('show'); }
 
 function renderAdminPickerCatTabs() {
-  const cats = getCategorias();
-  const el = document.getElementById('av-pickerCatTabs');
+  const cats = getCategorias(); const el = document.getElementById('av-pickerCatTabs');
   if (!el) return;
-  el.innerHTML =
-    `<button class="pcat-tab ${adminPickerCatFilter === null ? 'active' : ''}" onclick="setAdminPickerCat(null)">Todos</button>` +
-    cats.map(c => `<button class="pcat-tab ${adminPickerCatFilter === c.id ? 'active' : ''}" onclick="setAdminPickerCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
+  el.innerHTML = `<button class="pcat-tab ${adminPickerCatFilter===null?'active':''}" onclick="setAdminPickerCat(null)">Todos</button>` +
+    cats.map(c=>`<button class="pcat-tab ${adminPickerCatFilter===c.id?'active':''}" onclick="setAdminPickerCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
 }
-
-function setAdminPickerCat(id) {
-  adminPickerCatFilter = id;
-  renderAdminPickerCatTabs();
-  renderAdminPickerProducts();
-}
+function setAdminPickerCat(id) { adminPickerCatFilter=id; renderAdminPickerCatTabs(); renderAdminPickerProducts(); }
 
 function renderAdminPickerProducts() {
   const searchEl = document.getElementById('av-pickerSearch');
   const search = searchEl ? searchEl.value.toLowerCase() : '';
   let prods = getProductos();
-  if (adminPickerCatFilter !== null) prods = prods.filter(p => p.catId === adminPickerCatFilter);
-  if (search) prods = prods.filter(p => p.name.toLowerCase().includes(search) || (p.description || '').toLowerCase().includes(search));
-
-  const grid = document.getElementById('av-pickerProductGrid');
-  if (!grid) return;
-  grid.innerHTML = prods.map(p => {
-    const qty = adminPickerSelected[p.id] || 0;
-    const sel = qty > 0;
-    return `<div class="pp-item${sel ? ' pp-sel' : ''}" onclick="toggleAdminPickerProd(${p.id})">
+  if (adminPickerCatFilter!==null) prods=prods.filter(p=>p.catId===adminPickerCatFilter);
+  if (search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  const grid = document.getElementById('av-pickerProductGrid'); if(!grid)return;
+  grid.innerHTML = prods.map(p=>{
+    const qty=adminPickerSelected[p.id]||0; const sel=qty>0;
+    return `<div class="pp-item${sel?' pp-sel':''}" onclick="toggleAdminPickerProd(${p.id})">
       <div class="pp-name">${escapeHTML(p.name)}</div>
-      ${p.precio ? `<div class="pp-price">${escapeHTML(p.precio)}</div>` : ''}
-      ${sel ? `<div class="pp-qty">×${qty}</div>` : ''}
+      ${p.precio?`<div class="pp-price">${escapeHTML(p.precio)}</div>`:''}
+      ${sel?`<div class="pp-qty">×${qty}</div>`:''}
     </div>`;
   }).join('');
 }
 
 function toggleAdminPickerProd(pid) {
-  if (adminPickerSelected[pid]) {
-    delete adminPickerSelected[pid];
-  } else {
-    adminPickerSelected[pid] = 1;
-  }
-  renderAdminPickerProducts();
-  renderAdminPickerSelected();
+  if(adminPickerSelected[pid]){delete adminPickerSelected[pid];}else{adminPickerSelected[pid]=1;}
+  renderAdminPickerProducts(); renderAdminPickerSelected();
 }
-
 function setAdminPickerQty(pid, delta) {
-  let q = (adminPickerSelected[pid] || 0) + delta;
-  if (q <= 0) { delete adminPickerSelected[pid]; }
-  else { adminPickerSelected[pid] = q; }
-  renderAdminPickerProducts();
-  renderAdminPickerSelected();
+  let q=(adminPickerSelected[pid]||0)+delta;
+  if(q<=0){delete adminPickerSelected[pid];}else{adminPickerSelected[pid]=q;}
+  renderAdminPickerProducts(); renderAdminPickerSelected();
 }
-
 function renderAdminPickerSelected() {
-  const el = document.getElementById('av-pickerSelectedList');
-  if (!el) return;
-  const items = Object.entries(adminPickerSelected).map(([id, qty]) => {
-    const p = productoOf(parseInt(id));
-    return p ? { id: parseInt(id), name: p.name, qty } : null;
+  const el = document.getElementById('av-pickerSelectedList'); if(!el)return;
+  const items = Object.entries(adminPickerSelected).map(([id,qty])=>{
+    const p=productoOf(parseInt(id)); return p?{id:parseInt(id),name:p.name,qty}:null;
   }).filter(Boolean);
-
-  if (!items.length) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--gray-400);">Ningún producto seleccionado</div>';
-    return;
-  }
-  el.innerHTML = items.map(i => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+  if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--gray-400);">Ningún producto seleccionado</div>';return;}
+  el.innerHTML = items.map(i=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
     <span style="font-weight:800;color:var(--blue);">${i.qty}×</span>
     <span style="flex:1;font-size:12px;">${escapeHTML(i.name)}</span>
     <button onclick="setAdminPickerQty(${i.id},-1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700;color:var(--red);font-size:14px;">−</button>
@@ -3776,58 +4531,33 @@ function renderAdminPickerSelected() {
 }
 
 function confirmAdminPickerSelection() {
-  const items = Object.entries(adminPickerSelected).map(([id, qty]) => {
-    const p = productoOf(parseInt(id));
-    return { id: parseInt(id), name: p ? p.name : id, qty };
+  const items = Object.entries(adminPickerSelected).map(([id,qty])=>{
+    const p=productoOf(parseInt(id)); return {id:parseInt(id),name:p?p.name:id,qty};
   });
   adminValeProductos = items;
-
-  // Update articulo field
-  document.getElementById('av-articulo').value = items.map(i => `×${i.qty} ${i.name}`).join(' / ');
-
-  // Auto-sum prices
-  let total = 0;
-  let cur = 'USD';
-  items.forEach(({ id, qty }) => {
-    const p = productoOf(id);
-    if (!p || !p.precio) return;
-    total += parsePrecioNum(p.precio) * qty;
-    if (p.precio.includes('MN')) cur = 'MN';
-  });
-  if (total > 0) {
-    const fmt = `$${total} ${cur}`;
-    if (cur === 'MN') {
-      document.getElementById('av-precioMN').value = fmt;
-      document.getElementById('av-precioUSD').value = '';
-    } else {
-      document.getElementById('av-precioUSD').value = fmt;
-      document.getElementById('av-precioMN').value = '';
-    }
+  document.getElementById('av-articulo').value = items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
+  let total=0; let cur='USD';
+  items.forEach(({id,qty})=>{ const p=productoOf(id); if(!p||!p.precio)return; total+=parsePrecioNum(p.precio)*qty; if(p.precio.includes('MN'))cur='MN'; });
+  if(total>0){
+    const fmt=`$${total} ${cur}`;
+    if(cur==='MN'){document.getElementById('av-precioMN').value=fmt;document.getElementById('av-precioUSD').value='';}
+    else{document.getElementById('av-precioUSD').value=fmt;document.getElementById('av-precioMN').value='';}
     calcAdminAutoTotal();
   }
-
-  // Auto-fill garantia from first product that has one
-  if (!document.getElementById('av-garantia').value) {
-    const g = items.map(({ id }) => productoOf(id)?.garantia).find(Boolean);
-    if (g) document.getElementById('av-garantia').value = g;
+  if(!document.getElementById('av-garantia').value){
+    const g=items.map(({id})=>productoOf(id)?.garantia).find(Boolean);
+    if(g)document.getElementById('av-garantia').value=g;
   }
-
-  // Show selected products list
-  const spList = document.getElementById('av-selectedProductsList');
-  if (spList && items.length) {
-    spList.style.display = 'block';
-    spList.innerHTML = `<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px;">` +
-      items.map(i => `<div style="display:flex;align-items:center;gap:6px;">
+  const spList=document.getElementById('av-selectedProductsList');
+  if(spList&&items.length){
+    spList.style.display='block';
+    spList.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px;">`+
+      items.map(i=>`<div style="display:flex;align-items:center;gap:6px;">
         <span style="font-weight:800;color:var(--blue);font-size:12px;">×${i.qty}</span>
         <span style="font-size:11px;">${escapeHTML(i.name)}</span>
-      </div>`).join('') +
-      `</div>`;
-  } else if (spList) {
-    spList.style.display = 'none';
-  }
-
-  closeAdminProductPicker();
-  onAdminValeInput();
+      </div>`).join('')+`</div>`;
+  } else if(spList){spList.style.display='none';}
+  closeAdminProductPicker(); onAdminValeInput();
 }
 
 // ══════════════════════════════════════════
