@@ -2828,25 +2828,25 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-seri
 .container{max-width:1200px;margin:0 auto;padding:16px;}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
 /* Card */
-.card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;display:flex;flex-direction:column;}
 .card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.12);}
 .card-img{height:220px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
 .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
 .card:hover .card-img img{transform:scale(1.05);}
 .card-img .no-img{font-size:64px;opacity:.25;}
 .card-cat{position:absolute;top:12px;left:12px;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,.15);}
-.card-body{padding:18px 20px 20px;}
-.card-name{font-weight:800;font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.3;}
-.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;max-height:72px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease;}
+.card-body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column;}
+.card-name{font-weight:800;font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.3;min-height:42px;}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;height:58px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease;}
 .card-desc.expanded{max-height:500px;}
 .card-desc-fade{position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#fff);pointer-events:none;transition:opacity .3s;}
 .card-desc.expanded+.card-desc-fade,.card-desc.expanded~.card-desc-fade{opacity:0;}
-.card-price{font-weight:900;font-size:22px;color:var(--primary);margin-bottom:12px;letter-spacing:.3px;}
-.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.card-price{font-weight:900;font-size:22px;color:var(--primary);margin-bottom:12px;letter-spacing:.3px;min-height:30px;}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:26px;}
 .badge{padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:.3px;}
 .badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
 /* WA Button */
-.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.3px;}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.3px;margin-top:auto;}
 .wa-btn:hover{transform:scale(1.02);box-shadow:0 4px 14px rgba(37,211,102,.35);}
 .wa-btn:active{transform:scale(.98);}
 .wa-icon{font-size:18px;}
