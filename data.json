@@ -883,66 +883,6 @@
   "vales": [
     {
       "adminNotes": "",
-      "articulo": "×2 PESA / BÁSCULA INTELIGENTE DIGITAL. / ×2 PISTOLA DE MASAJE RECARGABLE: / ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW / ×2 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED / ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ / ×2 ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS",
-      "carnet": "",
-      "cliente": "Bebej",
-      "commissionPaid": false,
-      "confirmedTs": null,
-      "deliveredTs": "2026-07-18T22:01:19.628Z",
-      "direccion": "Nejeje",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784411869749,
-      "isNew": false,
-      "mensajeria": "4",
-      "mensajeroId": 1784335863791,
-      "precioMN": "",
-      "precioUSD": "$2970 USD",
-      "status": "delivered",
-      "telefono": "61626",
-      "total": "$2974 USD",
-      "ts": "2026-07-18T21:57:49.755Z",
-      "valeNum": 16,
-      "valeProductos": [
-        {
-          "id": 1778102507659,
-          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
-          "qty": 2
-        },
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 2
-        },
-        {
-          "id": 1778104599386,
-          "name": "INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW",
-          "qty": 1
-        },
-        {
-          "id": 1778104662477,
-          "name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED",
-          "qty": 2
-        },
-        {
-          "id": 1778104512761,
-          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-          "qty": 1
-        },
-        {
-          "id": 1778104735789,
-          "name": "ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS",
-          "qty": 2
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bebej\n🔸Teléfono Cliente: 61626\n🔸Dirección Cliente: Nejeje\n🔸Mensajería/ costo: 4\n🔸 Artículos y cantidades:\n  ×2 PESA / BÁSCULA INTELIGENTE DIGITAL.\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n  ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW\n  ×2 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n  ×2 ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS\n🔸Precio USD/ zelle: $2970 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2974 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "commissionStatus": null,
-      "commissionPaidTs": null,
-      "commissionEnSobreTs": null
-    },
-    {
-      "adminNotes": "",
       "articulo": "×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
       "carnet": "",
       "cliente": "Jeje",
@@ -970,5 +910,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-18T22:04:20.086Z"
+  "timestamp": "2026-07-18T22:04:26.474Z"
 }
