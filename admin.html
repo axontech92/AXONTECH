@@ -463,36 +463,42 @@
 
 <!-- ── MODAL: Editar Vale ── -->
 <div class="modal-bg" id="editValeModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-title">✏️ Editar Vale</div>
-    <div class="modal-sub">Modifica los datos del vale</div>
-    <label class="field-lbl">Cliente</label>
-    <input type="text" id="ev-cliente" placeholder="Nombre del cliente">
-    <label class="field-lbl">Teléfono</label>
-    <input type="tel" id="ev-telefono" placeholder="Teléfono">
-    <label class="field-lbl">Dirección</label>
-    <input type="text" id="ev-direccion" placeholder="Dirección">
-    <label class="field-lbl">Mensajería</label>
-    <input type="text" id="ev-mensajeria" placeholder="Ej: Gratis / $2 USD">
-    <label class="field-lbl">
-      Artículo y cantidad
-      <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 8px;margin-left:6px;" onclick="openEditValeProductPicker()">📦 Catálogo</button>
-    </label>
-    <div id="ev-selectedProductsList" style="display:none;"></div>
-    <input type="text" id="ev-articulo" placeholder="Artículo o selecciona del catálogo ↑">
-    <label class="field-lbl">Precio USD / Zelle</label>
-    <input type="text" id="ev-precioUSD" placeholder="Ej: $45 USD">
-    <label class="field-lbl">Precio MN</label>
-    <input type="text" id="ev-precioMN" placeholder="Ej: 4500 MN">
-    <label class="field-lbl">Total</label>
-    <input type="text" id="ev-total" placeholder="Total a pagar">
-    <label class="field-lbl">Garantía</label>
-    <input type="text" id="ev-garantia" placeholder="Ej: 6 meses">
-    <label class="field-lbl">💰 Comisión del Gestor</label>
-    <input type="text" id="ev-comisionGestor" placeholder="Ej: $5 USD · monto acordado con el gestor">
-    <div class="modal-btns">
-      <button type="button" class="btn btn-ghost btn-full" onclick="closeEditValeModal()">Cancelar</button>
-      <button type="button" class="btn btn-blue btn-full" onclick="saveEditVale()">Guardar</button>
+  <div class="modal" style="max-width:420px;max-height:92vh;display:flex;flex-direction:column;padding:0;">
+    <div style="padding:22px 22px 0;flex-shrink:0;">
+      <div class="modal-title">✏️ Editar Vale</div>
+      <div class="modal-sub">Modifica los datos del vale</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;min-height:0;padding:0 22px;">
+      <label class="field-lbl">Cliente</label>
+      <input type="text" id="ev-cliente" placeholder="Nombre del cliente">
+      <label class="field-lbl">Teléfono</label>
+      <input type="tel" id="ev-telefono" placeholder="Teléfono">
+      <label class="field-lbl">Dirección</label>
+      <input type="text" id="ev-direccion" placeholder="Dirección">
+      <label class="field-lbl">Mensajería</label>
+      <input type="text" id="ev-mensajeria" placeholder="Ej: Gratis / $2 USD">
+      <label class="field-lbl">
+        Artículo y cantidad
+        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 8px;margin-left:6px;" onclick="openEditValeProductPicker()">📦 Catálogo</button>
+      </label>
+      <div id="ev-selectedProductsList" style="display:none;"></div>
+      <input type="text" id="ev-articulo" placeholder="Artículo o selecciona del catálogo ↑">
+      <label class="field-lbl">Precio USD / Zelle</label>
+      <input type="text" id="ev-precioUSD" placeholder="Ej: $45 USD">
+      <label class="field-lbl">Precio MN</label>
+      <input type="text" id="ev-precioMN" placeholder="Ej: 4500 MN">
+      <label class="field-lbl">Total</label>
+      <input type="text" id="ev-total" placeholder="Total a pagar">
+      <label class="field-lbl">Garantía</label>
+      <input type="text" id="ev-garantia" placeholder="Ej: 6 meses">
+      <label class="field-lbl">💰 Comisión del Gestor</label>
+      <input type="text" id="ev-comisionGestor" placeholder="Ej: $5 USD · monto acordado con el gestor">
+    </div>
+    <div style="padding:12px 22px 22px;flex-shrink:0;border-top:1px solid var(--gray-200);">
+      <div class="modal-btns" style="margin-top:0;">
+        <button type="button" class="btn btn-ghost btn-full" onclick="closeEditValeModal()">Cancelar</button>
+        <button type="button" class="btn btn-blue btn-full" onclick="saveEditVale()">Guardar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -528,11 +534,13 @@
 
 <!-- ── MODAL: Admin Vale Generator ── -->
 <div class="modal-bg" id="adminValeModal">
-  <div class="modal" style="max-width:520px;width:94%;">
-    <div class="modal-title">📝 Generar Vale (Admin)</div>
-    <div class="modal-sub">Crea un vale directamente desde el panel de administración</div>
+  <div class="modal" style="max-width:520px;width:94%;max-height:92vh;display:flex;flex-direction:column;padding:0;">
+    <div style="padding:22px 22px 0;flex-shrink:0;">
+      <div class="modal-title">📝 Generar Vale (Admin)</div>
+      <div class="modal-sub">Crea un vale directamente desde el panel de administración</div>
+    </div>
 
-    <div style="display:grid;gap:10px;margin-top:10px;">
+    <div style="display:grid;gap:10px;margin-top:10px;flex:1;overflow-y:auto;min-height:0;padding:0 22px;">
       <!-- Gestor selector -->
       <div>
         <label class="field-lbl">Promotor <span style="color:var(--red);">*</span></label>
@@ -616,34 +624,39 @@
       </div>
     </div>
 
-    <div class="modal-btns" style="margin-top:14px;">
-      <button class="btn btn-ghost btn-full" onclick="closeAdminValeModal()">Cancelar</button>
-      <button class="btn btn-blue btn-full" id="av-sendBtn" onclick="sendAdminVale()" disabled>📤 Generar Vale</button>
+    <div style="padding:12px 22px 22px;flex-shrink:0;border-top:1px solid var(--gray-200);">
+      <div class="modal-btns" style="margin-top:0;">
+        <button class="btn btn-ghost btn-full" onclick="closeAdminValeModal()">Cancelar</button>
+        <button class="btn btn-blue btn-full" id="av-sendBtn" onclick="sendAdminVale()" disabled>📤 Generar Vale</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- ── MODAL: Product Picker (Admin) ── -->
 <div class="modal-bg" id="adminProductPickerModal">
-  <div class="modal" style="max-width:540px;width:96%;padding:0;overflow:hidden;">
-    <!-- Header -->
-    <div style="padding:18px 20px 12px;">
+  <div class="modal" style="max-width:540px;width:96%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
+    <!-- Header (fixed) -->
+    <div style="padding:18px 20px 12px;flex-shrink:0;">
       <div style="font-size:17px;font-weight:800;">📦 Catálogo de Productos</div>
       <input type="search" id="av-pickerSearch" placeholder="Buscar producto..." oninput="renderAdminPickerProducts()" style="width:100%;padding:9px 14px;border-radius:10px;border:1.5px solid var(--gray-200);font-size:13px;outline:none;margin-top:10px;">
     </div>
-    <!-- Cat Tabs -->
-    <div style="padding:0 16px 8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+    <!-- Cat Tabs (fixed) -->
+    <div style="padding:0 16px 8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;">
       <div id="av-pickerCatTabs" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
     </div>
-    <!-- Product List -->
-    <div id="av-pickerProductGrid" style="max-height:320px;overflow-y:auto;padding:0 16px;display:flex;flex-direction:column;gap:6px;"></div>
-    <!-- Selected Summary -->
-    <div style="padding:10px 16px 0;border-top:1px solid var(--gray-200);margin-top:8px;">
-      <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:6px;">Seleccionados:</div>
-      <div id="av-pickerSelectedList" style="min-height:28px;max-height:80px;overflow-y:auto;"></div>
+    <!-- Scrollable content area -->
+    <div style="flex:1;overflow-y:auto;min-height:0;">
+      <!-- Product List -->
+      <div id="av-pickerProductGrid" style="padding:0 16px;display:flex;flex-direction:column;gap:6px;"></div>
+      <!-- Selected Summary -->
+      <div style="padding:10px 16px 0;border-top:1px solid var(--gray-200);margin-top:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:6px;">Seleccionados:</div>
+        <div id="av-pickerSelectedList" style="min-height:28px;max-height:80px;overflow-y:auto;"></div>
+      </div>
     </div>
-    <!-- Action Buttons -->
-    <div style="padding:10px 16px 16px;display:flex;gap:8px;">
+    <!-- Action Buttons (always visible at bottom) -->
+    <div style="padding:10px 16px 16px;display:flex;gap:8px;flex-shrink:0;border-top:1px solid var(--gray-200);">
       <button class="btn btn-ghost btn-full" onclick="closeAdminProductPicker()">Cancelar</button>
       <button class="btn btn-blue btn-full" onclick="handlePickerConfirm()">Agregar al vale ✓</button>
     </div>

@@ -283,17 +283,25 @@
 
 <!-- ── MODAL: Product Picker ── -->
 <div class="modal-bg" id="productPickerModal">
-  <div class="modal" style="max-width:580px;width:92%;">
-    <div class="modal-title">📦 Catálogo de Productos</div>
-    <input type="search" id="pickerSearch" placeholder="Buscar producto..." oninput="renderPickerProducts()" style="margin-bottom:10px;">
-    <div id="pickerCatTabs" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;"></div>
-    <div id="pickerProductGrid" style="max-height:280px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:6px;padding:2px;"></div>
-    <hr class="modal-sep">
-    <div style="font-size:11px;font-weight:700;color:var(--gray-600);margin-bottom:6px;">Seleccionados:</div>
-    <div id="pickerSelectedList" style="min-height:28px;"></div>
-    <div class="modal-btns">
-      <button class="btn btn-ghost btn-full" onclick="closeProductPicker()">Cancelar</button>
-      <button class="btn btn-blue btn-full" onclick="confirmPickerSelection()">Agregar al vale ✓</button>
+  <div class="modal" style="max-width:580px;width:92%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
+    <!-- Header (fixed) -->
+    <div style="padding:22px 22px 10px;flex-shrink:0;">
+      <div class="modal-title">📦 Catálogo de Productos</div>
+      <input type="search" id="pickerSearch" placeholder="Buscar producto..." oninput="renderPickerProducts()" style="margin-bottom:10px;">
+      <div id="pickerCatTabs" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;"></div>
+    </div>
+    <!-- Scrollable content -->
+    <div style="flex:1;overflow-y:auto;min-height:0;padding:0 22px;">
+      <div id="pickerProductGrid" style="display:flex;flex-wrap:wrap;gap:6px;padding:2px;"></div>
+    </div>
+    <!-- Selected + Buttons (fixed at bottom) -->
+    <div style="flex-shrink:0;padding:0 22px 22px;border-top:1px solid var(--gray-200);margin-top:8px;">
+      <div style="font-size:11px;font-weight:700;color:var(--gray-600);margin:8px 0 6px;">Seleccionados:</div>
+      <div id="pickerSelectedList" style="min-height:28px;max-height:80px;overflow-y:auto;"></div>
+      <div class="modal-btns" style="margin-top:8px;">
+        <button class="btn btn-ghost btn-full" onclick="closeProductPicker()">Cancelar</button>
+        <button class="btn btn-blue btn-full" onclick="confirmPickerSelection()">Agregar al vale ✓</button>
+      </div>
     </div>
   </div>
 </div>
