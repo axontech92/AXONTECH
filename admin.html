@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=50">
+  <link rel="stylesheet" href="./app.css?v=52">
 </head>
 <body data-page="admin">
 
@@ -201,6 +201,9 @@
               <option value="">Todos los gestores</option>
             </select>
           </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <input type="search" id="histSearchPhone" placeholder="Buscar por telefono, cliente o # vale..." oninput="renderHistorial()" style="width:100%;max-width:400px;">
         </div>
         <div id="historialList"></div>
       </div>
@@ -468,7 +471,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=50"></script>
+<script src="./app.js?v=52"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

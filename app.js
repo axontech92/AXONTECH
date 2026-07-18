@@ -150,8 +150,8 @@ const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _ge
 const saveGestores  = v  => { try { localStorage.setItem('axon_gestores', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _gestoresCache = v; _gestoresDirty = false; setFB('gestores', v); };
 
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
-// Vales are synced individually via fbAddVale/fbUpdateVale/fbRemoveVale through the write queue
-// Also do a full Firebase sync for safety
+// Vales are synced via saveVales → _enqueueFB('vales', obj, 'set') through the write queue
+// Individual fbUpdateVale was removed from patchVale to prevent race conditions
 const saveVales     = v  => { try { localStorage.setItem('axon_vales', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _valesCache = v; _valesDirty = false; if (!isSyncingFromFirebase()) { _enqueueFB('vales', _valesToFirebaseObj(v), 'set'); } };
 
 const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
@@ -384,8 +384,10 @@ function patchVale(id, changes) {
   const all = getVales(); const i = all.findIndex(v=>v.id===id);
   if (i!==-1){
     all[i]={...all[i],...changes};
+    // saveVales already writes to Firebase via _enqueueFB — no need for redundant fbUpdateVale
+    // Previously, both saveVales (full 'set') and fbUpdateVale (partial 'update') were called,
+    // causing race conditions where Firebase could overwrite local changes with stale data.
     saveVales(all);
-    if(typeof fbUpdateVale === 'function') fbUpdateVale(all[i], changes);
   }
 }
 function getNextValeNum() {
@@ -1302,14 +1304,15 @@ function renderValeDetail() {
       <div style="font-weight:700;color:var(--green);">Venta Confirmada y Cobrada</div>
       ${m?`<div style="font-size:12px;color:var(--gray-400);">Entregada por: ${escapeHTML(m.name)}</div>`:``}
     </div>
-    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir a Entregado</button>`;
+    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta (restaurar stock)</button>`;
   } else if(v.status==='pending_payment'){
     actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
       <div style="font-size:26px;margin-bottom:4px;">⏳</div>
       <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
       ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
     </div>
-    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>`;
+    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>
+    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
   const notesHighlight=v.adminNotes?`<div style="background:#FFFBEB;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--gray-700);margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
@@ -1649,7 +1652,7 @@ function renderConfirmados() {
   if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
   c.innerHTML=today.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${escapeHTML(v.cliente||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div>`;
+    return `<div class="sc sc-ok"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.confirmedTs||v.ts)}</span></div><div>${escapeHTML(v.cliente||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button type="button" class="btn btn-ghost btn-sm" style="margin-top:5px;font-size:10px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button></div>`;
   }).join('');
 }
 function renderPendienteCobro() {
@@ -1659,7 +1662,7 @@ function renderPendienteCobro() {
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><button class="btn btn-green btn-full btn-sm" style="margin-top:7px;" onclick="markAsPaid(${v.id})">✅ Cobrado</button></div>`;
+    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:7px;"><button class="btn btn-green btn-sm btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado</button><button class="btn btn-ghost btn-sm btn-full" style="color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div></div>`;
   }).join('');
 }
 function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
@@ -2768,84 +2771,115 @@ function exportCatalogPDF(){
   const cats=getCategorias();
   const allProds=getProductos().filter(p=>(p.stock||0)>0);
   if(!allProds.length){showToast('No hay productos para exportar');return;}
-  // Build print-optimized HTML grouped by category
+  // Build premium print-optimized HTML grouped by category
+  const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
+  const dateStr=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
   let html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>AXONTECH - Catalogo de Productos</title>
 <style>
-  @page{size:A4;margin:15mm 12mm;}
+  @page{size:A4;margin:12mm 10mm;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;background:#fff;line-height:1.4;}
-  .header{text-align:center;padding:20px 0 16px;border-bottom:3px solid #006d8a;margin-bottom:20px;}
-  .header h1{font-size:24px;color:#006d8a;letter-spacing:3px;font-weight:900;}
-  .header p{font-size:11px;color:#6b7280;margin-top:4px;letter-spacing:1px;}
-  .cat-section{margin-bottom:24px;page-break-inside:avoid;}
-  .cat-title{font-size:16px;font-weight:800;color:#006d8a;padding:8px 12px;background:#e0f7fc;border-radius:6px;margin-bottom:12px;border-left:4px solid #006d8a;}
-  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
-  .product-card{border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;page-break-inside:avoid;}
-  .product-img{height:120px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a2e;background:#fff;line-height:1.5;font-size:11px;}
+  .cover{text-align:center;padding:40px 20px 30px;background:linear-gradient(135deg,#006d8a 0%,#004d60 50%,#003345 100%);color:#fff;margin:-12mm -10mm 24px;page-break-after:avoid;}
+  .cover-logo{font-size:42px;font-weight:900;letter-spacing:8px;margin-bottom:4px;text-shadow:0 2px 10px rgba(0,0,0,.3);}
+  .cover-sub{font-size:13px;letter-spacing:4px;opacity:.85;font-weight:300;margin-bottom:16px;}
+  .cover-line{width:60px;height:3px;background:rgba(255,255,255,.5);margin:0 auto 16px;border-radius:2px;}
+  .cover-date{font-size:10px;opacity:.6;letter-spacing:1px;}
+  .cover-count{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 16px;font-size:11px;margin-top:10px;letter-spacing:1px;}
+  .cat-section{margin-bottom:28px;page-break-inside:avoid;}
+  .cat-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #f0f0f0;}
+  .cat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800;flex-shrink:0;}
+  .cat-label{font-size:15px;font-weight:800;color:#1a1a2e;letter-spacing:.5px;}
+  .cat-count{font-size:10px;color:#94a3b8;font-weight:600;margin-left:auto;letter-spacing:.5px;}
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+  .product-card{border:1px solid #e8ecf1;border-radius:12px;overflow:hidden;page-break-inside:avoid;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .2s;}
+  .product-img{height:150px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
   .product-img img{width:100%;height:100%;object-fit:cover;}
-  .product-img .no-img{font-size:36px;}
-  .product-body{padding:10px;}
-  .product-name{font-weight:700;font-size:13px;color:#111;margin-bottom:3px;}
-  .product-desc{font-size:10px;color:#6b7280;line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-  .product-price{font-weight:800;font-size:15px;color:#006d8a;}
-  .product-garantia{font-size:9px;color:#6b7280;margin-top:4px;background:#f1f5f9;padding:2px 6px;border-radius:4px;display:inline-block;}
-  .footer{text-align:center;padding:16px 0;margin-top:30px;border-top:2px solid #e2e8f0;font-size:9px;color:#9ca3af;}
-  @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+  .product-img .no-img{font-size:48px;opacity:.4;}
+  .product-body{padding:12px 14px 14px;}
+  .product-name{font-weight:800;font-size:13px;color:#1a1a2e;margin-bottom:4px;letter-spacing:.2px;}
+  .product-desc{font-size:10px;color:#64748b;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:0;}
+  .product-price{font-weight:900;font-size:17px;color:#006d8a;margin-bottom:6px;letter-spacing:.3px;}
+  .product-badges{display:flex;flex-wrap:wrap;gap:4px;}
+  .badge{padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.3px;}
+  .badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+  .badge-cat{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;}
+  .footer{text-align:center;padding:20px 0 10px;margin-top:36px;border-top:1px solid #e2e8f0;}
+  .footer-brand{font-size:11px;font-weight:800;color:#006d8a;letter-spacing:3px;margin-bottom:4px;}
+  .footer-addr{font-size:9px;color:#94a3b8;line-height:1.5;}
+  .footer-gen{font-size:8px;color:#cbd5e1;margin-top:6px;}
+  @media print{
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .product-card{break-inside:avoid;}
+    .cat-section{break-inside:avoid;}
+  }
 </style></head><body>
-<div class="header"><h1>AXONTECH</h1><p>CATALOGO DE PRODUCTOS</p></div>`;
+<div class="cover">
+  <div class="cover-logo">AXONTECH</div>
+  <div class="cover-sub">CATALOGO DE PRODUCTOS</div>
+  <div class="cover-line"></div>
+  <div class="cover-date">${dateStr}</div>
+  <div class="cover-count">${allProds.length} productos disponibles</div>
+</div>`;
   if(cats.length){
+    let ci=0;
     cats.forEach(cat=>{
       const prods=allProds.filter(p=>p.catId===cat.id);
       if(!prods.length)return;
-      html+=`<div class="cat-section"><div class="cat-title">${escapeHTML(cat.name)} (${prods.length})</div><div class="product-grid">`;
+      const color=catColors[ci%catColors.length];ci++;
+      html+=`<div class="cat-section">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:${color};">${escapeHTML(cat.name.charAt(0).toUpperCase())}</div>
+    <div class="cat-label">${escapeHTML(cat.name)}</div>
+    <div class="cat-count">${prods.length} producto${prods.length!==1?'s':''}</div>
+  </div>
+  <div class="product-grid">`;
       prods.forEach(p=>{
-        html+=`<div class="product-card">
-  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">📦</div></div>
-  <div class="product-body">
-    <div class="product-name">${escapeHTML(p.name)}</div>
-    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
-    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
-    ${p.garantia?`<div class="product-garantia">🛡️ ${escapeHTML(p.garantia)}</div>`:''}
-  </div></div>`;
+        html+=buildPDFProductCard(p,cat);
       });
       html+=`</div></div>`;
     });
     // Products without category
     const noCat=allProds.filter(p=>!p.catId||!cats.find(c=>c.id===p.catId));
     if(noCat.length){
-      html+=`<div class="cat-section"><div class="cat-title">Sin categoría (${noCat.length})</div><div class="product-grid">`;
-      noCat.forEach(p=>{
-        html+=`<div class="product-card">
-  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">📦</div></div>
-  <div class="product-body">
-    <div class="product-name">${escapeHTML(p.name)}</div>
-    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
-    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
-    ${p.garantia?`<div class="product-garantia">🛡️ ${escapeHTML(p.garantia)}</div>`:''}
-  </div></div>`;
-      });
+      const color=catColors[ci%catColors.length];ci++;
+      html+=`<div class="cat-section">
+  <div class="cat-header">
+    <div class="cat-icon" style="background:${color};">?</div>
+    <div class="cat-label">Sin categoria</div>
+    <div class="cat-count">${noCat.length} producto${noCat.length!==1?'s':''}</div>
+  </div>
+  <div class="product-grid">`;
+      noCat.forEach(p=>{html+=buildPDFProductCard(p,null);});
       html+=`</div></div>`;
     }
   } else {
     html+=`<div class="product-grid">`;
-    allProds.forEach(p=>{
-      html+=`<div class="product-card">
-  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">📦</div></div>
-  <div class="product-body">
-    <div class="product-name">${escapeHTML(p.name)}</div>
-    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
-    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
-    ${p.garantia?`<div class="product-garantia">🛡️ ${escapeHTML(p.garantia)}</div>`:''}
-  </div></div>`;
-    });
+    allProds.forEach(p=>{html+=buildPDFProductCard(p,null);});
     html+=`</div>`;
   }
-  html+=`<div class="footer">AXONTECH · Amistad #311 % San Rafael y San José, Centro Habana · Generado: ${new Date().toLocaleDateString('es-ES')}</div></body></html>`;
+  html+=`<div class="footer">
+  <div class="footer-brand">AXONTECH</div>
+  <div class="footer-addr">Amistad #311 % San Rafael y San Jose, Centro Habana</div>
+  <div class="footer-gen">Generado: ${dateStr}</div>
+</div></body></html>`;
   // Open in new window and print
   const w=window.open('','_blank','width=800,height=900');
   if(!w){showToast('Permite ventanas emergentes para exportar PDF');return;}
   w.document.write(html);w.document.close();
   w.onload=()=>{w.print();};
+}
+function buildPDFProductCard(p,cat){
+  let badges='';
+  if(p.garantia) badges+=`<span class="badge badge-garantia">Garantia: ${escapeHTML(p.garantia)}</span>`;
+  if(cat) badges+=`<span class="badge badge-cat">${escapeHTML(cat.name)}</span>`;
+  return `<div class="product-card">
+  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">&#128230;</div></div>
+  <div class="product-body">
+    <div class="product-name">${escapeHTML(p.name)}</div>
+    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
+    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
+    ${badges?`<div class="product-badges">${badges}</div>`:''}
+  </div></div>`;
 }
 
 // ══════════════════════════════════════════
@@ -3055,7 +3089,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
           <div style="text-align:right;flex-shrink:0;">
             <div style="font-size:9px;color:var(--green);font-weight:700;">💰 Cobrado</div>
             ${ts?`<div style="font-size:9px;color:var(--gray-400);">${ts}</div>`:''}
-            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 8px;margin-top:4px;color:var(--orange);" onclick="unpayCommission(${v.id},event)">↩ Revertir</button>
+            <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 8px;margin-top:4px;color:var(--orange);" onclick="unpayCommission(${v.id},event)">↩ Pendiente</button>
           </div>
         </div>`;
       }).join('');
@@ -3695,19 +3729,25 @@ function closeConfirmAction() {
 //  REVERT CONFIRMED SALE
 // ══════════════════════════════════════════
 function revertConfirmSale(id, skipConfirm) {
+  const v=getVales().find(x=>x.id===id);if(!v)return;
+  // Allow reverting both 'confirmed' and 'pending_payment' states
+  if(v.status!=='confirmed'&&v.status!=='pending_payment'){showToast('Solo se puede revertir una venta confirmada o pendiente de cobro');return;}
   if(!skipConfirm) {
-    const v=getVales().find(x=>x.id===id);if(!v)return;
-    showConfirmAction('¿Revertir venta confirmada?',`${v.cliente||''} volverá a "Entregado"`,'Revertir','btn-orange',()=>revertConfirmSale(id,true));
+    const targetLabel=v.status==='confirmed'?'Pendiente (enviado)':'Entregado';
+    showConfirmAction('¿Revertir venta?',`${v.cliente||''} volverá a "${targetLabel}" · Stock restaurado`,'Revertir','btn-orange',()=>revertConfirmSale(id,true));
     return;
   }
-  const v=getVales().find(x=>x.id===id);if(!v)return;
   // Restore stock for each product that was decremented when the sale was confirmed
   (v.valeProductos||[]).forEach(({id:pid,qty})=>{
     const prod=productoOf(pid);if(!prod)return;
     const restored=Math.max(0,(prod.stock||0)+qty);
     patchProducto(pid,{stock:restored});
   });
-  patchVale(id,{status:'delivered',confirmedTs:null,commissionPaid:false,commissionStatus:null,commissionPaidTs:null,commissionEnSobreTs:null});
+  // Revert to appropriate previous state:
+  // - If it had a mensajero assigned and was delivered before, go back to 'delivered'
+  // - Otherwise go back to 'pending' (original state)
+  const prevStatus=(v.mensajeroId&&v.deliveredTs)?'delivered':'pending';
+  patchVale(id,{status:prevStatus,confirmedTs:null,commissionPaid:false,commissionStatus:null,commissionPaidTs:null,commissionEnSobreTs:null});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();
   renderConfirmados();renderPendienteCobro();
@@ -3715,7 +3755,7 @@ function revertConfirmSale(id, skipConfirm) {
   if(currentAdminTab==='gestores'){renderComisiones();}
   if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   maybeAutoSync();
-  showToast('Venta revertida a "Entregado" — stock restaurado');
+  showToast(prevStatus==='delivered'?'Venta revertida a "Entregado" — stock restaurado':'Venta revertida a "Pendiente" — stock restaurado');
 }
 
 // ══════════════════════════════════════════
@@ -3725,6 +3765,7 @@ function renderHistorial() {
   const fromEl=document.getElementById('histDateFrom');
   const toEl=document.getElementById('histDateTo');
   const gestorEl=document.getElementById('histGestorFilter');
+  const searchEl=document.getElementById('histSearchPhone');
   const c=document.getElementById('historialList');
   if(!c) return;
   // Populate gestor filter
@@ -3737,10 +3778,22 @@ function renderHistorial() {
   let vales=getVales().reverse();
   const from=fromEl?fromEl.value:'';
   const to=toEl?toEl.value:'';
+  const search=searchEl?searchEl.value.trim().toLowerCase():'';
   if(from)vales=vales.filter(v=>v.ts.slice(0,10)>=from);
   if(to)  vales=vales.filter(v=>v.ts.slice(0,10)<=to);
   if(curGFilter)vales=vales.filter(v=>String(v.gestorId)===curGFilter);
-  if(!vales.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">Sin vales en el período seleccionado</div></div>';return;}
+  // Search by phone, client name, or vale number
+  if(search){
+    vales=vales.filter(v=>{
+      const phone=(v.telefono||'').toLowerCase().replace(/[\s\-()]/g,'');
+      const cliente=(v.cliente||'').toLowerCase();
+      const valeNum=v.valeNum?String(v.valeNum):'';
+      const art=(v.articulo||'').toLowerCase();
+      const searchClean=search.replace(/[\s\-()]/g,'');
+      return phone.includes(searchClean)||cliente.includes(search)||valeNum.includes(search)||art.includes(search)||(valeNumStr(v).toLowerCase().includes(search));
+    });
+  }
+  if(!vales.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">'+(search?'Sin resultados para "'+escapeHTML(search)+'"':'Sin vales en el periodo seleccionado')+'</div></div>';return;}
   // Group by date
   const groups={};
   vales.forEach(v=>{
@@ -3766,7 +3819,7 @@ function renderHistorial() {
         </div>
         <div style="flex:1;min-width:0;">
           <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${escapeHTML(v.cliente||'—')}</div>
-          <div style="font-size:10px;color:var(--gray-400);">${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${v.telefono?escapeHTML(v.telefono)+' · ':''}${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <span class="sp ${s.cls}" style="font-size:9px;">${s.label}</span>
