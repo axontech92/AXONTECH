@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=67">
+  <link rel="stylesheet" href="./app.css?v=69">
 </head>
 <body data-page="admin">
 
@@ -474,6 +474,16 @@
     <input type="text" id="ev-direccion" placeholder="Dirección">
     <label class="field-lbl">Mensajería</label>
     <input type="text" id="ev-mensajeria" placeholder="Ej: Gratis / $2 USD">
+    <label class="field-lbl">
+      Artículo y cantidad
+      <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 8px;margin-left:6px;" onclick="openEditValeProductPicker()">📦 Catálogo</button>
+    </label>
+    <div id="ev-selectedProductsList" style="display:none;"></div>
+    <input type="text" id="ev-articulo" placeholder="Artículo o selecciona del catálogo ↑">
+    <label class="field-lbl">Precio USD / Zelle</label>
+    <input type="text" id="ev-precioUSD" placeholder="Ej: $45 USD">
+    <label class="field-lbl">Precio MN</label>
+    <input type="text" id="ev-precioMN" placeholder="Ej: 4500 MN">
     <label class="field-lbl">Total</label>
     <input type="text" id="ev-total" placeholder="Total a pagar">
     <label class="field-lbl">Garantía</label>
@@ -635,7 +645,7 @@
     <!-- Action Buttons -->
     <div style="padding:10px 16px 16px;display:flex;gap:8px;">
       <button class="btn btn-ghost btn-full" onclick="closeAdminProductPicker()">Cancelar</button>
-      <button class="btn btn-blue btn-full" onclick="confirmAdminPickerSelection()">Agregar al vale ✓</button>
+      <button class="btn btn-blue btn-full" onclick="handlePickerConfirm()">Agregar al vale ✓</button>
     </div>
   </div>
 </div>
@@ -656,7 +666,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=67"></script>
+<script src="./app.js?v=69"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

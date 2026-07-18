@@ -1278,7 +1278,7 @@ function doSelectGestor(id) {
   document.getElementById('gestorBanner').style.display='flex';
   document.getElementById('gestorMyValesSection').style.display='block';
   document.getElementById('layoutGestor').classList.add('has-gestor');
-  renderGestores();renderMyVales();onFormInput();renderGestorNotifs();
+  renderGestores();renderMyVales();renderGestorComisiones();onFormInput();renderGestorNotifs();
 }
 function closeGestorPassModal(){
   document.getElementById('gestorPassModal').classList.remove('show');
@@ -1306,10 +1306,11 @@ function changeGestor() {
   document.getElementById('layoutGestor').classList.remove('has-gestor');
   document.getElementById('gestorBanner').style.display='none';
   document.getElementById('gestorMyValesSection').style.display='none';
+  const cs=document.getElementById('gestorComisionSection');if(cs)cs.style.display='none';
   document.getElementById('headerGestorName').textContent='';
   document.getElementById('vf-promotor').value='';
   document.getElementById('mobileBackName').textContent='';
-  renderGestores();renderMyVales();onFormInput();renderGestorNotifs();
+  renderGestores();renderMyVales();renderGestorComisiones();onFormInput();renderGestorNotifs();
 }
 
 // ══════════════════════════════════════════
@@ -1683,20 +1684,31 @@ function renderValeDetail() {
   const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
   let actHTML='';
+  // Product link status — show picker if no products linked
+  const hasProducts=(v.valeProductos||[]).length>0;
+  const productPickerHTML=!hasProducts&&v.status!=='confirmed'?`
+    <div style="background:rgba(0,109,138,.06);border:1px dashed var(--blue-bd,rgba(0,109,138,.3));border-radius:8px;padding:10px;text-align:center;margin-bottom:10px;">
+      <div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px;">⚠️ No hay producto del catálogo vinculado</div>
+      <button class="btn btn-blue btn-full btn-sm" onclick="openEditValeModal(${v.id})">📦 Seleccionar producto del catálogo</button>
+      <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Vincular un producto para descontar stock y calcular comisión</div>
+    </div>`:(hasProducts?`
+    <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 10px;margin-bottom:10px;">
+      <div style="font-size:10px;color:var(--green);font-weight:700;">✅ Productos vinculados: ${(v.valeProductos||[]).map(p=>`${p.name}${p.qty>1?' ×'+p.qty:''}`).join(', ')}</div>
+    </div>`:'');
   if(v.status==='pending'){
-    actHTML=`<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
+    actHTML=`${productPickerHTML}<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
     <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
       <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
       <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
     </div>`;
   } else if(v.status==='assigned'){
-    actHTML=`<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
+    actHTML=`${productPickerHTML}<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
       <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
       <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
       <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
   } else if(v.status==='delivered'){
-    actHTML=`<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
+    actHTML=`${productPickerHTML}<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
       <div style="font-size:24px;margin-bottom:4px;">🛵</div>
       <div style="font-weight:700;color:#7C3AED;">Entregado por mensajero</div>
       ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
@@ -1711,7 +1723,7 @@ function renderValeDetail() {
     </div>
     <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta (restaurar stock)</button>`;
   } else if(v.status==='pending_payment'){
-    actHTML=`<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
+    actHTML=`${productPickerHTML}<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
       <div style="font-size:26px;margin-bottom:4px;">⏳</div>
       <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
       ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
@@ -1777,23 +1789,163 @@ function saveValeNotes(id) {
   showToast('Nota guardada ✓');
 }
 
+let editValePickerSelected={};
+let editValePickerCatFilter=null;
+let editValeProductos=[];
+
 function openEditValeModal(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  // Fix 5: incluir comisión del gestor en la edición del vale
   ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor'].forEach(k=>{
     const el=document.getElementById('ev-'+k);if(el)el.value=v[k]||'';
   });
+  // Load articulo + precio fields
+  const elArt=document.getElementById('ev-articulo');if(elArt)elArt.value=v.articulo||'';
+  const elUSD=document.getElementById('ev-precioUSD');if(elUSD)elUSD.value=v.precioUSD||'';
+  const elMN=document.getElementById('ev-precioMN');if(elMN)elMN.value=v.precioMN||'';
+  // Load valeProductos
+  editValeProductos=v.valeProductos?[...v.valeProductos]:[];
+  editValePickerSelected={};
+  editValeProductos.forEach(p=>{editValePickerSelected[p.id]=p.qty;});
+  renderEditValeSelectedProducts();
   document.getElementById('editValeModal').dataset.valeId=id;
   document.getElementById('editValeModal').classList.add('show');
 }
 function closeEditValeModal(){document.getElementById('editValeModal').classList.remove('show');}
+function renderEditValeSelectedProducts() {
+  const c=document.getElementById('ev-selectedProductsList');
+  if(!c)return;
+  if(!editValeProductos.length){c.style.display='none';return;}
+  c.style.display='block';
+  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px;">`+
+    editValeProductos.map(i=>`<div style="display:flex;align-items:center;gap:6px;">
+      <span style="font-weight:800;color:var(--blue);font-size:12px;">×${i.qty}</span>
+      <span style="font-size:11px;">${escapeHTML(i.name)}</span>
+    </div>`).join('')+`</div>`;
+}
+function openEditValeProductPicker() {
+  if(!getProductos().length){showToast('No hay productos cargados');return;}
+  editValePickerSelected={};
+  editValeProductos.forEach(p=>{editValePickerSelected[p.id]=p.qty;});
+  editValePickerCatFilter=null;
+  // Reuse the admin product picker modal but with edit context
+  const searchEl=document.getElementById('av-pickerSearch');
+  if(searchEl)searchEl.value='';
+  renderEditValePickerCatTabs();renderEditValePickerProducts();renderEditValePickerSelected();
+  document.getElementById('adminProductPickerModal').classList.add('show');
+}
+function renderEditValePickerCatTabs() {
+  const cats=getCategorias();const el=document.getElementById('av-pickerCatTabs');if(!el)return;
+  el.innerHTML=`<button class="pcat-tab ${editValePickerCatFilter===null?'active':''}" onclick="setEditValePickerCat(null)">Todos</button>`+
+    cats.map(c=>`<button class="pcat-tab ${editValePickerCatFilter===c.id?'active':''}" onclick="setEditValePickerCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
+}
+function setEditValePickerCat(id){editValePickerCatFilter=id;renderEditValePickerCatTabs();renderEditValePickerProducts();}
+function renderEditValePickerProducts() {
+  const searchEl=document.getElementById('av-pickerSearch');
+  const search=searchEl?searchEl.value.toLowerCase():'';
+  let prods=getProductos();
+  if(editValePickerCatFilter!==null)prods=prods.filter(p=>p.catId===editValePickerCatFilter);
+  if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  const grid=document.getElementById('av-pickerProductGrid');if(!grid)return;
+  if(!prods.length){grid.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:32px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
+  grid.innerHTML=prods.map(p=>{
+    const qty=editValePickerSelected[p.id]||0;const sel=qty>0;
+    const catColor=_apcGetCatColor(p.catId);
+    const catName=_apcGetCatName(p.catId);
+    return `<div class="apcard${sel?' picked':''}">
+      <div class="apcard-info">
+        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
+        ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
+      </div>
+      <div class="apcard-controls">
+        <button class="btn-minus" onclick="event.stopPropagation();setEditValePickerQty(${p.id},-1)">−</button>
+        <span class="qty-val">${qty}</span>
+        <button class="btn-plus" onclick="event.stopPropagation();setEditValePickerQty(${p.id},1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function setEditValePickerQty(pid,delta) {
+  let q=(editValePickerSelected[pid]||0)+delta;
+  if(q<=0){delete editValePickerSelected[pid];}else{editValePickerSelected[pid]=q;}
+  renderEditValePickerProducts();renderEditValePickerSelected();
+}
+function renderEditValePickerSelected() {
+  const el=document.getElementById('av-pickerSelectedList');if(!el)return;
+  const items=Object.entries(editValePickerSelected).map(([id,qty])=>{
+    const p=productoOf(parseInt(id));return p?{id:parseInt(id),name:p.name,qty,precio:p.precio||''}:null;
+  }).filter(Boolean);
+  if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--gray-400);">Ningún producto seleccionado</div>';return;}
+  el.innerHTML=items.map(i=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:4px 8px;background:var(--blue-lt);border-radius:8px;">
+    <span style="font-weight:800;color:var(--blue);min-width:18px;">${i.qty}×</span>
+    <span style="flex:1;font-size:12px;font-weight:600;">${escapeHTML(i.name)}</span>
+    ${i.precio?`<span style="font-size:11px;color:var(--blue);font-weight:700;">${escapeHTML(i.precio)}</span>`:''}
+    <button onclick="setEditValePickerQty(${i.id},-1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--gray-200);background:var(--surface);cursor:pointer;font-weight:700;color:var(--red);font-size:13px;display:flex;align-items:center;justify-content:center;">−</button>
+    <button onclick="setEditValePickerQty(${i.id},1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--gray-200);background:var(--surface);cursor:pointer;font-weight:700;color:var(--green);font-size:13px;display:flex;align-items:center;justify-content:center;">+</button>
+  </div>`).join('');
+}
+function confirmEditValePickerSelection() {
+  const items=Object.entries(editValePickerSelected).map(([id,qty])=>{
+    const p=productoOf(parseInt(id));return{id:parseInt(id),name:p?p.name:id,qty};
+  });
+  editValeProductos=items;
+  const elArt=document.getElementById('ev-articulo');if(elArt)elArt.value=items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
+  // Auto-fill prices: separate USD and MN
+  let usdTotal=0, mnTotal=0;
+  items.forEach(({id,qty})=>{
+    const p=productoOf(id);if(!p||!p.precio)return;
+    const num=parsePrecioNum(p.precio)*qty;
+    const isMN=(p.precio+'').toUpperCase().includes('MN')||(p.precio+'').toUpperCase().includes('CUP');
+    if(isMN)mnTotal+=num; else usdTotal+=num;
+  });
+  if(usdTotal>0||mnTotal>0){
+    document.getElementById('ev-precioUSD').value=usdTotal>0?`$${usdTotal} USD`:'';
+    document.getElementById('ev-precioMN').value=mnTotal>0?`${Math.round(mnTotal)} MN`:'';
+  }
+  // auto-calculate commission based on products and quantity
+  let comUSD=0, comMN=0;
+  items.forEach(({id,qty})=>{
+    const p=productoOf(id);if(!p)return;
+    const com=p.comision||'';
+    if(!com)return;
+    const isPct=com.includes('%');
+    const comUpper=(com+'').toUpperCase();
+    const isMNCom=comUpper.includes('MN')||comUpper.includes('CUP');
+    const moneda=p.comisionMoneda||'';
+    const useMN=isMNCom||moneda.toUpperCase()==='MN';
+    if(isPct){
+      const pct=parseFloat(com.replace(/[^0-9.]/g,''));
+      const priceNum=parsePrecioNum(p.precio||'');
+      if(!isNaN(pct)&&priceNum>0){
+        const amt=Math.round(priceNum*(pct/100)*qty*100)/100;
+        if(useMN)comMN+=amt; else comUSD+=amt;
+      }
+    } else {
+      const num=parsePrecioNum(com)*qty;
+      if(num>0){ if(useMN)comMN+=num; else comUSD+=num; }
+    }
+  });
+  if(comUSD>0||comMN>0){
+    const parts=[];
+    if(comUSD>0)parts.push(`$${comUSD.toFixed(2)} USD`);
+    if(comMN>0)parts.push(`${Math.round(comMN)} MN`);
+    document.getElementById('ev-comisionGestor').value=parts.join(' + ');
+  }
+  if(!document.getElementById('ev-garantia').value){
+    const g=items.map(({id})=>productoOf(id)?.garantia).find(Boolean);
+    if(g)document.getElementById('ev-garantia').value=g;
+  }
+  renderEditValeSelectedProducts();
+  closeAdminProductPicker();
+}
 function saveEditVale() {
   const id=parseInt(document.getElementById('editValeModal').dataset.valeId);
   const v=getVales().find(x=>x.id===id);if(!v)return;
   const changes={};
-  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor'].forEach(k=>{
+  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor','articulo','precioUSD','precioMN'].forEach(k=>{
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
+  // Save product selection
+  if(editValeProductos.length)changes.valeProductos=editValeProductos;
   patchVale(id,changes);
   closeEditValeModal();
   renderAdminGestores();renderValeDetail();
@@ -2164,6 +2316,55 @@ function renderMyVales() {
     }).join('');
   }
 }
+// ══════════════════════════════════════════
+//  GESTOR COMMISSION VIEW (outside admin)
+// ══════════════════════════════════════════
+function renderGestorComisiones() {
+  const section=document.getElementById('gestorComisionSection');
+  const list=document.getElementById('gestorComisionList');
+  if(!section||!list||!activeGestorId){if(section)section.style.display='none';return;}
+  // Get confirmed/pending_payment vales for this gestor
+  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&['confirmed','pending_payment'].includes(v.status));
+  // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
+  const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
+  const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
+  const cobrados=mine.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
+  if(!pendientes.length&&!enSobre.length&&!cobrados.length){section.style.display='none';return;}
+  section.style.display='block';
+  let html='';
+  // Pendientes section — mostrar solo "Pendiente" con el total, sin detalles
+  if(pendientes.length){
+    const s=sumCommissions(pendientes);
+    const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
+    html+=`<div class="card" style="border-left:3px solid var(--orange);margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;color:var(--orange);">⏳ Pendiente</span>
+        ${badge?`<span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${badge}</span>`:`<span style="font-size:12px;font-weight:700;color:var(--orange);">${pendientes.length} comisión${pendientes.length!==1?'es':''}</span>`}
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Se acumulan cada día hasta que se pasen al sobre</div>
+    </div>`;
+  }
+  // En sobre — NO mostrar montos, solo indicar que están en sobre (no seguir sumando)
+  if(enSobre.length){
+    html+=`<div class="card" style="border-left:3px solid var(--yellow);margin-bottom:8px;opacity:.8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:var(--yellow);">✉️ En sobre</span>
+        <span style="font-size:11px;color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Pendiente de entrega</div>
+    </div>`;
+  }
+  // Cobrados — solo conteo sin montos
+  if(cobrados.length){
+    html+=`<div class="card" style="border-left:3px solid var(--green);opacity:.6;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:var(--green);">💰 Cobrados</span>
+        <span style="font-size:11px;color:var(--text-muted);">${cobrados.length}</span>
+      </div>
+    </div>`;
+  }
+  list.innerHTML=html;
+}
 let _gestorHistOpen=false;
 function toggleGestorHistorial(){
   _gestorHistOpen=!_gestorHistOpen;
@@ -2417,7 +2618,7 @@ function saveCatalogPhone() {
 }
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-carnet','vf-mensajeria','vf-articulo',
-   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
+   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor'].forEach(id=>{
      const el=document.getElementById(id);if(el)el.value='';
    });
   currentValeProductos=[];selectedProductsUI=[];
@@ -2450,14 +2651,14 @@ function sendVale() {
     cliente:fVal('vf-cliente'),telefono:fVal('vf-telefono'),direccion:fVal('vf-direccion'),carnet:fVal('vf-carnet'),
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
-    vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),
+    vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
     valeProductos:currentValeProductos,valeText:buildValeText(),
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
   };
   const all=getVales();all.push(vale);saveVales(all);
   if(typeof fbAddVale === 'function') fbAddVale(vale);
 
-  renderGestores();renderMyVales();updateAdminBadge();
+  renderGestores();renderMyVales();renderGestorComisiones();updateAdminBadge();
   playSound('vale');
   sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
   showToast('Vale enviado al administrador ✓');
@@ -2555,17 +2756,47 @@ function confirmPickerSelection() {
   selectedProductsUI=items;currentValeProductos=items;
   renderSelectedProductsUI();
   document.getElementById('vf-articulo').value=items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
-  // auto-sum prices
-  let total=0;let cur='USD';
+  // auto-sum prices: separate USD and MN
+  let usdTotal=0, mnTotal=0;
   items.forEach(({id,qty})=>{
     const p=productoOf(id);if(!p||!p.precio)return;
-    total+=parsePrecioNum(p.precio)*qty;
-    if(p.precio.includes('MN'))cur='MN';
+    const num=parsePrecioNum(p.precio)*qty;
+    const isMN=(p.precio+'').toUpperCase().includes('MN')||(p.precio+'').toUpperCase().includes('CUP');
+    if(isMN)mnTotal+=num; else usdTotal+=num;
   });
-  if(total>0){
-    const fmt=`$${total} ${cur}`;
-    if(cur==='MN'){document.getElementById('vf-precioMN').value=fmt;document.getElementById('vf-precioUSD').value='';}else{document.getElementById('vf-precioUSD').value=fmt;document.getElementById('vf-precioMN').value='';}
+  if(usdTotal>0||mnTotal>0){
+    document.getElementById('vf-precioUSD').value=usdTotal>0?`$${usdTotal} USD`:'';
+    document.getElementById('vf-precioMN').value=mnTotal>0?`${Math.round(mnTotal)} MN`:'';
     calcAutoTotal();
+  }
+  // auto-calculate commission based on products selected
+  let comUSD=0, comMN=0;
+  items.forEach(({id,qty})=>{
+    const p=productoOf(id);if(!p)return;
+    const com=p.comision||'';
+    if(!com)return;
+    const isPct=com.includes('%');
+    const comUpper=(com+'').toUpperCase();
+    const isMNCom=comUpper.includes('MN')||comUpper.includes('CUP');
+    const moneda=p.comisionMoneda||'';
+    const useMN=isMNCom||moneda.toUpperCase()==='MN';
+    if(isPct){
+      const pct=parseFloat(com.replace(/[^0-9.]/g,''));
+      const priceNum=parsePrecioNum(p.precio||'');
+      if(!isNaN(pct)&&priceNum>0){
+        const amt=Math.round(priceNum*(pct/100)*qty*100)/100;
+        if(useMN)comMN+=amt; else comUSD+=amt;
+      }
+    } else {
+      const num=parsePrecioNum(com)*qty;
+      if(num>0){ if(useMN)comMN+=num; else comUSD+=num; }
+    }
+  });
+  if(comUSD>0||comMN>0){
+    const parts=[];
+    if(comUSD>0)parts.push(`$${comUSD.toFixed(2)} USD`);
+    if(comMN>0)parts.push(`${Math.round(comMN)} MN`);
+    document.getElementById('vf-comisionGestor').value=parts.join(' + ');
   }
   // auto-fill garantia from first product that has one
   if(!document.getElementById('vf-garantia').value){
@@ -3363,34 +3594,58 @@ function toggleComisionGestor(id) {
 }
 function getValeCommissionParts(v) {
   const items=v.valeProductos||[];
-  const parts=[];let total=0;let currency='USD';let computable=true;
+  const parts=[];
+  let totalUSD=0,totalMN=0;let computable=true;
   items.forEach(({id,qty})=>{
     const p=productoOf(id);if(!p)return;
     const com=p.comision||'';
     if(!com)return;
     const label=`${p.name}${qty>1?` ×${qty}`:''}`;
-    // Try to parse fixed amount
+    // Determine currency for this product's commission
+    const comUpper=(com+'').toUpperCase();
+    const isMN=comUpper.includes('MN')||comUpper.includes('CUP');
+    // Also check comisionMoneda field for numeric commissions
+    const moneda=p.comisionMoneda||'';
+    const useMN=isMN||moneda.toUpperCase()==='MN';
+    // Check if precio is in MN (fallback for percentage)
+    const precioMN=(p.precio||'').toUpperCase().includes('MN');
     const isPct=com.includes('%');
     if(isPct){
-      // percentage: try to compute from precio
       const pct=parseFloat(com.replace(/[^0-9.]/g,''));
       const priceNum=parsePrecioNum(p.precio||'');
       if(!isNaN(pct)&&priceNum>0){
         const amt=Math.round(priceNum*(pct/100)*qty*100)/100;
-        total+=amt;
-        parts.push({label,com:`${pct}% = $${amt.toFixed(2)}`});
-        if((p.precio||'').includes('MN'))currency='MN';
+        const curLabel=useMN||precioMN?'MN':'USD';
+        if(curLabel==='MN')totalMN+=amt;else totalUSD+=amt;
+        parts.push({label,com:`${pct}% = ${curLabel==='MN'?Math.round(amt)+' MN':'$'+amt.toFixed(2)+' USD'}`,currency:curLabel});
       } else {
-        parts.push({label,com});computable=false;
+        parts.push({label,com,currency:useMN?'MN':'USD'});computable=false;
       }
     } else {
       const num=parsePrecioNum(com);
-      if(num>0){total+=num*qty;parts.push({label,com:`${com}${qty>1?` ×${qty}`:''}`});}
-      else{parts.push({label,com});computable=false;}
-      if(com.includes('MN'))currency='MN';
+      if(num>0){
+        const curLabel=useMN?'MN':'USD';
+        const total=num*qty;
+        if(curLabel==='MN')totalMN+=total;else totalUSD+=total;
+        parts.push({label,com:`${com}${qty>1?` ×${qty}`:''}`,currency:curLabel});
+      } else {
+        parts.push({label,com,currency:useMN?'MN':'USD'});computable=false;
+      }
     }
   });
-  return{parts,total:computable&&parts.length?total:null,currency};
+  return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
+    // Backward compat: total + currency for single-currency vales
+    get total(){
+      if(this.totalUSD!==null&&this.totalMN!==null&&this.totalMN>0&&this.totalUSD>0)return this.totalUSD+this.totalMN;
+      if(this.totalUSD!==null&&this.totalUSD>0)return this.totalUSD;
+      if(this.totalMN!==null&&this.totalMN>0)return this.totalMN;
+      return null;
+    },
+    get currency(){
+      if(this.totalMN!==null&&this.totalMN>0&&(!this.totalUSD||this.totalUSD===0))return 'MN';
+      return 'USD';
+    }
+  };
 }
 function markCommissionEnSobre(valeId,e) {
   if(e)e.stopPropagation();
@@ -3438,6 +3693,21 @@ function unpayCommission(valeId,e) {
   gestoresTabDirty=true;
   renderComisiones();
 }
+// Helper: sum commissions from vales, returns {usd, mn, computed}
+function sumCommissions(vales) {
+  let usd=0,mn=0,computed=true;
+  vales.forEach(v=>{
+    const r=getValeCommissionParts(v);
+    if(r.totalUSD===null&&r.totalMN===null){computed=false;}
+    else{if(r.totalUSD!==null)usd+=r.totalUSD;if(r.totalMN!==null)mn+=r.totalMN;}
+  });
+  return{usd,mn,computed};
+}
+function fmtComisionBadge(usd,mn,computed) {
+  if(!computed)return null;
+  const p=[];if(usd>0)p.push(`$${usd.toFixed(2)} USD`);if(mn>0)p.push(`${Math.round(mn)} MN`);
+  return p.length?p.join(' + '):null;
+}
 function renderComisiones() {
   const c=document.getElementById('adminComisionesList');if(!c)return;
   const gestores=getGestores();
@@ -3445,22 +3715,27 @@ function renderComisiones() {
   c.innerHTML=gestores.map(g=>{
     const allVales=getVales().filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status));
     // 3 states: pendientes (no status), en_sobre, cobrado
-    const pendientes=allVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre');
+    const pendientes=allVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
     const enSobre=allVales.filter(v=>v.commissionStatus==='en_sobre');
     const cobrados=allVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
     const isOpen=activeComisionGestorId===g.id;
-    // Compute grand total for pending + en_sobre split by currency
-    const unpaid=[...pendientes,...enSobre];
-    let gtUSD=0,gtMN=0,gtAllComputed=true;
-    unpaid.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){gtAllComputed=false;}else{if(r.currency==='MN')gtMN+=r.total;else gtUSD+=r.total;}});
-    const gtBadgeParts=[];if(gtUSD>0)gtBadgeParts.push(`$${gtUSD.toFixed(2)} USD`);if(gtMN>0)gtBadgeParts.push(`${Math.round(gtMN)} MN`);
-    const gtBadge=gtAllComputed&&gtBadgeParts.length?gtBadgeParts.join(' + '):null;
+    // Badge: only pendientes total (not en_sobre - that goes separate)
+    const pendSum=sumCommissions(pendientes);
+    const sobreSum=sumCommissions(enSobre);
+    const pendBadge=fmtComisionBadge(pendSum.usd,pendSum.mn,pendSum.computed);
+    const sobreBadge=fmtComisionBadge(sobreSum.usd,sobreSum.mn,sobreSum.computed);
     // Summary line
     const summaryParts=[];
     if(pendientes.length)summaryParts.push(`<span style="color:var(--orange);font-weight:700;">${pendientes.length} pendiente${pendientes.length!==1?'s':''}</span>`);
     if(enSobre.length)summaryParts.push(`<span style="color:var(--yellow);font-weight:700;">✉️ ${enSobre.length} en sobre</span>`);
     if(cobrados.length)summaryParts.push(`<span style="color:var(--green);">💰 ${cobrados.length} cobrado${cobrados.length!==1?'s':''}</span>`);
     if(!summaryParts.length)summaryParts.push('Sin comisiones');
+    // Build badge area: pendientes badge + en_sobre badge separately
+    let badgeHTML='';
+    if(pendBadge)badgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">${pendBadge}</span>`;
+    if(sobreBadge)badgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">✉️ ${sobreBadge}</span>`;
+    if(!pendBadge&&pendientes.length>0)badgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${pendientes.length}</span>`;
+    if(!sobreBadge&&enSobre.length>0)badgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">✉️ ${enSobre.length}</span>`;
     return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:8px;border-color:${isOpen?'var(--blue)':'var(--border)'};">
       <div onclick="toggleComisionGestor(${g.id})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:${isOpen?'var(--blue-lt)':'var(--surface)'};">
         <div class="g-avatar" style="background:${g.color};width:34px;height:34px;font-size:11px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
@@ -3470,8 +3745,7 @@ function renderComisiones() {
             ${summaryParts.join(' · ')}
           </div>
         </div>
-        ${gtBadge?`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">${gtBadge}</span>`:''}
-        ${unpaid.length>0&&!gtBadge?`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${unpaid.length}</span>`:''}
+        <div style="display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">${badgeHTML}</div>
         <span style="color:var(--gray-400);font-size:13px;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
       </div>
       ${isOpen?renderComisionBody(g,pendientes,enSobre,cobrados):''}
@@ -3485,18 +3759,18 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
   } else {
     // ── PENDIENTES ──
     if(pendientes.length){
-      let sumUSD=0,sumMN=0,canSum=true;
-      pendientes.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='MN')sumMN+=r.total;else sumUSD+=r.total;}});
-      const sumParts=[];if(sumUSD>0)sumParts.push(`$${sumUSD.toFixed(2)} USD`);if(sumMN>0)sumParts.push(`${Math.round(sumMN)} MN`);
+      const s=sumCommissions(pendientes);
+      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed);
       html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
         <span style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;">⏳ Pendientes (${pendientes.length})</span>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          ${canSum&&sumParts.length?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumParts.join(' + ')}</span>`:''}
+          ${sumBadge?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumBadge}</span>`:''}
           ${pendientes.length>1?`<button class="btn btn-sm" style="background:var(--yellow);color:white;flex-shrink:0;" onclick="markAllCommissionsEnSobre(${g.id},event)">✉️ Todo al sobre</button>`:''}
         </div>
       </div>`;
       html+=pendientes.map(v=>{
         const r=getValeCommissionParts(v);
+        const vBadge=fmtComisionBadge(r.totalUSD||0,r.totalMN||0,r.totalUSD!==null||r.totalMN!==null);
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
             <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
@@ -3504,6 +3778,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
               ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(16,185,129,.12);color:var(--green);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
+            ${vBadge?`<div style="margin-top:4px;font-size:12px;font-weight:800;color:var(--green);">= ${vBadge}</div>`:''}
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
             <button class="btn btn-sm" style="background:var(--yellow);color:white;" onclick="markCommissionEnSobre(${v.id},event)">✉️ En sobre</button>
@@ -3514,19 +3789,19 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
     }
     // ── EN SOBRE ──
     if(enSobre.length){
-      let sumUSD=0,sumMN=0,canSum=true;
-      enSobre.forEach(v=>{const r=getValeCommissionParts(v);if(r.total===null){canSum=false;}else{if(r.currency==='MN')sumMN+=r.total;else sumUSD+=r.total;}});
-      const sumParts=[];if(sumUSD>0)sumParts.push(`$${sumUSD.toFixed(2)} USD`);if(sumMN>0)sumParts.push(`${Math.round(sumMN)} MN`);
+      const s=sumCommissions(enSobre);
+      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed);
       html+=`<div style="margin-top:${pendientes.length?'14px':'0'};">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;">✉️ En sobre (${enSobre.length})</span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            ${canSum&&sumParts.length?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumParts.join(' + ')}</span>`:''}
+            ${sumBadge?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumBadge}</span>`:''}
             ${enSobre.length>1?`<button class="btn btn-green btn-sm" onclick="markAllCommissionsCobrado(${g.id},event)">💰 Cobrar todas</button>`:''}
           </div>
         </div>`;
       html+=enSobre.map(v=>{
         const r=getValeCommissionParts(v);
+        const vBadge=fmtComisionBadge(r.totalUSD||0,r.totalMN||0,r.totalUSD!==null||r.totalMN!==null);
         const ts=v.commissionEnSobreTs?new Date(v.commissionEnSobreTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionEnSobreTs):'';
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:9px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
@@ -3535,6 +3810,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
               ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(245,158,11,.12);color:var(--yellow);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
+            ${vBadge?`<div style="margin-top:4px;font-size:12px;font-weight:800;color:var(--yellow);">= ${vBadge}</div>`:''}
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;text-align:right;">
             <span style="font-size:9px;color:var(--yellow);font-weight:700;">✉️ En sobre</span>
@@ -3548,8 +3824,13 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
     }
     // ── COBRADOS ──
     if(cobrados.length){
+      const s=sumCommissions(cobrados);
+      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed);
       html+=`<div style="margin-top:${pendientes.length||enSobre.length?'14px':'0'};">
-        <div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">💰 Cobrados (${cobrados.length})</div>`;
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;">💰 Cobrados (${cobrados.length})</span>
+          ${sumBadge?`<span style="font-size:11px;font-weight:800;color:var(--green);">💵 ${sumBadge}</span>`:''}
+        </div>`;
       html+=cobrados.map(v=>{
         const r=getValeCommissionParts(v);
         const ts=v.commissionPaidTs?new Date(v.commissionPaidTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionPaidTs):'';
@@ -4655,19 +4936,62 @@ function renderAdminPickerSelected() {
   </div>`).join('');
 }
 
+// Context-aware picker confirm: edit vale or admin vale creation
+function handlePickerConfirm() {
+  // If editValeModal is open, use edit picker confirm
+  if(document.getElementById('editValeModal')?.classList.contains('show')) {
+    confirmEditValePickerSelection();
+  } else {
+    confirmAdminPickerSelection();
+  }
+}
 function confirmAdminPickerSelection() {
   const items = Object.entries(adminPickerSelected).map(([id,qty])=>{
     const p=productoOf(parseInt(id)); return {id:parseInt(id),name:p?p.name:id,qty};
   });
   adminValeProductos = items;
   document.getElementById('av-articulo').value = items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
-  let total=0; let cur='USD';
-  items.forEach(({id,qty})=>{ const p=productoOf(id); if(!p||!p.precio)return; total+=parsePrecioNum(p.precio)*qty; if(p.precio.includes('MN'))cur='MN'; });
-  if(total>0){
-    const fmt=`$${total} ${cur}`;
-    if(cur==='MN'){document.getElementById('av-precioMN').value=fmt;document.getElementById('av-precioUSD').value='';}
-    else{document.getElementById('av-precioUSD').value=fmt;document.getElementById('av-precioMN').value='';}
+  // auto-sum prices: separate USD and MN properly
+  let usdTotal=0, mnTotal=0;
+  items.forEach(({id,qty})=>{
+    const p=productoOf(id); if(!p||!p.precio)return;
+    const num=parsePrecioNum(p.precio)*qty;
+    const isMN=(p.precio+'').toUpperCase().includes('MN')||(p.precio+'').toUpperCase().includes('CUP');
+    if(isMN)mnTotal+=num; else usdTotal+=num;
+  });
+  if(usdTotal>0||mnTotal>0){
+    document.getElementById('av-precioUSD').value=usdTotal>0?`$${usdTotal} USD`:'';
+    document.getElementById('av-precioMN').value=mnTotal>0?`${Math.round(mnTotal)} MN`:'';
     calcAdminAutoTotal();
+  }
+  // auto-calculate commission based on products selected and quantity
+  let comUSD=0, comMN=0;
+  items.forEach(({id,qty})=>{
+    const p=productoOf(id);if(!p)return;
+    const com=p.comision||'';
+    if(!com)return;
+    const isPct=com.includes('%');
+    const comUpper=(com+'').toUpperCase();
+    const isMNCom=comUpper.includes('MN')||comUpper.includes('CUP');
+    const moneda=p.comisionMoneda||'';
+    const useMN=isMNCom||moneda.toUpperCase()==='MN';
+    if(isPct){
+      const pct=parseFloat(com.replace(/[^0-9.]/g,''));
+      const priceNum=parsePrecioNum(p.precio||'');
+      if(!isNaN(pct)&&priceNum>0){
+        const amt=Math.round(priceNum*(pct/100)*qty*100)/100;
+        if(useMN)comMN+=amt; else comUSD+=amt;
+      }
+    } else {
+      const num=parsePrecioNum(com)*qty;
+      if(num>0){ if(useMN)comMN+=num; else comUSD+=num; }
+    }
+  });
+  if(comUSD>0||comMN>0){
+    const parts=[];
+    if(comUSD>0)parts.push(`$${comUSD.toFixed(2)} USD`);
+    if(comMN>0)parts.push(`${Math.round(comMN)} MN`);
+    document.getElementById('av-comisionGestor').value=parts.join(' + ');
   }
   if(!document.getElementById('av-garantia').value){
     const g=items.map(({id})=>productoOf(id)?.garantia).find(Boolean);
@@ -4703,7 +5027,7 @@ async function init() {
   }
 }
 function initGestorPage() {
-  setInterval(() => { updateAdminBadge(); renderMyVales(); renderGestorNotifs(); }, 12000);
+  setInterval(() => { updateAdminBadge(); renderMyVales(); renderGestorComisiones(); renderGestorNotifs(); }, 12000);
   renderGestores();
   renderGestorNotifs();
   renderGestorRanking();

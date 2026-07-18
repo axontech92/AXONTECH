@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=67">
+  <link rel="stylesheet" href="./app.css?v=69">
 </head>
 <body data-page="gestor">
 
@@ -193,6 +193,14 @@
         </div>
       </div>
 
+      <div class="vf-row">
+        <span class="vf-emoji">💰</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Comisión del gestor <span style="color:var(--green);font-size:9px;">● Auto</span></span></div>
+          <input type="text" id="vf-comisionGestor" placeholder="Se calcula del catálogo" oninput="onFormInput()">
+        </div>
+      </div>
+
       <div class="vf-row vf-auto">
         <span class="vf-emoji">📅</span>
         <div class="vf-inner">
@@ -248,6 +256,12 @@
           <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:11px;" onclick="clearGestorHistory()">🗑️ Limpiar historial</button>
         </div>
       </div>
+    </div>
+
+    <!-- Mis Comisiones Pendientes -->
+    <div id="gestorComisionSection" style="display:none;padding-top:4px;">
+      <div class="lbl" style="margin-top:14px;">💰 Mis Comisiones</div>
+      <div id="gestorComisionList"></div>
     </div>
 
   </div>
@@ -379,7 +393,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=67"></script>
+<script src="./app.js?v=69"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
