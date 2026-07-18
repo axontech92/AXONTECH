@@ -2955,18 +2955,20 @@ function renderGrid(){
 }
 renderNav();renderGrid();
 function openProduct(id){
-  const p=products.find(x=>x.id===id);if(!p)return;
-  const c=document.getElementById('pmodalContent');
-  c.innerHTML=\`
-    \${p.photo?\`<img class="pmodal-img" src="\${p.photo}" onerror="this.outerHTML='<div class=\\'pmodal-noimg\\'>&#128230;</div>'">\`:\`<div class="pmodal-noimg">&#128230;</div>\`}
-    <div class="pmodal-body">
-      \${p.catName?\`<div class="pmodal-cat" style="background:\${p.catColor}">\${p.catName}</div>\`:''}
-      <div class="pmodal-name">\${p.name}</div>
-      \${p.desc?\`<div class="pmodal-desc">\${p.desc}</div>\`:''}
-      \${p.price?\`<div class="pmodal-price">\${p.price}</div>\`:''}
-      \${p.garantia?\`<div class="pmodal-badge">Garantia: \${p.garantia}</div>\`:''}
-      \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:''}
-    </div>\`;
+  var p=products.find(function(x){return x.id===id});if(!p)return;
+  var c=document.getElementById('pmodalContent');
+  var h='';
+  if(p.photo){h+='<img class="pmodal-img" src="'+p.photo+'" onerror="this.outerHTML=\'<div class=pmodal-noimg>&#128230;</div>\'">';}
+  else{h+='<div class="pmodal-noimg">&#128230;</div>';}
+  h+='<div class="pmodal-body">';
+  if(p.catName){h+='<div class="pmodal-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
+  h+='<div class="pmodal-name">'+p.name+'</div>';
+  if(p.desc){h+='<div class="pmodal-desc">'+p.desc+'</div>';}
+  if(p.price){h+='<div class="pmodal-price">'+p.price+'</div>';}
+  if(p.garantia){h+='<div class="pmodal-badge">Garantia: '+p.garantia+'</div>';}
+  if(p.waLink){h+='<a class="wa-btn" href="'+p.waLink+'" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
+  h+='</div>';
+  c.innerHTML=h;
   document.getElementById('pmodalBg').classList.add('show');
 }
 function closeProduct(){document.getElementById('pmodalBg').classList.remove('show');}
