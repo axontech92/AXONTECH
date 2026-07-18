@@ -2938,7 +2938,7 @@ function renderGrid(){
   g.innerHTML=filtered.map(function(p){
     var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
     s+='<div class="card-img">';
-    if(p.photo){s+='<img src="'+p.photo+'" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;" loading="lazy">';}
+    if(p.photo){s+='<img src="'+p.photo+'" data-img="1" loading="lazy">';}
     s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
     if(p.catName){s+='<div class="card-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
     s+='</div><div class="card-body">';
@@ -2958,7 +2958,7 @@ function openProduct(id){
   var p=products.find(function(x){return x.id===id});if(!p)return;
   var c=document.getElementById('pmodalContent');
   var h='';
-  if(p.photo){h+='<img class="pmodal-img" src="'+p.photo+'" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
+  if(p.photo){h+='<img class="pmodal-img" src="'+p.photo+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
   else{h+='<div class="pmodal-noimg">&#128230;</div>';}
   h+='<div class="pmodal-body">';
   if(p.catName){h+='<div class="pmodal-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
@@ -2972,6 +2972,7 @@ function openProduct(id){
   document.getElementById('pmodalBg').classList.add('show');
 }
 function closeProduct(){document.getElementById('pmodalBg').classList.remove('show');}
+document.addEventListener('error',function(e){var t=e.target;if(t.tagName==='IMG'&&t.dataset.img){t.style.display='none';if(t.nextElementSibling)t.nextElementSibling.style.display='flex';}},true);
 renderNav();renderGrid();
 </script>
 </body></html>`;
@@ -3016,9 +3017,15 @@ renderNav();renderGrid();
   setTimeout(()=>URL.revokeObjectURL(url),300000);
 }
 function buildCatalogCardJS(p,cat,color,waPhone){
-  const waMsg=`Hola, me interesa el producto: ${p.name}${p.precio?' - '+p.precio:''}. Esta disponible?`;
+  const pName=p.name||p.nombre||'';
+  const pDesc=p.description||p.descripcion||'';
+  const pPrice=p.precio||p.precioActual||'';
+  const pPhoto=p.photo||p.imagen||'';
+  const pGarantia=p.garantia||'';
+  const esc=s=>JSON.stringify(s).replace(/<\//g,'<\\/');
+  const waMsg=`Hola, me interesa el producto: ${pName}${pPrice?' - '+pPrice:''}. Esta disponible?`;
   const waLink=waPhone?`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`:'';
-  return `{id:${p.id},catId:${cat?cat.id:0},name:${JSON.stringify(p.name)},desc:${JSON.stringify(p.description||'')},price:${JSON.stringify(p.precio||'')},photo:${JSON.stringify(p.photo||'')},catName:${JSON.stringify(cat?cat.name:'')},catColor:'${color}',garantia:${JSON.stringify(p.garantia||'')},waLink:${JSON.stringify(waLink)}},`;
+  return `{id:${p.id},catId:${cat?cat.id:0},name:${esc(pName)},desc:${esc(pDesc)},price:${esc(pPrice)},photo:${esc(pPhoto)},catName:${esc(cat?cat.name:'')},catColor:'${color}',garantia:${esc(pGarantia)},waLink:${esc(waLink)}},`;
 }
 // Keep PDF export as secondary option
 function exportCatalogPDF(){
