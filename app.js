@@ -3069,21 +3069,56 @@ async function syncToGitHub(silent) {
     const json=JSON.stringify(data,null,2);
     const content=btoa(unescape(encodeURIComponent(json)));
     const parts=cfg.ghRepo.split('/');const owner=parts[0];const repo=parts.slice(1).join('/');
-    const url=`https://api.github.com/repos/${owner}/${repo}/contents/${cfg.ghPath}`;
     const headers={Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
-    let sha;
-    try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
-    const body={message:`AXONTECH sync ${new Date().toLocaleString('es-ES')}`,content};
-    if(sha)body.sha=sha;
-    const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
-    if(res.ok){
+
+    // Helper to upload a file to GitHub
+    async function ghPut(path, fileContent, msg) {
+      const url=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+      let sha;
+      try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
+      const body={message:msg,content:fileContent};
+      if(sha)body.sha=sha;
+      const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+      return res.ok;
+    }
+
+    // 1. Upload data.json
+    const dataOk=await ghPut(cfg.ghPath, content, `AXONTECH sync ${new Date().toLocaleString('es-ES')}`);
+
+    // 2. Upload productos.json + categorias.json + catalogo.html for GitHub Pages
+    let catalogOk=false;
+    const ghCatalogPath=cfg.ghCatalogPath||'catalogo.html';
+    const ghProductosPath=cfg.ghProductosPath||'productos.json';
+    const ghCategoriasPath=cfg.ghCategoriasPath||'categorias.json';
+
+    // Upload productos.json
+    const prodsJson=JSON.stringify(data.productos,null,2);
+    const prodsContent=btoa(unescape(encodeURIComponent(prodsJson)));
+    await ghPut(ghProductosPath, prodsContent, `AXONTECH productos sync`);
+
+    // Upload categorias.json
+    const catsJson=JSON.stringify(data.categorias,null,2);
+    const catsContent=btoa(unescape(encodeURIComponent(catsJson)));
+    await ghPut(ghCategoriasPath, catsContent, `AXONTECH categorias sync`);
+
+    // Upload catalogo.html (read from local file)
+    try {
+      const catalogResp=await fetch('./catalogo.html');
+      if(catalogResp.ok){
+        const catalogText=await catalogResp.text();
+        const catalogContent=btoa(unescape(encodeURIComponent(catalogText)));
+        catalogOk=await ghPut(ghCatalogPath, catalogContent, `AXONTECH catalogo sync`);
+      }
+    }catch(e){console.error('Error uploading catalog:',e);}
+
+    if(dataOk){
       const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-      if(statusEl)statusEl.innerHTML=`<span style="color:var(--green);">✓ Sincronizado ${ts}</span>`;
-      if(!silent)showToast('Guardado en GitHub ✓');
+      const catalogMsg=catalogOk?' + 📦 Catálogo':'';
+      if(statusEl)statusEl.innerHTML=`<span style="color:var(--green);">✓ Sincronizado ${ts}${catalogMsg}</span>`;
+      if(!silent)showToast(`Guardado en GitHub ✓${catalogMsg}`);
     } else {
-      const err=await res.json().catch(()=>({}));
-      if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ Error ${res.status}: ${err.message||''}</span>`;
-      if(!silent)showToast(`Error al sincronizar (${res.status})`);
+      if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ Error al sincronizar</span>`;
+      if(!silent)showToast('Error al sincronizar');
     }
   } catch(e) {
     if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ ${e.message}</span>`;

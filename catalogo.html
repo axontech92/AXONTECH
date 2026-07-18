@@ -1,0 +1,258 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AXONTECH - Catalogo</title>
+<link rel="icon" href="./iconos/favicon-96.png">
+<meta property="og:title" content="AXONTECH - Catalogo de Productos">
+<meta property="og:description" content="Explora nuestros productos disponibles">
+<meta property="og:type" content="website">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--primary:#006d8a;--primary-dk:#004d60;--accent:#00b4d8;--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--muted:#64748b;--radius:16px;--shadow:0 4px 20px rgba(0,0,0,.08);}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.hero{background:linear-gradient(135deg,var(--primary-dk) 0%,var(--primary) 50%,var(--accent) 100%);padding:48px 20px 36px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 60%);animation:heroGlow 8s ease-in-out infinite alternate;}
+@keyframes heroGlow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.hero-logo{font-size:48px;font-weight:900;color:#fff;letter-spacing:10px;text-shadow:0 2px 20px rgba(0,0,0,.3);position:relative;z-index:1;}
+.hero-sub{font-size:14px;letter-spacing:5px;color:rgba(255,255,255,.8);font-weight:300;margin-top:4px;position:relative;z-index:1;}
+.hero-line{width:50px;height:3px;background:rgba(255,255,255,.4);margin:14px auto;border-radius:2px;position:relative;z-index:1;}
+.hero-info{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1px;position:relative;z-index:1;}
+.hero-count{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 18px;font-size:12px;color:rgba(255,255,255,.9);margin-top:12px;font-weight:600;position:relative;z-index:1;}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.06);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
+.nav-btn:hover{border-color:var(--primary);color:var(--primary);}
+.nav-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(0,109,138,.25);}
+.search-bar{max-width:1200px;margin:16px auto 0;padding:0 16px;}
+.search-bar input{width:100%;padding:10px 18px;border-radius:24px;border:1.5px solid #e2e8f0;font-size:14px;outline:none;transition:border-color .2s;}
+.search-bar input:focus{border-color:var(--primary);}
+.container{max-width:1200px;margin:0 auto;padding:16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;display:flex;flex-direction:column;}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.card-img{height:220px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer;}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.card:hover .card-img img{transform:scale(1.05);}
+.card-img .no-img{font-size:64px;opacity:.25;}
+.card-cat{position:absolute;top:12px;left:12px;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.card-body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column;}
+.card-name{font-weight:800;font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.3;min-height:42px;}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;height:58px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease;}
+.card-desc.expanded{height:auto;max-height:500px;}
+.card-price{font-weight:900;font-size:22px;color:var(--primary);margin-bottom:12px;letter-spacing:.3px;min-height:30px;}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:26px;}
+.badge{padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+.badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.3px;margin-top:auto;}
+.wa-btn:hover{transform:scale(1.02);box-shadow:0 4px 14px rgba(37,211,102,.35);}
+.wa-btn:active{transform:scale(.98);}
+.footer{text-align:center;padding:32px 20px;margin-top:40px;border-top:1px solid #e2e8f0;background:#fff;}
+.footer-brand{font-size:14px;font-weight:900;color:var(--primary);letter-spacing:4px;margin-bottom:6px;}
+.footer-addr{font-size:11px;color:var(--muted);line-height:1.6;}
+.footer-gen{font-size:9px;color:#cbd5e1;margin-top:8px;}
+.float-wa{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 16px rgba(37,211,102,.4);cursor:pointer;z-index:999;transition:transform .2s;text-decoration:none;border:none;}
+.float-wa:hover{transform:scale(1.1);}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+.pmodal-bg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity .25s;pointer-events:none;}
+.pmodal-bg.show{opacity:1;pointer-events:auto;}
+.pmodal{background:var(--card);border-radius:var(--radius);max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(20px);transition:transform .25s;}
+.pmodal-bg.show .pmodal{transform:translateY(0);}
+.pmodal-img{width:100%;height:260px;object-fit:cover;display:block;}
+.pmodal-noimg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.2;background:linear-gradient(145deg,#f8fafc,#eef2f7);}
+.pmodal-cat{display:inline-block;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.pmodal-body{padding:20px 22px 24px;}
+.pmodal-name{font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.pmodal-desc{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px;white-space:pre-line;}
+.pmodal-price{font-weight:900;font-size:24px;color:var(--primary);margin-bottom:10px;}
+.pmodal-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;margin-bottom:16px;}
+.pmodal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .2s;}
+.pmodal-close:hover{background:rgba(0,0,0,.7);}
+.loading{text-align:center;padding:80px 20px;color:var(--muted);font-size:14px;}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:32px;height:32px;border:3px solid #e2e8f0;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
+@media(max-width:640px){
+  .hero{padding:36px 16px 28px;}
+  .hero-logo{font-size:36px;letter-spacing:6px;}
+  .hero-sub{font-size:11px;letter-spacing:3px;}
+  .grid{grid-template-columns:1fr;gap:16px;}
+  .card-img{height:200px;}
+  .container{padding:12px;}
+}
+@media(min-width:641px) and (max-width:1024px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head><body>
+<div class="hero">
+  <div class="hero-logo">AXONTECH</div>
+  <div class="hero-sub">CATALOGO DE PRODUCTOS</div>
+  <div class="hero-line"></div>
+  <div class="hero-info" id="heroDate"></div>
+  <div class="hero-count" id="heroCount">Cargando...</div>
+</div>
+<div class="nav" id="catNav"></div>
+<div class="search-bar"><input type="search" id="searchInput" placeholder="Buscar producto..." oninput="renderProducts()"></div>
+<div class="container"><div class="grid" id="productGrid"><div class="loading"><div class="spinner"></div><div>Cargando productos...</div></div></div></div>
+<div class="pmodal-bg" id="pmodalBg" onclick="if(event.target===this)closeProduct()">
+  <div class="pmodal" style="position:relative;">
+    <button class="pmodal-close" onclick="closeProduct()">&times;</button>
+    <div id="pmodalContent"></div>
+  </div>
+</div>
+<div class="footer">
+  <div class="footer-brand">AXONTECH</div>
+  <div class="footer-addr">Amistad #311 % San Rafael y San Jose, Centro Habana</div>
+  <div class="footer-gen" id="footerGen"></div>
+</div>
+<a class="float-wa" id="floatWa" href="#" target="_blank" title="Chat por WhatsApp">&#128172;</a>
+
+<script>
+var CAT_COLORS = {10:'#006d8a',20:'#f59e0b',30:'#8b5cf6',40:'#10b981',50:'#ef4444',60:'#ec4899',70:'#6366f1',80:'#f97316',90:'#14b8a6',100:'#6b7280',110:'#a855f7',120:'#0ea5e9',130:'#84cc16'};
+var products = [];
+var categories = [];
+var activeCat = null;
+var adminPhone = '';
+
+function esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+function formatDate(){
+  var d=new Date();
+  var m=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return d.getDate()+' de '+m[d.getMonth()]+' de '+d.getFullYear();
+}
+
+function getCatColor(catId){return CAT_COLORS[catId]||'#64748b';}
+
+function getCatName(catId){
+  var c=categories.find(function(x){return x.id===catId;});
+  return c?c.name:'Otro';
+}
+
+function buildWaLink(name,price){
+  var msg='Hola, vi el catalogo de AXONTECH y me interesa el producto: '+name+' - '+price+'. Esta disponible?';
+  var phone=adminPhone||'5351234567';
+  return 'https://wa.me/'+phone+'?text='+encodeURIComponent(msg);
+}
+
+function renderNav(){
+  var nav=document.getElementById('catNav');
+  var html='<button class="nav-btn '+(activeCat===null?'active':'')+'" onclick="setCat(null)">Todos</button>';
+  categories.forEach(function(c){
+    html+='<button class="nav-btn '+(activeCat===c.id?'active':'')+'" onclick="setCat('+c.id+')">'+esc(c.name)+'</button>';
+  });
+  nav.innerHTML=html;
+}
+
+function setCat(id){activeCat=id;renderNav();renderProducts();}
+
+function renderProducts(){
+  var search=document.getElementById('searchInput').value.toLowerCase();
+  var prods=products.filter(function(p){return p.stock>0||!p.stock;});
+  if(activeCat!==null)prods=prods.filter(function(p){return p.catId===activeCat;});
+  if(search)prods=prods.filter(function(p){return p.name.toLowerCase().indexOf(search)!==-1||((p.description||'').toLowerCase().indexOf(search)!==-1);});
+  var grid=document.getElementById('productGrid');
+  if(!prods.length){
+    grid.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div>No se encontraron productos</div></div>';
+    return;
+  }
+  grid.innerHTML=prods.map(function(p){
+    var catColor=getCatColor(p.catId);
+    var catName=getCatName(p.catId);
+    var waLink=buildWaLink(p.name,p.precio||'');
+    return '<div class="card" onclick="openProduct('+p.id+')">'+
+      '<div class="card-img">'+
+        (p.photo?'<img src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=no-img>📦</div>\'">':'<div class="no-img">📦</div>')+
+        '<div class="card-cat" style="background:'+catColor+'">'+esc(catName)+'</div>'+
+      '</div>'+
+      '<div class="card-body">'+
+        '<div class="card-name">'+esc(p.name)+'</div>'+
+        (p.description?'<div class="card-desc" onclick="event.stopPropagation();this.classList.toggle(\'expanded\')">'+esc(p.description.replace(/\n/g,' '))+'</div>':'')+
+        (p.precio?'<div class="card-price">'+esc(p.precio)+'</div>':'')+
+        '<div class="card-badges">'+
+          (p.garantia?'<span class="badge badge-garantia">🛡️ '+esc(p.garantia)+'</span>':'')+
+        '</div>'+
+        '<a class="wa-btn" href="'+waLink+'" target="_blank" onclick="event.stopPropagation()">💬 Preguntar disponibilidad</a>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openProduct(id){
+  var p=products.find(function(x){return x.id===id;});
+  if(!p)return;
+  var catColor=getCatColor(p.catId);
+  var catName=getCatName(p.catId);
+  var waLink=buildWaLink(p.name,p.precio||'');
+  document.getElementById('pmodalContent').innerHTML=
+    (p.photo?'<img class="pmodal-img" src="'+esc(p.photo)+'" alt="'+esc(p.name)+'" onerror="this.className=\'pmodal-noimg\';this.innerHTML=\'📦\'">':'<div class="pmodal-noimg">📦</div>')+
+    '<div class="pmodal-body">'+
+      '<div class="pmodal-cat" style="background:'+catColor+'">'+esc(catName)+'</div>'+
+      '<div class="pmodal-name">'+esc(p.name)+'</div>'+
+      (p.description?'<div class="pmodal-desc">'+esc(p.description)+'</div>':'')+
+      (p.precio?'<div class="pmodal-price">'+esc(p.precio)+'</div>':'')+
+      (p.garantia?'<div class="pmodal-badge">🛡️ Garantia: '+esc(p.garantia)+'</div>':'')+
+      '<a class="wa-btn" href="'+waLink+'" target="_blank">💬 Preguntar disponibilidad</a>'+
+    '</div>';
+  document.getElementById('pmodalBg').classList.add('show');
+}
+
+function closeProduct(){document.getElementById('pmodalBg').classList.remove('show');}
+
+// Load data from productos.json + categorias.json
+async function loadData(){
+  try{
+    var basePath='./';
+    var [prodRes,catRes,dataRes]=await Promise.all([
+      fetch(basePath+'productos.json').catch(function(){return null;}),
+      fetch(basePath+'categorias.json').catch(function(){return null;}),
+      fetch(basePath+'data.json').catch(function(){return null;})
+    ]);
+
+    // Try categorias.json first, fallback to data.json
+    if(catRes&&catRes.ok){
+      var catData=await catRes.json();
+      if(Array.isArray(catData)){categories=catData;}
+      else if(catData.categorias){categories=catData.categorias;}
+    }
+
+    // Try productos.json first, fallback to data.json
+    if(prodRes&&prodRes.ok){
+      var prodData=await prodRes.json();
+      if(Array.isArray(prodData)){products=prodData;}
+      else if(prodData.productos){products=prodData.productos;}
+    } else if(dataRes&&dataRes.ok){
+      var data=await dataRes.json();
+      if(data.productos)products=data.productos;
+      if(data.categorias&&!categories.length)categories=data.categorias;
+      if(data.config&&data.config.adminPhone)adminPhone=data.config.adminPhone;
+    }
+
+    // Sort by category then name
+    products.sort(function(a,b){
+      var ca=a.catId||0,cb=b.catId||0;
+      if(ca!==cb)return ca-cb;
+      return(a.name||'').localeCompare(b.name||'');
+    });
+
+  }catch(e){
+    console.error('Error loading data:',e);
+  }
+
+  // Update UI
+  document.getElementById('heroDate').textContent=formatDate();
+  var inStock=products.filter(function(p){return p.stock>0||!p.stock;}).length;
+  document.getElementById('heroCount').textContent=inStock+' productos disponibles';
+  document.getElementById('footerGen').textContent='Catalogo actualizado: '+formatDate();
+
+  // Float WhatsApp
+  var phone=adminPhone||'5351234567';
+  document.getElementById('floatWa').href='https://wa.me/'+phone+'?text='+encodeURIComponent('Hola, vi el catalogo de AXONTECH y me interesa un producto. Esta disponible?');
+
+  renderNav();
+  renderProducts();
+}
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeProduct();});
+loadData();
+</script>
+</body></html>
