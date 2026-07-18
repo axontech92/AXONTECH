@@ -915,6 +915,8 @@
       "carnet": "",
       "cliente": "Bebej",
       "commissionPaid": false,
+      "confirmedTs": "2026-07-18T22:01:33.447Z",
+      "deliveredTs": "2026-07-18T22:01:19.628Z",
       "direccion": "Nejeje",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -924,7 +926,7 @@
       "mensajeroId": 1784335863791,
       "precioMN": "",
       "precioUSD": "$2970 USD",
-      "status": "pending_payment",
+      "status": "confirmed",
       "telefono": "61626",
       "total": "$2974 USD",
       "ts": "2026-07-18T21:57:49.755Z",
@@ -962,8 +964,7 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bebej\n🔸Teléfono Cliente: 61626\n🔸Dirección Cliente: Nejeje\n🔸Mensajería/ costo: 4\n🔸 Artículos y cantidades:\n  ×2 PESA / BÁSCULA INTELIGENTE DIGITAL.\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n  ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW\n  ×2 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n  ×2 ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS\n🔸Precio USD/ zelle: $2970 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2974 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "deliveredTs": "2026-07-18T22:01:19.628Z"
+      "vuelto": ""
     },
     {
       "adminNotes": "",
@@ -997,5 +998,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-18T22:01:19.638Z"
+  "timestamp": "2026-07-18T22:01:33.477Z"
 }
