@@ -2913,47 +2913,47 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-seri
 </div>
 ${waPhone?`<a class="float-wa" href="https://wa.me/${waPhone}?text=${encodeURIComponent('Hola, vi el catalogo de AXONTECH y me interesa...')}" target="_blank" title="Chat por WhatsApp">&#128172;</a>`:''}
 <script>
-const products=[${catCardsJS}];
-const catNames=[${cats.map((c,i)=>`{id:${c.id},name:${JSON.stringify(c.name)},color:'${catColors[i%catColors.length]}'}`).join(',')}${cats.length?'':`{id:0,name:'Todos',color:'#006d8a'}`}];
-let activeCat=null;
+var products=[${catCardsJS}];
+var catNames=[${cats.map((c,i)=>"{id:"+c.id+",name:"+JSON.stringify(c.name)+",color:'"+catColors[i%catColors.length]+"'}").join(',')}${cats.length?'':",{id:0,name:'Todos',color:'#006d8a'}"}];
+var activeCat=null;
 function renderNav(){
-  const n=document.getElementById('catNav');
-  let h='<button class="nav-btn active" onclick="filterCat(null,this)">Todos</button>';
-  catNames.forEach(c=>{
-    const count=products.filter(p=>p.catId===c.id).length;
-    if(count)h+=\`<button class="nav-btn" onclick="filterCat(\${c.id},this)">\${c.name} (\${count})</button>\`;
+  var n=document.getElementById('catNav');
+  var h='<button class="nav-btn active" onclick="filterCat(null,this)">Todos</button>';
+  catNames.forEach(function(c){
+    var count=products.filter(function(p){return p.catId===c.id}).length;
+    if(count) h+='<button class="nav-btn" onclick="filterCat('+c.id+',this)">'+c.name+' ('+count+')</button>';
   });
   n.innerHTML=h;
 }
 function filterCat(id,btn){
   activeCat=id;
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
   if(btn)btn.classList.add('active');
   renderGrid();
 }
 function renderGrid(){
-  const g=document.getElementById('productGrid');
-  const filtered=activeCat!==null?products.filter(p=>p.catId===activeCat):products;
+  var g=document.getElementById('productGrid');
+  var filtered=activeCat!==null?products.filter(function(p){return p.catId===activeCat}):products;
   if(!filtered.length){g.innerHTML='<div class="empty"><div class="empty-icon">&#128230;</div><div>No hay productos en esta categoria</div></div>';return;}
-  g.innerHTML=filtered.map(p=>\`
-    <div class="card" onclick="openProduct(\${p.id})" style="cursor:pointer;">
-      <div class="card-img">
-        \${p.photo?\`<img src="\${p.photo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy">\`:''}
-        <div class="no-img" style="\${p.photo?'display:none':''}">&#128230;</div>
-        \${p.catName?\`<div class="card-cat" style="background:\${p.catColor}">\${p.catName}</div>\`:''}
-      </div>
-      <div class="card-body">
-        <div class="card-name">\${p.name}</div>
-        <div class="card-desc">\${p.desc||''}<div class="card-desc-fade"></div></div>
-        <div class="card-price">\${p.price||''}</div>
-        <div class="card-badges">
-          \${p.garantia?\`<span class="badge badge-garantia">Garantia: \${p.garantia}</span>\`:''}
-        </div>
-        \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:\`<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>\`}
-      </div>
-    </div>\`).join('');
+  g.innerHTML=filtered.map(function(p){
+    var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
+    s+='<div class="card-img">';
+    if(p.photo){s+='<img src="'+p.photo+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" loading="lazy">';}
+    s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
+    if(p.catName){s+='<div class="card-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
+    s+='</div><div class="card-body">';
+    s+='<div class="card-name">'+p.name+'</div>';
+    s+='<div class="card-desc">'+(p.desc||'')+'<div class="card-desc-fade"></div></div>';
+    s+='<div class="card-price">'+(p.price||'')+'</div>';
+    s+='<div class="card-badges">';
+    if(p.garantia){s+='<span class="badge badge-garantia">Garantia: '+p.garantia+'</span>';}
+    s+='</div>';
+    if(p.waLink){s+='<a class="wa-btn" href="'+p.waLink+'" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
+    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>';}
+    s+='</div></div>';
+    return s;
+  }).join('');
 }
-renderNav();renderGrid();
 function openProduct(id){
   var p=products.find(function(x){return x.id===id});if(!p)return;
   var c=document.getElementById('pmodalContent');
@@ -2972,6 +2972,7 @@ function openProduct(id){
   document.getElementById('pmodalBg').classList.add('show');
 }
 function closeProduct(){document.getElementById('pmodalBg').classList.remove('show');}
+renderNav();renderGrid();
 </script>
 </body></html>`;
   // Generate downloadable HTML file instead of about:blank window
