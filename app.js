@@ -2938,7 +2938,7 @@ function renderGrid(){
   g.innerHTML=filtered.map(function(p){
     var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
     s+='<div class="card-img">';
-    if(p.photo){s+='<img src="'+p.photo+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" loading="lazy">';}
+    if(p.photo){s+='<img src="'+p.photo+'" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;" loading="lazy">';}
     s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
     if(p.catName){s+='<div class="card-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
     s+='</div><div class="card-body">';
@@ -2958,7 +2958,7 @@ function openProduct(id){
   var p=products.find(function(x){return x.id===id});if(!p)return;
   var c=document.getElementById('pmodalContent');
   var h='';
-  if(p.photo){h+='<img class="pmodal-img" src="'+p.photo+'" onerror="this.outerHTML=\'<div class=pmodal-noimg>&#128230;</div>\'">';}
+  if(p.photo){h+='<img class="pmodal-img" src="'+p.photo+'" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
   else{h+='<div class="pmodal-noimg">&#128230;</div>';}
   h+='<div class="pmodal-body">';
   if(p.catName){h+='<div class="pmodal-cat" style="background:'+p.catColor+'">'+p.catName+'</div>';}
