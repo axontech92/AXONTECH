@@ -4507,23 +4507,21 @@ function renderAdminPickerProducts() {
   if (adminPickerCatFilter!==null) prods=prods.filter(p=>p.catId===adminPickerCatFilter);
   if (search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   const grid = document.getElementById('av-pickerProductGrid'); if(!grid)return;
-  if(!prods.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:36px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
+  if(!prods.length){grid.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:32px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
   grid.innerHTML = prods.map(p=>{
     const qty=adminPickerSelected[p.id]||0; const sel=qty>0;
     const catColor=_apcGetCatColor(p.catId);
     const catName=_apcGetCatName(p.catId);
-    return `<div class="apcard${sel?' picked':''}" onclick="toggleAdminPickerProd(${p.id})">
-      <div class="apcard-img">
-        ${p.photo?`<img src="${escapeHTML(p.photo)}" alt="${escapeHTML(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>📦</div>'">`:'<div class="no-img">📦</div>'}
-        <div class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</div>
-        <div class="apcard-check">✓</div>
-      </div>
-      <div class="apcard-body">
-        <div class="apcard-name">${escapeHTML(p.name)}</div>
+    return `<div class="apcard${sel?' picked':''}">
+      <div class="apcard-info">
+        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
         ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
-        ${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
       </div>
-      ${sel?`<div class="apcard-qty">${qty}</div>`:''}
+      <div class="apcard-controls">
+        <button class="btn-minus" onclick="event.stopPropagation();setAdminPickerQty(${p.id},-1)">−</button>
+        <span class="qty-val">${qty}</span>
+        <button class="btn-plus" onclick="event.stopPropagation();setAdminPickerQty(${p.id},1)">+</button>
+      </div>
     </div>`;
   }).join('');
 }
