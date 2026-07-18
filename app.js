@@ -646,6 +646,7 @@ function activateAdminMode() {
   const bl = document.getElementById('btnLogout'); if (bl) bl.style.display = 'inline-flex';
   const cfg = getConfig();
   const ph = document.getElementById('adminPhoneInput'); if (ph && cfg.adminPhone) ph.value = cfg.adminPhone;
+  const cph = document.getElementById('catalogPhoneInput'); if (cph && cfg.catalogPhone) cph.value = cfg.catalogPhone;
   const today = new Date().toISOString().slice(0, 10);
   const sf = document.getElementById('statsDateFrom'); if (sf) sf.value = today;
   const st = document.getElementById('statsDateTo'); if (st) st.value = today;
@@ -1999,6 +2000,10 @@ function saveAdminPhone() {
   const phone=document.getElementById('adminPhoneInput').value.trim();
   const cfg=getConfig();cfg.adminPhone=phone;saveConfig(cfg);showToast('Número guardado ✓');
 }
+function saveCatalogPhone() {
+  const phone=document.getElementById('catalogPhoneInput').value.trim();
+  const cfg=getConfig();cfg.catalogPhone=phone;saveConfig(cfg);showToast('Número catálogo guardado ✓');
+}
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-mensajeria','vf-articulo',
    'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
@@ -2767,119 +2772,180 @@ function renderAdminCatalog() {
       </div>`;
     }).join('')+`</div>`;
 }
-function exportCatalogPDF(){
+function shareCatalogWeb(){
   const cats=getCategorias();
   const allProds=getProductos().filter(p=>(p.stock||0)>0);
   if(!allProds.length){showToast('No hay productos para exportar');return;}
-  // Build premium print-optimized HTML grouped by category
+  const cfg=getConfig();
+  const waPhone=cfg.catalogPhone||cfg.adminPhone||'';
   const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
   const dateStr=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
-  let html=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>AXONTECH - Catalogo de Productos</title>
-<style>
-  @page{size:A4;margin:12mm 10mm;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a1a2e;background:#fff;line-height:1.5;font-size:11px;}
-  .cover{text-align:center;padding:40px 20px 30px;background:linear-gradient(135deg,#006d8a 0%,#004d60 50%,#003345 100%);color:#fff;margin:-12mm -10mm 24px;page-break-after:avoid;}
-  .cover-logo{font-size:42px;font-weight:900;letter-spacing:8px;margin-bottom:4px;text-shadow:0 2px 10px rgba(0,0,0,.3);}
-  .cover-sub{font-size:13px;letter-spacing:4px;opacity:.85;font-weight:300;margin-bottom:16px;}
-  .cover-line{width:60px;height:3px;background:rgba(255,255,255,.5);margin:0 auto 16px;border-radius:2px;}
-  .cover-date{font-size:10px;opacity:.6;letter-spacing:1px;}
-  .cover-count{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 16px;font-size:11px;margin-top:10px;letter-spacing:1px;}
-  .cat-section{margin-bottom:28px;page-break-inside:avoid;}
-  .cat-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #f0f0f0;}
-  .cat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800;flex-shrink:0;}
-  .cat-label{font-size:15px;font-weight:800;color:#1a1a2e;letter-spacing:.5px;}
-  .cat-count{font-size:10px;color:#94a3b8;font-weight:600;margin-left:auto;letter-spacing:.5px;}
-  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
-  .product-card{border:1px solid #e8ecf1;border-radius:12px;overflow:hidden;page-break-inside:avoid;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .2s;}
-  .product-img{height:150px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-  .product-img img{width:100%;height:100%;object-fit:cover;}
-  .product-img .no-img{font-size:48px;opacity:.4;}
-  .product-body{padding:12px 14px 14px;}
-  .product-name{font-weight:800;font-size:13px;color:#1a1a2e;margin-bottom:4px;letter-spacing:.2px;}
-  .product-desc{font-size:10px;color:#64748b;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:0;}
-  .product-price{font-weight:900;font-size:17px;color:#006d8a;margin-bottom:6px;letter-spacing:.3px;}
-  .product-badges{display:flex;flex-wrap:wrap;gap:4px;}
-  .badge{padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;letter-spacing:.3px;}
-  .badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
-  .badge-cat{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;}
-  .footer{text-align:center;padding:20px 0 10px;margin-top:36px;border-top:1px solid #e2e8f0;}
-  .footer-brand{font-size:11px;font-weight:800;color:#006d8a;letter-spacing:3px;margin-bottom:4px;}
-  .footer-addr{font-size:9px;color:#94a3b8;line-height:1.5;}
-  .footer-gen{font-size:8px;color:#cbd5e1;margin-top:6px;}
-  @media print{
-    body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .product-card{break-inside:avoid;}
-    .cat-section{break-inside:avoid;}
-  }
-</style></head><body>
-<div class="cover">
-  <div class="cover-logo">AXONTECH</div>
-  <div class="cover-sub">CATALOGO DE PRODUCTOS</div>
-  <div class="cover-line"></div>
-  <div class="cover-date">${dateStr}</div>
-  <div class="cover-count">${allProds.length} productos disponibles</div>
-</div>`;
+  // Build standalone web catalog
+  let catCardsJS='';
   if(cats.length){
     let ci=0;
     cats.forEach(cat=>{
       const prods=allProds.filter(p=>p.catId===cat.id);
       if(!prods.length)return;
       const color=catColors[ci%catColors.length];ci++;
-      html+=`<div class="cat-section">
-  <div class="cat-header">
-    <div class="cat-icon" style="background:${color};">${escapeHTML(cat.name.charAt(0).toUpperCase())}</div>
-    <div class="cat-label">${escapeHTML(cat.name)}</div>
-    <div class="cat-count">${prods.length} producto${prods.length!==1?'s':''}</div>
-  </div>
-  <div class="product-grid">`;
-      prods.forEach(p=>{
-        html+=buildPDFProductCard(p,cat);
-      });
-      html+=`</div></div>`;
+      prods.forEach(p=>{catCardsJS+=buildCatalogCardJS(p,cat,color,waPhone);});
     });
-    // Products without category
     const noCat=allProds.filter(p=>!p.catId||!cats.find(c=>c.id===p.catId));
     if(noCat.length){
       const color=catColors[ci%catColors.length];ci++;
-      html+=`<div class="cat-section">
-  <div class="cat-header">
-    <div class="cat-icon" style="background:${color};">?</div>
-    <div class="cat-label">Sin categoria</div>
-    <div class="cat-count">${noCat.length} producto${noCat.length!==1?'s':''}</div>
-  </div>
-  <div class="product-grid">`;
-      noCat.forEach(p=>{html+=buildPDFProductCard(p,null);});
-      html+=`</div></div>`;
+      noCat.forEach(p=>{catCardsJS+=buildCatalogCardJS(p,null,color,waPhone);});
     }
   } else {
-    html+=`<div class="product-grid">`;
-    allProds.forEach(p=>{html+=buildPDFProductCard(p,null);});
-    html+=`</div>`;
+    allProds.forEach(p=>{catCardsJS+=buildCatalogCardJS(p,null,'#006d8a',waPhone);});
   }
-  html+=`<div class="footer">
+  let html=`<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AXONTECH - Catalogo</title>
+<link rel="icon" href="https://axontech92.github.io/AXONTECH/iconos/favicon-96.png">
+<meta property="og:title" content="AXONTECH - Catalogo de Productos">
+<meta property="og:description" content="Explora nuestros productos disponibles">
+<meta property="og:type" content="website">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--primary:#006d8a;--primary-dk:#004d60;--accent:#00b4d8;--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--muted:#64748b;--radius:16px;--shadow:0 4px 20px rgba(0,0,0,.08);}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+/* Hero */
+.hero{background:linear-gradient(135deg,var(--primary-dk) 0%,var(--primary) 50%,var(--accent) 100%);padding:48px 20px 36px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 60%);animation:heroGlow 8s ease-in-out infinite alternate;}
+@keyframes heroGlow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.hero-logo{font-size:48px;font-weight:900;color:#fff;letter-spacing:10px;text-shadow:0 2px 20px rgba(0,0,0,.3);position:relative;z-index:1;}
+.hero-sub{font-size:14px;letter-spacing:5px;color:rgba(255,255,255,.8);font-weight:300;margin-top:4px;position:relative;z-index:1;}
+.hero-line{width:50px;height:3px;background:rgba(255,255,255,.4);margin:14px auto;border-radius:2px;position:relative;z-index:1;}
+.hero-info{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1px;position:relative;z-index:1;}
+.hero-count{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 18px;font-size:12px;color:rgba(255,255,255,.9);margin-top:12px;font-weight:600;position:relative;z-index:1;}
+/* Nav tabs */
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.06);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
+.nav-btn:hover{border-color:var(--primary);color:var(--primary);}
+.nav-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(0,109,138,.25);}
+/* Grid */
+.container{max-width:1200px;margin:0 auto;padding:16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+/* Card */
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.card-img{height:220px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.card:hover .card-img img{transform:scale(1.05);}
+.card-img .no-img{font-size:64px;opacity:.25;}
+.card-cat{position:absolute;top:12px;left:12px;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.card-body{padding:18px 20px 20px;}
+.card-name{font-weight:800;font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.3;}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;max-height:72px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease;}
+.card-desc.expanded{max-height:500px;}
+.card-desc-fade{position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#fff);pointer-events:none;transition:opacity .3s;}
+.card-desc.expanded+.card-desc-fade,.card-desc.expanded~.card-desc-fade{opacity:0;}
+.card-price{font-weight:900;font-size:22px;color:var(--primary);margin-bottom:12px;letter-spacing:.3px;}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.badge{padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+.badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+/* WA Button */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.3px;}
+.wa-btn:hover{transform:scale(1.02);box-shadow:0 4px 14px rgba(37,211,102,.35);}
+.wa-btn:active{transform:scale(.98);}
+.wa-icon{font-size:18px;}
+/* Footer */
+.footer{text-align:center;padding:32px 20px;margin-top:40px;border-top:1px solid #e2e8f0;background:#fff;}
+.footer-brand{font-size:14px;font-weight:900;color:var(--primary);letter-spacing:4px;margin-bottom:6px;}
+.footer-addr{font-size:11px;color:var(--muted);line-height:1.6;}
+.footer-gen{font-size:9px;color:#cbd5e1;margin-top:8px;}
+/* Floating WA */
+.float-wa{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 16px rgba(37,211,102,.4);cursor:pointer;z-index:999;transition:transform .2s;text-decoration:none;border:none;}
+.float-wa:hover{transform:scale(1.1);}
+/* Empty */
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+/* Responsive */
+@media(max-width:640px){
+  .hero{padding:36px 16px 28px;}
+  .hero-logo{font-size:36px;letter-spacing:6px;}
+  .hero-sub{font-size:11px;letter-spacing:3px;}
+  .grid{grid-template-columns:1fr;gap:16px;}
+  .card-img{height:200px;}
+  .container{padding:12px;}
+}
+@media(min-width:641px) and (max-width:1024px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head><body>
+<div class="hero">
+  <div class="hero-logo">AXONTECH</div>
+  <div class="hero-sub">CATALOGO DE PRODUCTOS</div>
+  <div class="hero-line"></div>
+  <div class="hero-info">${dateStr}</div>
+  <div class="hero-count">${allProds.length} productos disponibles</div>
+</div>
+<div class="nav" id="catNav"></div>
+<div class="container"><div class="grid" id="productGrid"></div></div>
+<div class="footer">
   <div class="footer-brand">AXONTECH</div>
   <div class="footer-addr">Amistad #311 % San Rafael y San Jose, Centro Habana</div>
-  <div class="footer-gen">Generado: ${dateStr}</div>
-</div></body></html>`;
-  // Open in new window and print
-  const w=window.open('','_blank','width=800,height=900');
-  if(!w){showToast('Permite ventanas emergentes para exportar PDF');return;}
-  w.document.write(html);w.document.close();
-  w.onload=()=>{w.print();};
+  <div class="footer-gen">Catalogo actualizado: ${dateStr}</div>
+</div>
+${waPhone?`<a class="float-wa" href="https://wa.me/${waPhone}?text=${encodeURIComponent('Hola, vi el catalogo de AXONTECH y me interesa...')}" target="_blank" title="Chat por WhatsApp">&#128172;</a>`:''}
+<script>
+const products=[${catCardsJS}];
+const catNames=[${cats.map((c,i)=>`{id:${c.id},name:${JSON.stringify(c.name)},color:'${catColors[i%catColors.length]}'}`).join(',')}${cats.length?'':`{id:0,name:'Todos',color:'#006d8a'}`}];
+let activeCat=null;
+function renderNav(){
+  const n=document.getElementById('catNav');
+  let h='<button class="nav-btn active" onclick="filterCat(null,this)">Todos</button>';
+  catNames.forEach(c=>{
+    const count=products.filter(p=>p.catId===c.id).length;
+    if(count)h+=\`<button class="nav-btn" onclick="filterCat(\${c.id},this)">\${c.name} (\${count})</button>\`;
+  });
+  n.innerHTML=h;
 }
-function buildPDFProductCard(p,cat){
-  let badges='';
-  if(p.garantia) badges+=`<span class="badge badge-garantia">Garantia: ${escapeHTML(p.garantia)}</span>`;
-  if(cat) badges+=`<span class="badge badge-cat">${escapeHTML(cat.name)}</span>`;
-  return `<div class="product-card">
-  <div class="product-img">${p.photo?`<img src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}<div class="no-img" style="${p.photo?'display:none;':''}">&#128230;</div></div>
-  <div class="product-body">
-    <div class="product-name">${escapeHTML(p.name)}</div>
-    ${p.description?`<div class="product-desc">${escapeHTML(p.description)}</div>`:''}
-    ${p.precio?`<div class="product-price">${escapeHTML(p.precio)}</div>`:''}
-    ${badges?`<div class="product-badges">${badges}</div>`:''}
-  </div></div>`;
+function filterCat(id,btn){
+  activeCat=id;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderGrid();
+}
+function renderGrid(){
+  const g=document.getElementById('productGrid');
+  const filtered=activeCat!==null?products.filter(p=>p.catId===activeCat):products;
+  if(!filtered.length){g.innerHTML='<div class="empty"><div class="empty-icon">&#128230;</div><div>No hay productos en esta categoria</div></div>';return;}
+  g.innerHTML=filtered.map(p=>\`
+    <div class="card">
+      <div class="card-img">
+        \${p.photo?\`<img src="\${p.photo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" loading="lazy">\`:''}
+        <div class="no-img" style="\${p.photo?'display:none':''}">&#128230;</div>
+        \${p.catName?\`<div class="card-cat" style="background:\${p.catColor}">\${p.catName}</div>\`:''}
+      </div>
+      <div class="card-body">
+        <div class="card-name">\${p.name}</div>
+        \${p.desc?\`<div class="card-desc" onclick="this.classList.toggle('expanded')">\${p.desc}<div class="card-desc-fade"></div></div>\`:''}
+        \${p.price?\`<div class="card-price">\${p.price}</div>\`:''}
+        <div class="card-badges">
+          \${p.garantia?\`<span class="badge badge-garantia">Garantia: \${p.garantia}</span>\`:''}
+        </div>
+        \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:''}
+      </div>
+    </div>\`).join('');
+}
+renderNav();renderGrid();
+</script>
+</body></html>`;
+  const w=window.open('','_blank');
+  if(!w){showToast('Permite ventanas emergentes para compartir');return;}
+  w.document.write(html);w.document.close();
+}
+function buildCatalogCardJS(p,cat,color,waPhone){
+  const waMsg=`Hola, me interesa el producto: ${p.name}${p.precio?' - '+p.precio:''}. Esta disponible?`;
+  const waLink=waPhone?`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`:'';
+  return `{id:${p.id},catId:${cat?cat.id:0},name:${JSON.stringify(p.name)},desc:${JSON.stringify(p.description||'')},price:${JSON.stringify(p.precio||'')},photo:${JSON.stringify(p.photo||'')},catName:${JSON.stringify(cat?cat.name:'')},catColor:'${color}',garantia:${JSON.stringify(p.garantia||'')},waLink:${JSON.stringify(waLink)}},`;
+}
+// Keep PDF export as secondary option
+function exportCatalogPDF(){
+  shareCatalogWeb();
 }
 
 // ══════════════════════════════════════════
