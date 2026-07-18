@@ -515,7 +515,7 @@
     },
     {
       "catId": 30,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[ACCESORIOS]\nPortacelulares impermeables para bicicletas con bolsos a cada lado. \nConfeccion fuerte y duradera, de facil instalacion y resistente a lluvia",
       "garantia": "",
       "id": 1778384428890,
@@ -877,5 +877,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-18T00:46:13.108Z"
+  "timestamp": "2026-07-18T00:46:46.208Z"
 }
