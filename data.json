@@ -707,13 +707,13 @@
     },
     {
       "catId": 30,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[AUDIO]\nAudífonos ergonómicos, elegantes, táctiles, con 40 horas de bateria, alta calidad de sonido, cancelacion de ruido de ambiente en llamadas, haciendo la voz mas clara y legible en las mismas. Buena calidad de musica y buenos  bajos. Diseño similar a los de  iPhone. Son compactos  y compatibles con todo tipo de telefonos. Se cargan con cable lighting de iphone (incluído en la caja).",
       "garantia": "",
       "id": 1780543090267,
       "name": "AUDÍFONOS ERGONÓMICOS",
       "photo": "https://tiendamax.org/imagenes/img_1780543081597.webp",
-      "precio": "$15 USD",
+      "precio": "$10 USD",
       "puntos": 1,
       "stock": 20
     },
@@ -775,7 +775,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1780887971522.webp",
       "precio": "$40 USD",
       "puntos": 200,
-      "stock": 5
+      "stock": 0
     },
     {
       "catId": 20,
@@ -877,5 +877,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-18T00:45:06.419Z"
+  "timestamp": "2026-07-18T00:46:13.108Z"
 }
