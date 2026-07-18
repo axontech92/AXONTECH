@@ -263,7 +263,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102582909.webp",
       "precio": "$90 USD",
       "puntos": 2,
-      "stock": 9
+      "stock": 8
     },
     {
       "catId": 20,
@@ -886,6 +886,7 @@
       "articulo": "×1 ANTORCHA PARA SOLDADURA TIG:",
       "carnet": "",
       "cliente": "Juan",
+      "deliveredTs": "2026-07-18T21:55:00.380Z",
       "direccion": "La lisa",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -895,7 +896,7 @@
       "mensajeroId": 1784335863791,
       "precioMN": "",
       "precioUSD": "$90 USD",
-      "status": "pending_payment",
+      "status": "confirmed",
       "telefono": "51113330",
       "total": "$93 USD",
       "ts": "2026-07-18T21:51:42.477Z",
@@ -909,8 +910,8 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan\n🔸Teléfono Cliente: 51113330\n🔸Dirección Cliente: La lisa\n🔸Mensajería/ costo: 3\n🔸 Artículos y cantidades:\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $93 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "deliveredTs": "2026-07-18T21:55:00.380Z"
+      "confirmedTs": "2026-07-18T21:55:14.276Z"
     }
   ],
-  "timestamp": "2026-07-18T21:55:00.391Z"
+  "timestamp": "2026-07-18T21:55:14.287Z"
 }
