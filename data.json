@@ -275,7 +275,7 @@
     },
     {
       "catId": 40,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[SALUD Y BIENESTAR]\nPistola de masaje Recargable:\n\n- Bateria de litio 18650 (3000 miliamperes)\n- 4 cabezales multifuncionales intercambiables.\n- Fácil para operar con una mano, 1,5lb\n- Diseño compacto y elegante\n- 3 horas de durabilidad de la bateria.\n•   Controles de encendido y velocidades por boton tracero.",
       "garantia": "",
       "id": 1778103856933,
@@ -877,5 +877,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-18T00:41:54.648Z"
+  "timestamp": "2026-07-18T00:42:52.254Z"
 }
