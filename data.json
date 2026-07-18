@@ -880,55 +880,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "×2 ANTORCHA PARA SOLDADURA TIG: / ×1 PESA / BÁSCULA INTELIGENTE DIGITAL. / ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM / ×1 PISTOLA DE MASAJE RECARGABLE:",
-      "carnet": "",
-      "cliente": "Jejej",
-      "confirmedTs": null,
-      "direccion": "Ueueue",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784412334864,
-      "isNew": false,
-      "mensajeria": "2",
-      "precioMN": "",
-      "precioUSD": "$315 USD",
-      "status": "pending",
-      "telefono": "13313232",
-      "total": "$317 USD",
-      "ts": "2026-07-18T22:05:34.868Z",
-      "valeNum": 19,
-      "valeProductos": [
-        {
-          "id": 1778102582909,
-          "name": "ANTORCHA PARA SOLDADURA TIG:",
-          "qty": 2
-        },
-        {
-          "id": 1778102507659,
-          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
-          "qty": 1
-        },
-        {
-          "id": 1778103783319,
-          "name": "LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM",
-          "qty": 1
-        },
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jejej\n🔸Teléfono Cliente: 13313232\n🔸Dirección Cliente: Ueueue\n🔸Mensajería/ costo: 2\n🔸 Artículos y cantidades:\n  ×2 ANTORCHA PARA SOLDADURA TIG:\n  ×1 PESA / BÁSCULA INTELIGENTE DIGITAL.\n  ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM\n  ×1 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $315 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $317 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 18:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "commissionPaid": false,
-      "commissionStatus": null,
-      "commissionPaidTs": null,
-      "commissionEnSobreTs": null
-    }
-  ],
-  "timestamp": "2026-07-18T22:22:11.866Z"
+  "vales": [],
+  "timestamp": "2026-07-18T22:22:14.592Z"
 }
