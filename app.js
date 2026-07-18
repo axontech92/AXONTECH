@@ -2934,9 +2934,45 @@ function renderGrid(){
 renderNav();renderGrid();
 </script>
 </body></html>`;
-  const w=window.open('','_blank');
-  if(!w){showToast('Permite ventanas emergentes para compartir');return;}
-  w.document.write(html);w.document.close();
+  // Generate downloadable HTML file instead of about:blank window
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  // Build modal using DOM to avoid template-literal issues with blob URLs
+  const overlay=document.createElement('div');
+  overlay.className='modal-bg show';
+  overlay.style.zIndex='10000';
+  const box=document.createElement('div');
+  box.className='modal';
+  box.style.cssText='max-width:380px;width:90%;text-align:center;';
+  box.innerHTML=`
+    <div style="font-size:40px;margin-bottom:12px;">🔗</div>
+    <div class="modal-title" style="margin-bottom:6px;">Catálogo Generado</div>
+    <div style="font-size:12.5px;color:var(--muted,#64748b);margin-bottom:20px;line-height:1.5;">${allProds.length} productos listos para compartir.<br>Descarga el archivo HTML y súbelo a tu hosting para obtener un link compartible.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;" id="catalogShareBtns"></div>`;
+  overlay.appendChild(box);
+  // Download button
+  const dlBtn=document.createElement('a');
+  dlBtn.href=url;
+  dlBtn.download='AXONTECH-Catalogo.html';
+  dlBtn.style.cssText='display:block;padding:13px;border-radius:12px;background:linear-gradient(135deg,#006d8a,#00b4d8);color:white;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;';
+  dlBtn.textContent='📥 Descargar HTML';
+  // Preview button
+  const pvBtn=document.createElement('button');
+  pvBtn.style.cssText='padding:13px;border-radius:12px;background:var(--surface2,#f0f4f8);color:var(--text,#1a1a2e);font-size:14px;font-weight:700;border:1px solid var(--border,#e2e8f0);cursor:pointer;';
+  pvBtn.textContent='👁️ Previsualizar';
+  pvBtn.onclick=()=>{window.open(url,'_blank');};
+  // Cancel button
+  const ccBtn=document.createElement('button');
+  ccBtn.style.cssText='padding:10px;border-radius:10px;background:transparent;color:var(--muted,#64748b);font-size:12px;font-weight:600;border:none;cursor:pointer;';
+  ccBtn.textContent='Cancelar';
+  ccBtn.onclick=()=>{overlay.remove();};
+  // Close on backdrop click
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  const btnsDiv=box.querySelector('#catalogShareBtns');
+  btnsDiv.append(dlBtn,pvBtn,ccBtn);
+  document.body.appendChild(overlay);
+  // Auto-cleanup URL after 5 minutes
+  setTimeout(()=>URL.revokeObjectURL(url),300000);
 }
 function buildCatalogCardJS(p,cat,color,waPhone){
   const waMsg=`Hola, me interesa el producto: ${p.name}${p.precio?' - '+p.precio:''}. Esta disponible?`;
