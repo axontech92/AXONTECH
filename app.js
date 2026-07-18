@@ -2922,12 +2922,12 @@ function renderGrid(){
       </div>
       <div class="card-body">
         <div class="card-name">\${p.name}</div>
-        \${p.desc?\`<div class="card-desc" onclick="this.classList.toggle('expanded')">\${p.desc}<div class="card-desc-fade"></div></div>\`:''}
-        \${p.price?\`<div class="card-price">\${p.price}</div>\`:''}
+        <div class="card-desc"\${p.desc?' onclick="this.classList.toggle(\\'expanded\\')"':''}>\${p.desc||''}<div class="card-desc-fade"></div></div>
+        <div class="card-price">\${p.price||''}</div>
         <div class="card-badges">
           \${p.garantia?\`<span class="badge badge-garantia">Garantia: \${p.garantia}</span>\`:''}
         </div>
-        \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:''}
+        \${p.waLink?\`<a class="wa-btn" href="\${p.waLink}" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>\`:\`<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>\`}
       </div>
     </div>\`).join('');
 }
