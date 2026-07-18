@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>AXONTECH · Gestión de Ventas</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#006d8a">
@@ -11,12 +14,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=62">
+  <link rel="stylesheet" href="./app.css?v=45">
 </head>
 <body data-page="gestor">
-
-<!-- Skip to content link for keyboard users -->
-<a href="#main-content" class="skip-link" style="position:absolute;top:-100px;left:0;background:var(--blue);color:white;padding:8px 16px;z-index:9999;font-size:14px;font-weight:700;text-decoration:none;" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Saltar al contenido</a>
 
 <!-- ══ HEADER ══ -->
 <header>
@@ -29,17 +29,17 @@
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
-    <button onclick="openNotifsModal()" title="Ver Novedades" aria-label="Ver novedades" style="position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;">
+    <button onclick="openNotifsModal()" title="Ver Novedades" style="position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;">
       📢 Novedades <span id="notifUnreadBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 5px;font-size:9px;"></span>
     </button>
     <div class="header-date" id="headerDate"></div>
-    <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" aria-label="Ver catálogo de stock" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
-    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">🌙</button>
+    <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
+    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
   </div>
 </header>
 
 <!-- ══════════ GESTOR LAYOUT ══════════ -->
-<div class="layout active" id="layoutGestor" role="main">
+<div class="layout active" id="layoutGestor">
 
   <!-- Col 1: Selector + mis vales -->
   <div class="col col-left">
@@ -47,7 +47,7 @@
     <div id="gestoresList">
       <div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>
     </div>
-    <div class="g-change" onclick="changeGestor()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')changeGestor()" style="cursor:pointer;">← Cambiar gestor</div>
+    <div class="g-change" onclick="changeGestor()">← Cambiar gestor</div>
 
 
   </div>
@@ -111,7 +111,7 @@
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Teléfono Cliente <span class="vf-req">*</span></span></div>
-          <input type="tel" id="vf-telefono" placeholder="Número de teléfono" oninput="this.value=this.value.replace(/[^0-9]/g,'');onFormInput()" inputmode="numeric" pattern="[0-9]*">
+          <input type="tel" id="vf-telefono" placeholder="Número de teléfono" oninput="onFormInput()">
         </div>
       </div>
 
@@ -197,9 +197,9 @@
 
       <div class="vf-fixed">
         <b>🧭 Dirección de la tienda:</b><br>
-        * Amistad #311 % San Rafael y San José, Centro Habana.<br><br>
+        * Amistad #313% San Rafael y San José, Centro Habana.<br><br>
         <b>🚨 ATENCIÓN 🚨</b><br>
-        • Horarios de atención: 9:00am - 7:00pm.<br>
+        • Horarios de atención: 8:00am - 8:00pm.<br>
         * Solo aceptamos hasta cinco billetes de 1 USD por compra.<br>
         * Los pagos en MN deben ser con denominación de 50 en adelante.<br>
         * Solo se aceptan billetes en buen estado (ni rotos ni manchados)
@@ -227,19 +227,8 @@
       <div class="lbl" style="margin-top:14px;">Mis Vales Activos</div>
       <div id="gestorMyVales"></div>
       
-      <div style="margin-top:20px;">
-        <div onclick="toggleGestorHistorial()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
-          <span class="lbl" style="margin:0;">📋 Historial (Completados)</span>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span id="gestorHistCount" style="background:var(--gray-200);color:var(--gray-600);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;"></span>
-            <span id="gestorHistArrow" style="color:var(--gray-400);font-size:13px;">▼</span>
-          </div>
-        </div>
-        <div id="gestorHistorialList" style="display:none;"></div>
-        <div id="gestorHistClearBtn" style="display:none;margin-top:6px;text-align:center;">
-          <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:11px;" onclick="clearGestorHistory()">🗑️ Limpiar historial</button>
-        </div>
-      </div>
+      <div class="lbl" style="margin-top:20px;">Historial (Completados)</div>
+      <div id="gestorHistorialList"></div>
     </div>
 
   </div>
@@ -250,7 +239,7 @@
   <div class="modal" style="max-width:340px;">
     <div class="modal-title">🔐 Acceso Gestor</div>
     <div class="modal-sub" id="gestorPassModalSub">Ingresa tu contraseña</div>
-    <input type="password" id="gestorPassInput" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitGestorPass()">
+    <input type="password" id="gestorPassInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')submitGestorPass()">
     <div class="pass-error" id="gestorPassError">Contraseña incorrecta</div>
     <div class="modal-btns">
       <button class="btn btn-ghost btn-full" onclick="closeGestorPassModal()">Cancelar</button>
@@ -301,7 +290,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div class="toast" id="toast"></div>
 
 <!-- ── MODAL: Ticket de Cliente ── -->
 <div class="modal-bg" id="ticketModal">
@@ -324,7 +313,7 @@
         </div>
       </div>
       <div class="t-foot" style="text-align: center; padding: 15px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600;">
-        Amistad #311 % San Rafael y San José, Centro Habana.
+        Amistad #313 % San Rafael y San José, Centro Habana.
       </div>
     </div>
     
@@ -371,14 +360,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=62"></script>
-<script>
-// Close modals by clicking backdrop
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('show');
-  });
-});
-</script>
+<script src="./app.js?v=45"></script>
 </body>
 </html>

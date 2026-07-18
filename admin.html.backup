@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>AXONTECH · Admin</title>
-  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#006d8a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=62">
+  <link rel="stylesheet" href="./app.css?v=45">
 </head>
 <body data-page="admin">
-
-<!-- Skip to content link for keyboard users -->
-<a href="#main-content" class="skip-link" style="position:absolute;top:-100px;left:0;background:var(--blue);color:white;padding:8px 16px;z-index:9999;font-size:14px;font-weight:700;text-decoration:none;" onfocus="this.style.top='0'" onblur="this.style.top='-100px'">Saltar al contenido</a>
 
 <!-- ══ HEADER ══ -->
 <header>
@@ -31,13 +30,13 @@
     <span class="admin-session-label" id="adminLabel" style="display:none;">● Admin</span>
     <button class="btn-logout" id="btnLogout" onclick="logoutAdmin()" style="display:none;">Cerrar sesión</button>
     <div class="header-date" id="headerDate"></div>
-    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">🌙</button>
+    <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
     <a href="./index.html" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;text-decoration:none;">← Gestores</a>
   </div>
 </header>
 
 <!-- ══════════ ADMIN LAYOUT ══════════ -->
-<div class="layout" id="layoutAdmin" role="main">
+<div class="layout" id="layoutAdmin">
 
   <!-- Tab nav -->
   <div class="admin-nav">
@@ -47,8 +46,6 @@
     <button class="anav-btn"        id="anav-stats"      onclick="adminTab('stats')">📊 Estadísticas</button>
     <button class="anav-btn"        id="anav-historial"  onclick="adminTab('historial')">📅 Historial</button>
     <button class="anav-btn"        id="anav-stock"      onclick="adminTab('stock')">📦 Stock</button>
-    <button class="anav-btn"        id="anav-catalog"    onclick="adminTab('catalog')">📑 Catálogo</button>
-    <button class="anav-btn"        id="anav-estafa"    onclick="adminTab('estafa')">🚫 Estafa</button>
     <button class="anav-btn"        id="anav-config"     onclick="adminTab('config')">⚙️ Config</button>
   </div>
 
@@ -105,19 +102,6 @@
         </div>
       </div>
       <div style="padding:12px 14px;" id="productGrid"></div>
-    </div>
-
-    <!-- ── CATALOG PANEL (shared products, no out-of-stock) ── -->
-    <div id="adminCatalogPanel" class="admin-panel-full" style="display:none;">
-      <div style="padding:10px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:var(--surface);">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
-          <div class="lbl" style="margin:0;">📑 Catálogo de Productos</div>
-          <button class="btn btn-blue btn-sm" onclick="shareCatalogWeb()">🔗 Compartir Catálogo</button>
-        </div>
-        <input type="search" id="catalogAdminSearch" placeholder="Buscar producto..." oninput="renderAdminCatalog()" style="margin-bottom:8px;width:100%;">
-        <div id="catalogAdminCatTabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
-      </div>
-      <div style="padding:12px 14px;" id="catalogAdminGrid"></div>
     </div>
 
     <!-- ── GESTORES PANEL ── -->
@@ -191,58 +175,19 @@
     <!-- ── HISTORIAL PANEL ── -->
     <div id="adminHistorialPanel" class="admin-panel-full" style="display:none;">
       <div style="padding:20px;max-width:900px;margin:0 auto;">
-        <div class="lbl" style="margin:0 0 14px;">📅 Historial de Vales</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-          <span style="font-size:11px;color:var(--gray-400);">Desde</span>
-          <input type="date" id="histDateFrom" onchange="renderHistorial()" style="width:140px;">
-          <span style="font-size:11px;color:var(--gray-400);">Hasta</span>
-          <input type="date" id="histDateTo" onchange="renderHistorial()" style="width:140px;">
-          <select id="histGestorFilter" onchange="renderHistorial()" style="font-size:12px;width:auto;">
-            <option value="">Todos los gestores</option>
-          </select>
-        </div>
-        <div style="margin-bottom:12px;">
-          <input type="search" id="histSearchPhone" placeholder="Buscar por telefono, cliente o # vale..." oninput="renderHistorial()" style="width:100%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div class="lbl" style="margin:0;">📅 Historial de Vales</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:11px;color:var(--gray-400);">Desde</span>
+            <input type="date" id="histDateFrom" onchange="renderHistorial()" style="width:140px;">
+            <span style="font-size:11px;color:var(--gray-400);">Hasta</span>
+            <input type="date" id="histDateTo" onchange="renderHistorial()" style="width:140px;">
+            <select id="histGestorFilter" onchange="renderHistorial()" style="font-size:12px;width:auto;">
+              <option value="">Todos los gestores</option>
+            </select>
+          </div>
         </div>
         <div id="historialList"></div>
-      </div>
-    </div>
-
-    <!-- ── ESTAFA PANEL ── -->
-    <div id="adminEstafaPanel" class="admin-panel-full" style="display:none;">
-      <div style="max-width:700px;margin:0 auto;padding:20px;">
-        <div class="lbl" style="margin-top:0;">🚫 Lista de Estafa</div>
-        <div class="card" style="margin-bottom:16px;">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Agrega números de teléfono, nombres y direcciones sospechosos. Cuando se cree un vale con datos que coincidan, se mostrará una alerta al administrador.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div style="grid-column:1/-1;">
-              <label class="field-lbl">Número de teléfono</label>
-              <input type="text" id="estafaTelefono" placeholder="Ej: 5355551234">
-            </div>
-            <div>
-              <label class="field-lbl">Nombre</label>
-              <input type="text" id="estafaNombre" placeholder="Nombre sospechoso">
-            </div>
-            <div>
-              <label class="field-lbl">Dirección</label>
-              <input type="text" id="estafaDireccion" placeholder="Dirección sospechosa">
-            </div>
-            <div style="grid-column:1/-1;">
-              <label class="field-lbl">Motivo / Nota</label>
-              <input type="text" id="estafaNota" placeholder="Ej: No pagó, dirección falsa, etc.">
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-red btn-sm" onclick="addEstafa()">+ Agregar a lista</button>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:12px;font-weight:700;color:var(--gray-400);">Registros guardados <span id="estafaCount" style="background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;">0</span></div>
-          <div style="display:flex;gap:8px;">
-            <input type="search" id="estafaSearch" placeholder="Buscar en lista..." oninput="renderEstafaList()" style="width:200px;font-size:12px;">
-          </div>
-        </div>
-        <div id="estafaList"></div>
       </div>
     </div>
 
@@ -287,15 +232,6 @@
             <button class="btn btn-blue btn-sm" onclick="saveAdminPhone()">✓</button>
           </div>
           <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Número sin + ni espacios</div>
-        </div>
-        <div class="lbl">📲 WhatsApp Catálogo</div>
-        <div class="card">
-          <label class="field-lbl">Número que recibe los pedidos del catálogo compartido</label>
-          <div class="add-row">
-            <input type="text" id="catalogPhoneInput" placeholder="Ej: 5355551234" style="font-size:12px;">
-            <button class="btn btn-blue btn-sm" onclick="saveCatalogPhone()">✓</button>
-          </div>
-          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Si no se configura, usa el WhatsApp Admin</div>
         </div>
         <div class="lbl">💾 Datos locales (exportar / importar)</div>
         <div class="card">
@@ -361,7 +297,7 @@
   <div class="modal">
     <div class="modal-title">🔒 Acceso Administrador</div>
     <div class="modal-sub">Ingresa la contraseña para continuar</div>
-    <input type="password" id="passInput" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitPass()">
+    <input type="password" id="passInput" placeholder="Contraseña" onkeydown="if(event.key==='Enter')submitPass()">
     <div class="pass-error" id="passError">Contraseña incorrecta</div>
     <div class="modal-btns">
       <button class="btn btn-ghost btn-full" onclick="closePassModal()">Cancelar</button>
@@ -513,18 +449,10 @@
   </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=62"></script>
-<script>
-// Close modals by clicking backdrop
-document.querySelectorAll('.modal-bg').forEach(bg => {
-  bg.addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('show');
-  });
-});
-</script>
+<script src="./app.js?v=45"></script>
 </body>
 </html>
