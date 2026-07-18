@@ -876,39 +876,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "×1 PESA / BÁSCULA INTELIGENTE DIGITAL.",
-      "cliente": "dkjvnkdlsm",
-      "commissionEnSobreTs": null,
-      "commissionPaid": false,
-      "commissionPaidTs": null,
-      "commissionStatus": null,
-      "confirmedTs": null,
-      "direccion": "sgoigj",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784331827180,
-      "isNew": false,
-      "mensajeria": "7",
-      "precioMN": "",
-      "precioUSD": "$25 USD",
-      "status": "delivered",
-      "telefono": "8786904",
-      "total": "$32 USD",
-      "ts": "2026-07-17T23:43:47.184Z",
-      "valeNum": 13,
-      "valeProductos": [
-        {
-          "id": 1778102507659,
-          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: dkjvnkdlsm\n🔸Teléfono Cliente: 8786904\n🔸Dirección Cliente: sgoigj\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 PESA / BÁSCULA INTELIGENTE DIGITAL.\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $32 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 19:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    }
-  ],
-  "timestamp": "2026-07-18T00:07:00.875Z"
+  "vales": [],
+  "timestamp": "2026-07-18T00:07:10.698Z"
 }
