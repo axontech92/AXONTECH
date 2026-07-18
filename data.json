@@ -251,7 +251,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102507659.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 8
+      "stock": 7
     },
     {
       "catId": 40,
@@ -263,7 +263,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102582909.webp",
       "precio": "$90 USD",
       "puntos": 2,
-      "stock": 9
+      "stock": 7
     },
     {
       "catId": 20,
@@ -275,7 +275,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103783319.webp",
       "precio": "$85 USD",
       "puntos": 1,
-      "stock": 10
+      "stock": 9
     },
     {
       "catId": 40,
@@ -287,7 +287,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 5
+      "stock": 4
     },
     {
       "catId": 20,
@@ -880,6 +880,51 @@
       "name": "Gym"
     }
   ],
-  "vales": [],
-  "timestamp": "2026-07-18T22:04:44.430Z"
+  "vales": [
+    {
+      "adminNotes": "",
+      "articulo": "×2 ANTORCHA PARA SOLDADURA TIG: / ×1 PESA / BÁSCULA INTELIGENTE DIGITAL. / ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM / ×1 PISTOLA DE MASAJE RECARGABLE:",
+      "carnet": "",
+      "cliente": "Jejej",
+      "direccion": "Ueueue",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1784412334864,
+      "isNew": false,
+      "mensajeria": "2",
+      "precioMN": "",
+      "precioUSD": "$315 USD",
+      "status": "confirmed",
+      "telefono": "13313232",
+      "total": "$317 USD",
+      "ts": "2026-07-18T22:05:34.868Z",
+      "valeNum": 19,
+      "valeProductos": [
+        {
+          "id": 1778102582909,
+          "name": "ANTORCHA PARA SOLDADURA TIG:",
+          "qty": 2
+        },
+        {
+          "id": 1778102507659,
+          "name": "PESA / BÁSCULA INTELIGENTE DIGITAL.",
+          "qty": 1
+        },
+        {
+          "id": 1778103783319,
+          "name": "LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM",
+          "qty": 1
+        },
+        {
+          "id": 1778103856933,
+          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jejej\n🔸Teléfono Cliente: 13313232\n🔸Dirección Cliente: Ueueue\n🔸Mensajería/ costo: 2\n🔸 Artículos y cantidades:\n  ×2 ANTORCHA PARA SOLDADURA TIG:\n  ×1 PESA / BÁSCULA INTELIGENTE DIGITAL.\n  ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM\n  ×1 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $315 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $317 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 18:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "",
+      "confirmedTs": "2026-07-18T22:05:46.117Z"
+    }
+  ],
+  "timestamp": "2026-07-18T22:05:46.132Z"
 }
