@@ -887,6 +887,7 @@
       "carnet": "",
       "cliente": "ajdcjack",
       "comisionGestor": "$43.60 USD",
+      "confirmedTs": "2026-07-18T22:44:04.202Z",
       "direccion": "ajkhfuihwq78gh",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -923,9 +924,8 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: ajdcjack\n🔸Teléfono Cliente: 7865389\n🔸Dirección Cliente: ajkhfuihwq78gh\n🔸Mensajería/ costo: 5\n🔸 Artículos y cantidades:\n  ×1 FENVI AC1200\n  ×3 ROUTER FENVI AX3000 Wi-Fi 6\n  ×1 SWITCH DE 5 PUERTOS\n  ×1 ADAPTADOR POE UBIQUITI\n🔸Precio USD/ zelle: $450 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $455 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 18:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "confirmedTs": "2026-07-18T22:44:04.202Z"
+      "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-18T22:44:04.210Z"
+  "timestamp": "2026-07-18T22:47:20.149Z"
 }
