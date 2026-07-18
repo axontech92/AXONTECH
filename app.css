@@ -406,12 +406,27 @@
     .stock-badge { font-size:10px; font-weight:700; padding:2px 7px; border-radius:20px; background:var(--gray-100); color:var(--gray-700); }
     .stock-low  { background:#FEF2F2; color:var(--red); }
 
-    /* ── PRODUCT PICKER MODAL ── */
-    .picker-card { background:white; border:1px solid var(--gray-200); border-radius:8px; padding:10px; transition:all .12s; }
-    .picker-card.selected { border-color:var(--blue); background:var(--blue-lt); }
-    .pcat-tab { background:var(--gray-100); border:1px solid var(--gray-200); border-radius:6px; padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer; transition:all .12s; white-space:nowrap; }
+    /* ── PRODUCT PICKER MODAL (Catalog Style) ── */
+    .apcard { background:var(--surface); border:1.5px solid var(--gray-200); border-radius:12px; overflow:hidden; transition:all .2s; cursor:pointer; display:flex; flex-direction:column; position:relative; }
+    .apcard:hover { box-shadow:0 4px 16px rgba(0,0,0,.1); transform:translateY(-2px); }
+    .apcard.picked { border-color:var(--blue); background:var(--blue-lt); box-shadow:0 2px 12px rgba(0,180,216,.15); }
+    .apcard-img { height:90px; background:linear-gradient(145deg,#f8fafc,#eef2f7); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .apcard-img img { width:100%; height:100%; object-fit:cover; }
+    .apcard-img .no-img { font-size:36px; opacity:.25; }
+    .apcard-cat { position:absolute; top:6px; left:6px; color:#fff; padding:2px 8px; border-radius:6px; font-size:9px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
+    .apcard-check { position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:50%; background:var(--blue); color:#fff; display:none; align-items:center; justify-content:center; font-size:13px; font-weight:800; box-shadow:0 2px 6px rgba(0,180,216,.4); }
+    .apcard.picked .apcard-check { display:flex; }
+    .apcard-body { padding:8px 10px 10px; flex:1; display:flex; flex-direction:column; }
+    .apcard-name { font-size:12px; font-weight:800; color:var(--text); line-height:1.3; margin-bottom:3px; min-height:16px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .apcard-price { font-size:14px; font-weight:900; color:var(--blue); margin-bottom:3px; }
+    .apcard-garantia { display:inline-block; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; padding:1px 6px; border-radius:6px; font-size:8px; font-weight:700; }
+    .apcard-qty { position:absolute; bottom:8px; right:8px; background:var(--blue); color:#fff; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; box-shadow:0 2px 6px rgba(0,180,216,.35); }
+    body.dark .apcard { background:var(--surface); border-color:var(--border); }
+    body.dark .apcard.picked { background:var(--blue-lt); border-color:var(--blue); }
+    body.dark .apcard-img { background:linear-gradient(145deg,#1f2937,#111827); }
+    .pcat-tab { background:var(--gray-100); border:1px solid var(--gray-200); border-radius:20px; padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer; transition:all .15s; white-space:nowrap; }
     .pcat-tab:hover  { background:var(--gray-200); }
-    .pcat-tab.active { background:var(--blue); color:white; border-color:var(--blue); }
+    .pcat-tab.active { background:var(--blue); color:white; border-color:var(--blue); box-shadow:0 2px 8px rgba(0,180,216,.25); }
 
     /* ── STATS ── */
     .stat-card { background:white; border:1px solid var(--gray-200); border-radius:10px; padding:16px; text-align:center; }
@@ -461,6 +476,7 @@
       #mensajeroSelectorList { grid-template-columns: repeat(2,1fr) !important; }
       #gestoresList { grid-template-columns: repeat(3,1fr); }
       #pickerProductGrid { grid-template-columns: 1fr 1fr !important; }
+      #av-pickerProductGrid { grid-template-columns: 1fr 1fr !important; }
       /* Stats: 2 columnas en móvil */
       #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr 1fr !important; }
       /* Nav de admin: scroll horizontal, texto más pequeño */
@@ -489,6 +505,7 @@
       #gestoresList { grid-template-columns: repeat(3,1fr); }
       #mensajeroSelectorList { grid-template-columns: repeat(2,1fr) !important; }
       #pickerProductGrid { grid-template-columns: 1fr !important; }
+      #av-pickerProductGrid { grid-template-columns: 1fr !important; }
       #statsSummaryRow, #statsInventarioRow { grid-template-columns: 1fr !important; }
     }
 

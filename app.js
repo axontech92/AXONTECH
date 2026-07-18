@@ -4490,6 +4490,16 @@ function renderAdminPickerCatTabs() {
 }
 function setAdminPickerCat(id) { adminPickerCatFilter=id; renderAdminPickerCatTabs(); renderAdminPickerProducts(); }
 
+const _apcCatColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569','#0ea5e9','#f97316','#14b8a6','#84cc16'];
+function _apcGetCatColor(catId){
+  const cats=getCategorias(); const idx=cats.findIndex(c=>c.id===catId);
+  return idx>=0?_apcCatColors[idx%_apcCatColors.length]:'#64748b';
+}
+function _apcGetCatName(catId){
+  const c=getCategorias().find(x=>x.id===catId);
+  return c?c.name:'Otro';
+}
+
 function renderAdminPickerProducts() {
   const searchEl = document.getElementById('av-pickerSearch');
   const search = searchEl ? searchEl.value.toLowerCase() : '';
@@ -4497,12 +4507,23 @@ function renderAdminPickerProducts() {
   if (adminPickerCatFilter!==null) prods=prods.filter(p=>p.catId===adminPickerCatFilter);
   if (search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   const grid = document.getElementById('av-pickerProductGrid'); if(!grid)return;
+  if(!prods.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:36px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
   grid.innerHTML = prods.map(p=>{
     const qty=adminPickerSelected[p.id]||0; const sel=qty>0;
-    return `<div class="pp-item${sel?' pp-sel':''}" onclick="toggleAdminPickerProd(${p.id})">
-      <div class="pp-name">${escapeHTML(p.name)}</div>
-      ${p.precio?`<div class="pp-price">${escapeHTML(p.precio)}</div>`:''}
-      ${sel?`<div class="pp-qty">×${qty}</div>`:''}
+    const catColor=_apcGetCatColor(p.catId);
+    const catName=_apcGetCatName(p.catId);
+    return `<div class="apcard${sel?' picked':''}" onclick="toggleAdminPickerProd(${p.id})">
+      <div class="apcard-img">
+        ${p.photo?`<img src="${escapeHTML(p.photo)}" alt="${escapeHTML(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>📦</div>'">`:'<div class="no-img">📦</div>'}
+        <div class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</div>
+        <div class="apcard-check">✓</div>
+      </div>
+      <div class="apcard-body">
+        <div class="apcard-name">${escapeHTML(p.name)}</div>
+        ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
+        ${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
+      </div>
+      ${sel?`<div class="apcard-qty">${qty}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -4519,14 +4540,15 @@ function setAdminPickerQty(pid, delta) {
 function renderAdminPickerSelected() {
   const el = document.getElementById('av-pickerSelectedList'); if(!el)return;
   const items = Object.entries(adminPickerSelected).map(([id,qty])=>{
-    const p=productoOf(parseInt(id)); return p?{id:parseInt(id),name:p.name,qty}:null;
+    const p=productoOf(parseInt(id)); return p?{id:parseInt(id),name:p.name,qty,precio:p.precio||''}:null;
   }).filter(Boolean);
   if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--gray-400);">Ningún producto seleccionado</div>';return;}
-  el.innerHTML = items.map(i=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-    <span style="font-weight:800;color:var(--blue);">${i.qty}×</span>
-    <span style="flex:1;font-size:12px;">${escapeHTML(i.name)}</span>
-    <button onclick="setAdminPickerQty(${i.id},-1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700;color:var(--red);font-size:14px;">−</button>
-    <button onclick="setAdminPickerQty(${i.id},1)" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700;color:var(--green);font-size:14px;">+</button>
+  el.innerHTML = items.map(i=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;padding:4px 8px;background:var(--blue-lt);border-radius:8px;">
+    <span style="font-weight:800;color:var(--blue);min-width:18px;">${i.qty}×</span>
+    <span style="flex:1;font-size:12px;font-weight:600;">${escapeHTML(i.name)}</span>
+    ${i.precio?`<span style="font-size:11px;color:var(--blue);font-weight:700;">${escapeHTML(i.precio)}</span>`:''}
+    <button onclick="setAdminPickerQty(${i.id},-1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--gray-200);background:var(--surface);cursor:pointer;font-weight:700;color:var(--red);font-size:13px;display:flex;align-items:center;justify-content:center;">−</button>
+    <button onclick="setAdminPickerQty(${i.id},1)" style="width:22px;height:22px;border-radius:50%;border:1px solid var(--gray-200);background:var(--surface);cursor:pointer;font-weight:700;color:var(--green);font-size:13px;display:flex;align-items:center;justify-content:center;">+</button>
   </div>`).join('');
 }
 
