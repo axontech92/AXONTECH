@@ -391,22 +391,55 @@ function checkEstafaMatch(vale) {
   const lista = getEstafa();
   if (!lista.length) return [];
   const matches = [];
-  const vPhone = (vale.telefono || '').replace(/[\s\-()]/g, '').toLowerCase();
-  const vCliente = (vale.cliente || '').toLowerCase().trim();
-  const vDireccion = (vale.direccion || '').toLowerCase().trim();
+  // Normalize function: remove accents, lowercase, trim spaces
+  const norm = s => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+  const vPhone = (vale.telefono || '').replace(/[\s\-()]/g, '');
+  const vCliente = norm(vale.cliente || '');
+  const vDireccion = norm(vale.direccion || '');
+  const vCarnet = norm(vale.carnet || '');
   lista.forEach(e => {
     const reasons = [];
+    // Phone match (exact digits only, no formatting)
     if (e.telefono && vPhone) {
-      const ePhone = e.telefono.replace(/[\s\-()]/g, '').toLowerCase();
-      if (ePhone && vPhone.includes(ePhone)) reasons.push('teléfono: ' + e.telefono);
+      const ePhone = e.telefono.replace(/[\s\-()]/g, '');
+      if (ePhone && (vPhone.includes(ePhone) || ePhone.includes(vPhone))) reasons.push('teléfono: ' + e.telefono);
     }
+    // Name match (fuzzy: normalized, partial, reversed)
     if (e.nombre && vCliente) {
-      const eNombre = e.nombre.toLowerCase().trim();
-      if (eNombre && (vCliente.includes(eNombre) || eNombre.includes(vCliente))) reasons.push('nombre: ' + e.nombre);
+      const eNombre = norm(e.nombre);
+      if (eNombre && vCliente) {
+        // Exact normalized match
+        if (vCliente === eNombre) { reasons.push('nombre: ' + e.nombre); }
+        // One contains the other
+        else if (vCliente.includes(eNombre) || eNombre.includes(vCliente)) { reasons.push('nombre: ' + e.nombre); }
+        // Check each word of the name against each word of the entry
+        else {
+          const vWords = vCliente.split(/\s+/).filter(w=>w.length>2);
+          const eWords = eNombre.split(/\s+/).filter(w=>w.length>2);
+          let wordMatch = false;
+          for(const vw of vWords){ for(const ew of eWords){ if(vw.includes(ew)||ew.includes(vw)){wordMatch=true;break;} } if(wordMatch)break; }
+          if(wordMatch && vWords.length>=2 && eWords.length>=2) reasons.push('nombre similar: ' + e.nombre);
+        }
+      }
     }
+    // Address match (fuzzy: normalized, partial)
     if (e.direccion && vDireccion) {
-      const eDir = e.direccion.toLowerCase().trim();
-      if (eDir && (vDireccion.includes(eDir) || eDir.includes(vDireccion))) reasons.push('dirección: ' + e.direccion);
+      const eDir = norm(e.direccion);
+      if (eDir && vDireccion) {
+        if (vDireccion.includes(eDir) || eDir.includes(vDireccion)) { reasons.push('dirección: ' + e.direccion); }
+        else {
+          const vWords = vDireccion.split(/\s+/).filter(w=>w.length>3);
+          const eWords = eDir.split(/\s+/).filter(w=>w.length>3);
+          let matchCount = 0;
+          for(const vw of vWords){ for(const ew of eWords){ if(vw===ew||vw.includes(ew)||ew.includes(vw)){matchCount++;break;} } }
+          if(matchCount >= Math.min(2, eWords.length)) reasons.push('dirección similar: ' + e.direccion);
+        }
+      }
+    }
+    // Carnet match (exact or partial)
+    if (e.carnet && vCarnet) {
+      const eCarnet = norm(e.carnet);
+      if (eCarnet && (vCarnet.includes(eCarnet) || eCarnet.includes(vCarnet))) reasons.push('carnet: ' + e.carnet);
     }
     if (reasons.length) matches.push({ entry: e, reasons: reasons });
   });
@@ -415,25 +448,43 @@ function checkEstafaMatch(vale) {
 
 function showEstafaAlert(vale, matches) {
   if (!matches.length) return;
+  // Build detail with links to estafa entries
   let detail = matches.map(m => {
     const r = m.reasons.join(', ');
     let s = '⚠️ Coincidencia por ' + r;
     if (m.entry.nota) s += '\n   Nota: ' + m.entry.nota;
+    if (m.entry.carnet) s += '\n   Carnet: ' + m.entry.carnet;
     return s;
   }).join('\n');
+  // Build estafa entries HTML
+  let entriesHtml = matches.map(m => {
+    const e = m.entry;
+    return `<div style="background:var(--surface2);border:1px solid var(--red);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;" onclick="document.querySelectorAll('.modal-bg[style]').forEach(el=>el.remove());adminTab('estafa');">
+      <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:4px;">🚫 ${escapeHTML(e.nombre || 'Sin nombre')}</div>
+      <div style="font-size:11px;color:var(--text);display:flex;flex-wrap:wrap;gap:8px;">
+        ${e.telefono?'<span>📱 '+escapeHTML(e.telefono)+'</span>':''}
+        ${e.carnet?'<span>🪪 '+escapeHTML(e.carnet)+'</span>':''}
+        ${e.direccion?'<span>📍 '+escapeHTML(e.direccion)+'</span>':''}
+      </div>
+      ${e.nota?'<div style="font-size:11px;color:var(--red);margin-top:4px;font-weight:600;">⚡ '+escapeHTML(e.nota)+'</div>':''}
+      <div style="font-size:10px;color:var(--blue);margin-top:6px;font-weight:700;">👆 Toca para ir al panel de estafa</div>
+    </div>`;
+  }).join('');
   const overlay = document.createElement('div');
   overlay.className = 'modal-bg show';
   overlay.style.zIndex = '10001';
   const box = document.createElement('div');
   box.className = 'modal';
-  box.style.cssText = 'max-width:420px;text-align:center;';
+  box.style.cssText = 'max-width:440px;text-align:center;';
   box.innerHTML = `
     <div style="font-size:48px;margin-bottom:12px;">🚨</div>
-    <div class="modal-title" style="color:var(--red);margin-bottom:8px;">¡ALERTA DE ESTAFA!</div>
-    <div style="font-size:12px;color:var(--gray-400);margin-bottom:12px;">El vale de <b style="color:var(--text);">${escapeHTML(vale.cliente || '—')}</b> coincide con datos en la lista de estafa</div>
-    <div style="text-align:left;background:var(--surface2);border:1px solid var(--red);border-radius:10px;padding:12px;font-size:12px;line-height:1.7;color:var(--text);margin-bottom:16px;max-height:200px;overflow-y:auto;white-space:pre-line;">${escapeHTML(detail)}</div>
+    <div class="modal-title" style="color:var(--red);margin-bottom:8px;">¡ALERTA DE POSIBLE ESTAFA!</div>
+    <div style="font-size:12px;color:var(--gray-400);margin-bottom:12px;">El vale de <b style="color:var(--text);">${escapeHTML(vale.cliente || '—')}</b> coincide con datos en la lista negra</div>
+    <div style="text-align:left;max-height:250px;overflow-y:auto;margin-bottom:16px;">${entriesHtml}</div>
+    <div style="font-size:11px;color:var(--gray-400);margin-bottom:12px;">Revisa los datos antes de continuar</div>
     <div class="modal-btns" style="flex-direction:column;">
       <button class="btn btn-red btn-full" onclick="this.closest('.modal-bg').remove()" style="font-weight:700;">⚠️ Entendido — Tener precaución</button>
+      <button class="btn btn-ghost btn-full" onclick="this.closest('.modal-bg').remove();adminTab('estafa');" style="font-size:12px;">🚫 Ir al panel de estafa</button>
     </div>`;
   overlay.appendChild(box);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
@@ -443,15 +494,17 @@ function showEstafaAlert(vale, matches) {
 function addEstafa() {
   const tel = document.getElementById('estafaTelefono').value.trim();
   const nom = document.getElementById('estafaNombre').value.trim();
+  const car = document.getElementById('estafaCarnet').value.trim();
   const dir = document.getElementById('estafaDireccion').value.trim();
   const nota = document.getElementById('estafaNota').value.trim();
-  if (!tel && !nom && !dir) { showToast('Agrega al menos un dato (teléfono, nombre o dirección)'); return; }
+  if (!tel && !nom && !dir && !car) { showToast('Agrega al menos un dato (teléfono, nombre, carnet o dirección)'); return; }
   const lista = getEstafa();
   const id = Date.now();
-  lista.push({ id, telefono: tel, nombre: nom, direccion: dir, nota: nota, fecha: new Date().toISOString() });
+  lista.push({ id, telefono: tel, nombre: nom, carnet: car, direccion: dir, nota: nota, fecha: new Date().toISOString() });
   saveEstafa(lista);
   document.getElementById('estafaTelefono').value = '';
   document.getElementById('estafaNombre').value = '';
+  document.getElementById('estafaCarnet').value = '';
   document.getElementById('estafaDireccion').value = '';
   document.getElementById('estafaNota').value = '';
   renderEstafaList();
@@ -477,6 +530,7 @@ function renderEstafaList() {
     lista = lista.filter(e =>
       (e.telefono || '').toLowerCase().includes(search) ||
       (e.nombre || '').toLowerCase().includes(search) ||
+      (e.carnet || '').toLowerCase().includes(search) ||
       (e.direccion || '').toLowerCase().includes(search) ||
       (e.nota || '').toLowerCase().includes(search)
     );
@@ -496,6 +550,7 @@ function renderEstafaList() {
         <div style="font-size:13px;font-weight:700;">${e.nombre ? escapeHTML(e.nombre) : '<span style="color:var(--gray-400);">Sin nombre</span>'}</div>
         <div style="font-size:11px;color:var(--gray-400);display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;">
           ${e.telefono ? '<span>📱 ' + escapeHTML(e.telefono) + '</span>' : ''}
+          ${e.carnet ? '<span>🪪 ' + escapeHTML(e.carnet) + '</span>' : ''}
           ${e.direccion ? '<span>📍 ' + escapeHTML(e.direccion) + '</span>' : ''}
         </div>
         ${e.nota ? '<div style="font-size:11px;color:var(--red);margin-top:3px;font-weight:600;">⚡ ' + escapeHTML(e.nota) + '</div>' : ''}
@@ -611,7 +666,7 @@ function refreshUI() {
 
 
 // Base Listeners (Everything except vales) — with try/finally to prevent isSyncingFromFirebase from sticking
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs'].forEach(node => {
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa'].forEach(node => {
   db.ref(node).on('value', snap => {
     _syncCount++;
     try {
@@ -625,14 +680,13 @@ function refreshUI() {
         }
         try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
         // Update in-memory cache
-        const cacheMap = {gestores:_gestoresCache,mensajeros:_mensajerosCache,productos:_productosCache,categorias:_categoriasCache,config:_configCache,notifs:_notifsCache};
-        const dirtyMap = {gestores:'_gestoresDirty',mensajeros:'_mensajerosDirty',productos:'_productosDirty',categorias:'_categoriasDirty',config:'_configDirty',notifs:'_notifsDirty'};
         if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
         else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
         else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
         else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
         else if(node==='config'){_configCache=parsedVal;_configDirty=false;}
         else if(node==='notifs'){_notifsCache=parsedVal;_notifsDirty=false;}
+        else if(node==='estafa'){_estafaCache=parsedVal;_estafaDirty=false;}
       } else {
         const local = localStorage.getItem('axon_'+node);
         if (!local || local === '[]' || local === '{}') {
@@ -2359,9 +2413,10 @@ function saveAdminPhone() {
 function saveCatalogPhone() {
   const phone=document.getElementById('catalogPhoneInput').value.trim();
   const cfg=getConfig();cfg.catalogPhone=phone;saveConfig(cfg);showToast('Número catálogo guardado ✓');
+  triggerAutoPublishCatalog();
 }
 function resetForm() {
-  ['vf-cliente','vf-telefono','vf-direccion','vf-mensajeria','vf-articulo',
+  ['vf-cliente','vf-telefono','vf-direccion','vf-carnet','vf-mensajeria','vf-articulo',
    'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia'].forEach(id=>{
      const el=document.getElementById(id);if(el)el.value='';
    });
@@ -2392,7 +2447,7 @@ function sendVale() {
   const g=gestorOf(activeGestorId);
   const vale={
     id:Date.now(),valeNum:getNextValeNum(),gestorId:activeGestorId,ts:new Date().toISOString(),
-    cliente:fVal('vf-cliente'),telefono:fVal('vf-telefono'),direccion:fVal('vf-direccion'),
+    cliente:fVal('vf-cliente'),telefono:fVal('vf-telefono'),direccion:fVal('vf-direccion'),carnet:fVal('vf-carnet'),
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),
@@ -3209,8 +3264,9 @@ function shareCatalogWeb(){
 function buildCatalogCardJS(p,cat,color,waPhone){
   const pName=p.name||p.nombre||'';
   const pDesc=p.description||p.descripcion||'';
-  const pPrice=p.precio||p.precioActual||'';
-  const pPhoto=p.photo||p.imagen||'';
+  let pPrice=p.precio||'';
+  if(!pPrice && p.precioActual) pPrice = typeof p.precioActual==='number' ? '$'+p.precioActual+' USD' : p.precioActual;
+  const pPhoto=p.photo||p.imagen||(p.imagenes&&p.imagenes.length?p.imagenes[0]:'')||'';
   const pGarantia=p.garantia||'';
   const esc=s=>JSON.stringify(s).replace(/<\//g,'<\\/');
   const waMsg=`Hola, me interesa el producto: ${pName}${pPrice?' - '+pPrice:''}. Esta disponible?`;
@@ -4470,6 +4526,7 @@ function buildAdminValeText() {
     `🔸 Nombre Cliente: ${avVal('av-cliente')}`,
     `🔸Teléfono Cliente: ${avVal('av-telefono')}`,
     `🔸Dirección Cliente: ${avVal('av-direccion')}`,
+    avVal('av-carnet') ? `🪪 Carnet: ${avVal('av-carnet')}` : '',
     `🔸Mensajería/ costo: ${avVal('av-mensajeria')}`,
     `🔸 Artículos y cantidades:`, prodLines,
     `🔸Precio USD/ zelle: ${avVal('av-precioUSD')}`,
@@ -4499,7 +4556,7 @@ function sendAdminVale() {
   const vale = {
     id: Date.now(), valeNum: getNextValeNum(), gestorId: gId,
     ts: new Date().toISOString(), cliente: avVal('av-cliente'),
-    telefono: avVal('av-telefono'), direccion: avVal('av-direccion'),
+    telefono: avVal('av-telefono'), direccion: avVal('av-direccion'), carnet: avVal('av-carnet'),
     mensajeria: avVal('av-mensajeria'), articulo: avVal('av-articulo'),
     precioUSD: avVal('av-precioUSD'), precioMN: avVal('av-precioMN'),
     vuelto: avVal('av-vuelto'), total: avVal('av-total'),

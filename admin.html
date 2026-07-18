@@ -218,9 +218,13 @@
         <div class="card" style="margin-bottom:16px;">
           <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Agrega números de teléfono, nombres y direcciones sospechosos. Cuando se cree un vale con datos que coincidan, se mostrará una alerta al administrador.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div style="grid-column:1/-1;">
+            <div>
               <label class="field-lbl">Número de teléfono</label>
               <input type="text" id="estafaTelefono" placeholder="Ej: 5355551234">
+            </div>
+            <div>
+              <label class="field-lbl">Carnet de identidad</label>
+              <input type="text" id="estafaCarnet" placeholder="Ej: 92010112345">
             </div>
             <div>
               <label class="field-lbl">Nombre</label>
@@ -541,6 +545,11 @@
       <div>
         <label class="field-lbl">Dirección <span style="color:var(--red);">*</span></label>
         <input type="text" id="av-direccion" placeholder="Dirección de entrega" oninput="onAdminValeInput()">
+      </div>
+
+      <div>
+        <label class="field-lbl">Carnet de identidad</label>
+        <input type="text" id="av-carnet" placeholder="Opcional — Carnet del cliente" oninput="onAdminValeInput()">
       </div>
 
       <div>
