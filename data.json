@@ -883,38 +883,31 @@
   "vales": [
     {
       "adminNotes": "",
-      "articulo": "×1 ANTORCHA PARA SOLDADURA TIG:",
+      "articulo": "×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
       "carnet": "",
-      "cliente": "Juan",
-      "commissionPaid": false,
-      "confirmedTs": null,
-      "deliveredTs": "2026-07-18T21:55:00.380Z",
-      "direccion": "La lisa",
+      "cliente": "Jeje",
+      "direccion": "3kei3",
       "garantia": "",
       "gestorId": 1781761257100,
-      "id": 1784411502467,
-      "isNew": false,
-      "mensajeria": "3",
-      "mensajeroId": 1784335863791,
+      "id": 1784412004455,
+      "isNew": true,
+      "mensajeria": "737",
       "precioMN": "",
-      "precioUSD": "$90 USD",
-      "status": "delivered",
-      "telefono": "51113330",
-      "total": "$93 USD",
-      "ts": "2026-07-18T21:51:42.477Z",
-      "valeNum": 15,
+      "precioUSD": "$260 USD",
+      "status": "pending",
+      "telefono": "1323",
+      "total": "$260 USD + 737 MN",
+      "ts": "2026-07-18T22:00:04.461Z",
+      "valeNum": 18,
       "valeProductos": [
         {
-          "id": 1778102582909,
-          "name": "ANTORCHA PARA SOLDADURA TIG:",
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
           "qty": 1
         }
       ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan\n🔸Teléfono Cliente: 51113330\n🔸Dirección Cliente: La lisa\n🔸Mensajería/ costo: 3\n🔸 Artículos y cantidades:\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $93 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "commissionStatus": null,
-      "commissionPaidTs": null,
-      "commissionEnSobreTs": null
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jeje\n🔸Teléfono Cliente: 1323\n🔸Dirección Cliente: 3kei3\n🔸Mensajería/ costo: 737\n🔸 Artículos y cantidades:\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD + 737 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
     },
     {
       "adminNotes": "",
@@ -972,35 +965,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bebej\n🔸Teléfono Cliente: 61626\n🔸Dirección Cliente: Nejeje\n🔸Mensajería/ costo: 4\n🔸 Artículos y cantidades:\n  ×2 PESA / BÁSCULA INTELIGENTE DIGITAL.\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n  ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW\n  ×2 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n  ×2 ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS\n🔸Precio USD/ zelle: $2970 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2974 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
-    },
-    {
-      "adminNotes": "",
-      "articulo": "×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-      "carnet": "",
-      "cliente": "Jeje",
-      "direccion": "3kei3",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784412004455,
-      "isNew": true,
-      "mensajeria": "737",
-      "precioMN": "",
-      "precioUSD": "$260 USD",
-      "status": "pending",
-      "telefono": "1323",
-      "total": "$260 USD + 737 MN",
-      "ts": "2026-07-18T22:00:04.461Z",
-      "valeNum": 18,
-      "valeProductos": [
-        {
-          "id": 1778104512761,
-          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jeje\n🔸Teléfono Cliente: 1323\n🔸Dirección Cliente: 3kei3\n🔸Mensajería/ costo: 737\n🔸 Artículos y cantidades:\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD + 737 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-18T22:04:06.960Z"
+  "timestamp": "2026-07-18T22:04:11.472Z"
 }
