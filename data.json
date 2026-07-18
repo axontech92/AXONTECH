@@ -247,7 +247,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102507659.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 7
+      "stock": 8
     },
     {
       "catId": 40,
@@ -881,11 +881,11 @@
       "adminNotes": "",
       "articulo": "×1 PESA / BÁSCULA INTELIGENTE DIGITAL.",
       "cliente": "dkjvnkdlsm",
-      "commissionEnSobreTs": "2026-07-17T23:45:02.456Z",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-07-17T23:47:52.202Z",
-      "commissionStatus": "cobrado",
-      "confirmedTs": "2026-07-17T23:44:13.892Z",
+      "commissionEnSobreTs": null,
+      "commissionPaid": false,
+      "commissionPaidTs": null,
+      "commissionStatus": null,
+      "confirmedTs": null,
       "direccion": "sgoigj",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -894,7 +894,7 @@
       "mensajeria": "7",
       "precioMN": "",
       "precioUSD": "$25 USD",
-      "status": "confirmed",
+      "status": "delivered",
       "telefono": "8786904",
       "total": "$32 USD",
       "ts": "2026-07-17T23:43:47.184Z",
@@ -910,5 +910,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-18T00:06:39.205Z"
+  "timestamp": "2026-07-18T00:07:00.875Z"
 }
