@@ -3241,8 +3241,56 @@ async function publishCatalogToGitHub(htmlContent) {
     return pagesUrl;
   } else {
     const err=await res.json().catch(()=>({}));
-    showToast(`Error al publicar (${res.status}): ${err.message||''}`);
+    const msg=err.message||'';
+    if(res.status===401)showToast('❌ Token inválido o expirado. Genera uno nuevo en GitHub Settings → Developer settings → Personal access tokens');
+    else if(res.status===404)showToast('❌ Repo no encontrado. Verifica el formato: usuario/nombre-repo');
+    else if(res.status===403)showToast('❌ Sin permisos. El token necesita permiso "repo" (full control)');
+    else showToast(`Error al publicar (${res.status}): ${msg}`);
+    console.error('GitHub publish error:',res.status,err);
     return null;
+  }
+}
+
+async function testGitHubPages() {
+  const cfg=getConfig();
+  const statusEl=document.getElementById('ghSyncStatus');
+  if(!cfg.ghToken||!cfg.ghRepo){showToast('Configura GitHub primero');return;}
+  const parts=cfg.ghRepo.split('/');const owner=parts[0];const repo=parts.slice(1).join('/');
+  if(statusEl)statusEl.innerHTML='🧪 Probando conexión...';
+  let results=[];
+  // 1. Test repo access
+  try{
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json'}});
+    if(r.ok){const j=await r.json();results.push(`✅ Repo encontrado: ${j.full_name} (${j.private?'privado':'público'})`);}
+    else if(r.status===401){results.push('❌ Token inválido o expirado');}
+    else if(r.status===404){results.push('❌ Repo no encontrado. Verifica: '+cfg.ghRepo);}
+    else{results.push(`⚠️ Repo respondió con status ${r.status}`);}
+  }catch(e){results.push('❌ Error de red: '+e.message);}
+  // 2. Test if catalogo.html exists in repo
+  try{
+    const r2=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/catalogo.html`,{headers:{Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json'}});
+    if(r2.ok){const j2=await r2.json();results.push(`✅ catalogo.html existe en repo (${(j2.size/1024).toFixed(1)} KB, actualizado: ${j2.updatedAt||j2.updated_at||'?'})`);}
+    else{results.push('⚠️ catalogo.html NO existe en el repo. Necesitas publicar primero.');}
+  }catch(e){results.push('⚠️ No se pudo verificar catalogo.html');}
+  // 3. Test GitHub Pages URL
+  const pagesUrl=`https://${owner}.github.io/${repo}/catalogo.html`;
+  results.push(`🔗 URL del catálogo: <a href="${pagesUrl}" target="_blank" style="color:var(--blue);word-break:break-all;">${pagesUrl}</a>`);
+  if(statusEl)statusEl.innerHTML=results.map(r=>`<div style="margin-bottom:3px;">${r}</div>`).join('');
+}
+
+async function publishCatalogNow() {
+  const cfg=getConfig();
+  const statusEl=document.getElementById('ghSyncStatus');
+  if(!cfg.ghToken||!cfg.ghRepo){showToast('Configura GitHub primero');return;}
+  if(statusEl)statusEl.innerHTML='☁️ Generando y publicando catálogo...';
+  const html=buildCatalogHTML();
+  if(!html){showToast('No hay productos con stock para publicar');if(statusEl)statusEl.innerHTML='';return;}
+  const url=await publishCatalogToGitHub(html);
+  if(url){
+    showToast('✅ Catálogo publicado exitosamente');
+    if(statusEl)statusEl.innerHTML=`✅ Publicado: <a href="${url}" target="_blank" style="color:var(--blue);word-break:break-all;">${url}</a><br><span style="font-size:10px;color:var(--gray-400);">GitHub Pages tarda ~1 min en actualizarse</span>`;
+  } else {
+    if(statusEl)statusEl.innerHTML='❌ Error al publicar. Revisa el token y el repo.';
   }
 }
 // Keep PDF export as secondary option
