@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=62">
+  <link rel="stylesheet" href="./app.css?v=50">
 </head>
 <body data-page="admin">
 
@@ -47,8 +47,6 @@
     <button class="anav-btn"        id="anav-stats"      onclick="adminTab('stats')">📊 Estadísticas</button>
     <button class="anav-btn"        id="anav-historial"  onclick="adminTab('historial')">📅 Historial</button>
     <button class="anav-btn"        id="anav-stock"      onclick="adminTab('stock')">📦 Stock</button>
-    <button class="anav-btn"        id="anav-catalog"    onclick="adminTab('catalog')">📑 Catálogo</button>
-    <button class="anav-btn"        id="anav-estafa"    onclick="adminTab('estafa')">🚫 Estafa</button>
     <button class="anav-btn"        id="anav-config"     onclick="adminTab('config')">⚙️ Config</button>
   </div>
 
@@ -58,7 +56,10 @@
     <div id="adminValesPanel" class="admin-panel-3col">
       <!-- Col 1 -->
       <div class="col col-left">
-        <div class="lbl" style="margin-bottom:12px;">Vales Pendientes por Gestor</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="lbl" style="margin:0;">Vales Pendientes por Gestor</div>
+          <button class="btn btn-green btn-sm" onclick="openAdminValeModal()">+ Generar Vale</button>
+        </div>
         <div class="notif-banner" id="notifBanner" style="margin-bottom:14px;">
           <span id="notifBannerText">Nuevo vale recibido</span>
           <button class="notif-close" onclick="document.getElementById('notifBanner').classList.remove('show')">×</button>
@@ -105,19 +106,6 @@
         </div>
       </div>
       <div style="padding:12px 14px;" id="productGrid"></div>
-    </div>
-
-    <!-- ── CATALOG PANEL (shared products, no out-of-stock) ── -->
-    <div id="adminCatalogPanel" class="admin-panel-full" style="display:none;">
-      <div style="padding:10px 14px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:var(--surface);">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
-          <div class="lbl" style="margin:0;">📑 Catálogo de Productos</div>
-          <button class="btn btn-blue btn-sm" onclick="shareCatalogWeb()">🔗 Compartir Catálogo</button>
-        </div>
-        <input type="search" id="catalogAdminSearch" placeholder="Buscar producto..." oninput="renderAdminCatalog()" style="margin-bottom:8px;width:100%;">
-        <div id="catalogAdminCatTabs" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
-      </div>
-      <div style="padding:12px 14px;" id="catalogAdminGrid"></div>
     </div>
 
     <!-- ── GESTORES PANEL ── -->
@@ -191,58 +179,19 @@
     <!-- ── HISTORIAL PANEL ── -->
     <div id="adminHistorialPanel" class="admin-panel-full" style="display:none;">
       <div style="padding:20px;max-width:900px;margin:0 auto;">
-        <div class="lbl" style="margin:0 0 14px;">📅 Historial de Vales</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
-          <span style="font-size:11px;color:var(--gray-400);">Desde</span>
-          <input type="date" id="histDateFrom" onchange="renderHistorial()" style="width:140px;">
-          <span style="font-size:11px;color:var(--gray-400);">Hasta</span>
-          <input type="date" id="histDateTo" onchange="renderHistorial()" style="width:140px;">
-          <select id="histGestorFilter" onchange="renderHistorial()" style="font-size:12px;width:auto;">
-            <option value="">Todos los gestores</option>
-          </select>
-        </div>
-        <div style="margin-bottom:12px;">
-          <input type="search" id="histSearchPhone" placeholder="Buscar por telefono, cliente o # vale..." oninput="renderHistorial()" style="width:100%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div class="lbl" style="margin:0;">📅 Historial de Vales</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:11px;color:var(--gray-400);">Desde</span>
+            <input type="date" id="histDateFrom" onchange="renderHistorial()" style="width:140px;">
+            <span style="font-size:11px;color:var(--gray-400);">Hasta</span>
+            <input type="date" id="histDateTo" onchange="renderHistorial()" style="width:140px;">
+            <select id="histGestorFilter" onchange="renderHistorial()" style="font-size:12px;width:auto;">
+              <option value="">Todos los gestores</option>
+            </select>
+          </div>
         </div>
         <div id="historialList"></div>
-      </div>
-    </div>
-
-    <!-- ── ESTAFA PANEL ── -->
-    <div id="adminEstafaPanel" class="admin-panel-full" style="display:none;">
-      <div style="max-width:700px;margin:0 auto;padding:20px;">
-        <div class="lbl" style="margin-top:0;">🚫 Lista de Estafa</div>
-        <div class="card" style="margin-bottom:16px;">
-          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Agrega números de teléfono, nombres y direcciones sospechosos. Cuando se cree un vale con datos que coincidan, se mostrará una alerta al administrador.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div style="grid-column:1/-1;">
-              <label class="field-lbl">Número de teléfono</label>
-              <input type="text" id="estafaTelefono" placeholder="Ej: 5355551234">
-            </div>
-            <div>
-              <label class="field-lbl">Nombre</label>
-              <input type="text" id="estafaNombre" placeholder="Nombre sospechoso">
-            </div>
-            <div>
-              <label class="field-lbl">Dirección</label>
-              <input type="text" id="estafaDireccion" placeholder="Dirección sospechosa">
-            </div>
-            <div style="grid-column:1/-1;">
-              <label class="field-lbl">Motivo / Nota</label>
-              <input type="text" id="estafaNota" placeholder="Ej: No pagó, dirección falsa, etc.">
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn btn-red btn-sm" onclick="addEstafa()">+ Agregar a lista</button>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:12px;font-weight:700;color:var(--gray-400);">Registros guardados <span id="estafaCount" style="background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;">0</span></div>
-          <div style="display:flex;gap:8px;">
-            <input type="search" id="estafaSearch" placeholder="Buscar en lista..." oninput="renderEstafaList()" style="width:200px;font-size:12px;">
-          </div>
-        </div>
-        <div id="estafaList"></div>
       </div>
     </div>
 
@@ -287,15 +236,6 @@
             <button class="btn btn-blue btn-sm" onclick="saveAdminPhone()">✓</button>
           </div>
           <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Número sin + ni espacios</div>
-        </div>
-        <div class="lbl">📲 WhatsApp Catálogo</div>
-        <div class="card">
-          <label class="field-lbl">Número que recibe los pedidos del catálogo compartido</label>
-          <div class="add-row">
-            <input type="text" id="catalogPhoneInput" placeholder="Ej: 5355551234" style="font-size:12px;">
-            <button class="btn btn-blue btn-sm" onclick="saveCatalogPhone()">✓</button>
-          </div>
-          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Si no se configura, usa el WhatsApp Admin</div>
         </div>
         <div class="lbl">💾 Datos locales (exportar / importar)</div>
         <div class="card">
@@ -355,6 +295,115 @@
 
   </div><!-- /admin-content -->
 </div><!-- /layoutAdmin -->
+
+<!-- ── MODAL: Generar Vale (Admin) ── -->
+<div class="modal-bg" id="adminValeModal">
+  <div class="modal" style="max-width:520px;width:94%;">
+    <div class="modal-title">📝 Generar Vale (Admin)</div>
+    <div class="modal-sub">Crea un vale directamente desde el panel de administración</div>
+
+    <div style="display:grid;gap:10px;margin-top:10px;">
+      <!-- Gestor selector -->
+      <div>
+        <label class="field-lbl">Promotor <span style="color:var(--red);">*</span></label>
+        <select id="av-gestor" onchange="onAdminValeInput()">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="field-lbl">Nombre Cliente <span style="color:var(--red);">*</span></label>
+          <input type="text" id="av-cliente" placeholder="Nombre completo" oninput="onAdminValeInput()">
+        </div>
+        <div>
+          <label class="field-lbl">Teléfono <span style="color:var(--red);">*</span></label>
+          <input type="tel" id="av-telefono" placeholder="Número de teléfono" oninput="this.value=this.value.replace(/[^0-9]/g,'');onAdminValeInput()" inputmode="numeric" pattern="[0-9]*">
+        </div>
+      </div>
+
+      <div>
+        <label class="field-lbl">Dirección <span style="color:var(--red);">*</span></label>
+        <input type="text" id="av-direccion" placeholder="Dirección de entrega" oninput="onAdminValeInput()">
+      </div>
+
+      <div>
+        <label class="field-lbl">Mensajería / costo</label>
+        <input type="text" id="av-mensajeria" placeholder="Ej: Gratis / $2 USD" oninput="onAdminValeInput()">
+      </div>
+
+      <div>
+        <label class="field-lbl">
+          Artículo y cantidad <span style="color:var(--red);">*</span>
+          <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 8px;margin-left:6px;" onclick="openAdminProductPicker()">📦 Catálogo</button>
+        </label>
+        <div id="av-selectedProductsList" style="display:none;"></div>
+        <textarea id="av-articulo" rows="2" placeholder="Escribe o selecciona del catálogo ↑" oninput="onAdminValeInput()"></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="field-lbl">Precio USD / Zelle</label>
+          <input type="text" id="av-precioUSD" placeholder="Ej: $45 USD" oninput="onAdminValeInput()">
+        </div>
+        <div>
+          <label class="field-lbl">Precio MN</label>
+          <input type="text" id="av-precioMN" placeholder="Ej: 4500 MN" oninput="onAdminValeInput()">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="field-lbl">Vuelto</label>
+          <input type="text" id="av-vuelto" placeholder="Ej: 500 MN" oninput="onAdminValeInput()">
+        </div>
+        <div>
+          <label class="field-lbl">Total a pagar <span style="color:var(--red);">*</span></label>
+          <input type="text" id="av-total" placeholder="Total final" oninput="onAdminValeInput()">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label class="field-lbl">Garantía</label>
+          <input type="text" id="av-garantia" placeholder="Ej: 6 meses" oninput="onAdminValeInput()">
+        </div>
+        <div>
+          <label class="field-lbl">💰 Comisión gestor</label>
+          <input type="text" id="av-comisionGestor" placeholder="Ej: $5 USD">
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="av-previewCard" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">Vista previa</div>
+        <div class="vale-preview" id="av-previewText" style="font-size:10.5px;max-height:160px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <div class="modal-btns" style="margin-top:14px;">
+      <button class="btn btn-ghost btn-full" onclick="closeAdminValeModal()">Cancelar</button>
+      <button class="btn btn-blue btn-full" id="av-sendBtn" onclick="sendAdminVale()" disabled>📤 Generar Vale</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Product Picker (Admin) ── -->
+<div class="modal-bg" id="adminProductPickerModal">
+  <div class="modal" style="max-width:580px;width:92%;">
+    <div class="modal-title">📦 Catálogo de Productos</div>
+    <input type="search" id="av-pickerSearch" placeholder="Buscar producto..." oninput="renderAdminPickerProducts()" style="margin-bottom:10px;">
+    <div id="av-pickerCatTabs" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;"></div>
+    <div id="av-pickerProductGrid" style="max-height:280px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:6px;padding:2px;"></div>
+    <hr class="modal-sep">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-600);margin-bottom:6px;">Seleccionados:</div>
+    <div id="av-pickerSelectedList" style="min-height:28px;"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost btn-full" onclick="closeAdminProductPicker()">Cancelar</button>
+      <button class="btn btn-blue btn-full" onclick="confirmAdminPickerSelection()">Agregar al vale ✓</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── MODAL: Contraseña ── -->
 <div class="modal-bg" id="passModal">
@@ -517,7 +566,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=62"></script>
+<script src="./app.js?v=50"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

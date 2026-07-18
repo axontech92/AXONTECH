@@ -438,10 +438,10 @@
     /* ── PRINT STYLES ── */
     @media print {
       body { overflow: visible !important; }
-      header, .admin-nav, .modal-bg:not(.show), .toast, #goalBanner, .glow-overlay, .rank-notif, .rank-notif-card { display: none !important; }
+      header, .admin-nav, .modal-bg:not(.show), .toast, #goalBanner { display: none !important; }
       .modal-bg.show { position: static; background: none; }
     }
-    /* ── Z-INDEX SCALE: header:100, modal:200, toast:250, goal-banner:500, glow-overlay:600, rank-notif:550, rank-notif-card:555 ── */
+    /* ── Z-INDEX SCALE: header:100, modal:200, toast:250, goal-banner:500 ── */
     #goalBanner { z-index: 500; }
     #goalBanner button, #goalBanner .btn { pointer-events: auto; }
 
@@ -497,70 +497,3 @@
     @keyframes slideUp   { from{transform:translateY(0);opacity:1}    to{transform:translateY(-110%);opacity:0} }
     #goalBanner { position:fixed;top:54px;left:0;right:0;z-index:500;background:linear-gradient(135deg,#003d52,#00b4d8);color:white;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:slideDown .4s cubic-bezier(.22,1,.36,1); }
     #goalBanner.hide { animation:slideUp .35s ease forwards; }
-
-    /* ── EPIC GLOW PULSE CELEBRATION ── */
-    .glow-overlay { position:fixed;inset:0;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.92);opacity:0;pointer-events:none;transition:opacity .5s; }
-    .glow-overlay.active { opacity:1;pointer-events:auto; }
-    .glow-rings { position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center; }
-    .glow-ring { position:absolute;border-radius:50%;border:2px solid;animation:glowPulse 3s ease-in-out infinite; }
-    @keyframes glowPulse { 0%,100%{transform:scale(1);opacity:.25} 50%{transform:scale(1.12);opacity:.65} }
-    .glow-announcement { display:flex;flex-direction:column;align-items:center;gap:20px;z-index:2;position:relative;padding:20px; }
-    .glow-title { font-size:28px;font-weight:900;color:#fff;text-align:center;opacity:0;transform:translateY(-20px) scale(.9);transition:all .7s cubic-bezier(.34,1.56,.64,1);text-shadow:0 0 30px rgba(245,158,11,.5);letter-spacing:2px; }
-    .glow-title.show { opacity:1;transform:translateY(0) scale(1); }
-    .glow-winners-list { display:flex;flex-direction:column;gap:12px;width:100%;max-width:420px; }
-    .glow-winner-row { display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 18px;opacity:0;transform:translateX(-40px);transition:all .6s cubic-bezier(.34,1.56,.64,1);cursor:default; }
-    .glow-winner-row.show { opacity:1;transform:translateX(0); }
-    .glow-winner-row:hover { background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2); }
-    .glow-winner-place { font-size:26px;font-weight:900;width:44px;text-align:center;flex-shrink:0; }
-    .glow-winner-avatar { width:44px;height:44px;border-radius:50%;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(255,255,255,.25); }
-    .glow-winner-info { flex:1;min-width:0; }
-    .glow-winner-name { color:#fff;font-size:15px;font-weight:700; }
-    .glow-winner-pts { color:rgba(255,255,255,.55);font-size:12px;margin-top:2px; }
-    .glow-winner-badge { padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;color:#fff;letter-spacing:.3px;flex-shrink:0; }
-    .glow-badge-1 { background:linear-gradient(135deg,#F59E0B,#EF4444); }
-    .glow-badge-2 { background:linear-gradient(135deg,#94A3B8,#64748B); }
-    .glow-badge-3 { background:linear-gradient(135deg,#cd7f32,#92400e); }
-    .glow-close { position:absolute;top:20px;right:20px;z-index:20;background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
-    .glow-close:hover { background:rgba(255,255,255,.22);color:#fff; }
-    .glow-meta-label { font-size:12px;color:rgba(255,255,255,.45);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;z-index:2; }
-
-    /* ── GESTOR PERSONAL RANKING NOTIFICATION ── */
-    .rank-notif { position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-100px);z-index:550;background:var(--surface);border:2px solid var(--yellow);border-radius:16px;padding:16px 28px;box-shadow:0 8px 36px rgba(245,158,11,.3);display:flex;align-items:center;gap:14px;opacity:0;transition:all .6s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:90vw; }
-    .rank-notif.show { transform:translateX(-50%) translateY(0);opacity:1; }
-    .rank-notif-icon { font-size:32px;flex-shrink:0; }
-    .rank-notif-content { display:flex;flex-direction:column;gap:2px; }
-    .rank-notif-place { font-size:20px;font-weight:900; }
-    .rank-notif-text { font-size:13px;color:var(--gray-600); }
-    .rank-notif-pts { font-size:12px;color:var(--blue);font-weight:700; }
-
-    /* ── RANKING NOTIFICATION CARDS (slide-in) ── */
-    .rank-notif-card { position:fixed;bottom:20px;right:20px;z-index:555;background:var(--surface);border:1px solid var(--gray-200);border-radius:14px;padding:14px 18px;box-shadow:0 8px 28px rgba(0,0,0,.15);max-width:340px;transform:translateX(120%);opacity:0;transition:all .5s cubic-bezier(.34,1.56,.64,1);pointer-events:auto; }
-    .rank-notif-card.show { transform:translateX(0);opacity:1; }
-    .rank-notif-card.hide { transform:translateX(120%);opacity:0; }
-    .rank-notif-card-header { display:flex;align-items:center;gap:8px;margin-bottom:8px; }
-    .rank-notif-card-icon { width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-    .rank-notif-card-title { font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;flex:1; }
-    .rank-notif-card-time { font-size:10px;color:var(--gray-400); }
-    .rank-notif-card-body { font-size:13px;color:var(--gray-600);line-height:1.4; }
-    .rank-notif-card-body b { color:var(--text); }
-    .rank-notif-card-place { display:inline-block;padding:3px 10px;border-radius:14px;font-size:10px;font-weight:800;color:#fff;margin-top:6px; }
-    .rank-place-1 { background:linear-gradient(135deg,#F59E0B,#EF4444); }
-    .rank-place-2 { background:linear-gradient(135deg,#94A3B8,#64748B); }
-    .rank-place-3 { background:linear-gradient(135deg,#cd7f32,#92400e); }
-    body.dark .rank-notif { background:var(--surface);border-color:#F59E0B;box-shadow:0 8px 36px rgba(245,158,11,.2); }
-    body.dark .rank-notif-text { color:var(--gray-600); }
-    body.dark .rank-notif-card { background:var(--surface);border-color:var(--border); }
-
-    @media (max-width: 480px) {
-      .glow-title { font-size:22px; }
-      .glow-winner-row { padding:10px 14px;gap:10px; }
-      .glow-winner-place { font-size:22px;width:36px; }
-      .glow-winner-avatar { width:36px;height:36px;font-size:12px; }
-      .glow-winner-name { font-size:13px; }
-      .glow-winner-badge { font-size:9px;padding:3px 8px; }
-      .glow-winners-list { max-width:320px; }
-      .rank-notif { padding:12px 20px; }
-      .rank-notif-icon { font-size:26px; }
-      .rank-notif-place { font-size:17px; }
-      .rank-notif-card { max-width:280px;right:12px;bottom:12px; }
-    }
