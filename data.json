@@ -251,7 +251,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102507659.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 6
+      "stock": 8
     },
     {
       "catId": 40,
@@ -287,7 +287,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 3
+      "stock": 5
     },
     {
       "catId": 20,
@@ -335,7 +335,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 2,
-      "stock": 3
+      "stock": 4
     },
     {
       "catId": 20,
@@ -347,7 +347,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104599386.webp",
       "precio": "$550 USD",
       "puntos": 5,
-      "stock": 2
+      "stock": 3
     },
     {
       "catId": 20,
@@ -359,7 +359,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104662477.webp",
       "precio": "$900 USD",
       "puntos": 7,
-      "stock": 0
+      "stock": 2
     },
     {
       "catId": 10,
@@ -371,7 +371,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104735789.webp",
       "precio": "$130 USD",
       "puntos": 2,
-      "stock": 35
+      "stock": 37
     },
     {
       "catId": 20,
@@ -883,10 +883,38 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+      "carnet": "",
+      "cliente": "Jeje",
+      "direccion": "3kei3",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1784412004455,
+      "isNew": true,
+      "mensajeria": "737",
+      "precioMN": "",
+      "precioUSD": "$260 USD",
+      "status": "pending",
+      "telefono": "1323",
+      "total": "$260 USD + 737 MN",
+      "ts": "2026-07-18T22:00:04.461Z",
+      "valeNum": 18,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jeje\n🔸Teléfono Cliente: 1323\n🔸Dirección Cliente: 3kei3\n🔸Mensajería/ costo: 737\n🔸 Artículos y cantidades:\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD + 737 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
       "articulo": "×2 PESA / BÁSCULA INTELIGENTE DIGITAL. / ×2 PISTOLA DE MASAJE RECARGABLE: / ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW / ×2 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED / ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️ / ×2 ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS",
       "carnet": "",
       "cliente": "Bebej",
-      "confirmedTs": "2026-07-18T21:58:19.367Z",
+      "confirmedTs": null,
       "direccion": "Nejeje",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -895,7 +923,7 @@
       "mensajeria": "4",
       "precioMN": "",
       "precioUSD": "$2970 USD",
-      "status": "confirmed",
+      "status": "pending",
       "telefono": "61626",
       "total": "$2974 USD",
       "ts": "2026-07-18T21:57:49.755Z",
@@ -933,7 +961,11 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Bebej\n🔸Teléfono Cliente: 61626\n🔸Dirección Cliente: Nejeje\n🔸Mensajería/ costo: 4\n🔸 Artículos y cantidades:\n  ×2 PESA / BÁSCULA INTELIGENTE DIGITAL.\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n  ×1 INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW\n  ×2 INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n  ×2 ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS\n🔸Precio USD/ zelle: $2970 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2974 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
+      "vuelto": "",
+      "commissionPaid": false,
+      "commissionStatus": null,
+      "commissionPaidTs": null,
+      "commissionEnSobreTs": null
     },
     {
       "adminNotes": "",
@@ -965,32 +997,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan\n🔸Teléfono Cliente: 51113330\n🔸Dirección Cliente: La lisa\n🔸Mensajería/ costo: 3\n🔸 Artículos y cantidades:\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $93 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
-    },
-    {
-      "id": 1784411966637,
-      "valeNum": 17,
-      "gestorId": 0,
-      "ts": "2026-07-18T21:59:26.665Z",
-      "cliente": "jgjoerkjg",
-      "telefono": "6786487568",
-      "direccion": "gsuyfguysad",
-      "carnet": "",
-      "mensajeria": "5",
-      "articulo": "jweiogjoiwjf",
-      "precioUSD": "",
-      "precioMN": "",
-      "vuelto": "",
-      "total": "$5 USD",
-      "garantia": "",
-      "comisionGestor": "",
-      "valeProductos": [],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: \n\n🔸 Nombre Cliente: jgjoerkjg\n🔸Teléfono Cliente: 6786487568\n🔸Dirección Cliente: gsuyfguysad\n\n🔸Mensajería/ costo: 5\n🔸 Artículos y cantidades:\njweiogjoiwjf\n🔸Precio USD/ zelle: \n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $5 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "status": "pending",
-      "mensajeroId": null,
-      "confirmedTs": null,
-      "isNew": true,
-      "adminNotes": "Generado por Admin"
     }
   ],
-  "timestamp": "2026-07-18T21:59:26.667Z"
+  "timestamp": "2026-07-18T22:01:06.615Z"
 }
