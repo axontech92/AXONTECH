@@ -880,35 +880,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-      "carnet": "",
-      "cliente": "Jeje",
-      "direccion": "3kei3",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784412004455,
-      "isNew": true,
-      "mensajeria": "737",
-      "precioMN": "",
-      "precioUSD": "$260 USD",
-      "status": "pending",
-      "telefono": "1323",
-      "total": "$260 USD + 737 MN",
-      "ts": "2026-07-18T22:00:04.461Z",
-      "valeNum": 18,
-      "valeProductos": [
-        {
-          "id": 1778104512761,
-          "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jeje\n🔸Teléfono Cliente: 1323\n🔸Dirección Cliente: 3kei3\n🔸Mensajería/ costo: 737\n🔸 Artículos y cantidades:\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD + 737 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/7/2026 17:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    }
-  ],
-  "timestamp": "2026-07-18T22:04:26.474Z"
+  "vales": [],
+  "timestamp": "2026-07-18T22:04:44.430Z"
 }
