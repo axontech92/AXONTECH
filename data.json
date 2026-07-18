@@ -215,7 +215,7 @@
     },
     {
       "catId": 10,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[ACCESORIOS]\nRepetidor wifi 5 de doble banda 2.4G y 5G, de 1200 mbps.",
       "garantia": "",
       "id": 1777924315386,
@@ -223,11 +223,11 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924315386.webp",
       "precio": "$25 USD",
       "puntos": 1,
-      "stock": 18
+      "stock": 19
     },
     {
       "catId": 10,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[SWITCHES]\nSwitch de 8 puertos ethernet de 1 gigabite.",
       "garantia": "",
       "id": 1778102214012,
@@ -307,7 +307,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778104287395.webp",
       "precio": "$130 USD",
       "puntos": 2,
-      "stock": 1
+      "stock": 0
     },
     {
       "catId": 20,
@@ -876,43 +876,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1",
-      "cliente": "Jekdkek",
-      "commissionPaid": false,
-      "confirmedTs": "2026-06-26T17:37:12.998Z",
-      "deliveredTs": "2026-06-26T17:36:21.860Z",
-      "direccion": "Uwueje",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "id": 1782495061790,
-      "isNew": false,
-      "mensajeria": "4",
-      "mensajeroId": 1781533316958,
-      "precioMN": "",
-      "precioUSD": "$55 USD",
-      "status": "confirmed",
-      "telefono": "6465665-5",
-      "total": "$59 USD",
-      "ts": "2026-06-26T17:31:01.799Z",
-      "valeNum": 5,
-      "valeProductos": [
-        {
-          "id": 1777924315386,
-          "name": "REPETIDOR WIFI 5",
-          "qty": 1
-        },
-        {
-          "id": 1778102214012,
-          "name": "SWITCH DE 8 PUERTOS",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jekdkek\n🔸Teléfono Cliente: 6465665-5\n🔸Dirección Cliente: Uwueje\n🔸Mensajería/ costo: 4\n🔸 Artículo y cantidad: REPETIDOR WIFI 5 x1 / SWITCH DE 8 PUERTOS x1\n🔸Precio USD/ zelle: $55 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $59 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/6/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #313% San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    8:00am - 8:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    }
-  ],
-  "timestamp": "2026-07-17T17:57:40.237Z"
+  "vales": [],
+  "timestamp": "2026-07-18T00:41:54.648Z"
 }
