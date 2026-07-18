@@ -879,38 +879,6 @@
   "vales": [
     {
       "adminNotes": "",
-      "articulo": "×1 ANTORCHA PARA SOLDADURA TIG:",
-      "cliente": "eyt89",
-      "commissionEnSobreTs": null,
-      "commissionPaid": false,
-      "commissionPaidTs": null,
-      "commissionStatus": null,
-      "confirmedTs": null,
-      "direccion": "456849",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1784331967949,
-      "isNew": false,
-      "mensajeria": "6",
-      "precioMN": "",
-      "precioUSD": "$90 USD",
-      "status": "delivered",
-      "telefono": "45648769837",
-      "total": "$96 USD",
-      "ts": "2026-07-17T23:46:07.954Z",
-      "valeNum": 14,
-      "valeProductos": [
-        {
-          "id": 1778102582909,
-          "name": "ANTORCHA PARA SOLDADURA TIG:",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: eyt89\n🔸Teléfono Cliente: 45648769837\n🔸Dirección Cliente: 456849\n🔸Mensajería/ costo: 6\n🔸 Artículos y cantidades:\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $96 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/7/2026 19:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    },
-    {
-      "adminNotes": "",
       "articulo": "×1 PESA / BÁSCULA INTELIGENTE DIGITAL.",
       "cliente": "dkjvnkdlsm",
       "commissionEnSobreTs": "2026-07-17T23:45:02.456Z",
@@ -976,5 +944,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-18T00:06:19.168Z"
+  "timestamp": "2026-07-18T00:06:22.890Z"
 }
