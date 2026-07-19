@@ -188,6 +188,14 @@
       "name": "María Elena",
       "password": "6HZKGG38",
       "phone": "59224595"
+    },
+    {
+      "color": "#059669",
+      "id": 1784476335609,
+      "initials": "J",
+      "name": "Juan",
+      "password": "FJ2DNC8A",
+      "phone": "56702561"
     }
   ],
   "mensajeros": [
@@ -929,5 +937,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T15:51:34.583Z"
+  "timestamp": "2026-07-19T15:52:15.639Z"
 }
