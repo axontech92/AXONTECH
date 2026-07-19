@@ -196,6 +196,14 @@
       "name": "Juan",
       "password": "FJ2DNC8A",
       "phone": "56702561"
+    },
+    {
+      "color": "#DC2626",
+      "id": 1784476367598,
+      "initials": "Y",
+      "name": "Yadira",
+      "password": "Z2NEFDQC",
+      "phone": "58083002"
     }
   ],
   "mensajeros": [
@@ -937,5 +945,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T15:52:15.639Z"
+  "timestamp": "2026-07-19T15:52:47.626Z"
 }
