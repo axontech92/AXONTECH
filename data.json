@@ -156,6 +156,14 @@
       "name": "Kevin Maykel",
       "password": "89B6FYVR",
       "phone": "54410879"
+    },
+    {
+      "color": "#BE185D",
+      "id": 1784476036044,
+      "initials": "KT",
+      "name": "Kevin Turiño",
+      "password": "JQMQMWCY",
+      "phone": "53167743"
     }
   ],
   "mensajeros": [
@@ -897,5 +905,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T15:45:02.062Z"
+  "timestamp": "2026-07-19T15:47:16.082Z"
 }
