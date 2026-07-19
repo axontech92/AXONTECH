@@ -140,6 +140,14 @@
       "name": "Julio",
       "password": "9E6MS6",
       "phone": ""
+    },
+    {
+      "color": "#D97706",
+      "id": 1784475873616,
+      "initials": "S",
+      "name": "Shirley",
+      "password": "GUCTCWYT",
+      "phone": "52386748"
     }
   ],
   "mensajeros": [
@@ -881,5 +889,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-18T23:00:56.484Z"
+  "timestamp": "2026-07-19T15:44:33.647Z"
 }
