@@ -172,6 +172,14 @@
       "name": "Katherine",
       "password": "WRXDWYPW",
       "phone": "56536692"
+    },
+    {
+      "color": "#2563EB",
+      "id": 1784476166750,
+      "initials": "Y",
+      "name": "Yanaris",
+      "password": "XJF7NGRF",
+      "phone": "59217581"
     }
   ],
   "mensajeros": [
@@ -913,5 +921,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T15:48:10.861Z"
+  "timestamp": "2026-07-19T15:49:26.783Z"
 }
