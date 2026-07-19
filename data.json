@@ -148,6 +148,14 @@
       "name": "Shirley",
       "password": "GUCTCWYT",
       "phone": "52386748"
+    },
+    {
+      "color": "#0891B2",
+      "id": 1784475902029,
+      "initials": "KM",
+      "name": "Kevin Maykel",
+      "password": "89B6FYVR",
+      "phone": "54410879"
     }
   ],
   "mensajeros": [
@@ -889,5 +897,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T15:44:33.647Z"
+  "timestamp": "2026-07-19T15:45:02.062Z"
 }
