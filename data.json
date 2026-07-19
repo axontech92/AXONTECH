@@ -204,6 +204,14 @@
       "name": "Yadira",
       "password": "Z2NEFDQC",
       "phone": "58083002"
+    },
+    {
+      "color": "#D97706",
+      "id": 1784477060209,
+      "initials": "E",
+      "name": "Eloydis",
+      "password": "TAN28F62",
+      "phone": "59309819"
     }
   ],
   "mensajeros": [
@@ -993,5 +1001,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T16:02:20.872Z"
+  "timestamp": "2026-07-19T16:04:20.243Z"
 }
