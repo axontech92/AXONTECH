@@ -623,7 +623,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384158283_ext.webp",
       "precio": "$60 USD",
       "puntos": 1,
-      "stock": 4
+      "stock": 5
     },
     {
       "catId": 80,
@@ -1001,5 +1001,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T16:11:29.066Z"
+  "timestamp": "2026-07-19T16:11:38.661Z"
 }
