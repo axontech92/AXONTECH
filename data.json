@@ -180,6 +180,14 @@
       "name": "Yanaris",
       "password": "XJF7NGRF",
       "phone": "59217581"
+    },
+    {
+      "color": "#7C3AED",
+      "id": 1784476294552,
+      "initials": "ME",
+      "name": "María Elena",
+      "password": "6HZKGG38",
+      "phone": "59224595"
     }
   ],
   "mensajeros": [
@@ -921,5 +929,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-19T15:49:26.783Z"
+  "timestamp": "2026-07-19T15:51:34.583Z"
 }
