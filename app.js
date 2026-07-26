@@ -2893,6 +2893,7 @@ function buildProdCard(p, cats, isAgotado) {
       <div style="display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap;">
         ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${escapeHTML(p.precio)}</span>`:''}
         ${p.comision?`<span style="font-size:10px;color:var(--green);font-weight:600;">💰 ${escapeHTML(p.comision)}</span>`:''}
+        ${p.puntos?`<span style="font-size:10px;color:var(--blue);font-weight:600;">⭐ ${p.puntos} pts</span>`:''}
         ${p.garantia?`<span style="font-size:10px;color:var(--gray-400);">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
       </div>
     </div>
