@@ -311,7 +311,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1777924118004.webp",
       "precio": "$180 USD",
       "puntos": 1,
-      "stock": 6
+      "stock": 7
     },
     {
       "catId": 10,
@@ -383,7 +383,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778102582909.webp",
       "precio": "$90 USD",
       "puntos": 1,
-      "stock": 9
+      "stock": 10
     },
     {
       "catId": 20,
@@ -407,7 +407,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
       "puntos": 0,
-      "stock": 5
+      "stock": 6
     },
     {
       "catId": 20,
@@ -1175,11 +1175,11 @@
       "carnet": "",
       "cliente": "Usiiei",
       "comisionGestor": "$20.00 USD + 1500 MN",
-      "commissionEnSobreTs": "2026-07-26T15:35:54.136Z",
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-07-26T15:36:15.013Z",
-      "commissionStatus": "cobrado",
-      "confirmedTs": "2026-07-26T15:29:17.442Z",
+      "commissionEnSobreTs": null,
+      "commissionPaid": false,
+      "commissionPaidTs": null,
+      "commissionStatus": null,
+      "confirmedTs": null,
       "direccion": "Hskid hdde",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -1188,7 +1188,7 @@
       "mensajeria": "7",
       "precioMN": "",
       "precioUSD": "$295 USD",
-      "status": "confirmed",
+      "status": "pending",
       "telefono": "54664440",
       "total": "$302 USD",
       "ts": "2026-07-26T15:27:25.153Z",
@@ -1214,5 +1214,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-26T18:01:17.992Z"
+  "timestamp": "2026-07-26T18:03:43.714Z"
 }
