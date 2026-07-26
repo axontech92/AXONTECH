@@ -307,10 +307,10 @@
       "description": "[INVERSORES]\nIdeal para combatir los apagones. Este inversor permitira mantener trabajando electrodomesticos como un refrigerador, ventiladores, televisores y luces de la casa\npor horas (dependiendo del respaldo de baterias), durante un corte de fluido electrico.\n--Este inversor brinda una salida sinusoidal pura de 110 V (corriente alterna) con 2000 watts continuos y 4000 watts maximos.\n-Se puede alimentar\nde una bateria de *24V*.\n-Posee dos salidas universales que sirven para conectores de corriente plano (el que se usa mayoritariamente en Cuba), europeo o chino\n-Un display digital que muestra los voltajes de entrada (DC) y salida (AC) en tiempo real.",
       "garantia": "",
       "id": 1777924118004,
-      "name": "INVERSOR",
+      "name": "INVERSOR 24v 4000w",
       "photo": "https://tiendamax.org/imagenes/img_1777924118004.webp",
-      "precio": "$170 USD",
-      "puntos": 2,
+      "precio": "$180 USD",
+      "puntos": 1,
       "stock": 7
     },
     {
@@ -1037,5 +1037,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-26T14:54:58.440Z"
+  "timestamp": "2026-07-26T14:55:52.223Z"
 }
