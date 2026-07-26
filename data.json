@@ -382,7 +382,7 @@
       "name": "ANTORCHA PARA SOLDADURA TIG:",
       "photo": "https://tiendamax.org/imagenes/img_1778102582909.webp",
       "precio": "$90 USD",
-      "puntos": 2,
+      "puntos": 1,
       "stock": 10
     },
     {
@@ -1037,5 +1037,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-26T14:47:47.082Z"
+  "timestamp": "2026-07-26T14:47:59.194Z"
 }
