@@ -927,27 +927,27 @@
     },
     {
       "catId": 40,
-      "comision": "$1000 USD",
+      "comision": "1500 MN",
       "description": "[HERRAMIENTAS]\nProbador/ tester  digital de baterías: \n * Diseñado para diagnosticar el estado y rendimiento de baterías automotrices.\n\n*Permite realizar pruebas de batería para conocer su capacidad, voltaje y estado *general.\nIncluye función Load Test para verificar el comportamiento de la batería bajo carga.\n*Realiza pruebas del sistema de arranque (Start Test) para evaluar el motor de arranque.\n*Cuenta con función Charge  Test para analizar el funcionamiento del sistema de carga del vehículo.\n*Pantalla a color que muestra los resultados de forma clara y fácil de interpretar.\n*Navegación sencilla mediante botones direccionales y tecla de confirmación (OK).\n*Compatible con baterías de 12 V utilizadas en automóviles, motocicletas y algunos sistemas auxiliares.\n*Incorpora pinzas de conexión robustas para una lectura segura y precisa de la batería.\n*Equipo portátil y ligero, ideal para talleres mecánicos, técnicos automotrices y uso doméstico.",
       "garantia": "",
       "id": 1781365019871,
       "name": "Probador/ tester  digital de baterías",
       "photo": "https://tiendamax.org/imagenes/img_1781365018400.jpg",
       "precio": "$25 USD",
-      "puntos": 200,
-      "stock": 18
+      "puntos": 0,
+      "stock": 14
     },
     {
       "catId": 90,
-      "comision": "$1000 USD",
+      "comision": "1500 MN",
       "description": "Ventilador de techo:\n\n-Tiene medio metro de envergadura, \n-Tiene 3 velocidades.\n-Las luces las puedes cambiar de blanco a amarillito calido y regular la intensidad como desees.\n-Memoriza la última configuración al encender y apagar el interruptor.\n-Trae su mando para ajustarlo desde tu asiento.",
       "garantia": "",
       "id": 1781365135486,
       "name": "Ventilador de techo",
       "photo": "https://tiendamax.org/imagenes/img_1781365133963.jpg",
       "precio": "$35 USD",
-      "puntos": 200,
-      "stock": 24
+      "puntos": 0,
+      "stock": 16
     },
     {
       "catId": 130,
@@ -1037,5 +1037,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-26T14:52:55.542Z"
+  "timestamp": "2026-07-26T14:53:45.997Z"
 }
