@@ -1168,51 +1168,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "×1 INVERSOR 24v 4000w / ×1 ANTORCHA PARA SOLDADURA TIG: / ×1 PISTOLA DE MASAJE RECARGABLE:",
-      "carnet": "",
-      "cliente": "Usiiei",
-      "comisionGestor": "$20.00 USD + 1500 MN",
-      "commissionEnSobreTs": null,
-      "commissionPaid": false,
-      "commissionPaidTs": null,
-      "commissionStatus": null,
-      "confirmedTs": null,
-      "direccion": "Hskid hdde",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1785079645121,
-      "isNew": false,
-      "mensajeria": "7",
-      "precioMN": "",
-      "precioUSD": "$295 USD",
-      "status": "pending",
-      "telefono": "54664440",
-      "total": "$302 USD",
-      "ts": "2026-07-26T15:27:25.153Z",
-      "valeNum": 22,
-      "valeProductos": [
-        {
-          "id": 1777924118004,
-          "name": "INVERSOR 24v 4000w",
-          "qty": 1
-        },
-        {
-          "id": 1778102582909,
-          "name": "ANTORCHA PARA SOLDADURA TIG:",
-          "qty": 1
-        },
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Usiiei\n🔸Teléfono Cliente: 54664440\n🔸Dirección Cliente: Hskid hdde\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 INVERSOR 24v 4000w\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n  ×1 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $295 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $302 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/7/2026 11:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    }
-  ],
-  "timestamp": "2026-07-26T18:03:43.714Z"
+  "vales": [],
+  "timestamp": "2026-07-26T18:35:54.264Z"
 }
