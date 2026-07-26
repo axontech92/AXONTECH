@@ -406,7 +406,7 @@
       "name": "PISTOLA DE MASAJE RECARGABLE:",
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
-      "puntos": 1,
+      "puntos": 0,
       "stock": 6
     },
     {
@@ -454,7 +454,7 @@
       "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
-      "puntos": 2,
+      "puntos": 1,
       "stock": 20
     },
     {
@@ -538,7 +538,7 @@
       "name": "FORROS DE ASIENTOS DE LUJO PARA AUTOS",
       "photo": "https://tiendamax.org/imagenes/img_1778213413973.webp",
       "precio": "$150 USD",
-      "puntos": 2,
+      "puntos": 1,
       "stock": 7
     },
     {
@@ -562,7 +562,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "photo": "https://tiendamax.org/imagenes/img_1780510827238.webp",
       "precio": "$20 USD",
-      "puntos": 1,
+      "puntos": 0,
       "stock": 1
     },
     {
@@ -634,8 +634,8 @@
       "name": "KIT DE 4 CÁMARAS ZOSI NUEVO EN CAJA",
       "photo": "https://tiendamax.org/imagenes/img_1778384314795_ext.webp",
       "precio": "$230 USD",
-      "puntos": 0,
-      "stock": 4
+      "puntos": 2,
+      "stock": 2
     },
     {
       "catId": 30,
@@ -651,7 +651,7 @@
     },
     {
       "catId": 40,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[ILUMINACIÓN]\nLinterna de cabeza :\n* Largo alcance\n* Luz blanca superbrillante de 30w de potencia.\n* Viene con 3 baterias de litio recargables.\n* Angulo de iluminación ajustable. \n* Carga con cable tipo c y funcion powerbank.\n* Cuenta con luz tracera opcional parpadeante  para que te vean en la obscuridad.\n* Autonomia maxima de 5 a 12 horas segun el uso.",
       "garantia": "",
       "id": 1778384507302,
@@ -1037,5 +1037,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-26T14:47:59.194Z"
+  "timestamp": "2026-07-26T14:49:24.352Z"
 }
