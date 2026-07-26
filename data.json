@@ -1176,8 +1176,9 @@
       "cliente": "Usiiei",
       "comisionGestor": "$20.00 USD + 1500 MN",
       "commissionEnSobreTs": "2026-07-26T15:35:54.136Z",
-      "commissionPaid": false,
-      "commissionStatus": "en_sobre",
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-07-26T15:36:15.013Z",
+      "commissionStatus": "cobrado",
       "confirmedTs": "2026-07-26T15:29:17.442Z",
       "direccion": "Hskid hdde",
       "garantia": "",
@@ -1213,5 +1214,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-26T15:35:54.145Z"
+  "timestamp": "2026-07-26T15:36:15.020Z"
 }
