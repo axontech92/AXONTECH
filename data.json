@@ -539,7 +539,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778213413973.webp",
       "precio": "$150 USD",
       "puntos": 1,
-      "stock": 7
+      "stock": 3
     },
     {
       "catId": 40,
@@ -1175,6 +1175,7 @@
       "carnet": "",
       "cliente": "TOTAL DIA 26",
       "comisionGestor": "$205.00 USD + 6000 MN",
+      "confirmedTs": "2026-07-27T00:35:29.171Z",
       "direccion": "AMISTAD 311",
       "garantia": "",
       "gestorId": 1781761257100,
@@ -1248,9 +1249,8 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: TOTAL DIA 26\n🔸Teléfono Cliente: 53998989\n🔸Dirección Cliente: AMISTAD 311\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador 150amp\n  ×3 Cargador inteligente de 12v(35A) y 24v(15A) configurable\n  ×10 Router Wavlink ac1200 pequeño\n  ×2 Router TP link ax3000\n  ×4 ADAPTADOR POE UBIQUITI\n  ×1 Controlador 100amp\n  ×1 SISTEMA DE SEGURIDAD ZOSI PARA EL HOGAR - 8 CANALES\n  ×1 CARGADOR INTELIGENTE DE 15 AMPERES:\n  ×2 Router Tenda ax3000\n  ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n🔸Precio USD/ zelle: $2775 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2775 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/7/2026 20:34\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "confirmedTs": "2026-07-27T00:35:29.171Z"
+      "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-27T00:35:29.181Z"
+  "timestamp": "2026-07-27T00:36:05.689Z"
 }
