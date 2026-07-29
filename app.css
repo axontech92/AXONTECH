@@ -727,7 +727,7 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
     font-size:12px;font-weight:700;cursor:pointer;
   }
 
-  /* En móvil: cuando NO hay gestor seleccionado, mostrar col-left (selector + ranking)
+  /* En móvil: cuando NO hay gestor seleccionado, mostrar col-left (selector 3 cols + ranking abajo)
      y ocultar el formulario. Cuando SÍ hay gestor, mostrar el formulario y ocultar
      el selector y el ranking. */
   .col-left{display:block;}
@@ -736,7 +736,7 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
   #layoutGestor:not(.has-gestor) #gestorComisionSection{display:none !important;}
   #layoutGestor.has-gestor .col-left{display:none;}
 
-  /* Ranking visible solo cuando NO hay gestor (ya está en col-left) */
+  /* Ranking visible solo cuando NO hay gestor */
   #layoutGestor.has-gestor #gestorRankingSection{display:none;}
 }
 
@@ -832,15 +832,16 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
   .mv-card{padding:11px 13px;}
   .mv-info{font-size:13px;}
 
-  /* Gestor list en grid de 2 columnas en móvil para aprovechar pantalla */
+  /* Gestor list en grid de 3 columnas en móvil para aprovechar pantalla */
   #gestoresList{
     display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:6px;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:5px;
   }
-  #gestoresList .g-item{margin-bottom:0;padding:10px 8px;gap:6px;}
-  #gestoresList .g-item .g-name{font-size:12px;}
-  #gestoresList .g-item .g-avatar{width:30px;height:30px;font-size:11px;}
+  #gestoresList .g-item{margin-bottom:0;padding:8px 6px;gap:4px;flex-direction:column;text-align:center;justify-content:center;}
+  #gestoresList .g-item .g-name{font-size:11px;text-align:center;line-height:1.2;}
+  #gestoresList .g-item .g-avatar{width:32px;height:32px;font-size:11px;}
+  #gestoresList .g-item .g-badge{font-size:10px;}
   /* Cuando solo hay 1 gestor o el último queda solo, que ocupe ambas columnas */
   #gestoresList .es{grid-column:1/-1;}
 
