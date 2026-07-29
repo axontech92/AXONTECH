@@ -358,7 +358,7 @@
       "name": "SWITCH DE 8 PUERTOS",
       "photo": "https://tiendamax.org/imagenes/img_1780510811569.webp",
       "precio": "$30 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 10
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:18:33.353Z"
+  "timestamp": "2026-07-29T15:19:07.476Z"
 }
