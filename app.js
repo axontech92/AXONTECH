@@ -86,7 +86,7 @@ let statsTabDirty    = true;
 let rankingCache = null;
 let confirmActionCb  = null;
 let adminGestorMenuExpanded = false;
-let mensajeroManagerExpanded = false;
+let mensajeroManagerExpanded = true; // open by default
 let pendingCobroExpanded = false;
 
 // ══════════════════════════════════════════
@@ -1490,8 +1490,19 @@ function changeGestor() {
 
 function toggleMensajeroManager() {
   mensajeroManagerExpanded = !mensajeroManagerExpanded;
-  document.getElementById('mensajeroManagerSection').style.display = mensajeroManagerExpanded ? 'block' : 'none';
-  if(mensajeroManagerExpanded) renderMensajerosEditList();
+  const sec = document.getElementById('mensajeroManagerSection');
+  const arrow = document.getElementById('mensajeroManagerArrow');
+  if (sec) sec.style.display = mensajeroManagerExpanded ? 'block' : 'none';
+  if (arrow) arrow.style.transform = mensajeroManagerExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+  if (mensajeroManagerExpanded) {
+    renderMensajerosEditList();
+  }
+  _updateMensajerosCountBadge();
+}
+
+function _updateMensajerosCountBadge() {
+  const badge = document.getElementById('mensajerosCountBadge');
+  if (badge) badge.textContent = String(getMensajeros().length);
 }
 
 function renderMensajerosEditList() {
@@ -1618,17 +1629,26 @@ function genPassword() {
   return Array.from(arr, x => chars[x % chars.length]).join('').slice(0, 8);
 }
 
-let gestorManagerExpanded = false;
+let gestorManagerExpanded = true; // open by default
 function toggleGestorManager() {
   gestorManagerExpanded = !gestorManagerExpanded;
   const sec = document.getElementById('gestorManagerSection');
+  const arrow = document.getElementById('gestorManagerArrow');
   if(sec) sec.style.display = gestorManagerExpanded ? 'block' : 'none';
+  if(arrow) arrow.style.transform = gestorManagerExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
   if(gestorManagerExpanded) renderAdminGestoresList();
+  _updateGestoresCountBadge();
+}
+
+function _updateGestoresCountBadge() {
+  const badge = document.getElementById('gestoresCountBadge');
+  if (badge) badge.textContent = String(getGestores().length);
 }
 
 function renderAdminGestoresList() {
   const list=getGestores();
   const c=document.getElementById('adminGestoresPanel-list');
+  _updateGestoresCountBadge();
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
   c.innerHTML=list.map(g=>{
@@ -1817,7 +1837,7 @@ function buildInboxCard(v) {
     </div>
     <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}</div>
     <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
-    ${v.adminNotes?`<div style="background:#FFFBEB;border-radius:4px;padding:2px 6px;font-size:10px;color:var(--gray-700);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
+    ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
       <span class="sp ${s.cls}" style="font-size:10px;">${s.label}</span>
       <span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total||'')}</span>
@@ -1921,7 +1941,7 @@ function renderValeDetail() {
     <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
-  const notesHighlight=v.adminNotes?`<div style="background:#FFFBEB;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--gray-700);margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
+  const notesHighlight=v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
   const estafaMatches=checkEstafaMatch(v);
   const estafaDetailHTML=estafaMatches.length?`<div style="background:rgba(239,68,68,.08);border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:10px;">
     <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px;">🚨 ALERTA DE ESTAFA</div>
@@ -2411,6 +2431,7 @@ function removeMensajero(id) {
 }
 function renderMensajeros() {
   const list=getMensajeros();const c=document.getElementById('mensajerosList');
+  _updateMensajerosCountBadge();
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
@@ -3410,6 +3431,10 @@ function openEditProductModal(id) {
   document.getElementById('pm-fotoPreview').innerHTML=p.photo?`<img src="${escapeAttr(p.photo)}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`:'';
   document.getElementById('productModal').classList.add('show');
 }
+// Compress + convert image to WebP (with JPEG fallback for very old browsers).
+// WebP files are ~30-50% smaller than JPEG at equivalent quality, which saves
+// localStorage quota and Firebase bandwidth. The original uploaded file is
+// never persisted — only the converted WebP data URL is stored.
 function compressImage(dataUrl, maxPx, quality, cb) {
   const img = new Image();
   img.onload = () => {
@@ -3418,9 +3443,21 @@ function compressImage(dataUrl, maxPx, quality, cb) {
     const h = Math.round(img.height * scale);
     const c = document.createElement('canvas');
     c.width = w; c.height = h;
-    c.getContext('2d').drawImage(img, 0, 0, w, h);
-    cb(c.toDataURL('image/jpeg', quality));
+    const ctx = c.getContext('2d');
+    // White background so transparent PNGs don't become black on JPEG fallback
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    // Try WebP first — supported in all modern browsers (Chrome 32+, Firefox 65+, Safari 14+, Edge 18+)
+    const webpDataUrl = c.toDataURL('image/webp', quality);
+    if (webpDataUrl && webpDataUrl.startsWith('data:image/webp')) {
+      cb(webpDataUrl);
+    } else {
+      // Fallback to JPEG for ancient browsers
+      cb(c.toDataURL('image/jpeg', quality));
+    }
   };
+  img.onerror = () => { cb(null); };
   img.src = dataUrl;
 }
 function handleProductPhoto(input) {
@@ -3430,9 +3467,17 @@ function handleProductPhoto(input) {
   if(file.size > 10 * 1024 * 1024){showToast('Imagen demasiado grande (máx 10 MB)');input.value='';return;}
   const reader=new FileReader();
   reader.onload=e=>{
-    compressImage(e.target.result, 600, 0.72, compressed => {
+    showToast('🔄 Convirtiendo a WebP...');
+    compressImage(e.target.result, 800, 0.78, compressed => {
+      if(!compressed){showToast('Error al procesar la imagen');return;}
+      // Verify the conversion worked and check size savings
+      const originalSize = e.target.result.length;
+      const compressedSize = compressed.length;
+      const savings = Math.round((1 - compressedSize / originalSize) * 100);
       document.getElementById('pm-foto').value=compressed;
       document.getElementById('pm-fotoPreview').innerHTML=`<img src="${compressed}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;">`;
+      const formatLabel = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
+      showToast(`✅ ${formatLabel} · ${savings}% más pequeño`, );
     });
   };
   reader.onerror=()=>{showToast('Error al leer el archivo');};

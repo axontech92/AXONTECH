@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=76">
+  <link rel="stylesheet" href="./app.css?v=77">
 </head>
 <body data-page="admin">
 
@@ -126,8 +126,14 @@
       <button class="btn btn-blue" onclick="addGestor()">＋ Agregar</button>
     </div>
 
-    <div class="lbl">👥 Gestores activos</div>
-    <div id="adminGestoresPanel-list"></div>
+    <!-- Gestores activos — plegable -->
+    <div onclick="toggleGestorManager()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <span class="lbl" style="margin:0;">👥 Gestores activos <span id="gestoresCountBadge" style="background:var(--blue);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;">0</span></span>
+      <span id="gestorManagerArrow" style="color:var(--gray-400);font-size:13px;transition:transform .2s;">▼</span>
+    </div>
+    <div id="gestorManagerSection" style="display:block;">
+      <div id="adminGestoresPanel-list"></div>
+    </div>
 
     <div class="lbl" style="margin-top:18px;">💰 Comisiones por gestor</div>
     <div id="adminComisionesList"></div>
@@ -135,21 +141,21 @@
 
   <!-- ════════ MENSAJEROS PANEL ════════ -->
   <div id="adminMensajerosPanel" class="admin-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-      <div class="lbl" style="margin-top:0;">🛵 Mensajeros</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;width:180px;">
-        <button class="btn btn-blue btn-sm" onclick="addMensajero()">＋ Agregar</button>
-        <button class="btn btn-ghost btn-sm" onclick="toggleMensajeroManager()">⚙️ Gestionar</button>
-        <button class="btn btn-ghost btn-sm" id="mensajeroChangeBtn" style="display:none;" onclick="changeMensajero()">↺ Cambiar</button>
-      </div>
+    <div class="lbl" style="margin-top:0;">➕ Agregar mensajero</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;">
+      <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero" style="flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;">
+      <button class="btn btn-blue" onclick="addMensajero()">＋ Agregar</button>
+      <button class="btn btn-ghost btn-sm" id="mensajeroChangeBtn" style="display:none;" onclick="changeMensajero()">↺ Cambiar selección</button>
     </div>
 
-    <div id="mensajerosList"></div>
-
-    <div id="mensajeroManagerSection" style="display:none;margin-top:10px;">
-      <div class="lbl" style="margin-top:0;">Editar mensajeros</div>
-      <div id="mensajerosEditList"></div>
+    <!-- Mensajeros registrados — plegable -->
+    <div onclick="toggleMensajeroManager()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <span class="lbl" style="margin:0;">🛵 Mensajeros registrados <span id="mensajerosCountBadge" style="background:var(--blue);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;">0</span></span>
+      <span id="mensajeroManagerArrow" style="color:var(--gray-400);font-size:13px;transition:transform .2s;">▼</span>
+    </div>
+    <div id="mensajeroManagerSection" style="display:block;">
+      <div id="mensajerosList"></div>
+      <div id="mensajerosEditList" style="margin-top:10px;"></div>
     </div>
 
     <div class="lbl" style="margin-top:18px;">Selecciona un mensajero para ver sus entregas</div>
@@ -322,7 +328,7 @@
 
     <div class="lbl">ℹ️ Información del sistema</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:11px;color:var(--text-muted);line-height:1.7;">
-      <div><b>Versión:</b> v76</div>
+      <div><b>Versión:</b> v77</div>
       <div><b>Almacenamiento:</b> localStorage + Firebase Realtime DB</div>
       <div><b>Sync:</b> cola con reintentos exponenciales, persistencia offline</div>
       <div><b>Seguridad:</b> hash SHA-256 + salt por usuario, sin texto plano</div>
@@ -714,7 +720,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=76"></script>
+<script src="./app.js?v=77"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

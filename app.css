@@ -760,3 +760,98 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
   background:var(--surface2);border-radius:8px;padding:8px 12px;
   font-size:12px;margin-top:6px;flex-wrap:wrap;gap:6px;
 }
+
+/* ════════════════════════════════════════════════════════════
+   MODO OSCURO — Override de colores hardcoded en modales dinámicos
+   ════════════════════════════════════════════════════════════ */
+body.dark .modal{background:var(--surface);color:var(--text);}
+body.dark .modal input,body.dark .modal textarea,body.dark .modal select{
+  background:var(--surface2) !important;color:var(--text) !important;border-color:var(--border) !important;
+}
+body.dark .modal input::placeholder,body.dark .modal textarea::placeholder{color:var(--gray-400);}
+body.dark .modal-title{color:var(--text);}
+body.dark .modal-sub{color:var(--text-muted);}
+body.dark .card{background:var(--surface);color:var(--text);border-color:var(--border);}
+body.dark .lbl{color:var(--gray-400);}
+body.dark .es{background:var(--surface);border-color:var(--border);color:var(--gray-400);}
+body.dark .es-text{color:var(--gray-400);}
+
+/* Forzar color de texto oscuro sobre fondos amarillos (notas admin) */
+body.dark [style*="background:var(--yellow)"],
+body.dark [style*="background:#FFFBEB"],
+body.dark [style*="background:#fffbeb"]{
+  color:#1a1a2e !important;background:var(--yellow) !important;font-weight:700;
+}
+
+/* Botones que pierden contraste */
+body.dark .btn-ghost{background:var(--surface2);color:var(--text-muted);border-color:var(--border);}
+body.dark .btn-ghost:hover{background:var(--surface3);color:var(--text);}
+
+/* Status pills en dark */
+body.dark .sp{background:var(--surface2);color:var(--text-muted);border-color:var(--border);}
+body.dark .sp-pending{background:rgba(0,180,216,.15);color:var(--blue);}
+body.dark .sp-assigned{background:rgba(251,146,60,.15);color:var(--orange);}
+body.dark .sp-delivered{background:rgba(167,139,250,.15);color:var(--purple);}
+body.dark .sp-confirmed{background:rgba(52,211,153,.15);color:var(--green);}
+body.dark .sp-pending_payment{background:rgba(251,191,36,.15);color:var(--yellow);}
+
+/* Inputs en general */
+body.dark input,body.dark textarea,body.dark select{
+  background:var(--surface2);color:var(--text);border-color:var(--border);
+}
+body.dark input::placeholder,body.dark textarea::placeholder{color:var(--gray-400);}
+
+/* Tarjetas y secciones con backgrounds claros hardcoded */
+body.dark .mv-card,
+body.dark .sc,
+body.dark .gp-card,
+body.dark .m-card,
+body.dark .m-item,
+body.dark .ic,
+body.dark .picker-pill,
+body.dark .apcard,
+body.dark .prod-card,
+body.dark .rank-row,
+body.dark .audit-entry{
+  background:var(--surface) !important;border-color:var(--border) !important;color:var(--text) !important;
+}
+body.dark .mv-info,body.dark .sc-g,body.dark .g-name,body.dark .m-name,
+body.dark .ic-cliente,body.dark .picker-pill-name,body.dark .apcard-name,
+body.dark .prod-name,body.dark .rank-name{color:var(--text) !important;}
+body.dark .mv-time,body.dark .sc-t,body.dark .sc-m,body.dark .ic-time,
+body.dark .ic-preview,body.dark .rank-hint{color:var(--gray-400) !important;}
+
+/* Stat cards */
+body.dark .stat-card{background:var(--surface);border-color:var(--border);}
+body.dark .stat-lbl{color:var(--gray-400);}
+
+/* Modal backdrop en dark */
+body.dark .modal-bg{background:rgba(0,0,0,.7);}
+
+/* Confirm action modal text */
+body.dark #confirmActionSub{color:var(--text-muted);}
+
+/* Glow overlay (mantener texto blanco) */
+body.dark .glow-winner-name,body.dark .glow-winner-pts,
+body.dark .glow-title{color:#fff !important;}
+
+/* Toast (mantener fondo oscuro, ya está bien) */
+body.dark .toast{background:#0f172a;color:var(--text);border:1px solid var(--border);}
+
+/* WhatsApp button (mantener verde) */
+.wa-btn,.float-wa{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff !important;}
+
+/* Inputs readonly */
+body.dark input[readonly]{background:var(--surface3) !important;color:var(--gray-400) !important;}
+
+/* fix: fondo de secciones expandibles en dark */
+body.dark #gestorManagerSection > div,
+body.dark #mensajeroManagerSection > div{color:var(--text);}
+
+/* fix: text en admin nav cuando inactivo */
+body.dark .anav-btn{background:var(--surface);color:var(--text-muted);border-color:var(--border);}
+body.dark .anav-btn:hover{color:var(--blue);border-color:var(--blue);}
+body.dark .anav-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* fix: link en dark */
+body.dark a{color:var(--blue);}
