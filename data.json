@@ -406,7 +406,7 @@
       "name": "PISTOLA DE MASAJE RECARGABLE:",
       "photo": "https://tiendamax.org/imagenes/img_1778103856933.webp",
       "precio": "$25 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 6
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:19:07.476Z"
+  "timestamp": "2026-07-29T15:19:23.990Z"
 }
