@@ -3026,7 +3026,7 @@ function saveProduct() {
     name,description:document.getElementById('pm-desc').value.trim(),
     precio:document.getElementById('pm-precio').value.trim(),
     stock:parseInt(document.getElementById('pm-stock').value)||0,
-    puntos:parseInt(document.getElementById('pm-puntos').value)||0,
+    puntos:parseFloat(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
     comision:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);const cur=document.getElementById('pm-comision-currency').value;return amt>0?(cur==='MN'?`${amt} MN`:`$${amt} USD`):''})(),
     photo:document.getElementById('pm-foto').value.trim(),
@@ -4197,6 +4197,75 @@ function changePassCfg() {
     document.getElementById('newPassInputCfg').value='';
     showToast('Contraseña actualizada ✓');
   });
+}
+
+// ══════════════════════════════════════════
+//  RESET GESTORES DATA — clear vales + notifs for fresh app start
+// ══════════════════════════════════════════
+function clearGestoresData() {
+  const vales = getVales();
+  const notifs = getNotifs();
+  const gestores = getGestores();
+
+  // Count what will be deleted
+  const gestorIds = new Set(gestores.map(g => g.id));
+  const valesToRemove = vales.filter(v => v.gestorId && gestorIds.has(v.gestorId));
+  // All notifs are tied to gestor activity — remove them all (both global + personal)
+  // since they exist to inform gestors about stock/vales/ranking.
+  const notifsToRemove = notifs;
+
+  const vCount = valesToRemove.length;
+  const nCount = notifsToRemove.length;
+
+  // Two-step confirmation — destructive action
+  const msg =
+    `¿Borrar TODOS los vales y notificaciones de gestores?\n\n` +
+    `• Vales a eliminar: ${vCount}\n` +
+    `• Notificaciones a eliminar: ${nCount}\n\n` +
+    `NO se borrarán: productos, gestores, mensajeros ni configuración.\n\n` +
+    `Esta acción NO se puede deshacer. ¿Continuar?`;
+  if (!confirm(msg)) return;
+  if (!confirm('¿Última confirmación? Esta acción es irreversible.')) return;
+
+  // 1) Keep only vales NOT tied to a known gestor (e.g. admin-generated vales without gestorId)
+  const remainingVales = vales.filter(v => !(v.gestorId && gestorIds.has(v.gestorId)));
+  saveVales(remainingVales);
+
+  // 2) Clear all notifs
+  saveNotifs([]);
+
+  // 3) Clear per-gestor local tracking flags (viewed/cleared/personal)
+  try {
+    const keysToRemove = Object.keys(localStorage).filter(k =>
+      k.startsWith('axon_viewed_id_') ||
+      k.startsWith('axon_cleared_id_') ||
+      k.startsWith('axon_cleared_personal_')
+    );
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+  } catch(e) { /* ignore key enumeration errors on weird browsers */ }
+
+  // 4) Reset active selection state so admin UI doesn't reference dead vales
+  selectedValeId = null;
+
+  // 5) Refresh all UI panels that depend on vales/notifs
+  try {
+    renderGestores();
+    renderGestorRanking();
+    renderGestorNotifs();
+    renderAdminGestores();
+    renderValeDetail();
+    renderAdminGestoresList();
+    renderComisiones();
+    updateAdminBadge();
+  } catch(e) { /* UI refs may not all be present on every page */ }
+
+  // 6) Status message
+  const s = document.getElementById('clearGestoresStatus');
+  if (s) {
+    s.innerHTML = `<span style="color:var(--green);">✓ Se eliminaron ${vCount} vales y ${nCount} notificaciones. Listo para empezar.</span>`;
+  }
+  showToast(`🧹 Datos limpiados: ${vCount} vales, ${nCount} notifs`);
+  maybeAutoSync();
 }
 
 // ══════════════════════════════════════════

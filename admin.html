@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=72">
+  <link rel="stylesheet" href="./app.css?v=73">
 </head>
 <body data-page="admin">
 
@@ -330,6 +330,13 @@
             <button class="btn btn-blue btn-sm" onclick="changePassCfg()">✓</button>
           </div>
         </div>
+        <div class="lbl">🧹 Reiniciar datos de Gestores</div>
+        <div class="card">
+          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;margin-bottom:12px;">Borra <b>todos los vales y notificaciones</b> que pertenecen a los gestores (tanto personales como globales) para que empiecen con la app limpia. <b>No</b> borra productos, gestores, mensajeros, ni configuración. Esta acción no se puede deshacer.</div>
+          <div style="background:#FEF2F2;border:1px solid var(--red);border-radius:8px;padding:8px 10px;font-size:10px;color:var(--gray-700);margin-bottom:12px;line-height:1.5;">⚠️ <b>Acción destructiva:</b> Se eliminarán todos los vales de gestores y todas las notificaciones. Asegúrate de exportar una copia de seguridad primero si los necesitas.</div>
+          <button class="btn btn-red btn-sm" onclick="clearGestoresData()" style="background:var(--red);color:#fff;">🧹 Limpiar vales y notificaciones</button>
+          <div id="clearGestoresStatus" style="font-size:11px;color:var(--gray-400);margin-top:8px;min-height:14px;"></div>
+        </div>
       </div>
     </div>
 
@@ -426,7 +433,7 @@
       </div>
       <div>
         <label class="field-lbl">Puntos que da ⭐</label>
-        <input type="number" id="pm-puntos" placeholder="Ej: 5" min="0" value="0">
+        <input type="number" id="pm-puntos" placeholder="Ej: 0.5" min="0" step="0.5" value="0">
       </div>
       <div>
         <label class="field-lbl">Garantía</label>
@@ -679,7 +686,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=72"></script>
+<script src="./app.js?v=73"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
