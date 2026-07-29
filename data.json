@@ -874,7 +874,7 @@
       "name": "Gorro de buceo",
       "photo": "https://tiendamax.org/imagenes/img_1780887557334.webp",
       "precio": "$10 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 2
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:20:50.830Z"
+  "timestamp": "2026-07-29T15:21:33.139Z"
 }
