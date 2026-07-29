@@ -153,9 +153,15 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
 /* ── Layout ── */
 .layout{display:none;}
 .layout.active{display:grid;}
-#layoutGestor{grid-template-columns:260px 1fr;gap:18px;padding:18px;max-width:1100px;margin:0 auto;align-items:start;}
-#layoutGestor.has-gestor{grid-template-columns:1fr;}
+/* Desktop SIN gestor: 2 columnas (gestores izq + Top derecha) */
+#layoutGestor{grid-template-columns:280px 1fr;gap:18px;padding:18px;max-width:1100px;margin:0 auto;align-items:start;}
+/* Desktop CON gestor: 1 columna (formulario centrado) */
+#layoutGestor.has-gestor{grid-template-columns:1fr;max-width:720px;}
 #layoutAdmin{grid-template-columns:1fr;padding:14px;gap:14px;}
+
+/* Cuando hay gestor seleccionado, ocultar la columna de gestores y la del Top */
+#layoutGestor.has-gestor .col-left,
+#layoutGestor.has-gestor #rankingColumn{display:none;}
 
 /* Mobile back bar */
 #mobileBackBar{display:none;}
@@ -727,17 +733,14 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
     font-size:12px;font-weight:700;cursor:pointer;
   }
 
-  /* En móvil: cuando NO hay gestor seleccionado, mostrar col-left (selector 3 cols + ranking abajo)
-     y ocultar el formulario. Cuando SÍ hay gestor, mostrar el formulario y ocultar
-     el selector y el ranking. */
+  /* En móvil: 1 sola columna. Sin gestor: gestores arriba + Top abajo.
+     Con gestor: solo formulario. */
   .col-left{display:block;}
+  .col-right{display:block;}
   #layoutGestor:not(.has-gestor) .col-mid{display:none;}
   #layoutGestor:not(.has-gestor) #gestorMyValesSection,
   #layoutGestor:not(.has-gestor) #gestorComisionSection{display:none !important;}
-  #layoutGestor.has-gestor .col-left{display:none;}
-
-  /* Ranking visible solo cuando NO hay gestor */
-  #layoutGestor.has-gestor #gestorRankingSection{display:none;}
+  /* col-left y col-right se ocultan via la regla global .has-gestor de arriba */
 }
 
 /* Móvil pequeño: ajustes finos */

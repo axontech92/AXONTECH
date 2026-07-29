@@ -1,4 +1,4 @@
-const CACHE = 'axontech-v80';
+const CACHE = 'axontech-v81';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './categorias.json',

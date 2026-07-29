@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=80">
+  <link rel="stylesheet" href="./app.css?v=81">
 </head>
 <body data-page="gestor">
 
@@ -41,25 +41,26 @@
 <!-- ══════════ GESTOR LAYOUT ══════════ -->
 <div class="layout active" id="layoutGestor" role="main">
 
-  <!-- Col 1: Selector + mis vales -->
+  <!-- Col 1: Selector de gestores (izquierda en desktop, arriba en móvil) -->
   <div class="col col-left">
     <div class="lbl">¿Quién eres?</div>
     <div id="gestoresList">
       <div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>
     </div>
     <div class="g-change" onclick="changeGestor()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')changeGestor()" style="cursor:pointer;">← Cambiar gestor</div>
+  </div>
 
-    <!-- Top Gestores — abajo del selector en móvil, a la derecha en desktop -->
+  <!-- Col 2: Top Gestores (derecha en desktop SIN gestor, oculto cuando hay gestor) -->
+  <div class="col col-right" id="rankingColumn">
     <div id="gestorRankingSection" style="margin-bottom:14px;">
-      <div class="lbl" style="margin-top:14px;">🏆 Top Gestores</div>
+      <div class="lbl" style="margin-top:0;">🏆 Top Gestores</div>
       <div class="card" style="padding:14px 16px;">
         <div id="rankingList"><div class="es"><div class="es-text">Sin datos aún</div></div></div>
       </div>
     </div>
-
   </div>
 
-  <!-- Col 2: Vale form -->
+  <!-- Col 3: Vale form (centro en desktop cuando hay gestor, oculto cuando no) -->
   <div class="col col-mid">
     <div id="mobileBackBar">
       <button onclick="changeGestor()">← Volver</button>
@@ -418,7 +419,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=80"></script>
+<script src="./app.js?v=81"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
