@@ -2268,6 +2268,165 @@ function renderPendingCobroSection() {
 // ══════════════════════════════════════════
 //  MY VALES (gestor)
 // ══════════════════════════════════════════
+
+// Period filter state for gestor dashboard
+let _gestorHistPeriod = 'month'; // 'month' | 'last' | 'all'
+
+function setGestorHistPeriod(p) {
+  _gestorHistPeriod = p;
+  // Update chip highlight
+  document.querySelectorAll('#gestorHistPeriodFilter [data-period]').forEach(btn => {
+    const isActive = btn.dataset.period === p;
+    btn.classList.toggle('btn-blue', isActive);
+    btn.classList.toggle('btn-ghost', !isActive);
+    btn.style.fontWeight = isActive ? '700' : '500';
+  });
+  renderMyVales();
+}
+
+// Returns {from, to, prevFrom, prevTo, label} for the currently selected period
+function getGestorHistPeriodRange() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0,10);
+  if (_gestorHistPeriod === 'month') {
+    const from = new Date(now.getFullYear(), now.getMonth(), 1);
+    const prevFrom = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    const prevTo = new Date(now.getFullYear(), now.getMonth(), 0);
+    return {
+      from: from.toISOString().slice(0,10),
+      to: todayStr,
+      prevFrom: prevFrom.toISOString().slice(0,10),
+      prevTo: prevTo.toISOString().slice(0,10),
+      label: 'Este mes'
+    };
+  } else if (_gestorHistPeriod === 'last') {
+    const from = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    const to = new Date(now.getFullYear(), now.getMonth(), 0);
+    const prevFrom = new Date(now.getFullYear(), now.getMonth()-2, 1);
+    const prevTo = new Date(now.getFullYear(), now.getMonth()-1, 0);
+    return {
+      from: from.toISOString().slice(0,10),
+      to: to.toISOString().slice(0,10),
+      prevFrom: prevFrom.toISOString().slice(0,10),
+      prevTo: prevTo.toISOString().slice(0,10),
+      label: 'Mes pasado'
+    };
+  }
+  return { from:'', to:'', prevFrom:'', prevTo:'', label:'Todo el histórico' };
+}
+
+function _computeGestorStatsForRange(gestorId, from, to) {
+  let vales = getVales().filter(v => v.gestorId === gestorId);
+  if (from) vales = vales.filter(v => v.ts.slice(0,10) >= from);
+  if (to)   vales = vales.filter(v => v.ts.slice(0,10) <= to);
+  const total = vales.length;
+  const confirmed = vales.filter(v => v.status === 'confirmed').length;
+  const pendingPay = vales.filter(v => v.status === 'pending_payment').length;
+  const pending = vales.filter(v => v.status === 'pending').length;
+  const cancelled = vales.filter(v => v.status === 'cancelled').length;
+  const pts = vales
+    .filter(v => ['confirmed','pending_payment'].includes(v.status))
+    .reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
+      const pr = productoOf(p.id);
+      return s + (pr ? (pr.puntos||0) * p.qty : 0);
+    }, sum), 0);
+  // Commission for confirmed + pending_payment
+  const comVales = vales.filter(v => ['confirmed','pending_payment'].includes(v.status));
+  const com = sumCommissions(comVales);
+  // Ticket promedio (only for confirmed/pending_payment with computable commission)
+  const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
+  // Conversion: confirmed / (total - cancelled - pending still pending)
+  // More useful: closed sales (confirmed + pending_payment) / total attempted
+  const closed = confirmed + pendingPay;
+  const conversion = total > 0 ? Math.round((closed / total) * 100) : 0;
+  return { total, confirmed, pendingPay, pending, cancelled, pts, com, comBadge, conversion, closed };
+}
+
+// Comparison arrow HTML — previous vs current value
+function _cmpArrow(curr, prev) {
+  if (prev === 0 && curr === 0) return '';
+  if (prev === 0) return `<span style="color:var(--green);font-size:10px;font-weight:700;margin-left:4px;">↑ nuevo</span>`;
+  const diff = curr - prev;
+  if (diff === 0) return `<span style="color:var(--gray-400);font-size:10px;margin-left:4px;">= igual</span>`;
+  const pct = Math.round(Math.abs(diff) / prev * 100);
+  const up = diff > 0;
+  const color = up ? 'var(--green)' : 'var(--red)';
+  const arrow = up ? '↑' : '↓';
+  return `<span style="color:${color};font-size:10px;font-weight:700;margin-left:4px;">${arrow} ${pct}%</span>`;
+}
+
+function renderGestorDashboard() {
+  const dash = document.getElementById('gestorHistDashboard');
+  const filterWrap = document.getElementById('gestorHistPeriodFilter');
+  if (!dash || !activeGestorId) return;
+
+  // Highlight active period chip
+  if (filterWrap) {
+    filterWrap.querySelectorAll('[data-period]').forEach(btn => {
+      const isActive = btn.dataset.period === _gestorHistPeriod;
+      btn.classList.toggle('btn-blue', isActive);
+      btn.classList.toggle('btn-ghost', !isActive);
+      btn.style.fontWeight = isActive ? '700' : '500';
+    });
+  }
+
+  const range = getGestorHistPeriodRange();
+  const cur = _computeGestorStatsForRange(activeGestorId, range.from, range.to);
+  const prev = (range.prevFrom && range.prevTo)
+    ? _computeGestorStatsForRange(activeGestorId, range.prevFrom, range.prevTo)
+    : null;
+
+  // Meta progress bar
+  const cfg = getConfig();
+  const meta = cfg.metaPuntos || 100;
+  const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
+
+  // Build the 4-stat summary
+  const stats = [
+    { label:'Vales', val:cur.total, color:'var(--blue)', cmp: prev ? _cmpArrow(cur.total, prev.total) : '' },
+    { label:'Confirmados', val:cur.confirmed + cur.pendingPay, color:'var(--green)', cmp: prev ? _cmpArrow(cur.confirmed + cur.pendingPay, prev.confirmed + prev.pendingPay) : '' },
+    { label:'Puntos ⭐', val:cur.pts, color:'#F59E0B', cmp: prev ? _cmpArrow(cur.pts, prev.pts) : '' },
+    { label:'Conversión', val:cur.conversion + '%', color:'var(--orange)', cmp: prev ? _cmpArrow(cur.conversion, prev.conversion) : '' },
+  ];
+
+  const statsHTML = stats.map(s => `
+    <div class="stat-card" style="padding:10px 8px;text-align:center;">
+      <div class="stat-num" style="color:${s.color};font-size:20px;">${s.val}</div>
+      <div class="stat-lbl" style="font-size:10px;">${s.label}</div>
+      ${s.cmp ? `<div style="margin-top:2px;">${s.cmp}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Commission summary line
+  let comLine = '';
+  if (cur.comBadge) {
+    comLine = `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;gap:6px;">
+      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión estimada (${range.label.toLowerCase()})</span>
+      <span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${escapeHTML(cur.comBadge)}</span>
+    </div>`;
+  } else if (cur.closed > 0) {
+    comLine = `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;gap:6px;">
+      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión estimada (${range.label.toLowerCase()})</span>
+      <span style="font-size:12px;color:var(--gray-400);">No computable</span>
+    </div>`;
+  }
+
+  // Meta progress bar
+  const metaHTML = `
+    <div style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
+        <span style="font-size:11px;font-weight:600;color:var(--text);">🎯 Meta de puntos</span>
+        <span style="font-size:11px;color:var(--gray-400);">${cur.pts} / ${meta} pts · ${pctMeta}%</span>
+      </div>
+      <div style="background:var(--gray-100);border-radius:20px;height:8px;overflow:hidden;">
+        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg, var(--blue), var(--green));border-radius:20px;transition:width .6s;"></div>
+      </div>
+    </div>
+  `;
+
+  dash.innerHTML = statsHTML + comLine + metaHTML;
+}
+
 function renderMyVales() {
   const c = document.getElementById('gestorMyVales');
   const hList = document.getElementById('gestorHistorialList');
@@ -2275,7 +2434,14 @@ function renderMyVales() {
 
   const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
   const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
-  const historyVales = mine.filter(v => v.status === 'confirmed');
+  // History now separates confirmed sales from pending_payment (awaiting collection) — both "completed" deliveries
+  // but pending_payment represents an outstanding balance the gestor should track.
+  const historyVales = mine.filter(v => v.status === 'confirmed' && !v.hiddenFromHistory);
+  const pendingPayVales = mine.filter(v => v.status === 'pending_payment' && !v.hiddenFromHistory);
+  const historyCount = historyVales.length + pendingPayVales.length;
+
+  // Render the dashboard (period-filtered summary at the top of the section)
+  renderGestorDashboard();
 
   const sMap={
     pending:{label:'Enviado · admin pendiente',color:'var(--blue)',icon:'🔵'},
@@ -2311,25 +2477,46 @@ function renderMyVales() {
     }).join('');
   }
 
-  // 2. HISTORY VALES (in collapsible)
+  // 2. HISTORY VALES (in collapsible) — combines confirmed + pending_payment (with separator)
   const countEl=document.getElementById('gestorHistCount');
   const clearBtn=document.getElementById('gestorHistClearBtn');
-  if(countEl) countEl.textContent=historyVales.length||'0';
-  if(clearBtn) clearBtn.style.display=historyVales.length?'block':'none';
-  if(!historyVales.length){
+  if(countEl) countEl.textContent=historyCount||'0';
+  if(clearBtn) clearBtn.style.display=historyCount?'block':'none';
+  if(!historyCount){
     hList.innerHTML='<div class="es"><div class="es-text">Sin historial</div></div>';
   } else {
-    hList.innerHTML=historyVales.map(v=>{
-      const s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
-      return `<div class="mv-card st-${v.status}" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; opacity:0.85; border-left: 3px solid var(--gray-300);">
-        <div class="mv-head">
-          <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
-        </div>
-        <div class="mv-info" style="color:var(--text);font-weight:600;">${escapeHTML(v.cliente||'—')}</div>
-        <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${escapeHTML(v.articulo||'—')}</div>
-        <div class="mv-foot" style="margin-top:6px;"><span class="mv-status" style="color:${s.color};font-size:10px;">${s.icon} ${s.label}</span></div>
-      </div>`;
-    }).join('');
+    let histHTML='';
+    // Render pending_payment first (action needed) — highlighted
+    if(pendingPayVales.length){
+      histHTML+=`<div style="font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;padding:6px 4px 4px;">⏳ Pendiente de cobro (${pendingPayVales.length})</div>`;
+      histHTML+=pendingPayVales.map(v=>{
+        const s=sMap[v.status]||{label:v.status,color:'var(--yellow)',icon:'⏳'};
+        return `<div class="mv-card st-pending_payment" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; border-left: 3px solid var(--yellow);">
+          <div class="mv-head">
+            <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
+          </div>
+          <div class="mv-info" style="color:var(--text);font-weight:600;">${escapeHTML(v.cliente||'—')}</div>
+          <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${escapeHTML(v.articulo||'—')}</div>
+          <div class="mv-foot" style="margin-top:6px;"><span class="mv-status" style="color:${s.color};font-size:10px;">${s.icon} ${s.label}</span></div>
+        </div>`;
+      }).join('');
+    }
+    // Then confirmed sales
+    if(historyVales.length){
+      histHTML+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;padding:6px 4px 4px;${pendingPayVales.length?'margin-top:10px;':''}">✅ Ventas confirmadas (${historyVales.length})</div>`;
+      histHTML+=historyVales.map(v=>{
+        const s=sMap[v.status]||{label:v.status,color:'var(--green)',icon:'✅'};
+        return `<div class="mv-card st-${v.status}" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; opacity:0.85; border-left: 3px solid var(--gray-300);">
+          <div class="mv-head">
+            <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
+          </div>
+          <div class="mv-info" style="color:var(--text);font-weight:600;">${escapeHTML(v.cliente||'—')}</div>
+          <div class="mv-info" style="font-size:11px;color:var(--text-muted);">${escapeHTML(v.articulo||'—')}</div>
+          <div class="mv-foot" style="margin-top:6px;"><span class="mv-status" style="color:${s.color};font-size:10px;">${s.icon} ${s.label}</span></div>
+        </div>`;
+      }).join('');
+    }
+    hList.innerHTML=histHTML;
   }
 }
 // ══════════════════════════════════════════
@@ -2389,16 +2576,17 @@ function toggleGestorHistorial(){
   const clearBtn=document.getElementById('gestorHistClearBtn');
   if(hList) hList.style.display=_gestorHistOpen?'block':'none';
   if(arrow) arrow.textContent=_gestorHistOpen?'▲':'▼';
-  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');clearBtn.style.display=hv.length?'block':'none';}
+  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);clearBtn.style.display=hv.length?'block':'none';}
 }
 function clearGestorHistory(){
-  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');
-  if(!confirmed.length){showToast('No hay historial para limpiar');return;}
-  showConfirmAction('¿Limpiar historial?',`Se eliminarán ${confirmed.length} vales completados del historial. Esta acción no se puede deshacer.`,'Limpiar','btn-red',()=>{
-    const all=getVales().filter(v=>!(v.gestorId===activeGestorId&&v.status==='confirmed'));
-    saveVales(all);maybeAutoSync();
+  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);
+  if(!confirmed.length){showToast('No hay historial para ocultar');return;}
+  showConfirmAction('¿Ocultar historial?',`Se ocultarán ${confirmed.length} vales completados de tu vista. <b>Los datos NO se borran</b> — el admin sigue viéndolos en estadísticas e historial. Esta acción es reversible desde el panel admin.`,'Ocultar','btn-red',()=>{
+    // Mark vales as hidden for this gestor — do NOT delete
+    confirmed.forEach(v=>patchVale(v.id,{hiddenFromHistory:true,hiddenTs:new Date().toISOString()}));
+    maybeAutoSync();
     _gestorHistOpen=false;toggleGestorHistorial();toggleGestorHistorial();
-    renderMyVales();showToast('Historial limpiado ✅');
+    renderMyVales();showToast('Historial oculto (no borrado) ✅');
   });
 }
 
@@ -3108,6 +3296,248 @@ Nuevo stock:`,p.stock||0);
 // ══════════════════════════════════════════
 //  STATS
 // ══════════════════════════════════════════
+
+// Inactivity threshold in days
+const GESTOR_INACTIVITY_DAYS = 5;
+if (typeof window._expandedStatsGestors === 'undefined') window._expandedStatsGestors = new Set();
+
+// Mini bar chart — 7-day activity (vales per day) for a gestor
+function _renderMiniBarChart7d(gestorId) {
+  const days = [];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0,10);
+    const count = getVales().filter(v => v.gestorId === gestorId && v.ts.slice(0,10) === ds).length;
+    days.push({ ds, count, label: d.toLocaleDateString('es-ES', { weekday:'short' }).slice(0,1).toUpperCase() });
+  }
+  const max = Math.max(1, ...days.map(d => d.count));
+  const bars = days.map(d => {
+    const h = Math.max(2, Math.round((d.count / max) * 100));
+    const hasVales = d.count > 0;
+    const color = hasVales ? 'var(--blue)' : 'var(--gray-100)';
+    const bg = hasVales ? 'var(--blue)' : 'transparent';
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">
+      <div style="font-size:8px;color:${hasVales?'var(--text)':'var(--gray-400)'};font-weight:700;">${d.count || ''}</div>
+      <div style="width:100%;max-width:18px;height:36px;display:flex;align-items:flex-end;justify-content:center;">
+        <div style="width:100%;height:${h}%;background:${color};border-radius:3px 3px 0 0;min-height:2px;transition:height .4s;"></div>
+      </div>
+      <div style="font-size:8px;color:var(--gray-400);">${d.label}</div>
+    </div>`;
+  }).join('');
+  return `<div style="display:flex;align-items:flex-end;gap:3px;padding:6px 0;">${bars}</div>`;
+}
+
+// Top N products for a gestor in the given vales set
+function _topProductsForGestor(vales, limit=3) {
+  const map = {};
+  vales.forEach(v => (v.valeProductos||[]).forEach(({id,qty}) => {
+    if (!map[id]) map[id] = { qty:0, name: productoOf(id)?.name || `#${id}` };
+    map[id].qty += qty;
+  }));
+  return Object.entries(map)
+    .sort(([,a],[,b]) => b.qty - a.qty)
+    .slice(0, limit)
+    .map(([id,info]) => ({ id:parseInt(id), ...info }));
+}
+
+// Inactive gestor check — last vale older than threshold
+function _gestorInactivityDays(gestorId) {
+  const gv = getVales().filter(v => v.gestorId === gestorId);
+  if (!gv.length) return null; // never created a vale
+  const last = gv.reduce((max, v) => v.ts > max ? v.ts : max, '');
+  if (!last) return null;
+  const days = Math.floor((Date.now() - new Date(last).getTime()) / 86400000);
+  return days;
+}
+
+// Render a single expandible gestor card for the Estadísticas panel
+function _renderStatsGestorCard(g, vales, from, to) {
+  const gv = vales.filter(v => v.gestorId === g.id);
+  const gc = gv.filter(v => v.status === 'confirmed').length;
+  const gPendingPay = gv.filter(v => v.status === 'pending_payment').length;
+  const pts = gv.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
+    const pr = productoOf(p.id);
+    return s + (pr ? (pr.puntos||0) * p.qty : 0);
+  }, sum), 0);
+  const closed = gc + gPendingPay;
+  const conversion = gv.length > 0 ? Math.round((closed / gv.length) * 100) : 0;
+  const isExpanded = window._expandedStatsGestors.has(g.id);
+
+  // Inactivity badge
+  const inactDays = _gestorInactivityDays(g.id);
+  const inactBadge = (inactDays === null)
+    ? `<span style="background:var(--gray-200);color:var(--gray-600);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;">∅ Sin vales</span>`
+    : (inactDays >= GESTOR_INACTIVITY_DAYS
+        ? `<span style="background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;">⚠️ ${inactDays}d sin actividad</span>`
+        : '');
+
+  // Header
+  let html = `<div class="card" style="padding:0;overflow:hidden;margin-bottom:6px;border-color:${isExpanded?'var(--blue)':'var(--border)'};">
+    <div onclick="toggleStatsGestor(${g.id})" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;background:${isExpanded?'var(--blue-lt)':'var(--surface)'};">
+      <div class="g-avatar" style="background:${g.color};width:32px;height:32px;font-size:11px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:13px;font-weight:700;">${escapeHTML(g.name)}</span>
+          ${inactBadge}
+        </div>
+        <div style="font-size:11px;color:var(--gray-400);">${gv.length} vales · ${closed} cerrados${pts?` · ⭐ ${pts} pts`:''} · ${conversion}% conv.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <button type="button" onclick="event.stopPropagation();jumpToHistorialForGestor(${g.id},'${from||''}','${to||''}')" style="background:var(--blue);color:white;border:none;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;">Ver historial →</button>
+        <span style="color:var(--gray-400);font-size:12px;">${isExpanded?'▲':'▼'}</span>
+      </div>
+    </div>`;
+
+  if (isExpanded) {
+    // Detail body
+    // Top 3 products
+    const top3 = _topProductsForGestor(gv, 3);
+    const top3HTML = top3.length
+      ? top3.map((p,i) => {
+          const medal = ['🥇','🥈','🥉'][i] || '·';
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:11px;color:var(--text);">${medal} ${escapeHTML(p.name)}</span>
+            <span style="font-size:10px;font-weight:700;color:var(--blue);">${p.qty} u.</span>
+          </div>`;
+        }).join('')
+      : '<div style="font-size:11px;color:var(--gray-400);">Sin productos vendidos en el período</div>';
+
+    // Ticket promedio — average total of confirmed/pending_payment vales
+    const closedVales = gv.filter(v => ['confirmed','pending_payment'].includes(v.status));
+    const totalNum = closedVales.reduce((sum,v) => sum + parsePrecioNum(v.total || v.precioUSD || ''), 0);
+    const ticketAvg = closedVales.length ? (totalNum / closedVales.length) : 0;
+    const ticketStr = ticketAvg > 0 ? `$${ticketAvg.toFixed(0)} USD` : '—';
+
+    // Commission summary
+    const pendCom = closedVales.filter(v => !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
+    const enSobre = closedVales.filter(v => v.commissionStatus === 'en_sobre');
+    const cobrados = closedVales.filter(v => v.commissionPaid || v.commissionStatus === 'cobrado');
+    const comParts = [];
+    if (pendCom.length) comParts.push(`<span style="color:var(--orange);font-weight:600;">${pendCom.length} pend.</span>`);
+    if (enSobre.length) comParts.push(`<span style="color:var(--yellow);font-weight:600;">✉️ ${enSobre.length} en sobre</span>`);
+    if (cobrados.length) comParts.push(`<span style="color:var(--green);font-weight:600;">💰 ${cobrados.length} cobrado${cobrados.length!==1?'s':''}</span>`);
+    const comHTML = comParts.length ? comParts.join(' · ') : '<span style="color:var(--gray-400);">Sin comisiones en el período</span>';
+
+    // Last activity
+    const lastValeTs = gv.length ? gv.reduce((max,v) => v.ts > max ? v.ts : max, '') : '';
+    const lastStr = lastValeTs
+      ? `${new Date(lastValeTs).toLocaleDateString('es-ES')} ${timeStr(lastValeTs)}`
+      : 'Sin actividad';
+
+    html += `<div style="padding:12px 14px;border-top:1px solid var(--border);background:var(--surface);">
+      <!-- Mini chart 7 días -->
+      <div style="margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">📈 Actividad últimos 7 días</div>
+        ${_renderMiniBarChart7d(g.id)}
+      </div>
+      <!-- KPIs -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div style="background:var(--surface2);padding:8px 10px;border-radius:6px;">
+          <div style="font-size:9px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">Ticket promedio</div>
+          <div style="font-size:14px;font-weight:800;color:var(--blue);">${ticketStr}</div>
+        </div>
+        <div style="background:var(--surface2);padding:8px 10px;border-radius:6px;">
+          <div style="font-size:9px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">Tasa conversión</div>
+          <div style="font-size:14px;font-weight:800;color:var(--green);">${conversion}%</div>
+        </div>
+        <div style="background:var(--surface2);padding:8px 10px;border-radius:6px;">
+          <div style="font-size:9px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">Última actividad</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text);">${lastStr}</div>
+        </div>
+        <div style="background:var(--surface2);padding:8px 10px;border-radius:6px;">
+          <div style="font-size:9px;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">Comisiones</div>
+          <div style="font-size:11px;">${comHTML}</div>
+        </div>
+      </div>
+      <!-- Top 3 productos -->
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🏆 Top productos del período</div>
+        ${top3HTML}
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+function toggleStatsGestor(gestorId) {
+  if (window._expandedStatsGestors.has(gestorId)) {
+    window._expandedStatsGestors.delete(gestorId);
+  } else {
+    window._expandedStatsGestors.add(gestorId);
+  }
+  renderStats();
+}
+
+// Drill-down: jump from Estadísticas card to Historial panel filtered by that gestor + dates
+function jumpToHistorialForGestor(gestorId, from, to) {
+  // Set the gestor filter value first (renderHistorial preserves curGFilter on the element)
+  const el = document.getElementById('histGestorFilter');
+  if (el) el.value = String(gestorId);
+  const fEl = document.getElementById('histDateFrom');
+  const tEl = document.getElementById('histDateTo');
+  if (fEl && from) fEl.value = from;
+  if (tEl && to) tEl.value = to;
+  adminTab('historial');
+  // renderHistorial is triggered inside adminTab transition; call once more to be safe
+  setTimeout(renderHistorial, 50);
+}
+
+// CSV export of currently-filtered historial
+function exportHistorialCSV() {
+  const fromEl = document.getElementById('histDateFrom');
+  const toEl = document.getElementById('histDateTo');
+  const gestorEl = document.getElementById('histGestorFilter');
+  let vales = getVales().reverse();
+  const from = fromEl ? fromEl.value : '';
+  const to = toEl ? toEl.value : '';
+  const gFilter = gestorEl ? gestorEl.value : '';
+  if (from) vales = vales.filter(v => v.ts.slice(0,10) >= from);
+  if (to)   vales = vales.filter(v => v.ts.slice(0,10) <= to);
+  if (gFilter) vales = vales.filter(v => String(v.gestorId) === gFilter);
+
+  if (!vales.length) { showToast('No hay vales para exportar'); return; }
+
+  const sMap = {
+    pending: 'Pendiente', assigned: 'Con mensajero', delivered: 'Entregado',
+    confirmed: 'Confirmado', pending_payment: 'Pend. cobro', cancelled: 'Cancelado'
+  };
+  const rows = [['# Vale','Fecha','Hora','Cliente','Teléfono','Dirección','Gestor','Mensajero','Artículo','Total','Estado','Comisión']];
+  vales.forEach(v => {
+    const g = gestorOf(v.gestorId);
+    const m = v.mensajeroId ? (getMensajeros().find(x => x.id === v.mensajeroId) || {}) : {};
+    const d = new Date(v.ts);
+    rows.push([
+      valeNumStr(v) || '',
+      d.toLocaleDateString('es-ES'),
+      timeStr(v.ts),
+      (v.cliente || '').replace(/"/g, '""'),
+      (v.telefono || '').replace(/"/g, '""'),
+      (v.direccion || '').replace(/"/g, '""'),
+      g ? g.name : '—',
+      m.name || '—',
+      (v.articulo || '').replace(/"/g, '""'),
+      (v.total || '').replace(/"/g, '""'),
+      sMap[v.status] || v.status,
+      v.commissionPaid ? 'Cobrado' : (v.commissionStatus === 'en_sobre' ? 'En sobre' : (v.commissionStatus === 'cobrado' ? 'Cobrado' : 'Pendiente'))
+    ]);
+  });
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const today = new Date().toISOString().slice(0,10);
+  a.download = `axontech-historial-${today}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`Exportados ${vales.length} vales ✓`);
+}
+
 function renderStats() {
   const from=document.getElementById('statsDateFrom').value;
   const to=document.getElementById('statsDateTo').value;
@@ -3124,21 +3554,10 @@ function renderStats() {
     {label:'Con mensajero',val:assigned,color:'var(--orange)'},
     {label:'Pendientes',val:pending,color:'var(--red)'},
   ].map(({label,val,color})=>`<div class="stat-card"><div class="stat-num" style="color:${color};">${val}</div><div class="stat-lbl">${label}</div></div>`).join('');
-  // By gestor
+  // By gestor — expandible cards with drill-down details
   const gestores=getGestores();
   document.getElementById('statsGestorList').innerHTML=gestores.length?
-    gestores.map(g=>{
-      const gv=vales.filter(v=>v.gestorId===g.id);
-      const gc=gv.filter(v=>v.status==='confirmed').length;
-      const pts=gv.reduce((sum,v)=>(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},sum),0);
-      return `<div class="card" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px;">
-        <div class="g-avatar" style="background:${g.color};width:32px;height:32px;font-size:11px;">${escapeHTML(g.initials)}</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:700;">${escapeHTML(g.name)}</div>
-          <div style="font-size:11px;color:var(--gray-400);">${gv.length} vales · ${gc} confirmados${pts?` · ⭐ ${pts} pts`:''}</div>
-        </div>
-      </div>`;
-    }).join('') :
+    gestores.map(g => _renderStatsGestorCard(g, vales, from, to)).join('') :
     '<div class="es"><div class="es-text">Sin gestores configurados</div></div>';
   // By product
   const prodCount={};

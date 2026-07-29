@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=73">
+  <link rel="stylesheet" href="./app.css?v=74">
 </head>
 <body data-page="gestor">
 
@@ -240,6 +240,15 @@
 
     <!-- Mis Vales (aquí para que se vea en móvil cuando hay gestor seleccionado) -->
         <div id="gestorMyValesSection" style="display:none;padding-top:4px;">
+      <!-- NEW: Resumen dashboard with period chips -->
+      <div class="lbl" style="margin-top:14px;">📊 Mi Resumen</div>
+      <div id="gestorHistDashboard" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;"></div>
+      <div id="gestorHistPeriodFilter" style="display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap;">
+        <button class="btn btn-blue btn-sm" data-period="month" onclick="setGestorHistPeriod('month')">Este mes</button>
+        <button class="btn btn-ghost btn-sm" data-period="last" onclick="setGestorHistPeriod('last')">Mes pasado</button>
+        <button class="btn btn-ghost btn-sm" data-period="all" onclick="setGestorHistPeriod('all')">Todo</button>
+      </div>
+
       <div class="lbl" style="margin-top:14px;">Mis Vales Activos</div>
       <div id="gestorMyVales"></div>
       
@@ -253,7 +262,7 @@
         </div>
         <div id="gestorHistorialList" style="display:none;"></div>
         <div id="gestorHistClearBtn" style="display:none;margin-top:6px;text-align:center;">
-          <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:11px;" onclick="clearGestorHistory()">🗑️ Limpiar historial</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:11px;" onclick="clearGestorHistory()">🙈 Ocultar historial</button>
         </div>
       </div>
     </div>
@@ -401,7 +410,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=73"></script>
+<script src="./app.js?v=74"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

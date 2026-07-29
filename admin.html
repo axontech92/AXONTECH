@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=73">
+  <link rel="stylesheet" href="./app.css?v=74">
 </head>
 <body data-page="admin">
 
@@ -194,7 +194,10 @@
     <!-- ── HISTORIAL PANEL ── -->
     <div id="adminHistorialPanel" class="admin-panel-full" style="display:none;">
       <div style="padding:20px;max-width:900px;margin:0 auto;">
-        <div class="lbl" style="margin:0 0 14px;">📅 Historial de Vales</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div class="lbl" style="margin:0;">📅 Historial de Vales</div>
+          <button class="btn btn-green btn-sm" onclick="exportHistorialCSV()">⬇️ Exportar CSV</button>
+        </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
           <span style="font-size:11px;color:var(--gray-400);">Desde</span>
           <input type="date" id="histDateFrom" onchange="renderHistorial()" style="width:140px;">
@@ -686,7 +689,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-<script src="./app.js?v=73"></script>
+<script src="./app.js?v=74"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
