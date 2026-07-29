@@ -838,7 +838,7 @@
       "name": "AUDÍFONOS ERGONÓMICOS",
       "photo": "https://tiendamax.org/imagenes/img_1780543081597.webp",
       "precio": "$10 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 12
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:20:19.195Z"
+  "timestamp": "2026-07-29T15:20:50.830Z"
 }
