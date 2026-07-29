@@ -1171,6 +1171,71 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "×1 PISTOLA DE MASAJE RECARGABLE:",
+      "carnet": "",
+      "cliente": "Jdksm",
+      "comisionGestor": "1500 MN",
+      "confirmedTs": "2026-07-29T14:59:00.908Z",
+      "deliveredTs": "2026-07-29T14:58:46.339Z",
+      "direccion": "Gqhwhhw",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1785337034871,
+      "isNew": false,
+      "mensajeria": "",
+      "mensajeroId": 1784408255563,
+      "precioMN": "",
+      "precioUSD": "$25 USD",
+      "seenByAdmin": true,
+      "seenTs": "2026-07-29T14:57:28.443Z",
+      "status": "confirmed",
+      "telefono": "9464",
+      "total": "$25 USD",
+      "ts": "2026-07-29T14:57:14.881Z",
+      "valeNum": 25,
+      "valeProductos": [
+        {
+          "id": 1778103856933,
+          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jdksm\n🔸Teléfono Cliente: 9464\n🔸Dirección Cliente: Gqhwhhw\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/7/2026 10:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "×2 PISTOLA DE MASAJE RECARGABLE:",
+      "carnet": "",
+      "cliente": "Jsksn",
+      "comisionGestor": "3000 MN",
+      "direccion": "Vskdnd",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "id": 1785336984631,
+      "isNew": false,
+      "mensajeria": "",
+      "precioMN": "",
+      "precioUSD": "$50 USD",
+      "seenByAdmin": true,
+      "seenTs": "2026-07-29T14:56:39.980Z",
+      "status": "pending",
+      "telefono": "546432",
+      "total": "$50 USD",
+      "ts": "2026-07-29T14:56:24.646Z",
+      "valeNum": 24,
+      "valeProductos": [
+        {
+          "id": 1778103856933,
+          "name": "PISTOLA DE MASAJE RECARGABLE:",
+          "qty": 2
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jsksn\n🔸Teléfono Cliente: 546432\n🔸Dirección Cliente: Vskdnd\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $50 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $50 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/7/2026 10:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
       "articulo": "×1 Controlador 150amp / ×3 Cargador inteligente de 12v(35A) y 24v(15A) configurable / ×10 Router Wavlink ac1200 pequeño / ×2 Router TP link ax3000 / ×4 ADAPTADOR POE UBIQUITI / ×1 Controlador 100amp / ×1 SISTEMA DE SEGURIDAD ZOSI PARA EL HOGAR - 8 CANALES / ×1 CARGADOR INTELIGENTE DE 15 AMPERES: / ×2 Router Tenda ax3000 / ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM / ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
       "carnet": "",
       "cliente": "TOTAL DIA 26",
@@ -1250,71 +1315,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: TOTAL DIA 26\n🔸Teléfono Cliente: 53998989\n🔸Dirección Cliente: AMISTAD 311\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador 150amp\n  ×3 Cargador inteligente de 12v(35A) y 24v(15A) configurable\n  ×10 Router Wavlink ac1200 pequeño\n  ×2 Router TP link ax3000\n  ×4 ADAPTADOR POE UBIQUITI\n  ×1 Controlador 100amp\n  ×1 SISTEMA DE SEGURIDAD ZOSI PARA EL HOGAR - 8 CANALES\n  ×1 CARGADOR INTELIGENTE DE 15 AMPERES:\n  ×2 Router Tenda ax3000\n  ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM\n  ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️\n🔸Precio USD/ zelle: $2775 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2775 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/7/2026 20:34\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
-    },
-    {
-      "adminNotes": "",
-      "articulo": "×2 PISTOLA DE MASAJE RECARGABLE:",
-      "carnet": "",
-      "cliente": "Jsksn",
-      "comisionGestor": "3000 MN",
-      "direccion": "Vskdnd",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1785336984631,
-      "isNew": false,
-      "mensajeria": "",
-      "precioMN": "",
-      "precioUSD": "$50 USD",
-      "seenByAdmin": true,
-      "seenTs": "2026-07-29T14:56:39.980Z",
-      "status": "pending",
-      "telefono": "546432",
-      "total": "$50 USD",
-      "ts": "2026-07-29T14:56:24.646Z",
-      "valeNum": 24,
-      "valeProductos": [
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 2
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jsksn\n🔸Teléfono Cliente: 546432\n🔸Dirección Cliente: Vskdnd\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $50 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $50 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/7/2026 10:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    },
-    {
-      "adminNotes": "",
-      "articulo": "×1 PISTOLA DE MASAJE RECARGABLE:",
-      "carnet": "",
-      "cliente": "Jdksm",
-      "comisionGestor": "1500 MN",
-      "direccion": "Gqhwhhw",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1785337034871,
-      "isNew": false,
-      "mensajeria": "",
-      "mensajeroId": 1784408255563,
-      "precioMN": "",
-      "precioUSD": "$25 USD",
-      "seenByAdmin": true,
-      "seenTs": "2026-07-29T14:57:28.443Z",
-      "status": "pending_payment",
-      "telefono": "9464",
-      "total": "$25 USD",
-      "ts": "2026-07-29T14:57:14.881Z",
-      "valeNum": 25,
-      "valeProductos": [
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jdksm\n🔸Teléfono Cliente: 9464\n🔸Dirección Cliente: Gqhwhhw\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/7/2026 10:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": "",
-      "deliveredTs": "2026-07-29T14:58:46.339Z"
     }
   ],
-  "timestamp": "2026-07-29T14:58:46.352Z"
+  "timestamp": "2026-07-29T14:59:00.942Z"
 }
