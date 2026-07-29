@@ -562,7 +562,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "photo": "https://tiendamax.org/imagenes/img_1780510827238.webp",
       "precio": "$20 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 1
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:19:23.990Z"
+  "timestamp": "2026-07-29T15:19:41.916Z"
 }
