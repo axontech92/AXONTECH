@@ -1290,6 +1290,24 @@ async function verifyPassAsync(input) {
     return false;
   }
   if (stored.startsWith('sha256:')) {
+    // Migration path: try legacy v74 hash (SHA-256 with static salt) FIRST.
+    // This must run BEFORE _hashPass() because _hashPass generates a random salt
+    // on first call, and we need to detect the legacy format independently of
+    // whether a salt exists yet.
+    try {
+      const legacyData = new TextEncoder().encode(input + '_axontech_salt_2024');
+      const legacyBuf = await crypto.subtle.digest('SHA-256', legacyData);
+      const legacyArr = Array.from(new Uint8Array(legacyBuf));
+      const legacyHash = 'sha256:' + legacyArr.map(b => b.toString(16).padStart(2, '0')).join('');
+      if (legacyHash === stored) {
+        // Legacy v74 hash matched — migrate to new PBKDF2 format.
+        const newHash = await _hashPass(input);
+        localStorage.setItem('axon_admin_hash', newHash);
+        sessionStorage.setItem('axon_admin_session', newHash);
+        return true;
+      }
+    } catch(e) {}
+    // Try the new PBKDF2 hash (for v75+ hashes that already have a salt)
     const inputHash = await _hashPass(input);
     if (inputHash === stored) {
       sessionStorage.setItem('axon_admin_session', stored);
@@ -1297,7 +1315,7 @@ async function verifyPassAsync(input) {
     }
     return false;
   }
-  // Legacy btoa migration
+  // Legacy btoa migration (very old versions stored btoa(password))
   if (btoa(input) === stored) {
     const h = await _hashPass(input);
     localStorage.setItem('axon_admin_hash', h);
