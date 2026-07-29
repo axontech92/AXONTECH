@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXONTECH · Catálogo</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#006d8a">
+  <link rel="apple-touch-icon" href="./iconos/icon-192.png">
+  <link rel="stylesheet" href="./app.css?v=75">
+  <style>
+    .catalog-hero{
+      background:linear-gradient(135deg,var(--blue-dk) 0%,var(--blue) 50%,var(--accent) 100%);
+      padding:48px 20px 36px;text-align:center;color:#fff;
+    }
+    .catalog-hero h1{font-size:36px;font-weight:900;letter-spacing:8px;text-shadow:0 2px 20px rgba(0,0,0,.3);}
+    .catalog-hero .sub{font-size:13px;letter-spacing:4px;color:rgba(255,255,255,.85);font-weight:600;margin-top:4px;}
+    .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;padding:18px;max-width:1200px;margin:0 auto;}
+    .catalog-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);transition:transform .25s;}
+    .catalog-card:hover{transform:translateY(-3px);}
+    .catalog-card-img{height:200px;background:linear-gradient(145deg,var(--surface2),var(--surface3));display:flex;align-items:center;justify-content:center;font-size:64px;}
+    .catalog-card-img img{width:100%;height:100%;object-fit:cover;}
+    .catalog-card-body{padding:16px;}
+    .catalog-card-name{font-weight:800;font-size:15px;margin-bottom:5px;color:var(--text);}
+    .catalog-card-price{font-weight:900;font-size:18px;color:var(--blue);margin-bottom:8px;}
+    .catalog-card-wa{
+      display:flex;align-items:center;justify-content:center;gap:6px;width:100%;
+      padding:10px;border:none;border-radius:10px;
+      background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;
+      font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;
+    }
+    @media(max-width:640px){.catalog-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body data-page="catalog">
+  <div class="catalog-hero">
+    <h1>AXONTECH</h1>
+    <div class="sub">CATÁLOGO DE PRODUCTOS</div>
+  </div>
+  <div class="catalog-grid" id="catalogStaticGrid">
+    <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);">
+      <div style="font-size:48px;margin-bottom:12px;opacity:.5;">📦</div>
+      <div style="font-size:14px;font-weight:600;">Catálogo no disponible.</div>
+      <div style="font-size:12px;margin-top:6px;">El administrador debe publicar el catálogo desde el panel de administración.</div>
+    </div>
+  </div>
+  <script>
+    // Try to load productos.json — this is the static catalog shown when the admin
+    // has not yet published to GitHub Pages.
+    fetch('./productos.json').then(r => r.ok ? r.json() : Promise.reject()).then(prods => {
+      if (!Array.isArray(prods) || !prods.length) return;
+      const grid = document.getElementById('catalogStaticGrid');
+      grid.innerHTML = prods.filter(p => (p.stock || 0) > 0).map(p => {
+        const name = p.name || p.nombre || 'Producto';
+        const price = p.precio || (p.precioActual ? `$${p.precioActual} USD` : '');
+        const photo = p.photo || p.imagen || '';
+        const wa = `Hola, me interesa el producto: ${name}${price ? ' - ' + price : ''}. ¿Está disponible?`;
+        return `<div class="catalog-card">
+          <div class="catalog-card-img">${photo ? `<img src="${photo}" alt="${name}" onerror="this.style.display='none';this.parentElement.textContent='📦'">` : '📦'}</div>
+          <div class="catalog-card-body">
+            <div class="catalog-card-name">${name}</div>
+            ${price ? `<div class="catalog-card-price">${price}</div>` : ''}
+            <a class="catalog-card-wa" href="https://wa.me/?text=${encodeURIComponent(wa)}" target="_blank">💬 Consultar</a>
+          </div>
+        </div>`;
+      }).join('');
+    }).catch(() => {/* static placeholder kept */});
+  </script>
+</body>
+</html>
