@@ -708,9 +708,16 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
 .audit-user{color:var(--text-muted);}
 
 /* ── Responsive ── */
+/* Tablets y mobile pequeño: layout en 1 columna */
 @media (max-width:900px){
-  #layoutGestor{grid-template-columns:1fr;padding:12px;gap:12px;}
+  #layoutGestor{
+    grid-template-columns:1fr;
+    padding:12px;
+    gap:12px;
+  }
   #layoutGestor.has-gestor{grid-template-columns:1fr;}
+
+  /* Mostrar el botón "Volver" solo cuando hay gestor seleccionado en móvil */
   #mobileBackBar{
     display:flex;align-items:center;gap:10px;margin-bottom:10px;
     background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;
@@ -719,24 +726,147 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
     background:var(--blue);color:#fff;border:none;border-radius:7px;padding:6px 10px;
     font-size:12px;font-weight:700;cursor:pointer;
   }
+
+  /* En móvil: cuando NO hay gestor seleccionado, mostrar col-left (selector + ranking)
+     y ocultar el formulario. Cuando SÍ hay gestor, mostrar el formulario y ocultar
+     el selector y el ranking. */
   .col-left{display:block;}
-  #layoutGestor:not(.has-gestor) .col-mid,
-  #layoutGestor:not(.has-gestor) .gestorMyValesSection,
-  #layoutGestor:not(.has-gestor) #gestorComisionSection{display:none;}
+  #layoutGestor:not(.has-gestor) .col-mid{display:none;}
+  #layoutGestor:not(.has-gestor) #gestorMyValesSection,
+  #layoutGestor:not(.has-gestor) #gestorComisionSection{display:none !important;}
   #layoutGestor.has-gestor .col-left{display:none;}
+
+  /* Ranking visible solo cuando NO hay gestor (ya está en col-left) */
+  #layoutGestor.has-gestor #gestorRankingSection{display:none;}
 }
+
+/* Móvil pequeño: ajustes finos */
 @media (max-width:640px){
-  header{padding:8px 12px;gap:8px;flex-wrap:wrap;}
-  header .brand-name{font-size:13px;}
+  /* Header más compacto */
+  header{padding:8px 10px;gap:6px;flex-wrap:wrap;min-height:50px;}
+  header .brand-icon{width:32px;height:32px;font-size:12px;border-radius:8px;}
+  header .brand-name{font-size:13px;letter-spacing:1px;}
+  header .brand-sub{font-size:8px;letter-spacing:.8px;}
+  header #headerGestorName{font-size:11px;}
   header .header-date{display:none;}
-  header .header-right{gap:5px;}
-  .modal{padding:16px;}
+  header .header-right{gap:4px;}
+  header .header-right button{padding:4px 8px;font-size:11px;}
+  #btnTheme{padding:4px 8px;font-size:13px;}
+
+  /* Modales casi pantalla completa en móvil */
+  .modal{
+    padding:14px;
+    max-width:100% !important;
+    width:100% !important;
+    border-radius:12px 12px 0 0;
+    max-height:92vh;
+  }
+  .modal-bg{padding:0;align-items:flex-end;}
   .modal-title{font-size:15px;}
+  .modal-sub{font-size:11px;}
+  .modal-btns{grid-template-columns:1fr 1fr;gap:6px;}
+
+  /* Layout admin: 1 columna */
   #adminValesPanel{grid-template-columns:1fr !important;}
+
+  /* Stat cards más compactas */
   .stat-card{padding:8px 6px;}
   .stat-num{font-size:18px;}
+  .stat-lbl{font-size:9px;}
+
+  /* Vale form: inputs más grandes para touch */
+  .vf-row input,.vf-row textarea{padding:11px 12px;font-size:14px;}
+  .vf-label{font-size:9px;}
+  .vf-emoji{font-size:15px;}
+
+  /* Botones más grandes para touch */
+  .btn{padding:11px 14px;font-size:13px;}
+  .btn-sm{padding:7px 10px;font-size:11px;}
+
+  /* Glow overlay */
   .glow-title{font-size:22px;}
   .glow-winner-row{padding:8px 10px;}
+  .glow-winner-name{font-size:13px;}
+  .glow-winner-pts{font-size:11px;}
+
+  /* Gestor items más grandes para touch */
+  .g-item{padding:12px 14px;}
+  .g-avatar{width:36px;height:36px;font-size:12px;}
+  .g-name{font-size:14px;}
+
+  /* Picker pills más anchas */
+  .picker-pill{padding:10px 12px;}
+  .picker-pill-name{font-size:13px;}
+  .picker-pill-qty button{width:30px;height:30px;font-size:16px;}
+
+  /* Cards con menos padding para aprovechar pantalla */
+  .card{padding:12px 14px;border-radius:12px;}
+
+  /* Admin nav: que los botones ocupen ancho completo en móvil */
+  .admin-nav{padding:6px;gap:4px;position:sticky;top:50px;}
+  .anav-btn{flex:1;justify-content:center;padding:8px 6px;font-size:11px;}
+
+  /* Sync indicator más discreto */
+  #syncIndicator{padding:4px 9px;font-size:10px;bottom:10px;left:10px;}
+
+  /* Floating + button más pequeño */
+  .btn[style*="border-radius:50%"]{width:48px !important;height:48px !important;font-size:20px !important;bottom:14px !important;right:14px !important;}
+
+  /* Inputs en modales admin: padding mayor para touch */
+  #adminValeModal input,#adminValeModal textarea,#adminValeModal select,
+  #editValeModal input,#editValeModal textarea,
+  #productModal input,#productModal textarea,#productModal select{
+    padding:10px 12px;font-size:14px;
+  }
+
+  /* Historial y stats: tap targets más grandes */
+  .audit-entry{padding:10px 12px;font-size:12px;}
+  .rank-row{padding:10px 12px;}
+  .rank-name{font-size:13px;}
+
+  /* Bandeja inbox cards más anchas */
+  .ic{padding:11px 13px;}
+  .ic-cliente{font-size:14px;}
+
+  /* mf-card / mv-info más legible */
+  .mv-card{padding:11px 13px;}
+  .mv-info{font-size:13px;}
+
+  /* Gestor list en grid de 2 columnas en móvil para aprovechar pantalla */
+  #gestoresList{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+  #gestoresList .g-item{margin-bottom:0;padding:10px 8px;gap:6px;}
+  #gestoresList .g-item .g-name{font-size:12px;}
+  #gestoresList .g-item .g-avatar{width:30px;height:30px;font-size:11px;}
+  /* Cuando solo hay 1 gestor o el último queda solo, que ocupe ambas columnas */
+  #gestoresList .es{grid-column:1/-1;}
+
+  /* Top Gestores: hacer las filas más compactas en móvil */
+  .rank-row{padding:7px 10px;gap:8px;margin-bottom:4px;}
+  .rank-pos{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+  .rank-name{font-size:12px;}
+  .rank-pts{font-size:11px;}
+  .rank-bar-wrap{height:5px;margin-top:4px;}
+  .rank-hint{font-size:9px;margin-top:2px;}
+  /* Avatar del ranking más pequeño en móvil */
+  .rank-row .g-avatar{width:24px !important;height:24px !important;font-size:9px !important;}
+}
+
+/* Muy pequeño (<=380px): iPhone SE, Galaxy Fold cubierto */
+@media (max-width:380px){
+  header{padding:6px 8px;}
+  header .brand-sub{display:none;}
+  header .brand-name{font-size:12px;}
+  #layoutGestor{padding:10px;gap:10px;}
+  .card{padding:10px 12px;}
+  .lbl{font-size:9px;margin:10px 0 5px;}
+  .modal{padding:12px;}
+  .modal-title{font-size:14px;}
+  .stat-num{font-size:16px;}
+  .anav-btn{font-size:10px;padding:7px 4px;}
 }
 
 /* Hide scrollbars for picker tabs */

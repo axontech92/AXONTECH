@@ -4618,20 +4618,24 @@ function renderGestorRanking() {
     const pct=maxRef>0?Math.min(100,Math.round((g.pts/maxRef)*100)):0;
     const reached=meta>0&&g.pts>=meta;
     const grad=reached?'linear-gradient(90deg,var(--green),#10B981)':barGradients[Math.min(i,barGradients.length-1)];
-    const pos=reached?'🏆':(medals[i]||`${i+1}.`);
-    const hint=meta>0
-      ?(reached?`<span style="color:var(--green);">¡Meta alcanzada! 🎉</span>`:`faltan <b>${meta-g.pts} pts</b> para la meta`)
-      :(g.pts>0?`${pct}% del líder`:'Aún sin puntos');
+    // Posiciones: medallas para top 3 (más compactas), número pequeño para el resto
+    const pos=i<3?medals[i]:`<span style="font-size:11px;font-weight:700;color:var(--gray-400);">${i+1}</span>`;
+    // Hint compacto — solo si NO es "faltan X pts" (esos ya los indica la barra)
+    let hint='';
+    if(reached){hint='<span style="color:var(--green);font-weight:700;">✓ Meta</span>';}
+    else if(meta===0&&g.pts===0){hint='<span style="color:var(--gray-400);">Sin puntos</span>';}
+    else if(meta===0&&g.pts>0){hint=`<span style="color:var(--gray-400);">${pct}% del líder</span>`;}
+    // Si meta>0 y no reached, NO mostramos hint (la barra + número ya dicen todo)
     return `<div class="rank-row">
       <div class="rank-pos">${pos}</div>
       <div style="flex:1;min-width:0;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="g-avatar" style="background:${g.color};width:28px;height:28px;font-size:10px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
-          <span class="rank-name">${escapeHTML(g.name)}</span>
-          <span class="rank-pts" style="${reached?'color:var(--green);':''}">${g.pts} pts</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="g-avatar" style="background:${g.color};width:26px;height:26px;font-size:10px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
+          <span class="rank-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(g.name)}</span>
+          <span class="rank-pts" style="${reached?'color:var(--green);':''}flex-shrink:0;">${g.pts} pts</span>
+          ${hint?`<span style="font-size:9px;flex-shrink:0;">${hint}</span>`:''}
         </div>
-        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%;background:${grad};"></div></div>
-        <div class="rank-hint">${hint}</div>
+        <div class="rank-bar-wrap" style="margin-top:4px;"><div class="rank-bar" style="width:${pct}%;background:${grad};"></div></div>
       </div>
     </div>`;
   }).join('');
