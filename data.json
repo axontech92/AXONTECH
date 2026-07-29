@@ -1205,37 +1205,6 @@
     },
     {
       "adminNotes": "",
-      "articulo": "×2 PISTOLA DE MASAJE RECARGABLE:",
-      "carnet": "",
-      "cliente": "Jsksn",
-      "comisionGestor": "3000 MN",
-      "direccion": "Vskdnd",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "id": 1785336984631,
-      "isNew": false,
-      "mensajeria": "",
-      "precioMN": "",
-      "precioUSD": "$50 USD",
-      "seenByAdmin": true,
-      "seenTs": "2026-07-29T14:56:39.980Z",
-      "status": "pending",
-      "telefono": "546432",
-      "total": "$50 USD",
-      "ts": "2026-07-29T14:56:24.646Z",
-      "valeNum": 24,
-      "valeProductos": [
-        {
-          "id": 1778103856933,
-          "name": "PISTOLA DE MASAJE RECARGABLE:",
-          "qty": 2
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jsksn\n🔸Teléfono Cliente: 546432\n🔸Dirección Cliente: Vskdnd\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 PISTOLA DE MASAJE RECARGABLE:\n🔸Precio USD/ zelle: $50 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $50 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/7/2026 10:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    },
-    {
-      "adminNotes": "",
       "articulo": "×1 Controlador 150amp / ×3 Cargador inteligente de 12v(35A) y 24v(15A) configurable / ×10 Router Wavlink ac1200 pequeño / ×2 Router TP link ax3000 / ×4 ADAPTADOR POE UBIQUITI / ×1 Controlador 100amp / ×1 SISTEMA DE SEGURIDAD ZOSI PARA EL HOGAR - 8 CANALES / ×1 CARGADOR INTELIGENTE DE 15 AMPERES: / ×2 Router Tenda ax3000 / ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM / ×1 ♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
       "carnet": "",
       "cliente": "TOTAL DIA 26",
@@ -1317,5 +1286,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-07-29T14:59:00.942Z"
+  "timestamp": "2026-07-29T15:00:05.148Z"
 }
