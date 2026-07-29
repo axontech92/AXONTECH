@@ -682,7 +682,7 @@
       "name": "VENTILADOR PARA CARRO",
       "photo": "https://tiendamax.org/imagenes/img_1778384769262_ext.webp",
       "precio": "$35 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 1
     },
     {
@@ -694,7 +694,7 @@
       "name": "TIMBRE INTELIGENTE",
       "photo": "https://tiendamax.org/imagenes/img_1778384840618_ext.webp",
       "precio": "$30 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 16
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:20:01.141Z"
+  "timestamp": "2026-07-29T15:20:19.195Z"
 }
