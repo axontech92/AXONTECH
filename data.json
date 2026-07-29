@@ -658,7 +658,7 @@
       "name": "LINTERNA DE CABEZA",
       "photo": "https://tiendamax.org/imagenes/img_1778384507302_ext.webp",
       "precio": "$30 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 17
     },
     {
@@ -670,7 +670,7 @@
       "name": "ADAPTADOR POE UBIQUITI",
       "photo": "https://tiendamax.org/imagenes/img_1778384646214_ext.webp",
       "precio": "$20 USD",
-      "puntos": 0,
+      "puntos": 0.5,
       "stock": 14
     },
     {
@@ -1169,5 +1169,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-07-29T15:19:41.916Z"
+  "timestamp": "2026-07-29T15:20:01.141Z"
 }
