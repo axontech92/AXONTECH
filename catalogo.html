@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#006d8a">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=75">
+  <link rel="stylesheet" href="./app.css?v=82">
   <style>
     .catalog-hero{
       background:linear-gradient(135deg,var(--blue-dk) 0%,var(--blue) 50%,var(--accent) 100%);
@@ -45,8 +45,14 @@
     </div>
   </div>
   <script>
-    // Try to load productos.json — this is the static catalog shown when the admin
-    // has not yet published to GitHub Pages.
+    // escapeHTML para evitar XSS en nombres de productos con comillas o <script>
+    // Ver AUDITORIA-AXONTECH.md MEDIO 23.
+    function escapeHTML(s){if(s===null||s===undefined)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+    // Número de WhatsApp de contacto — se lee del config publicado en el catálogo
+    // generado por buildCatalogHTML, pero este catálogo estático no lo tiene.
+    // El admin debe editar esta constante con su número (incluyendo prefijo país, sin +).
+    const CATALOG_PHONE = ''; // ej: '5355551234'
+
     fetch('./productos.json').then(r => r.ok ? r.json() : Promise.reject()).then(prods => {
       if (!Array.isArray(prods) || !prods.length) return;
       const grid = document.getElementById('catalogStaticGrid');
@@ -54,13 +60,19 @@
         const name = p.name || p.nombre || 'Producto';
         const price = p.precio || (p.precioActual ? `$${p.precioActual} USD` : '');
         const photo = p.photo || p.imagen || '';
+        // Validar URL de foto (solo http(s) y data:)
+        const safePhoto = photo && /^(https?:|data:image)/i.test(photo) ? photo : '';
         const wa = `Hola, me interesa el producto: ${name}${price ? ' - ' + price : ''}. ¿Está disponible?`;
+        // Si hay teléfono, wa.me/<numero>, si no, wa.me/?text= (selector de contactos)
+        const waHref = CATALOG_PHONE
+          ? `https://wa.me/${CATALOG_PHONE}?text=${encodeURIComponent(wa)}`
+          : `https://wa.me/?text=${encodeURIComponent(wa)}`;
         return `<div class="catalog-card">
-          <div class="catalog-card-img">${photo ? `<img src="${photo}" alt="${name}" onerror="this.style.display='none';this.parentElement.textContent='📦'">` : '📦'}</div>
+          <div class="catalog-card-img">${safePhoto ? `<img src="${escapeHTML(safePhoto)}" alt="${escapeHTML(name)}" onerror="this.style.display='none';this.parentElement.textContent='📦'">` : '📦'}</div>
           <div class="catalog-card-body">
-            <div class="catalog-card-name">${name}</div>
-            ${price ? `<div class="catalog-card-price">${price}</div>` : ''}
-            <a class="catalog-card-wa" href="https://wa.me/?text=${encodeURIComponent(wa)}" target="_blank">💬 Consultar</a>
+            <div class="catalog-card-name">${escapeHTML(name)}</div>
+            ${price ? `<div class="catalog-card-price">${escapeHTML(price)}</div>` : ''}
+            <a class="catalog-card-wa" href="${escapeHTML(waHref)}" target="_blank" rel="noopener">💬 Consultar</a>
           </div>
         </div>`;
       }).join('');

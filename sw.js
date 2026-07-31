@@ -1,4 +1,4 @@
-const CACHE = 'axontech-v81';
+const CACHE = 'axontech-v82';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './categorias.json',
@@ -45,6 +45,28 @@ self.addEventListener('fetch', e => {
             return cached || caches.match('./offline.html');
           });
         })
+    );
+    return;
+  }
+
+  // For static assets (CSS, JS, images, fonts): cache-first + revalidación en segundo plano.
+  // En 3G esto evita varios segundos de pantalla en blanco al arranque.
+  // Ver AUDITORIA-AXONTECH.md MEDIO 15.
+  const url = new URL(e.request.url);
+  const esEstatico = /\.(css|js|png|jpe?g|gif|webp|woff2?|ttf|svg|ico)$/.test(url.pathname);
+  if (esEstatico) {
+    e.respondWith(
+      caches.match(e.request, {ignoreSearch: true}).then(cached => {
+        // Revalidar en segundo plano sin bloquear la respuesta
+        const net = fetch(e.request).then(res => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const resClone = res.clone();
+            caches.open(CACHE).then(k => k.put(e.request, resClone));
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || net;
+      })
     );
     return;
   }

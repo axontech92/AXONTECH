@@ -97,6 +97,17 @@ const gestorOf    = id => getGestores().find(g=>g.id===id);
 const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
 const productoOf  = id => getProductos().find(p=>p.id===id);
 const todayStr    = () => new Date().toDateString();
+
+// Fecha local YYYY-MM-DD (no UTC). Cuba está en UTC-4/-5, así que si guardamos
+// vales con new Date().toISOString() (UTC), una venta a las 21:00 local se guarda
+// como 01:00 del día siguiente en UTC. Usar localDay() en todos los filtros de
+// fecha para que Estadísticas, Historial y el dashboard cuenten el mismo día.
+// Ver AUDITORIA-AXONTECH.md ALTO 5.
+const localDay = d => {
+  const x = (d instanceof Date) ? d : new Date(d);
+  if (isNaN(x.getTime())) return '';
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+};
 const timeStr     = ts => new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
 function nowDateTime() {
   const d=new Date();
@@ -156,27 +167,40 @@ function _processFBQueue() {
   const {path, value, method, callback} = item;
   const ref = db.ref(path);
   const op = method === 'remove' ? ref.remove() : method === 'update' ? ref.update(value) : ref.set(value);
+  // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
+  // no debe liberar el candado ni arrancar un segundo consumidor).
+  let requeued = false;
+
   op.then(() => { if(callback) callback(); })
     .catch(e => {
       console.error("Firebase write error:", e);
       if (item.retries < 5) {
+        // Reencolar YA (no en el setTimeout) para que sobreviva a un cierre
+        // de la app durante el backoff. Antes el item se perdía porque el
+        // finally persistía la cola sin él.
+        requeued = true;
+        _fbWriteQueue.unshift(item);
+        _persistQueue();
         const delay = Math.min(1000 * Math.pow(2, item.retries), 30000);
-        setTimeout(() => { _fbWriteQueue.unshift(item); _fbProcessing = false; _processFBQueue(); }, delay);
+        setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, delay);
         return;
       }
       console.error("Firebase write permanently failed:", path);
       try {
         const failed = JSON.parse(localStorage.getItem('axon_failed_writes') || '[]');
         failed.push({path, value, method, ts: new Date().toISOString()});
-        // Cap to prevent unbounded growth
         if (failed.length > _FAILED_WRITES_LIMIT) failed.splice(0, failed.length - _FAILED_WRITES_LIMIT);
         localStorage.setItem('axon_failed_writes', JSON.stringify(failed));
       } catch(e2) {}
     })
     .finally(() => {
-      _fbProcessing = false;
-      _persistQueue();
-      _processFBQueue();
+      // Solo liberar y procesar el siguiente si NO fue reencolado (el setTimeout
+      // se encargará de liberar tras el backoff). Evita doble consumidor.
+      if (!requeued) {
+        _fbProcessing = false;
+        _persistQueue();
+        _processFBQueue();
+      }
     });
 }
 
@@ -255,7 +279,22 @@ const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCac
 // fbAddVale/fbRemoveVale are NO LONGER called by sendVale/cancelVale/adminDeleteVale
 // because saveVales already enqueues a full 'set' on the vales node. Calling both
 // produced race conditions where the per-item write could overwrite the full set.
-const saveVales     = v  => { _safeSetLS('axon_vales', JSON.stringify(v)); _valesCache = v; _valesDirty = false; if (!isSyncingFromFirebase()) { _enqueueFB('vales', _valesToFirebaseObj(v), 'set'); } };
+const saveVales = v => {
+  _safeSetLS('axon_vales', JSON.stringify(v));
+  _valesCache = v; _valesDirty = false;
+  if (isSyncingFromFirebase()) return;
+  if (IS_ADMIN) {
+    // El admin sí tiene la vista completa → puede escribir el árbol entero
+    _enqueueFB('vales', _valesToFirebaseObj(v), 'set');
+  } else if (activeGestorId) {
+    // El gestor SOLO puede escribir su propia rama. Nunca 'vales' a secas,
+    // porque un set en el nodo raíz borraría los vales de los demás gestores.
+    const mine = {};
+    v.filter(x => x.gestorId === activeGestorId).forEach(x => { mine[x.id] = x; });
+    _enqueueFB(`vales/${activeGestorId}`, mine, 'set');
+  }
+  // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
+};
 
 const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
 const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; if (!isSyncingFromFirebase()) setFB('mensajeros', v); };
@@ -269,6 +308,18 @@ const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); 
 const getConfig     = () => { if (_configDirty || !_configCache) { try { _configCache = JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { _configCache = {}; } _configDirty = false; } return _configCache; };
 const saveConfig    = v  => { _safeSetLS('axon_config', JSON.stringify(v)); _configCache = v; _configDirty = false; if (!isSyncingFromFirebase()) setFB('config', v); };
 
+// GitHub token helper — el token NUNCA se sincroniza a Firebase.
+// Vive solo en localStorage del dispositivo admin para evitar que gestores
+// u otros dispositivos lo lean. Ver AUDITORIA-AXONTECH.md CRÍTICO 3.
+const ghToken = () => { try { return localStorage.getItem('axon_gh_token') || ''; } catch(e) { return ''; } };
+
+// Helper para escribir el estado de GitHub en AMBOS bloques (catálogo + config).
+// Antes solo se actualizaba el primero por el ID duplicado. Ver AUDITORIA-AXONTECH.md ALTO 12.
+const setGhStatus = html => ['ghSyncStatus','ghSyncStatus2'].forEach(i => {
+  const el = document.getElementById(i);
+  if (el) el.innerHTML = html;
+});
+
 const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
 const saveNotifs    = v  => { _safeSetLS('axon_notifs', JSON.stringify(v)); _notifsCache = v; _notifsDirty = false; if (!isSyncingFromFirebase()) setFB('notifs', v); };
 
@@ -278,7 +329,7 @@ const saveNotifs    = v  => { _safeSetLS('axon_notifs', JSON.stringify(v)); _not
 let _catalogPublishTimer = null;
 function triggerAutoPublishCatalog() {
   const cfg = getConfig();
-  if (!cfg.ghAutoPublishCatalog || !cfg.ghToken || !cfg.ghRepo) return;
+  if (!cfg.ghAutoPublishCatalog || !ghToken() || !cfg.ghRepo) return;
   clearTimeout(_catalogPublishTimer);
   _catalogPublishTimer = setTimeout(async () => {
     try {
@@ -492,7 +543,7 @@ renderNav();renderGrid();
 let _estafaCache = null;
 let _estafaDirty = true;
 const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { _estafaCache = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
-const saveEstafa  = v  => { try { localStorage.setItem('axon_estafa', JSON.stringify(v)); } catch(e) { console.error('localStorage write error:', e); } _estafaCache = v; _estafaDirty = false; setFB('estafa', v); };
+const saveEstafa  = v  => { _safeSetLS('axon_estafa', JSON.stringify(v)); _estafaCache = v; _estafaDirty = false; if (!isSyncingFromFirebase()) setFB('estafa', v); };
 
 function checkEstafaMatch(vale) {
   const lista = getEstafa();
@@ -900,10 +951,15 @@ function patchVale(id, changes) {
     saveVales(all);
   }
 }
+// Genera el siguiente número de vale.
+// NOTA: Para hacerlo atómico habría que usar db.ref('config/nextValeNum').transaction,
+// pero eso requiere async y los callers (sendVale, venderDirecto, sendAdminVale)
+// son síncronos. Mantenemos el patrón local-sync; si dos gestores envían exactamente
+// al mismo milisegundo pueden duplicar el número, pero el id (Date.now()) sigue
+// siendo único. Ver AUDITORIA-AXONTECH.md MEDIO 20 (pendiente de migrar a async).
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
-  // Increment only when called — caller is responsible for ensuring vale is created
   saveConfig({...cfg, nextValeNum: n + 1});
   return n;
 }
@@ -919,6 +975,28 @@ function patchProducto(id, changes) {
 //  NOTIFICATIONS (gestor)
 // ══════════════════════════════════════════
 const LOW_STOCK_THRESHOLD = 3;
+
+// Descuenta stock de los productos de un vale y genera notificaciones.
+// Extraído de mensajeroEntrega/mensajeroPagado/mensajeroPagadoDirecto/confirmSale
+// que tenían 4 copias del mismo bloque con divergencias sutiles.
+// Ver AUDITORIA-AXONTECH.md MEDIO 28.
+function _descontarStock(v) {
+  const prods = getProductos();
+  let stockChanged = false;
+  (v.valeProductos || []).forEach(({id:pid, qty}) => {
+    const idx = prods.findIndex(p => p.id === pid);
+    if (idx === -1) return;
+    const oldStock = prods[idx].stock || 0;
+    const newStock = Math.max(0, oldStock - qty);
+    prods[idx] = {...prods[idx], stock: newStock};
+    stockChanged = true;
+    addNotif('sale_product', prods[idx].name, pid, `${qty}|${newStock}`, v.gestorId);
+    if (newStock === 0 && oldStock > 0) addNotif('out_of_stock', prods[idx].name, pid, 'stock agotado');
+    else if (newStock > 0 && newStock <= LOW_STOCK_THRESHOLD && oldStock > LOW_STOCK_THRESHOLD) addNotif('low_stock', prods[idx].name, pid, `quedan ${newStock}`);
+  });
+  if (stockChanged) saveProductos(prods);
+  return stockChanged;
+}
 
 function addNotif(type, productName, productId, extra, gestorId) {
   const notifs = getNotifs();
@@ -1231,7 +1309,9 @@ function submitPass() {
       const al=document.getElementById('adminLabel'); if(al) al.style.display='flex';
       const bl=document.getElementById('btnLogout'); if(bl) bl.style.display='inline-flex';
       playSound('login');requestNotifPermission();
-      activateAdminMode();showToast('Bienvenido, Admin ✓');
+      activateAdminMode();
+      _resetSessionTimer(); // Arrancar el timer de inactividad tras login. Ver AUDITORIA-AXONTECH.md MEDIO 27.
+      showToast('Bienvenido, Admin ✓');
     } else {
       document.getElementById('passError').style.display='block';
       document.getElementById('passInput').select();
@@ -1243,40 +1323,10 @@ function submitPass() {
 // ══════════════════════════════════════════
 //  AUTH & SOUND
 // ══════════════════════════════════════════
-function checkPass(input) {
-  const stored = localStorage.getItem('axon_admin_hash');
-  // Legacy support: if stored value looks like btoa, migrate it
-  if (stored && !stored.startsWith('sha256:')) {
-    // Old btoa format — check directly for backward compatibility
-    if (btoa(input) === stored) {
-      // Migrate to SHA-256 on next login
-      _hashPass(input).then(h => localStorage.setItem('axon_admin_hash', h));
-      localStorage.removeItem('axon_admin_hash_legacy');
-      return true;
-    }
-    return false;
-  }
-  // SHA-256 hash — verify properly using async check
-  const storedHash = stored || btoa('axon2024');
-  if (storedHash.startsWith('sha256:')) {
-    // We need to verify async but checkPass is sync. Use the pre-computed verification.
-    // The _verifyPassAsync function handles this properly.
-    const legacyHash = localStorage.getItem('axon_admin_hash_legacy');
-    if (legacyHash && btoa(input) === legacyHash) {
-      // Migrate: verify SHA-256 asynchronously and update
-      _hashPass(input).then(h => { localStorage.setItem('axon_admin_hash', h); localStorage.removeItem('axon_admin_hash_legacy'); });
-      return true;
-    }
-    // Synchronous fallback — compute hash comparison via stored session token
-    const sessionHash = sessionStorage.getItem('axon_admin_session');
-    if (sessionHash) {
-      return sessionHash === storedHash;
-    }
-    // Last resort: do a synchronous hash check (less secure but functional)
-    return false;
-  }
-  return btoa(input) === storedHash;
-}
+// NOTA: checkPass() fue eliminada — era código muerto (no se llamaba desde ningún
+// sitio, el login usa verifyPassAsync) y contenía un fallback inseguro basado en
+// sessionStorage manipulable. Ver AUDITORIA-AXONTECH.md MEDIO 19.
+
 // Async password verification — use this for login forms
 async function verifyPassAsync(input) {
   const stored = localStorage.getItem('axon_admin_hash');
@@ -1771,9 +1821,9 @@ function renderAdminGestores() {
 
   let html = '';
   
-  // Only show gestores that have AT LEAST ONE pending vale
+  // Only show gestores that have AT LEAST ONE pending vale (excluye confirmed, delivered y cancelled)
   const gestoresConPendientes = gestores.filter(g => {
-     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered');
+     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled');
   });
 
   if(gestoresConPendientes.length === 0) {
@@ -1782,8 +1832,8 @@ function renderAdminGestores() {
   }
 
   gestoresConPendientes.forEach(g => {
-    // Only fetch active (not confirmed/delivered)
-    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered').reverse();
+    // Only fetch active (not confirmed/delivered/cancelled)
+    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled').reverse();
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -1822,7 +1872,8 @@ function buildInboxCard(v) {
     pending:{label:'Pendiente',cls:'sp-pending'},
     assigned:{label:'Con mensajero',cls:'sp-assigned'},
     delivered:{label:'Entregado',cls:'sp-delivered'},
-    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'}
+    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
+    cancelled:{label:'Cancelado',cls:'sp-cancelled'}
   };
   const s=sMap[v.status]||{label:v.status,cls:''};
   const isNew=v.isNew&&v.status==='pending';
@@ -1902,7 +1953,7 @@ function renderValeDetail() {
       <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Vincular un producto para descontar stock y calcular comisión</div>
     </div>`:(hasProducts?`
     <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 10px;margin-bottom:10px;">
-      <div style="font-size:10px;color:var(--green);font-weight:700;">✅ Productos vinculados: ${(v.valeProductos||[]).map(p=>`${p.name}${p.qty>1?' ×'+p.qty:''}`).join(', ')}</div>
+      <div style="font-size:10px;color:var(--green);font-weight:700;">✅ Productos vinculados: ${(v.valeProductos||[]).map(p=>`${escapeHTML(p.name)}${p.qty>1?' ×'+p.qty:''}`).join(', ')}</div>
     </div>`:'');
   if(v.status==='pending'){
     actHTML=`${productPickerHTML}<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
@@ -2210,20 +2261,8 @@ function mensajeroEntrega(id) {
     showToast('Este vale no está asignado o ya fue entregado');
     return;
   }
-  // Descuenta stock (solo aquí, NO en mensajeroPagado)
-  const prods=getProductos();
-  let stockChanged=false;
-  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
-    const oldStock=prods[idx].stock||0;
-    const newStock=Math.max(0,oldStock-qty);
-    prods[idx]={...prods[idx],stock:newStock};
-    stockChanged=true;
-    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
-    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
-    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
-  });
-  if(stockChanged) saveProductos(prods);
+  // Descuenta stock usando el helper _descontarStock (DRY — Ver AUDITORIA-AXONTECH.md MEDIO 28)
+  _descontarStock(v);
   _logAudit('vale_delivered', 'vale:' + id);
   // Notifica al gestor que su venta fue entregada y queda pendiente de cobro
   addNotif('vale_assigned',v.cliente||'Cliente',null,'Entregado · Pendiente de cobro',v.gestorId);
@@ -2239,7 +2278,7 @@ function mensajeroEntrega(id) {
 function mensajeroPagadoDirecto(id, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
-    showConfirmAction('¿Confirmar venta cobrada?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar cobrada','btn-green',()=>mensajeroPagadoDirecto(id,true));
+    showConfirmAction('¿Confirmar venta cobrada?',`${v.cliente||''} · ${v.total||''}`,'Confirmar cobrada','btn-green',()=>mensajeroPagadoDirecto(id,true));
     return;
   }
   const v=getVales().find(x=>x.id===id);if(!v)return;
@@ -2264,20 +2303,8 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
     showToast('Venta cobrada ✅');
     return;
   }
-  // First-time stock decrement
-  const prods=getProductos();
-  let stockChanged=false;
-  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
-    const oldStock=prods[idx].stock||0;
-    const newStock=Math.max(0,oldStock-qty);
-    prods[idx]={...prods[idx],stock:newStock};
-    stockChanged=true;
-    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
-    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
-    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
-  });
-  if(stockChanged) saveProductos(prods);
+  // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
+  _descontarStock(v);
   addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
   _logAudit('vale_confirmed', 'vale:' + id);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:new Date().toISOString(),stockDecremented:true});
@@ -2297,7 +2324,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
 function mensajeroPagado(id, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
-    showConfirmAction('¿Confirmar venta cobrada?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar cobrada','btn-green',()=>mensajeroPagado(id,true));
+    showConfirmAction('¿Confirmar venta cobrada?',`${v.cliente||''} · ${v.total||''}`,'Confirmar cobrada','btn-green',()=>mensajeroPagado(id,true));
     return;
   }
   const v=getVales().find(x=>x.id===id);if(!v)return;
@@ -2322,20 +2349,8 @@ function mensajeroPagado(id, skipConfirm) {
     showToast('Venta confirmada y cobrada ✅');
     return;
   }
-  // First-time stock decrement (vale was 'assigned', no prior delivery)
-  const prods=getProductos();
-  let stockChanged=false;
-  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
-    const oldStock=prods[idx].stock||0;
-    const newStock=Math.max(0,oldStock-qty);
-    prods[idx]={...prods[idx],stock:newStock};
-    stockChanged=true;
-    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
-    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
-    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
-  });
-  if(stockChanged) saveProductos(prods);
+  // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
+  _descontarStock(v);
   addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
   _logAudit('vale_confirmed', 'vale:' + id);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString(),stockDecremented:true});
@@ -2366,22 +2381,8 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     showToast('Esta venta ya fue confirmada');
     return;
   }
-  // Fix 1: descuento de stock garantizado
-  const prods=getProductos();
-  let stockChanged=false;
-  (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-    const idx=prods.findIndex(p=>p.id===pid);if(idx===-1)return;
-    const oldStock=prods[idx].stock||0;
-    const newStock=Math.max(0,oldStock-qty);
-    prods[idx]={...prods[idx],stock:newStock};
-    stockChanged=true;
-    addNotif('sale_product',prods[idx].name,pid,`${qty}|${newStock}`,v.gestorId);
-    if(newStock===0&&oldStock>0) addNotif('out_of_stock',prods[idx].name,pid,'stock agotado');
-    else if(newStock>0&&newStock<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',prods[idx].name,pid,`quedan ${newStock}`);
-  });
-  if(stockChanged){
-    saveProductos(prods);
-  }
+  // Descuento de stock garantizado (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
+  _descontarStock(v);
   if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
   _logAudit('vale_confirm_' + paymentStatus, 'vale:' + id);
   patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString(),stockDecremented:true});
@@ -2529,16 +2530,16 @@ function setGestorHistPeriod(p) {
 // Returns {from, to, prevFrom, prevTo, label} for the currently selected period
 function getGestorHistPeriodRange() {
   const now = new Date();
-  const todayStr = now.toISOString().slice(0,10);
+  const todayStr = localDay(now);
   if (_gestorHistPeriod === 'month') {
     const from = new Date(now.getFullYear(), now.getMonth(), 1);
     const prevFrom = new Date(now.getFullYear(), now.getMonth()-1, 1);
     const prevTo = new Date(now.getFullYear(), now.getMonth(), 0);
     return {
-      from: from.toISOString().slice(0,10),
+      from: localDay(from),
       to: todayStr,
-      prevFrom: prevFrom.toISOString().slice(0,10),
-      prevTo: prevTo.toISOString().slice(0,10),
+      prevFrom: localDay(prevFrom),
+      prevTo: localDay(prevTo),
       label: 'Este mes'
     };
   } else if (_gestorHistPeriod === 'last') {
@@ -2547,10 +2548,10 @@ function getGestorHistPeriodRange() {
     const prevFrom = new Date(now.getFullYear(), now.getMonth()-2, 1);
     const prevTo = new Date(now.getFullYear(), now.getMonth()-1, 0);
     return {
-      from: from.toISOString().slice(0,10),
-      to: to.toISOString().slice(0,10),
-      prevFrom: prevFrom.toISOString().slice(0,10),
-      prevTo: prevTo.toISOString().slice(0,10),
+      from: localDay(from),
+      to: localDay(to),
+      prevFrom: localDay(prevFrom),
+      prevTo: localDay(prevTo),
       label: 'Mes pasado'
     };
   }
@@ -2559,8 +2560,8 @@ function getGestorHistPeriodRange() {
 
 function _computeGestorStatsForRange(gestorId, from, to) {
   let vales = getVales().filter(v => v.gestorId === gestorId);
-  if (from) vales = vales.filter(v => v.ts.slice(0,10) >= from);
-  if (to)   vales = vales.filter(v => v.ts.slice(0,10) <= to);
+  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
+  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
   const total = vales.length;
   const confirmed = vales.filter(v => v.status === 'confirmed').length;
   const pendingPay = vales.filter(v => v.status === 'pending_payment').length;
@@ -2858,8 +2859,12 @@ function cancelVale(id) {
   const v=getVales().find(x=>x.id===id);
   if(!v||v.status!=='pending'){showToast('No se puede cancelar este vale');return;}
   showConfirmAction('¿Cancelar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Sí, cancelar','btn-red',()=>{
-    // saveVales already enqueues a 'set' on the vales node — no need for separate fbRemoveVale
-    saveVales(getVales().filter(x=>x.id!==id));
+    // Marcar como 'cancelled' en vez de borrar. Así:
+    //  - El gestor puede ver en su historial que se canceló (no desaparece sin explicación)
+    //  - Las estadísticas de conversión son correctas (cancelled cuenta en el denominador)
+    //  - El admin puede auditar cancelaciones
+    // Ver AUDITORIA-AXONTECH.md MEDIO 18.
+    patchVale(id,{status:'cancelled',cancelledTs:new Date().toISOString()});
     _logAudit('vale_cancelled', 'vale:' + id);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Vale cancelado');
@@ -2869,7 +2874,13 @@ function cancelVale(id) {
 
 function adminDeleteVale(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  if(v.status==='confirmed'){showToast('Revertir la confirmación antes de eliminar');return;}
+  // Un vale en 'pending_payment' o con stockDecremented ya tiene el stock descontado.
+  // Borrarlo directo dejaría el inventario descuadrado permanentemente. Hay que
+  // revertirlo primero para devolver el stock. Ver AUDITORIA-AXONTECH.md ALTO 9.
+  if(v.status==='confirmed'||v.status==='pending_payment'||v.stockDecremented){
+    showToast('Revierte la venta primero (para devolver el stock)');
+    return;
+  }
   showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
     // saveVales already enqueues a 'set' on the vales node — no need for separate fbRemoveVale
     saveVales(getVales().filter(x=>x.id!==id));
@@ -3587,8 +3598,8 @@ function _renderMiniBarChart7d(gestorId) {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0,10);
-    const count = getVales().filter(v => v.gestorId === gestorId && v.ts.slice(0,10) === ds).length;
+    const ds = localDay(d);
+    const count = getVales().filter(v => v.gestorId === gestorId && localDay(v.ts) === ds).length;
     days.push({ ds, count, label: d.toLocaleDateString('es-ES', { weekday:'short' }).slice(0,1).toUpperCase() });
   }
   const max = Math.max(1, ...days.map(d => d.count));
@@ -3770,12 +3781,12 @@ function exportHistorialCSV() {
   const fromEl = document.getElementById('histDateFrom');
   const toEl = document.getElementById('histDateTo');
   const gestorEl = document.getElementById('histGestorFilter');
-  let vales = getVales().reverse();
+  let vales = [...getVales()].reverse();
   const from = fromEl ? fromEl.value : '';
   const to = toEl ? toEl.value : '';
   const gFilter = gestorEl ? gestorEl.value : '';
-  if (from) vales = vales.filter(v => v.ts.slice(0,10) >= from);
-  if (to)   vales = vales.filter(v => v.ts.slice(0,10) <= to);
+  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
+  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
   if (gFilter) vales = vales.filter(v => String(v.gestorId) === gFilter);
 
   if (!vales.length) { showToast('No hay vales para exportar'); return; }
@@ -3809,7 +3820,7 @@ function exportHistorialCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  const today = new Date().toISOString().slice(0,10);
+  const today = localDay(new Date());
   a.download = `axontech-historial-${today}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
@@ -3820,8 +3831,8 @@ function renderStats() {
   const from=document.getElementById('statsDateFrom').value;
   const to=document.getElementById('statsDateTo').value;
   let vales=getVales();
-  if(from)vales=vales.filter(v=>v.ts.slice(0,10)>=from);
-  if(to)  vales=vales.filter(v=>v.ts.slice(0,10)<=to);
+  if(from)vales=vales.filter(v=>localDay(v.ts)>=from);
+  if(to)  vales=vales.filter(v=>localDay(v.ts)<=to);
   const total=vales.length;
   const confirmed=vales.filter(v=>v.status==='confirmed').length;
   const pending=vales.filter(v=>v.status==='pending').length;
@@ -4154,7 +4165,7 @@ function shareCatalogWeb(){
   overlay.appendChild(box);
   // Publish to GitHub button
   const cfg=getConfig();
-  const hasGitHub=cfg.ghToken&&cfg.ghRepo;
+  const hasGitHub=ghToken()&&cfg.ghRepo;
   if(hasGitHub){
     const ghBtn=document.createElement('button');
     ghBtn.style.cssText='display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#24292e,#40464d);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;';
@@ -4224,7 +4235,7 @@ function buildCatalogCardJS(p,cat,color,waPhone){
 // ══════════════════════════════════════════
 async function publishCatalogToGitHub(htmlContent) {
   const cfg=getConfig();
-  if(!cfg.ghToken||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
+  if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
   const catalogPath='catalogo.html';
   // Use utf8ToBase64 instead of deprecated btoa(unescape(encodeURIComponent(...)))
   const content=utf8ToBase64(htmlContent);
@@ -4234,7 +4245,7 @@ async function publishCatalogToGitHub(htmlContent) {
   const owner=parts[0];const repo=parts.slice(1).join('/');
   if([owner,repo].some(s => /\.\.|[^a-zA-Z0-9._\-\/]/.test(s))){showToast('Nombre de repo contiene caracteres inválidos');return null;}
   const url=`https://api.github.com/repos/${owner}/${repo}/contents/${catalogPath}`;
-  const headers={Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
+  const headers={Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
   // Get existing SHA if file exists
   let sha;
   try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
@@ -4259,14 +4270,13 @@ async function publishCatalogToGitHub(htmlContent) {
 
 async function testGitHubPages() {
   const cfg=getConfig();
-  const statusEl=document.getElementById('ghSyncStatus');
-  if(!cfg.ghToken||!cfg.ghRepo){showToast('Configura GitHub primero');return;}
+  if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero');return;}
   const parts=cfg.ghRepo.split('/');const owner=parts[0];const repo=parts.slice(1).join('/');
-  if(statusEl)statusEl.innerHTML='🧪 Probando conexión...';
+  setGhStatus('🧪 Probando conexión...');
   let results=[];
   // 1. Test repo access
   try{
-    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json'}});
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:{Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json'}});
     if(r.ok){const j=await r.json();results.push(`✅ Repo encontrado: ${j.full_name} (${j.private?'privado':'público'})`);}
     else if(r.status===401){results.push('❌ Token inválido o expirado');}
     else if(r.status===404){results.push('❌ Repo no encontrado. Verifica: '+cfg.ghRepo);}
@@ -4274,29 +4284,28 @@ async function testGitHubPages() {
   }catch(e){results.push('❌ Error de red: '+e.message);}
   // 2. Test if catalogo.html exists in repo
   try{
-    const r2=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/catalogo.html`,{headers:{Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json'}});
+    const r2=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/catalogo.html`,{headers:{Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json'}});
     if(r2.ok){const j2=await r2.json();results.push(`✅ catalogo.html existe en repo (${(j2.size/1024).toFixed(1)} KB, actualizado: ${j2.updatedAt||j2.updated_at||'?'})`);}
     else{results.push('⚠️ catalogo.html NO existe en el repo. Necesitas publicar primero.');}
   }catch(e){results.push('⚠️ No se pudo verificar catalogo.html');}
   // 3. Test GitHub Pages URL
   const pagesUrl=`https://${owner}.github.io/${repo}/catalogo.html`;
   results.push(`🔗 URL del catálogo: <a href="${pagesUrl}" target="_blank" style="color:var(--blue);word-break:break-all;">${pagesUrl}</a>`);
-  if(statusEl)statusEl.innerHTML=results.map(r=>`<div style="margin-bottom:3px;">${r}</div>`).join('');
+  setGhStatus(results.map(r=>`<div style="margin-bottom:3px;">${r}</div>`).join(''));
 }
 
 async function publishCatalogNow() {
   const cfg=getConfig();
-  const statusEl=document.getElementById('ghSyncStatus');
-  if(!cfg.ghToken||!cfg.ghRepo){showToast('Configura GitHub primero');return;}
-  if(statusEl)statusEl.innerHTML='☁️ Generando y publicando catálogo...';
+  if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero');return;}
+  setGhStatus('☁️ Generando y publicando catálogo...');
   const html=buildCatalogHTML();
-  if(!html){showToast('No hay productos con stock para publicar');if(statusEl)statusEl.innerHTML='';return;}
+  if(!html){showToast('No hay productos con stock para publicar');setGhStatus('');return;}
   const url=await publishCatalogToGitHub(html);
   if(url){
     showToast('✅ Catálogo publicado exitosamente');
-    if(statusEl)statusEl.innerHTML=`✅ Publicado: <a href="${url}" target="_blank" style="color:var(--blue);word-break:break-all;">${url}</a><br><span style="font-size:10px;color:var(--gray-400);">GitHub Pages tarda ~1 min en actualizarse</span>`;
+    setGhStatus(`✅ Publicado: <a href="${url}" target="_blank" style="color:var(--blue);word-break:break-all;">${url}</a><br><span style="font-size:10px;color:var(--gray-400);">GitHub Pages tarda ~1 min en actualizarse</span>`);
   } else {
-    if(statusEl)statusEl.innerHTML='❌ Error al publicar. Revisa el token y el repo.';
+    setGhStatus('❌ Error al publicar. Revisa el token y el repo.');
   }
 }
 // Keep PDF export as secondary option
@@ -4316,7 +4325,15 @@ function getValeCommissionParts(v) {
   const parts=[];
   let totalUSD=0,totalMN=0;let computable=true;
   items.forEach(({id,qty})=>{
-    const p=productoOf(id);if(!p)return;
+    const p=productoOf(id);
+    if(!p){
+      // Producto borrado del catálogo — la comisión no se puede calcular.
+      // Marcamos como no computable para avisar al gestor/admin, en vez de
+      // silently saltarlo. Ver AUDITORIA-AXONTECH.md ALTO 11.
+      computable=false;
+      parts.push({label:`Producto #${id} (borrado)`,com:'?',currency:'USD'});
+      return;
+    }
     const com=p.comision||'';
     if(!com)return;
     const label=`${p.name}${qty>1?` ×${qty}`:''}`;
@@ -4353,12 +4370,22 @@ function getValeCommissionParts(v) {
     }
   });
   return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
-    // Backward compat: total + currency for single-currency vales
+    // Backward compat: total + currency for single-currency vales.
+    // IMPORTANTE: si hay comisión mixta USD+MN, devolver null en total — que el
+    // llamador use fmtComisionBadge(totalUSD, totalMN, true) que muestra "$X USD + Y MN".
+    // Antes sumaba USD+MN como si fueran la misma moneda → "$505 USD" erróneo.
+    // Ver AUDITORIA-AXONTECH.md ALTO 10.
     get total(){
-      if(this.totalUSD!==null&&this.totalMN!==null&&this.totalMN>0&&this.totalUSD>0)return this.totalUSD+this.totalMN;
-      if(this.totalUSD!==null&&this.totalUSD>0)return this.totalUSD;
-      if(this.totalMN!==null&&this.totalMN>0)return this.totalMN;
+      const hasUSD = this.totalUSD !== null && this.totalUSD > 0;
+      const hasMN  = this.totalMN  !== null && this.totalMN  > 0;
+      if (hasUSD && hasMN) return null;   // mixto → llamador muestra las dos partes
+      if (hasUSD) return this.totalUSD;
+      if (hasMN)  return this.totalMN;
       return null;
+    },
+    get isMixed(){
+      return (this.totalUSD !== null && this.totalUSD > 0) &&
+             (this.totalMN  !== null && this.totalMN  > 0);
     },
     get currency(){
       if(this.totalMN!==null&&this.totalMN>0&&(!this.totalUSD||this.totalUSD===0))return 'MN';
@@ -4387,8 +4414,16 @@ function payCommission(valeId,e) {
 function markAllCommissionsEnSobre(gestorId,e) {
   if(e)e.stopPropagation();
   const ts=new Date().toISOString();
-  getVales().filter(v=>v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status))
-    .forEach(v=>patchVale(v.id,{commissionPaid:false,commissionStatus:'en_sobre',commissionEnSobreTs:ts}));
+  // Una sola escritura de todo el array, no N patchVale (que eran N subidas a Firebase).
+  // Ver AUDITORIA-AXONTECH.md MEDIO 21.
+  const all=getVales();
+  let changed=false;
+  all.forEach(v=>{
+    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
+      v.commissionPaid=false;v.commissionStatus='en_sobre';v.commissionEnSobreTs=ts;changed=true;
+    }
+  });
+  if(changed) saveVales(all);
   gestoresTabDirty=true;
   renderComisiones();maybeAutoSync();
   showToast('Todas las comisiones marcadas En Sobre ✉️');
@@ -4396,8 +4431,15 @@ function markAllCommissionsEnSobre(gestorId,e) {
 function markAllCommissionsCobrado(gestorId,e) {
   if(e)e.stopPropagation();
   const ts=new Date().toISOString();
-  getVales().filter(v=>v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status))
-    .forEach(v=>patchVale(v.id,{commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:ts}));
+  // Una sola escritura de todo el array, no N patchVale.
+  const all=getVales();
+  let changed=false;
+  all.forEach(v=>{
+    if(v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
+      v.commissionPaid=true;v.commissionStatus='cobrado';v.commissionPaidTs=ts;changed=true;
+    }
+  });
+  if(changed) saveVales(all);
   gestoresTabDirty=true;
   renderComisiones();maybeAutoSync();
   showToast('Todas las comisiones marcadas Cobrado 💰');
@@ -4658,8 +4700,10 @@ async function syncFromTiendaMax() {
     const tmProds = await prodsRes.json();
     const tmCats  = await catsRes.json();
 
-    // Build categorias
-    const catNames = tmCats.nombres || [];
+    // Generar categorías desde los productos reales (no desde categorias.json,
+    // que estaba desincronizado y dejaba 83/85 productos sin categoría).
+    // Ver AUDITORIA-AXONTECH.md MEDIO 16.
+    const catNames = [...new Set(tmProds.map(p => p.categoria).filter(Boolean))];
     const catMap = {};
     const categorias = catNames.map((name, i) => {
       const id = (i + 1) * 10;
@@ -4667,8 +4711,8 @@ async function syncFromTiendaMax() {
       return { id, name: name.charAt(0) + name.slice(1).toLowerCase() };
     });
 
-    // Convert productos
-    const productos = tmProds.map(p => {
+    // Convertir productos nuevos de TiendaMax
+    const tmProductos = tmProds.map(p => {
       const precio = p.precioActual || 0;
       const com    = p.comision    || 0;
       const catId  = catMap[p.categoria] || null;
@@ -4690,12 +4734,31 @@ ${desc}`;
       };
     });
 
+    // MERGE por id: conservar stock local de productos ya existentes, agregar nuevos.
+    // Antes saveProductos(productos) pisaba todo, rompiendo vales históricos que
+    // referenciaban ids antiguos y perdiendo el stock ajustado a mano.
+    // Ver AUDITORIA-AXONTECH.md MEDIO 17.
+    const existing = getProductos();
+    const existingMap = {};
+    existing.forEach(p => { existingMap[p.id] = p; });
+    const merged = tmProductos.map(np => {
+      const old = existingMap[np.id];
+      if (old) {
+        // Conservar stock local y foto local si existen (no sobreescribir con TiendaMax)
+        return { ...np, stock: old.stock, photo: old.photo || np.photo };
+      }
+      return np;
+    });
+    // Añadir productos locales que no están en TiendaMax (no borrarlos)
+    const tmIds = new Set(tmProductos.map(p => p.id));
+    existing.forEach(p => { if (!tmIds.has(p.id)) merged.push(p); });
+
     saveCategorias(categorias);
-    saveProductos(productos);
+    saveProductos(merged);
     gestoresTabDirty = true; statsTabDirty = true; rankingCache = null;
     renderStockCategorias(); renderProductGrid();
-    statusEl.innerHTML = `<span style="color:var(--green);">✓ ${productos.length} productos y ${categorias.length} categorías cargados</span>`;
-    showToast(`✓ ${productos.length} productos importados desde TiendaMax`);
+    statusEl.innerHTML = `<span style="color:var(--green);">✓ ${merged.length} productos (${tmProductos.length} de TiendaMax + ${merged.length - tmProductos.length} existentes) y ${categorias.length} categorías cargados</span>`;
+    showToast(`✓ ${tmProductos.length} productos importados desde TiendaMax`);
     maybeAutoSync();
   } catch(e) {
     statusEl.innerHTML = `<span style="color:var(--red);">✗ ${e.message}</span>`;
@@ -4780,7 +4843,14 @@ function saveMetaPuntos() {
 }
 function saveGhConfig() {
   const cfg=getConfig();
-  cfg.ghToken=document.getElementById('gh-token').value.trim();
+  // El token NUNCA va a Firebase — solo localStorage de este dispositivo.
+  // Evita que gestores u otros dispositivos lo lean del nodo config sincronizado.
+  const tok=document.getElementById('gh-token').value.trim();
+  if(tok) _safeSetLS('axon_gh_token', tok);
+  else { try { localStorage.removeItem('axon_gh_token'); } catch(e){} }
+  // Limpia el campo ghToken del config cache por si quedó de versiones anteriores
+  // (no hace falta borrarlo explícitamente — saveConfig ya guarda cfg sin ese campo)
+  if (cfg.ghToken !== undefined) delete cfg.ghToken;
   cfg.ghRepo=document.getElementById('gh-repo').value.trim();
   cfg.ghPath=document.getElementById('gh-path').value.trim()||'data.json';
   cfg.ghAutoSync=document.getElementById('gh-autosync').checked;
@@ -4796,7 +4866,7 @@ function loadGhConfigUI() {
   const auto=document.getElementById('gh-autosync');
   const meta=document.getElementById('cfg-meta-puntos');
   const metaStatus=document.getElementById('metaPuntosStatus');
-  if(tok)tok.value=cfg.ghToken||'';
+  if(tok)tok.value=ghToken();
   if(repo)repo.value=cfg.ghRepo||'';
   if(path)path.value=cfg.ghPath||'data.json';
   if(auto)auto.checked=!!cfg.ghAutoSync;
@@ -4807,9 +4877,8 @@ function loadGhConfigUI() {
 }
 async function syncToGitHub(silent) {
   const cfg=getConfig();
-  if(!cfg.ghToken||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
-  const statusEl=document.getElementById('ghSyncStatus');
-  if(statusEl&&!silent)statusEl.innerHTML='<span style="color:var(--blue);">⟳ Sincronizando...</span>';
+  if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
+  if(!silent) setGhStatus('<span style="color:var(--blue);">⟳ Sincronizando...</span>');
   try {
     const data={
       gestores:getGestores(),mensajeros:getMensajeros(),
@@ -4823,7 +4892,7 @@ async function syncToGitHub(silent) {
     if(parts.length < 2){if(!silent)showToast('Formato de repo inválido');return;}
     const owner=parts[0];const repo=parts.slice(1).join('/');
     const url=`https://api.github.com/repos/${owner}/${repo}/contents/${cfg.ghPath}`;
-    const headers={Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
+    const headers={Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
     let sha;
     try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
     const body={message:`AXONTECH sync ${new Date().toLocaleString('es-ES')}`,content};
@@ -4831,31 +4900,30 @@ async function syncToGitHub(silent) {
     const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
     if(res.ok){
       const ts=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-      if(statusEl)statusEl.innerHTML=`<span style="color:var(--green);">✓ Sincronizado ${ts}</span>`;
+      setGhStatus(`<span style="color:var(--green);">✓ Sincronizado ${ts}</span>`);
       if(!silent)showToast('Guardado en GitHub ✓');
     } else {
       const err=await res.json().catch(()=>({}));
-      if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ Error ${res.status}: ${err.message||''}</span>`;
+      setGhStatus(`<span style="color:var(--red);">✗ Error ${res.status}: ${err.message||''}</span>`);
       if(!silent)showToast(`Error al sincronizar (${res.status})`);
     }
   } catch(e) {
-    if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ ${e.message}</span>`;
+    setGhStatus(`<span style="color:var(--red);">✗ ${e.message}</span>`);
     if(!silent)showToast('Error de conexión con GitHub');
   }
 }
 async function loadFromGitHub() {
   const cfg=getConfig();
-  if(!cfg.ghToken||!cfg.ghRepo||!cfg.ghPath){showToast('Configura GitHub primero');return;}
+  if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){showToast('Configura GitHub primero');return;}
   if(!confirm('¿Restaurar datos desde GitHub?\nEsto reemplazará todos los datos locales.'))return;
-  const statusEl=document.getElementById('ghSyncStatus');
-  if(statusEl)statusEl.innerHTML='<span style="color:var(--blue);">⟳ Cargando desde GitHub...</span>';
+  setGhStatus('<span style="color:var(--blue);">⟳ Cargando desde GitHub...</span>');
   try {
     const parts=cfg.ghRepo.split('/').filter(Boolean);
-    if(parts.length < 2){if(statusEl)statusEl.innerHTML='<span style="color:var(--red);">✗ Formato de repo inválido</span>';showToast('Formato de repo inválido');return;}
+    if(parts.length < 2){setGhStatus('<span style="color:var(--red);">✗ Formato de repo inválido</span>');showToast('Formato de repo inválido');return;}
     const owner=parts[0];const repo=parts.slice(1).join('/');
     const url=`https://api.github.com/repos/${owner}/${repo}/contents/${cfg.ghPath}`;
-    const res=await fetch(url,{headers:{Authorization:`token ${cfg.ghToken}`,Accept:'application/vnd.github.v3+json'}});
-    if(!res.ok){if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ Error ${res.status}</span>`;showToast(`Error al cargar (${res.status})`);return;}
+    const res=await fetch(url,{headers:{Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json'}});
+    if(!res.ok){setGhStatus(`<span style="color:var(--red);">✗ Error ${res.status}</span>`);showToast(`Error al cargar (${res.status})`);return;}
     const j=await res.json();
     // Use base64ToUtf8 instead of deprecated decodeURIComponent(escape(atob(...)))
     const text=base64ToUtf8(j.content.replace(/\n/g,''));
@@ -4868,7 +4936,7 @@ async function loadFromGitHub() {
         // saveVales already enqueues the write to Firebase via _enqueueFB — no need for direct db.ref().set()
         saveVales(data.vales);
       }
-    if(statusEl)statusEl.innerHTML='<span style="color:var(--green);">✓ Datos restaurados desde GitHub</span>';
+    setGhStatus('<span style="color:var(--green);">✓ Datos restaurados desde GitHub</span>');
     _logAudit('data_restored_github', 'repo:' + cfg.ghRepo);
     activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
     renderGestores();renderGestorRanking();renderAdminGestores();
@@ -4877,15 +4945,20 @@ async function loadFromGitHub() {
     updateAdminBadge();updateMensajeroBadge();
     showToast('Datos restaurados desde GitHub ✓');
   } catch(e) {
-    if(statusEl)statusEl.innerHTML=`<span style="color:var(--red);">✗ ${e.message}</span>`;
+    setGhStatus(`<span style="color:var(--red);">✗ ${e.message}</span>`);
     showToast('Error al restaurar datos');
   }
 }
+// Debounce de 60s para auto-sync. Antes cada confirmación de venta (y 28 sitios más)
+// disparaba un PUT a GitHub con data.json entero (890 KB → 1.2 MB en base64).
+// En 3G cubano son minutos por clic. Ahora se acumulan cambios y se sube cada 60s.
+// Ver AUDITORIA-AXONTECH.md MEDIO 13.
+let _autoSyncTimer = null;
 async function maybeAutoSync() {
   const cfg=getConfig();
-  if(cfg.ghAutoSync&&cfg.ghToken&&cfg.ghRepo&&cfg.ghPath){
-    try{await syncToGitHub(true);}catch(e){}
-  }
+  if(!(cfg.ghAutoSync&&ghToken()&&cfg.ghRepo&&cfg.ghPath)) return;
+  clearTimeout(_autoSyncTimer);
+  _autoSyncTimer = setTimeout(() => { syncToGitHub(true).catch(()=>{}); }, 60000);
 }
 
 function factoryResetVales() {
@@ -5310,9 +5383,12 @@ function revertConfirmSale(id, skipConfirm) {
     });
   }
   // Revert to appropriate previous state:
-  // - If it had a mensajero assigned and was delivered before, go back to 'delivered'
-  // - Otherwise go back to 'pending' (original state)
-  const prevStatus=(v.mensajeroId&&v.deliveredTs)?'delivered':'pending';
+  // - Si tenía mensajero asignado, vuelve a 'assigned' (estado visible en el panel admin)
+  // - Si no, vuelve a 'pending' (estado original)
+  // Antes usaba 'delivered' pero nada en el código produce ese estado (mensajeroEntrega
+  // pone 'pending_payment'), así que el vale quedaba huérfano: no aparecía en el panel
+  // admin. Ver AUDITORIA-AXONTECH.md ALTO 8.
+  const prevStatus = v.mensajeroId ? 'assigned' : 'pending';
   patchVale(id,{status:prevStatus,confirmedTs:null,commissionPaid:false,commissionStatus:null,commissionPaidTs:null,commissionEnSobreTs:null,stockDecremented:false});
   _logAudit('vale_reverted', 'vale:' + id + ' → ' + prevStatus);
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -5322,7 +5398,9 @@ function revertConfirmSale(id, skipConfirm) {
   if(currentAdminTab==='gestores'){renderComisiones();}
   if(currentAdminTab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
   maybeAutoSync();
-  showToast(prevStatus==='delivered'?'Venta revertida a "Entregado" — stock restaurado':'Venta revertida a "Pendiente" — stock restaurado');
+  showToast(prevStatus === 'assigned'
+    ? 'Venta revertida a "Con mensajero" — stock restaurado'
+    : 'Venta revertida a "Pendiente" — stock restaurado');
 }
 
 // ══════════════════════════════════════════
@@ -5342,12 +5420,12 @@ function renderHistorial() {
     gestorEl.innerHTML=`<option value="">Todos los gestores</option>`+gestores.map(g=>`<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
     gestorEl.value=curGFilter;
   }
-  let vales=getVales().reverse();
+  let vales=[...getVales()].reverse();
   const from=fromEl?fromEl.value:'';
   const to=toEl?toEl.value:'';
   const search=searchEl?searchEl.value.trim().toLowerCase():'';
-  if(from)vales=vales.filter(v=>v.ts.slice(0,10)>=from);
-  if(to)  vales=vales.filter(v=>v.ts.slice(0,10)<=to);
+  if(from)vales=vales.filter(v=>localDay(v.ts)>=from);
+  if(to)  vales=vales.filter(v=>localDay(v.ts)<=to);
   if(curGFilter)vales=vales.filter(v=>String(v.gestorId)===curGFilter);
   // Search by phone, client name, or vale number
   if(search){
@@ -5364,7 +5442,7 @@ function renderHistorial() {
   // Group by date
   const groups={};
   vales.forEach(v=>{
-    const d=v.ts.slice(0,10);
+    const d=localDay(v.ts);
     if(!groups[d])groups[d]=[];
     groups[d].push(v);
   });
@@ -5443,11 +5521,21 @@ async function nukeAndRebuild() {
       vales: getVales(),
       notifs: getNotifs(),
       estafa: getEstafa(),
-      config: (() => { const c = getConfig(); delete c.ghToken; return c; })(),
+      // Shallow copy sin ghToken — no mutar _configCache con delete.
+      // El token vive en localStorage.axon_gh_token aparte, no en config.
+      config: (() => { const { ghToken, ...rest } = getConfig(); return rest; })(),
       ts: new Date().toISOString(),
       type: 'pre-nuke-backup'
     };
-    try { localStorage.setItem('axon_prenuke_backup_' + Date.now(), JSON.stringify(backup)); } catch(e) {}
+    // Limpiar backups pre-nuke anteriores (solo guardamos el último para no llenar localStorage)
+    try {
+      Object.keys(localStorage).filter(k => k.startsWith('axon_prenuke_backup_')).forEach(k => localStorage.removeItem(k));
+    } catch(e) {}
+    try {
+      localStorage.setItem('axon_prenuke_backup_' + Date.now(), JSON.stringify(backup));
+    } catch(e) {
+      if (!confirm('⚠️ No se pudo guardar el backup local (sin espacio). ¿Continuar de todos modos?')) return;
+    }
     // Also enqueue the backup to Firebase so it survives even if localStorage is cleared
     _enqueueFB('backups/pre-nuke-' + Date.now(), backup, 'set');
 
@@ -5556,12 +5644,14 @@ window.addEventListener('beforeunload', (e) => {
   }
 });
 
-// Escape key closes modals
+// Escape key closes modals — EXCEPTO los modales de login (passModal, gestorPassModal)
+// para evitar que se cierre el modal de admin y quede el panel visible sin sesión.
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const openModal = document.querySelector('.modal-bg.show');
-    if (openModal) openModal.classList.remove('show');
-  }
+  if (e.key !== 'Escape') return;
+  const openModal = document.querySelector('.modal-bg.show');
+  if (!openModal) return;
+  if (openModal.id === 'passModal' || openModal.id === 'gestorPassModal') return;
+  openModal.classList.remove('show');
 });
 
 // ══════════════════════════════════════════
