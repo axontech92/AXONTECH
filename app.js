@@ -4777,6 +4777,22 @@ function saveGhConfig() {
   saveConfig(cfg);
   showToast('Configuración GitHub guardada ✓');
 }
+// Muestra/oculta el token en el campo de password.
+// El ojo 👁️ permite verlo temporalmente si necesitas verificar que lo pegaste bien.
+function toggleTokenVisibility() {
+  const inp = document.getElementById('gh-token');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+// Guarda la config de GitHub y sube los datos inmediatamente.
+// Antes "Subir ahora" llamaba syncToGitHub() directo, pero si el usuario había
+// cambiado el token en el campo sin hacer "Guardar config", se usaba el token
+// viejo de localStorage → error de autenticación 401.
+function saveAndSyncGitHub() {
+  saveGhConfig();
+  // Pequeño delay para que _safeSetLS se complete antes de leer ghToken()
+  setTimeout(() => syncToGitHub(false), 200);
+}
 function loadGhConfigUI() {
   const cfg=getConfig();
   const tok=document.getElementById('gh-token');

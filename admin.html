@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=83">
+  <link rel="stylesheet" href="./app.css?v=84">
 </head>
 <body data-page="admin">
 
@@ -279,7 +279,10 @@
     <div class="lbl">☁️ Sincronización con GitHub (backup + catálogo)</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <input type="text" id="gh-token" placeholder="Personal Access Token (permiso repo)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
+        <div style="position:relative;">
+          <input type="password" id="gh-token" placeholder="Personal Access Token (permiso repo)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 36px 7px 10px;font-size:12px;width:100%;box-sizing:border-box;" autocomplete="off">
+          <button type="button" onclick="toggleTokenVisibility()" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;padding:4px 6px;color:var(--gray-400);" title="Mostrar/ocultar token">👁️</button>
+        </div>
         <input type="text" id="gh-repo" placeholder="usuario/repositorio" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
         <input type="text" id="gh-path" placeholder="Ruta del backup (default: data.json)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);">
@@ -289,8 +292,8 @@
           <input type="checkbox" id="gh-auto-publish-catalog"> Auto-publicar catálogo en GitHub Pages
         </label>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-          <button class="btn btn-blue btn-sm" onclick="saveGhConfig()">Guardar config</button>
-          <button class="btn btn-green btn-sm" onclick="syncToGitHub()">☁️ Subir ahora</button>
+          <button class="btn btn-blue btn-sm" onclick="saveAndSyncGitHub()">💾 Guardar y subir</button>
+          <button class="btn btn-ghost btn-sm" onclick="saveGhConfig()">Guardar config</button>
           <button class="btn btn-ghost btn-sm" onclick="loadFromGitHub()">📥 Cargar desde GitHub</button>
           <button class="btn btn-ghost btn-sm" onclick="testGitHubPages()">🧪 Probar conexión</button>
         </div>
@@ -325,7 +328,7 @@
 
     <div class="lbl">ℹ️ Información del sistema</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:11px;color:var(--text-muted);line-height:1.7;">
-      <div><b>Versión:</b> v83</div>
+      <div><b>Versión:</b> v84</div>
       <div><b>Almacenamiento:</b> localStorage + Firebase Realtime DB</div>
       <div><b>Sync:</b> cola con reintentos exponenciales, persistencia offline</div>
       <div><b>Seguridad:</b> hash SHA-256 + salt por usuario, sin texto plano</div>
@@ -717,7 +720,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=83"></script>
+<script src="./app.js?v=84"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
