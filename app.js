@@ -4813,6 +4813,15 @@ function loadGhConfigUI() {
 async function syncToGitHub(silent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
+  
+  // Validar formato del token antes de hacer la llamada
+  const tok = ghToken();
+  if(tok.length < 20){
+    setGhStatus('<span style="color:var(--red);">✗ Token demasiado corto. Verifica que copiaste el token completo.</span>');
+    if(!silent)showToast('Token inválido (muy corto)');
+    return;
+  }
+  
   if(!silent) setGhStatus('<span style="color:var(--blue);">⟳ Sincronizando...</span>');
   try {
     const data={
@@ -4821,15 +4830,24 @@ async function syncToGitHub(silent) {
       vales:getVales(),timestamp:new Date().toISOString()
     };
     const json=JSON.stringify(data,null,2);
-    // Use utf8ToBase64 instead of deprecated btoa(unescape(encodeURIComponent(...)))
     const content=utf8ToBase64(json);
     const parts=cfg.ghRepo.split('/').filter(Boolean);
-    if(parts.length < 2){if(!silent)showToast('Formato de repo inválido');return;}
+    if(parts.length < 2){
+      setGhStatus('<span style="color:var(--red);">✗ Formato de repo inválido. Usa: usuario/repositorio</span>');
+      if(!silent)showToast('Formato de repo inválido');
+      return;
+    }
     const owner=parts[0];const repo=parts.slice(1).join('/');
     const url=`https://api.github.com/repos/${owner}/${repo}/contents/${cfg.ghPath}`;
-    const headers={Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
+    const headers={Authorization:`token ${tok}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
+    
+    // GET para obtener SHA del archivo existente
     let sha;
-    try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
+    try{
+      const r=await fetch(url,{headers});
+      if(r.ok){const j=await r.json();sha=j.sha;}
+    }catch(e){/* archivo no existe, está bien */}
+    
     const body={message:`AXONTECH sync ${new Date().toLocaleString('es-ES')}`,content};
     if(sha)body.sha=sha;
     const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
@@ -4838,9 +4856,33 @@ async function syncToGitHub(silent) {
       setGhStatus(`<span style="color:var(--green);">✓ Sincronizado ${ts}</span>`);
       if(!silent)showToast('Guardado en GitHub ✓');
     } else {
-      const err=await res.json().catch(()=>({}));
-      setGhStatus(`<span style="color:var(--red);">✗ Error ${res.status}: ${err.message||''}</span>`);
-      if(!silent)showToast(`Error al sincronizar (${res.status})`);
+      // Leer el cuerpo del error de GitHub para mostrar un mensaje útil
+      let errMsg = '';
+      try {
+        const errBody = await res.json();
+        errMsg = errBody.message || '';
+      } catch(e) {
+        try { errMsg = await res.text(); } catch(e2) {}
+      }
+      // Mensajes específicos según el código de error
+      let userMsg = '';
+      if(res.status === 401){
+        userMsg = 'Token inválido o expirado. ';
+        if(tok.startsWith('github_pat_')){
+          userMsg += 'Tu token es fine-grained: verifica que tenga permiso "Contents: Read and write" en el repo específico.';
+        } else if(tok.startsWith('ghp_')){
+          userMsg += 'Verifica que el token tenga el scope "repo" marcado.';
+        } else {
+          userMsg += 'El token debe empezar con ghp_ (classic) o github_pat_ (fine-grained).';
+        }
+      } else if(res.status === 403){
+        userMsg = 'Sin permisos. El token necesita permiso "repo" (classic) o "Contents: Write" (fine-grained).';
+      } else if(res.status === 404){
+        userMsg = `Repo no encontrado: ${owner}/${repo}. Verifica el nombre.`;
+      }
+      const fullMsg = userMsg || errMsg || '';
+      setGhStatus(`<span style="color:var(--red);">✗ Error ${res.status}: ${fullMsg}</span>`);
+      if(!silent)showToast(`Error ${res.status}: ${fullMsg.slice(0,80)}`);
     }
   } catch(e) {
     setGhStatus(`<span style="color:var(--red);">✗ ${e.message}</span>`);
