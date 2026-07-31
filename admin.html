@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=82">
+  <link rel="stylesheet" href="./app.css?v=83">
 </head>
 <body data-page="admin">
 
@@ -85,7 +85,6 @@
         <button class="btn btn-blue btn-sm" onclick="addCategoria()">＋ Categoría</button>
         <button class="btn btn-ghost btn-sm" id="catManagerToggle" onclick="toggleCatManager()">🗂️ Gestionar</button>
         <button class="btn btn-green btn-sm" onclick="openAddProductModal()">＋ Nuevo producto</button>
-        <button class="btn btn-ghost btn-sm" onclick="syncFromTiendaMax()">☁️ Sync TiendaMax</button>
       </div>
     </div>
 
@@ -95,8 +94,6 @@
       <div class="lbl" style="margin-top:0;">🗂️ Categorías existentes</div>
       <div id="catManagerList"></div>
     </div>
-
-    <div id="syncTiendaMaxStatus" style="margin-bottom:8px;font-size:11px;"></div>
 
     <div id="productGrid"></div>
   </div>
@@ -328,7 +325,7 @@
 
     <div class="lbl">ℹ️ Información del sistema</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:11px;color:var(--text-muted);line-height:1.7;">
-      <div><b>Versión:</b> v82</div>
+      <div><b>Versión:</b> v83</div>
       <div><b>Almacenamiento:</b> localStorage + Firebase Realtime DB</div>
       <div><b>Sync:</b> cola con reintentos exponenciales, persistencia offline</div>
       <div><b>Seguridad:</b> hash SHA-256 + salt por usuario, sin texto plano</div>
@@ -720,7 +717,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=82"></script>
+<script src="./app.js?v=83"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

@@ -1,7 +1,7 @@
-const CACHE = 'axontech-v82';
+const CACHE = 'axontech-v83';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
-  './manifest.json', './productos.json', './categorias.json',
+  './manifest.json', './productos.json',
   './iconos/favicon-96.png', './iconos/icon-192.png', './iconos/icon-512.png',
   './iconos/icon-192-maskable.png', './iconos/icon-512-maskable.png', './iconos/icon-1024-maskable.png',
   './offline.html', './catalogo.html', './data.json'
