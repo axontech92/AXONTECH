@@ -222,6 +222,14 @@
       "name": "Mauro",
       "password": "P59FUBCH",
       "phone": ""
+    },
+    {
+      "color": "#BE185D",
+      "id": 1786116698495,
+      "initials": "A",
+      "name": "Alain",
+      "password": "C2L8HVPR",
+      "phone": ""
     }
   ],
   "mensajeros": [
@@ -1179,5 +1187,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-07T15:21:24.785Z"
+  "timestamp": "2026-08-07T15:32:38.785Z"
 }
