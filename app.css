@@ -163,6 +163,18 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
 #layoutGestor.has-gestor .col-left,
 #layoutGestor.has-gestor #rankingColumn{display:none;}
 
+/* ── CRÍTICO: Sin gestor seleccionado, el formulario (col-mid) y secciones
+   asociadas NO deben aparecer — solo se ven gestores y ranking. ──
+   Antes esta regla solo existía dentro del media query @media (max-width:900px),
+   lo que hacía que en escritorio/tablet el form saliera "suelto" abajo.
+   Ahora aplica SIEMPRE (cualquier ancho). */
+#layoutGestor:not(.has-gestor) .col-mid{display:none;}
+#layoutGestor:not(.has-gestor) #valeFormWrapper{display:none;}
+#layoutGestor:not(.has-gestor) #gestorMyValesSection,
+#layoutGestor:not(.has-gestor) #gestorComisionSection,
+#layoutGestor:not(.has-gestor) #gestorPersonalNotifsSection{display:none !important;}
+#layoutGestor:not(.has-gestor) #mobileBackBar{display:none !important;}
+
 /* Mobile back bar */
 #mobileBackBar{display:none;}
 
@@ -735,12 +747,11 @@ header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;wh
   }
 
   /* En móvil: 1 sola columna. Sin gestor: gestores arriba + Top abajo.
-     Con gestor: solo formulario. */
+     Con gestor: solo formulario.
+     (Las reglas de ocultar col-mid sin gestor son globales arriba,
+     así que aquí solo ajustamos el back bar.) */
   .col-left{display:block;}
   .col-right{display:block;}
-  #layoutGestor:not(.has-gestor) .col-mid{display:none;}
-  #layoutGestor:not(.has-gestor) #gestorMyValesSection,
-  #layoutGestor:not(.has-gestor) #gestorComisionSection{display:none !important;}
   /* col-left y col-right se ocultan via la regla global .has-gestor de arriba */
 }
 
