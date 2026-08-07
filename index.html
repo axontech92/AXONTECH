@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=88">
+  <link rel="stylesheet" href="./app.css?v=89">
 </head>
 <body data-page="gestor">
 
@@ -34,6 +34,7 @@
     </button>
     <div class="header-date" id="headerDate"></div>
     <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" aria-label="Ver catálogo de stock" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
+    <button id="btnPWAInstallHeader" title="Instalar AXONTECH en tu teléfono" aria-label="Instalar app" style="display:none;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;">📲 Instalar</button>
     <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">🌙</button>
   </div>
 </header>
@@ -351,7 +352,7 @@
 <!-- Notification banner (for incoming vale alerts when in admin mode) -->
 <div id="notifBanner"><span id="notifBannerText"></span></div>
 
-<!-- ══ PWA INSTALL BANNER (Android + iPhone) ══ -->
+<!-- ══ PWA INSTALL BANNER (Android + iPhone + Xiaomi) ══ -->
 <div id="pwaInstallBanner" class="install-banner" role="dialog" aria-label="Instalar aplicación">
   <div class="install-banner-inner">
     <div class="install-banner-icon">📲</div>
@@ -364,10 +365,101 @@
         <span class="ios-arrow">→</span>
         <span class="ios-step">Añadir a pantalla de inicio</span>
       </div>
+      <!-- Instrucciones manuales para Xiaomi Mi Browser / Huawei / UC (oculto por defecto) -->
+      <div id="pwaInstallManualHint" class="install-banner-manual" style="display:none;">
+        <div class="manual-step1">1. Toca el menú ⋮ (arriba a la derecha)</div>
+        <div class="manual-step2">2. Elige "Añadir a pantalla de inicio"</div>
+        <div class="manual-tip">💡 Instala <b>Chrome</b> desde la Play Store para tener aviso automático de instalación.</div>
+      </div>
     </div>
     <div class="install-banner-actions">
       <button id="pwaInstallBtn" type="button" class="install-banner-btn-primary">Instalar</button>
+      <button type="button" class="install-banner-btn-secondary" onclick="openPWAInstallHelp()">¿Cómo?</button>
       <button type="button" class="install-banner-btn-secondary" onclick="_dismissPWAInstall()">Ahora no</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Ayuda de Instalación PWA ── -->
+<div class="modal-bg" id="pwaInstallHelpModal">
+  <div class="modal" style="max-width:380px;width:92%;">
+    <div class="modal-title">📲 Instalar AXONTECH</div>
+    <div class="modal-sub" style="margin-bottom:14px;">
+      Navegador detectado: <b id="pwaHelpBrowser">—</b>
+    </div>
+
+    <!-- BLOQUE: Chrome / Edge / Samsung (con beforeinstallprompt) -->
+    <div id="pwaHelpChrome" class="pwa-help-block">
+      <div class="pwa-help-title">✅ Tu navegador soporta instalación directa</div>
+      <ol class="pwa-help-steps">
+        <li>Pulsa el botón <b>"Instalar ahora"</b> abajo.</li>
+        <li>Confirma el aviso que aparece en pantalla.</li>
+        <li>Aparecerá un icono de AXONTECH en tu pantalla de inicio. ¡Listo!</li>
+      </ol>
+      <p class="pwa-help-note">También puedes usar el menú ⋮ del navegador → <b>Instalar app</b>.</p>
+    </div>
+
+    <!-- BLOQUE: Xiaomi Mi Browser -->
+    <div id="pwaHelpXiaomi" class="pwa-help-block">
+      <div class="pwa-help-title">⚠️ Navegador Mi de Xiaomi</div>
+      <p class="pwa-help-note">El navegador que viene preinstalado en tu Xiaomi <b>no permite</b> instalar apps web con un solo botón. Tienes dos opciones:</p>
+      <div class="pwa-help-subtitle">Opción A — Instalar manualmente en Mi Browser:</div>
+      <ol class="pwa-help-steps">
+        <li>Toca el icono de menú <b>⋮</b> arriba a la derecha.</li>
+        <li>Elige <b>"Añadir a pantalla de inicio"</b> (o "Añadir a inicio").</li>
+        <li>Confirma. Aparecerá un icono en tu pantalla de inicio.</li>
+      </ol>
+      <div class="pwa-help-subtitle">Opción B — Usar Chrome (recomendado):</div>
+      <ol class="pwa-help-steps">
+        <li>Abre la <b>Play Store</b> e instala <b>Chrome</b> (gratis).</li>
+        <li>Abre Chrome y entra a AXONTECH.</li>
+        <li>Te saldrá un aviso automático para instalar con un toque.</li>
+      </ol>
+      <p class="pwa-help-note">La opción B da mejor experiencia: aviso automático, notificaciones push y actualizaciones sin tener que re-abrir el navegador.</p>
+    </div>
+
+    <!-- BLOQUE: Huawei Browser -->
+    <div id="pwaHelpHuawei" class="pwa-help-block">
+      <div class="pwa-help-title">⚠️ Navegador Huawei</div>
+      <p class="pwa-help-note">El navegador Huawei no soporta instalación directa con un botón.</p>
+      <div class="pwa-help-subtitle">Opción A — Manual:</div>
+      <ol class="pwa-help-steps">
+        <li>Toca el menú <b>⋮</b> arriba a la derecha.</li>
+        <li>Elige <b>"Añadir a pantalla de inicio"</b>.</li>
+        <li>Confirma. Aparecerá el icono en tu pantalla de inicio.</li>
+      </ol>
+      <div class="pwa-help-subtitle">Opción B — AppGallery + Chrome:</div>
+      <ol class="pwa-help-steps">
+        <li>En <b>AppGallery</b> busca e instala <b>Chrome</b>.</li>
+        <li>Abre Chrome y entra a AXONTECH — te saldrá aviso automático.</li>
+      </ol>
+    </div>
+
+    <!-- BLOQUE: iPhone / iPad -->
+    <div id="pwaHelpIphone" class="pwa-help-block">
+      <div class="pwa-help-title">📱 iPhone / iPad (Safari)</div>
+      <ol class="pwa-help-steps">
+        <li>Toca el icono <b>Compartir</b> <span style="font-size:18px;">􀈂</span> (cuadro con flecha hacia arriba, abajo en Safari).</li>
+        <li>Desplázate y elige <b>"Añadir a pantalla de inicio"</b>.</li>
+        <li>Pulsa <b>"Añadir"</b>. Aparecerá el icono de AXONTECH en tu pantalla de inicio.</li>
+      </ol>
+      <p class="pwa-help-note">Si usas Chrome en iPhone, el proceso es el mismo: menú ⋮ → <b>"Añadir a pantalla de inicio"</b>.</p>
+    </div>
+
+    <!-- BLOQUE: Firefox / fallback genérico -->
+    <div id="pwaHelpFirefox" class="pwa-help-block">
+      <div class="pwa-help-title">🌐 Firefox / otros navegadores</div>
+      <ol class="pwa-help-steps">
+        <li>Abre el menú del navegador.</li>
+        <li>Busca la opción <b>"Instalar app"</b> o <b>"Añadir a pantalla de inicio"</b>.</li>
+        <li>Confirma. Aparecerá el icono en tu pantalla de inicio.</li>
+      </ol>
+      <p class="pwa-help-note">Para mejor experiencia en Android te recomendamos <b>Chrome</b>, <b>Edge</b> o <b>Samsung Internet</b>.</p>
+    </div>
+
+    <div class="modal-btns" style="margin-top:14px;">
+      <button id="pwaHelpInstallNowBtn" type="button" class="btn btn-blue btn-full" style="display:none;">Instalar ahora</button>
+      <button type="button" class="btn btn-ghost btn-full" onclick="closePWAInstallHelp()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -440,7 +532,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=88"></script>
+<script src="./app.js?v=89"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
