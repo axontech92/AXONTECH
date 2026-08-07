@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=91">
+  <link rel="stylesheet" href="./app.css?v=92">
 </head>
 <body data-page="admin">
 
@@ -750,6 +750,7 @@
     </div>
     <div class="install-banner-actions">
       <button id="pwaInstallBtn" type="button" class="install-banner-btn-primary">Instalar</button>
+      <button id="pwaInstallBtnShare" type="button" class="install-banner-btn-primary" style="display:none;background:#16a34a;">📤 Compartir</button>
       <button type="button" class="install-banner-btn-secondary" onclick="openPWAInstallHelp()">¿Cómo?</button>
       <button type="button" class="install-banner-btn-secondary" onclick="_dismissPWAInstall()">Ahora no</button>
     </div>
@@ -778,14 +779,31 @@
     <!-- BLOQUE: Chrome / Edge SIN beforeinstallprompt (caso del teléfono problemático) -->
     <div id="pwaHelpChromeNoPrompt" class="pwa-help-block">
       <div class="pwa-help-title">⚠️ Tu Chrome no mostró el aviso automático</div>
-      <p class="pwa-help-note">A veces Chrome no dispara el aviso de instalación (puede pasar por ajustes del sistema, modo datos guardados, o una versión antigua). Puedes instalar AXONTECH manualmente con estos pasos:</p>
+      <p class="pwa-help-note">A veces Chrome no ofrece instalar la app aunque el sitio sea una PWA válida (puede pasar por Chrome muy antiguo, modo escritorio activado, o almacenamiento lleno). Usa cualquiera de estos métodos alternativos:</p>
+
+      <div class="pwa-help-subtitle">Método 1 — Compartir para agregar a inicio (más rápido):</div>
       <ol class="pwa-help-steps">
-        <li>Toca el menú <b>⋮</b> arriba a la derecha del Chrome.</li>
-        <li>Busca y elige <b>"Instalar app"</b> (en algunos móviles sale como <b>"Añadir a pantalla de inicio"</b>).</li>
+        <li>Pulsa <b>"📤 Compartir / Agregar a inicio"</b> abajo.</li>
+        <li>En la hoja de compartir que se abre, busca y elige <b>"Añadir a pantalla de inicio"</b> (en Samsung, Xiaomi y Pixel suele aparecer como destino de compartir).</li>
         <li>Confirma. Aparecerá el icono de AXONTECH en tu pantalla de inicio.</li>
       </ol>
-      <p class="pwa-help-note">💡 También puedes usar el botón <b>"Compartir / Agregar a inicio"</b> de abajo: abre la hoja de compartir de Android donde aparece la opción "Añadir a pantalla de inicio".</p>
-      <p class="pwa-help-note">💡 Si la opción <b>"Instalar app"</b> no aparece en el menú ⋮, actualiza Chrome desde la Play Store y vuelve a intentarlo. La opción está disponible en Chrome 90+.</p>
+
+      <div class="pwa-help-subtitle">Método 2 — Escanear QR desde otro móvil:</div>
+      <ol class="pwa-help-steps">
+        <li>Pulsa <b>"🖼️ Ver código QR"</b> abajo.</li>
+        <li>Abre la <b>cámara</b> de otro teléfono que sí tenga Chrome actualizado.</li>
+        <li>Apunta la cámara al código QR que aparece en pantalla.</li>
+        <li>En ese móvil sí saldrá el aviso automático de instalación.</li>
+      </ol>
+
+      <div class="pwa-help-subtitle">Método 3 — Copiar URL y enviarla:</div>
+      <ol class="pwa-help-steps">
+        <li>Pulsa <b>"📋 Copiar URL"</b> abajo.</li>
+        <li>Pégala en un chat de WhatsApp o Telegram.</li>
+        <li>Ábrela desde otro teléfono con Chrome actualizado.</li>
+      </ol>
+
+      <p class="pwa-help-note">💡 Si nada de esto funciona, actualiza Chrome desde la Play Store o instala <b>Chrome Beta</b>. En Chrome moderno (90+) la opción "Instalar app" debería aparecer en el menú ⋮.</p>
     </div>
 
     <!-- BLOQUE: Samsung Internet -->
@@ -917,6 +935,8 @@
     <div class="modal-btns" style="margin-top:14px;">
       <button id="pwaHelpInstallNowBtn" type="button" class="btn btn-blue btn-full" style="display:none;">Instalar ahora</button>
       <button id="pwaHelpShareBtn" type="button" class="btn btn-green btn-full" style="display:none;">📤 Compartir / Agregar a inicio</button>
+      <button id="pwaHelpQRBtn" type="button" class="btn btn-full" style="background:#7c3aed;color:#fff;">🖼️ Ver código QR</button>
+      <button id="pwaHelpCopyBtn" type="button" class="btn btn-ghost btn-full">📋 Copiar URL</button>
       <button type="button" class="btn btn-ghost btn-full" onclick="closePWAInstallHelp()">Cerrar</button>
     </div>
     <p style="font-size:10px;color:var(--muted,#94a3b8);text-align:center;margin-top:10px;line-height:1.4;">
@@ -930,7 +950,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=91"></script>
+<script src="./app.js?v=92"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
