@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=85">
+  <link rel="stylesheet" href="./app.css?v=87">
 </head>
 <body data-page="admin">
 
@@ -478,6 +478,19 @@
 <div class="modal-bg" id="editGestorModal">
   <div class="modal" style="max-width:340px;">
     <div class="modal-title">✏️ Editar gestor</div>
+    <!-- Foto de perfil: preview + botón cambiar/quitar -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div id="editGestorAvatar" class="g-avatar" style="width:56px;height:56px;font-size:18px;background:var(--gray-300);flex-shrink:0;position:relative;">?</div>
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;">Foto de perfil</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-ghost btn-sm" style="font-size:11px;padding:5px 10px;" onclick="pickEditGestorPhoto()">📷 Cambiar</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="font-size:11px;padding:5px 10px;color:var(--red);display:none;" id="editGestorRemovePhotoBtn" onclick="clearEditGestorPhoto()">✕ Quitar</button>
+        </div>
+        <div style="font-size:10px;color:var(--gray-500);margin-top:4px;">Se guarda al pulsar "Guardar"</div>
+        <input type="file" id="editGestorPhotoFile" accept="image/*" style="display:none;" onchange="handleEditGestorPhoto(event)">
+      </div>
+    </div>
     <input type="text" id="editGestorInput" placeholder="Nombre">
     <input type="text" id="editGestorPhoneInput" placeholder="Teléfono (opcional)">
     <div class="modal-btns">
@@ -715,12 +728,32 @@
 <!-- Notification banner -->
 <div id="notifBanner"><span id="notifBannerText"></span></div>
 
+<!-- ══ PWA INSTALL BANNER (Android + iPhone) ══ -->
+<div id="pwaInstallBanner" class="install-banner" role="dialog" aria-label="Instalar aplicación">
+  <div class="install-banner-inner">
+    <div class="install-banner-icon">📲</div>
+    <div class="install-banner-text">
+      <div class="install-banner-title">Instala AXONTECH Admin</div>
+      <div class="install-banner-sub" id="pwaInstallSub">Acceso rápido desde tu pantalla de inicio</div>
+      <div id="pwaInstallIOSHint" class="install-banner-ios" style="display:none;">
+        <span class="ios-step"><span class="ios-share">􀈂</span> Compartir</span>
+        <span class="ios-arrow">→</span>
+        <span class="ios-step">Añadir a pantalla de inicio</span>
+      </div>
+    </div>
+    <div class="install-banner-actions">
+      <button id="pwaInstallBtn" type="button" class="install-banner-btn-primary">Instalar</button>
+      <button type="button" class="install-banner-btn-secondary" onclick="_dismissPWAInstall()">Ahora no</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=85"></script>
+<script src="./app.js?v=87"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

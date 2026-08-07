@@ -98,6 +98,25 @@ const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
 const productoOf  = id => getProductos().find(p=>p.id===id);
 const todayStr    = () => new Date().toDateString();
 
+// ══════════════════════════════════════════
+//  GESTOR AVATAR HELPER (foto de perfil o iniciales)
+//  Devuelve el HTML interno del avatar. Si el gestor tiene foto,
+//  muestra <img> dentro de un wrapper circular; si no, las iniciales.
+//  El wrapper .g-avatar-img-wrap se encarga del clipping (overflow:hidden + border-radius),
+//  dejando al padre .g-avatar libre de overflow:hidden para que el botón 📷 cámara
+//  (position:absolute, desborda 4px) NO sea recortado.
+// ══════════════════════════════════════════
+function gestorAvatarInner(g) {
+  if (!g) return '?';
+  const initials = escapeHTML(g.initials || '?');
+  if (g.photo && /^(https?:|data:image)/i.test(g.photo)) {
+    // Wrapper con overflow:hidden para que la imagen respete el círculo.
+    // El botón cámara vive FUERA de este wrapper (como hijo directo de #bannerAvatar).
+    return `<span class="g-avatar-img-wrap"><img src="${escapeAttr(g.photo)}" alt="" onerror="this.parentElement.style.display='none';this.parentElement.parentElement.textContent='${initials}'"></span>`;
+  }
+  return initials;
+}
+
 // Fecha local YYYY-MM-DD (no UTC). Cuba está en UTC-4/-5, así que si guardamos
 // vales con new Date().toISOString() (UTC), una venta a las 21:00 local se guarda
 // como 01:00 del día siguiente en UTC. Usar localDay() en todos los filtros de
@@ -1447,15 +1466,28 @@ function playSound(type) {
 // ══════════════════════════════════════════
 //  GESTOR SELECTOR
 // ══════════════════════════════════════════
+// Collator reutilizable para ordenar gestores alfabéticamente.
+// numeric:true → "Vale 2" va antes que "Vale 10"
+// sensitivity:'base' → ignora acentos y mayúsculas
+const _gestorSortCollator = new Intl.Collator('es', { sensitivity: 'base', numeric: true });
+function sortGestoresAlpha(arr) {
+  return arr.slice().sort((a, b) => _gestorSortCollator.compare(a.name || '', b.name || ''));
+}
 function renderGestores() {
-  const gestores=getGestores();
+  // Orden alfabético (sin importar mayúsculas/minúsculas ni acentos).
+  // Se ordena una COPIA — el array original (orden de creación) se conserva
+  // para que addGestor/saveGestores sigan funcionando con el orden natural.
+  const gestores = sortGestoresAlpha(getGestores());
+  if (window.__DEBUG_GESTORES__) {
+    console.log('[renderGestores] orden:', gestores.map(g => g.name).join(' → '));
+  }
   const c=document.getElementById('gestoresList');
   if(!c) return;
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>';return;}
   c.innerHTML=gestores.map(g=>{
     const act=g.id===activeGestorId;
     return `<div class="g-item ${act?'active':''}" onclick="selectGestor(${g.id})">
-      <div class="g-avatar" style="background:${g.color}">${escapeHTML(g.initials)}</div>
+      <div class="g-avatar" style="background:${g.color}">${gestorAvatarInner(g)}</div>
       <div class="g-name">${escapeHTML(g.name)}</div>
       ${act?'<span class="g-badge">✓</span>':''}
     </div>`;
@@ -1477,10 +1509,59 @@ function selectGestor(id) {
 function doSelectGestor(id) {
   listenToMyVales(id);
   activeGestorId=id;const g=gestorOf(id);
-  document.getElementById('bannerAvatar').textContent=g.initials;
-  document.getElementById('bannerAvatar').style.background=g.color;
+
+  // ─── AVATAR con foto (si existe) ───
+  const bannerAvatar=document.getElementById('bannerAvatar');
+  bannerAvatar.innerHTML=gestorAvatarInner(g);
+  bannerAvatar.style.background = (g.photo && /^(https?:|data:image)/i.test(g.photo)) ? 'transparent' : g.color;
+
+  // ─── Botones de foto (📷 cambiar / ✕ quitar) ───
+  // Se añaden al #gestorBanner (no al avatar) porque el banner es más grande
+  // y no tiene overflow:hidden. Así los botones NO se recortan.
+  // Usamos un wrapper para agrupar avatar+botones y posicionar todo junto.
+  const banner=document.getElementById('gestorBanner');
+  // Envolver avatar en un wrapper si no lo está ya
+  let avatarWrap=document.getElementById('bannerAvatarWrap');
+  if(!avatarWrap){
+    avatarWrap=document.createElement('div');
+    avatarWrap.id='bannerAvatarWrap';
+    avatarWrap.style.cssText='position:relative;flex-shrink:0;width:48px;height:48px;';
+    bannerAvatar.parentNode.insertBefore(avatarWrap, bannerAvatar);
+    avatarWrap.appendChild(bannerAvatar);
+    // Asegurar que el avatar llene el wrapper
+    bannerAvatar.style.width='100%';
+    bannerAvatar.style.height='100%';
+  }
+  // Botón 📷 cámara (esquina inferior derecha)
+  let camBtn=document.getElementById('bannerAvatarCam');
+  if(!camBtn){
+    camBtn=document.createElement('button');
+    camBtn.id='bannerAvatarCam';
+    camBtn.type='button';
+    camBtn.title='Cambiar foto de perfil';
+    camBtn.setAttribute('aria-label','Cambiar foto de perfil');
+    camBtn.innerHTML='📷';
+    camBtn.onclick=function(ev){ev.stopPropagation();openGestorPhotoPicker();};
+    avatarWrap.appendChild(camBtn);
+  }
+  // Botón ✕ quitar foto (esquina superior izquierda, solo si tiene foto)
+  let removeBtn=document.getElementById('bannerAvatarRemove');
+  if(g.photo && /^(https?:|data:image)/i.test(g.photo)){
+    if(!removeBtn){
+      removeBtn=document.createElement('button');
+      removeBtn.id='bannerAvatarRemove';
+      removeBtn.type='button';
+      removeBtn.title='Quitar foto de perfil';
+      removeBtn.setAttribute('aria-label','Quitar foto de perfil');
+      removeBtn.innerHTML='✕';
+      removeBtn.onclick=function(ev){ev.stopPropagation();removeGestorPhoto();};
+      avatarWrap.appendChild(removeBtn);
+    }
+  } else if(removeBtn){
+    removeBtn.remove();
+  }
+
   document.getElementById('bannerLbl').textContent='HOLA, ESTÁS EN TU ÁREA';
-  document.getElementById('bannerName').textContent=g.name;
 
     const perms = ('Notification' in window && Notification.permission);
     let nBtn = '';
@@ -1495,6 +1576,135 @@ function doSelectGestor(id) {
   document.getElementById('gestorMyValesSection').style.display='block';
   document.getElementById('layoutGestor').classList.add('has-gestor');
   renderGestores();renderMyVales();renderGestorComisiones();onFormInput();renderGestorNotifs();
+}
+
+// ══════════════════════════════════════════
+//  FOTO DE PERFIL DEL GESTOR
+//  - El gestor sube una foto desde su dispositivo
+//  - Se comprime a WebP 256x256 (≤15 KB aprox.) — ligero para Firebase
+//  - Se guarda en g.photo → saveGestores() → Firebase → todos los dispositivos
+//  - El admin también puede cambiar/quitar la foto de cualquier gestor
+// ══════════════════════════════════════════
+let _gestorPhotoInput = null;
+function _ensureGestorPhotoInput() {
+  if (_gestorPhotoInput) return _gestorPhotoInput;
+  _gestorPhotoInput = document.createElement('input');
+  _gestorPhotoInput.type = 'file';
+  _gestorPhotoInput.accept = 'image/*';
+  _gestorPhotoInput.style.display = 'none';
+  _gestorPhotoInput.addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ''; // permitir re-seleccionar el mismo archivo
+    if (!file) return;
+    handleGestorPhoto(file);
+  });
+  document.body.appendChild(_gestorPhotoInput);
+  return _gestorPhotoInput;
+}
+function openGestorPhotoPicker() {
+  if (!activeGestorId) { showToast('Selecciona tu nombre primero'); return; }
+  _ensureGestorPhotoInput().click();
+}
+function handleGestorPhoto(file) {
+  if (!activeGestorId) { showToast('Selecciona tu nombre primero'); return; }
+  if (!file.type.startsWith('image/')) { showToast('Solo se permiten imágenes'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast('Imagen demasiado grande (máx 10 MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    showToast('🔄 Procesando foto...');
+    // 256px, calidad 0.72 — suficiente para un avatar, ligero para Firebase sync
+    compressImage(e.target.result, 256, 0.72, compressed => {
+      if (!compressed) { showToast('Error al procesar la imagen'); return; }
+      const list = getGestores();
+      const i = list.findIndex(g => g.id === activeGestorId);
+      if (i === -1) return;
+      list[i].photo = compressed;
+      saveGestores(list); // → localStorage + Firebase → todos los dispositivos
+      gestoresTabDirty = true;
+      // Refrescar UI inmediatamente en este dispositivo
+      doSelectGestor(activeGestorId);
+      if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
+      if (typeof renderGestorRanking === 'function') { rankingCache = null; renderGestorRanking(); }
+      const fmt = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
+      const kb = Math.round(compressed.length / 1024);
+      showToast(`✅ Foto actualizada (${fmt} · ${kb} KB)`);
+    });
+  };
+  reader.onerror = () => showToast('Error al leer el archivo');
+  reader.readAsDataURL(file);
+}
+function removeGestorPhoto() {
+  if (!activeGestorId) return;
+  const g = gestorOf(activeGestorId);
+  if (!g || !g.photo) return;
+  showConfirmAction(
+    '¿Quitar tu foto de perfil?',
+    'Volverás a ver solo tus iniciales. Tu foto se borrará también de los demás dispositivos.',
+    'Quitar foto', 'btn-red',
+    () => {
+      const list = getGestores();
+      const i = list.findIndex(x => x.id === activeGestorId);
+      if (i === -1) return;
+      delete list[i].photo;
+      saveGestores(list);
+      gestoresTabDirty = true;
+      doSelectGestor(activeGestorId);
+      if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
+      if (typeof renderGestorRanking === 'function') { rankingCache = null; renderGestorRanking(); }
+      showToast('Foto eliminada ✓');
+    }
+  );
+}
+// Atajo para que el admin también pueda cambiar la foto desde el panel
+function changeGestorPhotoById(id) {
+  pendingGestorPhotoId = id;
+  const input = _ensureGestorPhotoInput();
+  // sobreescribimos temporalmente el handler
+  input.onchange = e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Solo se permiten imágenes'); return; }
+    if (file.size > 10 * 1024 * 1024) { showToast('Imagen demasiado grande (máx 10 MB)'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      showToast('🔄 Procesando foto...');
+      compressImage(ev.target.result, 256, 0.72, compressed => {
+        if (!compressed) { showToast('Error al procesar la imagen'); return; }
+        const list = getGestores();
+        const i = list.findIndex(g => g.id === pendingGestorPhotoId);
+        if (i === -1) return;
+        list[i].photo = compressed;
+        saveGestores(list);
+        gestoresTabDirty = true;
+        renderAdminGestoresList();
+        renderGestores();
+        showToast('✅ Foto actualizada');
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+let pendingGestorPhotoId = null;
+function removeGestorPhotoById(id) {
+  const g = gestorOf(id); if (!g || !g.photo) return;
+  showConfirmAction(
+    '¿Quitar la foto de ' + g.name + '?',
+    'Se usaran las iniciales. Se actualizará en todos los dispositivos.',
+    'Quitar foto', 'btn-red',
+    () => {
+      const list = getGestores();
+      const i = list.findIndex(x => x.id === id);
+      if (i === -1) return;
+      delete list[i].photo;
+      saveGestores(list);
+      gestoresTabDirty = true;
+      renderAdminGestoresList();
+      renderGestores();
+      showToast('Foto eliminada ✓');
+    }
+  );
 }
 function closeGestorPassModal(){
   document.getElementById('gestorPassModal').classList.remove('show');
@@ -1696,7 +1906,8 @@ function _updateGestoresCountBadge() {
 }
 
 function renderAdminGestoresList() {
-  const list=getGestores();
+  // Orden alfabético (copia, no muta el array original)
+  const list = sortGestoresAlpha(getGestores());
   const c=document.getElementById('adminGestoresPanel-list');
   _updateGestoresCountBadge();
   if(!c) return;
@@ -1706,8 +1917,9 @@ function renderAdminGestoresList() {
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
     const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
+    const hasPhoto = !!(g.photo && /^(https?:|data:image)/i.test(g.photo));
     return `<div class="gp-card">
-      <div class="g-avatar" style="background:${g.color};width:40px;height:40px;font-size:13px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
+      <div class="g-avatar" style="background:${hasPhoto?'transparent':g.color};width:40px;height:40px;font-size:13px;flex-shrink:0;position:relative;">${gestorAvatarInner(g)}</div>
       <div style="flex:1;min-width:140px;">
         <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
@@ -1716,6 +1928,8 @@ function renderAdminGestoresList() {
           <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
           <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
           <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
+          <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="changeGestorPhotoById(${g.id})" title="Cambiar foto de perfil">📷 Foto</button>
+          ${hasPhoto?`<button type="button" style="background:none;border:1px solid var(--red);cursor:pointer;font-size:10px;color:var(--red);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="removeGestorPhotoById(${g.id})" title="Quitar foto de perfil">✕ Quitar foto</button>`:''}
         </div>
       </div>
       <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);align-self:flex-start;flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
@@ -1728,9 +1942,76 @@ function openEditGestorModal(id) {
   document.getElementById('editGestorInput').value=g.name;
   const ph=document.getElementById('editGestorPhoneInput');if(ph)ph.value=g.phone||'';
   document.getElementById('editGestorModal').dataset.gestorId=id;
+  // ── Inicializar el estado de la foto en el modal ──
+  // _editGestorPhotoPending guarda la foto nueva (data URL) si el usuario cambia la foto.
+  // _editGestorPhotoRemoved = true si el usuario quiere quitar la foto existente.
+  // Al pulsar "Guardar" se aplican ambos estados al gestor.
+  window._editGestorPhotoPending = null;
+  window._editGestorPhotoRemoved = false;
+  refreshEditGestorPhotoUI(g);
   document.getElementById('editGestorModal').classList.add('show');
 }
-function closeEditGestorModal(){document.getElementById('editGestorModal').classList.remove('show');}
+// Refresca el avatar preview + botones del modal Editar Gestor
+function refreshEditGestorPhotoUI(g) {
+  const av = document.getElementById('editGestorAvatar');
+  if (!av) return;
+  // Foto efectiva a mostrar: si hay pendiente, esa; si marcó quitar, ninguna; si no, la del gestor
+  const pending = window._editGestorPhotoPending;
+  const removed = window._editGestorPhotoRemoved;
+  const effectivePhoto = pending ? pending : (removed ? null : (g && g.photo) || null);
+  if (effectivePhoto) {
+    av.innerHTML = `<span class="g-avatar-img-wrap"><img src="${escapeAttr(effectivePhoto)}" alt=""></span>`;
+    av.style.background = 'transparent';
+  } else {
+    av.textContent = g ? (g.initials || '?') : '?';
+    av.style.background = g ? g.color : 'var(--gray-300)';
+  }
+  // Mostrar/ocultar botón "Quitar"
+  const removeBtn = document.getElementById('editGestorRemovePhotoBtn');
+  if (removeBtn) removeBtn.style.display = effectivePhoto ? 'inline-block' : 'none';
+}
+// Usuario pulsa "📷 Cambiar" → abre selector de archivo
+function pickEditGestorPhoto() {
+  const inp = document.getElementById('editGestorPhotoFile');
+  if (inp) inp.click();
+}
+// Usuario seleccionó un archivo → comprimir a WebP 256x256 y guardar en _editGestorPhotoPending
+// NO se guarda en el gestor todavía — se aplica al pulsar "Guardar".
+function handleEditGestorPhoto(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = ''; // permitir re-seleccionar el mismo archivo
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('Solo se permiten imágenes'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast('Imagen demasiado grande (máx 10 MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    showToast('🔄 Procesando foto...');
+    compressImage(e.target.result, 256, 0.72, compressed => {
+      if (!compressed) { showToast('Error al procesar la imagen'); return; }
+      window._editGestorPhotoPending = compressed;
+      window._editGestorPhotoRemoved = false;
+      const id = parseInt(document.getElementById('editGestorModal').dataset.gestorId, 10);
+      refreshEditGestorPhotoUI(gestorOf(id));
+      const kb = Math.round(compressed.length / 1024);
+      showToast(`✅ Foto lista (${kb} KB) — pulsa Guardar`);
+    });
+  };
+  reader.onerror = () => showToast('Error al leer el archivo');
+  reader.readAsDataURL(file);
+}
+// Usuario pulsa "✕ Quitar" → marca para borrar la foto al guardar
+function clearEditGestorPhoto() {
+  window._editGestorPhotoPending = null;
+  window._editGestorPhotoRemoved = true;
+  const id = parseInt(document.getElementById('editGestorModal').dataset.gestorId, 10);
+  refreshEditGestorPhotoUI(gestorOf(id));
+}
+function closeEditGestorModal(){
+  document.getElementById('editGestorModal').classList.remove('show');
+  // Limpiar estado pendiente
+  window._editGestorPhotoPending = null;
+  window._editGestorPhotoRemoved = false;
+}
 function saveEditGestor() {
   const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
   const newName=document.getElementById('editGestorInput').value.trim();
@@ -1740,10 +2021,18 @@ function saveEditGestor() {
   list[i].name=newName;
   list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   list[i].phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
-  saveGestores(list);
+  // ── Aplicar cambios de foto pendientes (subir/quitar) ──
+  if (window._editGestorPhotoPending) {
+    list[i].photo = window._editGestorPhotoPending;
+  } else if (window._editGestorPhotoRemoved) {
+    delete list[i].photo;
+  }
+  saveGestores(list); // → localStorage + Firebase → se actualiza en todos los dispositivos
   closeEditGestorModal();
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
+  // Si el gestor editado es el activo, refrescar su banner también
+  if (activeGestorId === id) doSelectGestor(id);
   maybeAutoSync();
   showToast('Gestor editado ✓');
 }
@@ -6008,6 +6297,137 @@ function _resetSessionTimer() {
 });
 
 // ══════════════════════════════════════════
+//  PWA INSTALL PROMPT (Android + iPhone)
+//  - Android/Chrome/Edge: captura beforeinstallprompt → banner con botón "Instalar"
+//  - iPhone/iPad Safari: NO hay beforeinstallprompt → banner con instrucciones
+//    "Toca Compartir ↗ → Añadir a pantalla de inicio"
+//  - Si ya está instalado (standalone), no se muestra nada
+//  - El usuario puede cerrar el banner → no se vuelve a mostrar por 7 días
+// ══════════════════════════════════════════
+let _deferredInstallPrompt = null;
+const PWA_DISMISS_KEY = 'axon_pwa_install_dismissed';
+const PWA_DISMISS_DAYS = 7;
+
+function _isStandaloneMode() {
+  // iOS Safari
+  if (window.navigator.standalone === true) return true;
+  // Android/Chrome/Edge
+  if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+  // iOS PWA (cuando se lanza desde pantalla de inicio en algunos iOS)
+  if (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) return true;
+  return false;
+}
+function _isIOS() {
+  // Detección robusta de iOS/iPadOS sin depender solo del UA string.
+  // iPad en iOS 13+ reporta "Mac OS" en el UA, por eso verificamos también
+  // la ausencia de "Macintosh" con touch points.
+  const ua = navigator.userAgent || '';
+  const isIPad = (/iPad/i.test(ua)) || (/Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1);
+  const isIPhone = /iPhone|iPod/i.test(ua);
+  return isIPad || isIPhone;
+}
+function _isInstallDismissed() {
+  try {
+    const ts = parseInt(localStorage.getItem(PWA_DISMISS_KEY) || '0', 10);
+    if (!ts) return false;
+    const days = (Date.now() - ts) / (1000 * 60 * 60 * 24);
+    return days < PWA_DISMISS_DAYS;
+  } catch(e) { return false; }
+}
+function _dismissPWAInstall() {
+  try { localStorage.setItem(PWA_DISMISS_KEY, String(Date.now())); } catch(e) {}
+  const b = document.getElementById('pwaInstallBanner');
+  if (b) b.classList.remove('show');
+}
+function _showPWAInstallBanner() {
+  const b = document.getElementById('pwaInstallBanner');
+  if (!b) return;
+  const subEl = document.getElementById('pwaInstallSub');
+  const btnInstall = document.getElementById('pwaInstallBtn');
+  const iosInstructions = document.getElementById('pwaInstallIOSHint');
+
+  const isIOS = _isIOS();
+  if (isIOS) {
+    // iPhone/iPad: no hay API de instalación. Mostramos instrucciones.
+    if (subEl) subEl.textContent = 'Toca el botón Compartir y luego "Añadir a pantalla de inicio"';
+    if (btnInstall) btnInstall.style.display = 'none';
+    if (iosInstructions) iosInstructions.style.display = 'block';
+  } else if (_deferredInstallPrompt) {
+    // Android/Chrome/Edge: tenemos el evento beforeinstallprompt guardado.
+    if (subEl) subEl.textContent = 'Acceso rápido desde tu pantalla de inicio, sin tienda de apps';
+    if (btnInstall) {
+      btnInstall.style.display = 'inline-block';
+      btnInstall.onclick = _triggerPWAInstall;
+    }
+    if (iosInstructions) iosInstructions.style.display = 'none';
+  } else {
+    // Navegador de escritorio u otro: no instalable por ahora
+    return;
+  }
+  b.classList.add('show');
+}
+async function _triggerPWAInstall() {
+  if (!_deferredInstallPrompt) {
+    showToast('Tu navegador no soporta instalación directa. Usa el menú del navegador → Instalar app / Agregar a inicio.');
+    return;
+  }
+  try {
+    _deferredInstallPrompt.prompt();
+    const choice = await _deferredInstallPrompt.userChoice;
+    if (choice && choice.outcome === 'accepted') {
+      showToast('🎉 Instalando AXONTECH…');
+    } else {
+      // El usuario canceló el prompt nativo — no lo molestamos por 7 días
+      _dismissPWAInstall();
+    }
+  } catch(e) {
+    console.warn('Install prompt error:', e);
+  } finally {
+    _deferredInstallPrompt = null; // solo se puede usar una vez
+    const b = document.getElementById('pwaInstallBanner');
+    if (b) b.classList.remove('show');
+  }
+}
+function setupPWAInstallPrompt() {
+  // 1) Si ya está instalado → no hacer nada
+  if (_isStandaloneMode()) return;
+
+  // 2) Si el usuario lo cerró hace menos de 7 días → no mostrar
+  if (_isInstallDismissed()) return;
+
+  // 3) Capturar el evento beforeinstallprompt (Android/Chrome/Edge/Opera/Samsung)
+  //    iOS Safari NUNCA dispara este evento → cae al flujo de instrucciones.
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();             // impedir el mini-prompt automático
+    _deferredInstallPrompt = e;     // guardar para usarlo al hacer clic
+    // Si ya pasamos el check inicial pero el evento llega tarde, mostrar banner
+    const b = document.getElementById('pwaInstallBanner');
+    if (b && !b.classList.contains('show') && !_isInstallDismissed()) {
+      _showPWAInstallBanner();
+    }
+  });
+
+  // 4) Si la app se instala correctamente → ocultar banner y limpiar dismiss
+  window.addEventListener('appinstalled', () => {
+    const b = document.getElementById('pwaInstallBanner');
+    if (b) b.classList.remove('show');
+    try { localStorage.removeItem(PWA_DISMISS_KEY); } catch(e) {}
+    showToast('✅ AXONTECH instalada');
+  });
+
+  // 5) Mostrar el banner tras un pequeño retardo (4s) para no interrumpir el load
+  setTimeout(() => {
+    if (_isStandaloneMode()) return;
+    if (_isInstallDismissed()) return;
+    // En iOS siempre mostramos (instrucciones). En Android, solo si ya capturamos
+    // el beforeinstallprompt — si no, no tiene sentido mostrar un botón que no hace nada.
+    if (_isIOS() || _deferredInstallPrompt) {
+      _showPWAInstallBanner();
+    }
+  }, 4000);
+}
+
+// ══════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════
 async function init() {
@@ -6042,6 +6462,8 @@ async function init() {
       if (!_reloaded) { _reloaded = true; window.location.reload(); }
     });
   }
+  // PWA install prompt (Android + iPhone)
+  setupPWAInstallPrompt();
 }
 function initGestorPage() {
   // Removed the 12-second setInterval that re-rendered everything — Firebase

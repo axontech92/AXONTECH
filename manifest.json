@@ -1,8 +1,9 @@
 {
+  "id": "/?source=pwa",
   "name": "AXONTECH · Gestión de Ventas",
   "short_name": "AXONTECH",
   "description": "Sistema de gestión de ventas para equipos comerciales.",
-  "start_url": "./index.html",
+  "start_url": "./index.html?source=pwa",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "window-controls-overlay"],
@@ -10,7 +11,9 @@
   "theme_color": "#006d8a",
   "orientation": "portrait-primary",
   "lang": "es",
+  "dir": "ltr",
   "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "./iconos/favicon-96.png",

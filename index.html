@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=85">
+  <link rel="stylesheet" href="./app.css?v=87">
 </head>
 <body data-page="gestor">
 
@@ -351,6 +351,27 @@
 <!-- Notification banner (for incoming vale alerts when in admin mode) -->
 <div id="notifBanner"><span id="notifBannerText"></span></div>
 
+<!-- ══ PWA INSTALL BANNER (Android + iPhone) ══ -->
+<div id="pwaInstallBanner" class="install-banner" role="dialog" aria-label="Instalar aplicación">
+  <div class="install-banner-inner">
+    <div class="install-banner-icon">📲</div>
+    <div class="install-banner-text">
+      <div class="install-banner-title">Instala AXONTECH</div>
+      <div class="install-banner-sub" id="pwaInstallSub">Acceso rápido desde tu pantalla de inicio</div>
+      <!-- Instrucciones especiales para iPhone/iPad (oculto en Android) -->
+      <div id="pwaInstallIOSHint" class="install-banner-ios" style="display:none;">
+        <span class="ios-step"><span class="ios-share">􀈂</span> Compartir</span>
+        <span class="ios-arrow">→</span>
+        <span class="ios-step">Añadir a pantalla de inicio</span>
+      </div>
+    </div>
+    <div class="install-banner-actions">
+      <button id="pwaInstallBtn" type="button" class="install-banner-btn-primary">Instalar</button>
+      <button type="button" class="install-banner-btn-secondary" onclick="_dismissPWAInstall()">Ahora no</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── MODAL: Ticket de Cliente ── -->
 <div class="modal-bg" id="ticketModal">
   <div class="modal" style="max-width:340px;width:92%;background:transparent;box-shadow:none;padding:0;">
@@ -419,7 +440,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=85"></script>
+<script src="./app.js?v=87"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
