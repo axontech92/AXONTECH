@@ -239,6 +239,14 @@
       "name": "Ivis",
       "password": "E6HAVKD6",
       "phone": "5 5515972"
+    },
+    {
+      "color": "#2563EB",
+      "id": 1786123063239,
+      "initials": "H",
+      "name": "Harvin",
+      "password": "HKQFG2U3",
+      "phone": "5 4748437"
     }
   ],
   "mensajeros": [
@@ -1196,5 +1204,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-07T16:53:23.785Z"
+  "timestamp": "2026-08-07T17:18:43.787Z"
 }
