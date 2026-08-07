@@ -1236,43 +1236,6 @@
       "name": "Gym"
     }
   ],
-  "vales": [
-    {
-      "adminNotes": "",
-      "articulo": "×1 ANTORCHA PARA SOLDADURA TIG: / ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM",
-      "carnet": "",
-      "cliente": "Jejej",
-      "comisionGestor": "$15.00 USD",
-      "direccion": "Hfjkfiroto",
-      "garantia": "",
-      "gestorId": 1782489503525,
-      "id": 1786139535988,
-      "isNew": false,
-      "mensajeria": "",
-      "precioMN": "",
-      "precioUSD": "$175 USD",
-      "seenByAdmin": true,
-      "seenTs": "2026-08-07T21:52:24.608Z",
-      "status": "pending",
-      "telefono": "6195959",
-      "total": "$175 USD",
-      "ts": "2026-08-07T21:52:15.993Z",
-      "valeNum": 28,
-      "valeProductos": [
-        {
-          "id": 1778102582909,
-          "name": "ANTORCHA PARA SOLDADURA TIG:",
-          "qty": 1
-        },
-        {
-          "id": 1778103783319,
-          "name": "LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM",
-          "qty": 1
-        }
-      ],
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Jejej\n🔸Teléfono Cliente: 6195959\n🔸Dirección Cliente: Hfjkfiroto\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 ANTORCHA PARA SOLDADURA TIG:\n  ×1 LAS NUEVAS BATERÍAS ESPAÑOLAS LUBRIM\n🔸Precio USD/ zelle: $175 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $175 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/08/2026 17:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "vuelto": ""
-    }
-  ],
-  "timestamp": "2026-08-07T21:52:29.728Z"
+  "vales": [],
+  "timestamp": "2026-08-07T21:56:40.785Z"
 }
