@@ -122,9 +122,10 @@
     {
       "color": "#7C3AED",
       "id": 1781761257117,
-      "initials": "C",
-      "name": "Chabelis",
-      "password": "LY9BFK"
+      "initials": "L",
+      "name": "Leda",
+      "password": "LY9BFK",
+      "phone": ""
     },
     {
       "color": "#059669",
@@ -1169,5 +1170,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-02T17:34:21.751Z"
+  "timestamp": "2026-08-07T15:13:12.785Z"
 }
