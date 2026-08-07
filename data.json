@@ -67,8 +67,9 @@
       "color": "#7C3AED",
       "id": 1781761257109,
       "initials": "T",
-      "name": "Thalia",
-      "password": "S1A7C2"
+      "name": "Thaly",
+      "password": "S1A7C2",
+      "phone": ""
     },
     {
       "color": "#059669",
@@ -1170,5 +1171,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-07T15:13:12.785Z"
+  "timestamp": "2026-08-07T15:15:47.785Z"
 }
