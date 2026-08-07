@@ -6495,14 +6495,12 @@ function _showPWAInstallBanner() {
   if (!b) return;
   const subEl = document.getElementById('pwaInstallSub');
   const btnInstall = document.getElementById('pwaInstallBtn');
-  const btnShare = document.getElementById('pwaInstallBtnShare');
   const manualHint = document.getElementById('pwaInstallManualHint');
   const iosInstructions = document.getElementById('pwaInstallIOSHint');
 
   if (manualHint) manualHint.style.display = 'none';
   if (iosInstructions) iosInstructions.style.display = 'none';
   if (btnInstall) { btnInstall.style.display = 'none'; btnInstall.onclick = null; }
-  if (btnShare) { btnShare.style.display = 'none'; btnShare.onclick = null; }
 
   const isIOS = _isIOS();
   const label = _browserLabel();
@@ -6510,6 +6508,11 @@ function _showPWAInstallBanner() {
   if (isIOS) {
     if (subEl) subEl.textContent = 'Toca Compartir y luego "Añadir a pantalla de inicio"';
     if (iosInstructions) iosInstructions.style.display = 'block';
+    // En iOS mostramos el botón "Instalar" que abre el modal de ayuda (no hay beforeinstallprompt)
+    if (btnInstall) {
+      btnInstall.style.display = 'inline-block';
+      btnInstall.onclick = openPWAInstallHelp;
+    }
   } else if (_deferredInstallPrompt) {
     // beforeinstallprompt disponible → botón nativo de instalar
     if (subEl) subEl.textContent = 'Acceso rápido desde tu pantalla de inicio, sin tienda de apps';
@@ -6517,39 +6520,24 @@ function _showPWAInstallBanner() {
       btnInstall.style.display = 'inline-block';
       btnInstall.onclick = _triggerPWAInstall;
     }
-  } else if (navigator.share && (_isAndroid() || _isIOS())) {
+  } else {
     // CASO CLAVE: Chrome en Android sin beforeinstallprompt.
-    // En vez de instrucciones del menú ⋮ (que no funcionan si Chrome no
-    // reconoce el sitio como instalable), damos el botón "Compartir para
-    // agregar a inicio" que abre la hoja de compartir de Android.
-    // En MIUI, One UI y Pixel launcher, la hoja incluye "Añadir a pantalla
-    // de inicio" como destino de compartir.
+    // Banner SIMPLE: el botón "Instalar" abre el modal de ayuda (donde están
+    // los métodos alternativos: Compartir, QR, Copiar URL).
     if (subEl) {
       if (_isChrome() || _isEdge() || _isBrave() || _isOpera() || _isVivaldi() || _isKiwi()) {
-        subEl.textContent = 'Tu ' + label + ' no mostró el aviso. Pulsa "Compartir" y elige "Añadir a pantalla de inicio"';
+        subEl.textContent = 'Pulsa Instalar para ver cómo agregar AXONTECH a tu pantalla de inicio';
       } else if (_isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc()) {
-        subEl.textContent = 'Tu ' + label + ' no soporta instalación directa. Pulsa "Compartir" para agregar a inicio';
+        subEl.textContent = 'Tu ' + label + ' no soporta instalación directa — pulsa Instalar para ver opciones';
       } else if (_isWebView()) {
-        subEl.textContent = 'Pulsa "Compartir" y elige "Abrir en Chrome" para luego poder instalar';
+        subEl.textContent = 'Pulsa Instalar para ver cómo abrir AXONTECH en un navegador real';
       } else {
-        subEl.textContent = 'Pulsa "Compartir" y elige "Añadir a pantalla de inicio"';
+        subEl.textContent = 'Pulsa Instalar para agregar AXONTECH a tu pantalla de inicio';
       }
     }
-    if (btnShare) {
-      btnShare.style.display = 'inline-block';
-      btnShare.onclick = _shareForInstall;
-    }
-  } else {
-    // No hay Web Share API (raro en móvil, común en desktop) → instrucciones manuales
-    if (subEl) subEl.textContent = 'Tu ' + label + ' no soporta instalación directa — usa el botón del header 📲';
-    if (manualHint) {
-      manualHint.style.display = 'block';
-      const step1 = manualHint.querySelector('.manual-step1');
-      const step2 = manualHint.querySelector('.manual-step2');
-      const tip = manualHint.querySelector('.manual-tip');
-      if (step1) step1.textContent = '1. Toca el botón 📲 "Instalar" arriba a la derecha';
-      if (step2) step2.textContent = '2. Sigue las instrucciones del modal que se abre';
-      if (tip) tip.innerHTML = '💡 Si tu navegador no soporta instalación, prueba con <b>Chrome</b> desde la Play Store.';
+    if (btnInstall) {
+      btnInstall.style.display = 'inline-block';
+      btnInstall.onclick = openPWAInstallHelp;
     }
   }
   b.classList.add('show');
