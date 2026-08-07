@@ -1,4 +1,6 @@
-const CACHE = 'axontech-v93';
+// ── Versiones de la app y del SW (deben coincidir en cada release) ──
+const APP_VERSION  = '94';
+const CACHE = 'axontech-v94';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json',
@@ -20,8 +22,16 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
+      // Borra TODAS las cachés anteriores (v89, v90, v91, v92, v93, etc.)
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+    ).then(() => {
+      // Notificar a todas las pestañas abiertas que hay una versión nueva
+      return self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    }).then(clients => {
+      clients.forEach(client => {
+        client.postMessage({ type: 'SW_UPDATED', version: APP_VERSION });
+      });
+    })
   );
   self.clients.claim();
 });
@@ -29,7 +39,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith(self.location.origin) || e.request.method !== 'GET') return;
 
-  // For navigation requests, use network-first with offline fallback
+  // For navigation requests: network-first with offline fallback
   if (e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request)
@@ -49,14 +59,22 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // For static assets (CSS, JS, images, fonts): cache-first + revalidación en segundo plano.
-  // En 3G esto evita varios segundos de pantalla en blanco al arranque.
-  // Ver AUDITORIA-AXONTECH.md MEDIO 15.
+  // ── BUGFIX: NO usar ignoreSearch:true para app.js y app.css ──
+  // Antes usábamos ignoreSearch:true que trataba app.js?v=89 y app.js?v=94
+  // como la MISMA entrada de caché. Eso hacía que los usuarios con v89
+  // cacheada siguieran viendo v89 aunque el HTML pidiera v94.
+  // Ahora respetamos el query string para app.js/app.css/index.html/admin.html
+  // (que cambian con cada release) y solo ignoramos el query en imágenes
+  // (que no cambian entre versiones).
   const url = new URL(e.request.url);
   const esEstatico = /\.(css|js|png|jpe?g|gif|webp|woff2?|ttf|svg|ico)$/.test(url.pathname);
   if (esEstatico) {
+    // Archivos que cambian con cada release → respetar el query string
+    const respetaQuery = /\.(css|js)$/.test(url.pathname) ||
+                         /\/(index|admin|catalogo|offline)\.html$/i.test(url.pathname);
+    const cacheOpts = respetaQuery ? undefined : { ignoreSearch: true };
     e.respondWith(
-      caches.match(e.request, {ignoreSearch: true}).then(cached => {
+      caches.match(e.request, cacheOpts).then(cached => {
         // Revalidar en segundo plano sin bloquear la respuesta
         const net = fetch(e.request).then(res => {
           if (res && res.status === 200 && res.type === 'basic') {

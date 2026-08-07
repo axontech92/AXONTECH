@@ -1484,11 +1484,20 @@ function renderGestores() {
   const c=document.getElementById('gestoresList');
   if(!c) return;
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>';return;}
+  const pinnedId = _getPinnedGestorId();
   c.innerHTML=gestores.map(g=>{
     const act=g.id===activeGestorId;
-    return `<div class="g-item ${act?'active':''}" onclick="selectGestor(${g.id})">
-      <div class="g-avatar" style="background:${g.color}">${gestorAvatarInner(g)}</div>
+    const pinned=g.id===pinnedId;
+    const pinBtn = pinned
+      ? `<button class="g-pin-btn g-pinned" type="button" title="Quitar del inicio" aria-label="Quitar del inicio" onclick="event.stopPropagation();unpinGestor()">📌</button>`
+      : `<button class="g-pin-btn" type="button" title="Fijar al inicio" aria-label="Fijar al inicio" onclick="event.stopPropagation();togglePinGestor(${g.id})">📍</button>`;
+    return `<div class="g-item ${act?'active':''} ${pinned?'g-item-pinned':''}" onclick="selectGestor(${g.id})">
+      <div class="g-pin-wrap">
+        <div class="g-avatar" style="background:${g.color}">${gestorAvatarInner(g)}</div>
+        ${pinBtn}
+      </div>
       <div class="g-name">${escapeHTML(g.name)}</div>
+      ${pinned?'<span class="g-pin-label">Fijado</span>':''}
       ${act?'<span class="g-badge">✓</span>':''}
     </div>`;
   }).join('');
@@ -1742,6 +1751,63 @@ function changeGestor() {
   document.getElementById('vf-promotor').value='';
   document.getElementById('mobileBackName').textContent='';
   renderGestores();renderMyVales();renderGestorComisiones();onFormInput();renderGestorNotifs();
+}
+
+// ══════════════════════════════════════════
+//  PERFIL FIJADO AL INICIO
+//  - Cada gestor puede "fijar" su perfil desde la lista de selección
+//  - Cuando un gestor está fijado, la app abre directamente en su sección
+//    sin tener que pulsar "¿Quién eres?" cada vez
+//  - El gestor fijado se muestra más grande en la lista de selección
+//  - Si el gestor fijado tiene contraseña, se le pedirá al abrir
+//  - El usuario puede quitar el fijado con el botón ✕ sobre el avatar
+// ══════════════════════════════════════════
+const PINNED_GESTOR_KEY = 'axon_pinned_gestor_id';
+
+function _getPinnedGestorId() {
+  try {
+    const v = localStorage.getItem(PINNED_GESTOR_KEY);
+    return v ? parseInt(v, 10) : null;
+  } catch(e) { return null; }
+}
+function _setPinnedGestorId(id) {
+  try {
+    if (id === null || id === undefined) localStorage.removeItem(PINNED_GESTOR_KEY);
+    else localStorage.setItem(PINNED_GESTOR_KEY, String(id));
+  } catch(e) {}
+}
+function togglePinGestor(id) {
+  const current = _getPinnedGestorId();
+  if (current === id) {
+    _setPinnedGestorId(null);
+    showToast('Perfil no se fijará al inicio');
+  } else {
+    _setPinnedGestorId(id);
+    showToast('📌 Perfil fijado al inicio');
+  }
+  renderGestores();
+}
+function unpinGestor() {
+  _setPinnedGestorId(null);
+  renderGestores();
+  showToast('Perfil quitado del inicio');
+}
+// Llamar desde init() — si hay un gestor fijado y válido, lo selecciona
+function _autoSelectPinnedGestor() {
+  if (IS_ADMIN) return; // el admin no se auto-selecciona
+  const pinnedId = _getPinnedGestorId();
+  if (pinnedId === null) return;
+  const g = gestorOf(pinnedId);
+  if (!g) {
+    // El gestor fijado ya no existe (lo borraron) → limpiar
+    _setPinnedGestorId(null);
+    return;
+  }
+  // Seleccionar el gestor. Si tiene contraseña, selectGestor abrirá el modal.
+  // Pequeño retardo para que la UI esté lista.
+  setTimeout(() => {
+    try { selectGestor(pinnedId); } catch(e) { console.warn('auto-select failed', e); }
+  }, 200);
 }
 
 // ══════════════════════════════════════════
@@ -6848,20 +6914,36 @@ async function init() {
         if (!newSW) return;
         newSW.addEventListener('statechange', () => {
           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version ready — prompt user to reload
-            showToast('🔄 Nueva versión disponible — recarga para actualizar');
+            // New version ready — auto-activar el nuevo SW y recargar.
+            // Antes mostrábamos un toast pidiendo al usuario recargar, pero
+            // eso causaba que siguieran viendo versiones viejas. Ahora forzamos
+            // la activación inmediata.
+            newSW.postMessage('SKIP_WAITING');
           }
         });
       });
+      // Verificar cada 60s si hay una nueva versión del SW
+      setInterval(() => {
+        reg.update().catch(() => {});
+      }, 60000);
     }).catch(() => {});
     // When the new SW takes control (after skipWaiting), reload once
     let _reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (!_reloaded) { _reloaded = true; window.location.reload(); }
     });
+    // Escuchar mensaje SW_UPDATED del SW (se envía en activate)
+    navigator.serviceWorker.addEventListener('message', (ev) => {
+      if (ev.data && ev.data.type === 'SW_UPDATED') {
+        // Recargar para cargar la nueva versión de los assets
+        setTimeout(() => window.location.reload(), 500);
+      }
+    });
   }
   // PWA install prompt (Android + iPhone)
   setupPWAInstallPrompt();
+  // ── Auto-seleccionar gestor fijado al inicio (si existe) ──
+  _autoSelectPinnedGestor();
 }
 function initGestorPage() {
   // Removed the 12-second setInterval that re-rendered everything — Firebase
