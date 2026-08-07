@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=89">
+  <link rel="stylesheet" href="./app.css?v=90">
 </head>
 <body data-page="gestor">
 
@@ -402,37 +402,48 @@
     <!-- BLOQUE: Xiaomi Mi Browser -->
     <div id="pwaHelpXiaomi" class="pwa-help-block">
       <div class="pwa-help-title">⚠️ Navegador Mi de Xiaomi</div>
-      <p class="pwa-help-note">El navegador que viene preinstalado en tu Xiaomi <b>no permite</b> instalar apps web con un solo botón. Tienes dos opciones:</p>
-      <div class="pwa-help-subtitle">Opción A — Instalar manualmente en Mi Browser:</div>
-      <ol class="pwa-help-steps">
-        <li>Toca el icono de menú <b>⋮</b> arriba a la derecha.</li>
-        <li>Elige <b>"Añadir a pantalla de inicio"</b> (o "Añadir a inicio").</li>
-        <li>Confirma. Aparecerá un icono en tu pantalla de inicio.</li>
-      </ol>
-      <div class="pwa-help-subtitle">Opción B — Usar Chrome (recomendado):</div>
-      <ol class="pwa-help-steps">
-        <li>Abre la <b>Play Store</b> e instala <b>Chrome</b> (gratis).</li>
-        <li>Abre Chrome y entra a AXONTECH.</li>
-        <li>Te saldrá un aviso automático para instalar con un toque.</li>
-      </ol>
-      <p class="pwa-help-note">La opción B da mejor experiencia: aviso automático, notificaciones push y actualizaciones sin tener que re-abrir el navegador.</p>
+      <p class="pwa-help-note">El navegador preinstalado de Xiaomi <b>no permite</b> instalar apps web — ni con un botón ni desde el menú ⋮. La solución es abrir AXONTECH en <b>Chrome</b>, donde la instalación sí funciona con un toque.</p>
+
+      <div class="pwa-help-cta">
+        <button id="pwaHelpOpenChromeBtn" type="button" class="pwa-help-chrome-btn">
+          <span style="font-size:20px;">🌐</span>
+          <span>Abrir en Chrome</span>
+        </button>
+      </div>
+
+      <div class="pwa-help-subtitle" style="margin-top:12px;">¿No tienes Chrome instalado?</div>
+      <a id="pwaHelpPlayStoreLink" href="#" target="_blank" rel="noopener" class="pwa-help-playstore" style="display:none;">
+        📲 Instalar Chrome gratis desde Play Store →
+      </a>
+
+      <div class="pwa-help-subtitle" style="margin-top:14px;">O escanea este QR desde otro móvil con Chrome:</div>
+      <div id="pwaHelpQRWrap" class="pwa-help-qr" style="display:none;">
+        <img id="pwaHelpQR" alt="Código QR" />
+        <div class="pwa-help-qr-cap">Apunta con la cámara de otro teléfono (o con Chrome ya instalado) para abrir AXONTECH</div>
+      </div>
     </div>
 
     <!-- BLOQUE: Huawei Browser -->
     <div id="pwaHelpHuawei" class="pwa-help-block">
       <div class="pwa-help-title">⚠️ Navegador Huawei</div>
-      <p class="pwa-help-note">El navegador Huawei no soporta instalación directa con un botón.</p>
-      <div class="pwa-help-subtitle">Opción A — Manual:</div>
-      <ol class="pwa-help-steps">
-        <li>Toca el menú <b>⋮</b> arriba a la derecha.</li>
-        <li>Elige <b>"Añadir a pantalla de inicio"</b>.</li>
-        <li>Confirma. Aparecerá el icono en tu pantalla de inicio.</li>
-      </ol>
-      <div class="pwa-help-subtitle">Opción B — AppGallery + Chrome:</div>
-      <ol class="pwa-help-steps">
-        <li>En <b>AppGallery</b> busca e instala <b>Chrome</b>.</li>
-        <li>Abre Chrome y entra a AXONTECH — te saldrá aviso automático.</li>
-      </ol>
+      <p class="pwa-help-note">El navegador Huawei no soporta instalación directa con un botón. La solución es abrir AXONTECH en <b>Chrome</b>.</p>
+
+      <div class="pwa-help-cta">
+        <button id="pwaHelpOpenChromeBtnHuawei" type="button" class="pwa-help-chrome-btn" onclick="_openInChrome()">
+          <span style="font-size:20px;">🌐</span>
+          <span>Abrir en Chrome</span>
+        </button>
+      </div>
+
+      <div class="pwa-help-subtitle" style="margin-top:12px;">¿No tienes Chrome?</div>
+      <a href="https://appgallery.huawei.com/app/C100170711" target="_blank" rel="noopener" class="pwa-help-playstore">
+        📲 Instalar Chrome desde AppGallery →
+      </a>
+
+      <div id="pwaHelpQRWrapHuawei" class="pwa-help-qr">
+        <img id="pwaHelpQRHuawei" alt="Código QR" />
+        <div class="pwa-help-qr-cap">Escanea con otro móvil para abrir AXONTECH</div>
+      </div>
     </div>
 
     <!-- BLOQUE: iPhone / iPad -->
@@ -532,7 +543,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=89"></script>
+<script src="./app.js?v=90"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
