@@ -1942,9 +1942,15 @@ function renderMensajeroSelector() {
   c.innerHTML=list.map(m=>{
     const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
     const act=m.id===activeMensajeroId;
+    const phone=m.phone||'';
+    const waBtn = phone
+      ? `<button type="button" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}" style="background:#25D366;color:white;border:none;border-radius:6px;font-size:11px;padding:2px 7px;font-weight:700;cursor:pointer;margin-top:4px;">💬 WhatsApp</button>`
+      : '';
     return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
       <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
       <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
+      ${phone?`<div style="font-size:10px;color:#25D366;font-weight:600;margin-top:2px;">📱 ${escapeHTML(phone)}</div>`:''}
+      ${waBtn}
     </div>`;
   }).join('');
   if(mensajeroManagerExpanded) renderMensajerosEditList();
@@ -1978,6 +1984,10 @@ function renderMensajeroVales() {
       html+='<div class="lbl" style="margin-top:0;">Por entregar</div>';
       html+=porEntregar.map(v=>{
         const g=gestorOf(v.gestorId);
+        const m = v.mensajeroId ? mensajeroOf(v.mensajeroId) : null;
+        const waBtn = (m && m.phone)
+          ? `<button class="btn btn-sm btn-full" style="background:#25D366;color:white;margin-top:4px;" onclick="openMensajeroWhatsApp(${m.id}, buildShareText(getVales().find(x=>x.id===${v.id}), mensajeroOf(${v.mensajeroId})))">💬 WhatsApp al mensajero</button>`
+          : '';
         return `<div class="mv-card st-assigned">
           <div class="mv-head"><span class="mv-time">${timeStr(v.ts)}</span><span class="sp-assigned" style="font-size:9px;padding:2px 6px;">🛵 Asignado</span></div>
           <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.telefono||'—')}</div>
@@ -1989,6 +1999,7 @@ function renderMensajeroVales() {
             <button class="btn btn-green btn-sm btn-full" onclick="mensajeroEntrega(${v.id})">📦 Entregado</button>
             <button class="btn btn-green btn-sm btn-full" style="background:#2563EB;color:white;" onclick="mensajeroPagadoDirecto(${v.id})">💰 Pagado</button>
           </div>
+          ${waBtn}
         </div>`;
       }).join('');
     }
@@ -2673,14 +2684,25 @@ function buildShareText(v,m) {
 }
 function shareViaWA() {
   const text=document.getElementById('shareValePreview').textContent;
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+  const mId=parseInt(document.getElementById('mensajeroSelect').value);
+  const m=mensajeroOf(mId);
+  // Si el mensajero tiene teléfono guardado → abrir chat DIRECTO con él (wa.me/<phone>)
+  // y pre-llenar el texto del vale. Si no tiene teléfono → caer al flujo público
+  // wa.me/?text=... (el usuario elige el destino manualmente).
+  if(m && m.phone){
+    window.open(_buildWhatsAppUrl(m.phone, text), '_blank');
+  } else {
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+    if(m) showToast('💡 Agrega un teléfono a este mensajero para abrir su WhatsApp directo');
+  }
 }
 function closeShareModal(){document.getElementById('shareModal').classList.remove('show');shareTargetId=null;}
 function copyAndAssign() {
   if(!shareTargetId)return;
   const mId=parseInt(document.getElementById('mensajeroSelect').value);
   const m=mensajeroOf(mId);
-  navigator.clipboard.writeText(document.getElementById('shareValePreview').textContent).catch(()=>{});
+  const text=document.getElementById('shareValePreview').textContent;
+  navigator.clipboard.writeText(text).catch(()=>{});
   const vAsign=getVales().find(x=>x.id===shareTargetId);
   patchVale(shareTargetId,{status:'assigned',mensajeroId:mId});
   if(vAsign) addNotif('vale_assigned',vAsign.cliente||'Tu cliente',null,m?m.name:'',vAsign.gestorId);
@@ -2688,7 +2710,14 @@ function copyAndAssign() {
   renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();
   updateMensajeroBadge();
-  showToast(`Asignado a ${m?m.name:'mensajero'} y copiado ✓`);
+  // Si el mensajero tiene teléfono → abrir su WhatsApp directo con el texto del vale.
+  // Así el admin asigna y a la vez le manda el vale al mensajero en un solo toque.
+  if(m && m.phone){
+    setTimeout(()=>window.open(_buildWhatsAppUrl(m.phone, text), '_blank'), 250);
+    showToast(`Asignado a ${m?m.name:'mensajero'} · WhatsApp abierto ✓`);
+  } else {
+    showToast(`Asignado a ${m?m.name:'mensajero'} y copiado ✓`);
+  }
 }
 
 // ══════════════════════════════════════════
@@ -2864,8 +2893,46 @@ function markAsPaid(id, skipConfirm) {
 function addMensajero() {
   const inp=document.getElementById('newMensajeroInput');
   const name=inp.value.trim();if(!name)return;
-  const list=getMensajeros();list.push({id:Date.now(),name});saveMensajeros(list);
-  inp.value='';renderMensajeros();maybeAutoSync();showToast('Mensajero agregado');
+  const phoneInp=document.getElementById('newMensajeroPhoneInput');
+  const rawPhone = phoneInp ? (phoneInp.value||'').trim() : '';
+  const phone = _normalizePhone(rawPhone);
+  const list=getMensajeros();list.push({id:Date.now(),name,phone:phone||''});saveMensajeros(list);
+  inp.value='';if(phoneInp) phoneInp.value='';
+  renderMensajeros();maybeAutoSync();
+  showToast(phone ? 'Mensajero agregado ✓' : 'Mensajero agregado (sin teléfono)');
+}
+
+// Normaliza un teléfono a formato internacional solo-dígitos.
+// Acepta "+53 5 123 4567", "53512345678", "(53) 5123-4567", etc.
+// Devuelve string de dígitos (sin "+"). Si está vacío o no parseable, devuelve ''.
+function _normalizePhone(raw) {
+  if (!raw) return '';
+  // Quitar todo lo que no sea dígito
+  const digits = String(raw).replace(/\D+/g, '');
+  if (!digits) return '';
+  // Si empieza con 00, quitarlo (prefijo internacional largo)
+  let n = digits;
+  if (n.startsWith('00')) n = n.slice(2);
+  // Si es un número cubano sin prefijo (5XXXXXXXX, 7XXXXXXXX, 20XXXXXXX, etc.)
+  // y no empieza con 53, anteponer 53.
+  if (!n.startsWith('53') && /^[567]\d{7}$/.test(n)) {
+    n = '53' + n;
+  }
+  return n;
+}
+
+// Devuelve true si el teléfono normalizado parece válido (al menos 8 dígitos).
+function _isValidPhone(normalized) {
+  return /^\d{8,}$/.test(normalized || '');
+}
+
+// Construye la URL de WhatsApp para un teléfono normalizado + texto opcional.
+function _buildWhatsAppUrl(phone, text) {
+  const p = _normalizePhone(phone);
+  let url = 'https://wa.me/';
+  if (p) url += p;
+  if (text) url += (p ? '?' : '?') + 'text=' + encodeURIComponent(text);
+  return url;
 }
 const _nmi=document.getElementById('newMensajeroInput');if(_nmi)_nmi.addEventListener('keydown',e=>{if(e.key==='Enter')addMensajero();});
 function removeMensajero(id) {
@@ -2879,12 +2946,21 @@ function renderMensajeros() {
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
     const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    return `<div class="m-item"><div class="m-av">${escapeHTML(ini)}</div><div class="m-name">${escapeHTML(m.name)}</div><button class="m-del" style="font-size:13px;margin-right:4px;" onclick="openEditMensajeroModal(${m.id})" title="Editar">✏️</button><button class="m-del" onclick="removeMensajero(${m.id})">×</button></div>`;
+    const phone=m.phone||'';
+    const waBtn = phone
+      ? `<button class="m-del" style="font-size:13px;margin-right:4px;color:#25D366;" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}">💬</button>`
+      : '';
+    const phoneHTML = phone
+      ? `<div style="font-size:10px;color:#25D366;font-weight:600;margin-top:2px;">📱 ${escapeHTML(phone)}</div>`
+      : '';
+    return `<div class="m-item"><div class="m-av">${escapeHTML(ini)}</div><div class="m-name">${escapeHTML(m.name)}${phoneHTML}</div>${waBtn}<button class="m-del" style="font-size:13px;margin-right:4px;" onclick="openEditMensajeroModal(${m.id})" title="Editar">✏️</button><button class="m-del" onclick="removeMensajero(${m.id})">×</button></div>`;
   }).join('');
 }
 function openEditMensajeroModal(id) {
   const m=mensajeroOf(id);if(!m)return;
   document.getElementById('editMensajeroInput').value=m.name;
+  const phoneInp=document.getElementById('editMensajeroPhoneInput');
+  if(phoneInp) phoneInp.value = m.phone || '';
   document.getElementById('editMensajeroModal').dataset.mensajeroId=id;
   document.getElementById('editMensajeroModal').classList.add('show');
 }
@@ -2893,13 +2969,26 @@ function saveEditMensajero() {
   const id=parseInt(document.getElementById('editMensajeroModal').dataset.mensajeroId);
   const newName=document.getElementById('editMensajeroInput').value.trim();
   if(!newName){showToast('El nombre no puede estar vacío');return;}
+  const phoneInp=document.getElementById('editMensajeroPhoneInput');
+  const rawPhone = phoneInp ? (phoneInp.value||'').trim() : '';
+  const phone = _normalizePhone(rawPhone);
   const list=getMensajeros();const i=list.findIndex(m=>m.id===id);if(i===-1)return;
-  list[i]={...list[i],name:newName};
+  list[i]={...list[i],name:newName,phone:phone||''};
   saveMensajeros(list);
   closeEditMensajeroModal();
   renderMensajeros();renderMensajeroSelector();
   maybeAutoSync();
   showToast('Mensajero actualizado ✓');
+}
+
+// Abrir WhatsApp con el texto del vale que se está compartiendo (o vacío si
+// se llama desde la ficha del mensajero).
+function openMensajeroWhatsApp(mensajeroId, optionalText) {
+  const m = mensajeroOf(mensajeroId);
+  if(!m){showToast('Mensajero no encontrado');return;}
+  if(!m.phone){showToast('Este mensajero no tiene teléfono');return;}
+  const text = optionalText || '';
+  window.open(_buildWhatsAppUrl(m.phone, text), '_blank');
 }
 
 // ══════════════════════════════════════════
