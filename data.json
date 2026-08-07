@@ -46,8 +46,9 @@
       "color": "#BE185D",
       "id": 1781761257106,
       "initials": "L",
-      "name": "Lily",
-      "password": "X6YLV6"
+      "name": "Lilyta",
+      "password": "X6YLV6",
+      "phone": ""
     },
     {
       "color": "#1D4ED8",
@@ -1187,5 +1188,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-07T15:32:38.785Z"
+  "timestamp": "2026-08-07T16:17:12.786Z"
 }
