@@ -214,6 +214,14 @@
       "name": "Eloydis",
       "password": "TAN28F62",
       "phone": "59309819"
+    },
+    {
+      "color": "#0891B2",
+      "id": 1786116024697,
+      "initials": "M",
+      "name": "Mauro",
+      "password": "P59FUBCH",
+      "phone": ""
     }
   ],
   "mensajeros": [
@@ -1171,5 +1179,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-07T15:15:47.785Z"
+  "timestamp": "2026-08-07T15:21:24.785Z"
 }
