@@ -6295,95 +6295,180 @@ function _resetSessionTimer() {
 ['click', 'keydown', 'touchstart', 'mousemove'].forEach(evt => {
   document.addEventListener(evt, () => { if (IS_ADMIN && adminActive) _resetSessionTimer(); }, { passive: true });
 });
-
 // ══════════════════════════════════════════
-//  PWA INSTALL PROMPT (Android + iPhone + Xiaomi)
-//  - Android/Chrome/Edge: captura beforeinstallprompt → banner con botón "Instalar"
-//  - iPhone/iPad Safari: NO hay beforeinstallprompt → banner con instrucciones
-//    "Toca Compartir ↗ → Añadir a pantalla de inicio"
-//  - Xiaomi / Mi Browser / Huawei Browser: NO disparan beforeinstallprompt
-//    y NO ofrecen "Instalar app" en el menú. Mostramos banner con instrucciones
-//    manuales específicas + recomendación de usar Chrome.
-//  - Si ya está instalado (standalone), no se muestra nada
-//  - El usuario puede cerrar el banner → no se vuelve a mostrar por 7 días
-//  - Botón 📲 en el header abre SIEMPRE el modal de ayuda (entry point permanente)
+//  PWA INSTALL PROMPT (universal — todos los navegadores)
+//  - Estrategia:
+//    1) Capturar beforeinstallprompt cuando se dispare (Chrome, Edge,
+//       Samsung Internet, Opera, Brave, Vivaldi, Kiwi en Android).
+//    2) Si en ~8s NO se disparó en un navegador que SÍ debería dispararlo
+//       (caso del teléfono con Chrome que no muestra el aviso), mostramos
+//       el banner con instrucciones manuales del menú ⋮ → "Instalar app".
+//    3) iOS, Mi Browser, Huawei, UC, Quark: siempre mostramos instrucciones
+//       manuales porque nunca disparan beforeinstallprompt.
+//    4) Botón 📲 del header SIEMPRE visible (incluso desktop). Long-press
+//       abre el modal de diagnóstico técnico.
+//    5) El modal de ayuda tiene bloques específicos para cada familia de
+//       navegadores (Chrome con prompt, Chrome sin prompt, Samsung, Opera,
+//       Brave, Kiwi, Mi, Huawei, iPhone, Firefox, Desktop, WebView, Genérico).
+//    6) Web Share API como botón alternativo: navigator.share() abre la
+//       hoja de compartir, donde muchos navegadores ofrecen "Añadir a inicio".
+//  - Compatible con versiones anteriores: en navegadores que sí soportan
+//    beforeinstallprompt el flujo directo sigue funcionando igual.
 // ══════════════════════════════════════════
 let _deferredInstallPrompt = null;
+let _installDiagnosticInfo = {
+  promptReceived: false,
+  promptTime: null,
+  hasManifest: false,
+  hasSW: false,
+  isStandalone: false,
+  https: location.protocol === 'https:' || location.hostname === 'localhost'
+};
 const PWA_DISMISS_KEY = 'axon_pwa_install_dismissed';
 const PWA_DISMISS_DAYS = 7;
+const PWA_BANNER_WAIT_MS = 3500;    // retardo inicial antes de mostrar banner
+const PWA_PROMPT_GRACE_MS = 8000;   // si en 8s no llegó beforeinstallprompt, fallback manual
 
 function _isStandaloneMode() {
-  // iOS Safari
   if (window.navigator.standalone === true) return true;
-  // Android/Chrome/Edge
   if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
-  // iOS PWA (cuando se lanza desde pantalla de inicio en algunos iOS)
   if (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) return true;
-  // miniform-scale-affordance fallback (algunos Mi Browser lo reportan así)
   if (window.matchMedia && window.matchMedia('(display-mode: minimal-ui)').matches) return true;
   return false;
 }
 function _isIOS() {
-  // Detección robusta de iOS/iPadOS sin depender solo del UA string.
-  // iPad en iOS 13+ reporta "Mac OS" en el UA, por eso verificamos también
-  // la ausencia de "Macintosh" con touch points.
   const ua = navigator.userAgent || '';
   const isIPad = (/iPad/i.test(ua)) || (/Macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1);
   const isIPhone = /iPhone|iPod/i.test(ua);
   return isIPad || isIPhone;
 }
+function _isAndroid() {
+  return /Android/i.test(navigator.userAgent || '');
+}
+function _ua() { return navigator.userAgent || ''; }
 
-// Detección de navegadores que NO disparan beforeinstallprompt.
-// Estos navegadores SÍ permiten "Agregar a inicio" manualmente desde el menú,
-// pero la API JS no está disponible, así que hay que instruir al usuario.
+// ── Detección de navegadores específicos ──
 function _isMiBrowser() {
-  // Xiaomi Mi Browser / MiuiBrowser — viene preinstalado en todos los Xiaomi
-  // y NO soporta beforeinstallprompt. UA típico:
-  //   Mozilla/5.0 (Linux; U; Android 13; ...) AppleWebKit/537.36 (KHTML, like Gecko)
-  //   Version/4.0 Chrome/100.0.4896.58 Mobile Safari/537.36 XiaoMi/MiuiBrowser/18.x
-  const ua = navigator.userAgent || '';
-  return /MiuiBrowser|XiaoMi\/MiuiBrowser|Miui\/Hybrid|XiaoMi\/Hunter/i.test(ua);
+  return /MiuiBrowser|XiaoMi\/MiuiBrowser|Miui\/Hybrid|XiaoMi\/Hunter/i.test(_ua());
 }
 function _isHuaweiBrowser() {
-  // Huawei Browser — mismo problema que Mi Browser
-  const ua = navigator.userAgent || '';
-  return /HuaweiBrowser|HBPC\/|HuaWeiBrowser/i.test(ua);
+  return /HuaweiBrowser|HBPC\/|HuaWeiBrowser/i.test(_ua());
 }
 function _isQuarkOrUc() {
-  // Navegadores chinos que también bloquean el prompt
-  const ua = navigator.userAgent || '';
-  return /Quark\/|UCBrowser\/|UCWEB/i.test(ua);
+  return /Quark\/|UCBrowser\/|UCWEB/i.test(_ua());
 }
 function _isSamsungInternet() {
-  const ua = navigator.userAgent || '';
-  return /SamsungBrowser\//i.test(ua);
+  return /SamsungBrowser\//i.test(_ua());
 }
+function _isOpera() {
+  return /OPR\/|Opera\/|Opera\sMini|OPT\//i.test(_ua());
+}
+function _isBrave() {
+  // Brave no se distingue por UA, pero expone navigator.brave (Promise<boolean>)
+  return typeof navigator.brave !== 'undefined';
+}
+function _isVivaldi() {
+  return /Vivaldi\//i.test(_ua());
+}
+function _isEdge() {
+  return /Edg\//i.test(_ua());
+}
+function _isChrome() {
+  const ua = _ua();
+  if (!/Chrome\//i.test(ua)) return false;
+  if (_isEdge() || _isOpera() || _isSamsungInternet() || _isVivaldi()) return false;
+  return true;
+}
+function _isFirefox() {
+  return /Firefox\//i.test(_ua()) && !/Seamonkey\//i.test(_ua());
+}
+function _isKiwi() {
+  return /Kiwi/i.test(_ua());
+}
+function _isQQBrowser() {
+  return /QQBrowser\/|MQQBrowser\//i.test(_ua());
+}
+function _isBaidu() {
+  return /Baidu|baiduboxapp|baidubrowser/i.test(_ua());
+}
+function _isYandex() {
+  return /YaBrowser\//i.test(_ua());
+}
+function _isDuckDuckGo() {
+  return /DuckDuckGo/i.test(_ua());
+}
+function _isMaxthon() {
+  return /Maxthon/i.test(_ua());
+}
+function _isLenovo() {
+  return /Lenovo/i.test(_ua());
+}
+function _isPuffin() {
+  return /Puffin/i.test(_ua());
+}
+function _isVia() {
+  return /Via\//i.test(_ua());
+}
+function _isAloha() {
+  return /AlohaBrowser/i.test(_ua());
+}
+function _isEcosia() {
+  return /Ecosia/i.test(_ua());
+}
+function _isCocCoc() {
+  return /coc_coc_browser/i.test(_ua());
+}
+function _isSogou() {
+  return /SogouMobileBrowser|SogouExplorer/i.test(_ua());
+}
+function _isWebView() {
+  // WebView de Facebook, Instagram, WhatsApp, Line, etc.
+  return /FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)/i.test(_ua());
+}
+function _isDesktop() {
+  return !_isIOS() && !_isAndroid();
+}
+
 function _needsManualInstall() {
-  // True si el navegador requiere instrucciones manuales (no dispara beforeinstallprompt)
   return _isIOS() || _isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc();
 }
 function _isXiaomiDevice() {
-  // Detectar dispositivo Xiaomi (incluso si está usando Chrome, que sí soporta
-  // beforeinstallprompt). Útil para ofrecer tips específicos en el modal de ayuda.
-  const ua = navigator.userAgent || '';
-  return /Mi\s|Redmi|POCO|Xiaomi|MiuiBrowser/i.test(ua);
+  return /Mi\s|Redmi|POCO|Xiaomi|MiuiBrowser/i.test(_ua());
 }
+
 function _browserLabel() {
-  // Etiqueta legible del navegador actual para el modal de ayuda
-  const ua = navigator.userAgent || '';
+  const ua = _ua();
+  if (_isWebView()) return 'Navegador dentro de app (Facebook/Instagram/WhatsApp)';
   if (_isMiBrowser()) return 'Navegador Mi (Xiaomi)';
   if (_isHuaweiBrowser()) return 'Navegador Huawei';
-  if (_isQuarkOrUc()) return 'Quark / UC';
+  if (_isQuarkOrUc()) return /Quark/.test(ua) ? 'Quark' : 'UC Browser';
   if (_isSamsungInternet()) return 'Samsung Internet';
-  if (/Edg\//i.test(ua)) return 'Microsoft Edge';
-  if (/OPR\//i.test(ua)) return 'Opera';
-  if (/Firefox\//i.test(ua) && !/Seamonkey\//i.test(ua)) return 'Firefox';
+  if (_isOpera()) return 'Opera';
+  if (_isVivaldi()) return 'Vivaldi';
+  if (_isEdge()) return 'Microsoft Edge';
+  if (_isBrave()) return 'Brave';
+  if (_isKiwi()) return 'Kiwi Browser';
+  if (_isQQBrowser()) return 'QQ Browser';
+  if (_isBaidu()) return 'Baidu';
+  if (_isYandex()) return 'Yandex Browser';
+  if (_isDuckDuckGo()) return 'DuckDuckGo';
+  if (_isMaxthon()) return 'Maxthon';
+  if (_isLenovo()) return 'Lenovo Browser';
+  if (_isPuffin()) return 'Puffin';
+  if (_isVia()) return 'Via Browser';
+  if (_isAloha()) return 'Aloha';
+  if (_isEcosia()) return 'Ecosia';
+  if (_isCocCoc()) return 'Cốc Cốc';
+  if (_isSogou()) return 'Sogou';
   if (/CriOS/i.test(ua)) return 'Chrome (iPhone)';
   if (/FxiOS/i.test(ua)) return 'Firefox (iPhone)';
-  if (/Chrome\//i.test(ua)) return 'Chrome';
+  if (_isFirefox()) return 'Firefox';
+  if (_isChrome()) return 'Chrome';
   if (/Safari\//i.test(ua) && _isIOS()) return 'Safari';
+  if (_isDesktop()) return 'Navegador de escritorio';
   return 'tu navegador';
 }
+
 function _isInstallDismissed() {
   try {
     const ts = parseInt(localStorage.getItem(PWA_DISMISS_KEY) || '0', 10);
@@ -6398,79 +6483,7 @@ function _dismissPWAInstall() {
   if (b) b.classList.remove('show');
 }
 
-// ══════════════════════════════════════════
-//  CHROME INTENT URL — la solución real para Xiaomi / Huawei
-//  Mi Browser no soporta beforeinstallprompt NI "Añadir a inicio" en su menú
-//  en muchas versiones de MIUI. La única forma de instalar AXONTECH es abrirlo
-//  en Chrome, donde el aviso de instalación sí funciona con un toque.
-//  El intent:// URL de Android abre Chrome específicamente; si no está
-//  instalado, cae al fallback_url que abre la Play Store.
-// ══════════════════════════════════════════
-function _buildChromeIntentUrl() {
-  try {
-    const url = new URL(window.location.href);
-    const path = (url.pathname || '/') + (url.search || '') + (url.hash || '');
-    return 'intent://' + url.host + path +
-           '#Intent;scheme=https;package=com.android.chrome;' +
-           'S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.android.chrome;end';
-  } catch(e) { return null; }
-}
-function _buildPlayStoreChromeUrl() {
-  return 'https://play.google.com/store/apps/details?id=com.android.chrome';
-}
-function _openInChrome() {
-  const intentUrl = _buildChromeIntentUrl();
-  if (!intentUrl) {
-    showToast('No pude construir el enlace a Chrome');
-    return;
-  }
-  // Intent URL — Android lo intercepta y abre Chrome directamente
-  window.location.href = intentUrl;
-  // Tras 2s, si seguimos aquí, Chrome no estaba instalado → mostrar toast + abrir Play Store
-  setTimeout(() => {
-    if (document.visibilityState === 'visible') {
-      showToast('Si Chrome no se abrió, instálalo gratis desde la Play Store');
-      // Optionally open Play Store
-      // window.open(_buildPlayStoreChromeUrl(), '_blank');
-    }
-  }, 2500);
-}
-
-// Cablea el botón del header según el contexto del navegador:
-//  - Mi Browser / Huawei Browser → "Abrir en Chrome" (lanza Chrome vía intent)
-//  - Chrome con beforeinstallprompt → "Instalar" (dispara el prompt nativo)
-//  - Otros → "Instalar" (abre modal de ayuda)
-function _setupHeaderInstallButton() {
-  const btn = document.getElementById('btnPWAInstallHeader');
-  if (!btn) return;
-
-  if (_isStandaloneMode()) {
-    btn.style.display = 'none';
-    return;
-  }
-
-  if (_isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc()) {
-    // En navegadores bloqueados: el botón es la salida a Chrome
-    btn.textContent = '📲 Abrir en Chrome';
-    btn.title = 'Abrir AXONTECH en Chrome (allí sí podrás instalar)';
-    btn.style.display = 'inline-flex';
-    btn.onclick = _openInChrome;
-    return;
-  }
-
-  if (_deferredInstallPrompt) {
-    btn.textContent = '📲 Instalar';
-    btn.title = 'Instalar AXONTECH en tu pantalla de inicio';
-    btn.style.display = 'inline-flex';
-    btn.onclick = _triggerPWAInstall;
-    return;
-  }
-
-  // Resto de navegadores: botón abre modal de ayuda
-  btn.textContent = '📲 Instalar';
-  btn.style.display = 'inline-flex';
-  btn.onclick = openPWAInstallHelp;
-}
+// ── Mostrar banner con contenido dinámico según contexto ──
 function _showPWAInstallBanner() {
   const b = document.getElementById('pwaInstallBanner');
   if (!b) return;
@@ -6479,69 +6492,75 @@ function _showPWAInstallBanner() {
   const manualHint = document.getElementById('pwaInstallManualHint');
   const iosInstructions = document.getElementById('pwaInstallIOSHint');
 
-  // Reset estados
   if (manualHint) manualHint.style.display = 'none';
   if (iosInstructions) iosInstructions.style.display = 'none';
-  if (btnInstall) btnInstall.style.display = 'none';
+  if (btnInstall) { btnInstall.style.display = 'none'; btnInstall.onclick = null; }
 
   const isIOS = _isIOS();
-  const isMi = _isMiBrowser();
-  const isHuawei = _isHuaweiBrowser();
-  const isQuarkUc = _isQuarkOrUc();
+  const label = _browserLabel();
 
   if (isIOS) {
-    // iPhone/iPad: no hay API de instalación. Mostramos instrucciones.
     if (subEl) subEl.textContent = 'Toca Compartir y luego "Añadir a pantalla de inicio"';
     if (iosInstructions) iosInstructions.style.display = 'block';
   } else if (_deferredInstallPrompt) {
-    // Android/Chrome/Edge/Samsung: tenemos el evento beforeinstallprompt guardado.
     if (subEl) subEl.textContent = 'Acceso rápido desde tu pantalla de inicio, sin tienda de apps';
     if (btnInstall) {
       btnInstall.style.display = 'inline-block';
       btnInstall.onclick = _triggerPWAInstall;
     }
-  } else if (isMi || isHuawei || isQuarkUc) {
-    // Navegadores que NO disparan beforeinstallprompt: mostrar instrucciones manuales
-    if (subEl) subEl.textContent =
-      isMi ? 'Tu navegador Mi no permite instalar — ábrela en Chrome'
-           : (isHuawei ? 'Tu navegador Huawei no permite instalar — ábrela en Chrome'
-                       : 'Tu navegador no permite instalar — ábrela en Chrome');
+  } else {
+    // Android sin beforeinstallprompt → instrucciones manuales específicas
+    if (subEl) {
+      if (_isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc()) {
+        subEl.textContent = 'Tu ' + label + ' no soporta instalación directa — sigue estos pasos';
+      } else if (_isWebView()) {
+        subEl.textContent = 'Abre AXONTECH en un navegador real para instalarlo — sigue estos pasos';
+      } else {
+        subEl.textContent = 'Tu ' + label + ' no mostró el aviso automático — sigue estos pasos';
+      }
+    }
     if (manualHint) {
       manualHint.style.display = 'block';
-      // Texto específico por navegador
       const step1 = manualHint.querySelector('.manual-step1');
       const step2 = manualHint.querySelector('.manual-step2');
       const tip = manualHint.querySelector('.manual-tip');
-      if (isMi) {
-        if (step1) step1.innerHTML = '1. Pulsa <b>"Abrir en Chrome"</b> →';
-        if (step2) step2.innerHTML = '2. En Chrome saldrá "Instalar" automáticamente';
-        if (tip) tip.innerHTML = '💡 Si no tienes Chrome, instálalo gratis desde la <b>Play Store</b>.';
-      } else if (isHuawei) {
-        if (step1) step1.innerHTML = '1. Pulsa <b>"Abrir en Chrome"</b> →';
-        if (step2) step2.innerHTML = '2. En Chrome saldrá "Instalar" automáticamente';
-        if (tip) tip.innerHTML = '💡 Si no tienes Chrome, descárgalo desde <b>AppGallery</b>.';
-      } else {
-        if (step1) step1.textContent = '1. Toca el menú del navegador';
+      // Texto por navegador
+      if (_isChrome() || _isEdge() || _isBrave() || _isOpera() || _isVivaldi() || _isKiwi()) {
+        if (step1) step1.textContent = '1. Toca el menú ⋮ (arriba a la derecha)';
+        if (step2) step2.textContent = '2. Elige "Instalar app" (o "Añadir a pantalla de inicio")';
+        if (tip) tip.innerHTML = '💡 Si no ves "Instalar app", actualiza tu navegador desde la Play Store. La opción aparece en Chrome 90+.';
+      } else if (_isSamsungInternet()) {
+        if (step1) step1.textContent = '1. Toca el menú ☰ (arriba a la derecha)';
+        if (step2) step2.textContent = '2. Elige "Añadir a pantalla de inicio" o "Instalar app"';
+        if (tip) tip.innerHTML = '💡 Samsung Internet soporta instalación de apps web en versiones recientes.';
+      } else if (_isFirefox()) {
+        if (step1) step1.textContent = '1. Toca el menú ☰ (abajo o arriba)';
         if (step2) step2.textContent = '2. Elige "Añadir a pantalla de inicio"';
-        if (tip) tip.innerHTML = '💡 Para mejor experiencia usa Chrome o Samsung Internet.';
+        if (tip) tip.innerHTML = '💡 Firefox aún no soporta el aviso automático. Para mejor experiencia usa Chrome o Edge.';
+      } else if (_isMiBrowser()) {
+        if (step1) step1.textContent = '1. Toca el menú ⋮ (arriba a la derecha)';
+        if (step2) step2.textContent = '2. Elige "Añadir a pantalla de inicio"';
+        if (tip) tip.innerHTML = '💡 Mejor aún: instala <b>Chrome</b> desde la Play Store y abre AXONTECH desde ahí.';
+      } else if (_isHuaweiBrowser()) {
+        if (step1) step1.textContent = '1. Toca el menú ⋮ (arriba a la derecha)';
+        if (step2) step2.textContent = '2. Elige "Añadir a pantalla de inicio"';
+        if (tip) tip.innerHTML = '💡 Alternativa: descarga Chrome desde AppGallery y abre AXONTECH desde ahí.';
+      } else if (_isWebView()) {
+        if (step1) step1.textContent = '1. Toca ⋮ del navegador → "Abrir en navegador" o "Abrir en Chrome"';
+        if (step2) step2.textContent = '2. Una vez en Chrome, verás el aviso "Instalar app" automáticamente';
+        if (tip) tip.innerHTML = '💡 Estás viendo AXONTECH dentro de Facebook/Instagram. Para instalarlo necesitas abrirlo en un navegador independiente.';
+      } else {
+        if (step1) step1.textContent = '1. Abre el menú del navegador';
+        if (step2) step2.textContent = '2. Elige "Añadir a pantalla de inicio"';
+        if (tip) tip.innerHTML = '💡 Para mejor experiencia usa Chrome, Edge o Samsung Internet.';
       }
     }
-    // Cambiar el botón primario del banner: en Mi/Huawei/UC no es "Instalar",
-    // es "Abrir en Chrome" porque es la única forma real de instalar.
-    if (btnInstall) {
-      btnInstall.textContent = '📲 Abrir en Chrome';
-      btnInstall.style.display = 'inline-block';
-      btnInstall.onclick = _openInChrome;
-    }
-  } else {
-    // Navegador de escritorio u otro: no instalable por ahora
-    return;
   }
   b.classList.add('show');
 }
+
 async function _triggerPWAInstall() {
   if (!_deferredInstallPrompt) {
-    // En lugar de solo un toast, abrimos el modal de ayuda que muestra los pasos
     openPWAInstallHelp();
     return;
   }
@@ -6551,13 +6570,13 @@ async function _triggerPWAInstall() {
     if (choice && choice.outcome === 'accepted') {
       showToast('🎉 Instalando AXONTECH…');
     } else {
-      // El usuario canceló el prompt nativo — no lo molestamos por 7 días
       _dismissPWAInstall();
     }
   } catch(e) {
     console.warn('Install prompt error:', e);
+    openPWAInstallHelp();
   } finally {
-    _deferredInstallPrompt = null; // solo se puede usar una vez
+    _deferredInstallPrompt = null;
     const b = document.getElementById('pwaInstallBanner');
     if (b) b.classList.remove('show');
   }
@@ -6565,41 +6584,70 @@ async function _triggerPWAInstall() {
 
 // ══════════════════════════════════════════
 //  MODAL DE AYUDA DE INSTALACIÓN
-//  Se abre desde el botón 📲 del header o desde el botón "¿Cómo instalar?"
-//  del banner. Muestra instrucciones específicas según navegador detectado.
+//  Se abre desde el botón 📲 del header. Muestra instrucciones específicas
+//  según el navegador detectado. Incluye:
+//    - Botón "Instalar ahora" si beforeinstallprompt está disponible
+//    - Botón "Compartir / Agregar a inicio" si navigator.share está disponible
 // ══════════════════════════════════════════
 function openPWAInstallHelp() {
   const modal = document.getElementById('pwaInstallHelpModal');
   if (!modal) return;
 
-  // Rellenar el navegador detectado
   const browserLbl = document.getElementById('pwaHelpBrowser');
   if (browserLbl) browserLbl.textContent = _browserLabel();
 
-  // Mostrar/ocultar bloques según el navegador
-  const blocks = {
-    chrome:   document.getElementById('pwaHelpChrome'),     // Chrome/Edge/Samsung (con beforeinstallprompt)
-    xiaomi:   document.getElementById('pwaHelpXiaomi'),     // Mi Browser
-    huawei:   document.getElementById('pwaHelpHuawei'),
-    iphone:   document.getElementById('pwaHelpIphone'),
-    firefox:  document.getElementById('pwaHelpFirefox')
-  };
-  Object.values(blocks).forEach(el => { if (el) el.style.display = 'none'; });
+  // Ocultar todos los bloques
+  const blockIds = [
+    'pwaHelpChrome',          // Chrome/Edge con beforeinstallprompt
+    'pwaHelpChromeNoPrompt',  // Chrome/Edge sin beforeinstallprompt (caso problemático)
+    'pwaHelpSamsung',         // Samsung Internet
+    'pwaHelpOpera',           // Opera/Brave/Vivaldi
+    'pwaHelpKiwi',            // Kiwi Browser
+    'pwaHelpXiaomi',          // Mi Browser
+    'pwaHelpHuawei',          // Huawei Browser
+    'pwaHelpIphone',          // iOS Safari / Chrome iPhone
+    'pwaHelpFirefox',         // Firefox
+    'pwaHelpGeneric',         // Genérico Android
+    'pwaHelpDesktop',         // Desktop
+    'pwaHelpWebView'          // WebView (FB/IG/WA)
+  ];
+  blockIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
 
+  // Decidir qué bloque mostrar
+  let blockId = null;
   if (_isIOS()) {
-    if (blocks.iphone) blocks.iphone.style.display = 'block';
+    blockId = 'pwaHelpIphone';
+  } else if (_isWebView()) {
+    blockId = 'pwaHelpWebView';
   } else if (_isMiBrowser()) {
-    if (blocks.xiaomi) blocks.xiaomi.style.display = 'block';
+    blockId = 'pwaHelpXiaomi';
   } else if (_isHuaweiBrowser()) {
-    if (blocks.huawei) blocks.huawei.style.display = 'block';
-  } else if (_deferredInstallPrompt || /Chrome\/|Edg\/|SamsungBrowser\//i.test(navigator.userAgent||'')) {
-    if (blocks.chrome) blocks.chrome.style.display = 'block';
+    blockId = 'pwaHelpHuawei';
+  } else if (_deferredInstallPrompt) {
+    blockId = 'pwaHelpChrome';
+  } else if (_isChrome() || _isEdge()) {
+    // Chrome/Edge PERO sin beforeinstallprompt (caso del teléfono problemático)
+    blockId = 'pwaHelpChromeNoPrompt';
+  } else if (_isSamsungInternet()) {
+    blockId = 'pwaHelpSamsung';
+  } else if (_isOpera() || _isBrave() || _isVivaldi()) {
+    blockId = 'pwaHelpOpera';
+  } else if (_isKiwi()) {
+    blockId = 'pwaHelpKiwi';
+  } else if (_isFirefox()) {
+    blockId = 'pwaHelpFirefox';
+  } else if (_isDesktop()) {
+    blockId = 'pwaHelpDesktop';
   } else {
-    // Firefox / desconocido → fallback a las instrucciones genéricas de Chrome
-    if (blocks.chrome) blocks.chrome.style.display = 'block';
+    blockId = 'pwaHelpGeneric';
   }
+  const block = document.getElementById(blockId);
+  if (block) block.style.display = 'block';
 
-  // Botón "Instalar ahora" dentro del modal — solo si tenemos beforeinstallprompt
+  // Botón "Instalar ahora" — solo si tenemos beforeinstallprompt
   const installNowBtn = document.getElementById('pwaHelpInstallNowBtn');
   if (installNowBtn) {
     if (_deferredInstallPrompt) {
@@ -6610,56 +6658,28 @@ function openPWAInstallHelp() {
       };
     } else {
       installNowBtn.style.display = 'none';
+      installNowBtn.onclick = null;
     }
   }
 
-  // Botón "Abrir en Chrome" dentro del modal — visible SIEMPRE en navegadores
-  // bloqueados (Mi Browser / Huawei / UC). En el resto, oculto.
-  const openChromeBtn = document.getElementById('pwaHelpOpenChromeBtn');
-  if (openChromeBtn) {
-    if (_isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc()) {
-      openChromeBtn.style.display = 'flex';
-      openChromeBtn.onclick = () => {
-        modal.classList.remove('show');
-        _openInChrome();
+  // Botón "Compartir / Agregar a inicio" (Web Share API)
+  const shareBtn = document.getElementById('pwaHelpShareBtn');
+  if (shareBtn) {
+    if (navigator.share && (_isAndroid() || _isIOS())) {
+      shareBtn.style.display = 'inline-block';
+      shareBtn.onclick = async () => {
+        try {
+          await navigator.share({
+            title: 'AXONTECH',
+            text: 'Instala AXONTECH en tu pantalla de inicio',
+            url: location.href
+          });
+        } catch(e) { /* cancelado por el usuario */ }
       };
     } else {
-      openChromeBtn.style.display = 'none';
+      shareBtn.style.display = 'none';
+      shareBtn.onclick = null;
     }
-  }
-
-  // Enlace "Instalar Chrome desde Play Store" — visible en Mi/Huawei/UC
-  const playStoreLink = document.getElementById('pwaHelpPlayStoreLink');
-  if (playStoreLink) {
-    if (_isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc()) {
-      playStoreLink.style.display = 'block';
-      playStoreLink.href = _buildPlayStoreChromeUrl();
-      playStoreLink.target = '_blank';
-      playStoreLink.rel = 'noopener';
-    } else {
-      playStoreLink.style.display = 'none';
-    }
-  }
-
-  // QR code — generar/actualizar siempre que el modal se abra. Útil para:
-  //  - Escanear desde otro móvil con Chrome instalado
-  //  - Escanear desde el mismo móvil después de instalar Chrome
-  const qrImg = document.getElementById('pwaHelpQR');
-  const qrImgHuawei = document.getElementById('pwaHelpQRHuawei');
-  const currentUrl = window.location.href;
-  const qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=' + encodeURIComponent(currentUrl);
-  if (qrImg) {
-    qrImg.src = qrSrc;
-    qrImg.alt = 'Código QR de ' + currentUrl;
-  }
-  if (qrImgHuawei) {
-    qrImgHuawei.src = qrSrc;
-    qrImgHuawei.alt = 'Código QR de ' + currentUrl;
-  }
-  // Mostrar contenedor del QR solo en navegadores bloqueados o iOS
-  const qrWrap = document.getElementById('pwaHelpQRWrap');
-  if (qrWrap) {
-    qrWrap.style.display = (_isMiBrowser() || _isHuaweiBrowser() || _isQuarkOrUc() || _isIOS()) ? 'block' : 'none';
   }
 
   modal.classList.add('show');
@@ -6669,30 +6689,93 @@ function closePWAInstallHelp() {
   if (modal) modal.classList.remove('show');
 }
 
+// ── Diagnóstico técnico (long-press en botón del header) ──
+function _showInstallDiagnostic() {
+  const info = _installDiagnosticInfo;
+  const ua = _ua();
+  const lines = [
+    '🔧 DIAGNÓSTICO DE INSTALACIÓN',
+    '',
+    'Navegador: ' + _browserLabel(),
+    'UA (primeros 100): ' + ua.substring(0, 100),
+    'Plataforma: ' + (_isIOS() ? 'iOS' : _isAndroid() ? 'Android' : 'Desktop/otro'),
+    'HTTPS: ' + (info.https ? 'Sí' : 'No'),
+    'Standalone: ' + (info.isStandalone ? 'Sí (ya instalado)' : 'No'),
+    'Service Worker: ' + (info.hasSW ? 'Soportado' : 'No soportado'),
+    'Manifest: ' + (info.hasManifest ? 'OK' : 'Falta o inválido'),
+    'beforeinstallprompt: ' + (info.promptReceived ? 'Recibido' : 'NO recibido'),
+    'deferredPrompt: ' + (_deferredInstallPrompt ? 'Disponible' : 'No disponible'),
+    'navigator.share: ' + (typeof navigator.share === 'function' ? 'Disponible' : 'No'),
+    '',
+    'Si beforeinstallprompt = NO recibido en Chrome,',
+    'el aviso no aparecerá automáticamente pero puedes',
+    'instalar igualmente desde el menú ⋮ → "Instalar app".'
+  ];
+  alert(lines.join('\n'));
+}
+
+// ── Setup principal ──
 function setupPWAInstallPrompt() {
-  // 1) Si ya está instalado → no mostrar banner, ocultar botón del header
+  // Diagnóstico: registrar estado inicial
+  _installDiagnosticInfo.isStandalone = _isStandaloneMode();
+  _installDiagnosticInfo.hasSW = ('serviceWorker' in navigator);
+  // Verificar manifest (async)
+  try {
+    fetch('./manifest.json', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(m => {
+        _installDiagnosticInfo.hasManifest = !!(m && m.name && m.start_url && m.icons && m.icons.length);
+      })
+      .catch(() => {});
+  } catch(e) {}
+
+  // 1) Si ya está instalado → ocultar botón del header
   if (_isStandaloneMode()) {
     const hdrBtn = document.getElementById('btnPWAInstallHeader');
     if (hdrBtn) hdrBtn.style.display = 'none';
     return;
   }
 
-  // 2) Cablear el botón del header según el contexto (Mi Browser → "Abrir en Chrome",
-  //    Chrome con beforeinstallprompt → "Instalar", resto → modal de ayuda)
-  _setupHeaderInstallButton();
+  // 2) Botón del header: SIEMPRE visible (incluso desktop).
+  //    Click corto → modal de ayuda. Long-press (800ms) → diagnóstico.
+  const hdrBtn = document.getElementById('btnPWAInstallHeader');
+  if (hdrBtn) {
+    hdrBtn.style.display = 'inline-flex';
+    hdrBtn.onclick = openPWAInstallHelp;
+    let _pressTimer = null;
+    const startPress = (ev) => {
+      if (_pressTimer) clearTimeout(_pressTimer);
+      _pressTimer = setTimeout(() => {
+        _pressTimer = null;
+        _showInstallDiagnostic();
+      }, 800);
+    };
+    const cancelPress = () => {
+      if (_pressTimer) { clearTimeout(_pressTimer); _pressTimer = null; }
+    };
+    hdrBtn.addEventListener('touchstart', startPress, { passive: true });
+    hdrBtn.addEventListener('touchend', cancelPress);
+    hdrBtn.addEventListener('touchcancel', cancelPress);
+    hdrBtn.addEventListener('touchmove', cancelPress, { passive: true });
+    hdrBtn.addEventListener('mousedown', startPress);
+    hdrBtn.addEventListener('mouseup', cancelPress);
+    hdrBtn.addEventListener('mouseleave', cancelPress);
+    hdrBtn.addEventListener('contextmenu', (ev) => {
+      // En Android, long-press dispara contextmenu — lo usamos para diagnóstico
+      ev.preventDefault();
+      _showInstallDiagnostic();
+    });
+  }
 
   // 3) Si el usuario lo cerró hace menos de 7 días → no mostrar banner automático
-  //    (pero el botón del header sigue funcionando)
   const showBanner = !_isInstallDismissed();
 
-  // 4) Capturar el evento beforeinstallprompt (Android/Chrome/Edge/Opera/Samsung)
-  //    iOS Safari, Mi Browser y Huawei Browser NUNCA disparan este evento.
+  // 4) Capturar beforeinstallprompt
   window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();             // impedir el mini-prompt automático
-    _deferredInstallPrompt = e;     // guardar para usarlo al hacer clic
-    // Recablear el botón del header porque ahora sí tenemos el prompt disponible
-    _setupHeaderInstallButton();
-    // Si ya pasamos el check inicial pero el evento llega tarde, mostrar banner
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+    _installDiagnosticInfo.promptReceived = true;
+    _installDiagnosticInfo.promptTime = new Date().toISOString();
     if (showBanner) {
       const b = document.getElementById('pwaInstallBanner');
       if (b && !b.classList.contains('show')) {
@@ -6701,60 +6784,41 @@ function setupPWAInstallPrompt() {
     }
   });
 
-  // 5) Si la app se instala correctamente → ocultar banner y limpiar dismiss
+  // 5) appinstalled → limpiar UI
   window.addEventListener('appinstalled', () => {
     const b = document.getElementById('pwaInstallBanner');
     if (b) b.classList.remove('show');
     try { localStorage.removeItem(PWA_DISMISS_KEY); } catch(e) {}
     showToast('✅ AXONTECH instalada');
-    // Ocultar el botón del header porque ya está instalado
     const hdrBtn2 = document.getElementById('btnPWAInstallHeader');
     if (hdrBtn2) hdrBtn2.style.display = 'none';
   });
 
-  // 6) Mostrar el banner tras un pequeño retardo (4s) para no interrumpir el load
+  // 6) Mostrar banner tras retardo. Estrategia universal:
+  //    - iOS, Mi, Huawei, UC, WebView: siempre (instrucciones manuales).
+  //    - Chrome/Edge/Samsung/Opera/Brave/Kiwi en Android: si en
+  //      PWA_PROMPT_GRACE_MS no llegó beforeinstallprompt, mostramos banner
+  //      con instrucciones manuales del menú ⋮ (caso del teléfono problemático
+  //      donde Chrome no dispara el evento).
+  //    - Desktop: no mostramos banner (solo modal desde el botón del header).
   setTimeout(() => {
     if (_isStandaloneMode()) return;
     if (!showBanner) return;
-    // En iOS, Mi Browser, Huawei y UC SIEMPRE mostramos (instrucciones + btn Chrome).
-    // En el resto de Android, solo si ya capturamos beforeinstallprompt.
-    if (_needsManualInstall() || _deferredInstallPrompt) {
+    if (_isDesktop()) return; // desktop: sin banner automático
+    if (_deferredInstallPrompt || _needsManualInstall() || _isWebView()) {
       _showPWAInstallBanner();
-    } else if (_isXiaomiDevice() && !_deferredInstallPrompt) {
-      // Caso límite: Xiaomi + Chrome pero el evento todavía no llegó. Le damos
-      // otros 3s y si no llegó, mostramos el banner con instrucciones manuales
-      // como fallback (porque en MIUI a veces Chrome tampoco dispara el evento).
-      setTimeout(() => {
-        if (_deferredInstallPrompt) {
-          _showPWAInstallBanner();
-        } else {
-          // Forzar flujo manual — pero solo si aún no es standalone y no está dismissed
-          if (_isStandaloneMode() || _isInstallDismissed()) return;
-          _showPWAInstallBanner.call(null);
-          // Si no tenemos el evento, _showPWAInstallBanner no hará nada para
-          // un Chrome genérico. Forzamos mostrar el hint manual si el flag
-          // de Xiaomi está activo.
-          const b = document.getElementById('pwaInstallBanner');
-          if (b && !b.classList.contains('show')) {
-            const subEl = document.getElementById('pwaInstallSub');
-            const manualHint = document.getElementById('pwaInstallManualHint');
-            if (subEl) subEl.textContent = 'Tu navegador no muestra el botón de instalación — sigue estos pasos';
-            if (manualHint) {
-              manualHint.style.display = 'block';
-              const s1 = manualHint.querySelector('.manual-step1');
-              const s2 = manualHint.querySelector('.manual-step2');
-              const tip = manualHint.querySelector('.manual-tip');
-              if (s1) s1.textContent = '1. Toca el menú ⋮ del navegador';
-              if (s2) s2.textContent = '2. Elige "Instalar app" o "Añadir a pantalla de inicio"';
-              if (tip) tip.innerHTML = '💡 Si no ves la opción, abre AXONTECH desde <b>Chrome</b> (no el navegador Mi).';
-            }
-            b.classList.add('show');
-          }
-        }
-      }, 3000);
+      return;
     }
-  }, 4000);
+    // Android con navegador que SÍ debería disparar beforeinstallprompt:
+    // esperar gracia y mostrar igual con instrucciones manuales.
+    setTimeout(() => {
+      if (_isStandaloneMode() || _isInstallDismissed()) return;
+      _showPWAInstallBanner();
+    }, PWA_PROMPT_GRACE_MS);
+  }, PWA_BANNER_WAIT_MS);
 }
+
+
 
 // ══════════════════════════════════════════
 //  INIT

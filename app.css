@@ -1085,40 +1085,6 @@ body.dark .pwa-help-steps{color:#cbd5e1;}
 .pwa-help-note{font-size:11px;color:var(--gray-600,#475569);line-height:1.45;margin:6px 0 0;}
 body.dark .pwa-help-note{color:#94a3b8;}
 
-/* CTA principal del modal de ayuda: botón grande "Abrir en Chrome" */
-.pwa-help-cta{margin:12px 0 6px;display:flex;justify-content:center;}
-.pwa-help-chrome-btn{
-  display:inline-flex;align-items:center;gap:10px;
-  background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);
-  color:#fff;border:none;border-radius:12px;
-  padding:14px 24px;font-size:15px;font-weight:800;letter-spacing:.3px;
-  cursor:pointer;transition:transform .12s,box-shadow .2s;
-  box-shadow:0 6px 18px rgba(34,197,94,.35);min-width:200px;justify-content:center;
-}
-.pwa-help-chrome-btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(34,197,94,.45);}
-.pwa-help-chrome-btn:active{transform:scale(.97);}
-
-/* Enlace "Instalar Chrome desde Play Store" */
-a.pwa-help-playstore{
-  display:block;text-align:center;
-  background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.35);
-  color:#1d4ed8;text-decoration:none;
-  padding:10px 14px;border-radius:8px;font-size:12px;font-weight:700;
-  margin-top:4px;transition:background .15s;
-}
-a.pwa-help-playstore:hover{background:rgba(59,130,246,.14);}
-body.dark a.pwa-help-playstore{background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.35);color:#93c5fd;}
-
-/* Contenedor del QR */
-.pwa-help-qr{
-  margin-top:6px;padding:12px;background:#fff;border:1px solid var(--border,#e2e8f0);
-  border-radius:10px;text-align:center;
-}
-body.dark .pwa-help-qr{background:#f8fafc;border-color:rgba(255,255,255,.15);}
-.pwa-help-qr img{display:block;margin:0 auto;width:200px;height:200px;}
-.pwa-help-qr-cap{font-size:10.5px;color:var(--gray-600,#475569);margin-top:8px;line-height:1.4;}
-body.dark .pwa-help-qr-cap{color:#64748b;}
-
 /* ══════════════════════════════════════════
    GESTOR AVATAR — soporte de foto de perfil
    ══════════════════════════════════════════ */
