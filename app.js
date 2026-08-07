@@ -995,6 +995,32 @@ function patchProducto(id, changes) {
 // ══════════════════════════════════════════
 const LOW_STOCK_THRESHOLD = 3;
 
+// ── STOCK RESERVADO ──
+// Cada producto puede tener una cantidad `reserved` (comprometida con un
+// cliente/clientes pero aún no entregada). El stock realmente disponible
+// para nuevos vales es stock - reserved.
+// - stock: inventario físico total (no se toca al reservar).
+// - reserved: unidades comprometidas (se baja cuando se entrega/cancela).
+// - disponible = max(0, stock - reserved).
+function _availableStock(p) {
+  if (!p) return 0;
+  const s = parseInt(p.stock || 0, 10);
+  const r = parseInt(p.reserved || 0, 10);
+  return Math.max(0, s - r);
+}
+function _isFullyReserved(p) {
+  if (!p) return false;
+  const s = parseInt(p.stock || 0, 10);
+  const r = parseInt(p.reserved || 0, 10);
+  return s > 0 && r >= s;
+}
+function _isPartiallyReserved(p) {
+  if (!p) return false;
+  const s = parseInt(p.stock || 0, 10);
+  const r = parseInt(p.reserved || 0, 10);
+  return r > 0 && r < s;
+}
+
 // Descuenta stock de los productos de un vale y genera notificaciones.
 // Extraído de mensajeroEntrega/mensajeroPagado/mensajeroPagadoDirecto/confirmSale
 // que tenían 4 copias del mismo bloque con divergencias sutiles.
@@ -2558,28 +2584,51 @@ function renderEditValePickerProducts() {
   let prods=getProductos();
   if(editValePickerCatFilter!==null)prods=prods.filter(p=>p.catId===editValePickerCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  // Sort: disponibles primero, totalmente reservados y agotados al final
+  prods.sort((a,b)=>{
+    const aBlocked=(a.stock||0)===0||_isFullyReserved(a)?1:0;
+    const bBlocked=(b.stock||0)===0||_isFullyReserved(b)?1:0;
+    return aBlocked-bBlocked;
+  });
   const grid=document.getElementById('av-pickerProductGrid');if(!grid)return;
   if(!prods.length){grid.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:32px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
   grid.innerHTML=prods.map(p=>{
     const qty=editValePickerSelected[p.id]||0;const sel=qty>0;
     const catColor=_apcGetCatColor(p.catId);
     const catName=_apcGetCatName(p.catId);
-    return `<div class="apcard${sel?' picked':''}">
+    const oos=(p.stock||0)===0;
+    const fullyRes=_isFullyReserved(p);
+    const partRes=_isPartiallyReserved(p);
+    const blocked=oos||fullyRes;
+    const reserved=parseInt(p.reserved||0,10);
+    const avail=_availableStock(p);
+    const badge = oos
+      ? `<span class="oos-badge">AGOTADO</span>`
+      : fullyRes
+        ? `<span class="reserved-badge picker-reserved-badge">🔒 RESERVADO</span>`
+        : partRes
+          ? `<span class="reserved-badge picker-reserved-badge partial">🔐 Reservado ${reserved} · Disp ${avail}</span>`
+          : '';
+    const availLine = blocked ? '' : `<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Disponibles: ${avail}</div>`;
+    return `<div class="apcard${sel?' picked':''}${blocked?' apcard-blocked':''}" style="${blocked?'pointer-events:none;opacity:.55;':''}">
       <div class="apcard-info">
-        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
+        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''} ${badge}</div>
         ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
+        ${availLine}
       </div>
-      <div class="apcard-controls">
-        <button class="btn-minus" onclick="event.stopPropagation();setEditValePickerQty(${p.id},-1)">−</button>
+      <div class="apcard-controls" style="${blocked?'pointer-events:none;':''}">
+        <button class="btn-minus" ${blocked?'disabled':''} onclick="event.stopPropagation();setEditValePickerQty(${p.id},-1)">−</button>
         <span class="qty-val">${qty}</span>
-        <button class="btn-plus" onclick="event.stopPropagation();setEditValePickerQty(${p.id},1)">+</button>
+        <button class="btn-plus" ${blocked?'disabled':''} onclick="event.stopPropagation();setEditValePickerQty(${p.id},1)">+</button>
       </div>
     </div>`;
   }).join('');
 }
 function setEditValePickerQty(pid,delta) {
+  const prod=productoOf(pid);
+  const max=prod?_availableStock(prod):0;
   let q=(editValePickerSelected[pid]||0)+delta;
-  if(q<=0){delete editValePickerSelected[pid];}else{editValePickerSelected[pid]=q;}
+  if(q<=0){delete editValePickerSelected[pid];}else{editValePickerSelected[pid]=Math.min(max,q);}
   renderEditValePickerProducts();renderEditValePickerSelected();
 }
 function renderEditValePickerSelected() {
@@ -3694,11 +3743,11 @@ function renderPickerProducts() {
   let prods=getProductos();
   if(pickerCatFilter!==null)prods=prods.filter(p=>p.catId===pickerCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
-  // Sort: in-stock first, out-of-stock at the end
+  // Sort: disponibles primero, totalmente reservados y agotados al final
   prods.sort((a,b)=>{
-    const aOos=(a.stock||0)===0?1:0;
-    const bOos=(b.stock||0)===0?1:0;
-    return aOos-bOos;
+    const aBlocked=(a.stock||0)===0||_isFullyReserved(a)?1:0;
+    const bBlocked=(b.stock||0)===0||_isFullyReserved(b)?1:0;
+    return aBlocked-bBlocked;
   });
   const c=document.getElementById('pickerProductGrid');
   if(!c) return;
@@ -3706,21 +3755,39 @@ function renderPickerProducts() {
   c.innerHTML=prods.map(p=>{
     const qty=pickerSelected[p.id]||0;
     const oos=(p.stock||0)===0;
-    return `<div class="picker-pill ${qty>0?'selected':''} ${oos?'out-of-stock':''}" style="${oos?'pointer-events:none;':''}" ${oos?'title="Producto agotado"':''}>
+    const fullyRes=_isFullyReserved(p);
+    const partRes=_isPartiallyReserved(p);
+    const blocked=oos||fullyRes;
+    const reserved=parseInt(p.reserved||0,10);
+    const avail=_availableStock(p);
+    // Badge: agotado tiene prioridad sobre reservado
+    const badge = oos
+      ? `<span class="oos-badge">AGOTADO</span>`
+      : fullyRes
+        ? `<span class="reserved-badge picker-reserved-badge">🔒 RESERVADO</span>`
+        : partRes
+          ? `<span class="reserved-badge picker-reserved-badge partial">🔐 Reservado ${reserved} · Disp ${avail}</span>`
+          : '';
+    const cls = `picker-pill ${qty>0?'selected':''} ${oos?'out-of-stock':''} ${fullyRes?'fully-reserved':''} ${partRes?'partial-reserved':''}`;
+    return `<div class="${cls}" style="${blocked?'pointer-events:none;':''}" ${oos?'title="Producto agotado"':fullyRes?'title="Producto totalmente reservado"':''}>
       <div class="picker-pill-info">
-        <div class="picker-pill-name">${escapeHTML(p.name)}${oos?` <span class="oos-badge">AGOTADO</span>`:''}</div>
+        <div class="picker-pill-name">${escapeHTML(p.name)} ${badge}</div>
         ${p.precio?`<div class="picker-pill-price">${escapeHTML(p.precio)}</div>`:''}
+        ${!blocked?`<div style="font-size:9px;color:var(--text-muted);">Disponibles: ${avail}</div>`:''}
       </div>
-      <div class="picker-pill-qty" style="${oos?'pointer-events:none;':''}">
-        <button ${oos?'disabled':''} onclick="pickerAdj(${p.id},-1)">−</button>
+      <div class="picker-pill-qty" style="${blocked?'pointer-events:none;':''}">
+        <button ${blocked?'disabled':''} onclick="pickerAdj(${p.id},-1)">−</button>
         <span>${qty}</span>
-        <button ${oos?'disabled':''} onclick="pickerAdj(${p.id},1)">+</button>
+        <button ${blocked?'disabled':''} onclick="pickerAdj(${p.id},1)">+</button>
       </div>
     </div>`;
   }).join('');
 }
 function pickerAdj(pid,delta) {
-  const prod=productoOf(pid);const max=prod?prod.stock||0:999;
+  const prod=productoOf(pid);
+  // El máximo es el stock DISPONIBLE (stock - reserved), no el stock total.
+  // Así el gestor no puede exceder las unidades realmente disponibles.
+  const max=prod?_availableStock(prod):0;
   const cur=pickerSelected[pid]||0;const next=Math.max(0,Math.min(max,cur+delta));
   if(next===0)delete pickerSelected[pid];else pickerSelected[pid]=next;
   renderPickerProducts();renderPickerSelected();
@@ -3873,9 +3940,23 @@ function buildProdCard(p, cats, isAgotado) {
   const cat=cats.find(c=>c.id===p.catId);
   const stockOk=(p.stock||0)>0;
   const isLow=stockOk&&(p.stock||0)<=LOW_STOCK_THRESHOLD;
-  const stockColor=isAgotado?'var(--red)':isLow?'var(--yellow)':'var(--green)';
-  return `<div class="prod-card${isAgotado?' agotado':''}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
-    <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+  const reserved=parseInt(p.reserved||0,10);
+  const avail=_availableStock(p);
+  const fullyReserved=_isFullyReserved(p);
+  const partiallyReserved=_isPartiallyReserved(p);
+  // Estado visual: agotado > totalmente reservado > parcial reservado > bajo > normal
+  const stockColor=isAgotado?'var(--red)':fullyReserved?'#b45309':partiallyReserved?'#f59e0b':isLow?'var(--yellow)':'var(--green)';
+  const cardCls = isAgotado ? ' agotado' : (fullyReserved ? ' fully-reserved' : (partiallyReserved ? ' partial-reserved' : ''));
+  // Stock label: prioriza mostrar disponible cuando hay reserva, total cuando no
+  const stockLabel = reserved > 0
+    ? `Stock: ${p.stock||0} · 🔐 ${reserved} · Disp: ${avail}`
+    : `Stock: ${p.stock||0}`;
+  // Reserva badge
+  const reservedBadge = reserved > 0
+    ? `<span class="reserved-badge ${fullyReserved?'reserved-full':''}">🔐 RESERVADO ${reserved}/${p.stock||0}</span>`
+    : '';
+  return `<div class="prod-card${cardCls}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
+    <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;${fullyReserved?'opacity:.5;':''}">
       ${p.photo
         ?`<img src="${escapeAttr(p.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=font-size:22px>📦</span>'">`
         :`<span style="font-size:22px;">📦</span>`}
@@ -3884,6 +3965,7 @@ function buildProdCard(p, cats, isAgotado) {
       <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;">
         <span class="prod-name" style="margin:0;font-size:13px;">${escapeHTML(p.name)}</span>
         ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${escapeHTML(cat.name)}</span>`:''}
+        ${reservedBadge}
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap;">
         ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${escapeHTML(p.precio)}</span>`:''}
@@ -3893,12 +3975,13 @@ function buildProdCard(p, cats, isAgotado) {
       </div>
     </div>
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-      <span style="font-size:11px;font-weight:700;color:${stockColor};">Stock: ${p.stock||0}</span>
+      <span style="font-size:11px;font-weight:700;color:${stockColor};">${stockLabel}</span>
       <div style="display:flex;gap:4px;">
         ${isAgotado
           ? `<button class="btn btn-green btn-sm" onclick="adjustStock(${p.id})" style="font-size:10px;padding:3px 7px;">📥 Reponer</button>`
           : `<button class="btn btn-ghost btn-sm" onclick="openEditProductModal(${p.id})" style="font-size:10px;padding:3px 7px;">✏️</button>
-             <button class="btn btn-ghost btn-sm" onclick="adjustStock(${p.id})" style="font-size:10px;padding:3px 7px;">📥</button>`
+             <button class="btn btn-ghost btn-sm" onclick="adjustStock(${p.id})" style="font-size:10px;padding:3px 7px;">📥</button>
+             <button class="btn btn-ghost btn-sm" onclick="adjustReserved(${p.id})" style="font-size:10px;padding:3px 7px;color:#b45309;" title="Reservar / liberar unidades">🔐</button>`
         }
         <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:10px;padding:3px 7px;" onclick="removeProducto(${p.id})">🗑️</button>
       </div>
@@ -3915,13 +3998,19 @@ function renderProductGrid() {
   if(!prods.length){
     c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos. Haz clic en "+ Nuevo producto".</div></div>';return;
   }
-  const activos=prods.filter(p=>(p.stock||0)>0);
-  const agotados=prods.filter(p=>(p.stock||0)===0);
+  // 3 secciones: Disponibles, Reservados (totalmente reservados), Agotados
+  const activos = prods.filter(p => (p.stock||0) > 0 && !_isFullyReserved(p));
+  const reservados = prods.filter(p => (p.stock||0) > 0 && _isFullyReserved(p));
+  const agotados = prods.filter(p => (p.stock||0) === 0);
   const grid = s => `<div style="display:flex;flex-direction:column;gap:8px;">${s}</div>`;
   let html='';
   if(activos.length){
-    html+=`<div class="stock-section-header">En stock <span style="background:var(--gray-100);border-radius:20px;font-size:9px;padding:2px 7px;">${activos.length}</span></div>`;
+    html+=`<div class="stock-section-header">Disponibles <span style="background:var(--gray-100);border-radius:20px;font-size:9px;padding:2px 7px;">${activos.length}</span></div>`;
     html+=grid(activos.map(p=>buildProdCard(p,cats,false)).join(''));
+  }
+  if(reservados.length){
+    html+=`<div class="stock-section-header reserved-section-header">🔐 Reservados <span class="reserved-count-badge">${reservados.length}</span></div>`;
+    html+=grid(reservados.map(p=>buildProdCard(p,cats,false)).join(''));
   }
   if(agotados.length){
     html+=`<div class="stock-section-header">Agotados <span class="agotado-badge">${agotados.length}</span></div>`;
@@ -4111,6 +4200,41 @@ Nuevo stock:`,p.stock||0);
   else if(num>0&&num<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',p.name,id,`quedan ${num}`);
   maybeAutoSync();
   renderProductGrid();showToast('Stock actualizado ✓');
+}
+
+// Ajustar cantidad RESERVADA de un producto.
+// - Si reserved >= stock → producto se considera "totalmente reservado"
+//   (sale de la lista de disponibles, queda opaco en el picker).
+// - Si reserved < stock  → el producto sigue disponible pero con stock
+//   reducido en la cantidad reservada.
+// - Si reserved = 0      → no hay reserva (estado normal).
+function adjustReserved(id) {
+  const p=productoOf(id);if(!p)return;
+  const current=p.reserved||0;
+  const stock=p.stock||0;
+  const avail=_availableStock(p);
+  const n=prompt(
+    `🔐 Reservar unidades de: ${p.name}\n\n` +
+    `Stock físico: ${stock}\n` +
+    `Reservado ahora: ${current}\n` +
+    `Disponible real: ${avail}\n\n` +
+    `¿Cuántas unidades quieres reservar?\n` +
+    `(Escribe 0 para liberar todas las reservas)`,
+    String(current)
+  );
+  if(n===null)return;
+  const num=parseInt(n);
+  if(isNaN(num)||num<0){showToast('Número inválido');return;}
+  if(num>stock){
+    showToast(`No puedes reservar ${num} (solo hay ${stock} en stock)`);
+    return;
+  }
+  patchProducto(id,{reserved:num});
+  maybeAutoSync();
+  renderProductGrid();
+  if(num===0) showToast('Reservas liberadas ✓');
+  else if(num>=stock) showToast(`🔒 ${p.name} totalmente reservado (${num}/${stock})`);
+  else showToast(`🔐 ${num} unidades reservadas · ${stock-num} disponibles`);
 }
 
 // ══════════════════════════════════════════

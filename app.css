@@ -554,6 +554,13 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
   padding:10px 12px;margin-bottom:6px;
 }
 .prod-card.agotado{opacity:.65;}
+.prod-card.fully-reserved{
+  background:linear-gradient(135deg, rgba(180,83,9,.05), rgba(245,158,11,.08));
+  border-color:rgba(245,158,11,.35);
+}
+.prod-card.partial-reserved{
+  border-color:rgba(245,158,11,.25);
+}
 .prod-name{font-size:13px;font-weight:700;}
 .prod-cat-tag{
   font-size:9px;background:var(--blue-lt);color:var(--blue);
@@ -564,9 +571,42 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
   font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;
   letter-spacing:.5px;padding:10px 4px 6px;border-bottom:1px solid var(--border);margin-bottom:8px;
 }
+.stock-section-header.reserved-section-header{
+  color:#b45309;
+}
 .agotado-badge{
   background:rgba(239,68,68,.1);color:var(--red);border-radius:10px;
   font-size:9px;padding:2px 7px;font-weight:700;
+}
+
+/* ── Reserved badge (panel de stock y picker) ── */
+.reserved-badge{
+  display:inline-block;background:rgba(245,158,11,.15);color:#b45309;
+  border:1px solid rgba(245,158,11,.4);border-radius:6px;
+  font-size:9px;padding:1px 6px;font-weight:800;letter-spacing:.3px;
+  margin-left:4px;vertical-align:middle;
+}
+.reserved-badge.reserved-full,
+.reserved-badge.picker-reserved-badge{
+  background:#f59e0b;color:white;border-color:#b45309;
+}
+.reserved-badge.picker-reserved-badge.partial{
+  background:rgba(245,158,11,.15);color:#b45309;border-color:rgba(245,158,11,.4);
+}
+.reserved-count-badge{
+  background:#f59e0b;color:white;border-radius:10px;
+  font-size:9px;padding:2px 7px;font-weight:800;
+}
+/* Picker: productos totalmente reservados opacos */
+.picker-pill.fully-reserved{
+  opacity:.5;pointer-events:none;
+}
+.picker-pill.partial-reserved{
+  border-color:rgba(245,158,11,.45);
+  background:rgba(245,158,11,.04);
+}
+.apcard.apcard-blocked{
+  opacity:.55;
 }
 
 /* ── Ranking ── */
