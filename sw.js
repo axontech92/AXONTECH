@@ -1,6 +1,6 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
-const APP_VERSION  = '94';
-const CACHE = 'axontech-v94';
+const APP_VERSION  = '95';
+const CACHE = 'axontech-v95';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json',

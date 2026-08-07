@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=94">
+  <link rel="stylesheet" href="./app.css?v=95">
 </head>
 <body data-page="gestor">
 
@@ -284,6 +284,11 @@
     <div class="modal-sub" id="gestorPassModalSub">Ingresa tu contraseña</div>
     <input type="password" id="gestorPassInput" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitGestorPass()">
     <div class="pass-error" id="gestorPassError">Contraseña incorrecta</div>
+    <label class="remember-pass-row" for="gestorPassRemember">
+      <input type="checkbox" id="gestorPassRemember">
+      <span>Recordar contraseña en este dispositivo</span>
+    </label>
+    <div class="remember-pass-hint">Solo en tu móvil/PC. No la uses en dispositivos compartidos.</div>
     <div class="modal-btns">
       <button class="btn btn-ghost btn-full" onclick="closeGestorPassModal()">Cancelar</button>
       <button class="btn btn-blue btn-full" onclick="submitGestorPass()">Entrar</button>
@@ -636,7 +641,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=94"></script>
+<script src="./app.js?v=95"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

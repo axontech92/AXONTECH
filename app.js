@@ -1505,10 +1505,27 @@ function renderGestores() {
 function selectGestor(id) {
   const g=gestorOf(id);if(!g)return;
   if(g.password){
+    // ¿Hay contraseña guardada para este gestor en este dispositivo?
+    const saved = _getSavedGestorPass(id);
+    if (saved !== null && _timingSafeEqual(saved.trim().toUpperCase(), (g.password||'').trim().toUpperCase())) {
+      // Autologuear: la contraseña guardada sigue siendo válida
+      doSelectGestor(id);
+      return;
+    }
+    // Si había contraseña guardada pero ya no coincide (el admin la cambió),
+    // limpiarla para que no reintente eternamente.
+    if (saved !== null) {
+      _clearSavedGestorPass(id);
+    }
     pendingGestorId=id;
     document.getElementById('gestorPassInput').value='';
     document.getElementById('gestorPassError').style.display='none';
     document.getElementById('gestorPassModalSub').textContent=`${g.name} — ingresa tu contraseña`;
+    // Pre-marcar el checkbox si ya hay contraseña guardada para otros gestores
+    // (no para este en particular porque acabamos de borrarla) → dejarlo desmarcado
+    // por seguridad para que el usuario decida explícitamente.
+    const rememberChk = document.getElementById('gestorPassRemember');
+    if (rememberChk) rememberChk.checked = false;
     document.getElementById('gestorPassModal').classList.add('show');
     setTimeout(()=>document.getElementById('gestorPassInput').focus(),100);
   } else {
@@ -1577,7 +1594,14 @@ function doSelectGestor(id) {
     if(perms === 'default' || perms === 'denied') {
       nBtn = `<button type="button" onclick="requestNotifPermission()" style="background:rgba(239,68,68,.1);border:1px solid var(--red);color:var(--red);border-radius:6px;font-size:10px;padding:3px 8px;font-weight:700;margin-top:6px;cursor:pointer;">🔔 Activar alertas push</button>`;
     }
-  document.getElementById('bannerName').innerHTML = escapeHTML(g.name) + (nBtn ? '<br>'+nBtn : '');
+    // Si la contraseña de este gestor está guardada en este dispositivo,
+    // mostrar un botón para "olvidarla" (por seguridad / si el dispositivo
+    // es compartido).
+    let savedPassBtn = '';
+    if (g.password && _hasSavedGestorPass(id)) {
+      savedPassBtn = `<button type="button" onclick="forgetSavedGestorPass()" style="background:rgba(245,158,11,.12);border:1px solid var(--amber, #f59e0b);color:#b45309;border-radius:6px;font-size:10px;padding:3px 8px;font-weight:700;margin-top:6px;margin-left:4px;cursor:pointer;" title="Borra la contraseña guardada en este dispositivo">🔓 Olvidar contraseña</button>`;
+    }
+  document.getElementById('bannerName').innerHTML = escapeHTML(g.name) + ((nBtn || savedPassBtn) ? '<br>' + nBtn + savedPassBtn : '');
   document.getElementById('headerGestorName').textContent='· '+g.name;
   document.getElementById('vf-promotor').value=g.name;
   document.getElementById('mobileBackName').textContent=g.name;
@@ -1730,6 +1754,15 @@ function submitGestorPass() {
   const sysPass = (g.password || '').trim().toUpperCase();
   if(_timingSafeEqual(val, sysPass)){
     const id=pendingGestorId;   // save before closeGestorPassModal sets it to null
+    // ¿Marcar "Recordar contraseña en este dispositivo"?
+    const rememberChk = document.getElementById('gestorPassRemember');
+    if (rememberChk && rememberChk.checked) {
+      // Guardar el valor ORIGINAL (sin upper) para que el usuario pueda verlo
+      // si algún día lo recupera. Lo compararemos siempre con .toUpperCase().
+      const rawVal = document.getElementById('gestorPassInput').value.trim();
+      _setSavedGestorPass(id, rawVal);
+      showToast('🔒 Contraseña guardada en este dispositivo');
+    }
     closeGestorPassModal();
     doSelectGestor(id);
   } else {
@@ -1803,11 +1836,65 @@ function _autoSelectPinnedGestor() {
     _setPinnedGestorId(null);
     return;
   }
-  // Seleccionar el gestor. Si tiene contraseña, selectGestor abrirá el modal.
+  // Seleccionar el gestor. Si tiene contraseña, selectGestor abrirá el modal
+  // (a menos que haya contraseña guardada → autologuear).
   // Pequeño retardo para que la UI esté lista.
   setTimeout(() => {
     try { selectGestor(pinnedId); } catch(e) { console.warn('auto-select failed', e); }
   }, 200);
+}
+
+// ══════════════════════════════════════════
+//  CONTRASEÑA DE GESTOR GUARDADA EN ESTE DISPOSITIVO
+//  - Opcional: el usuario puede marcar "Recordar contraseña en este dispositivo"
+//    al entrar. La contraseña se guarda en localStorage (solo este dispositivo).
+//  - Al abrir la app o seleccionar ese gestor, se autologuea sin pedir contraseña.
+//  - El usuario puede "olvidar" la contraseña guardada cuando quiera.
+//  - Esto NO es una bóveda criptográfica: es equivalente a que el navegador
+//    recuerde la contraseña. Recomendado solo en dispositivos personales.
+// ══════════════════════════════════════════
+const GESTOR_SAVED_PASS_KEY = 'axon_saved_gestor_pass';
+
+// Devuelve un mapa { gestorId: password } guardado en localStorage
+function _getSavedPassMap() {
+  try {
+    return JSON.parse(localStorage.getItem(GESTOR_SAVED_PASS_KEY) || '{}');
+  } catch(e) { return {}; }
+}
+function _saveSavedPassMap(map) {
+  try { localStorage.setItem(GESTOR_SAVED_PASS_KEY, JSON.stringify(map)); } catch(e) {}
+}
+function _getSavedGestorPass(id) {
+  if (id === null || id === undefined) return null;
+  const map = _getSavedPassMap();
+  return map[String(id)] || null;
+}
+function _setSavedGestorPass(id, password) {
+  if (id === null || id === undefined) return;
+  const map = _getSavedPassMap();
+  map[String(id)] = password;
+  _saveSavedPassMap(map);
+}
+function _clearSavedGestorPass(id) {
+  if (id === null || id === undefined) return;
+  const map = _getSavedPassMap();
+  delete map[String(id)];
+  _saveSavedPassMap(map);
+}
+// Olvidar TODAS las contraseñas guardadas (botón "Olvidar todas")
+function _clearAllSavedGestorPass() {
+  try { localStorage.removeItem(GESTOR_SAVED_PASS_KEY); } catch(e) {}
+}
+// ¿Tiene este gestor una contraseña guardada en este dispositivo?
+function _hasSavedGestorPass(id) {
+  return _getSavedGestorPass(id) !== null;
+}
+// Botón "Olvidar contraseña" desde el banner del gestor
+function forgetSavedGestorPass(id) {
+  const targetId = (id !== undefined) ? id : activeGestorId;
+  if (targetId === null || targetId === undefined) return;
+  _clearSavedGestorPass(targetId);
+  showToast('Contraseña olvidada de este dispositivo');
 }
 
 // ══════════════════════════════════════════
