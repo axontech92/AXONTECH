@@ -290,15 +290,16 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
 .vf-row{display:flex;gap:10px;align-items:flex-start;}
 .vf-emoji{font-size:14px;flex-shrink:0;margin-top:8px;}
 .vf-inner{flex:1;min-width:0;}
-.vf-label{font-size:10px;font-weight:700;color:var(--gray-600);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center;}
+.vf-label{font-size:10px;font-weight:800;color:#1a1a2e;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px;display:flex;justify-content:space-between;align-items:center;}
 .vf-req{color:var(--red);font-weight:800;}
 .vf-row input,.vf-row textarea{
-  width:100%;background:var(--surface);border:1px solid var(--border);
-  border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;
+  width:100%;background:var(--surface);border:1.5px solid #94a3b8;
+  border-radius:8px;padding:9px 11px;color:#1a1a2e;font-size:13px;
   transition:border-color .15s,box-shadow .15s;
 }
+.vf-row input::placeholder,.vf-row textarea::placeholder{color:#64748b;font-weight:500;}
 .vf-row input:focus,.vf-row textarea:focus{
-  outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,109,138,.12);
+  outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,109,138,.18);
 }
 .vf-row input[readonly]{background:var(--surface2);color:var(--gray-500);}
 .vf-sep{border:none;border-top:1px dashed var(--border);margin:6px 0;}
@@ -330,6 +331,105 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-muted);}
 .btn-ghost:hover{background:var(--surface2);}
 .btn-wa{background:#25D366;color:#fff;}
+
+/* ── Catalog CTA (vale form) ── */
+.catalog-cta{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  margin:4px 0 10px;
+  border-radius:14px;
+  border:3px solid var(--blue);
+  background:#ffffff;
+  color:#0a2540;
+  cursor:pointer;
+  font-weight:700;
+  text-align:left;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 4px 14px rgba(0,109,138,.22), 0 0 0 1px rgba(0,109,138,.10) inset;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  animation:catalogPulse 2.4s ease-in-out infinite;
+}
+.catalog-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(0,109,138,.35), 0 0 0 1px rgba(0,109,138,.15) inset;
+  background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dk) 100%);
+  color:#ffffff;
+  border-color:var(--blue-dk);
+}
+.catalog-cta:hover .catalog-cta-title{color:#ffffff;}
+.catalog-cta:hover .catalog-cta-sub{color:rgba(255,255,255,.95);}
+.catalog-cta:hover .catalog-cta-arrow{color:#ffffff;}
+.catalog-cta:active{transform:translateY(0);}
+.catalog-cta-icon{
+  font-size:26px;
+  line-height:1;
+  flex-shrink:0;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.2));
+  transition:color .15s;
+}
+.catalog-cta-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  flex:1;
+  min-width:0;
+}
+.catalog-cta-title{
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:.2px;
+  color:#0a2540;
+  transition:color .15s;
+}
+.catalog-cta-sub{
+  font-size:11.5px;
+  font-weight:600;
+  color:#006d8a;
+  opacity:1;
+  transition:color .15s;
+}
+.catalog-cta-arrow{
+  font-size:26px;
+  font-weight:900;
+  line-height:1;
+  color:#006d8a;
+  flex-shrink:0;
+  transform:translateX(0);
+  transition:transform .15s, color .15s;
+}
+.catalog-cta:hover .catalog-cta-arrow{transform:translateX(4px);}
+@keyframes catalogPulse{
+  0%,100%{box-shadow:0 4px 14px rgba(0,109,138,.22), 0 0 0 1px rgba(0,109,138,.10) inset;}
+  50%{box-shadow:0 6px 20px rgba(0,109,138,.40), 0 0 0 2px rgba(0,109,138,.20) inset;}
+}
+@media (prefers-reduced-motion: reduce){
+  .catalog-cta{animation:none;}
+}
+
+/* ── Catalog CTA en dark mode ── */
+body.dark .catalog-cta{
+  background:linear-gradient(135deg,#0ea5e9 0%,#0284c7 100%);
+  border-color:#38bdf8;
+  color:#ffffff;
+  box-shadow:0 4px 14px rgba(14,165,233,.35), 0 0 0 1px rgba(56,189,248,.20) inset;
+}
+body.dark .catalog-cta-title{color:#ffffff;}
+body.dark .catalog-cta-sub{color:rgba(255,255,255,.92);}
+body.dark .catalog-cta-arrow{color:#ffffff;}
+body.dark .catalog-cta:hover{
+  background:linear-gradient(135deg,#0284c7 0%,#0369a1 100%);
+  border-color:#7dd3fc;
+  box-shadow:0 8px 22px rgba(14,165,233,.50), 0 0 0 1px rgba(125,211,252,.30) inset;
+}
+@keyframes catalogPulseDark{
+  0%,100%{box-shadow:0 4px 14px rgba(14,165,233,.35), 0 0 0 1px rgba(56,189,248,.20) inset;}
+  50%{box-shadow:0 6px 20px rgba(14,165,233,.55), 0 0 0 2px rgba(56,189,248,.35) inset;}
+}
+body.dark .catalog-cta{animation:catalogPulseDark 2.4s ease-in-out infinite;}
 
 /* ── Vale preview ── */
 #previewCard{margin-top:12px;}
@@ -927,6 +1027,13 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
   .vf-label{font-size:9px;}
   .vf-emoji{font-size:15px;}
 
+  /* Catalog CTA en móvil: un toque más grande para touch */
+  .catalog-cta{padding:14px 14px;gap:10px;}
+  .catalog-cta-icon{font-size:26px;}
+  .catalog-cta-title{font-size:15px;}
+  .catalog-cta-sub{font-size:11px;}
+  .catalog-cta-arrow{font-size:26px;}
+
   /* Botones más grandes para touch */
   .btn{padding:11px 14px;font-size:13px;}
   .btn-sm{padding:7px 10px;font-size:11px;}
@@ -1077,9 +1184,26 @@ body.dark .sp-cancelled{background:rgba(156,163,175,.15);color:var(--gray-400);t
 
 /* Inputs en general */
 body.dark input,body.dark textarea,body.dark select{
-  background:var(--surface2);color:var(--text);border-color:var(--border);
+  background:var(--surface2);color:var(--text);border-color:#475569;
 }
-body.dark input::placeholder,body.dark textarea::placeholder{color:var(--gray-400);}
+body.dark input::placeholder,body.dark textarea::placeholder{color:#94a3b8;}
+
+/* Formulario del vale en dark: bordes y textos más visibles */
+body.dark .vf-label{color:#f1f5f9;}
+body.dark .vf-row input,
+body.dark .vf-row textarea{
+  background:#0f172a;
+  color:#f8fafc;
+  border:1.5px solid #64748b;
+}
+body.dark .vf-row input::placeholder,
+body.dark .vf-row textarea::placeholder{color:#cbd5e1;}
+body.dark .vf-row input:focus,
+body.dark .vf-row textarea:focus{
+  border-color:#38bdf8;
+  box-shadow:0 0 0 3px rgba(56,189,248,.20);
+}
+body.dark .vf-row input[readonly]{background:var(--surface3) !important;color:var(--gray-400) !important;}
 
 /* Tarjetas y secciones con backgrounds claros hardcoded */
 body.dark .mv-card,
@@ -1120,9 +1244,6 @@ body.dark .toast{background:#0f172a;color:var(--text);border:1px solid var(--bor
 
 /* WhatsApp button (mantener verde) */
 .wa-btn,.float-wa{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff !important;}
-
-/* Inputs readonly */
-body.dark input[readonly]{background:var(--surface3) !important;color:var(--gray-400) !important;}
 
 /* fix: fondo de secciones expandibles en dark */
 body.dark #gestorManagerSection > div,
