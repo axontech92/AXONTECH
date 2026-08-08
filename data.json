@@ -521,10 +521,10 @@
     {
       "catId": 20,
       "comision": "$10 USD",
-      "description": "[CONTROLADORES SOLARES]\n♻️CONTROLADOR SOLAR POWMR M100 PRO -MPPT DE 100 AMP♻️\n\nEspecificaciones Eléctricas Clave:\n* *Voltaje Máximo del Sistema (PV):* 100V DC. Esto permite conectar paneles en serie para reducir la caída de voltaje en cables largos.\n* Corriente de Carga Máxima: 100 Amperios.\n* *Voltaje de la Batería:* Compatible con baterías de 12V, 24V y 48V. El sistema detecta y se configura automáticamente.\n* *Corriente de Carga Máxima en Diferentes Voltajes:*\n* *100A @ 12V*\n* *50A @ 24V*\n* *25A @ 48V*\n* *Autoconsumo:* < 15mA (muy bajo, lo que preserva la batería cuando no hay sol)\n\n*7. Otras Características Destacadas:*\n* *Reconexión Automática:* Tras una falla o protección, se reconecta automáticamente cuando las condiciones vuelven a la normalidad.\n* *Detección Automática de Voltaje del Sistema:* No necesita configuración manual para 12V/24V/48V.\n* *Capacidad de Registro de Datos:* Almacena datos históricos de generación",
+      "description": "[CONTROLADORES SOLARES]\nCONTROLADOR SOLAR POWMR M100 PRO -MPPT DE 100 AMP\n\nEspecificaciones Eléctricas Clave:\n* *Voltaje Máximo del Sistema (PV):* 100V DC. Esto permite conectar paneles en serie para reducir la caída de voltaje en cables largos.\n* Corriente de Carga Máxima: 100 Amperios.\n* *Voltaje de la Batería:* Compatible con baterías de 12V, 24V y 48V. El sistema detecta y se configura automáticamente.\n* *Corriente de Carga Máxima en Diferentes Voltajes:*\n* *100A @ 12V*\n* *50A @ 24V*\n* *25A @ 48V*\n* *Autoconsumo:* < 15mA (muy bajo, lo que preserva la batería cuando no hay sol)\n\n*7. Otras Características Destacadas:*\n* *Reconexión Automática:* Tras una falla o protección, se reconecta automáticamente cuando las condiciones vuelven a la normalidad.\n* *Detección Automática de Voltaje del Sistema:* No necesita configuración manual para 12V/24V/48V.\n* *Capacidad de Registro de Datos:* Almacena datos históricos de generación",
       "garantia": "",
       "id": 1778104512761,
-      "name": "♻️CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 100 AMP♻️",
+      "name": "Controlador solar PowMr MM100 PRO de 100A",
       "photo": "https://tiendamax.org/imagenes/img_1778104512761.webp",
       "precio": "$260 USD",
       "puntos": 1,
@@ -1254,5 +1254,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-08T02:40:00.332Z"
+  "timestamp": "2026-08-08T02:41:50.393Z"
 }
