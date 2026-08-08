@@ -31,6 +31,11 @@ function _isNewerVersion(remote, local) {
   return r > l;
 }
 
+// Hash local de la build actual (se inyecta automáticamente desde build.py vía
+// version.json cacheado en el SW; si no está disponible, queda null y solo se
+// compara por número de versión).
+let _LOCAL_BUILD_HASH = 'a1fb8d9da909c46a';
+
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
 async function checkVersion(manual) {
@@ -50,8 +55,18 @@ async function checkVersion(manual) {
     }
     _lastRemoteVersion = remoteVersion;
     const remoteStr = data.versionStr || ('v' + remoteVersion);
+    const remoteHash = data.hash || null;
 
-    if (_isNewerVersion(remoteVersion, APP_VERSION)) {
+    // Criterio de "hay actualización":
+    //  1. La versión remota es mayor que la local, O
+    //  2. El hash remoto existe, es distinto de null, y es distinto del hash local
+    //     (este caso cubre escenarios donde la versión se reinició o se republicó
+    //     la misma versión con cambios).
+    const isNewer = _isNewerVersion(remoteVersion, APP_VERSION);
+    const hashChanged = remoteHash && remoteHash !== _LOCAL_BUILD_HASH;
+    const hasUpdate = isNewer || hashChanged;
+
+    if (hasUpdate) {
       // Hay una versión nueva — mostrar banner (salvo que el usuario ya lo haya pospuesto
       // para esta sesión y no sea una verificación manual).
       if (manual || !_updateDismissed) {

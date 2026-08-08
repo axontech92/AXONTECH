@@ -1,11 +1,17 @@
 {
   "version": 3,
   "versionStr": "v3",
-  "releasedAt": "2026-08-08",
+  "hash": "a1fb8d9da909c46a",
+  "hashFull": "a1fb8d9da909c46a",
+  "releasedAt": "2026-08-08 16:07",
+  "files": [
+    "app.js",
+    "app.css",
+    "index.html",
+    "admin.html",
+    "sw.js"
+  ],
   "changelog": [
-    "Banner de versión visible en pantalla de inicio",
-    "Auto-verificación de nuevas versiones contra version.json",
-    "Modal de ticket con banner verde tras enviar vale",
-    "Limpieza automática del formulario al cerrar el ticket"
+    "Actualización automática · build a1fb8d9d"
   ]
 }
