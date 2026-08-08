@@ -1,9 +1,9 @@
 {
-  "version": 12,
-  "versionStr": "v12",
-  "hash": "9c6de1b117834cd9",
-  "hashFull": "9c6de1b117834cd9",
-  "releasedAt": "2026-08-08 18:08",
+  "version": 13,
+  "versionStr": "v13",
+  "hash": "2e1e11d6a63de5df",
+  "hashFull": "2e1e11d6a63de5df",
+  "releasedAt": "2026-08-08 18:32",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Actualización automática · build 9c6de1b1"
+    "Actualización automática · build 2e1e11d6"
   ]
 }

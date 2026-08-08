@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '9c6de1b117834cd9';
+let _LOCAL_BUILD_HASH = '2e1e11d6a63de5df';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -360,6 +360,20 @@ const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).
 const _fbWriteQueue = [];
 let _fbProcessing = false;
 const _FAILED_WRITES_LIMIT = 100;
+// ── In-Flight Merge Buffer (v13) ──
+// Cuando un write a Firebase está EN PROCESO (op in flight), no está en
+// _fbWriteQueue — fue shift()ado. Si llega otro saveVales con más vales
+// mientras tanto, ANTES se creaba un segundo item encolado. Eso causaba:
+//   - Si el primer write tarda 8s (timeout), el segundo espera 8s+ para empezar.
+//   - Si el gestor manda 5 vales en 5s, se acumulan 5 items encolados, cada uno
+//     con su versión parcial del estado, todos esperando al primero.
+// Ahora: si el path que llega coincide con el path que está EN PROCESO,
+// fusionamos el nuevo value en _fbInFlightPending[path]. Cuando el write
+// actual termina (éxito, fallo, o timeout), el buffer se encola
+// automáticamente como un NUEVO write, y se procesa después.
+// Resultado: como máximo 1 write encolado esperando, sin importar cuántos
+// saveVales se llamen durante el procesamiento.
+const _fbInFlightPending = {};  // { path: { value, method } }
 
 // Persist queue to localStorage so it survives reloads / tab closes
 function _persistQueue() {
@@ -381,6 +395,13 @@ function _processFBQueue() {
   const item = _fbWriteQueue.shift();
   item.retries = (item.retries || 0) + 1;
   const {path, value, method, callback} = item;
+  // ── Inicializar buffer in-flight para este path ──
+  // Si durante el procesamiento de este write llegan más saveVales al mismo
+  // path, se acumularán en _fbInFlightPending[path]. Al terminar, los
+  // flushearemos como un nuevo write.
+  if (callback === null && (method === 'set' || method === 'update')) {
+    _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
+  }
   const ref = db.ref(path);
   const op = method === 'remove' ? ref.remove() : method === 'update' ? ref.update(value) : ref.set(value);
   // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
@@ -388,26 +409,52 @@ function _processFBQueue() {
   let requeued = false;
   let settled = false;  // evita doble procesamiento si el timeout dispara después del settle
 
-  // ── Timeout de seguridad: si Firebase tarda más de 12s, asumir que la red
+  // ── Helper: flush del buffer in-flight ──
+  // Si llegaron más actualizaciones al mismo path mientras este write estaba
+  // en proceso, encolarlas como un nuevo item. Se llama desde los 3 caminos
+  // de salida (éxito, fallo, timeout) ANTES de liberar el candado.
+  function _flushInFlight() {
+    const pending = _fbInFlightPending[path];
+    delete _fbInFlightPending[path];
+    if (!pending) return;
+    if (pending.method === 'update' && pending.value && typeof pending.value === 'object' && Object.keys(pending.value).length > 0) {
+      _fbWriteQueue.push({path, value: pending.value, method: 'update', callback: null, retries: 0});
+    } else if (pending.method === 'set' && pending.value !== null) {
+      _fbWriteQueue.push({path, value: pending.value, method: 'set', callback: null, retries: 0});
+    }
+    // Si pending.value es null (set con null) o {} (update vacío), no hay nada que escribir.
+  }
+
+  // ── Timeout de seguridad: si Firebase tarda más de 8s, asumir que la red
   // está caída o muy lenta, reencolar el item y procesar el siguiente. Sin esto,
   // un write colgado deja el indicador "Sincronizando (1)" pillado para siempre.
+  // v13: bajado de 12s a 8s. En 3G cubano, un write exitoso tarda 1-3s; si llega
+  // a 8s es que la red está caída. Con 4 reintentos, máximo 8s×4 + backoffs = ~40s
+  // (antes eran 12s×5 + backoffs de hasta 30s = ~70s+ → "se queda pegado").
   const timeoutId = setTimeout(() => {
     if (settled) return;
     settled = true;
-    console.warn('Firebase write TIMEOUT (12s):', path);
-    if (item.retries < 5) {
+    console.warn('Firebase write TIMEOUT (8s):', path);
+    // Flush del buffer in-flight ANTES de reencolar el item.
+    // Si el gestor mandó 5 vales mientras este write estaba colgado, esos 5
+    // vales están en _fbInFlightPending[path] y deben encolarse como un nuevo
+    // write, no perderse.
+    _flushInFlight();
+    if (item.retries < 4) {
       requeued = true;
       _fbWriteQueue.unshift(item);
       _persistQueue();
       // Backoff corto para reintentar pronto, pero no inmediatamente
-      setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, 2000);
+      setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, 1500);
     } else {
-      // Demasiados reintentos — descartar y seguir con el siguiente
+      // Demasiados reintentos — descartar y seguir con el siguiente.
+      // El item se puede recuperar desde _ensurePendingValesEnqueued() cuando
+      // vuelva la conexión (para vales), o desde axon_failed_writes (otros).
       _fbProcessing = false;
       _persistQueue();
       _processFBQueue();
     }
-  }, 12000);
+  }, 8000);
 
   op.then(() => {
       if(callback) callback();
@@ -415,6 +462,9 @@ function _processFBQueue() {
       // Esto funciona incluso tras recargar la página porque el `value` del
       // item encolado sí es serializable y se persiste en axon_pending_writes.
       _markValesSyncedFromUpdate(path, value);
+      // Flush del buffer in-flight: si llegaron más cambios al mismo path
+      // durante este write, encolarlos ahora.
+      _flushInFlight();
       // Actualizar el indicador con timestamp de última sync exitosa.
       _markSyncSuccess();
     })
@@ -423,14 +473,18 @@ function _processFBQueue() {
       settled = true;
       clearTimeout(timeoutId);
       console.error("Firebase write error:", e);
-      if (item.retries < 5) {
+      // Flush del buffer in-flight antes de reencolar (igual que en timeout).
+      _flushInFlight();
+      if (item.retries < 4) {
         // Reencolar YA (no en el setTimeout) para que sobreviva a un cierre
         // de la app durante el backoff. Antes el item se perdía porque el
         // finally persistía la cola sin él.
         requeued = true;
         _fbWriteQueue.unshift(item);
         _persistQueue();
-        const delay = Math.min(1000 * Math.pow(2, item.retries), 30000);
+        // v13: backoff más corto y menos agresivo. Antes Math.pow(2, retries)
+        // llegaba a 16s y 30s. Ahora Math.pow(1.5, retries) da 1.5s, 2.3s, 3.4s, 5s.
+        const delay = Math.min(1000 * Math.pow(1.5, item.retries), 5000);
         setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, delay);
         return;
       }
@@ -446,6 +500,8 @@ function _processFBQueue() {
       if (settled) return;  // el timeout o el catch ya procesaron este item
       settled = true;
       clearTimeout(timeoutId);
+      // Flush del buffer in-flight (por si acaso — normalmente ya se hizo en .then).
+      _flushInFlight();
       // Solo liberar y procesar el siguiente si NO fue reencolado (el setTimeout
       // se encargará de liberar tras el backoff). Evita doble consumidor.
       if (!requeued) {
@@ -456,6 +512,10 @@ function _processFBQueue() {
     });
 }
 
+// ══════════════════════════════════════════════════════════════════
+//  ENQUEUE WITH MERGE (queue + in-flight)
+// ══════════════════════════════════════════════════════════════════
+// (El buffer _fbInFlightPending se declara arriba, junto con _fbWriteQueue.)
 function _enqueueFB(path, value, method='set', callback=null) {
   // ── Batching para conexiones lentas ──
   // Antes: cada saveVales() encolaba un item separado. Si un gestor enviaba
@@ -470,6 +530,22 @@ function _enqueueFB(path, value, method='set', callback=null) {
     // y normalmente corresponden a operaciones críticas que no se fusionan).
     const methodIsMergeable = (method === 'set' || method === 'update');
     if (methodIsMergeable) {
+      // ── NUEVO v13: fusionar también con el buffer in-flight ──
+      // Si hay un write EN PROCESO para el mismo path+method, meter el nuevo
+      // value en el buffer. Se encolará cuando el write actual termine.
+      // Así evitamos acumular items encolados mientras el primero tarda 8s.
+      if (_fbProcessing && _fbInFlightPending[path] &&
+          _fbInFlightPending[path].method === method) {
+        if (method === 'update' && _fbInFlightPending[path].value &&
+            typeof _fbInFlightPending[path].value === 'object' &&
+            value && typeof value === 'object') {
+          Object.assign(_fbInFlightPending[path].value, value);
+        } else {
+          _fbInFlightPending[path].value = value;
+        }
+        _updateSyncIndicator();
+        return; // Ya está agendado para enviarse cuando termine el write actual.
+      }
       // Buscar items pendientes con el mismo path y mismo método → reemplazar.
       // También fusionar: si llega 'set' para 'vales' y hay 'update' pendiente
       // para 'vales/X', el 'set' los sobreescribe a todos.
@@ -769,29 +845,55 @@ const saveVales = v => {
   _safeSetLS('axon_vales', JSON.stringify(v));
   _valesCache = v; _valesDirty = false;
   if (isSyncingFromFirebase()) return;
+  // ── DIFF-BASED WRITES (v13) ──
+  // Antes: cada saveVales() escribía TODOS los vales del gestor/admin a Firebase.
+  // Si un gestor con 50 vales en historial enviaba 1 vale nuevo, subía ~50KB
+  // en vez de ~1KB. En 3G eso es la diferencia entre 1s y 30s por write.
+  // Ahora: comparamos el array actual contra el previo (cache) y solo encolamos
+  // los vales NUEVOS o MODIFICADOS. Los borrados siguen mandándose como null.
+  // JSON.stringify por vale es ~5μs; para 100 vales son 0.5ms — despreciable.
+  const updates = {};
+  const prevMap = new Map();
+  if (Array.isArray(prevVales)) {
+    prevVales.forEach(x => { prevMap.set(`${x.gestorId}/${x.id}`, x); });
+  }
+  const curKeys = new Set();
   if (IS_ADMIN) {
-    const updates = {};
-    v.forEach(x => { updates[`${x.gestorId}/${x.id}`] = x; });
+    v.forEach(x => {
+      const key = `${x.gestorId}/${x.id}`;
+      curKeys.add(key);
+      const prev = prevMap.get(key);
+      // Solo encolar si es nuevo o cambió (comparación rápida por JSON stringify)
+      if (!prev || JSON.stringify(prev) !== JSON.stringify(x)) {
+        updates[key] = x;
+      }
+    });
+    // Borrados reales: vales que estaban en prevVales pero ya no están en v
     if (Array.isArray(prevVales)) {
-      const kept = new Set(v.map(x => `${x.gestorId}/${x.id}`));
       prevVales.forEach(x => {
         const key = `${x.gestorId}/${x.id}`;
-        if (!kept.has(key)) updates[key] = null;
+        if (!curKeys.has(key)) updates[key] = null;
       });
     }
+    if (Object.keys(updates).length === 0) return; // nada que escribir
     _enqueueFB('vales', updates, 'update');
   } else if (activeGestorId) {
     // El gestor SOLO puede escribir su propia rama. Nunca 'vales' a secas,
     // porque tocaría los vales de los demás gestores.
     const mine = v.filter(x => x.gestorId === activeGestorId);
-    const updates = {};
-    mine.forEach(x => { updates[x.id] = x; });
+    mine.forEach(x => {
+      const prev = prevMap.get(`${x.gestorId}/${x.id}`);
+      if (!prev || JSON.stringify(prev) !== JSON.stringify(x)) {
+        updates[x.id] = x;
+      }
+    });
     if (Array.isArray(prevVales)) {
       const kept = new Set(mine.map(x => x.id));
       prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
         if (!kept.has(x.id)) updates[x.id] = null;
       });
     }
+    if (Object.keys(updates).length === 0) return; // nada que escribir
     _enqueueFB(`vales/${activeGestorId}`, updates, 'update');
   }
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
