@@ -454,12 +454,27 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
 .stat-num{font-size:22px;font-weight:800;line-height:1.1;}
 .stat-lbl{font-size:10px;color:var(--gray-500);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-top:3px;}
 
-/* ── Gestor panel cards ── */
+/* ── Gestor panel cards ──
+   Una tarjeta por gestor con 3 filas apiladas: identidad, acciones y
+   comisiones (plegable) — todo lo suyo en un solo lugar, una sola columna. */
 .gp-card{
-  display:flex;align-items:center;gap:10px;
-  background:var(--surface);border:1px solid var(--border);border-radius:10px;
-  padding:10px 12px;margin-bottom:6px;
+  display:flex;flex-direction:column;gap:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:14px;margin-bottom:10px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+  transition:border-color .15s;
 }
+.gp-card:hover{border-color:var(--blue-bd,rgba(0,109,138,.35));}
+.gp-card-top{display:flex;align-items:center;gap:12px;}
+.gp-card-actions{
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+  padding-top:10px;border-top:1px solid var(--border);
+}
+.gp-card-com{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding-top:10px;border-top:1px solid var(--border);
+}
+.gp-card-com:hover{opacity:.8;}
 
 /* ── Mensajero cards ── */
 .m-card{

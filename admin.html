@@ -124,17 +124,17 @@
       <button class="btn btn-blue" onclick="addGestor()">＋ Agregar</button>
     </div>
 
-    <!-- Gestores activos — plegable -->
+    <!-- Gestores activos — plegable. Una tarjeta por gestor con TODO junto:
+         identidad, contraseña/editar/foto/eliminar, y comisiones (plegables
+         dentro de la misma tarjeta) — antes "Comisiones por gestor" era una
+         lista aparte que repetía cada nombre otra vez. -->
     <div onclick="toggleGestorManager()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
-      <span class="lbl" style="margin:0;">👥 Gestores activos <span id="gestoresCountBadge" style="background:var(--blue);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;">0</span></span>
+      <span class="lbl" style="margin:0;">👥 Gestores <span id="gestoresCountBadge" style="background:var(--blue);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;">0</span></span>
       <span id="gestorManagerArrow" style="color:var(--gray-400);font-size:13px;transition:transform .2s;">▼</span>
     </div>
     <div id="gestorManagerSection" style="display:block;">
       <div id="adminGestoresPanel-list"></div>
     </div>
-
-    <div class="lbl" style="margin-top:18px;">💰 Comisiones por gestor</div>
-    <div id="adminComisionesList"></div>
   </div>
 
   <!-- ════════ MENSAJEROS PANEL ════════ -->

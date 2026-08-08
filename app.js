@@ -2115,6 +2115,11 @@ function _updateGestoresCountBadge() {
   if (badge) badge.textContent = String(getGestores().length);
 }
 
+// Tarjeta única por gestor: identidad + acciones + comisiones, todo junto.
+// Antes "Comisiones por gestor" era una sección aparte más abajo que volvía a
+// listar a cada gestor por nombre — mismo dato repetido dos veces en la misma
+// pestaña. Ahora las comisiones son una tercera fila plegable DENTRO de la
+// misma tarjeta (reutiliza renderComisionBody, que no cambió).
 function renderAdminGestoresList() {
   // Orden alfabético (copia, no muta el array original)
   const list = sortGestoresAlpha(getGestores());
@@ -2128,21 +2133,49 @@ function renderAdminGestoresList() {
     const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
     const hasPhoto = !!(g.photo && /^(https?:|data:image)/i.test(g.photo));
+
+    // Comisiones de este gestor
+    const comVales=vales.filter(v=>['confirmed','pending_payment'].includes(v.status));
+    const pendientes=comVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
+    const enSobre=comVales.filter(v=>v.commissionStatus==='en_sobre');
+    const cobrados=comVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
+    const isOpen=activeComisionGestorId===g.id;
+    const pendSum=sumCommissions(pendientes);
+    const sobreSum=sumCommissions(enSobre);
+    const pendBadge=fmtComisionBadge(pendSum.usd,pendSum.mn,pendSum.computed);
+    const sobreBadge=fmtComisionBadge(sobreSum.usd,sobreSum.mn,sobreSum.computed);
+    let comBadgeHTML='';
+    if(pendBadge)comBadgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">${pendBadge}</span>`;
+    else if(pendientes.length)comBadgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${pendientes.length} pend.</span>`;
+    if(sobreBadge)comBadgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">✉️ ${sobreBadge}</span>`;
+    else if(enSobre.length)comBadgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">✉️ ${enSobre.length}</span>`;
+    if(!comBadgeHTML)comBadgeHTML=cobrados.length?`<span style="background:var(--green);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">✓ al día</span>`:`<span style="color:var(--gray-400);font-size:10px;">Sin comisiones</span>`;
+
     return `<div class="gp-card">
-      <div class="g-avatar" style="background:${hasPhoto?'transparent':g.color};width:40px;height:40px;font-size:13px;flex-shrink:0;position:relative;">${gestorAvatarInner(g)}</div>
-      <div style="flex:1;min-width:140px;">
-        <div style="font-weight:700;font-size:14px;color:var(--text);">${escapeHTML(g.name)}</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
-        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
-          <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Click para mostrar/ocultar">🔑 ${escapeHTML(g.password||'—').replace(/./g, '•')}</span>
-          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
-          <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
-          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
-          <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="changeGestorPhotoById(${g.id})" title="Cambiar foto de perfil">📷 Foto</button>
-          ${hasPhoto?`<button type="button" style="background:none;border:1px solid var(--red);cursor:pointer;font-size:10px;color:var(--red);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="removeGestorPhotoById(${g.id})" title="Quitar foto de perfil">✕ Quitar foto</button>`:''}
+      <div class="gp-card-top">
+        <div class="g-avatar" style="background:${hasPhoto?'transparent':g.color};width:44px;height:44px;font-size:14px;flex-shrink:0;position:relative;">${gestorAvatarInner(g)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:15px;color:var(--text);">${escapeHTML(g.name)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
         </div>
+        <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);align-self:flex-start;flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
+
+      <div class="gp-card-actions">
+        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Click para mostrar/ocultar">🔑 ${escapeHTML(g.password||'—').replace(/./g, '•')}</span>
+        <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
+        <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
+        <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
+        <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="changeGestorPhotoById(${g.id})" title="Cambiar foto de perfil">📷 Foto</button>
+        ${hasPhoto?`<button type="button" style="background:none;border:1px solid var(--red);cursor:pointer;font-size:10px;color:var(--red);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="removeGestorPhotoById(${g.id})" title="Quitar foto de perfil">✕ Quitar foto</button>`:''}
+      </div>
+
+      <div class="gp-card-com" onclick="toggleComisionGestor(${g.id})">
+        <span style="font-size:11px;font-weight:700;color:var(--text-muted);flex-shrink:0;">💰 Comisiones</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;flex:1;">${comBadgeHTML}</div>
+        <span style="color:var(--gray-400);font-size:12px;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
+      </div>
+      ${isOpen?renderComisionBody(g,pendientes,enSobre,cobrados):''}
     </div>`;
   }).join('');
 }
@@ -5212,50 +5245,11 @@ function fmtComisionBadge(usd,mn,computed) {
   const p=[];if(usd>0)p.push(`$${usd.toFixed(2)} USD`);if(mn>0)p.push(`${Math.round(mn)} MN`);
   return p.length?p.join(' + '):null;
 }
-function renderComisiones() {
-  const c=document.getElementById('adminComisionesList');if(!c)return;
-  const gestores=getGestores();
-  if(!gestores.length){c.innerHTML='<div class="es"><div class="es-text">Sin gestores configurados</div></div>';return;}
-  c.innerHTML=gestores.map(g=>{
-    const allVales=getVales().filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status));
-    // 3 states: pendientes (no status), en_sobre, cobrado
-    const pendientes=allVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
-    const enSobre=allVales.filter(v=>v.commissionStatus==='en_sobre');
-    const cobrados=allVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
-    const isOpen=activeComisionGestorId===g.id;
-    // Badge: only pendientes total (not en_sobre - that goes separate)
-    const pendSum=sumCommissions(pendientes);
-    const sobreSum=sumCommissions(enSobre);
-    const pendBadge=fmtComisionBadge(pendSum.usd,pendSum.mn,pendSum.computed);
-    const sobreBadge=fmtComisionBadge(sobreSum.usd,sobreSum.mn,sobreSum.computed);
-    // Summary line
-    const summaryParts=[];
-    if(pendientes.length)summaryParts.push(`<span style="color:var(--orange);font-weight:700;">${pendientes.length} pendiente${pendientes.length!==1?'s':''}</span>`);
-    if(enSobre.length)summaryParts.push(`<span style="color:var(--yellow);font-weight:700;">✉️ ${enSobre.length} en sobre</span>`);
-    if(cobrados.length)summaryParts.push(`<span style="color:var(--green);">💰 ${cobrados.length} cobrado${cobrados.length!==1?'s':''}</span>`);
-    if(!summaryParts.length)summaryParts.push('Sin comisiones');
-    // Build badge area: pendientes badge + en_sobre badge separately
-    let badgeHTML='';
-    if(pendBadge)badgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">${pendBadge}</span>`;
-    if(sobreBadge)badgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">✉️ ${sobreBadge}</span>`;
-    if(!pendBadge&&pendientes.length>0)badgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${pendientes.length}</span>`;
-    if(!sobreBadge&&enSobre.length>0)badgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">✉️ ${enSobre.length}</span>`;
-    return `<div class="card" style="padding:0;overflow:hidden;margin-bottom:8px;border-color:${isOpen?'var(--blue)':'var(--border)'};">
-      <div onclick="toggleComisionGestor(${g.id})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:${isOpen?'var(--blue-lt)':'var(--surface)'};">
-        <div class="g-avatar" style="background:${g.color};width:34px;height:34px;font-size:11px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:13px;">${escapeHTML(g.name)}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
-            ${summaryParts.join(' · ')}
-          </div>
-        </div>
-        <div style="display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;">${badgeHTML}</div>
-        <span style="color:var(--gray-400);font-size:13px;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
-      </div>
-      ${isOpen?renderComisionBody(g,pendientes,enSobre,cobrados):''}
-    </div>`;
-  }).join('');
-}
+// Las comisiones ahora viven DENTRO de la tarjeta de cada gestor (ver
+// renderAdminGestoresList) en vez de en una lista aparte que repetía cada
+// nombre otra vez. Se deja esta función como alias — la llaman ~15 sitios
+// distintos cada vez que cambia el estado de una comisión.
+function renderComisiones() { renderAdminGestoresList(); }
 function renderComisionBody(g,pendientes,enSobre,cobrados) {
   let html='<div style="border-top:1px solid var(--border);padding:12px 14px;">';
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){
