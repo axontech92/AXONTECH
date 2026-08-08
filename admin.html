@@ -147,18 +147,17 @@
       <button class="btn btn-ghost btn-sm" id="mensajeroChangeBtn" style="display:none;" onclick="changeMensajero()">↺ Cambiar selección</button>
     </div>
 
-    <!-- Mensajeros registrados — plegable -->
+    <!-- Mensajeros registrados — plegable. Una sola lista, ordenada alfabéticamente,
+         con todas las opciones de cada mensajero juntas (ver entregas, WhatsApp,
+         editar, eliminar) — antes eran 3 listas separadas y repetidas. -->
     <div onclick="toggleMensajeroManager()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
-      <span class="lbl" style="margin:0;">🛵 Mensajeros registrados <span id="mensajerosCountBadge" style="background:var(--blue);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;">0</span></span>
+      <span class="lbl" style="margin:0;">🛵 Mensajeros <span id="mensajerosCountBadge" style="background:var(--blue);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:4px;">0</span></span>
       <span id="mensajeroManagerArrow" style="color:var(--gray-400);font-size:13px;transition:transform .2s;">▼</span>
     </div>
     <div id="mensajeroManagerSection" style="display:block;">
+      <div class="lbl" style="margin-top:0;font-size:11px;font-weight:400;color:var(--gray-400);">Toca un mensajero para ver sus entregas</div>
       <div id="mensajerosList"></div>
-      <div id="mensajerosEditList" style="margin-top:10px;"></div>
     </div>
-
-    <div class="lbl" style="margin-top:18px;">Selecciona un mensajero para ver sus entregas</div>
-    <div id="mensajeroSelectorList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;"></div>
 
     <div class="lbl">Entregas asignadas</div>
     <div id="mensajeroValesList"></div>

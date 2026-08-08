@@ -1541,11 +1541,14 @@ function playSound(type) {
 // ══════════════════════════════════════════
 //  GESTOR SELECTOR
 // ══════════════════════════════════════════
-// Collator reutilizable para ordenar gestores alfabéticamente.
+// Collator reutilizable para ordenar gestores/mensajeros alfabéticamente.
 // numeric:true → "Vale 2" va antes que "Vale 10"
 // sensitivity:'base' → ignora acentos y mayúsculas
 const _gestorSortCollator = new Intl.Collator('es', { sensitivity: 'base', numeric: true });
 function sortGestoresAlpha(arr) {
+  return arr.slice().sort((a, b) => _gestorSortCollator.compare(a.name || '', b.name || ''));
+}
+function sortMensajerosAlpha(arr) {
   return arr.slice().sort((a, b) => _gestorSortCollator.compare(a.name || '', b.name || ''));
 }
 function renderGestores() {
@@ -1982,9 +1985,6 @@ function toggleMensajeroManager() {
   const arrow = document.getElementById('mensajeroManagerArrow');
   if (sec) sec.style.display = mensajeroManagerExpanded ? 'block' : 'none';
   if (arrow) arrow.style.transform = mensajeroManagerExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-  if (mensajeroManagerExpanded) {
-    renderMensajerosEditList();
-  }
   _updateMensajerosCountBadge();
 }
 
@@ -1993,43 +1993,14 @@ function _updateMensajerosCountBadge() {
   if (badge) badge.textContent = String(getMensajeros().length);
 }
 
-function renderMensajerosEditList() {
-  const c = document.getElementById('mensajerosEditList');
-  if(!c) return;
-  const list = getMensajeros();
-  if(!list.length) { c.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Sin mensajeros registrados</div>'; return; }
-  c.innerHTML = list.map(m => {
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;">
-      <span style="font-size:13px;font-weight:700;">${escapeHTML(m.name)}</span>
-      <div style="display:flex;gap:6px;">
-         <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;" onclick="openEditMensajeroModal(${m.id})">✏️</button>
-         <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;color:var(--red);" onclick="removeMensajero(${m.id})">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderMensajeroSelector() {
-  const c=document.getElementById('mensajeroSelectorList');if(!c)return;
-  const list=getMensajeros();
-  const vales=getVales();
-  if(!list.length){c.innerHTML='<div class="es" style="grid-column:1/-1;padding:4px 0;"><div class="es-text" style="font-size:12px;">Sin mensajeros registrados</div></div>';return;}
-  c.innerHTML=list.map(m=>{
-    const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
-    const act=m.id===activeMensajeroId;
-    const phone=m.phone||'';
-    const waBtn = phone
-      ? `<button type="button" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}" style="background:#25D366;color:white;border:none;border-radius:6px;font-size:11px;padding:2px 7px;font-weight:700;cursor:pointer;margin-top:4px;">💬 WhatsApp</button>`
-      : '';
-    return `<div class="m-card ${act?'active':''}" onclick="selectMensajero(${m.id})">
-      <div style="font-size:14px;font-weight:700;margin-bottom:2px;">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓</span>':''}</div>
-      <div style="font-size:11px;color:var(--gray-500);">${assigned} entregas</div>
-      ${phone?`<div style="font-size:10px;color:#25D366;font-weight:600;margin-top:2px;">📱 ${escapeHTML(phone)}</div>`:''}
-      ${waBtn}
-    </div>`;
-  }).join('');
-  if(mensajeroManagerExpanded) renderMensajerosEditList();
-}
+// Antes había 3 listas separadas y repetidas con los mismos mensajeros, cada
+// una mostrando solo UNA acción (una para gestionar con WhatsApp/editar/borrar,
+// otra duplicada solo con editar/borrar, y otra aparte solo para elegir a quién
+// ver las entregas) — puro "reguero" visual. Ahora hay una sola lista, ordenada
+// alfabéticamente, donde cada mensajero tiene TODAS sus opciones juntas: ver sus
+// entregas (clic en la fila), WhatsApp, editar y eliminar.
+function renderMensajeroSelector() { renderMensajeros(); }
+function renderMensajerosEditList() { /* fusionado en renderMensajeros() — se mantiene como no-op por compatibilidad */ }
 function selectMensajero(id) {
   activeMensajeroId=id;
   document.getElementById('adminMensajerosPanel').classList.add('has-sel');
@@ -3069,20 +3040,34 @@ function removeMensajero(id) {
   saveMensajeros(getMensajeros().filter(m=>m.id!==id));renderMensajeros();maybeAutoSync();
 }
 function renderMensajeros() {
-  const list=getMensajeros();const c=document.getElementById('mensajerosList');
+  // Orden alfabético (copia, no muta el array original) — igual que gestores.
+  const list=sortMensajerosAlpha(getMensajeros());
+  const c=document.getElementById('mensajerosList');
+  const vales=getVales();
   _updateMensajerosCountBadge();
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
     const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const phone=m.phone||'';
+    const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
+    const act=m.id===activeMensajeroId;
     const waBtn = phone
-      ? `<button class="m-del" style="font-size:13px;margin-right:4px;color:#25D366;" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}">💬</button>`
+      ? `<button type="button" style="background:none;border:1px solid #25D366;cursor:pointer;font-size:10px;color:#25D366;padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}">💬 WhatsApp</button>`
       : '';
-    const phoneHTML = phone
-      ? `<div style="font-size:10px;color:#25D366;font-weight:600;margin-top:2px;">📱 ${escapeHTML(phone)}</div>`
-      : '';
-    return `<div class="m-item"><div class="m-av">${escapeHTML(ini)}</div><div class="m-name">${escapeHTML(m.name)}${phoneHTML}</div>${waBtn}<button class="m-del" style="font-size:13px;margin-right:4px;" onclick="openEditMensajeroModal(${m.id})" title="Editar">✏️</button><button class="m-del" onclick="removeMensajero(${m.id})">×</button></div>`;
+    const phoneHTML = phone ? `<span>📱 ${escapeHTML(phone)}</span>` : '';
+    return `<div class="m-item ${act?'active':''}" style="cursor:pointer;flex-wrap:wrap;" onclick="selectMensajero(${m.id})" title="Toca para ver sus entregas">
+      <div class="m-av">${escapeHTML(ini)}</div>
+      <div style="flex:1;min-width:140px;">
+        <div class="m-name">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓ Viendo entregas</span>':''}</div>
+        <div style="font-size:10px;color:var(--gray-400);display:flex;gap:8px;flex-wrap:wrap;margin-top:1px;">${phoneHTML}<span>🛵 ${assigned} entrega${assigned!==1?'s':''} en curso</span></div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
+          ${waBtn}
+          <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();openEditMensajeroModal(${m.id})">✏️ Editar</button>
+          <button type="button" style="background:none;border:1px solid var(--red);cursor:pointer;font-size:10px;color:var(--red);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();removeMensajero(${m.id})">🗑️ Eliminar</button>
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 function openEditMensajeroModal(id) {

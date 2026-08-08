@@ -472,7 +472,10 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
   display:flex;align-items:center;gap:8px;
   background:var(--surface);border:1px solid var(--border);border-radius:10px;
   padding:8px 10px;margin-bottom:6px;
+  transition:all .15s;
 }
+.m-item:hover{border-color:var(--blue);}
+.m-item.active{border-color:var(--blue);background:var(--blue-lt);}
 .m-av{
   width:30px;height:30px;border-radius:50%;
   background:var(--gray-200);color:var(--text);
