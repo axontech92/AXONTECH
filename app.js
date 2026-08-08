@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 13;
+const APP_VERSION = 14;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '2e1e11d6a63de5df';
+let _LOCAL_BUILD_HASH = 'd5f3ac6b99f15ed1';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -207,11 +207,19 @@ try {
 // - maxReconnectDelay: bajar de 30s (default) a 8s. Si la red vuelve rápido,
 //   reconectamos antes.
 // - retryCountIntervals: intervals más cortos al inicio.
+//
+// v14: trackeamos _fbConnected explícitamente. Si NO estamos conectados,
+// _processFBQueue() NO intenta hacer el write (que tardaría 8s en timeout).
+// En su lugar, deja los items en la cola y los procesa cuando vuelva la
+// conexión. Esto evita el cuelgue "Subiendo..." en redes donde el WebSocket
+// de Firebase ni siquiera pudo establecerse.
+let _fbConnected = false;  // ¿Firebase WebSocket está realmente conectado?
 try {
   const rtdb = db.ref('.info/connected');
   let _wasConnected = false;
   rtdb.on('value', snap => {
     const connected = snap.val() === true;
+    _fbConnected = connected;
     if (connected && !_wasConnected) {
       _wasConnected = true;
       // Al reconectar, forzar el procesamiento de la cola de writes pendientes.
@@ -386,7 +394,21 @@ function _persistQueue() {
 }
 
 function _processFBQueue() {
+  // v14: Si Firebase NO está conectado (_fbConnected === false), NO intentar
+  // hacer el write. En redes muy malas, el WebSocket de Firebase puede tardar
+  // 5-10s en establecerse, y cada write intentado fallaría tras el timeout
+  // de 8s. En su lugar, dejamos los items en la cola y esperamos a que el
+  // listener de .info/connected dispare _processFBQueue() cuando vuelva la
+  // conexión. El indicador muestra "Sin conexión a la nube" para que el
+  // usuario sepa que sus vales están guardados localmente.
   if (_fbProcessing || _fbWriteQueue.length === 0) {
+    _updateSyncIndicator();
+    return;
+  }
+  if (!_fbConnected) {
+    // Firebase desconectado — NO intentar writes. Los items se quedan en
+    // la cola (persistida en localStorage). El listener de .info/connected
+    // llamará a _processFBQueue() cuando se reconecte.
     _updateSyncIndicator();
     return;
   }
@@ -702,6 +724,16 @@ function _updateSyncIndicator() {
     ind.className = 'offline';
     lbl.textContent = 'Sin conexión';
     ind.title = _lastSyncAtStr ? `Última sync: ${_lastSyncAtStr}` : 'Sin sincronización aún';
+  } else if (!_fbConnected) {
+    // v14: Navegador tiene internet, pero Firebase WebSocket NO conectó.
+    // Esto pasa en redes muy malas (50Kbit/s con alta pérdida de paquetes).
+    // Mostrar "Nube no disponible" en vez de "Sincronizando" para que el
+    // usuario sepa que NO hay que esperar — los vales se guardarán localmente.
+    ind.className = 'pending';
+    lbl.textContent = pendingCount > 0 ? `Guardado local (${pendingCount})` : 'Nube no disponible';
+    ind.title = pendingCount > 0
+      ? `${pendingCount} vale(s) guardado(s) localmente.\nFirebase no responde — se enviarán automáticamente cuando mejore la conexión.`
+      : 'Firebase no responde. Los vales se guardarán localmente y se enviarán cuando mejore la conexión.';
   } else if (pendingCount > 0) {
     // Si hay writes pendientes pero están siendo procesados, mostrar "Sincronizando".
     // Si llevan mucho tiempo sin procesarse (red muy lenta), el texto cambia a
@@ -845,17 +877,58 @@ const saveVales = v => {
   _safeSetLS('axon_vales', JSON.stringify(v));
   _valesCache = v; _valesDirty = false;
   if (isSyncingFromFirebase()) return;
-  // ── DIFF-BASED WRITES (v13) ──
-  // Antes: cada saveVales() escribía TODOS los vales del gestor/admin a Firebase.
-  // Si un gestor con 50 vales en historial enviaba 1 vale nuevo, subía ~50KB
-  // en vez de ~1KB. En 3G eso es la diferencia entre 1s y 30s por write.
-  // Ahora: comparamos el array actual contra el previo (cache) y solo encolamos
-  // los vales NUEVOS o MODIFICADOS. Los borrados siguen mandándose como null.
-  // JSON.stringify por vale es ~5μs; para 100 vales son 0.5ms — despreciable.
+  // ── DIFF-BASED WRITES (v13) + PAYLOAD SLIMMING (v14) ──
+  // v13: solo encolar vales nuevos/cambiados (no todo el array).
+  // v14: NO enviar valeText (~300-500 bytes), name de valeProductos (~20 bytes/item),
+  //      ni flags locales (synced, isNew) a Firebase. Se regeneran al leer.
+  // En redes de 50Kbit/s (~6KB/s), reducir 500 bytes por vale = 80ms menos por write.
+  // Para 5 vales seguidos, eso son 400ms menos de bloqueo del WebSocket.
   const updates = {};
   const prevMap = new Map();
   if (Array.isArray(prevVales)) {
     prevVales.forEach(x => { prevMap.set(`${x.gestorId}/${x.id}`, x); });
+  }
+  // Helper: crea una versión "slim" del vale para enviar a Firebase.
+  // Quita campos que se pueden regenerar al leer.
+  function slimVale(x) {
+    const slim = {
+      id: x.id,
+      valeNum: x.valeNum,
+      gestorId: x.gestorId,
+      ts: x.ts,
+      cliente: x.cliente,
+      telefono: x.telefono,
+      direccion: x.direccion,
+      carnet: x.carnet,
+      mensajeria: x.mensajeria,
+      articulo: x.articulo,
+      precioUSD: x.precioUSD,
+      precioMN: x.precioMN,
+      vuelto: x.vuelto,
+      total: x.total,
+      garantia: x.garantia,
+      comisionGestor: x.comisionGestor,
+      // valeProductos sin 'name' — se busca por id al leer
+      valeProductos: (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
+      status: x.status,
+      mensajeroId: x.mensajeroId,
+      confirmedTs: x.confirmedTs,
+      adminNotes: x.adminNotes,
+    };
+    // Solo incluir valeText si ya existía (para no romper vales viejos que lo usan).
+    // Si el vale lo generó buildValeText() al enviar, NO se envía — se regenera al leer.
+    // Pero si un vale viejo en Firebase lo tiene, lo respetamos al hacer update.
+    // (No lo quitamos explícitamente para no perder datos existentes.)
+    // Para vales NUEVOS: simplemente no lo incluimos.
+    // Para vales MODIFICADOS que ya tenían valeText en Firebase: lo incluimos.
+    if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
+      slim.valeText = x.valeText;
+    }
+    // No incluir synced (flag local), isNew (flag temporal), deliveredTs (solo si existe)
+    if (x.deliveredTs) slim.deliveredTs = x.deliveredTs;
+    if (x.commissionStatus) slim.commissionStatus = x.commissionStatus;
+    if (x.commissionPaid) slim.commissionPaid = x.commissionPaid;
+    return slim;
   }
   const curKeys = new Set();
   if (IS_ADMIN) {
@@ -863,9 +936,11 @@ const saveVales = v => {
       const key = `${x.gestorId}/${x.id}`;
       curKeys.add(key);
       const prev = prevMap.get(key);
-      // Solo encolar si es nuevo o cambió (comparación rápida por JSON stringify)
-      if (!prev || JSON.stringify(prev) !== JSON.stringify(x)) {
-        updates[key] = x;
+      // Solo encolar si es nuevo o cambió (comparación por JSON stringify del slim)
+      const slim = slimVale(x);
+      const prevSlim = prev ? slimVale(prev) : null;
+      if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
+        updates[key] = slim;
       }
     });
     // Borrados reales: vales que estaban en prevVales pero ya no están en v
@@ -883,8 +958,10 @@ const saveVales = v => {
     const mine = v.filter(x => x.gestorId === activeGestorId);
     mine.forEach(x => {
       const prev = prevMap.get(`${x.gestorId}/${x.id}`);
-      if (!prev || JSON.stringify(prev) !== JSON.stringify(x)) {
-        updates[x.id] = x;
+      const slim = slimVale(x);
+      const prevSlim = prev ? slimVale(prev) : null;
+      if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
+        updates[x.id] = slim;
       }
     });
     if (Array.isArray(prevVales)) {
@@ -1344,6 +1421,22 @@ function listenToMyVales(gId) {
       const val = snap.val();
       if (val) {
         const newVales = Object.values(val);
+        // v14: regenerar campos slimados al leer de Firebase.
+        // - valeText: no se envía para vales nuevos; se regenera aquí.
+        // - name de valeProductos: se busca por id con productoOf().
+        newVales.forEach(v => {
+          if (v && !v.valeText) v.valeText = regenerateValeText(v);
+          if (v && Array.isArray(v.valeProductos)) {
+            v.valeProductos.forEach(p => {
+              if (!p.name) {
+                const prod = productoOf(p.id);
+                if (prod) p.name = prod.name;
+              }
+            });
+          }
+          // Asegurar flags locales por defecto
+          if (v && v.synced === undefined) v.synced = true; // vino de Firebase → está synced
+        });
         newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
         
         if (!firstLoadVales) {
@@ -1603,6 +1696,19 @@ if (IS_ADMIN) {
         let flatVales = [];
         Object.values(val).forEach(gVales => {
           if(gVales) flatVales.push(...Object.values(gVales));
+        });
+        // v14: regenerar campos slimados al leer de Firebase.
+        flatVales.forEach(v => {
+          if (v && !v.valeText) v.valeText = regenerateValeText(v);
+          if (v && Array.isArray(v.valeProductos)) {
+            v.valeProductos.forEach(p => {
+              if (!p.name) {
+                const prod = productoOf(p.id);
+                if (prod) p.name = prod.name;
+              }
+            });
+          }
+          if (v && v.synced === undefined) v.synced = true;
         });
         flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
         // Check for new vales with estafa matches before saving
@@ -4343,6 +4449,40 @@ function buildValeText() {
     '* Solo se aceptan billetes en buen estado (ni rotos ni manchados)'].join('\n');
 }
 
+// ── Regenera valeText a partir de un vale existente (no del form) ──
+// v14: NO enviamos valeText a Firebase (~300-500 bytes por vale).
+// En su lugar, lo regeneramos al leer el vale desde Firebase.
+// Esto reduce el payload de cada write en redes muy lentas.
+// Para vales viejos que SÍ tienen valeText en Firebase, se respeta ese valor.
+function regenerateValeText(v) {
+  if (!v) return '';
+  // Si ya tiene valeText (vale viejo o generado por buildValeText al enviar), usarlo.
+  if (v.valeText) return v.valeText;
+  const g = gestorOf(v.gestorId);
+  const prodLines = (v.valeProductos && v.valeProductos.length)
+    ? v.valeProductos.map(p => `  ×${p.qty} ${p.name || (productoOf(p.id) ? productoOf(p.id).name : 'Producto ' + p.id)}`).join('\n')
+    : (v.articulo || '');
+  const ts = v.ts ? new Date(v.ts).toLocaleString('es-ES') : nowDateTime();
+  return ['Bienvenido a "AXONTECH" 🔥','','VALE DEL GESTOR:','',
+    `🔸Promotor: ${g?g.name:''}`, '',
+    `🔸 Nombre Cliente: ${v.cliente||''}`,
+    `🔸Teléfono Cliente: ${v.telefono||''}`,
+    `🔸Dirección Cliente: ${v.direccion||''}`,
+    `🔸Mensajería/ costo: ${v.mensajeria||''}`,
+    `🔸 Artículos y cantidades:`,prodLines,
+    `🔸Precio USD/ zelle: ${v.precioUSD||''}`,
+    `🔸Precio MN: ${v.precioMN||''}`,
+    `🔸 Vuelto: ${v.vuelto||''}`,
+    `🔸 Total a pagar: ${v.total||''}`, '',
+    `*Garantía: ${v.garantia||''}`,
+    `*Fecha y hora de Venta: ${ts}`, '',
+    '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
+    '🚨ATENCIÓN🚨','•   Horarios de atención al cliente:','    9:00am - 7:00pm.',
+    '* Solo aceptamos hasta cinco billetes de 1 USD por compra.',
+    '* Los pagos en MN deben ser con denominación de 50 en adelante.',
+    '* Solo se aceptan billetes en buen estado (ni rotos ni manchados)'].join('\n');
+}
+
 // Bandera global: indica que el modal del ticket se abrió automáticamente tras enviar un vale.
 // Si es true, al cerrar el modal (botón Cerrar, clic fuera, o Escape) se limpia el formulario.
 let _ticketAfterSend = false;
@@ -4544,17 +4684,17 @@ function sendVale() {
   // El toast y el ticket aparecen al instante, sin esperar a que se re-renderice
   // toda la lista de vales, comisiones, ranking, etc.
   // El mensaje depende del estado de la conexión para no engañar al gestor:
-  //  - Si hay conexión y la cola está vacía → "Vale enviado al administrador ✓"
-  //  - Si NO hay conexión → "Vale guardado · Se enviará al volver la conexión"
-  //  - Si hay conexión pero hay writes pendientes (red lenta) → "Vale guardado · Subiendo a la nube…"
+  // v14: Simplificado para conexiones muy lentas. El usuario NO necesita saber
+  // si el write está en progreso o encolado — solo necesita confirmación de que
+  // su vale está guardado y eventualmente llegará al admin.
+  //  - Si NO hay conexión o Firebase no responde → "Vale guardado ✓ · Se enviará cuando mejore la conexión"
+  //  - Si hay conexión y la cola está vacía → "Vale guardado ✓ · Enviando al administrador"
+  //  - Si hay conexión pero hay writes pendientes (red lenta) → "Vale guardado ✓ · Enviando al administrador"
   playSound('vale');
-  const pendingBefore = _fbWriteQueue.length;
-  if (!_onlineStatus) {
-    showToast('💾 Vale guardado · Se enviará al volver la conexión');
-  } else if (pendingBefore > 0) {
-    showToast('💾 Vale guardado · Subiendo a la nube…');
+  if (!_onlineStatus || !_fbConnected) {
+    showToast('✓ Vale guardado · Se enviará cuando mejore la conexión');
   } else {
-    showToast('Vale enviado al administrador ✓');
+    showToast('✓ Vale guardado · Enviando al administrador');
   }
   _updatePendingSyncBanner();
   openTicketModal(true);
