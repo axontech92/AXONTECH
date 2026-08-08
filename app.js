@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 7;
+const APP_VERSION = 8;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '337f8ef68cc404f4';
+let _LOCAL_BUILD_HASH = '699d41e06dc9007c';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -330,7 +330,13 @@ function _processFBQueue() {
     }
   }, 12000);
 
-  op.then(() => { if(callback) callback(); })
+  op.then(() => {
+      if(callback) callback();
+      // Marcar vales como synced cuando su write a Firebase se confirma.
+      // Esto funciona incluso tras recargar la página porque el `value` del
+      // item encolado sí es serializable y se persiste en axon_pending_writes.
+      _markValesSyncedFromUpdate(path, value);
+    })
     .catch(e => {
       if (settled) return;  // el timeout ya manejó este item
       settled = true;
@@ -375,6 +381,104 @@ function _enqueueFB(path, value, method='set', callback=null) {
   _processFBQueue();
 }
 
+// ══════════════════════════════════════════
+//  SYNCED TRACKING — marca vales como realmente subidos a Firebase
+// ══════════════════════════════════════════
+// Cuando un gestor envía un vale en condiciones de red mala, el vale se guarda
+// localmente con synced:false y se encola el write. Si la app se cierra antes
+// de que el write se confirme, el vale queda "huérfano": el gestor lo ve como
+// enviado pero el admin nunca lo recibe. Esta función se llama desde el .then()
+// de _processFBQueue cuando el write se confirma, y marca los vales afectados
+// como synced:true en localStorage (sin re-encolar otro write a Firebase).
+function _markValesSyncedFromUpdate(path, value) {
+  if (!value || typeof value !== 'object') return;
+  // Solo nos interesan los writes a 'vales' o 'vales/{gestorId}'
+  if (path !== 'vales' && !path.startsWith('vales/')) return;
+  // Extraer los IDs de vales que se acaban de confirmar.
+  // `value` puede ser:
+  //   - Para 'set': { gestorId: { valeId: {...}, ... }, ... }
+  //   - Para 'update' en 'vales': { 'gestorId/valeId': {...}, ... }
+  //   - Para 'update' en 'vales/gestorId': { valeId: {...}, ... }
+  let syncedIds = [];
+  try {
+    if (path === 'vales') {
+      // update con claves 'gestorId/valeId'
+      Object.entries(value).forEach(([k, v]) => {
+        if (v && typeof v === 'object' && v.id) syncedIds.push(v.id);
+        else if (v && typeof v === 'object') {
+          // podría ser 'set' con estructura anidada {gestorId: {valeId: {...}}}
+          Object.entries(v).forEach(([vid, vv]) => {
+            if (vv && typeof vv === 'object' && vv.id) syncedIds.push(vv.id);
+          });
+        }
+      });
+    } else {
+      // path = 'vales/gestorId', value = { valeId: {...}, ... }
+      Object.entries(value).forEach(([k, v]) => {
+        if (v && typeof v === 'object' && v.id) syncedIds.push(v.id);
+      });
+    }
+  } catch (e) {
+    console.warn('_markValesSyncedFromUpdate parse error:', e);
+    return;
+  }
+  if (syncedIds.length === 0) return;
+  // Actualizar el cache local SIN encolar otro write a Firebase.
+  const all = getVales();
+  let changed = false;
+  for (let i = 0; i < all.length; i++) {
+    if (syncedIds.includes(all[i].id) && all[i].synced !== true) {
+      all[i].synced = true;
+      changed = true;
+    }
+  }
+  if (changed) {
+    _safeSetLS('axon_vales', JSON.stringify(all));
+    _valesCache = all;
+    _valesDirty = false;
+    _updatePendingSyncBanner();
+    // Refrescar la lista de vales del gestor si está visible.
+    if (typeof renderMyVales === 'function') {
+      try { renderMyVales(); } catch (_) {}
+    }
+  }
+}
+
+// Cuenta cuántos vales del gestor activo (o todos si es admin) están pendientes
+// de sincronizar (synced:false). Excluye los vales cancelados (no necesitan subirse).
+function _countPendingSyncVales() {
+  const all = getVales();
+  return all.filter(v =>
+    v.synced !== true &&
+    v.status !== 'cancelled'
+  ).length;
+}
+
+// Muestra/oculta el banner de "N vales pendientes de sincronizar".
+// Se llama desde sendVale, _markValesSyncedFromUpdate, online/offline events,
+// y al renderizar la lista de vales.
+function _updatePendingSyncBanner() {
+  const banner = document.getElementById('pendingSyncBanner');
+  if (!banner) return;
+  const count = _countPendingSyncVales();
+  const txt = banner.querySelector('[data-pending-count]');
+  if (count > 0) {
+    if (txt) txt.textContent = count;
+    banner.style.display = 'flex';
+    // Cambiar el ícono/texto según si hay conexión o no
+    const msg = banner.querySelector('[data-pending-msg]');
+    if (msg) {
+      msg.textContent = _onlineStatus
+        ? `Subiendo ${count} vale${count === 1 ? '' : 's'} a la nube…`
+        : `${count} vale${count === 1 ? '' : 's'} guardado${count === 1 ? '' : 's'} sin conexión · Se enviará${count === 1 ? '' : 'n'} al volver la conexión`;
+    }
+  } else {
+    banner.style.display = 'none';
+  }
+  // También actualizar el indicador de sync estándar
+  _updateSyncIndicator();
+}
+
 // On startup: re-enqueue persisted writes
 try {
   const pending = JSON.parse(localStorage.getItem('axon_pending_writes') || '[]');
@@ -412,8 +516,49 @@ function _updateSyncIndicator() {
     _lastSyncAt = Date.now();
   }
 }
-window.addEventListener('online', () => { _onlineStatus = true; _updateSyncIndicator(); _processFBQueue(); });
-window.addEventListener('offline', () => { _onlineStatus = false; _updateSyncIndicator(); });
+window.addEventListener('online', () => {
+  _onlineStatus = true;
+  _updatePendingSyncBanner();
+  // Al volver la conexión, forzar el procesamiento de la cola de writes pendientes.
+  // Si hay vales con synced:false que por alguna razón no están encolados (p.ej. el
+  // item se descartó tras 5 reintentos), re-encolar un write de vales para ese gestor.
+  _ensurePendingValesEnqueued();
+  _processFBQueue();
+  // Toast informativo solo si hay pendientes
+  const pendingCount = _countPendingSyncVales();
+  if (pendingCount > 0) {
+    showToast(`📡 Conexión restablecida · Enviando ${pendingCount} vale${pendingCount === 1 ? '' : 's'} pendiente${pendingCount === 1 ? '' : 's'}…`);
+  }
+});
+window.addEventListener('offline', () => {
+  _onlineStatus = false;
+  _updatePendingSyncBanner();
+  const pendingCount = _countPendingSyncVales();
+  if (pendingCount > 0) {
+    showToast(`📡 Sin conexión · ${pendingCount} vale${pendingCount === 1 ? '' : 's'} queda${pendingCount === 1 ? '' : 'n'} guardado${pendingCount === 1 ? '' : 's'} localmente`);
+  }
+});
+
+// Si hay vales con synced:false pero NO están encolados en _fbWriteQueue (puede pasar
+// si el item se descartó tras 5 reintentos, o si la app se cerró y reabrió sin que
+// el write se completara), re-encolar un write para ese gestor.
+function _ensurePendingValesEnqueued() {
+  if (IS_ADMIN) return; // el admin no envía vales propios
+  if (!activeGestorId) return;
+  const mine = getVales().filter(v => v.gestorId === activeGestorId && v.synced !== true && v.status !== 'cancelled');
+  if (mine.length === 0) return;
+  // Verificar si ya hay un write de vales/{gestorId} encolado
+  const hasValesWriteQueued = _fbWriteQueue.some(item =>
+    item.path === `vales/${activeGestorId}` ||
+    item.path === 'vales'
+  );
+  if (hasValesWriteQueued) return; // ya hay uno en camino, no duplicar
+  // Re-encolar un write con TODOS los vales pendientes de este gestor
+  const updates = {};
+  mine.forEach(v => { updates[v.id] = v; });
+  _enqueueFB(`vales/${activeGestorId}`, updates, 'update');
+  console.log(`[sync] Re-encolados ${mine.length} vales pendientes para gestor ${activeGestorId}`);
+}
 
 const setFB = (path, v) => {
   _enqueueFB(path, v, 'set');
@@ -3505,6 +3650,8 @@ function renderMyVales() {
   const c = document.getElementById('gestorMyVales');
   const hList = document.getElementById('gestorHistorialList');
   if(!c || !hList || !activeGestorId) return;
+  // Asegurar que el banner de pendientes refleja el estado actual
+  if (typeof _updatePendingSyncBanner === 'function') _updatePendingSyncBanner();
 
   const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
   const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
@@ -3546,7 +3693,10 @@ function renderMyVales() {
           </div>
         </div>
         <div class="mv-info">${escapeHTML(v.cliente||'—')} · ${escapeHTML(v.articulo||'—')}</div>
-        <div class="mv-foot"><span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span></div>
+        <div class="mv-foot">
+          <span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span>
+          ${v.synced === false ? `<span class="mv-pending-sync-badge" title="Aún no se ha subido a la nube">📡 Pendiente sync</span>` : ``}
+        </div>
       </div>`;
     }).join('');
   }
@@ -3962,6 +4112,8 @@ function sendVale() {
   // ── 1. Construir el vale y guardarlo LOCALMENTE (síncrono, ~1ms) ──
   // Esto ya deja el vale persistido en localStorage y encola la escritura a Firebase.
   // El usuario NO necesita esperar a que Firebase responda para ver el feedback.
+  // `synced:false` indica que el vale aún no se ha confirmado en Firebase; el banner
+  // de pendientes lo mostrará hasta que el write se complete.
   const g=gestorOf(activeGestorId);
   const vale={
     id:Date.now(),valeNum:getNextValeNum(),gestorId:activeGestorId,ts:new Date().toISOString(),
@@ -3971,6 +4123,7 @@ function sendVale() {
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
     valeProductos:currentValeProductos,valeText:buildValeText(),
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
+    synced:false, // se marcará true cuando Firebase confirme el write
   };
   const all=getVales();all.push(vale);saveVales(all);
   _logAudit('vale_sent', 'vale:' + vale.id + ' gestor:' + activeGestorId);
@@ -3978,8 +4131,20 @@ function sendVale() {
   // ── 2. Feedback INMEDIATO al usuario (antes de los renders pesados) ──
   // El toast y el ticket aparecen al instante, sin esperar a que se re-renderice
   // toda la lista de vales, comisiones, ranking, etc.
+  // El mensaje depende del estado de la conexión para no engañar al gestor:
+  //  - Si hay conexión y la cola está vacía → "Vale enviado al administrador ✓"
+  //  - Si NO hay conexión → "Vale guardado · Se enviará al volver la conexión"
+  //  - Si hay conexión pero hay writes pendientes (red lenta) → "Vale guardado · Subiendo a la nube…"
   playSound('vale');
-  showToast('Vale enviado al administrador ✓');
+  const pendingBefore = _fbWriteQueue.length;
+  if (!_onlineStatus) {
+    showToast('💾 Vale guardado · Se enviará al volver la conexión');
+  } else if (pendingBefore > 0) {
+    showToast('💾 Vale guardado · Subiendo a la nube…');
+  } else {
+    showToast('Vale enviado al administrador ✓');
+  }
+  _updatePendingSyncBanner();
   openTicketModal(true);
 
   // ── 3. Restaurar el botón a su estado normal INMEDIATAMENTE ──
@@ -7692,6 +7857,16 @@ async function init() {
   setInterval(() => checkVersion(false), _VERSION_CHECK_INTERVAL);
   await loadInitialData();
   _updateSyncIndicator();
+  // Mostrar banner de vales pendientes de sincronizar al arrancar.
+  // También re-encolar writes para vales que se quedaron huérfanos (synced:false)
+  // tras un cierre de la app con red caída.
+  _ensurePendingValesEnqueued();
+  _updatePendingSyncBanner();
+  // Verificar cada 30s si hay vales pendientes y volver a encolar si es necesario.
+  setInterval(() => {
+    if (_onlineStatus) _ensurePendingValesEnqueued();
+    _updatePendingSyncBanner();
+  }, 30000);
   if (IS_ADMIN) {
     initAdminPage();
   } else {

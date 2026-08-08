@@ -431,6 +431,100 @@ body.dark .catalog-cta:hover{
 }
 body.dark .catalog-cta{animation:catalogPulseDark 2.4s ease-in-out infinite;}
 
+/* ── Pending Sync Banner (gestor) ── */
+.pending-sync-banner{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  margin:0 0 10px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);
+  border:1.5px solid #f59e0b;
+  color:#78350f;
+  font-size:12px;
+  font-weight:700;
+  box-shadow:0 2px 8px rgba(245,158,11,.18);
+  animation:psbPulse 1.8s ease-in-out infinite;
+}
+.pending-sync-banner .psb-icon{
+  font-size:18px;
+  flex-shrink:0;
+  animation:psbSpin 2.5s linear infinite;
+}
+.pending-sync-banner .psb-text{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex:1;
+  min-width:0;
+  line-height:1.3;
+}
+.pending-sync-banner .psb-count{
+  background:#f59e0b;
+  color:#fff;
+  padding:1px 8px;
+  border-radius:10px;
+  font-weight:800;
+  font-size:11px;
+  flex-shrink:0;
+}
+.pending-sync-banner .psb-msg{
+  font-size:11.5px;
+  font-weight:600;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@keyframes psbPulse{
+  0%,100%{box-shadow:0 2px 8px rgba(245,158,11,.18);}
+  50%{box-shadow:0 3px 12px rgba(245,158,11,.35);}
+}
+@keyframes psbSpin{
+  0%{transform:rotate(0deg);}
+  25%{transform:rotate(15deg);}
+  50%{transform:rotate(-15deg);}
+  75%{transform:rotate(10deg);}
+  100%{transform:rotate(0deg);}
+}
+@media (prefers-reduced-motion: reduce){
+  .pending-sync-banner,
+  .pending-sync-banner .psb-icon{animation:none;}
+}
+
+/* ── Pending Sync Badge en la lista de Mis Vales ── */
+.mv-pending-sync-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  background:#fde68a;
+  color:#78350f;
+  border:1px solid #f59e0b;
+  border-radius:6px;
+  padding:1px 6px;
+  font-size:9px;
+  font-weight:700;
+  margin-left:6px;
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+
+/* ── Pending Sync Banner en dark mode ── */
+body.dark .pending-sync-banner{
+  background:linear-gradient(135deg,#451a03 0%,#78350f 100%);
+  border-color:#f59e0b;
+  color:#fde68a;
+  box-shadow:0 2px 8px rgba(245,158,11,.30);
+}
+body.dark .pending-sync-banner .psb-count{
+  background:#f59e0b;
+  color:#1a1a2e;
+}
+body.dark .mv-pending-sync-badge{
+  background:rgba(245,158,11,.20);
+  color:#fde68a;
+  border-color:#f59e0b;
+}
+
 /* ── Vale preview ── */
 #previewCard{margin-top:12px;}
 .vale-preview{
