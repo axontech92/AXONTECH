@@ -293,24 +293,55 @@ const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _ge
 const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; if (!isSyncingFromFirebase()) setFB('gestores', v); _logAudit('gestores_update'); };
 
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
-// Vales are synced via saveVales → _enqueueFB('vales', obj, 'set') through the write queue.
+// Vales are synced via saveVales → _enqueueFB('vales', updates, 'update') through the write queue.
 // Individual fbUpdateVale was removed from patchVale to prevent race conditions.
 // fbAddVale/fbRemoveVale are NO LONGER called by sendVale/cancelVale/adminDeleteVale
-// because saveVales already enqueues a full 'set' on the vales node. Calling both
-// produced race conditions where the per-item write could overwrite the full set.
+// because saveVales already enqueues the write on the vales node.
+//
+// IMPORTANTE — por qué 'update' y no 'set':
+// saveVales() se llama con la copia LOCAL EN MEMORIA de todos los vales (admin) o de
+// los propios (gestor). Esa copia puede estar desactualizada si otro dispositivo
+// (un gestor enviando un vale nuevo, o el admin cambiando el estado de un vale)
+// escribió en Firebase hace un instante y el listener `db.ref('vales').on('value', ...)`
+// de este dispositivo todavía no procesó esa actualización (delay de red típico:
+// 100ms–1s). Antes se hacía un `set()` del árbol COMPLETO reconstruido desde esa
+// copia local: eso reemplazaba TODO el nodo 'vales' en Firebase, borrando
+// silenciosamente cualquier vale que hubiera llegado de otro dispositivo en esa
+// ventana de tiempo — esto es lo que causaba que "los vales no llegaran bien".
+// Con `update()` (multi-path update) solo se tocan las rutas gestorId/valeId que
+// esta llamada realmente conoce; cualquier vale ajeno que ya esté en Firebase pero
+// no en la copia local queda intacto. Los borrados reales (cancelar/eliminar vale)
+// se detectan comparando contra la copia anterior (`prevVales`) y se envían como
+// `null` explícito para esas rutas puntuales.
 const saveVales = v => {
+  const prevVales = _valesCache; // snapshot antes de este guardado, para detectar borrados reales
   _safeSetLS('axon_vales', JSON.stringify(v));
   _valesCache = v; _valesDirty = false;
   if (isSyncingFromFirebase()) return;
   if (IS_ADMIN) {
-    // El admin sí tiene la vista completa → puede escribir el árbol entero
-    _enqueueFB('vales', _valesToFirebaseObj(v), 'set');
+    const updates = {};
+    v.forEach(x => { updates[`${x.gestorId}/${x.id}`] = x; });
+    if (Array.isArray(prevVales)) {
+      const kept = new Set(v.map(x => `${x.gestorId}/${x.id}`));
+      prevVales.forEach(x => {
+        const key = `${x.gestorId}/${x.id}`;
+        if (!kept.has(key)) updates[key] = null;
+      });
+    }
+    _enqueueFB('vales', updates, 'update');
   } else if (activeGestorId) {
     // El gestor SOLO puede escribir su propia rama. Nunca 'vales' a secas,
-    // porque un set en el nodo raíz borraría los vales de los demás gestores.
-    const mine = {};
-    v.filter(x => x.gestorId === activeGestorId).forEach(x => { mine[x.id] = x; });
-    _enqueueFB(`vales/${activeGestorId}`, mine, 'set');
+    // porque tocaría los vales de los demás gestores.
+    const mine = v.filter(x => x.gestorId === activeGestorId);
+    const updates = {};
+    mine.forEach(x => { updates[x.id] = x; });
+    if (Array.isArray(prevVales)) {
+      const kept = new Set(mine.map(x => x.id));
+      prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
+        if (!kept.has(x.id)) updates[x.id] = null;
+      });
+    }
+    _enqueueFB(`vales/${activeGestorId}`, updates, 'update');
   }
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
 };
@@ -848,7 +879,13 @@ function refreshUI() {
 
 
 // Base Listeners (Everything except vales) — with try/finally to prevent isSyncingFromFirebase from sticking
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa'].forEach(node => {
+// 'ranking_summary' está incluido aquí para que TODOS los dispositivos de gestor
+// reciban el resumen de puntos que el admin calcula desde el árbol completo de
+// vales (ver el listener de 'vales' más abajo). Antes nada lo escuchaba y
+// renderGestorRanking() recalculaba los puntos desde getVales(), que en un
+// dispositivo de gestor SOLO contiene sus propios vales — el ranking mostraba
+// 0 pts para todos los demás gestores.
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
   db.ref(node).on('value', snap => {
     _syncCount++;
     try {
@@ -976,10 +1013,22 @@ function patchVale(id, changes) {
 // son síncronos. Mantenemos el patrón local-sync; si dos gestores envían exactamente
 // al mismo milisegundo pueden duplicar el número, pero el id (Date.now()) sigue
 // siendo único. Ver AUDITORIA-AXONTECH.md MEDIO 20 (pendiente de migrar a async).
+//
+// IMPORTANTE: esta función NO usa saveConfig() a propósito. saveConfig() sube el
+// objeto config COMPLETO (todos los ajustes: teléfono admin, GitHub, meta de puntos,
+// etc). getNextValeNum() se llama en CADA vale enviado, desde gestores y desde el
+// admin, con la copia local de config de cada dispositivo — si esa copia estaba
+// desactualizada (p.ej. el admin acababa de cambiar un ajuste que este gestor aún
+// no había recibido), subir el config completo revertía ese ajuste sin que nadie
+// lo notara. Aquí solo se escribe el campo nextValeNum vía 'update', dejando
+// intacto cualquier otro ajuste que ya esté en Firebase.
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
-  saveConfig({...cfg, nextValeNum: n + 1});
+  const updated = {...cfg, nextValeNum: n + 1};
+  _safeSetLS('axon_config', JSON.stringify(updated));
+  _configCache = updated; _configDirty = false;
+  if (!isSyncingFromFirebase()) _enqueueFB('config', {nextValeNum: n + 1}, 'update');
   return n;
 }
 function valeNumStr(v) {
@@ -2419,6 +2468,7 @@ function renderValeDetail() {
     assigned:{label:'Con mensajero',cls:'sp-assigned',icon:'🛵'},
     confirmed:{label:'Confirmado',cls:'sp-confirmed',icon:'✅'},
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
+    cancelled:{label:'Cancelado',cls:'sp-cancelled',icon:'🚫'},
   };
   const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
@@ -2469,6 +2519,14 @@ function renderValeDetail() {
     </div>
     <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>
     <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button>`;
+  } else if(v.status==='cancelled'){
+    // Antes este estado no tenía rama propia: el badge mostraba el texto crudo
+    // "cancelled" (sin traducir) y no se mostraba ningún bloque de acciones.
+    actHTML=`<div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);border-radius:8px;padding:14px;text-align:center;">
+      <div style="font-size:26px;margin-bottom:4px;">🚫</div>
+      <div style="font-weight:700;color:var(--red);">Vale Cancelado</div>
+      ${v.cancelledTs?`<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${new Date(v.cancelledTs).toLocaleString('es-ES')}</div>`:''}
+    </div>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
   const notesHighlight=v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
@@ -2706,8 +2764,24 @@ function saveEditVale() {
   ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor','articulo','precioUSD','precioMN'].forEach(k=>{
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
-  // Save product selection
-  if(editValeProductos.length)changes.valeProductos=editValeProductos;
+  // Save product selection. editValeProductos siempre refleja la selección actual
+  // del picker (se inicializa desde v.valeProductos al abrir el modal) — antes,
+  // si el admin quitaba todos los productos del vale, el array quedaba vacío y
+  // este `if` lo ignoraba, dejando silenciosamente los productos viejos guardados.
+  const productsChanged = JSON.stringify(editValeProductos) !== JSON.stringify(v.valeProductos||[]);
+  if (productsChanged && v.stockDecremented) {
+    // Este vale ya tiene el stock descontado del inventario (pending_payment o
+    // confirmed). Cambiar aquí los productos/cantidades no ajusta el stock —
+    // dejaría el inventario descuadrado. Se guardan los demás campos igual,
+    // pero los productos quedan sin tocar; hay que revertir la venta primero.
+    changes.valeProductos = v.valeProductos||[];
+    patchVale(id,changes);
+    closeEditValeModal();
+    renderAdminGestores();renderValeDetail();
+    showToast('⚠️ Los productos NO se cambiaron: el stock ya se descontó. Revierte la venta primero.');
+    return;
+  }
+  changes.valeProductos=editValeProductos;
   patchVale(id,changes);
   closeEditValeModal();
   renderAdminGestores();renderValeDetail();
@@ -2924,6 +2998,12 @@ function markAsPaid(id, skipConfirm) {
     showConfirmAction('¿Registrar cobro recibido?',`${v.cliente||''} · ${v.total||''}`,'Registrar cobro','btn-green',()=>markAsPaid(id,true));
     return;
   }
+  // Revalida el estado justo antes de aplicar el cambio (igual que mensajeroPagado/
+  // confirmSale): entre que se abrió el modal de confirmación y que el admin lo
+  // confirma puede pasar tiempo — si otro dispositivo ya revirtió esta venta en el
+  // medio, aplicar 'confirmed' aquí dejaría un vale "confirmado" sin stock descontado.
+  const v=getVales().find(x=>x.id===id);
+  if(!v || v.status!=='pending_payment'){showToast('Este vale ya no está pendiente de cobro');return;}
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();renderMyVales();
@@ -3704,11 +3784,15 @@ function sendVale() {
 
   renderGestores();renderMyVales();renderGestorComisiones();updateAdminBadge();
   playSound('vale');
-  sendBrowserNotif('AXONTECH – Nuevo vale',`${g.name} envió un vale para ${vale.cliente}`);
+  // g puede ser undefined si el admin borró a este gestor del listado justo mientras
+  // tenía el formulario abierto en otro dispositivo — el vale ya se guardó arriba,
+  // así que de aquí en más solo evitamos que un g.name sin proteger crashee y deje
+  // el botón "Enviando..." trabado para siempre (_isSendingVale nunca se libera).
+  sendBrowserNotif('AXONTECH – Nuevo vale',`${g?g.name:'Gestor'} envió un vale para ${vale.cliente}`);
   showToast('Vale enviado al administrador ✓');
 
   if(adminActive){
-    const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g.name} acaba de enviar un vale`;
+    const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g?g.name:'Un gestor'} acaba de enviar un vale`;
     const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
     renderAdminGestores();
     // Check estafa blacklist when admin is active
@@ -4157,8 +4241,11 @@ function venderDirecto(id) {
   if(q === null) return;
   const qty = parseInt(q, 10);
   if(isNaN(qty) || qty <= 0) return showToast('Cantidad inválida');
-  if(qty > (p.stock||0)) return showToast('Stock insuficiente');
-  
+  // Comparar contra el stock DISPONIBLE (stock - reserved), no el stock físico total —
+  // igual que hacen los pickers de vale. Antes esto permitía "vender directo en tienda"
+  // unidades que ya estaban reservadas para otro cliente.
+  if(qty > _availableStock(p)) return showToast('Stock insuficiente (hay unidades reservadas)');
+
   // Deduct stock
   const newStock = p.stock - qty;
   patchProducto(id, {stock: newStock});
@@ -4349,11 +4436,27 @@ function _renderStatsGestorCard(g, vales, from, to) {
         }).join('')
       : '<div style="font-size:11px;color:var(--gray-400);">Sin productos vendidos en el período</div>';
 
-    // Ticket promedio — average total of confirmed/pending_payment vales
+    // Ticket promedio — separa USD y MN en vez de sumarlos como si fueran la misma
+    // moneda. Antes se hacía parsePrecioNum(v.total) sobre un texto combinado tipo
+    // "$45 USD + 4050 MN" (formato de calcAutoTotal), sumando 45+4050 y mostrando
+    // el resultado como si todo fuera USD — el mismo bug que ya se había corregido
+    // en getValeCommissionParts (ver comentario "ALTO 10" más abajo) pero que
+    // seguía sin arreglar aquí. Se usan precioUSD/precioMN (los campos ya separados
+    // por moneda) y solo se cae a v.total para vales viejos sin esos campos.
     const closedVales = gv.filter(v => ['confirmed','pending_payment'].includes(v.status));
-    const totalNum = closedVales.reduce((sum,v) => sum + parsePrecioNum(v.total || v.precioUSD || ''), 0);
-    const ticketAvg = closedVales.length ? (totalNum / closedVales.length) : 0;
-    const ticketStr = ticketAvg > 0 ? `$${ticketAvg.toFixed(0)} USD` : '—';
+    let ticketSumUSD = 0, ticketSumMN = 0;
+    closedVales.forEach(v => {
+      const usd = parsePrecioNum(v.precioUSD || '');
+      const mn = parsePrecioNum(v.precioMN || '');
+      if (usd > 0 || mn > 0) { ticketSumUSD += usd; ticketSumMN += mn; }
+      else { ticketSumUSD += parsePrecioNum(v.total || ''); }
+    });
+    const ticketAvgUSD = closedVales.length ? ticketSumUSD / closedVales.length : 0;
+    const ticketAvgMN = closedVales.length ? ticketSumMN / closedVales.length : 0;
+    const ticketParts = [];
+    if (ticketAvgUSD > 0) ticketParts.push(`$${ticketAvgUSD.toFixed(0)} USD`);
+    if (ticketAvgMN > 0) ticketParts.push(`${Math.round(ticketAvgMN)} MN`);
+    const ticketStr = ticketParts.length ? ticketParts.join(' + ') : '—';
 
     // Commission summary
     const pendCom = closedVales.filter(v => !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
@@ -5279,15 +5382,16 @@ function renderGestorRanking() {
   const meta=getConfig().metaPuntos||0;
   if(rankingCache&&(Date.now()-rankingCache.ts<15000)){c.innerHTML=rankingCache.html;return;}
   
-  const sumStr = localStorage.getItem('axon_ranking_summary');
+  // El admin calcula 'ranking_summary' (puntos por gestor) a partir del árbol
+  // COMPLETO de vales y lo sincroniza a Firebase (ver el listener de 'vales' del
+  // admin, más arriba). Un dispositivo de gestor NUNCA tiene en su caché local
+  // (getVales()) los vales de los DEMÁS gestores — listenToMyVales() solo escucha
+  // vales/{suPropioId} — así que recalcular "summary" desde getVales() aquí (como
+  // se hacía antes) daba 0 pts para todos los gestores excepto el que tenía la
+  // sesión abierta: el ranking estaba roto para todo el mundo salvo uno mismo.
   let summary = [];
-  const confirmedVales = getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
-  // Always recalculate from actual vales to avoid stale data
-  summary = gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-    return {id: g.id, pts};
-  });
+  try { summary = JSON.parse(localStorage.getItem('axon_ranking_summary') || '[]'); } catch(e) { summary = []; }
+  if (!Array.isArray(summary)) summary = [];
 
   const ranked=gestores.map(g=>{
     const s = summary.find(x => x.id === g.id);
@@ -6502,8 +6606,14 @@ function toggleAdminPickerProd(pid) {
   renderAdminPickerProducts(); renderAdminPickerSelected();
 }
 function setAdminPickerQty(pid, delta) {
+  // A diferencia de pickerAdj() (picker del gestor) y setEditValePickerQty() (picker
+  // de edición), este picker del "Generar vale" del admin no tenía tope de stock —
+  // se podía seleccionar cualquier cantidad aunque el producto estuviera agotado o
+  // totalmente reservado. Se agrega el mismo límite que usan los otros dos pickers.
+  const prod=productoOf(pid);
+  const max=prod?_availableStock(prod):0;
   let q=(adminPickerSelected[pid]||0)+delta;
-  if(q<=0){delete adminPickerSelected[pid];}else{adminPickerSelected[pid]=q;}
+  if(q<=0){delete adminPickerSelected[pid];}else{adminPickerSelected[pid]=Math.min(max,q);}
   renderAdminPickerProducts(); renderAdminPickerSelected();
 }
 function renderAdminPickerSelected() {
