@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 15;
+const APP_VERSION = 16;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '35dee5c7aa877e83';
+let _LOCAL_BUILD_HASH = '884f06579da4b02b';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4321,6 +4321,11 @@ function renderMyVales() {
     confirmed:{label:'Venta confirmada ✅',color:'var(--green)',icon:'✅'},
     pending_payment:{label:'Pendiente de cobro',color:'var(--yellow)',icon:'⏳'},
   };
+  // Override "pending" label when the vale aún no se ha confirmado en Firebase.
+  // El label PRINCIPAL cambia a "Subiendo..." (amarillo) en vez del badge chiquito
+  // al lado, para que el gestor no crea que el admin ya recibió el vale cuando
+  // en realidad sigue en cola o subiéndose.
+  const pendingSyncing={label:'Subiendo...',color:'var(--yellow)',icon:'⏳'};
   // Override "pending" label when the admin has already seen the vale
   const pendingSeen={label:'Visto por admin 👁️',color:'#0EA5E9',icon:'👁️'};
 
@@ -4330,8 +4335,10 @@ function renderMyVales() {
   } else {
     c.innerHTML=activeVales.map(v=>{
       let s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      // Si el vale aún no se ha confirmado en Firebase, mostrar "Subiendo..." como label principal
+      if(v.synced === false) s=pendingSyncing;
       // Show "Visto por admin" status when the admin has already opened this pending vale
-      if(v.status==='pending' && v.seenByAdmin) s=pendingSeen;
+      else if(v.status==='pending' && v.seenByAdmin) s=pendingSeen;
       const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
       const canCancel=v.status==='pending';
       return `<div class="mv-card st-${v.status}">
