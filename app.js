@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 16;
+const APP_VERSION = 17;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '884f06579da4b02b';
+let _LOCAL_BUILD_HASH = 'ebdaf7115fc6d501';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -400,6 +400,44 @@ function _persistQueue() {
   _updateSyncIndicator();
 }
 
+// ── v17: Estimación adaptativa del throughput efectivo ──
+// Antes se asumía 6 KB/s fijos (50 Kbit/s). En 10 Kbit/s reales (~1.2 KB/s
+// efectivos con overhead WS+TLS), los timeouts eran demasiado cortos para
+// writes medianos → reintentos → saturación del enlace → "vales que no llegan".
+// Ahora usamos navigator.connection.downlink (si disponible) para estimar
+// el throughput real, con un floor conservador de 500 B/s (conexión muy mala)
+// y un techo de 20 KB/s (no tiene sentido asumir más para Firebase RTDB).
+const _fbEncoder = (typeof TextEncoder !== 'undefined') ? new TextEncoder() : null;
+let _currentWriteTimeout = 8000; // último timeout calculado — accesible desde el indicador
+function _estimateEffectiveThroughputBytesPerSec() {
+  // Default conservador: 1.5 KB/s (cubre 10 Kbit/s con overhead)
+  let bps = 1500;
+  try {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      if (conn.downlink && conn.downlink > 0) {
+        // downlink viene en Mbps. Convertir a bytes/s efectivos.
+        // Factor 0.4 = overhead WS + TLS + JSON en el wire (~60% perdido).
+        bps = Math.max(500, Math.min(conn.downlink * 1000000 / 8 * 0.4, 20000));
+      } else if (conn.effectiveType) {
+        const map = { 'slow-2g':500, '2g':1000, '3g':3000, '4g':8000 };
+        bps = map[conn.effectiveType] || 1500;
+      }
+    }
+  } catch(_) {}
+  return bps;
+}
+// Calcula el tamaño real del payload en bytes UTF-8 (no chars JS).
+// Los caracteres no-ASCII (acentos, ñ, emojis) ocupan 1-4 bytes en el wire.
+function _payloadBytes(value) {
+  if (value === null || value === undefined) return 0;
+  try {
+    const s = JSON.stringify(value);
+    if (_fbEncoder) return _fbEncoder.encode(s).length;
+    return s.length; // fallback para navegadores viejos
+  } catch(_) { return 0; }
+}
+
 function _processFBQueue() {
   // v14: Si Firebase NO está conectado (_fbConnected === false), NO intentar
   // hacer el write. En redes muy malas, el WebSocket de Firebase puede tardar
@@ -500,35 +538,31 @@ function _processFBQueue() {
     // Si pending.value es null (set con null) o {} (update vacío), no hay nada que escribir.
   }
 
-  // ── Timeout de seguridad ADAPTATIVO (v15) ──
+  // ── Timeout de seguridad ADAPTATIVO (v15, refinado en v17) ──
   // ANTES (v13/v14): timeout fijo de 8s. En 3G cubano, un write exitoso tarda
   // 1-3s; si llega a 8s es que la red está caída.
   // PROBLEMA: en redes de 50Kbit/s (~6KB/s), un write de 50KB (p.ej. 100 vales
   // batched) tarda 8s solo en subirlo. El timeout disparaba ANTES de que el write
   // terminara, causando reintentos que mandaban el MISMO payload 4 veces
   // (166KB desperdiciados en un link de 50Kbit/s = 27s de airtime).
-  // AHORA: timeout escalado al tamaño del payload. A 6KB/s, 1KB → 0.16s,
-  // 10KB → 1.6s, 50KB → 8s, 100KB → 16s. Mínimo 8s (para no ser demasiado
-  // agresivo con writes pequeños en redes con alta latencia), máximo 45s.
-  // La fórmula es: timeout = max(8000, payloadBytes / 6000 * 1000) + 3000 (RTT)
-  // Estimamos el tamaño del payload con JSON.stringify (igual que Firebase
-  // haría al serializarlo).
-  let payloadBytes = 0;
-  try {
-    if (value !== null && value !== undefined) {
-      payloadBytes = JSON.stringify(value).length;
-    }
-  } catch(_) {}
-  // Asumir 6KB/s de throughput efectivo (50Kbit/s con overhead WS + TLS).
-  // El +3000 es para el handshake/RTT del WebSocket.
-  const adaptiveTimeout = Math.min(
-    45000,
-    Math.max(8000, Math.ceil(payloadBytes / 6000) * 1000 + 3000)
-  );
+  // v15: timeout escalado al tamaño del payload con 6KB/s fijo.
+  // v17: estimación REAL del throughput con navigator.connection.downlink.
+  // A 10 Kbit/s reales, 6KB/s es optimista por 5x → timeouts demasiado cortos
+  // → writes erroneamente reintentados → saturación del enlace.
+  // Fórmula v17: timeout = (payloadBytes / effectiveBps) * 1.3 + 3000ms (RTT WS)
+  // Cap máximo: 90s (antes 45s) para writes grandes en redes muy malas.
+  // Cap mínimo: 8s para writes pequeños (evita falsos timeout en redes con
+  // alta latencia inicial).
+  const payloadBytes = _payloadBytes(value);
+  const effectiveBps = _estimateEffectiveThroughputBytesPerSec();
+  // ×1.3 safety margin para overhead real (frames WS, JSON parsing, ack)
+  const estimatedMs = Math.ceil((payloadBytes / effectiveBps) * 1000 * 1.3) + 3000;
+  const adaptiveTimeout = Math.min(90000, Math.max(8000, estimatedMs));
+  _currentWriteTimeout = adaptiveTimeout;  // exponer para el indicador de sync
   const timeoutId = setTimeout(() => {
     if (settled) return;
     settled = true;
-    console.warn(`Firebase write TIMEOUT (${adaptiveTimeout}ms, payload=${payloadBytes}B):`, path);
+    console.warn(`Firebase write TIMEOUT (${adaptiveTimeout}ms, payload=${payloadBytes}B, est=${effectiveBps}B/s):`, path);
     // Flush del buffer in-flight ANTES de reencolar el item.
     // Si el gestor mandó 5 vales mientras este write estaba colgado, esos 5
     // vales están en _fbInFlightPending[path] y deben encolarse como un nuevo
@@ -538,8 +572,13 @@ function _processFBQueue() {
       requeued = true;
       _fbWriteQueue.unshift(item);
       _persistQueue();
-      // Backoff corto para reintentar pronto, pero no inmediatamente
-      setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, 1500);
+      // v17: Backoff exponencial con jitter para evitar thundering herd.
+      // Si varios gestores están reintentando a la vez sobre el mismo enlace
+      // saturado, backoffs sin jitter se sincronizan y empeoran la congestión.
+      const base = Math.min(1000 * Math.pow(2, item.retries), 30000);
+      const jitter = Math.random() * 500;
+      const delay = base + jitter;
+      setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, delay);
     } else {
       // Demasiados reintentos — descartar y seguir con el siguiente.
       // El item se puede recuperar desde _ensurePendingValesEnqueued() cuando
@@ -591,9 +630,12 @@ function _processFBQueue() {
         requeued = true;
         _fbWriteQueue.unshift(item);
         _persistQueue();
-        // v13: backoff más corto y menos agresivo. Antes Math.pow(2, retries)
-        // llegaba a 16s y 30s. Ahora Math.pow(1.5, retries) da 1.5s, 2.3s, 3.4s, 5s.
-        const delay = Math.min(1000 * Math.pow(1.5, item.retries), 5000);
+        // v17: backoff exponencial con jitter (igual que en timeout).
+        // Antes Math.pow(1.5, retries) era demasiado corto en redes lentas y
+        // sin jitter → si varios gestores reintentaban a la vez, saturaban.
+        const base = Math.min(1000 * Math.pow(2, item.retries), 30000);
+        const jitter = Math.random() * 500;
+        const delay = base + jitter;
         setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, delay);
         return;
       }
@@ -693,6 +735,55 @@ function _enqueueFB(path, value, method='set', callback=null) {
   _fbWriteQueue.push({path, value, method, callback});
   _persistQueue();
   _processFBQueue();
+}
+
+// ── v17: Chunking automático para writes grandes ──
+// En redes de 10 Kbit/s (~1.2 KB/s), un write de 30 KB (25 vales batched)
+// tarda 25s en subir. Si la conexión se cae a mitad, TODO el batch se
+// reintenta desde cero. Partir en chunks de ~6 KB permite que cada chunk
+// se complete en ~5s y si uno falla, solo se reintenta ese, no todo el lote.
+// Solo aplica a method 'update' (que es multi-clave por naturaleza).
+function _enqueueFBChunked(path, updates, method='update') {
+  if (method !== 'update' || !updates || typeof updates !== 'object') {
+    // No es actualizable por chunks → pasar directo
+    return _enqueueFB(path, updates, method);
+  }
+  const keys = Object.keys(updates);
+  if (keys.length === 0) return;
+
+  // Calcular tamaño total del payload
+  let totalBytes;
+  try { totalBytes = _payloadBytes(updates); } catch(_) { totalBytes = 0; }
+
+  // Si el payload total es pequeño (≤ 6 KB), no partir
+  const MAX_CHUNK_BYTES = 6000;
+  if (totalBytes <= MAX_CHUNK_BYTES) {
+    return _enqueueFB(path, updates, method);
+  }
+
+  // Partir en chunks respetando el límite de bytes por chunk.
+  // Cada chunk es un subconjunto de claves del objeto updates original.
+  let current = {};
+  let currentSize = 0;
+  const chunks = [];
+  for (const k of keys) {
+    const val = updates[k];
+    // Estimar tamaño de esta clave+valor: longitud de la key + longitud del JSON del value + comillas y ":"
+    let valSize;
+    try { valSize = _payloadBytes(val) + k.length + 4; } catch(_) { valSize = 100; }
+    // Si agregar este item excede el límite Y ya tenemos items en el chunk actual, cerrarlo
+    if (currentSize + valSize > MAX_CHUNK_BYTES && Object.keys(current).length > 0) {
+      chunks.push(current);
+      current = {};
+      currentSize = 0;
+    }
+    current[k] = val;
+    currentSize += valSize;
+  }
+  if (Object.keys(current).length > 0) chunks.push(current);
+
+  console.log(`[sync] Splitting ${keys.length} updates into ${chunks.length} chunks (~${MAX_CHUNK_BYTES}B each, total ${totalBytes}B)`);
+  chunks.forEach(chunk => _enqueueFB(path, chunk, method));
 }
 
 // ══════════════════════════════════════════
@@ -835,8 +926,13 @@ function _updateSyncIndicator() {
     // "Guardando…" para que el usuario entienda que su vale ya está guardado localmente
     // y solo falta subirlo a la nube.
     ind.className = 'pending';
-    const stalled = _fbProcessing && (Date.now() - _lastSyncAt > 8000);
-    lbl.textContent = stalled ? 'Guardando…' : `Sincronizando (${pendingCount})`;
+    // v17: el umbral de "stalled" ahora usa el último timeout adaptativo calculado
+    // en lugar de un valor fijo de 8s. A 10 Kbit/s, un write válido puede tardar
+    // 20-30s sin estar realmente "stalled". Mostrar "Guardando…" a los 8s genera
+    // falsa alarma. Ahora se muestra solo si se excede el timeout adaptativo + 5s.
+    const stalledThreshold = (_currentWriteTimeout || 8000) + 5000;
+    const stalled = _fbProcessing && (Date.now() - _lastSyncAt > stalledThreshold);
+    lbl.textContent = stalled ? 'Guardando… (red lenta)' : `Sincronizando (${pendingCount})`;
     ind.title = `${pendingCount} cambio(s) pendiente(s) de subir.\n` +
                 (_lastSyncAtStr ? `Última sync exitosa: ${_lastSyncAtStr}` : 'Aún no se ha sincronizado nada.') +
                 (stalled ? '\n⚠️ La red está lenta — tus datos están guardados localmente.' : '');
@@ -880,6 +976,8 @@ window.addEventListener('online', () => {
   // item se descartó tras 5 reintentos), re-encolar un write de vales para ese gestor.
   _ensurePendingValesEnqueued();
   _processFBQueue();
+  // v17: arrancar el poll de cola para iOS Safari (no soporta Background Sync).
+  _startPollIfPending();
   // Toast informativo solo si hay pendientes
   const pendingCount = _countPendingSyncVales();
   if (pendingCount > 0) {
@@ -923,6 +1021,51 @@ if (document.addEventListener && 'onresume' in document) {
     _ensurePendingValesEnqueued();
     _processFBQueue();
   });
+}
+
+// ── v17: pagehide / beforeunload — persistir cola antes de cerrar ──
+// iOS Safari y otros navegadores móviles pausan TODOS los setTimeout/setInterval
+// cuando la pestaña se va a background. Si un write estaba en backoff y el
+// usuario cambia a WhatsApp, el backoff nunca dispara. Al volver (si vuelve),
+// el visibilitychange lo rescata. PERO si el usuario CIERRA la pestaña,
+// el write puede haberse perdido del cache localStorage si _persistQueue()
+// no llegó a correr.
+// pagehide dispara SIEMPRE antes de cerrar (incluye refresh, navigate away,
+// close tab). Es más confiable que beforeunload (que algunos browsers ignoran).
+window.addEventListener('pagehide', () => {
+  try {
+    _persistQueue();  // asegura que axon_pending_writes está actualizado
+  } catch(_) {}
+});
+// beforeunload como fallback (algunos navegadores disparan uno pero no el otro)
+window.addEventListener('beforeunload', () => {
+  try {
+    _persistQueue();
+  } catch(_) {}
+});
+
+// ── v17: Poll para iOS Safari — reintentar cola en background ──
+// iOS Safari NO soporta Background Sync API. Cuando la pestaña pasa a
+// background, setTimeout/setInterval se pausan. Cuando vuelve a estar
+// visible, visibilitychange dispara. PERO si el usuario NO vuelve a la
+// pestaña (se queda en WhatsApp 30 min), los writes encolados no se procesan.
+// Solución: arrancar un poll cada 5s MIENTRAS haya pendientes. El poll
+// solo se activa cuando hay trabajo, y se apaga solo cuando no hay.
+let _pendingPollTimer = null;
+function _startPollIfPending() {
+  if (_pendingPollTimer) return; // ya está corriendo
+  const tick = () => {
+    if (_fbWriteQueue.length === 0 && _countPendingSyncVales() === 0) {
+      // No hay trabajo — apagar el poll
+      clearInterval(_pendingPollTimer);
+      _pendingPollTimer = null;
+      return;
+    }
+    // Re-encolar vales huérfanos y procesar cola
+    _ensurePendingValesEnqueued();
+    _processFBQueue();
+  };
+  _pendingPollTimer = setInterval(tick, 5000);
 }
 
 // Si hay vales con synced:false pero NO están encolados en _fbWriteQueue (puede pasar
@@ -1090,6 +1233,34 @@ const saveVales = v => {
     if (x.commissionPaid) slim.commissionPaid = x.commissionPaid;
     return slim;
   }
+  // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
+  // PROBLEMA: el gestor tenía una copia local del vale que podía estar desactualizada
+  // respecto a lo que el admin había cambiado (status, mensajeroId, confirmedTs,
+  // adminNotes). Cualquier saveVales() del gestor mandaba su copia local →
+  // pisaba los cambios del admin. En redes lentas la ventana de desincronización
+  // es de varios segundos → muy probable que pase.
+  // AHORA: el gestor solo escribe los campos que le pertenecen (datos del
+  // cliente y productos). Los campos administrativos nunca se mandan desde
+  // el dispositivo del gestor, así no pueden pisar cambios del admin.
+  const GESTOR_WRITABLE_FIELDS = [
+    'id','valeNum','gestorId','ts','cliente','telefono','direccion',
+    'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
+    'total','garantia','comisionGestor'
+  ];
+  function slimValeGestor(x) {
+    const slim = {};
+    GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
+    // valeProductos sin name — se busca por id al leer
+    slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
+    // Solo incluir valeText si ya existía en local (vales viejos)
+    if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
+      slim.valeText = x.valeText;
+    }
+    // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
+    // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
+    if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
+    return slim;
+  }
   const curKeys = new Set();
   if (IS_ADMIN) {
     v.forEach(x => {
@@ -1111,15 +1282,16 @@ const saveVales = v => {
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
-    _enqueueFB('vales', updates, 'update');
+    _enqueueFBChunked('vales', updates, 'update');
   } else if (activeGestorId) {
     // El gestor SOLO puede escribir su propia rama. Nunca 'vales' a secas,
     // porque tocaría los vales de los demás gestores.
     const mine = v.filter(x => x.gestorId === activeGestorId);
     mine.forEach(x => {
       const prev = prevMap.get(`${x.gestorId}/${x.id}`);
-      const slim = slimVale(x);
-      const prevSlim = prev ? slimVale(prev) : null;
+      // v17: usar slimValeGestor — solo campos del gestor, nunca status/mensajeroId/etc.
+      const slim = slimValeGestor(x);
+      const prevSlim = prev ? slimValeGestor(prev) : null;
       if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
         updates[x.id] = slim;
       }
@@ -1131,7 +1303,7 @@ const saveVales = v => {
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
-    _enqueueFB(`vales/${activeGestorId}`, updates, 'update');
+    _enqueueFBChunked(`vales/${activeGestorId}`, updates, 'update');
   }
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
 };
@@ -1597,11 +1769,32 @@ function listenToMyVales(gId) {
           // Asegurar flags locales por defecto
           if (v && v.synced === undefined) v.synced = true; // vino de Firebase → está synced
         });
-        newVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-        
+
+        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
+        // En conexiones lentas (10 Kbit/s), el listener de Firebase puede
+        // disparar ANTES de que el write del vale pendiente se confirme.
+        // El snapshot NO incluye el vale local, y antes reemplazábamos el
+        // cache local con él → el vale "desaparecía" de la UI por varios
+        // segundos hasta que el write confirmara y disparara un nuevo
+        // snapshot que sí lo incluyera.
+        // Ahora preservamos los vales locales synced:false que no estén
+        // en el snapshot, hasta que se confirmen (synced:true).
+        const localPending = (getVales() || []).filter(v =>
+          v && v.gestorId === gId &&
+          v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        const fbIds = new Set(newVales.map(v => String(v && v.id)));
+        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        let mergedVales = newVales;
+        if (orphaned.length > 0) {
+          mergedVales = newVales.concat(orphaned);
+        }
+        mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
         if (!firstLoadVales) {
           const oldVales = getVales();
-          newVales.forEach(nv => {
+          mergedVales.forEach(nv => {
             const ov = oldVales.find(x => x.id === nv.id);
             if (ov && ov.status !== nv.status) {
               const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
@@ -1626,12 +1819,24 @@ function listenToMyVales(gId) {
             }
           });
         }
-        try { localStorage.setItem('axon_vales', JSON.stringify(newVales)); _valesCache = newVales; _valesDirty = false; } catch(e) {}
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
       } else {
-        // Firebase has no vales — clear local too
-        try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
-        rankingCache = null;
-        try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+        // Firebase has no vales — clear local too, PERO preservar vales
+        // locales synced:false (todavía no llegaron a Firebase).
+        // v17: si borramos TODO el cache local cuando FB está vacío, perdemos
+        // los vales que el gestor acaba de crear y aún no se han subido.
+        const localPending = (getVales() || []).filter(v =>
+          v && v.gestorId === gId &&
+          v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        if (localPending.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        } else {
+          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+          rankingCache = null;
+          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+        }
       }
       firstLoadVales = false;
     } finally {
@@ -1870,11 +2075,27 @@ if (IS_ADMIN) {
           }
           if (v && v.synced === undefined) v.synced = true;
         });
-        flatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
+        // El admin también puede tener vales locales pendientes (raro, pero
+        // pasa si crea vales directos en venta local mientras Firebase está
+        // caído). Preservarlos para no perderlos antes del write.
+        const localPending = (getVales() || []).filter(v =>
+          v && v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        const fbIds = new Set(flatVales.map(v => String(v && v.id)));
+        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        let mergedFlatVales = flatVales;
+        if (orphaned.length > 0) {
+          mergedFlatVales = flatVales.concat(orphaned);
+        }
+        mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
         // Check for new vales with estafa matches before saving
         const oldVales = getVales();
-        const newIds = flatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
-        try { localStorage.setItem('axon_vales', JSON.stringify(flatVales)); _valesCache = flatVales; _valesDirty = false; } catch(e) {}
+        const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
         // Show estafa alert for new vales that match blacklist
         newIds.forEach(nv => {
           const estafaMatches = checkEstafaMatch(nv);
@@ -1891,7 +2112,7 @@ if (IS_ADMIN) {
         _rankingDebounce = setTimeout(() => {
           const gestores = getGestores();
           const summary = gestores.map(g => {
-            const pts = flatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+            const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
               .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
             return { id: g.id, pts };
           });
@@ -1903,12 +2124,21 @@ if (IS_ADMIN) {
           }
         }, 3000);
       } else {
-        // Firebase has no vales — clear everything
-        try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
-        rankingCache = null;
-        _lastRankingSummary = '';
-        try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
-        _enqueueFB('ranking_summary', null, 'remove');
+        // Firebase has no vales — clear everything, PERO preservar vales
+        // locales synced:false (venta directa del admin pendiente de subir).
+        const localPending = (getVales() || []).filter(v =>
+          v && v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        if (localPending.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        } else {
+          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+          rankingCache = null;
+          _lastRankingSummary = '';
+          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+          _enqueueFB('ranking_summary', null, 'remove');
+        }
       }
     } finally {
       _syncCount--;
@@ -1956,20 +2186,20 @@ function patchVale(id, changes) {
   }
 }
 // Genera el siguiente número de vale.
-// NOTA: Para hacerlo atómico habría que usar db.ref('config/nextValeNum').transaction,
-// pero eso requiere async y los callers (sendVale, venderDirecto, sendAdminVale)
-// son síncronos. Mantenemos el patrón local-sync; si dos gestores envían exactamente
-// al mismo milisegundo pueden duplicar el número, pero el id (Date.now()) sigue
-// siendo único. Ver AUDITORIA-AXONTECH.md MEDIO 20 (pendiente de migrar a async).
+// v17: Patrón híbrido — local-sync síncrono + reconciler atómico async.
+// ANTES (v15): el patrón local-sync podía duplicar valeNum si dos gestores
+// enviaban un vale en el mismo milisegundo. A 10 Kbit/s, la latencia del
+// listener de config es de varios segundos → alta probabilidad de colisión.
+// AHORA (v17):
+//   1. getNextValeNum() sigue siendo síncrono: reserva el número localmente
+//      y encola el update a Firebase. El gestor NO espera.
+//   2. _reconcileNextValeNum() corre en background cuando hay conexión:
+//      usa transaction() de Firebase para asegurar que el contador remoto
+//      sea monótonamente creciente. Si dos gestores reservaron el mismo
+//      número localmente, el reconciler detecta la discrepancia y la corrige
+//      para los siguientes vales (los ya enviados conservan su número).
 //
-// IMPORTANTE: esta función NO usa saveConfig() a propósito. saveConfig() sube el
-// objeto config COMPLETO (todos los ajustes: teléfono admin, GitHub, meta de puntos,
-// etc). getNextValeNum() se llama en CADA vale enviado, desde gestores y desde el
-// admin, con la copia local de config de cada dispositivo — si esa copia estaba
-// desactualizada (p.ej. el admin acababa de cambiar un ajuste que este gestor aún
-// no había recibido), subir el config completo revertía ese ajuste sin que nadie
-// lo notara. Aquí solo se escribe el campo nextValeNum vía 'update', dejando
-// intacto cualquier otro ajuste que ya esté en Firebase.
+// IMPORTANTE: esta función NO usa saveConfig() a propósito (ver nota anterior).
 function getNextValeNum() {
   const cfg = getConfig();
   const n = (cfg.nextValeNum || 1);
@@ -1977,7 +2207,58 @@ function getNextValeNum() {
   _safeSetLS('axon_config', JSON.stringify(updated));
   _configCache = updated; _configDirty = false;
   if (!isSyncingFromFirebase()) _enqueueFB('config', {nextValeNum: n + 1}, 'update');
+  // v17: disparar el reconciler atómico en background (no bloquea al caller).
+  // Se ejecuta solo si hay conexión y no hay ya un reconcile en curso.
+  _scheduleReconcileNextValeNum();
   return n;
+}
+
+// ── v17: Reconciler atómico de nextValeNum ──
+// Garantiza que el contador remoto de Firebase nunca sea menor que el local.
+// Si dos gestores reservaron el mismo número en sus copias locales, el
+// reconciler usa transaction() para forzar que el remoto sea el máximo.
+// Esto no "desduplica" los vales ya enviados (conservan su número), pero
+// asegura que los SIGUIENTES vales no colisionen.
+let _reconcileNextValeNumInFlight = false;
+let _reconcileNextValeNumScheduled = false;
+function _scheduleReconcileNextValeNum() {
+  if (_reconcileNextValeNumInFlight || _reconcileNextValeNumScheduled) return;
+  if (!_fbConnected) return; // no tiene sentido sin conexión
+  _reconcileNextValeNumScheduled = true;
+  // Pequeño delay para coalesar múltiples llamadas en una sola transacción.
+  setTimeout(_doReconcileNextValeNum, 800);
+}
+async function _doReconcileNextValeNum() {
+  _reconcileNextValeNumScheduled = false;
+  if (_reconcileNextValeNumInFlight) return;
+  if (!_fbConnected) return;
+  _reconcileNextValeNumInFlight = true;
+  try {
+    const localCfg = getConfig();
+    const localNext = localCfg.nextValeNum || 1;
+    // transaction: si remoto < local, llevarlo a local. Si remoto > local,
+    // adoptar el remoto (alguien más lo adelantó).
+    const result = await db.ref('config/nextValeNum').transaction(curr => {
+      const remote = curr || 1;
+      if (remote < localNext) return localNext;
+      // remote >= localNext: el remoto ya está adelantado, no tocar.
+      return; // undefined → abortar transaction (no cambiar nada)
+    }, undefined, false);
+    if (result && result.committed) {
+      // La transacción hizo un cambio → remote era menor, lo subimos a localNext.
+      // Actualizar cache local para que el listener no lo revierta.
+      const cfg = getConfig();
+      cfg.nextValeNum = localNext;
+      _safeSetLS('axon_config', JSON.stringify(cfg));
+      _configCache = cfg;
+      console.log('[reconcile] nextValeNum ajustado a', localNext);
+    }
+  } catch(e) {
+    // Silencioso — el reconciler es best-effort, no bloquea nada.
+    console.warn('[reconcile] error:', e && e.message);
+  } finally {
+    _reconcileNextValeNumInFlight = false;
+  }
 }
 function valeNumStr(v) {
   return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
@@ -4878,6 +5159,8 @@ function sendVale() {
     showToast('✓ Vale guardado · Enviando al administrador');
   }
   _updatePendingSyncBanner();
+  // v17: arrancar el poll de cola (iOS Safari fallback).
+  _startPollIfPending();
   openTicketModal(true);
 
   // ── 3. Restaurar el botón a su estado normal INMEDIATAMENTE ──

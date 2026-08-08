@@ -1,9 +1,9 @@
 {
-  "version": 16,
-  "versionStr": "v16",
-  "hash": "884f06579da4b02b",
-  "hashFull": "884f06579da4b02b",
-  "releasedAt": "2026-08-08 19:43",
+  "version": 17,
+  "versionStr": "v17",
+  "hash": "ebdaf7115fc6d501",
+  "hashFull": "ebdaf7115fc6d5014b5c08ca7540075839b23bbf835abc5baf4b53bbdcd762bf",
+  "releasedAt": "2026-08-09 00:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Actualización automática · build 884f0657"
+    "v17: sync robusta para conexiones 10 Kbit/s — merge listener, whitelist gestor, timeout adaptativo real, chunking, valeNum atomic, backoff con jitter, poll iOS, pagehide persist"
   ]
 }
