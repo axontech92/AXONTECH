@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 3;
+const APP_VERSION = 4;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a1fb8d9da909c46a';
+let _LOCAL_BUILD_HASH = '834b9e6f5da2585d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -307,9 +307,34 @@ function _processFBQueue() {
   // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
   // no debe liberar el candado ni arrancar un segundo consumidor).
   let requeued = false;
+  let settled = false;  // evita doble procesamiento si el timeout dispara después del settle
+
+  // ── Timeout de seguridad: si Firebase tarda más de 12s, asumir que la red
+  // está caída o muy lenta, reencolar el item y procesar el siguiente. Sin esto,
+  // un write colgado deja el indicador "Sincronizando (1)" pillado para siempre.
+  const timeoutId = setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    console.warn('Firebase write TIMEOUT (12s):', path);
+    if (item.retries < 5) {
+      requeued = true;
+      _fbWriteQueue.unshift(item);
+      _persistQueue();
+      // Backoff corto para reintentar pronto, pero no inmediatamente
+      setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, 2000);
+    } else {
+      // Demasiados reintentos — descartar y seguir con el siguiente
+      _fbProcessing = false;
+      _persistQueue();
+      _processFBQueue();
+    }
+  }, 12000);
 
   op.then(() => { if(callback) callback(); })
     .catch(e => {
+      if (settled) return;  // el timeout ya manejó este item
+      settled = true;
+      clearTimeout(timeoutId);
       console.error("Firebase write error:", e);
       if (item.retries < 5) {
         // Reencolar YA (no en el setTimeout) para que sobreviva a un cierre
@@ -331,6 +356,9 @@ function _processFBQueue() {
       } catch(e2) {}
     })
     .finally(() => {
+      if (settled) return;  // el timeout o el catch ya procesaron este item
+      settled = true;
+      clearTimeout(timeoutId);
       // Solo liberar y procesar el siguiente si NO fue reencolado (el setTimeout
       // se encargará de liberar tras el backoff). Evita doble consumidor.
       if (!requeued) {
@@ -361,6 +389,7 @@ try {
 
 // ── Sync indicator (online/offline/pending) ──
 let _onlineStatus = navigator.onLine;
+let _lastSyncAt = 0;  // timestamp del último write exitoso
 function _updateSyncIndicator() {
   const ind = document.getElementById('syncIndicator');
   const lbl = document.getElementById('syncLabel');
@@ -370,11 +399,17 @@ function _updateSyncIndicator() {
     ind.className = 'offline';
     lbl.textContent = 'Sin conexión';
   } else if (pendingCount > 0) {
+    // Si hay writes pendientes pero están siendo procesados, mostrar "Sincronizando".
+    // Si llevan mucho tiempo sin procesarse (red muy lenta), el texto cambia a
+    // "Guardando…" para que el usuario entienda que su vale ya está guardado localmente
+    // y solo falta subirlo a la nube.
     ind.className = 'pending';
-    lbl.textContent = `Sincronizando (${pendingCount})`;
+    const stalled = _fbProcessing && (Date.now() - _lastSyncAt > 8000);
+    lbl.textContent = stalled ? 'Guardando…' : `Sincronizando (${pendingCount})`;
   } else {
     ind.className = 'online';
     lbl.textContent = 'En línea';
+    _lastSyncAt = Date.now();
   }
 }
 window.addEventListener('online', () => { _onlineStatus = true; _updateSyncIndicator(); _processFBQueue(); });
@@ -3923,6 +3958,10 @@ function sendVale() {
   _isSendingVale = true;
   const btn=document.getElementById('sendValeBtn');
   if(btn){btn.disabled=true;btn.textContent='Enviando...';}
+
+  // ── 1. Construir el vale y guardarlo LOCALMENTE (síncrono, ~1ms) ──
+  // Esto ya deja el vale persistido en localStorage y encola la escritura a Firebase.
+  // El usuario NO necesita esperar a que Firebase responda para ver el feedback.
   const g=gestorOf(activeGestorId);
   const vale={
     id:Date.now(),valeNum:getNextValeNum(),gestorId:activeGestorId,ts:new Date().toISOString(),
@@ -3934,41 +3973,56 @@ function sendVale() {
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
   };
   const all=getVales();all.push(vale);saveVales(all);
-  // No fbAddVale call — saveVales already enqueues a 'set' on the vales node.
-  // Calling both caused race conditions where the per-item write overwrote the full set.
   _logAudit('vale_sent', 'vale:' + vale.id + ' gestor:' + activeGestorId);
 
-  renderGestores();renderMyVales();renderGestorComisiones();updateAdminBadge();
+  // ── 2. Feedback INMEDIATO al usuario (antes de los renders pesados) ──
+  // El toast y el ticket aparecen al instante, sin esperar a que se re-renderice
+  // toda la lista de vales, comisiones, ranking, etc.
   playSound('vale');
-  // g puede ser undefined si el admin borró a este gestor del listado justo mientras
-  // tenía el formulario abierto en otro dispositivo — el vale ya se guardó arriba,
-  // así que de aquí en más solo evitamos que un g.name sin proteger crashee y deje
-  // el botón "Enviando..." trabado para siempre (_isSendingVale nunca se libera).
-  sendBrowserNotif('AXONTECH – Nuevo vale',`${g?g.name:'Gestor'} envió un vale para ${vale.cliente}`);
   showToast('Vale enviado al administrador ✓');
+  openTicketModal(true);
 
-  if(adminActive){
-    const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g?g.name:'Un gestor'} acaba de enviar un vale`;
-    const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
-    renderAdminGestores();
-    // Check estafa blacklist when admin is active
-    const estafaMatches = checkEstafaMatch(vale);
-    if(estafaMatches.length) showEstafaAlert(vale, estafaMatches);
-  }
-  // IMPORTANTE: NO limpiar el formulario aquí. El formulario se mantiene intacto
-  // para que el gestor pueda ver los datos del cliente mientras comparte el ticket.
-  // El formulario se limpia automáticamente cuando se CIERRA el modal del ticket
-  // (botón Cerrar, clic fuera, o Escape). Ver closeTicketModal().
-  // Restauramos el botón "Enviar" a su estado normal para que se pueda enviar otro vale
-  // sin necesidad de cerrar el ticket primero.
+  // ── 3. Restaurar el botón a su estado normal INMEDIATAMENTE ──
+  // Como NO se limpia el form, los campos siguen llenos. El botón se queda
+  // deshabilitado hasta que el usuario modifique algún campo obligatorio
+  // (para evitar enviar el MISMO vale dos veces por accidente).
   if(btn){
-    btn.disabled = true; // se rehabilita cuando el form vuelva a tener los campos obligatorios
     btn.textContent = '📤 Enviar';
     btn.classList.replace('btn-green', 'btn-blue');
+    btn.disabled = true; // se rehabilita con _onFormInputImmediate() al modificar un campo
   }
-  // Abrir directamente el modal del ticket con el banner verde "✓ Vale enviado".
-  openTicketModal(true);
+
+  // ── 4. Liberar el candado de envío ──
   _isSendingVale = false;
+
+  // ── 5. Diferir los renders pesados con setTimeout(0) ──
+  // Así el navegador puede pintar el toast y abrir el ticket SIN esperar a que
+  // terminen renderGestores + renderMyVales + renderGestorComisiones, que pueden
+  // tardar 200-800ms si el gestor tiene muchos vales en el historial.
+  setTimeout(() => {
+    try {
+      renderGestores();
+      renderMyVales();
+      renderGestorComisiones();
+      updateAdminBadge();
+
+      if(adminActive){
+        const _nbt=document.getElementById('notifBannerText'); if(_nbt)_nbt.textContent=`${g?g.name:'Un gestor'} acaba de enviar un vale`;
+        const _nb=document.getElementById('notifBanner'); if(_nb)_nb.classList.add('show');
+        renderAdminGestores();
+        // Check estafa blacklist when admin is active
+        const estafaMatches = checkEstafaMatch(vale);
+        if(estafaMatches.length) showEstafaAlert(vale, estafaMatches);
+      }
+
+      // g puede ser undefined si el admin borró a este gestor del listado justo mientras
+      // tenía el formulario abierto en otro dispositivo — el vale ya se guardó arriba,
+      // así que de aquí en más solo evitamos que un g.name sin proteger crashee.
+      sendBrowserNotif('AXONTECH – Nuevo vale',`${g?g.name:'Gestor'} envió un vale para ${vale.cliente}`);
+    } catch(e) {
+      console.error('sendVale deferred render error:', e);
+    }
+  }, 0);
 }
 // ══════════════════════════════════════════
 //  PRODUCT PICKER (gestor)
@@ -4437,10 +4491,15 @@ function venderDirecto(id) {
   // No direct db.ref().set() — saveVales already enqueues via the write queue.
   // Direct db.ref() calls bypassed the retry queue and could lose data on network failure.
   _logAudit('direct_sale', 'product:' + id + ' qty:' + qty);
-  
-  renderProductGrid();
-  statsTabDirty=true;
+
+  // Feedback inmediato al admin
   showToast('Venta directa registrada ✓');
+  statsTabDirty=true;
+
+  // Diferir el render del catálogo (puede ser pesado si hay muchos productos)
+  setTimeout(() => {
+    try { renderProductGrid(); } catch(e) { console.error('venderDirecto deferred render:', e); }
+  }, 0);
 }
 function adjustStock(id) {
   const p=productoOf(id);if(!p)return;
@@ -6655,15 +6714,28 @@ function sendAdminVale() {
     status: 'pending', mensajeroId: null, confirmedTs: null,
     isNew: true, adminNotes: 'Generado por Admin',
   };
+
+  // ── 1. Guardar el vale LOCALMENTE y encolar write a Firebase (síncrono, rápido) ──
   const all = getVales(); all.push(vale); saveVales(all);
-  // No fbAddVale call — saveVales already enqueues a 'set' on the vales node.
   _logAudit('admin_vale_sent', 'vale:' + vale.id + ' gestor:' + gId);
-  renderAdminGestores(); renderValeDetail(); updateAdminBadge();
+
+  // ── 2. Feedback INMEDIATO al admin ──
   playSound('vale');
   showToast(`Vale ${valeNumStr(vale)} generado para ${g ? g.name : 'gestor'} ✓`);
   closeAdminValeModal();
   _isSendingAdminVale = false;
-  maybeAutoSync();
+
+  // ── 3. Diferir los renders pesados ──
+  setTimeout(() => {
+    try {
+      renderAdminGestores();
+      renderValeDetail();
+      updateAdminBadge();
+      maybeAutoSync();
+    } catch(e) {
+      console.error('sendAdminVale deferred render error:', e);
+    }
+  }, 0);
 }
 
 function openAdminProductPicker() {
