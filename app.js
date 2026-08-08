@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 14;
+const APP_VERSION = 15;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd5f3ac6b99f15ed1';
+let _LOCAL_BUILD_HASH = '35dee5c7aa877e83';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -223,7 +223,14 @@ try {
     if (connected && !_wasConnected) {
       _wasConnected = true;
       // Al reconectar, forzar el procesamiento de la cola de writes pendientes.
-      setTimeout(_processFBQueue, 100);
+      // v15: también llamar _ensurePendingValesEnqueued por si hay vales
+      // huérfanos (synced:false) que NO están encolados (p.ej. tras descarte
+      // por 4 reintentos). Antes solo llamábamos _processFBQueue, lo que
+      // dejaba vales pendientes sin recover si la cola estaba vacía.
+      setTimeout(() => {
+        _ensurePendingValesEnqueued();
+        _processFBQueue();
+      }, 100);
       _updateSyncIndicator();
     } else if (!connected && _wasConnected) {
       _wasConnected = false;
@@ -416,7 +423,53 @@ function _processFBQueue() {
   _updateSyncIndicator();
   const item = _fbWriteQueue.shift();
   item.retries = (item.retries || 0) + 1;
-  const {path, value, method, callback} = item;
+  const {path, method, callback} = item;
+  let value = item.value;  // v15: mutable, podemos filtrarle vales ya synced
+
+  // ── v15 BUGFIX: filtrar vales ya synced del payload ANTES de enviar ──
+  // Si este item fue reencolado tras un timeout (que en realidad SÍ subió los
+  // datos a Firebase pero no recibimos el ack a tiempo), los vales que contiene
+  // pueden ya estar marcados como synced:true en localStorage. Volver a mandarlos
+  // es desperdicio de ancho de banda en redes lentas y causa la sensación de
+  // "vuelve a sincronizar todos". Aquí filtramos esos vales antes del write.
+  // Solo aplica a writes de vales (path 'vales' o 'vales/{gestorId}'), method 'update'.
+  if (method === 'update' && value && typeof value === 'object' &&
+      (path === 'vales' || path.startsWith('vales/'))) {
+    const syncedIds = new Set(
+      getVales()
+        .filter(v => v.synced === true)
+        .map(v => String(v.id))
+    );
+    if (syncedIds.size > 0) {
+      const filtered = {};
+      let dropped = 0;
+      Object.entries(value).forEach(([k, v]) => {
+        if (v === null) { filtered[k] = null; return; }  // borrados siempre se mandan
+        // Para path 'vales' (admin), key es 'gestorId/valeId'; para 'vales/X', key es 'valeId'.
+        const keyVid = path === 'vales' ? (k.includes('/') ? k.split('/')[1] : k) : k;
+        const objVid = (v && typeof v === 'object' && v.id != null) ? String(v.id) : keyVid;
+        if (syncedIds.has(objVid)) { dropped++; return; }
+        filtered[k] = v;
+      });
+      if (dropped > 0) {
+        console.log(`[sync] Filtering ${dropped} already-synced vale(s) from retry of ${path}`);
+        value = filtered;
+        item.value = filtered;  // mutar el item para que la persistencia también refleje el filtrado
+        if (Object.keys(filtered).length === 0) {
+          // Nada que escribir — todos los vales del item ya están synced.
+          // Descartar el item y procesar el siguiente sin tocar Firebase.
+          console.log(`[sync] All vales in retry item already synced — skipping write`);
+          _fbProcessing = false;
+          _persistQueue();
+          // Procesar in-flight buffer por si llegaron cambios mientras tanto
+          // (no debería porque no inicializamos el buffer todavía).
+          _processFBQueue();
+          return;
+        }
+      }
+    }
+  }
+
   // ── Inicializar buffer in-flight para este path ──
   // Si durante el procesamiento de este write llegan más saveVales al mismo
   // path, se acumularán en _fbInFlightPending[path]. Al terminar, los
@@ -447,16 +500,35 @@ function _processFBQueue() {
     // Si pending.value es null (set con null) o {} (update vacío), no hay nada que escribir.
   }
 
-  // ── Timeout de seguridad: si Firebase tarda más de 8s, asumir que la red
-  // está caída o muy lenta, reencolar el item y procesar el siguiente. Sin esto,
-  // un write colgado deja el indicador "Sincronizando (1)" pillado para siempre.
-  // v13: bajado de 12s a 8s. En 3G cubano, un write exitoso tarda 1-3s; si llega
-  // a 8s es que la red está caída. Con 4 reintentos, máximo 8s×4 + backoffs = ~40s
-  // (antes eran 12s×5 + backoffs de hasta 30s = ~70s+ → "se queda pegado").
+  // ── Timeout de seguridad ADAPTATIVO (v15) ──
+  // ANTES (v13/v14): timeout fijo de 8s. En 3G cubano, un write exitoso tarda
+  // 1-3s; si llega a 8s es que la red está caída.
+  // PROBLEMA: en redes de 50Kbit/s (~6KB/s), un write de 50KB (p.ej. 100 vales
+  // batched) tarda 8s solo en subirlo. El timeout disparaba ANTES de que el write
+  // terminara, causando reintentos que mandaban el MISMO payload 4 veces
+  // (166KB desperdiciados en un link de 50Kbit/s = 27s de airtime).
+  // AHORA: timeout escalado al tamaño del payload. A 6KB/s, 1KB → 0.16s,
+  // 10KB → 1.6s, 50KB → 8s, 100KB → 16s. Mínimo 8s (para no ser demasiado
+  // agresivo con writes pequeños en redes con alta latencia), máximo 45s.
+  // La fórmula es: timeout = max(8000, payloadBytes / 6000 * 1000) + 3000 (RTT)
+  // Estimamos el tamaño del payload con JSON.stringify (igual que Firebase
+  // haría al serializarlo).
+  let payloadBytes = 0;
+  try {
+    if (value !== null && value !== undefined) {
+      payloadBytes = JSON.stringify(value).length;
+    }
+  } catch(_) {}
+  // Asumir 6KB/s de throughput efectivo (50Kbit/s con overhead WS + TLS).
+  // El +3000 es para el handshake/RTT del WebSocket.
+  const adaptiveTimeout = Math.min(
+    45000,
+    Math.max(8000, Math.ceil(payloadBytes / 6000) * 1000 + 3000)
+  );
   const timeoutId = setTimeout(() => {
     if (settled) return;
     settled = true;
-    console.warn('Firebase write TIMEOUT (8s):', path);
+    console.warn(`Firebase write TIMEOUT (${adaptiveTimeout}ms, payload=${payloadBytes}B):`, path);
     // Flush del buffer in-flight ANTES de reencolar el item.
     // Si el gestor mandó 5 vales mientras este write estaba colgado, esos 5
     // vales están en _fbInFlightPending[path] y deben encolarse como un nuevo
@@ -476,9 +548,20 @@ function _processFBQueue() {
       _persistQueue();
       _processFBQueue();
     }
-  }, 8000);
+  }, adaptiveTimeout);
 
   op.then(() => {
+      // ── v15 BUGFIX: si el timeout de 8s ya disparó y reencoló el item,
+      // NO procesar el éxito del write original. El item ya está en la cola
+      // esperando retry. Marcar vales como synced sería prematuro (el retry
+      // podría fallar), y _flushInFlight ya fue llamado por el timeout.
+      // ANTES este guard faltaba → si el write tardaba 9s en una red de 50Kbit/s,
+      // el timeout disparaba a los 8s (reencolaba el item) Y el .then disparaba
+      // a los 9s (marcaba vales synced, llamaba _markSyncSuccess). Resultado:
+      // duplicate writes, indicador cambiando entre Sincronizando/En línea.
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
       if(callback) callback();
       // Marcar vales como synced cuando su write a Firebase se confirma.
       // Esto funciona incluso tras recargar la página porque el `value` del
@@ -489,9 +572,13 @@ function _processFBQueue() {
       _flushInFlight();
       // Actualizar el indicador con timestamp de última sync exitosa.
       _markSyncSuccess();
+      // Liberar el candado y procesar el siguiente item de la cola.
+      _fbProcessing = false;
+      _persistQueue();
+      _processFBQueue();
     })
     .catch(e => {
-      if (settled) return;  // el timeout ya manejó este item
+      if (settled) return;  // el timeout o el .then ya manejaron este item
       settled = true;
       clearTimeout(timeoutId);
       console.error("Firebase write error:", e);
@@ -517,20 +604,28 @@ function _processFBQueue() {
         if (failed.length > _FAILED_WRITES_LIMIT) failed.splice(0, failed.length - _FAILED_WRITES_LIMIT);
         localStorage.setItem('axon_failed_writes', JSON.stringify(failed));
       } catch(e2) {}
+      // ── v15 BUGFIX: tras descarte permanente, liberar el candado y seguir
+      // con el siguiente item. ANTES esto lo hacía el .finally, pero el guard
+      // `if (settled) return` impedía que se ejecutara cuando el .catch ya había
+      // seteado settled=true → el lock _fbProcessing se quedaba pillado para
+      // siempre, bloqueando todos los writes futuros.
+      _fbProcessing = false;
+      _persistQueue();
+      _processFBQueue();
     })
     .finally(() => {
-      if (settled) return;  // el timeout o el catch ya procesaron este item
+      // .finally se ejecuta SIEMPRE después de .then o .catch. Pero como ambos
+      // ya setearon settled=true y liberaron el candado (o programaron el
+      // setTimeout para liberarlo tras backoff), aquí no hay nada que hacer.
+      // El guard `if (settled) return` es defensa extra: si por algún edge case
+      // ni el .then ni el .catch se ejecutaron (imposible en teoría), no hacer nada.
+      if (settled) return;
       settled = true;
       clearTimeout(timeoutId);
-      // Flush del buffer in-flight (por si acaso — normalmente ya se hizo en .then).
       _flushInFlight();
-      // Solo liberar y procesar el siguiente si NO fue reencolado (el setTimeout
-      // se encargará de liberar tras el backoff). Evita doble consumidor.
-      if (!requeued) {
-        _fbProcessing = false;
-        _persistQueue();
-        _processFBQueue();
-      }
+      _fbProcessing = false;
+      _persistQueue();
+      _processFBQueue();
     });
 }
 
@@ -800,24 +895,89 @@ window.addEventListener('offline', () => {
   }
 });
 
+// ── v15: visibilitychange — cuando el usuario vuelve a la pestaña ──
+// Patrón típico móvil: gestor manda vale → switch a WhatsApp → vuelve a la app.
+// Si el write falló mientras estaba backgrounded, el browser probablemente
+// pausó el setTimeout del backoff. Al volver, forzamos un check inmediato.
+// Esto NO puede ser reemplazado por el setInterval de 30s porque ese timer
+// también se pausa cuando la pestaña no es visible.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  // Solo actuar si hay trabajo pendiente o Firebase parece desconectado
+  if (_fbWriteQueue.length === 0 && _countPendingSyncVales() === 0 && _fbConnected) {
+    _updateSyncIndicator();
+    return;
+  }
+  // Verificar si hay vales huérfanos (synced:false no encolados) y procesar cola.
+  _ensurePendingValesEnqueued();
+  _processFBQueue();
+  _updatePendingSyncBanner();
+});
+
+// ── v15: page freeze / resume (Page Lifecycle API en Chrome Android) ──
+// Cuando el browser backgroundea la pestaña por mucho tiempo y luego la
+// restaura, el WebSocket de Firebase puede haberse caído silenciosamente.
+// Forzar un re-check al recibir el evento 'resume'.
+if (document.addEventListener && 'onresume' in document) {
+  document.addEventListener('resume', () => {
+    _ensurePendingValesEnqueued();
+    _processFBQueue();
+  });
+}
+
 // Si hay vales con synced:false pero NO están encolados en _fbWriteQueue (puede pasar
-// si el item se descartó tras 5 reintentos, o si la app se cerró y reabrió sin que
+// si el item se descartó tras 4 reintentos, o si la app se cerró y reabrió sin que
 // el write se completara), re-encolar un write para ese gestor.
+// ── v15 BUGFIX (re-sync-all bug): ANTES este función solo miraba _fbWriteQueue.
+// Si el write del gestor estaba IN-FLIGHT (sacado de la cola, op en el aire),
+// hasValesWriteQueued devolvía false → se encolaba un SEGUNDO write con los mismos
+// vales. El in-flight merge buffer los fusionaba al primer write, y al terminar
+// el primer write, el buffer se flusheaba como OTRO write con los mismos vales.
+// Resultado: cada 30s (setInterval) el gestor veía "Sincronizando (3) → En línea
+// → Sincronizando (3) → En línea" — exactamente el bug reportado:
+// "vuelve a sincronizar todos en vez de solo el que falte".
+// AHORA: si hay un write IN-FLIGHT para el path del gestor, también salimos.
+// El in-flight buffer se flushéa solo cuando el write actual termina, y como los
+// vales ya están siendo subidos, no hay nada nuevo que encolar.
 function _ensurePendingValesEnqueued() {
   if (IS_ADMIN) return; // el admin no envía vales propios
   if (!activeGestorId) return;
   const mine = getVales().filter(v => v.gestorId === activeGestorId && v.synced !== true && v.status !== 'cancelled');
   if (mine.length === 0) return;
+  const myPath = `vales/${activeGestorId}`;
   // Verificar si ya hay un write de vales/{gestorId} encolado
   const hasValesWriteQueued = _fbWriteQueue.some(item =>
-    item.path === `vales/${activeGestorId}` ||
+    item.path === myPath ||
     item.path === 'vales'
   );
-  if (hasValesWriteQueued) return; // ya hay uno en camino, no duplicar
-  // Re-encolar un write con TODOS los vales pendientes de este gestor
+  if (hasValesWriteQueued) return; // ya hay uno en cola, no duplicar
+  // ── v15: También salir si hay un write IN-FLIGHT para este path ──
+  // Ese write ya está subiendo los vales pendientes. Si encolamos otro, el
+  // in-flight merge lo fusionará al write actual (innecesario) Y al terminar
+  // se flushéa como un nuevo write duplicado. Mejor no tocar nada.
+  if (_fbProcessing && _fbInFlightPending[myPath]) return;
+  if (_fbProcessing && _fbInFlightPending['vales']) return; // admin path (raro en gestor, pero por seguridad)
+  // Re-encolar un write con TODOS los vales pendientes de este gestor.
+  // v15: usar slimVale-equivalente para no mandar synced/isNew a Firebase.
   const updates = {};
-  mine.forEach(v => { updates[v.id] = v; });
-  _enqueueFB(`vales/${activeGestorId}`, updates, 'update');
+  mine.forEach(v => {
+    const slim = {
+      id: v.id, valeNum: v.valeNum, gestorId: v.gestorId, ts: v.ts,
+      cliente: v.cliente, telefono: v.telefono, direccion: v.direccion,
+      carnet: v.carnet, mensajeria: v.mensajeria, articulo: v.articulo,
+      precioUSD: v.precioUSD, precioMN: v.precioMN, vuelto: v.vuelto,
+      total: v.total, garantia: v.garantia, comisionGestor: v.comisionGestor,
+      valeProductos: (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
+      status: v.status, mensajeroId: v.mensajeroId, confirmedTs: v.confirmedTs,
+      adminNotes: v.adminNotes,
+    };
+    if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
+    if (v.deliveredTs) slim.deliveredTs = v.deliveredTs;
+    if (v.commissionStatus) slim.commissionStatus = v.commissionStatus;
+    if (v.commissionPaid) slim.commissionPaid = v.commissionPaid;
+    updates[v.id] = slim;
+  });
+  _enqueueFB(myPath, updates, 'update');
   console.log(`[sync] Re-encolados ${mine.length} vales pendientes para gestor ${activeGestorId}`);
 }
 
@@ -4680,6 +4840,20 @@ function sendVale() {
   const all=getVales();all.push(vale);saveVales(all);
   _logAudit('vale_sent', 'vale:' + vale.id + ' gestor:' + activeGestorId);
 
+  // ── v15: Registrar Background Sync para que el SW reintente si la página
+  // se cierra antes de que el write se confirme. Esto NO reemplaza el retry
+  // normal de la página — es un fallback para el caso en que el gestor
+  // cierre la app mientras el write está encolado.
+  // Safari iOS NO soporta Background Sync → la página sigue haciendo su
+  // propio retry con setInterval + visibilitychange + online event.
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(reg => {
+      if (reg.sync && 'register' in reg.sync) {
+        try { reg.sync.register('vales-sync'); } catch(_) {}
+      }
+    }).catch(()=>{});
+  }
+
   // ── 2. Feedback INMEDIATO al usuario (antes de los renders pesados) ──
   // El toast y el ticket aparecen al instante, sin esperar a que se re-renderice
   // toda la lista de vales, comisiones, ranking, etc.
@@ -8486,6 +8660,14 @@ async function init() {
       if (ev.data && ev.data.type === 'SW_UPDATED') {
         // Recargar para cargar la nueva versión de los assets
         setTimeout(() => window.location.reload(), 500);
+      }
+      // ── v15: Background Sync request del SW ──
+      // El SW nos pide que procesemos la cola de writes pendientes.
+      // Esto se dispara cuando el browser reanuda el SW tras un periodo
+      // sin conexión (Background Sync API).
+      if (ev.data && ev.data.type === 'SW_SYNC_REQUEST') {
+        _ensurePendingValesEnqueued();
+        _processFBQueue();
       }
     });
   }

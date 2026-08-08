@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '14';
-const CACHE = 'axontech-v14';
+const APP_VERSION  = '15';
+const CACHE = 'axontech-v15';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './data.json',
@@ -167,5 +167,50 @@ self.addEventListener('message', e => {
   if (e.data === 'SKIP_WAITING') { self.skipWaiting(); return; }
   if (e.data && e.data.type === 'GET_VERSION' && e.ports && e.ports[0]) {
     e.ports[0].postMessage({ version: APP_VERSION });
+  }
+  // ── v15: Background Sync API ──
+  // La página envía 'TRIGGER_SYNC' cuando un write falla y quiere que el SW
+  // intente de nuevo. Esto es un fallback del Background Sync nativo (que se
+  // registra con reg.sync.register) para navegadores que no lo soportan
+  // (Safari iOS).
+  if (e.data && e.data.type === 'TRIGGER_SYNC') {
+    // Notificar a TODAS las pestañas abiertas para que re-procesen su cola.
+    // El SW no tiene acceso al estado de Firebase de la página, pero la
+    // página sí. Le pedimos que lo intente.
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      clients.forEach(client => {
+        client.postMessage({ type: 'SW_SYNC_REQUEST' });
+      });
+    });
+  }
+});
+
+// ── v15: Background Sync API ──
+// Permite al SW reintentar writes cuando la conexión vuelve, incluso si la
+// página está cerrada. La página registra 'vales-sync' después de cada
+// sendVale. El browser lo dispara cuando hay conexión (o inmediatamente si
+// ya la hay).
+// Nota: iOS Safari NO soporta Background Sync. En ese caso, la página sigue
+// haciendo su propio retry con setInterval + visibilitychange + online event.
+self.addEventListener('sync', e => {
+  if (e.tag === 'vales-sync') {
+    e.waitUntil(
+      // Pedir a las pestañas abiertas que procesen su cola. Si no hay
+      // pestañas abiertas, no podemos hacer nada (no tenemos acceso al
+      // estado de Firebase). Background Sync se disparará de nuevo cuando
+      // el usuario abra la app.
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+        if (clients.length === 0) {
+          // Sin pestañas abiertas — lanzar una excepción para que el browser
+          // reintente el sync más tarde.
+          return Promise.reject(new Error('No clients to sync'));
+        }
+        clients.forEach(client => {
+          client.postMessage({ type: 'SW_SYNC_REQUEST' });
+        });
+        // Esperar un poco para dar tiempo a que la página procese.
+        return new Promise(resolve => setTimeout(resolve, 5000));
+      })
+    );
   }
 });
