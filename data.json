@@ -1201,6 +1201,18 @@
       "precio": "130 USD",
       "puntos": 1,
       "stock": 2
+    },
+    {
+      "catId": 20,
+      "comision": "$10 USD",
+      "description": "* Controlador MPPT de 80A para sistemas de 12V, 24V, 36V y 48V.\n* Admite voltajes de batería entre 9V y 60V CC.\n* Soporta hasta 160V de entrada solar (Voc).\n* Eficiencia MPPT superior al 99.9% y conversión de hasta 98%.\n* Compatible con baterías de litio, AGM, Gel, inundadas y NiCd.\n* Permite configurar manualmente los parámetros de carga.\n* Capacidad máxima de paneles de hasta 3840W en sistemas de 48V.\n* Puede conectarse en paralelo con hasta 12 controladores.\n* Incluye pantalla LCD, ventilación automática y sensor de temperatura.\n* Cuenta con protecciones contra sobrevoltaje, sobrecorriente, cortocircuitos y sobretemperatura.",
+      "garantia": "",
+      "id": 1786156442536,
+      "name": "Controlador solar PowMr de 80A",
+      "photo": "",
+      "precio": "220 USD",
+      "puntos": 1,
+      "stock": 0
     }
   ],
   "categorias": [
@@ -1242,5 +1254,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-08T02:23:54.388Z"
+  "timestamp": "2026-08-08T02:35:02.593Z"
 }
