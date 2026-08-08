@@ -378,7 +378,7 @@
       "description": "[INVERSORES]\nIdeal para combatir los apagones. Este inversor permitira mantener trabajando electrodomesticos como un refrigerador, ventiladores, televisores y luces de la casa\npor horas (dependiendo del respaldo de baterias), durante un corte de fluido electrico.\n--Este inversor brinda una salida sinusoidal pura de 110 V (corriente alterna) con 2000 watts continuos y 4000 watts maximos.\n-Se puede alimentar\nde una bateria de *24V*.\n-Posee dos salidas universales que sirven para conectores de corriente plano (el que se usa mayoritariamente en Cuba), europeo o chino\n-Un display digital que muestra los voltajes de entrada (DC) y salida (AC) en tiempo real.",
       "garantia": "",
       "id": 1777924118004,
-      "name": "INVERSOR 24V 4000W",
+      "name": "Inversor Tataliken de 24V 4000W",
       "photo": "https://tiendamax.org/imagenes/img_1777924118004.webp",
       "precio": "$180 USD",
       "puntos": 1,
@@ -452,7 +452,7 @@
       "description": "[HERRAMIENTAS]\nAntorcha para soldadura TIG:\n\n* Utilizada para trabajos de soldadura de alta precisión en metales como acero inoxidable, aluminio y hierro.\n*  Ideal para talleres, herrería y trabajos profesionales donde se requiere un acabado limpio y detallado.\n\nCaracterísticas principales:\n\n* Permite soldaduras finas y de alta calidad.\n* Incluye boquillas cerámicas de diferentes tamaños.\n* Cuenta con electrodos y accesorios intercambiables.\n* Cable flexible y resistente para mejor manejo.\n* Diseño ergonómico para mayor comodidad durante el uso.",
       "garantia": "",
       "id": 1778102582909,
-      "name": "ANTORCHA PARA SOLDADURA TIG:",
+      "name": "Antorcha para soldadura TIG:",
       "photo": "https://tiendamax.org/imagenes/img_1778102582909.webp",
       "precio": "$75 USD",
       "puntos": 1,
@@ -1254,5 +1254,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-08T02:41:50.393Z"
+  "timestamp": "2026-08-08T02:43:52.626Z"
 }
