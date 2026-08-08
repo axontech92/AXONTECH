@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 10;
+const APP_VERSION = 12;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'ecf3368482b5bd66';
+let _LOCAL_BUILD_HASH = '9c6de1b117834cd9';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -306,7 +306,7 @@ const todayStr    = () => new Date().toDateString();
 function gestorAvatarInner(g) {
   if (!g) return '?';
   const initials = escapeHTML(g.initials || '?');
-  if (g.photo && /^(https?:|data:image)/i.test(g.photo)) {
+  if (g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo)) {
     // Wrapper con overflow:hidden para que la imagen respete el círculo.
     // El botón cámara vive FUERA de este wrapper (como hijo directo de #bannerAvatar).
     return `<span class="g-avatar-img-wrap"><img src="${escapeAttr(g.photo)}" alt="" onerror="this.parentElement.style.display='none';this.parentElement.parentElement.textContent='${initials}'"></span>`;
@@ -996,7 +996,7 @@ function renderGrid(){
     var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
     s+='<div class="card-img">';
     // Validate photo URL — only allow http(s) and data URIs
-    if(p.photo && /^(https?:|data:image)/i.test(p.photo)){s+='<img src="'+escapeHTML(p.photo)+'" data-img="1" loading="lazy">';}
+    if(p.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(p.photo)){s+='<img src="'+escapeHTML(p.photo)+'" data-img="1" loading="lazy">';}
     s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
     if(p.catName){s+='<div class="card-cat" style="background:'+escapeHTML(p.catColor)+'">'+escapeHTML(p.catName)+'</div>';}
     s+='</div><div class="card-body">';
@@ -1016,7 +1016,7 @@ function openProduct(id){
   var p=products.find(function(x){return x.id===id});if(!p)return;
   var c=document.getElementById('pmodalContent');
   var h='';
-  if(p.photo && /^(https?:|data:image)/i.test(p.photo)){h+='<img class="pmodal-img" src="'+escapeHTML(p.photo)+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
+  if(p.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(p.photo)){h+='<img class="pmodal-img" src="'+escapeHTML(p.photo)+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
   else{h+='<div class="pmodal-noimg">&#128230;</div>';}
   h+='<div class="pmodal-body">';
   if(p.catName){h+='<div class="pmodal-cat" style="background:'+escapeHTML(p.catColor)+'">'+escapeHTML(p.catName)+'</div>';}
@@ -2197,7 +2197,7 @@ function doSelectGestor(id) {
   // ─── AVATAR con foto (si existe) ───
   const bannerAvatar=document.getElementById('bannerAvatar');
   bannerAvatar.innerHTML=gestorAvatarInner(g);
-  bannerAvatar.style.background = (g.photo && /^(https?:|data:image)/i.test(g.photo)) ? 'transparent' : g.color;
+  bannerAvatar.style.background = (g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo)) ? 'transparent' : g.color;
 
   // ─── Botones de foto (📷 cambiar / ✕ quitar) ───
   // Se añaden al #gestorBanner (no al avatar) porque el banner es más grande
@@ -2230,7 +2230,7 @@ function doSelectGestor(id) {
   }
   // Botón ✕ quitar foto (esquina superior izquierda, solo si tiene foto)
   let removeBtn=document.getElementById('bannerAvatarRemove');
-  if(g.photo && /^(https?:|data:image)/i.test(g.photo)){
+  if(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo)){
     if(!removeBtn){
       removeBtn=document.createElement('button');
       removeBtn.id='bannerAvatarRemove';
@@ -2712,7 +2712,7 @@ function renderAdminGestoresList() {
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
     const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
-    const hasPhoto = !!(g.photo && /^(https?:|data:image)/i.test(g.photo));
+    const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
     // Comisiones de este gestor
     const comVales=vales.filter(v=>['confirmed','pending_payment'].includes(v.status));
@@ -8275,6 +8275,10 @@ function initGestorPage() {
       if (_taps >= 3) { _taps = 0; window.location.href = './admin.html'; }
     });
   }
+  // ── Ocultar splash screen (feedback visual de carga) ──
+  if (typeof window.__axonHideSplash === 'function') {
+    setTimeout(window.__axonHideSplash, 200);
+  }
 }
 function initAdminPage() {
   updateAdminBadge(); updateMensajeroBadge();
@@ -8284,6 +8288,12 @@ function initAdminPage() {
     _resetSessionTimer();
   } else {
     openPassModal();
+  }
+  // ── Ocultar splash screen (feedback visual de carga) ──
+  // Si la función existe (definida en index.html / admin.html), quitar el splash.
+  if (typeof window.__axonHideSplash === 'function') {
+    // Pequeño delay (200ms) para que el primer render se pinte sin parpadeo.
+    setTimeout(window.__axonHideSplash, 200);
   }
 }
 init();

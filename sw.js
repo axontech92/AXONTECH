@@ -1,15 +1,25 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '10';
-const CACHE = 'axontech-v10';
+const APP_VERSION  = '12';
+const CACHE = 'axontech-v12';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
-  './manifest.json', './productos.json', './version.json',
+  './manifest.json', './productos.json', './version.json', './data.json',
   './iconos/favicon-96.png', './iconos/icon-192.png', './iconos/icon-512.png',
   './iconos/icon-192-maskable.png', './iconos/icon-512-maskable.png', './iconos/icon-1024-maskable.png',
-  './offline.html', './catalogo.html', './data.json'
+  './offline.html'
+  // NOTA: catalogo.html (~1MB con fotos base64 inline) NO se precachea.
+  // Es una plantilla autocontenida para publicar en GitHub Pages, la app
+  // nunca la carga localmente. Si se cachea, añade 1MB al primer install.
 ];
+
+// ── Precarga perezosa de fotos ──
+// Las fotos NO se bajan en install() (podrían ser 850KB). En su lugar,
+// se cachean on-demand cuando el usuario las ve por primera vez.
+// Como cada foto tiene un hash MD5 en el nombre (p-<id>-<hash>.webp),
+// si el contenido cambia, el hash cambia, así que cache-first es seguro.
+const PHOTO_PATH_PREFIX = '/photos/';
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -62,6 +72,27 @@ self.addEventListener('fetch', e => {
   }
 
   const url = new URL(e.request.url);
+
+  // ── FOTOS en /photos/ — cache-first puro ──
+  // Las fotos tienen hash MD5 en el nombre (p-<id>-<hash>.webp), así que
+  // si cambian, la URL cambia. Esto significa que cualquier foto cacheada
+  // es válida para siempre. Cache-first = cero latencia en conexiones lentas.
+  if (url.pathname.startsWith(PHOTO_PATH_PREFIX)) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;  // ¡Hit! Servir inmediatamente.
+        // Miss: bajar y cachar para la próxima vez.
+        return fetch(e.request).then(res => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const resClone = res.clone();
+            caches.open(CACHE).then(k => k.put(e.request, resClone));
+          }
+          return res;
+        }).catch(() => caches.match(e.request));
+      })
+    );
+    return;
+  }
 
   // ── JSON de datos (data.json, productos.json, categorias.json, version.json) ──
   // Stale-while-revalidate agresivo: servir cache local INMEDIATAMENTE (sin
