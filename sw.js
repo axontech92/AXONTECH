@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '9';
-const CACHE = 'axontech-v9';
+const APP_VERSION  = '10';
+const CACHE = 'axontech-v10';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json',
@@ -61,6 +61,30 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  const url = new URL(e.request.url);
+
+  // ── JSON de datos (data.json, productos.json, categorias.json, version.json) ──
+  // Stale-while-revalidate agresivo: servir cache local INMEDIATAMENTE (sin
+  // esperar red), y refrescar en background. En 3G esto significa que la app
+  // arranca con los datos de la última sesión sin esperar a bajar 1.2MB.
+  // Si no hay cache local, cae a network-first.
+  if (/\.(json)$/.test(url.pathname)) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        const fetchPromise = fetch(e.request).then(res => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const resClone = res.clone();
+            caches.open(CACHE).then(k => k.put(e.request, resClone));
+          }
+          return res;
+        }).catch(() => cached);
+        // Servir cache local inmediatamente si existe; si no, esperar red.
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
   // ── BUGFIX: NO usar ignoreSearch:true para app.js y app.css ──
   // Antes usábamos ignoreSearch:true que trataba app.js?v=89 y app.js?v=94
   // como la MISMA entrada de caché. Eso hacía que los usuarios con v89
@@ -68,7 +92,6 @@ self.addEventListener('fetch', e => {
   // Ahora respetamos el query string para app.js/app.css/index.html/admin.html
   // (que cambian con cada release) y solo ignoramos el query en imágenes
   // (que no cambian entre versiones).
-  const url = new URL(e.request.url);
   const esEstatico = /\.(css|js|png|jpe?g|gif|webp|woff2?|ttf|svg|ico)$/.test(url.pathname);
   if (esEstatico) {
     // Archivos que cambian con cada release → respetar el query string

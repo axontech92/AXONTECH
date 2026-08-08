@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 9;
+const APP_VERSION = 10;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '26b789ac5769fc47';
+let _LOCAL_BUILD_HASH = 'ecf3368482b5bd66';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -258,9 +258,41 @@ let pendingCobroExpanded = false;
 //  HELPERS
 // ══════════════════════════════════════════
 const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B2','#BE185D','#1D4ED8'];
-const gestorOf    = id => getGestores().find(g=>g.id===id);
-const mensajeroOf = id => getMensajeros().find(m=>m.id===id);
-const productoOf  = id => getProductos().find(p=>p.id===id);
+
+// ── Cache Map para productoOf / gestorOf / mensajeroOf ──
+// Antes: cada llamada a productoOf(id) hacía find() en el array completo de
+// productos. En un render de 50 vales con 3 productos cada uno, eran 150
+// find() — cada uno O(n) sobre el array de productos. Con 100 productos,
+// eran 15000 comparaciones por render.
+// Ahora: mantenemos un Map(id → objeto) que se reconstruye solo cuando el
+// array subyacente cambia (dirty flag). Lookup es O(1).
+let _productosMap = null;
+let _gestoresMap = null;
+let _mensajerosMap = null;
+function _getProductosMap() {
+  if (!_productosMap || _productosDirty) {
+    _productosMap = new Map();
+    getProductos().forEach(p => _productosMap.set(p.id, p));
+  }
+  return _productosMap;
+}
+function _getGestoresMap() {
+  if (!_gestoresMap || _gestoresDirty) {
+    _gestoresMap = new Map();
+    getGestores().forEach(g => _gestoresMap.set(g.id, g));
+  }
+  return _gestoresMap;
+}
+function _getMensajerosMap() {
+  if (!_mensajerosMap || _mensajerosDirty) {
+    _mensajerosMap = new Map();
+    getMensajeros().forEach(m => _mensajerosMap.set(m.id, m));
+  }
+  return _mensajerosMap;
+}
+const gestorOf    = id => _getGestoresMap().get(id);
+const mensajeroOf = id => _getMensajerosMap().get(id);
+const productoOf  = id => _getProductosMap().get(id);
 const todayStr    = () => new Date().toDateString();
 
 // ══════════════════════════════════════════
@@ -1269,11 +1301,34 @@ function fbRemoveVale(v) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, null, 'remo
 // segundo, cada uno re-renderizando TODO el panel. En móviles lentos con
 // 100+ vales, cada render cuesta 200-500ms → la UI se congela.
 // Solución: debounced refreshUI. Si llegan varios snapshots en ráfaga,
-// solo renderizamos una vez tras 150ms de silencio. El render directo
+// solo renderizamos una vez tras el silencio. El render directo
 // (forceRefreshUI) sigue disponible para acciones locales que necesitan
 // feedback inmediato (enviar vale, asignar mensajero, etc.).
+//
+// ── Network Information API ──
+// Si el navegador soporta navigator.connection, ajustamos el debounce
+// según el tipo de conexión:
+//   - 4G/wifi: 150ms (responsivo)
+//   - 3G: 300ms (más agresivo para reducir renders)
+//   - 2G/slow: 600ms (prioridad a no congelar la UI)
 let _refreshUITimer = null;
-const _REFRESH_UI_DELAY = 150; // ms
+let _REFRESH_UI_DELAY = 150; // ms — se recalcula según conexión
+function _recalcRefreshDelay() {
+  try {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn && conn.effectiveType) {
+      const et = conn.effectiveType;
+      if (et === 'slow-2g' || et === '2g') _REFRESH_UI_DELAY = 600;
+      else if (et === '3g') _REFRESH_UI_DELAY = 300;
+      else _REFRESH_UI_DELAY = 150;
+    }
+  } catch(e) { /* navigator.connection no disponible — usar default 150ms */ }
+}
+_recalcRefreshDelay();
+try {
+  const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (conn) conn.addEventListener('change', _recalcRefreshDelay);
+} catch(e) {}
 let _lastValesHash = '';
 function _computeValesHash(vales) {
   if (!Array.isArray(vales) || !vales.length) return '';
@@ -1321,28 +1376,65 @@ function _refreshLightUI() {
 function _doRefreshUI() {
   _refreshUITimer = null;
   if(IS_ADMIN) {
-    if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
-    if(typeof renderAdminGestores === 'function') renderAdminGestores();
-    // renderInbox was removed — inbox UI is rendered by renderAdminGestores
-    if(typeof renderMensajeros === 'function') renderMensajeros();
-    if(typeof renderProductGrid === 'function') renderProductGrid();
-    if(typeof renderStockCategorias === 'function') renderStockCategorias();
-    if(typeof renderConfirmados === 'function') renderConfirmados();
-    if(typeof renderPendienteCobro === 'function') renderPendienteCobro();
-    if(typeof renderPendingCobroSection === 'function') renderPendingCobroSection();
-    if(typeof renderMensajeroVales === 'function') renderMensajeroVales();
-    if(typeof renderMensajeroSelector === 'function') renderMensajeroSelector();
-    if(typeof renderComisiones === 'function' && typeof currentAdminTab !== 'undefined' && currentAdminTab === 'gestores') renderComisiones();
-    if(typeof renderAdminCatalog === 'function' && typeof currentAdminTab !== 'undefined' && currentAdminTab === 'catalog'){renderAdminCatalogCats();renderAdminCatalog();}
+    // ── Optimización: solo renderizar el tab activo ──
+    // Antes: cada snapshot de Firebase re-renderizaba TODOS los paneles del
+    // admin (vales, stock, gestores, mensajeros, catalog, stats, etc.)
+    // aunque el admin estuviera viendo solo uno. En 3G con varios gestores
+    // enviando vales, eso era cada 200-500ms → UI congelada.
+    // Ahora: solo renderizamos el panel del tab activo + badges globales
+    // (que siempre necesitan actualizarse para que el contador de pendientes
+    // se vea en el nav). Cuando el admin cambie de tab, ese tab se renderiza
+    // fresh en ese momento (ver adminTab()).
+    const tab = (typeof currentAdminTab !== 'undefined') ? currentAdminTab : 'vales';
+    if(tab === 'vales') {
+      if(typeof renderAdminGestores === 'function') renderAdminGestores();
+      if(typeof renderMensajeros === 'function') renderMensajeros();
+      if(typeof renderConfirmados === 'function') renderConfirmados();
+      if(typeof renderPendienteCobro === 'function') renderPendienteCobro();
+    } else if(tab === 'stock') {
+      if(typeof renderStockCategorias === 'function') renderStockCategorias();
+      if(typeof renderProductGrid === 'function') renderProductGrid();
+    } else if(tab === 'gestores') {
+      if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
+      if(typeof renderComisiones === 'function') renderComisiones();
+    } else if(tab === 'mensajeros') {
+      if(typeof renderMensajeroSelector === 'function') renderMensajeroSelector();
+      if(typeof renderPendingCobroSection === 'function') renderPendingCobroSection();
+      if(typeof renderMensajeroVales === 'function') renderMensajeroVales();
+    } else if(tab === 'catalog') {
+      if(typeof renderAdminCatalogCats === 'function') renderAdminCatalogCats();
+      if(typeof renderAdminCatalog === 'function') renderAdminCatalog();
+    } else if(tab === 'stats') {
+      if(typeof renderStats === 'function') renderStats();
+    } else if(tab === 'historial') {
+      if(typeof renderHistorial === 'function') renderHistorial();
+    } else if(tab === 'estafa') {
+      if(typeof renderEstafaList === 'function') renderEstafaList();
+    }
+    // Badges y detalles siempre (son baratos y necesarios globalmente).
     if(typeof updateAdminBadge === 'function') updateAdminBadge();
     if(typeof updateMensajeroBadge === 'function') updateMensajeroBadge();
     if(typeof renderValeDetail === 'function' && typeof selectedValeId !== 'undefined' && selectedValeId) renderValeDetail();
-    if(typeof renderAuditLog === 'function') renderAuditLog();
+    // Audit log: solo si estamos en config o si el panel está visible.
+    // Es barato pero innecesario si no se está viendo.
+    if(tab === 'config' && typeof renderAuditLog === 'function') renderAuditLog();
   } else {
     if(typeof renderGestores === 'function') renderGestores();
     if(typeof renderGestorNotifs === 'function') renderGestorNotifs();
     if(typeof renderMyVales === 'function') renderMyVales();
-    if(typeof renderGestorRanking === 'function') {rankingCache=null;renderGestorRanking();}
+    // Ranking: es pesado (filtra vales, suma puntos, ordena) y no es crítico
+    // para la interacción del usuario. Lo hacemos en requestIdleCallback para
+    // que no bloquee el frame principal. Si el navegador no lo soporta, cae
+    // a setTimeout(0).
+    if(typeof renderGestorRanking === 'function') {
+      rankingCache=null;
+      if(window.requestIdleCallback) {
+        if(_rankingIdleHandle) cancelIdleCallback(_rankingIdleHandle);
+        _rankingIdleHandle = requestIdleCallback(() => { _rankingIdleHandle = null; renderGestorRanking(); }, {timeout: 1000});
+      } else {
+        renderGestorRanking();
+      }
+    }
     if(typeof renderGestorCatalog === 'function') {
        if(document.getElementById('gestorCatalogModal')?.classList.contains('show')) {
            renderGestorCatalog();
@@ -1350,6 +1442,7 @@ function _doRefreshUI() {
     }
   }
 }
+let _rankingIdleHandle = null;
 
 
 
@@ -4179,16 +4272,44 @@ function closeTicketModal() {
 }
 
 
+// ── Lazy-load de html2canvas ──
+// Antes: el script de html2canvas (150KB) se cargaba SIEMPRE en cada página,
+// incluso si el usuario nunca exportaba una imagen de ticket. En 3G eso eran
+// 1-2s extra en cada carga de la app.
+// Ahora: solo se carga dinámicamente cuando el usuario pulsa "Compartir imagen".
+// La primera vez tarda 1-2s en cargar, pero las cargas normales van mucho más rápido.
+let _html2canvasPromise = null;
+function _loadHtml2Canvas() {
+  if (typeof html2canvas !== 'undefined') return Promise.resolve(html2canvas);
+  if (_html2canvasPromise) return _html2canvasPromise;
+  _html2canvasPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = () => resolve(html2canvas);
+    s.onerror = () => { _html2canvasPromise = null; reject(new Error('No se pudo cargar html2canvas')); };
+    document.head.appendChild(s);
+  });
+  return _html2canvasPromise;
+}
+
 async function shareTicketImage() {
-  if (typeof html2canvas === 'undefined') {
-    showToast('Cargando creador de imágenes, intenta de nuevo...');
-    return;
-  }
   const ticketEl = document.getElementById('ticketVisual');
   showToast('Generando imagen...');
-  
+  let html2canvasFn;
   try {
-    const canvas = await html2canvas(ticketEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    html2canvasFn = await _loadHtml2Canvas();
+  } catch(e) {
+    showToast('No se pudo cargar el creador de imágenes. Verifica tu conexión.');
+    return;
+  }
+  // Si después de cargar sigue undefined, algo falló.
+  if (typeof html2canvasFn === 'undefined') {
+    showToast('No se pudo cargar el creador de imágenes.');
+    return;
+  }
+
+  try {
+    const canvas = await html2canvasFn(ticketEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
     canvas.toBlob(async (blob) => {
       const file = new File([blob], 'ticket_axontech.png', { type: 'image/png' });
       
