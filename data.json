@@ -875,11 +875,11 @@
       "description": "[CONTROLADORES SOLARES]\n♻️CONTROLADOR SOLAR POWMR M100 PRO -MPPT DE 80 AMP♻️\n\nEspecificaciones Eléctricas Clave:\n* *Voltaje Máximo del Sistema (PV):* 100V DC. Esto permite conectar paneles en serie para reducir la caída de voltaje en cables largos.\n* Corriente de Carga Máxima: 80 Amperios.\n* *Voltaje de la Batería:* Compatible con baterías de 12V, 24V y 48V. El sistema detecta y se configura automáticamente.\n* *Corriente de Carga Máxima en Diferentes Voltajes:*\n* *100A @ 12V*\n* *50A @ 24V*\n* *25A @ 48V*\n* *Autoconsumo:* < 15mA (muy bajo, lo que preserva la batería cuando no hay sol)\n\n*7. Otras Características Destacadas:*\n* *Reconexión Automática:* Tras una falla o protección, se reconecta automáticamente cuando las condiciones vuelven a la normalidad.\n* *Detección Automática de Voltaje del Sistema:* No necesita configuración manual para 12V/24V/48V.\n* *Capacidad de Registro de Datos:* Almacena datos históricos de generación",
       "garantia": "",
       "id": 1779562612951,
-      "name": "CONTROLADOR SOLAR POWMR M100 PRO - MPPT DE 80 AMP",
+      "name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A",
       "photo": "https://tiendamax.org/imagenes/img_1779562612951.webp",
       "precio": "$220 USD",
-      "puntos": 2,
-      "stock": 0
+      "puntos": 1,
+      "stock": 1
     },
     {
       "catId": 80,
@@ -1219,18 +1219,6 @@
     },
     {
       "catId": 20,
-      "comision": "$10 USD",
-      "description": "* Controlador MPPT de 80A para sistemas de 12V, 24V, 36V y 48V.\n* Admite voltajes de batería entre 9V y 60V CC.\n* Soporta hasta 160V de entrada solar (Voc).\n* Eficiencia MPPT superior al 99.9% y conversión de hasta 98%.\n* Compatible con baterías de litio, AGM, Gel, inundadas y NiCd.\n* Permite configurar manualmente los parámetros de carga.\n* Capacidad máxima de paneles de hasta 3840W en sistemas de 48V.\n* Puede conectarse en paralelo con hasta 12 controladores.\n* Incluye pantalla LCD, ventilación automática y sensor de temperatura.\n* Cuenta con protecciones contra sobrevoltaje, sobrecorriente, cortocircuitos y sobretemperatura.",
-      "garantia": "",
-      "id": 1786156442536,
-      "name": "Controlador solar PowMr de 80A",
-      "photo": "",
-      "precio": "220 USD",
-      "puntos": 1,
-      "stock": 0
-    },
-    {
-      "catId": 20,
       "comision": "$5 USD",
       "description": "Carga baterías de 6V, 12V y 24V con detección automática del voltaje.\n* Corriente de carga ajustable hasta 35A, para carga rápida o mantenimiento.\n* Compatible con baterías de plomo-ácido, AGM, GEL y LiFePO₄.\n* Modo de mantenimiento que conserva la batería en óptimas condiciones sin sobrecargarla.\n* Función de desulfatación, ideal para ayudar a recuperar baterías deterioradas.\n* Modo Force (Forzado) para cargar baterías con voltaje muy bajo.\n* Pantalla LCD inteligente con voltaje, amperaje, estado de carga y progreso en tiempo real.\n* Entrada universal 100-240V AC (50/60Hz), apto para uso en distintos países.\n* Sistema de refrigeración por ventilador, que mejora el rendimiento y la durabilidad.\n* Diseño compacto y portátil, con cable de alimentación de 3 metros para mayor comodidad.",
       "garantia": "",
@@ -1304,5 +1292,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-08T03:56:34.087Z"
+  "timestamp": "2026-08-08T03:59:22.640Z"
 }
