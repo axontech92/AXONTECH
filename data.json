@@ -1326,6 +1326,37 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "×1 Antorcha para soldadura TIG:",
+      "cancelledTs": "2026-08-08T18:17:15.599Z",
+      "carnet": "",
+      "cliente": "Behrjrj",
+      "comisionGestor": "$5.00 USD",
+      "direccion": "Kejkejr  rr",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "id": 1786212193753,
+      "isNew": true,
+      "mensajeria": "",
+      "precioMN": "",
+      "precioUSD": "$75 USD",
+      "status": "cancelled",
+      "synced": true,
+      "telefono": "6161626",
+      "total": "$75 USD",
+      "ts": "2026-08-08T18:03:13.758Z",
+      "valeNum": 47,
+      "valeProductos": [
+        {
+          "id": 1778102582909,
+          "name": "Antorcha para soldadura TIG:",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Behrjrj\n🔸Teléfono Cliente: 6161626\n🔸Dirección Cliente: Kejkejr  rr\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Antorcha para soldadura TIG:\n🔸Precio USD/ zelle: $75 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $75 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/08/2026 14:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
       "articulo": "×1 Router Wavlink AC1200 pequeño",
       "carnet": "",
       "cliente": "Jesús mendoza",
@@ -1354,6 +1385,37 @@
         }
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mariluna\n\n🔸 Nombre Cliente: Jesús mendoza\n🔸Teléfono Cliente: 52839924\n🔸Dirección Cliente: Aranguren 64 Apt 2 entre Juan delgado y goicuria reparto sevillano\n🔸Mensajería/ costo: 2500 cup\n🔸 Artículos y cantidades:\n  ×1 Router Wavlink AC1200 pequeño\n🔸Precio USD/ zelle: $70 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $70 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 08/08/2026 13:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": ""
+    },
+    {
+      "adminNotes": "",
+      "articulo": "×1 Antorcha para soldadura TIG:",
+      "cancelledTs": "2026-08-08T18:17:11.589Z",
+      "carnet": "",
+      "cliente": "Ndndn",
+      "comisionGestor": "$5.00 USD",
+      "direccion": "Fjjfjfjr",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "id": 1786210601105,
+      "isNew": true,
+      "mensajeria": "",
+      "precioMN": "",
+      "precioUSD": "$75 USD",
+      "status": "cancelled",
+      "synced": true,
+      "telefono": "6565656",
+      "total": "$75 USD",
+      "ts": "2026-08-08T17:36:41.108Z",
+      "valeNum": 47,
+      "valeProductos": [
+        {
+          "id": 1778102582909,
+          "name": "Antorcha para soldadura TIG:",
+          "qty": 1
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Ndndn\n🔸Teléfono Cliente: 6565656\n🔸Dirección Cliente: Fjjfjfjr\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Antorcha para soldadura TIG:\n🔸Precio USD/ zelle: $75 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $75 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/08/2026 13:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": ""
     },
     {
@@ -1387,5 +1449,5 @@
       "vuelto": ""
     }
   ],
-  "timestamp": "2026-08-08T18:18:31.160Z"
+  "timestamp": "2026-08-08T18:23:38.324Z"
 }
