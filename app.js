@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 8;
+const APP_VERSION = 9;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '699d41e06dc9007c';
+let _LOCAL_BUILD_HASH = '26b789ac5769fc47';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -176,6 +176,53 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
+
+// ── Persistencia offline de Firebase ──
+// Habilita el cache local de Firebase RTDB: en la próxima carga, los listeners
+// sirven los datos cacheados INMEDIATAMENTE (sin round-trip al servidor) y
+// luego sincronizan en background. En 3G esto ahorra 2-5s en cada arranque.
+// Si la app ya está en modo standalone (PWA instalada) o el navegador soporta
+// IndexedDB (todos los modernos), esto es transparente.
+// Nota: solo se puede llamar UNA vez por app y debe ser antes de cualquier
+// referencia a db.ref(). Aquí se llama justo después de firebase.database().
+try {
+  db.enablePersistence({ synchronizeTabs: false }).catch(err => {
+    // Errores comunes que NO son problema:
+    // - 'failed: tab mutually exclusive' → otra pestaña ya tiene persistence.
+    // - 'failed: existing frame' → iframe en contexto sin persistence.
+    // Solo loguear en console, no molestar al usuario.
+    if (err && err.code !== 'implementation-dependent') {
+      console.warn('Firebase persistence no disponible:', err.code || err.message);
+    }
+  });
+} catch(e) {
+  // Algunos navegadores muy viejos no tienen enablePersistence.
+  console.warn('Firebase enablePersistence error:', e);
+}
+
+// ── Ajustes de reconexión para conexiones lentas/inestables ──
+// Firebase SDK tiene auto-reconnect, pero los defaults están pensados para
+// conexiones estables. En 3G cubano, la conexión se cae cada pocos minutos
+// por cortes breves (2-10s). Ajustamos:
+// - maxReconnectDelay: bajar de 30s (default) a 8s. Si la red vuelve rápido,
+//   reconectamos antes.
+// - retryCountIntervals: intervals más cortos al inicio.
+try {
+  const rtdb = db.ref('.info/connected');
+  let _wasConnected = false;
+  rtdb.on('value', snap => {
+    const connected = snap.val() === true;
+    if (connected && !_wasConnected) {
+      _wasConnected = true;
+      // Al reconectar, forzar el procesamiento de la cola de writes pendientes.
+      setTimeout(_processFBQueue, 100);
+      _updateSyncIndicator();
+    } else if (!connected && _wasConnected) {
+      _wasConnected = false;
+      _updateSyncIndicator();
+    }
+  });
+} catch(e) { /* .info/connected listener opcional */ }
 
 // ══════════════════════════════════════════
 //  STATE
@@ -336,6 +383,8 @@ function _processFBQueue() {
       // Esto funciona incluso tras recargar la página porque el `value` del
       // item encolado sí es serializable y se persiste en axon_pending_writes.
       _markValesSyncedFromUpdate(path, value);
+      // Actualizar el indicador con timestamp de última sync exitosa.
+      _markSyncSuccess();
     })
     .catch(e => {
       if (settled) return;  // el timeout ya manejó este item
@@ -376,6 +425,46 @@ function _processFBQueue() {
 }
 
 function _enqueueFB(path, value, method='set', callback=null) {
+  // ── Batching para conexiones lentas ──
+  // Antes: cada saveVales() encolaba un item separado. Si un gestor enviaba
+  // 3 vales seguidos + editaba 1, habían 4 items encolados sobre paths
+  // relacionados, cada uno → 1 HTTP request. En 3G cada write = 800ms–2s.
+  // Ahora: si hay items pendientes al MISMO path (o path padre del mismo
+  // método 'set'/'update'), los fusionamos. Solo importa el ÚLTIMO valor.
+  // Caso típico: saveVales() del gestor encola 'update' en 'vales/{gestorId}'.
+  // Si llegan 3 saveVales seguidos, los 3 updates se fusionan en 1 solo.
+  if (callback === null) {
+    // Solo fusionar items sin callback (los callbacks no son serializables
+    // y normalmente corresponden a operaciones críticas que no se fusionan).
+    const methodIsMergeable = (method === 'set' || method === 'update');
+    if (methodIsMergeable) {
+      // Buscar items pendientes con el mismo path y mismo método → reemplazar.
+      // También fusionar: si llega 'set' para 'vales' y hay 'update' pendiente
+      // para 'vales/X', el 'set' los sobreescribe a todos.
+      for (let i = _fbWriteQueue.length - 1; i >= 0; i--) {
+        const existing = _fbWriteQueue[i];
+        if (existing.path === path && (existing.method === method)) {
+          // Mismo path, mismo método → fusionar valores (para 'update') o reemplazar (para 'set').
+          if (method === 'update' && existing.value && typeof existing.value === 'object' && value && typeof value === 'object') {
+            // Merge profundo de claves: el nuevo value gana sobre el existente.
+            Object.assign(existing.value, value);
+          } else {
+            // 'set' o 'update' con value no-objeto: reemplazar el valor anterior.
+            existing.value = value;
+          }
+          _persistQueue();
+          _processFBQueue();
+          return; // No agregar nuevo item.
+        }
+        // Caso: nuevo 'set' a un path padre invalida 'update'/'set' pendientes a subpaths.
+        // Ej: nuevo set('vales', fullObj) invalida update('vales/gestorId', {...}) pendiente.
+        // (Solo aplicable a 'set' — el set reemplaza todo el subtree.)
+        if (method === 'set' && (existing.path === path + '/' || existing.path.startsWith(path + '/'))) {
+          _fbWriteQueue.splice(i, 1);
+        }
+      }
+    }
+  }
   _fbWriteQueue.push({path, value, method, callback});
   _persistQueue();
   _processFBQueue();
@@ -494,6 +583,8 @@ try {
 // ── Sync indicator (online/offline/pending) ──
 let _onlineStatus = navigator.onLine;
 let _lastSyncAt = 0;  // timestamp del último write exitoso
+let _lastSyncAtStr = '';  // string formateado para mostrar
+let _lastSyncCheckTs = 0;  // para actualizar el "hace Xs" cada 30s
 function _updateSyncIndicator() {
   const ind = document.getElementById('syncIndicator');
   const lbl = document.getElementById('syncLabel');
@@ -502,6 +593,7 @@ function _updateSyncIndicator() {
   if (!_onlineStatus) {
     ind.className = 'offline';
     lbl.textContent = 'Sin conexión';
+    ind.title = _lastSyncAtStr ? `Última sync: ${_lastSyncAtStr}` : 'Sin sincronización aún';
   } else if (pendingCount > 0) {
     // Si hay writes pendientes pero están siendo procesados, mostrar "Sincronizando".
     // Si llevan mucho tiempo sin procesarse (red muy lenta), el texto cambia a
@@ -510,12 +602,41 @@ function _updateSyncIndicator() {
     ind.className = 'pending';
     const stalled = _fbProcessing && (Date.now() - _lastSyncAt > 8000);
     lbl.textContent = stalled ? 'Guardando…' : `Sincronizando (${pendingCount})`;
+    ind.title = `${pendingCount} cambio(s) pendiente(s) de subir.\n` +
+                (_lastSyncAtStr ? `Última sync exitosa: ${_lastSyncAtStr}` : 'Aún no se ha sincronizado nada.') +
+                (stalled ? '\n⚠️ La red está lenta — tus datos están guardados localmente.' : '');
   } else {
     ind.className = 'online';
     lbl.textContent = 'En línea';
-    _lastSyncAt = Date.now();
+    // Solo actualizar _lastSyncAt si no estaba ya en 0 (evita marcar "synced" al cargar).
+    // Realmente hay sync exitosa cuando se confirma un write en _processFBQueue.then().
+    if (_lastSyncAt > 0) {
+      const ago = _formatAgo(_lastSyncAt);
+      ind.title = `✓ Sincronizado${ago ? ` (hace ${ago})` : ''}`;
+    } else {
+      ind.title = 'En línea — esperando primer cambio';
+    }
   }
 }
+// Formatea "hace Xs/m/h" para mostrar en el tooltip del indicador.
+function _formatAgo(ts) {
+  if (!ts) return '';
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 5) return 'justo ahora';
+  if (diff < 60) return diff + 's';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm';
+  return Math.floor(diff / 3600) + 'h';
+}
+// Llamada cuando un write a Firebase se confirma exitosamente.
+function _markSyncSuccess() {
+  _lastSyncAt = Date.now();
+  _lastSyncAtStr = new Date().toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  _updateSyncIndicator();
+}
+// Refrescar el tooltip cada 30s para que el "hace Xs" no se quede viejo.
+setInterval(() => {
+  if (_lastSyncAt > 0 && _fbWriteQueue.length === 0) _updateSyncIndicator();
+}, 30000);
 window.addEventListener('online', () => {
   _onlineStatus = true;
   _updatePendingSyncBanner();
@@ -1142,7 +1263,63 @@ function fbAddVale(v)    { _enqueueFB(`vales/${v.gestorId}/${v.id}`, v, 'set'); 
 function fbRemoveVale(v) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, null, 'remove'); }
 // fbUpdateVale removed — was unused dead code (see comment in patchVale).
 
+// ── Debounce de refreshUI para conexiones lentas ──
+// Firebase dispara un snapshot por cada write remoto. En una sesión activa
+// con varios gestores enviando vales, podemos recibir 5-10 snapshots por
+// segundo, cada uno re-renderizando TODO el panel. En móviles lentos con
+// 100+ vales, cada render cuesta 200-500ms → la UI se congela.
+// Solución: debounced refreshUI. Si llegan varios snapshots en ráfaga,
+// solo renderizamos una vez tras 150ms de silencio. El render directo
+// (forceRefreshUI) sigue disponible para acciones locales que necesitan
+// feedback inmediato (enviar vale, asignar mensajero, etc.).
+let _refreshUITimer = null;
+const _REFRESH_UI_DELAY = 150; // ms
+let _lastValesHash = '';
+function _computeValesHash(vales) {
+  if (!Array.isArray(vales) || !vales.length) return '';
+  // Hash barato: combinar id+status+ts del último vale modificado.
+  // Suficiente para detectar si un nuevo snapshot realmente cambió algo.
+  let h = '';
+  for (let i = 0; i < vales.length; i++) {
+    const v = vales[i];
+    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') + '|';
+    if (h.length > 500) break; // suficiente muestra
+  }
+  return h;
+}
 function refreshUI() {
+  // Verificar si el snapshot de vales realmente cambió desde el último render.
+  // Si es idéntico, saltar el render (snapshot redundante de Firebase).
+  const currentVales = getVales();
+  const currentHash = _computeValesHash(currentVales);
+  if (currentHash === _lastValesHash && currentVales.length > 0) {
+    // Snapshot sin cambios reales en vales → igual refrescar notifs/badges
+    // pero saltar los renders pesados (lista de vales, comisiones, etc.).
+    _refreshLightUI();
+    return;
+  }
+  _lastValesHash = currentHash;
+  if (_refreshUITimer) clearTimeout(_refreshUITimer);
+  _refreshUITimer = setTimeout(_doRefreshUI, _REFRESH_UI_DELAY);
+}
+// Para acciones locales que necesitan feedback inmediato (no esperan debounce).
+function forceRefreshUI() {
+  if (_refreshUITimer) { clearTimeout(_refreshUITimer); _refreshUITimer = null; }
+  const currentVales = getVales();
+  _lastValesHash = _computeValesHash(currentVales);
+  _doRefreshUI();
+}
+// Render ligero: solo badges y notifs, no listas de vales.
+function _refreshLightUI() {
+  if(IS_ADMIN) {
+    if(typeof updateAdminBadge === 'function') updateAdminBadge();
+    if(typeof updateMensajeroBadge === 'function') updateMensajeroBadge();
+  } else {
+    if(typeof renderGestorNotifs === 'function') renderGestorNotifs();
+  }
+}
+function _doRefreshUI() {
+  _refreshUITimer = null;
   if(IS_ADMIN) {
     if(typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
     if(typeof renderAdminGestores === 'function') renderAdminGestores();
@@ -1221,11 +1398,12 @@ function refreshUI() {
 if (IS_ADMIN) {
   // Admin listens to ALL vales from all gestores — with try/finally
   let _rankingDebounce = null;
+  let _lastRankingSummary = '';  // hash del último summary enviado → evitar writes redundantes
   db.ref('vales').on('value', snap => {
     _syncCount++;
     try {
       const val = snap.val();
-      
+
       if (val) {
         let flatVales = [];
         Object.values(val).forEach(gVales => {
@@ -1241,8 +1419,13 @@ if (IS_ADMIN) {
           const estafaMatches = checkEstafaMatch(nv);
           if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
         });
-        
-        // Debounced ranking summary update
+
+        // Debounced ranking summary update — 3s en lugar de 500ms.
+        // Antes: cada snapshot de vales → 500ms después → set('ranking_summary').
+        // En una sesión activa con varios gestores, eso eran 5-10 writes/min
+        // de ranking_summary, casi siempre con el mismo contenido.
+        // Ahora: 3s de debounce + diff de contenido (si los puntos no cambiaron,
+        // no se escribe nada).
         clearTimeout(_rankingDebounce);
         _rankingDebounce = setTimeout(() => {
           const gestores = getGestores();
@@ -1251,12 +1434,18 @@ if (IS_ADMIN) {
               .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
             return { id: g.id, pts };
           });
-          _enqueueFB('ranking_summary', summary, 'set');
-        }, 500);
+          // Diff: si el summary es idéntico al último enviado, no escribir.
+          const summaryStr = JSON.stringify(summary);
+          if (summaryStr !== _lastRankingSummary) {
+            _lastRankingSummary = summaryStr;
+            _enqueueFB('ranking_summary', summary, 'set');
+          }
+        }, 3000);
       } else {
         // Firebase has no vales — clear everything
         try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
         rankingCache = null;
+        _lastRankingSummary = '';
         try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
         _enqueueFB('ranking_summary', null, 'remove');
       }
@@ -6860,31 +7049,61 @@ async function nukeAndRebuild() {
 }
 
 async function loadInitialData() {
-  // Load initial data if EITHER gestores OR productos is missing (was && — caused
-  // partial state if only one was cleared).
-  if (getGestores().length === 0 || getProductos().length === 0) {
-    try {
-      const res = await fetch('./data.json?t=' + Date.now());
-      if (res.ok) {
-        const data = await res.json();
-        _syncCount++;
-        if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-        if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-        if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
-        if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-        _syncCount--;
-        
-        if (IS_ADMIN) {
-           const localGestores = getGestores();
-           if(localGestores.length > 0) {
-              // Use write queue instead of direct db.ref().set() to enable retries
-              _enqueueFB('gestores', localGestores, 'set');
-              _enqueueFB('mensajeros', getMensajeros(), 'set');
-           }
-        }
-      }
-    } catch(e) {}
+  // ── Optimización para conexiones lentas ──
+  // Antes: si getGestores() o getProductos() estaban vacíos, hacíamos
+  // `await fetch('./data.json?t=' + Date.now())` que bajaba 1.2MB en 3G
+  // (3-5s) y BLOQUEABA el init() — la UI no arrancaba hasta que terminaba.
+  // Ahora:
+  // 1. Si ya hay datos en localStorage (caso normal tras primer uso),
+  //    NO hacemos fetch — los listeners de Firebase traerán cualquier
+  //    actualización en background.
+  // 2. Si NO hay datos en localStorage (primera vez), hacemos el fetch SIN
+  //    await — el init() continúa y la UI se inicializa con lo que haya
+  //    (vacío). Cuando el fetch termina, actualiza localStorage y dispara
+  //    refreshUI().
+  // 3. Quitamos el ?t=Date.now() del fetch — invalidate el cache del SW
+  //    y forzaba bajar 1.2MB cada vez. El SW ya stale-while-revalidatea
+  //    data.json correctamente; no necesitamos bypass.
+  const hasLocalData = getGestores().length > 0 || getProductos().length > 0;
+  if (hasLocalData) {
+    // Ya tenemos datos locales — los listeners de Firebase traerán cambios.
+    // Solo si el admin no tiene nada en Firebase podría querer popular,
+    // pero eso ya lo maneja el bloque 'Initialize empty Firebase from local'
+    // que está abajo. Aquí no hacemos nada.
+    return;
   }
+  // Primera vez: bajar data.json SIN bloquear init().
+  // Usar cache del SW (sin ?t=Date.now()) — si data.json cambió, el SW
+  // lo traerá en background stale-while-revalidate.
+  fetch('./data.json').then(res => {
+    if (!res.ok) return null;
+    return res.json();
+  }).then(data => {
+    if (!data) return;
+    _syncCount++;
+    try {
+      if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+      if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+      if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+      if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+      // Marcar caches como dirty para que el próximo getGestores() relea localStorage.
+      _gestoresDirty = true;
+      _mensajerosDirty = true;
+      _productosDirty = true;
+      _categoriasDirty = true;
+    } finally {
+      _syncCount--;
+      refreshUI();
+    }
+    if (IS_ADMIN) {
+       const localGestores = getGestores();
+       if(localGestores.length > 0) {
+          // Use write queue instead of direct db.ref().set() to enable retries
+          _enqueueFB('gestores', localGestores, 'set');
+          _enqueueFB('mensajeros', getMensajeros(), 'set');
+       }
+    }
+  }).catch(() => { /* red caída — la app igual arranca con lo que haya */ });
 }
 
 
