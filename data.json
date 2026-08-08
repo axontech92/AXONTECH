@@ -609,7 +609,7 @@
       "description": "[ACCESORIOS]\nForros de asientos de lujo para autos:\n\n•Alta calidad y acabado exquisito.\n•Color: negro\n•Material de la superficie: Cuero napa de 0,6 mm.\n•Durabilidad: 3 veces más duraderas que el PU estándar, con resistencia a temperaturas elevadas de 45 grados.\n•Comodidad: 20-30% más suave y transpirable, adaptándose al cuerpo.\n•Relleno: Acolchonado y con apoyo lumbar ergonómico \n•Tipo: Ajuste universal  para 5 asientos, 2 delanteros y 3 traseros.",
       "garantia": "",
       "id": 1778213413973,
-      "name": "FORROS DE ASIENTOS DE LUJO PARA AUTOS",
+      "name": "Forros de asientos de lujo para autos",
       "photo": "https://tiendamax.org/imagenes/img_1778213413973.webp",
       "precio": "$150 USD",
       "puntos": 1,
@@ -653,11 +653,11 @@
     },
     {
       "catId": 40,
-      "comision": "$1.8 USD",
+      "comision": "1500 MN",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "garantia": "",
       "id": 1778336859697,
-      "name": "TOLDO PARA SOMBRA",
+      "name": "Toldo para sombra",
       "photo": "https://tiendamax.org/imagenes/img_1778336859697.webp",
       "precio": "$20 USD",
       "puntos": 1,
@@ -693,7 +693,7 @@
       "description": "[CERRADURAS]\nCerradura inteligente con forma de manija Viladepot, huella dactilar,control por aplicación, código de acceso, desbloqueo, teclado electrónico con pantalla táctil para interiores.",
       "garantia": "",
       "id": 1778384158283,
-      "name": "CERRADURA INTELIGENTE",
+      "name": "Cerradura inteligente",
       "photo": "https://tiendamax.org/imagenes/img_1778384158283_ext.webp",
       "precio": "$60 USD",
       "puntos": 1,
@@ -1255,5 +1255,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-08T02:48:35.695Z"
+  "timestamp": "2026-08-08T02:51:31.713Z"
 }
