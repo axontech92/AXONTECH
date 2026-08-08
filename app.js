@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 6;
+const APP_VERSION = 7;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '6b31c1343a93c8e0';
+let _LOCAL_BUILD_HASH = '337f8ef68cc404f4';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4372,6 +4372,18 @@ function openEditProductModal(id) {
 // WebP files are ~30-50% smaller than JPEG at equivalent quality, which saves
 // localStorage quota and Firebase bandwidth. The original uploaded file is
 // never persisted — only the converted WebP data URL is stored.
+let _webpSupported = null;
+function _checkWebPSupport() {
+  if (_webpSupported !== null) return _webpSupported;
+  try {
+    const c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    _webpSupported = c.toDataURL('image/webp').startsWith('data:image/webp');
+  } catch (e) {
+    _webpSupported = false;
+  }
+  return _webpSupported;
+}
 function compressImage(dataUrl, maxPx, quality, cb) {
   const img = new Image();
   img.onload = () => {
@@ -4397,6 +4409,160 @@ function compressImage(dataUrl, maxPx, quality, cb) {
   img.onerror = () => { cb(null); };
   img.src = dataUrl;
 }
+
+// Promise-based version of compressImage (for batch operations).
+// Always returns WebP if the browser supports it; rejects if conversion fails.
+function compressImageP(dataUrl, maxPx, quality) {
+  return new Promise((resolve, reject) => {
+    compressImage(dataUrl, maxPx, quality, out => {
+      if (!out) { reject(new Error('conversion_failed')); return; }
+      if (!_checkWebPSupport() && !out.startsWith('data:image/webp')) {
+        // Browser doesn't support WebP — JPEG fallback is the best we can do.
+        resolve(out);
+        return;
+      }
+      if (!out.startsWith('data:image/webp')) {
+        reject(new Error('webp_not_produced'));
+        return;
+      }
+      resolve(out);
+    });
+  });
+}
+
+// Detecta si una foto (data URL) ya está en formato WebP.
+function isWebPPhoto(photo) {
+  return !!(photo && typeof photo === 'string' && photo.startsWith('data:image/webp'));
+}
+// Detecta si una foto es JPEG/PNG (no WebP) — candidato a conversión.
+function isLegacyPhoto(photo) {
+  if (!photo || typeof photo !== 'string') return false;
+  return photo.startsWith('data:image/jpeg') ||
+         photo.startsWith('data:image/jpg') ||
+         photo.startsWith('data:image/png');
+}
+
+// Convierte TODAS las fotos de productos en formato legacy (JPEG/PNG) a WebP.
+// Devuelve un objeto con estadísticas: { total, converted, failed, skipped, savedBytes }.
+// `onProgress(done, total, productName)` se llama para reportar progreso.
+async function convertLegacyPhotosToWebP(onProgress) {
+  const all = getProductos();
+  const targets = all.filter(p => isLegacyPhoto(p.photo));
+  const total = targets.length;
+  if (total === 0) {
+    return { total: 0, converted: 0, failed: 0, skipped: 0, savedBytes: 0 };
+  }
+  if (!_checkWebPSupport()) {
+    throw new Error('Este navegador no soporta WebP. Usa Chrome, Edge, Firefox o Safari actualizado.');
+  }
+  let converted = 0, failed = 0, skipped = 0, savedBytes = 0;
+  let done = 0;
+  // Procesamos uno a uno para no saturar la memoria con muchos Image/Canvas a la vez.
+  for (const p of targets) {
+    done++;
+    if (onProgress) try { onProgress(done, total, p.name || `#${p.id}`); } catch (_) {}
+    try {
+      const before = p.photo.length;
+      const webpDataUrl = await compressImageP(p.photo, 800, 0.78);
+      // Validar que efectivamente redujo tamaño (o al menos no creció significativamente).
+      const after = webpDataUrl.length;
+      if (after > before * 1.05) {
+        // La versión WebP es más grande — mantener la original pero contar como skipped.
+        skipped++;
+      } else {
+        // Aplicar el cambio (esto guarda en LS + encola Firebase + re-publica catálogo).
+        patchProducto(p.id, { photo: webpDataUrl });
+        savedBytes += (before - after);
+        converted++;
+      }
+    } catch (e) {
+      console.warn('convertLegacyPhotosToWebP: error en producto', p.id, e);
+      failed++;
+    }
+    // Pausa mínima entre imágenes para dejar respirar el event loop.
+    await new Promise(r => setTimeout(r, 10));
+  }
+  return { total, converted, failed, skipped, savedBytes };
+}
+
+// ══════════════════════════════════════════
+//  UI: OPTIMIZAR IMÁGENES (admin)
+//  Botón que convierte todas las fotos JPEG/PNG ya subidas a WebP.
+//  Muestra un modal de progreso y al final un resumen con el espacio liberado.
+// ══════════════════════════════════════════
+let _optimizeInProgress = false;
+function optimizeProductPhotos() {
+  if (_optimizeInProgress) {
+    showToast('Ya hay una optimización en curso...');
+    return;
+  }
+  // Contar cuántas fotos necesitan conversión.
+  const all = getProductos();
+  const total = all.filter(p => isLegacyPhoto(p.photo)).length;
+  if (total === 0) {
+    showToast('✅ Todas las fotos ya están en WebP');
+    return;
+  }
+  // Formatear tamaño humano.
+  const fmtKB = bytes => {
+    if (bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+    return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+  };
+  // Confirmar antes de empezar.
+  showConfirmAction(
+    'Optimizar imágenes a WebP',
+    `Se convertirán ${total} foto${total === 1 ? '' : 's'} JPEG/PNG a WebP y se borrarán las originales. Esto libera espacio en localStorage y Firebase. El proceso puede tardar según la cantidad.`,
+    'Convertir a WebP',
+    'btn-blue',
+    async () => {
+      _optimizeInProgress = true;
+      // Construir modal de progreso (reutilizamos el modal genérico si existe).
+      const modal = document.getElementById('optimizePhotosModal');
+      if (modal) modal.classList.add('show');
+      const setProgress = (done, total, name) => {
+        const bar = document.getElementById('optimizeProgressBar');
+        const txt = document.getElementById('optimizeProgressText');
+        const nameEl = document.getElementById('optimizeProgressName');
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        if (bar) bar.style.width = pct + '%';
+        if (txt) txt.textContent = `${done} / ${total} (${pct}%)`;
+        if (nameEl) nameEl.textContent = name ? `Procesando: ${name}` : '';
+      };
+      setProgress(0, total, '');
+      try {
+        const result = await convertLegacyPhotosToWebP((done, t, name) => {
+          setProgress(done, t, name);
+        });
+        // Refrescar la grilla de productos para mostrar las imágenes nuevas.
+        if (typeof renderProductGrid === 'function') renderProductGrid();
+        if (typeof renderStockCategorias === 'function') renderStockCategorias();
+        maybeAutoSync();
+        // Resumen final.
+        const savedKB = fmtKB(result.savedBytes);
+        const parts = [
+          `✅ ${result.converted} foto${result.converted === 1 ? '' : 's'} convertida${result.converted === 1 ? '' : 's'} a WebP`,
+          `💾 Espacio liberado: ~${savedKB}`,
+        ];
+        if (result.skipped > 0) parts.push(`⏭️ ${result.skipped} ya eran óptimas`);
+        if (result.failed > 0) parts.push(`⚠️ ${result.failed} fallaron`);
+        showToast(parts.join(' · '));
+        // Si el navegador permite notificaciones, enviar una también.
+        try {
+          sendBrowserNotif('AXONTECH – Optimización completa', `${result.converted} fotos convertidas a WebP · ${savedKB} liberados`);
+        } catch (_) {}
+      } catch (e) {
+        showToast('⚠️ ' + (e.message || 'Error al optimizar imágenes'));
+      } finally {
+        _optimizeInProgress = false;
+        if (modal) modal.classList.remove('show');
+      }
+    }
+  );
+}
+function closeOptimizePhotosModal() {
+  const modal = document.getElementById('optimizePhotosModal');
+  if (modal) modal.classList.remove('show');
+}
 function handleProductPhoto(input) {
   const file=input.files[0];if(!file)return;
   // Validate file type and size to prevent UI freeze on huge non-image files
@@ -4407,6 +4573,12 @@ function handleProductPhoto(input) {
     showToast('🔄 Convirtiendo a WebP...');
     compressImage(e.target.result, 800, 0.78, compressed => {
       if(!compressed){showToast('Error al procesar la imagen');return;}
+      // Si el navegador soporta WebP pero por algún motivo no se generó WebP, rechazar.
+      // Esto garantiza que NUNCA se guarde un JPEG/PNG cuando el navegador soporta WebP.
+      if(_checkWebPSupport() && !compressed.startsWith('data:image/webp')){
+        showToast('⚠️ No se pudo convertir a WebP. Intenta con otra imagen.');
+        return;
+      }
       // Verify the conversion worked and check size savings
       const originalSize = e.target.result.length;
       const compressedSize = compressed.length;
