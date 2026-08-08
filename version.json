@@ -1,0 +1,11 @@
+{
+  "version": 3,
+  "versionStr": "v3",
+  "releasedAt": "2026-08-08",
+  "changelog": [
+    "Banner de versión visible en pantalla de inicio",
+    "Auto-verificación de nuevas versiones contra version.json",
+    "Modal de ticket con banner verde tras enviar vale",
+    "Limpieza automática del formulario al cerrar el ticket"
+  ]
+}

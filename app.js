@@ -4,6 +4,109 @@
 const IS_ADMIN = document.body.dataset.page === 'admin';
 
 // ══════════════════════════════════════════
+//  APP VERSION  (debe coincidir con sw.js APP_VERSION y version.json)
+// ══════════════════════════════════════════
+//  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
+//  checkVersion() consulta version.json periódicamente; si detecta una versión
+//  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
+const APP_VERSION = 3;
+const VERSION_STR = 'v' + APP_VERSION;
+
+// Estado del chequeo de versión
+let _updateDismissed = false;       // el usuario pospuso la actualización
+let _lastRemoteVersion = null;       // caché en memoria de la última versión remota vista
+const _VERSION_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutos
+
+// Inicializa el badge de versión con la versión local.
+function _initVersionBadge() {
+  const badge = document.getElementById('versionBadge');
+  if (badge) badge.textContent = VERSION_STR;
+}
+
+// Compara dos versiones numéricas. Devuelve true si `remote` > `local`.
+function _isNewerVersion(remote, local) {
+  const r = parseInt(remote, 10);
+  const l = parseInt(local, 10);
+  if (isNaN(r) || isNaN(l)) return false;
+  return r > l;
+}
+
+// Verifica contra version.json si hay una versión más nueva disponible.
+// `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
+async function checkVersion(manual) {
+  try {
+    // Cache-busting: agregamos un timestamp para evitar caché del SW/HTTP.
+    const url = './version.json?t=' + Date.now();
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) {
+      if (manual) showToast('No se pudo verificar la versión (sin conexión)');
+      return;
+    }
+    const data = await res.json();
+    const remoteVersion = parseInt(data.version, 10);
+    if (isNaN(remoteVersion)) {
+      if (manual) showToast('version.json inválido');
+      return;
+    }
+    _lastRemoteVersion = remoteVersion;
+    const remoteStr = data.versionStr || ('v' + remoteVersion);
+
+    if (_isNewerVersion(remoteVersion, APP_VERSION)) {
+      // Hay una versión nueva — mostrar banner (salvo que el usuario ya lo haya pospuesto
+      // para esta sesión y no sea una verificación manual).
+      if (manual || !_updateDismissed) {
+        _showUpdateBanner(remoteStr, data.changelog);
+      }
+    } else {
+      // Estamos al día
+      if (manual) showToast('Ya tienes la última versión (' + VERSION_STR + ') ✓');
+      _hideUpdateBanner();
+    }
+  } catch (e) {
+    console.warn('checkVersion error:', e);
+    if (manual) showToast('No se pudo verificar la versión');
+  }
+}
+
+// Muestra el banner flotante de actualización disponible.
+function _showUpdateBanner(remoteStr, changelog) {
+  const banner = document.getElementById('updateBanner');
+  if (!banner) return;
+  const text = document.getElementById('updateBannerText');
+  if (text) {
+    const note = (changelog && changelog.length) ? ' · ' + changelog[0] : '';
+    text.textContent = '🔄 Nueva versión disponible: ' + remoteStr + note;
+  }
+  banner.style.display = 'flex';
+}
+
+// Oculta el banner de actualización.
+function _hideUpdateBanner() {
+  const banner = document.getElementById('updateBanner');
+  if (banner) banner.style.display = 'none';
+}
+
+// El usuario pulsó "Más tarde" — ocultar hasta la próxima verificación.
+function dismissUpdate() {
+  _updateDismissed = true;
+  _hideUpdateBanner();
+}
+
+// El usuario pulsó "Recargar ahora" — forzar recarga limpia saltando la caché.
+function applyUpdate() {
+  // 1. Si hay un SW esperando, activarlo.
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
+  }
+  // 2. Recargar sin caché después de un pequeño delay para dar tiempo al SW.
+  setTimeout(() => {
+    // Usar location.reload(true) si existe, sino location.reload()
+    // Agregar un cache-buster al HTML para forzar al navegador a pedir la versión nueva.
+    window.location.href = window.location.pathname + '?v=' + (_lastRemoteVersion || APP_VERSION) + (window.location.hash || '');
+  }, 400);
+}
+
+// ══════════════════════════════════════════
 //  SECURITY UTILS
 // ══════════════════════════════════════════
 function escapeHTML(str) {
@@ -3656,14 +3759,34 @@ function buildValeText() {
     '* Solo se aceptan billetes en buen estado (ni rotos ni manchados)'].join('\n');
 }
 
-function openTicketModal() {
+// Bandera global: indica que el modal del ticket se abrió automáticamente tras enviar un vale.
+// Si es true, al cerrar el modal (botón Cerrar, clic fuera, o Escape) se limpia el formulario.
+let _ticketAfterSend = false;
+
+function openTicketModal(afterSend) {
   const g = gestorOf(activeGestorId);
   document.getElementById('tk-gestor').textContent = g ? g.name : '';
   document.getElementById('tk-cliente').textContent = fVal('vf-cliente') || 'Sin nombre';
   document.getElementById('tk-articulo').textContent = fVal('vf-articulo') || 'Sin artículo';
   document.getElementById('tk-total').textContent = fVal('vf-total') || '—';
-  
+
+  // Mostrar banner verde SOLO si el modal se abre después de enviar un vale.
+  const banner = document.getElementById('ticketSuccessBanner');
+  if (banner) banner.style.display = afterSend ? 'block' : 'none';
+  _ticketAfterSend = !!afterSend;
+
   document.getElementById('ticketModal').classList.add('show');
+}
+
+// Cierra el modal del ticket. Si se abrió tras enviar un vale, limpia el formulario
+// automáticamente para el próximo cliente. Si se abrió manualmente con "Generar Ticket
+// de Recogida", el formulario se mantiene intacto.
+function closeTicketModal() {
+  document.getElementById('ticketModal').classList.remove('show');
+  if (_ticketAfterSend) {
+    _ticketAfterSend = false;
+    resetForm();
+  }
 }
 
 
@@ -3817,7 +3940,19 @@ function sendVale() {
     const estafaMatches = checkEstafaMatch(vale);
     if(estafaMatches.length) showEstafaAlert(vale, estafaMatches);
   }
-  resetForm();
+  // IMPORTANTE: NO limpiar el formulario aquí. El formulario se mantiene intacto
+  // para que el gestor pueda ver los datos del cliente mientras comparte el ticket.
+  // El formulario se limpia automáticamente cuando se CIERRA el modal del ticket
+  // (botón Cerrar, clic fuera, o Escape). Ver closeTicketModal().
+  // Restauramos el botón "Enviar" a su estado normal para que se pueda enviar otro vale
+  // sin necesidad de cerrar el ticket primero.
+  if(btn){
+    btn.disabled = true; // se rehabilita cuando el form vuelva a tener los campos obligatorios
+    btn.textContent = '📤 Enviar';
+    btn.classList.replace('btn-green', 'btn-blue');
+  }
+  // Abrir directamente el modal del ticket con el banner verde "✓ Vale enviado".
+  openTicketModal(true);
   _isSendingVale = false;
 }
 // ══════════════════════════════════════════
@@ -6366,6 +6501,9 @@ document.addEventListener('keydown', (e) => {
   const openModal = document.querySelector('.modal-bg.show');
   if (!openModal) return;
   if (openModal.id === 'passModal' || openModal.id === 'gestorPassModal') return;
+  // Si es el modal del ticket, usar closeTicketModal() para que respete la lógica
+  // de "limpiar formulario solo si se abrió tras enviar un vale".
+  if (openModal.id === 'ticketModal') { closeTicketModal(); return; }
   openModal.classList.remove('show');
 });
 
@@ -7287,6 +7425,12 @@ async function init() {
   applyTheme(localStorage.getItem('axon_theme')==='dark');
   updateDate();
   setInterval(updateDate, 60000);
+  // ── Version badge + auto-update check ──
+  _initVersionBadge();
+  // Primer chequeo a los 3s (para no competir con la carga inicial de Firebase)
+  setTimeout(() => checkVersion(false), 3000);
+  // Polling cada 5 minutos
+  setInterval(() => checkVersion(false), _VERSION_CHECK_INTERVAL);
   await loadInitialData();
   _updateSyncIndicator();
   if (IS_ADMIN) {

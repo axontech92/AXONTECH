@@ -1,9 +1,11 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
-const APP_VERSION  = '97';
-const CACHE = 'axontech-v97';
+// Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
+// y la app verifica automáticamente contra version.json si hay una versión mayor.
+const APP_VERSION  = '3';
+const CACHE = 'axontech-v3';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
-  './manifest.json', './productos.json',
+  './manifest.json', './productos.json', './version.json',
   './iconos/favicon-96.png', './iconos/icon-192.png', './iconos/icon-512.png',
   './iconos/icon-192-maskable.png', './iconos/icon-512-maskable.png', './iconos/icon-1024-maskable.png',
   './offline.html', './catalogo.html', './data.json'
@@ -106,6 +108,10 @@ self.addEventListener('fetch', e => {
 });
 
 // Allow page to trigger immediate SW activation when a new version is waiting
+// y responder consultas de versión desde la página.
 self.addEventListener('message', e => {
-  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data === 'SKIP_WAITING') { self.skipWaiting(); return; }
+  if (e.data && e.data.type === 'GET_VERSION' && e.ports && e.ports[0]) {
+    e.ports[0].postMessage({ version: APP_VERSION });
+  }
 });

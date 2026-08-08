@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=97">
+  <link rel="stylesheet" href="./app.css?v=3">
 </head>
 <body data-page="admin">
 
@@ -25,6 +25,11 @@
       <div class="brand-name">AXONTECH</div>
       <div class="brand-sub">PANEL ADMIN</div>
     </div>
+    <!-- Banner pequeño de versión: chip discreto que muestra la versión actual. -->
+    <span id="versionBadge"
+          onclick="checkVersion(true)"
+          title="Versión actual · Toca para buscar actualizaciones"
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -36,6 +41,14 @@
     <button id="btnTheme" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro">🌙</button>
   </div>
 </header>
+
+<!-- Banner flotante de actualización disponible -->
+<div id="updateBanner"
+     style="display:none;position:fixed;top:0;left:0;right:0;z-index:9000;background:linear-gradient(90deg,#10B981,#059669);color:white;padding:10px 14px;font-size:13px;font-weight:700;display:none;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 10px rgba(0,0,0,.2);">
+  <span id="updateBannerText">🔄 Nueva versión disponible</span>
+  <button onclick="applyUpdate()" style="background:white;color:#059669;border:none;border-radius:6px;padding:4px 12px;font-size:12px;font-weight:800;cursor:pointer;">Recargar ahora</button>
+  <button onclick="dismissUpdate()" style="background:rgba(255,255,255,.2);color:white;border:none;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">Más tarde</button>
+</div>
 
 <!-- ══ ADMIN LAYOUT ══ -->
 <div class="layout" id="layoutAdmin" role="main">
@@ -953,7 +966,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="./app.js?v=97"></script>
+<script src="./app.js?v=3"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
