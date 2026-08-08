@@ -288,7 +288,8 @@
   "mensajeros": [
     {
       "id": 1784335863791,
-      "name": "ARMELIO"
+      "name": "ARMELIO",
+      "phone": "5358940467"
     },
     {
       "id": 1784408225928,
@@ -297,39 +298,48 @@
     },
     {
       "id": 1784408255563,
-      "name": "ALBERT"
+      "name": "ALBERT",
+      "phone": "5358140797"
     },
     {
       "id": 1784476762185,
-      "name": "SAMUEL"
+      "name": "SAMUEL",
+      "phone": "5354747793"
     },
     {
       "id": 1784476774393,
-      "name": "JOSEANDRI"
+      "name": "JOSEANDRI",
+      "phone": "5350727682"
     },
     {
       "id": 1784476779247,
-      "name": "REY"
+      "name": "REY",
+      "phone": "5356061827"
     },
     {
       "id": 1784476782949,
-      "name": "YASEL"
+      "name": "YASEL",
+      "phone": "5355117549"
     },
     {
       "id": 1784476786977,
-      "name": "YOENY"
+      "name": "YOENY",
+      "phone": "5352652859"
     },
     {
       "id": 1784476791178,
-      "name": "MAURO"
+      "name": "MAURO",
+      "phone": "5355655788"
     },
     {
       "id": 1784476802516,
-      "name": "ALFREDO"
+      "name": "ALFREDO",
+      "phone": "5350007877"
     },
     {
       "id": 1784476816825,
-      "name": "EDUARD"
+      "name": "EDUARD",
+      "phone": "5359518306"
     },
     {
       "id": 1784476898824,
@@ -1255,5 +1265,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-08T03:11:32.324Z"
+  "timestamp": "2026-08-08T03:21:27.122Z"
 }
