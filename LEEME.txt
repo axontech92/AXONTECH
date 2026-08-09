@@ -1,61 +1,55 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v25 — catálogo, borrado de vales/notifs, panel de diagnóstico
+  AXONTECH v26 — encontrado y arreglado el bug REAL del catálogo
 ═══════════════════════════════════════════════════════════════════
 
-QUÉ REVISÉ Y ARREGLÉ ESTA VEZ
--------------------------------
-Lancé otra revisión a fondo (con un segundo agente independiente,
-específicamente sobre "borrar no le llega a los gestores" y "vale
-duplicado") y verifiqué todo con datos reales de tu Firestore. Esto es
-lo que encontré y arreglé:
+QUÉ HICE ESTA VEZ (diferente a las veces anteriores)
+-------------------------------------------------------
+Pediste que revisara bien todo antes de entregar, así que en vez de
+solo leer el código, ESTA VEZ generé el catálogo real (con tus 35
+productos reales) y lo abrí en un navegador de verdad, automatizado,
+para ver exactamente qué pasaba. Ahí apareció el error real:
 
-1. **Catálogo que no cargaba productos** — confirmado matemáticamente:
-   con solo 35 productos, el catálogo ya pesa ~1.05 MB, y GitHub tiene
-   un límite DURO de 1 MB para publicar un archivo de la forma en que
-   la app lo hacía. Se publicaba mal (o fallaba) sin que quedara claro
-   por qué. Cambié el método de publicación a uno sin ese límite —
-   ahora puede crecer sin problema.
+  "Invalid regular expression: /^(https?:|data:image|photos/:
+   Unterminated group"
 
-2. **"Borrar todos los vales" y "Limpiar vales y notifs" no le
-   llegaban a los gestores** — encontré DOS causas reales:
-   - Los botones avisaban "✓ listo" de inmediato, sin esperar a que el
-     borrado realmente terminara en la nube. Si esa parte fallaba (red
-     mala), tú veías "listo" pero el gestor seguía viendo todo. Ahora
-     esperan la confirmación real antes de avisar, y si algo falla te
-     lo dice claro (con instrucciones de qué hacer).
-   - Para borrados grandes (muchos vales a la vez), había un bug donde
-     el sistema que parte el borrado en pedacitos pequeños (para que
-     una red lenta no lo eche todo a perder) se volvía a juntar solo,
-     por accidente, en un pedazo demasiado grande — y Google/Firestore
-     lo rechazaba siempre. Arreglado.
+Es decir: el catálogo generado tenía un error de sintaxis en su propio
+código interno. Cuando un navegador encuentra un error así, deja de
+ejecutar TODO lo que sigue en ese bloque de código — por eso la página
+se quedaba completamente vacía, sin productos, sin categorías, nada.
+No tenía que ver con el tamaño del archivo ni con las fotos (aunque
+esas SÍ valía la pena arreglarlas también, como ya hicimos) — era un
+error que rompía la página por completo, siempre, sin importar nada
+más.
 
-3. **Vale duplicado**: revisé a fondo el código de envío de vales
-   (doble clic, reintentos del navegador, fusión de datos al recibir)
-   y no encontré ningún bug que genere un vale duplicado de verdad. Sí
-   encontré que, en teoría, dos vales podrían terminar con el MISMO
-   número de ticket si dos gestores mandan un vale casi al mismo
-   segundo estando ambos sin conexión — son dos vales reales y
-   distintos, pero con el mismo número, lo cual puede *parecer* un
-   duplicado. Si lo que viste fue eso (dos vales con el mismo número),
-   avísame para profundizar en esa parte específica.
+Confirmé que este bug ya existía desde ANTES de que empezáramos con
+la migración a Firestore — no lo causó nada de lo que hicimos, solo
+que ahora, probando de verdad en vez de solo leyendo, lo encontramos.
 
-4. **Panel de diagnóstico nuevo**: toca el indicador de sincronización
-   (arriba de cualquier pantalla) y te muestra el estado real:
-   conectado o no, cuántas cosas están pendientes de subir, y el
-   último error exacto si algo falló. Si algo se vuelve a "trabar",
-   tócalo y mándame una captura — así dejamos de adivinar.
+Lo arreglé y volví a generar el catálogo real para confirmar: ahora sí
+carga las 35 tarjetas de producto correctamente, con categorías,
+precios, descripciones y botón de WhatsApp. Cero errores.
 
-CÓMO PROBAR
------------
+QUÉ HACER AHORA
+----------------
 1. Sube esta carpeta completa a GitHub (reemplaza todo).
-2. Refresca CON FUERZA tanto el/los admin como los gestores hasta ver
-   "v25" arriba en todos los dispositivos.
-3. Prueba: manda un vale, cancélalo, y confirma que el admin ve el
-   cambio. Prueba "Limpiar vales y notifs" y confirma que a un gestor
-   se le borra de verdad. Prueba publicar el catálogo y ábrelo en una
-   pestaña nueva para confirmar que carga los productos.
-4. Si algo sigue sin verse bien, toca el indicador de sincronización y
-   mándame captura de lo que dice — con esa información puedo ir
-   directo al problema real en vez de tener que adivinar.
+2. Refresca con fuerza hasta ver "v26".
+3. En el admin: aprieta "☁️ Fotos a GitHub" en Stock (si no lo has
+   hecho ya) para migrar las fotos pesadas restantes.
+4. Aprieta "Publicar catálogo" de nuevo.
+5. Abre el link del catálogo en una pestaña nueva (o mándaselo a
+   alguien más para probar) y confirma que ahora sí ves los
+   productos.
 
-Esta v25 reemplaza todas las entregas anteriores.
+Si después de esto el catálogo TODAVÍA no carga, mándame el link
+exacto que estás abriendo y una captura de lo que ves — con eso puedo
+seguir el rastro directo.
+
+SOBRE LO DEL BADGE "v25/v26"
+------------------------------
+Aclaración de la vez pasada: el numerito de versión que ves arriba es
+solo texto fijo — no garantiza que el archivo de lógica (app.js) se
+haya actualizado también, son cachés separados. Para confirmar que
+app.js realmente se actualizó, toca el numerito "v26" (no el
+indicador de sincronización) — si dice "Ya tienes la última versión"
+confirma que sí. Si no, cierra todas las pestañas de la app y ábrela
+de nuevo (o prueba en una ventana de incógnito).

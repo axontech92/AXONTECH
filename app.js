@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 25;
+const APP_VERSION = 26;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd6bdab281e2337a6';
+let _LOCAL_BUILD_HASH = '3728b4aedaf6febe';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1752,7 +1752,7 @@ function renderGrid(){
     var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
     s+='<div class="card-img">';
     // Validate photo URL — only allow http(s) and data URIs
-    if(p.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(p.photo)){s+='<img src="'+escapeHTML(p.photo)+'" data-img="1" loading="lazy">';}
+    if(p.photo && /^(https?:|data:image|photos\\/|\\.\\/photos\\/)/i.test(p.photo)){s+='<img src="'+escapeHTML(p.photo)+'" data-img="1" loading="lazy">';}
     s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
     if(p.catName){s+='<div class="card-cat" style="background:'+escapeHTML(p.catColor)+'">'+escapeHTML(p.catName)+'</div>';}
     s+='</div><div class="card-body">';
@@ -1772,7 +1772,7 @@ function openProduct(id){
   var p=products.find(function(x){return x.id===id});if(!p)return;
   var c=document.getElementById('pmodalContent');
   var h='';
-  if(p.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(p.photo)){h+='<img class="pmodal-img" src="'+escapeHTML(p.photo)+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
+  if(p.photo && /^(https?:|data:image|photos\\/|\\.\\/photos\\/)/i.test(p.photo)){h+='<img class="pmodal-img" src="'+escapeHTML(p.photo)+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
   else{h+='<div class="pmodal-noimg">&#128230;</div>';}
   h+='<div class="pmodal-body">';
   if(p.catName){h+='<div class="pmodal-cat" style="background:'+escapeHTML(p.catColor)+'">'+escapeHTML(p.catName)+'</div>';}
