@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 18;
+const APP_VERSION = 19;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '9797d5e59a36ac5e';
+let _LOCAL_BUILD_HASH = '5ced7c783d104e36';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -174,6 +174,27 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+// ── Forzar long-polling en vez de WebSocket ──
+// Firebase RTDB intenta primero una conexión WebSocket (wss://). En redes
+// cubanas, muchos reportes indican que el proveedor de internet frena/reinicia
+// específicamente ese tipo de conexión (el "handshake" de WebSocket es fácil
+// de reconocer y bloquear), mientras que el tráfico HTTPS normal (peticiones
+// GET/POST comunes, como cargar cualquier página web) pasa mucho mejor. Esto
+// coincide con el síntoma reportado: con VPN (que envuelve TODO el tráfico,
+// incluido el WebSocket, dentro de un túnel cifrado que lo disimula) sincroniza
+// bien; sin VPN, se cuelga o tarda muchísimo.
+// forceLongPolling() hace que el SDK use long-polling (peticiones HTTPS
+// repetidas, disfrazadas de tráfico web normal) en vez de WebSocket desde el
+// arranque, evitando ese handshake que parece ser el punto de fricción. Tiene
+// un costo pequeño (un poco más de overhead por mensaje que un WebSocket
+// nativo), aceptable frente a la alternativa de no sincronizar nada sin VPN.
+// Ref.: es la técnica que Firebase expone (sin documentarla oficialmente en RTDB)
+// para redes restrictivas — firebase.database().INTERNAL.forceLongPolling().
+try {
+  if (db && db.INTERNAL && typeof db.INTERNAL.forceLongPolling === 'function') {
+    db.INTERNAL.forceLongPolling();
+  }
+} catch(e) { console.error('No se pudo forzar long-polling:', e); }
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
 
