@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 20;
+const APP_VERSION = 21;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '29ed274499a6b3bf';
+let _LOCAL_BUILD_HASH = '9463c7507e986fe6';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -173,92 +173,51 @@ const firebaseConfig = {
   appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
 };
 firebase.initializeApp(firebaseConfig);
+// ── Migración a Firestore ──
+// Realtime Database (RTDB) quedó inalcanzable sin VPN desde Cuba (confirmado
+// con pruebas reales — ver commits anteriores del forceLongPolling que
+// tampoco alcanzó). Firestore, en el MISMO proyecto de Firebase, sí conecta
+// bien sin VPN. `firestoreDb` es ahora el backend real de sincronización de
+// toda la app. `db` (RTDB) se mantiene inicializado SOLO para la migración
+// única de datos existentes (ver migrateToFirestore) — nada más lo usa.
 const db = firebase.database();
-// ── Forzar long-polling en vez de WebSocket ──
-// Firebase RTDB intenta primero una conexión WebSocket (wss://). En redes
-// cubanas, muchos reportes indican que el proveedor de internet frena/reinicia
-// específicamente ese tipo de conexión (el "handshake" de WebSocket es fácil
-// de reconocer y bloquear), mientras que el tráfico HTTPS normal (peticiones
-// GET/POST comunes, como cargar cualquier página web) pasa mucho mejor. Esto
-// coincide con el síntoma reportado: con VPN (que envuelve TODO el tráfico,
-// incluido el WebSocket, dentro de un túnel cifrado que lo disimula) sincroniza
-// bien; sin VPN, se cuelga o tarda muchísimo.
-// forceLongPolling() hace que el SDK use long-polling (peticiones HTTPS
-// repetidas, disfrazadas de tráfico web normal) en vez de WebSocket desde el
-// arranque, evitando ese handshake que parece ser el punto de fricción. Tiene
-// un costo pequeño (un poco más de overhead por mensaje que un WebSocket
-// nativo), aceptable frente a la alternativa de no sincronizar nada sin VPN.
-// Ref.: es la técnica que Firebase expone (sin documentarla oficialmente en RTDB)
-// para redes restrictivas — firebase.database().INTERNAL.forceLongPolling().
-try {
-  if (db && db.INTERNAL && typeof db.INTERNAL.forceLongPolling === 'function') {
-    db.INTERNAL.forceLongPolling();
-  }
-} catch(e) { console.error('No se pudo forzar long-polling:', e); }
+const firestoreDb = firebase.firestore();
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
 
-// ── Persistencia offline de Firebase ──
-// Habilita el cache local de Firebase RTDB: en la próxima carga, los listeners
-// sirven los datos cacheados INMEDIATAMENTE (sin round-trip al servidor) y
-// luego sincronizan en background. En 3G esto ahorra 2-5s en cada arranque.
-// Si la app ya está en modo standalone (PWA instalada) o el navegador soporta
-// IndexedDB (todos los modernos), esto es transparente.
-// Nota: solo se puede llamar UNA vez por app y debe ser antes de cualquier
-// referencia a db.ref(). Aquí se llama justo después de firebase.database().
+// ── Persistencia offline de Firestore ──
+// Igual que antes con RTDB: sirve datos cacheados localmente sin esperar red,
+// y sincroniza en background. Nota: solo se puede llamar una vez y antes de
+// cualquier otra operación con firestoreDb.
 try {
-  db.enablePersistence({ synchronizeTabs: false }).catch(err => {
-    // Errores comunes que NO son problema:
-    // - 'failed: tab mutually exclusive' → otra pestaña ya tiene persistence.
-    // - 'failed: existing frame' → iframe en contexto sin persistence.
-    // Solo loguear en console, no molestar al usuario.
-    if (err && err.code !== 'implementation-dependent') {
-      console.warn('Firebase persistence no disponible:', err.code || err.message);
+  firestoreDb.enablePersistence({ synchronizeTabs: false }).catch(err => {
+    if (err && err.code !== 'unimplemented') {
+      console.warn('Firestore persistence no disponible:', err.code || err.message);
     }
   });
 } catch(e) {
-  // Algunos navegadores muy viejos no tienen enablePersistence.
-  console.warn('Firebase enablePersistence error:', e);
+  console.warn('Firestore enablePersistence error:', e);
 }
 
-// ── Ajustes de reconexión para conexiones lentas/inestables ──
-// Firebase SDK tiene auto-reconnect, pero los defaults están pensados para
-// conexiones estables. En 3G cubano, la conexión se cae cada pocos minutos
-// por cortes breves (2-10s). Ajustamos:
-// - maxReconnectDelay: bajar de 30s (default) a 8s. Si la red vuelve rápido,
-//   reconectamos antes.
-// - retryCountIntervals: intervals más cortos al inicio.
-//
-// v14: trackeamos _fbConnected explícitamente. Si NO estamos conectados,
-// _processFBQueue() NO intenta hacer el write (que tardaría 8s en timeout).
-// En su lugar, deja los items en la cola y los procesa cuando vuelva la
-// conexión. Esto evita el cuelgue "Subiendo..." en redes donde el WebSocket
-// de Firebase ni siquiera pudo establecerse.
-let _fbConnected = false;  // ¿Firebase WebSocket está realmente conectado?
-try {
-  const rtdb = db.ref('.info/connected');
-  let _wasConnected = false;
-  rtdb.on('value', snap => {
-    const connected = snap.val() === true;
-    _fbConnected = connected;
-    if (connected && !_wasConnected) {
-      _wasConnected = true;
-      // Al reconectar, forzar el procesamiento de la cola de writes pendientes.
-      // v15: también llamar _ensurePendingValesEnqueued por si hay vales
-      // huérfanos (synced:false) que NO están encolados (p.ej. tras descarte
-      // por 4 reintentos). Antes solo llamábamos _processFBQueue, lo que
-      // dejaba vales pendientes sin recover si la cola estaba vacía.
-      setTimeout(() => {
-        _ensurePendingValesEnqueued();
-        _processFBQueue();
-      }, 100);
-      _updateSyncIndicator();
-    } else if (!connected && _wasConnected) {
-      _wasConnected = false;
-      _updateSyncIndicator();
-    }
-  });
-} catch(e) { /* .info/connected listener opcional */ }
+// ── Detección de conectividad ──
+// Firestore (a diferencia de RTDB) no expone un equivalente directo a
+// '.info/connected' en el SDK compat. Usamos navigator.onLine + los eventos
+// online/offline del navegador como proxy — menos preciso que la señal real
+// de RTDB (no sabe si Firestore específicamente está alcanzable, solo si hay
+// red), pero _processFBQueue ya tiene su propio timeout adaptativo y
+// reintentos con backoff como red de seguridad para el resto de los casos
+// (red "conectada" según el navegador pero Firestore inalcanzable).
+let _fbConnected = navigator.onLine;
+window.addEventListener('online', () => {
+  if (_fbConnected) return;
+  _fbConnected = true;
+  setTimeout(() => { _ensurePendingValesEnqueued(); _processFBQueue(); }, 100);
+  _updateSyncIndicator();
+});
+window.addEventListener('offline', () => {
+  _fbConnected = false;
+  _updateSyncIndicator();
+});
 
 // ══════════════════════════════════════════
 //  STATE
@@ -459,12 +418,78 @@ function _payloadBytes(value) {
   } catch(_) { return 0; }
 }
 
+// ── Traducción de operaciones de la cola (RTDB-shaped) a Firestore ──
+// La cola (_fbWriteQueue) sigue hablando en términos de "path" + "value" +
+// "method" tal como se diseñó para RTDB — eso deja intacta toda la lógica de
+// reintentos/timeout/backoff/buffer-in-flight de _processFBQueue, que no le
+// importa CÓMO se hace el write, solo que devuelva una Promise. Esta función
+// es el único punto que traduce esa forma a llamadas reales de Firestore.
+//
+// Dos formas de "path" llegan aquí:
+//  - Nodos singleton (config/notifs/estafa/ranking_summary): un solo
+//    documento en meta/{nodo}. method 'set' reemplaza el doc completo,
+//    'update' hace merge de campos, 'remove' lo borra.
+//  - Colecciones de entidades (gestores/mensajeros/productos/categorias/
+//    vales) y 'backups/...': 'value' es un objeto {id: entidad|null, ...}
+//    (method 'update', construido por _buildCollectionUpdates — ver saveX())
+//    que se traduce a un batched write: cada entrada no-null es un
+//    set(...,{merge:true}) de ese documento, cada null es un delete().
+const _FS_SINGLETON_DOCS = {
+  config: 'meta/config',
+  notifs: 'meta/notifs',
+  estafa: 'meta/estafa',
+  ranking_summary: 'meta/ranking_summary',
+};
+// Estos nodos guardan un array en RTDB — Firestore no admite un array como
+// documento raíz, así que se envuelven/desenvuelven en {items: [...]}.
+const _FS_ARRAY_SINGLETONS = new Set(['notifs', 'estafa', 'ranking_summary']);
+
+function _firestoreOpFor(path, value, method) {
+  // ── Singleton (config/notifs/estafa/ranking_summary) ──
+  if (_FS_SINGLETON_DOCS[path]) {
+    const docRef = firestoreDb.doc(_FS_SINGLETON_DOCS[path]);
+    if (method === 'remove') return docRef.delete();
+    let docValue = value;
+    if (_FS_ARRAY_SINGLETONS.has(path)) docValue = { items: Array.isArray(value) ? value : [] };
+    return method === 'update' ? docRef.set(docValue, { merge: true }) : docRef.set(docValue);
+  }
+  // ── backups/pre-nuke-{ts}: doc único con path completo ya armado ──
+  if (path.startsWith('backups/')) {
+    return method === 'remove' ? firestoreDb.doc(path).delete() : firestoreDb.doc(path).set(value);
+  }
+  // ── Colección de entidades (gestores, mensajeros, productos, categorias, vales) ──
+  const collName = path.split('/')[0];
+  const coll = firestoreDb.collection(collName);
+  if (method === 'remove') {
+    // No se usa en la práctica (los borrados de entidades van como null dentro
+    // de un 'update' — ver _buildCollectionUpdates), pero se soporta por si acaso.
+    const docId = path.includes('/') ? path.split('/').pop() : null;
+    return docId ? coll.doc(docId).delete() : Promise.resolve();
+  }
+  const batch = firestoreDb.batch();
+  let opsCount = 0;
+  if (Array.isArray(value)) {
+    // 'set' con un array completo (reemplazo total) — ya casi no se genera
+    // tras el cambio a _buildCollectionUpdates, pero se soporta por compatibilidad.
+    value.forEach(item => { if (item && item.id != null) { batch.set(coll.doc(String(item.id)), item); opsCount++; } });
+  } else if (value && typeof value === 'object') {
+    Object.entries(value).forEach(([key, val]) => {
+      const docId = key.includes('/') ? key.split('/')[1] : key; // 'gestorId/valeId' legado o 'id' plano
+      const docRef = coll.doc(docId);
+      if (val === null) { batch.delete(docRef); opsCount++; }
+      else { batch.set(docRef, val, { merge: true }); opsCount++; }
+    });
+  }
+  if (opsCount === 0) return Promise.resolve();
+  return batch.commit();
+}
+
 function _processFBQueue() {
   // v14: Si Firebase NO está conectado (_fbConnected === false), NO intentar
   // hacer el write. En redes muy malas, el WebSocket de Firebase puede tardar
   // 5-10s en establecerse, y cada write intentado fallaría tras el timeout
   // de 8s. En su lugar, dejamos los items en la cola y esperamos a que el
-  // listener de .info/connected dispare _processFBQueue() cuando vuelva la
+  // evento 'online' del navegador dispare _processFBQueue() cuando vuelva la
   // conexión. El indicador muestra "Sin conexión a la nube" para que el
   // usuario sepa que sus vales están guardados localmente.
   if (_fbProcessing || _fbWriteQueue.length === 0) {
@@ -473,7 +498,7 @@ function _processFBQueue() {
   }
   if (!_fbConnected) {
     // Firebase desconectado — NO intentar writes. Los items se quedan en
-    // la cola (persistida en localStorage). El listener de .info/connected
+    // la cola (persistida en localStorage). El evento 'online' del navegador
     // llamará a _processFBQueue() cuando se reconecte.
     _updateSyncIndicator();
     return;
@@ -536,8 +561,7 @@ function _processFBQueue() {
   if (callback === null && (method === 'set' || method === 'update')) {
     _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
   }
-  const ref = db.ref(path);
-  const op = method === 'remove' ? ref.remove() : method === 'update' ? ref.update(value) : ref.set(value);
+  const op = _firestoreOpFor(path, value, method);
   // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
   // no debe liberar el candado ni arrancar un segundo consumidor).
   let requeued = false;
@@ -1149,6 +1173,22 @@ const setFB = (path, v) => {
   _enqueueFB(path, v, 'set');
 };
 
+// Construye un objeto {id: entidad|null, ...} comparando el array nuevo
+// contra la copia anterior conocida — usado por saveGestores/saveMensajeros/
+// saveProductos/saveCategorias para encolar solo lo que cambió (documento por
+// documento en Firestore) en vez de reemplazar la colección entera a ciegas.
+// Mismo patrón que ya usa saveVales, generalizado a cualquier colección
+// simple de entidades con `.id`.
+function _buildCollectionUpdates(newArr, prevArr) {
+  const updates = {};
+  newArr.forEach(x => { updates[String(x.id)] = x; });
+  if (Array.isArray(prevArr)) {
+    const kept = new Set(newArr.map(x => String(x.id)));
+    prevArr.forEach(x => { if (!kept.has(String(x.id))) updates[String(x.id)] = null; });
+  }
+  return updates;
+}
+
 // ═══ In-memory cache layer ═══
 let _gestoresCache = null, _gestoresDirty = true;
 let _valesCache = null, _valesDirty = true;
@@ -1173,7 +1213,12 @@ function _safeSetLS(key, value) {
 }
 
 const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
-const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; if (!isSyncingFromFirebase()) setFB('gestores', v); _logAudit('gestores_update'); };
+const saveGestores  = v  => {
+  const prev = _gestoresCache;
+  _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false;
+  if (!isSyncingFromFirebase()) _enqueueFB('gestores', _buildCollectionUpdates(v, prev), 'update');
+  _logAudit('gestores_update');
+};
 
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
 // Vales are synced via saveVales → _enqueueFB('vales', updates, 'update') through the write queue.
@@ -1181,21 +1226,18 @@ const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCac
 // fbAddVale/fbRemoveVale are NO LONGER called by sendVale/cancelVale/adminDeleteVale
 // because saveVales already enqueues the write on the vales node.
 //
-// IMPORTANTE — por qué 'update' y no 'set':
+// IMPORTANTE — por qué 'update' (merge por documento) y no un 'set' del árbol
+// completo:
 // saveVales() se llama con la copia LOCAL EN MEMORIA de todos los vales (admin) o de
 // los propios (gestor). Esa copia puede estar desactualizada si otro dispositivo
-// (un gestor enviando un vale nuevo, o el admin cambiando el estado de un vale)
-// escribió en Firebase hace un instante y el listener `db.ref('vales').on('value', ...)`
-// de este dispositivo todavía no procesó esa actualización (delay de red típico:
-// 100ms–1s). Antes se hacía un `set()` del árbol COMPLETO reconstruido desde esa
-// copia local: eso reemplazaba TODO el nodo 'vales' en Firebase, borrando
-// silenciosamente cualquier vale que hubiera llegado de otro dispositivo en esa
-// ventana de tiempo — esto es lo que causaba que "los vales no llegaran bien".
-// Con `update()` (multi-path update) solo se tocan las rutas gestorId/valeId que
-// esta llamada realmente conoce; cualquier vale ajeno que ya esté en Firebase pero
-// no en la copia local queda intacto. Los borrados reales (cancelar/eliminar vale)
-// se detectan comparando contra la copia anterior (`prevVales`) y se envían como
-// `null` explícito para esas rutas puntuales.
+// escribió en Firestore hace un instante y el listener de este dispositivo
+// todavía no procesó esa actualización (delay de red típico: 100ms–1s). En
+// Firestore cada vale es su PROPIO documento (colección `vales`, doc id = String(id))
+// — a diferencia del árbol anidado de RTDB, escribir el vale X con
+// set(...,{merge:true}) JAMÁS puede tocar el vale Y, sin importar qué tan
+// desactualizada esté la copia local en otros aspectos. Los borrados reales
+// (cancelar/eliminar vale) se detectan comparando contra la copia anterior
+// (`prevVales`) y se envían como `null` explícito para esos documentos puntuales.
 const saveVales = v => {
   const prevVales = _valesCache; // snapshot antes de este guardado, para detectar borrados reales
   _safeSetLS('axon_vales', JSON.stringify(v));
@@ -1205,12 +1247,10 @@ const saveVales = v => {
   // v13: solo encolar vales nuevos/cambiados (no todo el array).
   // v14: NO enviar valeText (~300-500 bytes), name de valeProductos (~20 bytes/item),
   //      ni flags locales (synced, isNew) a Firebase. Se regeneran al leer.
-  // En redes de 50Kbit/s (~6KB/s), reducir 500 bytes por vale = 80ms menos por write.
-  // Para 5 vales seguidos, eso son 400ms menos de bloqueo del WebSocket.
   const updates = {};
   const prevMap = new Map();
   if (Array.isArray(prevVales)) {
-    prevVales.forEach(x => { prevMap.set(`${x.gestorId}/${x.id}`, x); });
+    prevVales.forEach(x => { prevMap.set(String(x.id), x); });
   }
   // Helper: crea una versión "slim" del vale para enviar a Firebase.
   // Quita campos que se pueden regenerar al leer.
@@ -1245,7 +1285,7 @@ const saveVales = v => {
     // (No lo quitamos explícitamente para no perder datos existentes.)
     // Para vales NUEVOS: simplemente no lo incluimos.
     // Para vales MODIFICADOS que ya tenían valeText en Firebase: lo incluimos.
-    if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
+    if (x.valeText && prevMap.get(String(x.id))?.valeText) {
       slim.valeText = x.valeText;
     }
     // No incluir synced (flag local), isNew (flag temporal), deliveredTs (solo si existe)
@@ -1274,18 +1314,23 @@ const saveVales = v => {
     // valeProductos sin name — se busca por id al leer
     slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
     // Solo incluir valeText si ya existía en local (vales viejos)
-    if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
+    if (x.valeText && prevMap.get(String(x.id))?.valeText) {
       slim.valeText = x.valeText;
     }
     // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
     // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
+    // En Firestore esto además queda reforzado por set(...,{merge:true}): como
+    // slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
+    // puede tocarlos en el documento, sin importar qué tan vieja esté su copia.
     if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
     return slim;
   }
+  // Doc id de Firestore = String(vale.id) — plano, sin gestorId (la colección
+  // 'vales' es única y plana; gestorId vive como CAMPO dentro del documento).
   const curKeys = new Set();
   if (IS_ADMIN) {
     v.forEach(x => {
-      const key = `${x.gestorId}/${x.id}`;
+      const key = String(x.id);
       curKeys.add(key);
       const prev = prevMap.get(key);
       // Solo encolar si es nuevo o cambió (comparación por JSON stringify del slim)
@@ -1298,45 +1343,62 @@ const saveVales = v => {
     // Borrados reales: vales que estaban en prevVales pero ya no están en v
     if (Array.isArray(prevVales)) {
       prevVales.forEach(x => {
-        const key = `${x.gestorId}/${x.id}`;
+        const key = String(x.id);
         if (!curKeys.has(key)) updates[key] = null;
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
     _enqueueFBChunked('vales', updates, 'update');
   } else if (activeGestorId) {
-    // El gestor SOLO puede escribir su propia rama. Nunca 'vales' a secas,
-    // porque tocaría los vales de los demás gestores.
+    // El gestor solo envía SUS vales — pero al mismo path 'vales' (colección
+    // plana), no a una sub-rama propia como en RTDB. La protección contra
+    // pisar vales/campos ajenos ya no depende de a qué "rama" se escribe,
+    // sino de que slimValeGestor() (arriba) nunca incluye campos que no le
+    // pertenecen, combinado con set(...,{merge:true}) documento-por-documento.
     const mine = v.filter(x => x.gestorId === activeGestorId);
     mine.forEach(x => {
-      const prev = prevMap.get(`${x.gestorId}/${x.id}`);
+      const key = String(x.id);
+      const prev = prevMap.get(key);
       // v17: usar slimValeGestor — solo campos del gestor, nunca status/mensajeroId/etc.
       const slim = slimValeGestor(x);
       const prevSlim = prev ? slimValeGestor(prev) : null;
       if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
-        updates[x.id] = slim;
+        updates[key] = slim;
       }
     });
     if (Array.isArray(prevVales)) {
-      const kept = new Set(mine.map(x => x.id));
+      const kept = new Set(mine.map(x => String(x.id)));
       prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
-        if (!kept.has(x.id)) updates[x.id] = null;
+        if (!kept.has(String(x.id))) updates[String(x.id)] = null;
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
-    _enqueueFBChunked(`vales/${activeGestorId}`, updates, 'update');
+    _enqueueFBChunked('vales', updates, 'update');
   }
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
 };
 
 const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
-const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; if (!isSyncingFromFirebase()) setFB('mensajeros', v); };
+const saveMensajeros= v  => {
+  const prev = _mensajerosCache;
+  _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false;
+  if (!isSyncingFromFirebase()) _enqueueFB('mensajeros', _buildCollectionUpdates(v, prev), 'update');
+};
 
 const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
-const saveProductos = v  => { _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; if (!isSyncingFromFirebase()) setFB('productos', v); triggerAutoPublishCatalog(); };
+const saveProductos = v  => {
+  const prev = _productosCache;
+  _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false;
+  if (!isSyncingFromFirebase()) _enqueueFB('productos', _buildCollectionUpdates(v, prev), 'update');
+  triggerAutoPublishCatalog();
+};
 
 const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
-const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromFirebase()) setFB('categorias', v); };
+const saveCategorias= v  => {
+  const prev = _categoriasCache;
+  _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false;
+  if (!isSyncingFromFirebase()) _enqueueFB('categorias', _buildCollectionUpdates(v, prev), 'update');
+};
 
 const getConfig     = () => { if (_configDirty || !_configCache) { try { _configCache = JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { _configCache = {}; } _configDirty = false; } return _configCache; };
 const saveConfig    = v  => { _safeSetLS('axon_config', JSON.stringify(v)); _configCache = v; _configDirty = false; if (!isSyncingFromFirebase()) setFB('config', v); };
@@ -1753,27 +1815,22 @@ function renderEstafaList() {
   c.innerHTML = html;
 }
 
-// Helper: convert vales array to Firebase nested object
-function _valesToFirebaseObj(vales) {
-  const obj = {};
-  vales.forEach(v => {
-    if (!obj[v.gestorId]) obj[v.gestorId] = {};
-    obj[v.gestorId][v.id] = v;
-  });
-  return obj;
-}
+// (_valesToFirebaseObj — anidaba vales por gestorId/valeId para el árbol de
+// RTDB. Ya no aplica: 'vales' es una colección plana en Firestore, doc id =
+// String(vale.id) — ver _buildCollectionUpdates.)
 
-let gestorValesListener = null;
+let gestorValesListener = null; // función de desuscripción que devuelve onSnapshot()
 let firstLoadVales = true;
 function listenToMyVales(gId) {
-  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+  if (gestorValesListener) { gestorValesListener(); gestorValesListener = null; }
   firstLoadVales = true;
-  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
+  // 'vales' es una colección plana en Firestore (no una sub-rama por gestor
+  // como en RTDB) — cada gestor filtra la SUYA con una query por campo.
+  gestorValesListener = firestoreDb.collection('vales').where('gestorId', '==', gId).onSnapshot(snap => {
     _syncCount++;
     try {
-      const val = snap.val();
-      if (val) {
-        const newVales = Object.values(val);
+      const newVales = snap.docs.map(d => d.data());
+      if (!snap.empty) {
         // v14: regenerar campos slimados al leer de Firebase.
         // - valeText: no se envía para vales nuevos; se regenera aquí.
         // - name de valeProductos: se busca por id con productoOf().
@@ -1864,7 +1921,7 @@ function listenToMyVales(gId) {
       _syncCount--;
       refreshUI();
     }
-  });
+  }, err => console.error('[firestore] listener error (mis vales):', err));
 }
 
 // Custom Firebase Vale individual operations — now using the write queue
@@ -2034,27 +2091,45 @@ let _rankingIdleHandle = null;
 // renderGestorRanking() recalculaba los puntos desde getVales(), que en un
 // dispositivo de gestor SOLO contiene sus propios vales — el ranking mostraba
 // 0 pts para todos los demás gestores.
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
-  db.ref(node).on('value', snap => {
+// Colecciones de entidades reales: una entrada = un documento en Firestore.
+['gestores', 'mensajeros', 'productos', 'categorias'].forEach(node => {
+  firestoreDb.collection(node).onSnapshot(snap => {
     _syncCount++;
     try {
-      const val = snap.val();
-      
-      // Only update local storage IF Firebase actually has data.
+      const parsedVal = snap.docs.map(d => d.data());
+      try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
+      if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
+      else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
+      else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
+      else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
+    } finally {
+      _syncCount--;
+      refreshUI();
+    }
+  }, err => console.error(`[firestore] listener error (${node}):`, err));
+});
+
+// Nodos singleton: un solo documento en meta/{node}. 'notifs'/'estafa'/
+// 'ranking_summary' guardan un array envuelto en {items:[...]} porque
+// Firestore no admite un array como raíz de documento — 'config' es un
+// objeto plano, sin envolver.
+// 'ranking_summary' está incluido aquí para que TODOS los dispositivos de gestor
+// reciban el resumen de puntos que el admin calcula desde el árbol completo de
+// vales (ver el listener de 'vales' más abajo). Un gestor NUNCA tiene en su
+// caché local los vales de los demás gestores.
+['config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
+  firestoreDb.doc('meta/'+node).onSnapshot(snap => {
+    _syncCount++;
+    try {
+      const raw = snap.exists ? snap.data() : null;
+      const val = node === 'config' ? raw : (raw ? raw.items : null);
+
+      // Only update local storage IF Firestore actually has data.
       if (val) {
-        let parsedVal = val;
-        if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
-          parsedVal = Object.values(val);
-        }
-        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
-        // Update in-memory cache
-        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
-        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
-        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
-        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
-        else if(node==='config'){_configCache=parsedVal;_configDirty=false;}
-        else if(node==='notifs'){_notifsCache=parsedVal;_notifsDirty=false;}
-        else if(node==='estafa'){_estafaCache=parsedVal;_estafaDirty=false;}
+        try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
+        if(node==='config'){_configCache=val;_configDirty=false;}
+        else if(node==='notifs'){_notifsCache=val;_notifsDirty=false;}
+        else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
       } else {
         const local = localStorage.getItem('axon_'+node);
         if (!local || local === '[]' || local === '{}') {
@@ -2065,7 +2140,7 @@ let _rankingIdleHandle = null;
       _syncCount--;
       refreshUI();
     }
-  });
+  }, err => console.error(`[firestore] listener error (${node}):`, err));
 });
 
 // Vales Listeners
@@ -2073,16 +2148,15 @@ if (IS_ADMIN) {
   // Admin listens to ALL vales from all gestores — with try/finally
   let _rankingDebounce = null;
   let _lastRankingSummary = '';  // hash del último summary enviado → evitar writes redundantes
-  db.ref('vales').on('value', snap => {
+  firestoreDb.collection('vales').onSnapshot(snap => {
     _syncCount++;
     try {
-      const val = snap.val();
+      // 'vales' es una colección plana — cada documento YA es un vale
+      // completo (a diferencia de RTDB, donde había que aplanar
+      // gestorId → valeId → vale).
+      let flatVales = snap.docs.map(d => d.data());
 
-      if (val) {
-        let flatVales = [];
-        Object.values(val).forEach(gVales => {
-          if(gVales) flatVales.push(...Object.values(gVales));
-        });
+      if (!snap.empty) {
         // v14: regenerar campos slimados al leer de Firebase.
         flatVales.forEach(v => {
           if (v && !v.valeText) v.valeText = regenerateValeText(v);
@@ -2165,31 +2239,28 @@ if (IS_ADMIN) {
       _syncCount--;
       refreshUI();
     }
-  });
+  }, err => console.error('[firestore] listener error (vales):', err));
 }
 
-// Initialize empty Firebase from local if Admin
+// Initialize empty Firestore from local if Admin (proyecto nuevo, sin datos aún)
 if (IS_ADMIN) {
   setTimeout(() => {
-    db.ref('.info/connected').once('value').then(() => {
-      db.ref('gestores').once('value').then(s => {
-        if (!s.val()) {
-           const lGestores = getGestores();
-           if(lGestores.length > 0) {
-             setFB('gestores', lGestores);
-             setFB('mensajeros', getMensajeros());
-             setFB('productos', getProductos());
-             setFB('categorias', getCategorias());
-             setFB('config', getConfig());
-             const localVales = getVales();
-             if(localVales.length){
-               // Use write queue instead of direct db.ref().set() to enable retries
-               _enqueueFB('vales', _valesToFirebaseObj(localVales), 'set');
-             }
-           }
+    firestoreDb.collection('gestores').limit(1).get().then(s => {
+      if (s.empty) {
+        const lGestores = getGestores();
+        if (lGestores.length > 0) {
+          _enqueueFB('gestores', _buildCollectionUpdates(lGestores, null), 'update');
+          _enqueueFB('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
+          _enqueueFB('productos', _buildCollectionUpdates(getProductos(), null), 'update');
+          _enqueueFB('categorias', _buildCollectionUpdates(getCategorias(), null), 'update');
+          setFB('config', getConfig());
+          const localVales = getVales();
+          if (localVales.length) {
+            _enqueueFB('vales', _buildCollectionUpdates(localVales, null), 'update');
+          }
         }
-      });
-    });
+      }
+    }).catch(e => console.error('[firestore] bootstrap check error:', e));
   }, 1500);
 }
 
@@ -2257,15 +2328,21 @@ async function _doReconcileNextValeNum() {
   try {
     const localCfg = getConfig();
     const localNext = localCfg.nextValeNum || 1;
-    // transaction: si remoto < local, llevarlo a local. Si remoto > local,
-    // adoptar el remoto (alguien más lo adelantó).
-    const result = await db.ref('config/nextValeNum').transaction(curr => {
-      const remote = curr || 1;
-      if (remote < localNext) return localNext;
-      // remote >= localNext: el remoto ya está adelantado, no tocar.
-      return; // undefined → abortar transaction (no cambiar nada)
-    }, undefined, false);
-    if (result && result.committed) {
+    // Transacción de Firestore: si remoto < local, llevarlo a local. Si
+    // remoto >= local, no tocar (alguien más ya lo adelantó). runTransaction
+    // hace el get+set atómico y reintenta sola en caso de contención — mismo
+    // espíritu que db.ref(...).transaction() de RTDB, adaptado a Firestore.
+    const configRef = firestoreDb.doc('meta/config');
+    let committed = false;
+    await firestoreDb.runTransaction(async tx => {
+      const snap = await tx.get(configRef);
+      const remote = (snap.exists && snap.data().nextValeNum) || 1;
+      if (remote < localNext) {
+        tx.set(configRef, { nextValeNum: localNext }, { merge: true });
+        committed = true;
+      }
+    });
+    if (committed) {
       // La transacción hizo un cambio → remote era menor, lo subimos a localNext.
       // Actualizar cache local para que el listener no lo revierta.
       const cfg = getConfig();
@@ -2615,7 +2692,7 @@ function adminTab(tab) {
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
   if(tab==='mensajeros'){renderMensajeroSelector();renderPendingCobroSection();renderMensajeroVales();}
-  if(tab==='config'){loadGhConfigUI();}
+  if(tab==='config'){loadGhConfigUI();loadMaintenanceModeUI();}
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
 }
@@ -3110,7 +3187,7 @@ function submitGestorPass() {
 }
 function changeGestor() {
   if (gestorValesListener && activeGestorId) {
-    db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+    gestorValesListener();
     gestorValesListener = null;
   }
   activeGestorId=null;
@@ -5139,6 +5216,7 @@ let _isSendingVale = false;
 function sendVale() {
   if(_isSendingVale) return; // Prevent double submission
   if(!activeGestorId){showToast('Selecciona tu nombre primero');return;}
+  if(getConfig().maintenanceMode){showToast('🚧 Sistema en mantenimiento — intenta de nuevo en unos minutos');return;}
   if(REQUIRED.some(id=>!fVal(id))){showToast('Completa los campos obligatorios (*)');return;}
   _isSendingVale = true;
   const btn=document.getElementById('sendValeBtn');
@@ -7304,6 +7382,41 @@ function loadGhConfigUI() {
   if(meta)meta.value=cfg.metaPuntos||'';
   if(metaStatus&&cfg.metaPuntos)metaStatus.innerHTML=`<span style="color:var(--green);">✓ Meta actual: ${cfg.metaPuntos} pts</span>`;
 }
+// ── Modo mantenimiento ──
+// Usado para cortar tráfico de forma segura durante la migración a Firestore
+// (o cualquier otra ventana de mantenimiento futura): mientras está activo,
+// sendVale() rechaza nuevos vales con un aviso claro. Es un campo más de
+// 'config', así que se propaga a todos los dispositivos en tiempo real igual
+// que el resto de la configuración.
+function toggleMaintenanceMode() {
+  const cfg = getConfig();
+  const turningOn = !cfg.maintenanceMode;
+  const title = turningOn ? '🚧 Activar modo mantenimiento' : '✅ Desactivar modo mantenimiento';
+  const msg = turningOn
+    ? 'Los gestores NO podrán enviar vales nuevos hasta que lo desactives. Úsalo solo durante una migración o mantenimiento breve.'
+    : 'Los gestores podrán volver a enviar vales normalmente.';
+  showConfirmAction(title, msg, 'Sí, continuar', turningOn ? 'btn-orange' : 'btn-green', () => {
+    cfg.maintenanceMode = turningOn;
+    saveConfig(cfg);
+    _logAudit(turningOn ? 'maintenance_on' : 'maintenance_off');
+    showToast(turningOn ? 'Modo mantenimiento ACTIVADO 🚧' : 'Modo mantenimiento desactivado ✓');
+    loadMaintenanceModeUI();
+  });
+}
+function loadMaintenanceModeUI() {
+  const cfg = getConfig();
+  const btn = document.getElementById('maintenanceModeBtn');
+  const status = document.getElementById('maintenanceModeStatus');
+  if (btn) {
+    btn.textContent = cfg.maintenanceMode ? '✅ Desactivar mantenimiento' : '🚧 Activar mantenimiento';
+    btn.className = cfg.maintenanceMode ? 'btn btn-green btn-sm' : 'btn btn-orange btn-sm';
+  }
+  if (status) {
+    status.innerHTML = cfg.maintenanceMode
+      ? '<span style="color:var(--orange);font-weight:600;">🚧 Mantenimiento ACTIVO — los gestores no pueden enviar vales</span>'
+      : '<span style="color:var(--text-muted);">Sistema operando con normalidad</span>';
+  }
+}
 async function syncToGitHub(silent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
@@ -7434,9 +7547,10 @@ async function maybeAutoSync() {
 
 function factoryResetVales() {
   showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
+    // saveVales([]) ya calcula el diff contra el cache previo y encola un
+    // delete por cada vale existente (updates[key] = null) — no hace falta
+    // (ni funcionaría) un 'remove' aparte sobre la colección completa.
     saveVales([]);
-    // Force Firebase delete via write queue
-    _enqueueFB('vales', null, 'remove');
     // Clear ranking cache and summary so points reset to 0
     rankingCache=null;
     try { localStorage.removeItem('axon_ranking_summary'); } catch(e){}
@@ -8018,30 +8132,35 @@ async function nukeAndRebuild() {
     // Step 2: Use atomic multi-location update instead of remove + update.
     // This sets all new nodes AND nulls out the old ones in a single operation,
     // so the database is never left in an empty state if the second step fails.
-    showToast("Inyectando base de datos limpia (atómico)...");
-    const updates = {};
+    showToast("Inyectando base de datos limpia...");
+    // Firestore no tiene un "borra todo bajo este path" atómico como RTDB —
+    // hay que listar los vales existentes para poder borrarlos documento por
+    // documento. Se junta todo en batches (límite real de Firestore: 500
+    // operaciones por batch, usamos 450 de margen).
+    const batchOps = [];
     if(data.gestores) {
        localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-       updates['gestores'] = data.gestores;
+       data.gestores.forEach(g => batchOps.push({ ref: firestoreDb.collection('gestores').doc(String(g.id)), type: 'set', value: g }));
     }
     if(data.mensajeros) {
        localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-       updates['mensajeros'] = data.mensajeros;
+       data.mensajeros.forEach(m => batchOps.push({ ref: firestoreDb.collection('mensajeros').doc(String(m.id)), type: 'set', value: m }));
     }
     if(data.productos) {
        localStorage.setItem('axon_productos', JSON.stringify(data.productos));
-       updates['productos'] = data.productos;
+       data.productos.forEach(p => batchOps.push({ ref: firestoreDb.collection('productos').doc(String(p.id)), type: 'set', value: p }));
     }
     if(data.categorias) {
        localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-       updates['categorias'] = data.categorias;
+       data.categorias.forEach(c => batchOps.push({ ref: firestoreDb.collection('categorias').doc(String(c.id)), type: 'set', value: c }));
     }
-    // Clear vales, notifs, ranking_summary, estafa in the same atomic update.
-    // Do NOT clear 'backups' — that's where we just stored the pre-nuke snapshot.
-    updates['vales'] = null;
-    updates['notifs'] = null;
-    updates['ranking_summary'] = null;
-    updates['estafa'] = null;
+    // Borrar vales/notifs/ranking_summary/estafa. NO tocar 'backups' — ahí
+    // acabamos de guardar el snapshot pre-nuke.
+    const currentVales = await firestoreDb.collection('vales').get();
+    currentVales.forEach(doc => batchOps.push({ ref: doc.ref, type: 'delete' }));
+    batchOps.push({ ref: firestoreDb.doc('meta/notifs'), type: 'delete' });
+    batchOps.push({ ref: firestoreDb.doc('meta/ranking_summary'), type: 'delete' });
+    batchOps.push({ ref: firestoreDb.doc('meta/estafa'), type: 'delete' });
 
     // Clear localStorage vales/notifs/estafa (but preserve backup, admin hash, audit log)
     ['axon_vales','axon_notifs','axon_ranking_summary','axon_estafa','axon_pending_writes','axon_failed_writes'].forEach(k => {
@@ -8057,8 +8176,14 @@ async function nukeAndRebuild() {
     _notifsCache=null;_notifsDirty=true;
     _estafaCache=null;_estafaDirty=true;
 
-    // Apply the atomic update to Firebase — single operation, no separate remove()
-    await db.ref('/').update(updates);
+    // Aplicar todo en batches (varias operaciones atómicas en vez de una sola
+    // — Firestore no permite más de 500 escrituras en un mismo batch).
+    for (let i = 0; i < batchOps.length; i += 450) {
+      const chunk = batchOps.slice(i, i + 450);
+      const batch = firestoreDb.batch();
+      chunk.forEach(op => { if (op.type === 'delete') batch.delete(op.ref); else batch.set(op.ref, op.value); });
+      await batch.commit();
+    }
     _logAudit('nuke_rebuild', 'system');
 
     showToast("¡Listo! Recargando...");
@@ -8066,6 +8191,120 @@ async function nukeAndRebuild() {
   } catch(e) {
     showToast("Error: " + e.message + " — Backup disponible en localStorage");
     console.error('Nuke failed:', e);
+  }
+}
+
+// ══════════════════════════════════════════
+//  MIGRACIÓN DE DATOS: REALTIME DATABASE → FIRESTORE
+// ══════════════════════════════════════════
+// Herramienta de una sola vez para el corte de producción (Fase 3/4 de la
+// migración). Lee el árbol COMPLETO y fresco de RTDB (no la caché local),
+// lo escribe en Firestore con IDs deterministas (String(id)) — por lo tanto
+// es SEGURO re-ejecutarla: vuelve a sobrescribir con los mismos IDs, no
+// duplica nada. Al terminar verifica conteos por colección y hace un
+// spot-check de contenido en una muestra de vales antes de reportar éxito.
+// No borra ni modifica RTDB — es de solo lectura sobre `db`.
+function _rtdbNodeToArray(node) {
+  if (!node) return [];
+  return Array.isArray(node) ? node.filter(x => x != null) : Object.values(node).filter(x => x != null);
+}
+async function _fsWriteCollection(name, arr) {
+  const coll = firestoreDb.collection(name);
+  for (let i = 0; i < arr.length; i += 450) {
+    const chunk = arr.slice(i, i + 450);
+    const batch = firestoreDb.batch();
+    chunk.forEach(item => { if (item && item.id != null) batch.set(coll.doc(String(item.id)), item); });
+    await batch.commit();
+  }
+}
+async function migrateToFirestore() {
+  const statusEl = document.getElementById('fsMigrateStatus');
+  const setStatus = html => { if (statusEl) statusEl.innerHTML = html; };
+  if (!confirm('Esto LEE todos los datos actuales de Realtime Database y los ESCRIBE en Firestore. Es seguro repetir (no duplica, sobrescribe con los mismos IDs) y no borra ni toca RTDB. ¿Continuar?')) return;
+  setStatus('⏳ Leyendo datos de Realtime Database...');
+  try {
+    const snap = await db.ref('/').once('value');
+    const root = snap.val() || {};
+    const rGestores   = _rtdbNodeToArray(root.gestores);
+    const rMensajeros = _rtdbNodeToArray(root.mensajeros);
+    const rProductos  = _rtdbNodeToArray(root.productos);
+    const rCategorias = _rtdbNodeToArray(root.categorias);
+    const rConfig  = root.config || {};
+    const rNotifs  = _rtdbNodeToArray(root.notifs);
+    const rEstafa  = _rtdbNodeToArray(root.estafa);
+    const rRanking = _rtdbNodeToArray(root.ranking_summary);
+    // vales en RTDB están anidados vales/{gestorId}/{valeId} — aplanar a un
+    // solo array, que es el esquema plano que usa Firestore.
+    const rVales = [];
+    Object.values(root.vales || {}).forEach(byGestor => {
+      _rtdbNodeToArray(byGestor).forEach(v => { if (v && v.id != null) rVales.push(v); });
+    });
+    const rBackups = root.backups || {};
+
+    setStatus(`⏳ Leído: ${rGestores.length} gestores, ${rMensajeros.length} mensajeros, ${rProductos.length} productos, ${rCategorias.length} categorías, ${rVales.length} vales.<br>Escribiendo en Firestore...`);
+
+    await _fsWriteCollection('gestores', rGestores);
+    await _fsWriteCollection('mensajeros', rMensajeros);
+    await _fsWriteCollection('productos', rProductos);
+    await _fsWriteCollection('categorias', rCategorias);
+    await _fsWriteCollection('vales', rVales);
+
+    await firestoreDb.doc('meta/config').set(rConfig);
+    await firestoreDb.doc('meta/notifs').set({ items: rNotifs });
+    await firestoreDb.doc('meta/estafa').set({ items: rEstafa });
+    await firestoreDb.doc('meta/ranking_summary').set({ items: rRanking });
+
+    // Backups: best-effort. Son snapshots históricos completos, pueden
+    // superar el límite de 1 MiB/doc de Firestore — si uno falla, se
+    // registra pero no se aborta la migración por eso (no son críticos
+    // para operar, solo una red de seguridad extra).
+    const backupFailures = [];
+    for (const [key, val] of Object.entries(rBackups)) {
+      try { await firestoreDb.doc('backups/' + key).set(val); }
+      catch(e) { backupFailures.push(key); }
+    }
+
+    setStatus('⏳ Verificando conteos en Firestore...');
+    const [gSnap, mSnap, pSnap, cSnap, vSnap] = await Promise.all([
+      firestoreDb.collection('gestores').get(),
+      firestoreDb.collection('mensajeros').get(),
+      firestoreDb.collection('productos').get(),
+      firestoreDb.collection('categorias').get(),
+      firestoreDb.collection('vales').get(),
+    ]);
+    const mismatches = [];
+    if (gSnap.size !== rGestores.length) mismatches.push(`gestores: RTDB=${rGestores.length} Firestore=${gSnap.size}`);
+    if (mSnap.size !== rMensajeros.length) mismatches.push(`mensajeros: RTDB=${rMensajeros.length} Firestore=${mSnap.size}`);
+    if (pSnap.size !== rProductos.length) mismatches.push(`productos: RTDB=${rProductos.length} Firestore=${pSnap.size}`);
+    if (cSnap.size !== rCategorias.length) mismatches.push(`categorias: RTDB=${rCategorias.length} Firestore=${cSnap.size}`);
+    if (vSnap.size !== rVales.length) mismatches.push(`vales: RTDB=${rVales.length} Firestore=${vSnap.size}`);
+
+    // Spot-check de contenido: muestra aleatoria de hasta 8 vales.
+    const sampleSize = Math.min(8, rVales.length);
+    const sample = [...rVales].sort(() => Math.random() - 0.5).slice(0, sampleSize);
+    const spotErrors = [];
+    for (const v of sample) {
+      const doc = await firestoreDb.collection('vales').doc(String(v.id)).get();
+      if (!doc.exists) { spotErrors.push(`vale ${v.id}: falta en Firestore`); continue; }
+      const fv = doc.data();
+      if (fv.total !== v.total || fv.cliente !== v.cliente || fv.valeNum !== v.valeNum) {
+        spotErrors.push(`vale ${v.id}: datos no coinciden con RTDB`);
+      }
+    }
+
+    const problems = mismatches.concat(spotErrors);
+    if (backupFailures.length) problems.push(`backups no migrados (doc muy grande, no crítico): ${backupFailures.join(', ')}`);
+    if (problems.length === 0) {
+      setStatus(`✅ Migración completa y verificada.<br>Gestores: ${gSnap.size} · Mensajeros: ${mSnap.size} · Productos: ${pSnap.size} · Categorías: ${cSnap.size} · Vales: ${vSnap.size}<br>Spot-check de ${sampleSize} vales: OK.`);
+      showToast('Migración a Firestore verificada ✓');
+    } else {
+      setStatus(`⚠️ Migración terminada CON DIFERENCIAS — revisar antes de cortar producción:<br>${problems.join('<br>')}`);
+      showToast('Migración con diferencias — revisar antes de continuar');
+    }
+  } catch(e) {
+    console.error('[migrateToFirestore]', e);
+    setStatus('❌ Error durante la migración: ' + (e && e.message ? e.message : e));
+    showToast('Error en la migración: ' + (e && e.message ? e.message : e));
   }
 }
 
@@ -8120,8 +8359,8 @@ async function loadInitialData() {
        const localGestores = getGestores();
        if(localGestores.length > 0) {
           // Use write queue instead of direct db.ref().set() to enable retries
-          _enqueueFB('gestores', localGestores, 'set');
-          _enqueueFB('mensajeros', getMensajeros(), 'set');
+          _enqueueFB('gestores', _buildCollectionUpdates(localGestores, null), 'update');
+          _enqueueFB('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
        }
     }
   }).catch(() => { /* red caída — la app igual arranca con lo que haya */ });

@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '20';
-const CACHE = 'axontech-v20';
+const APP_VERSION  = '21';
+const CACHE = 'axontech-v21';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
@@ -13,7 +13,7 @@ const STATIC = [
   // un dominio externo más para reconectar/reintentar en redes lentas o con
   // throttling). Al precachearlo aquí, después del primer install queda
   // servido 100% local igual que el resto de la app.
-  './firebase-app-compat.js', './firebase-database-compat.js'
+  './firebase-app-compat.js', './firebase-database-compat.js', './firebase-firestore-compat.js'
   // v17: removido './data.json' (siempre 0 bytes, perdía 1 RTT en 3G al precachearlo).
   // NOTA: catalogo.html (~1MB con fotos base64 inline) NO se precachea.
   // Es una plantilla autocontenida para publicar en GitHub Pages, la app
