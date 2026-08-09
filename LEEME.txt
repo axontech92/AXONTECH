@@ -1,46 +1,70 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v27 — el catálogo YA funciona en el repo, esto es caché
+  AXONTECH v28 — encontrada la causa raíz del vale "pegado"
 ═══════════════════════════════════════════════════════════════════
 
-VERIFIQUÉ TU CATÁLOGO REAL, EN VIVO
---------------------------------------
-Descargué el catalogo.html que está AHORA MISMO publicado en tu
-repositorio de GitHub (axontech92/AXONTECH) — el mismo que se genera
-al apretar "Publicar catálogo" — y lo probé tal cual está, en un
-navegador de verdad, automatizado. Resultado: carga perfectamente tus
-35 productos, con categorías, precios y todo. Cero errores. Adjunto
-captura de ESTE archivo real (no uno de prueba).
+ESTA VEZ SÍ ENCONTRÉ EL PROBLEMA DE FONDO
+--------------------------------------------
+Reproduje tu reporte exacto ("el vale lo envía pero la notificación de
+subiendo se queda pegada") con una simulación real y completa del envío
+de un vale — no leyendo el código, sino haciéndolo correr de verdad,
+paso a paso, midiendo qué pasaba en cada momento.
 
-Esto confirma que el arreglo de la vez pasada SÍ se publicó bien y SÍ
-funciona. El archivo en sí ya no tiene el problema.
+Encontré el bug real: había una función interna (getVales) que, en vez
+de entregar una COPIA de la lista de vales guardados, entregaba la
+lista ORIGINAL directamente. Cuando se creaba un vale nuevo (o cuando tú,
+como admin, asignabas un mensajero, confirmabas una venta, marcabas
+entregado, cancelabas un vale, o marcabas una comisión como pagada), el
+código modificaba esa lista ANTES de guardarla — y como era la MISMA
+lista, el sistema terminaba comparando el vale "contra sí mismo", veía
+"no cambió nada", y NUNCA INTENTABA subirlo a la nube. Ni siquiera
+llegaba a haber un intento de red que pudiera fallar — el envío
+literalmente nunca arrancaba.
 
-ENTONCES ¿POR QUÉ NO LO VES?
--------------------------------
-Lo más probable es CACHÉ — o de tu navegador, o del sistema que usa
-GitHub para servir la página (que guarda copias por unos minutos para
-que cargue más rápido). El link de tu catálogo es SIEMPRE la misma
-dirección web, así que si la abriste antes de que se actualizara del
-todo, tu navegador (o el propio GitHub) puede seguir mostrándote la
-versión vieja guardada, aunque el archivo real ya esté arreglado.
+Esto explica por qué se veía tan inconsistente y difícil de reproducir:
+pasaba solo en ciertos momentos (dependía de si la app ya había cargado
+esa lista antes en la sesión, que es el caso normal), lo que hacía que
+pareciera "a veces sí, a veces no" — y por eso ninguno de los arreglos
+de red/conexión de las entregas anteriores lo solucionaba: el problema
+nunca fue la conexión.
 
-QUÉ CAMBIÉ PARA QUE ESTO NO VUELVA A CONFUNDIR
--------------------------------------------------
-Ahora, cada vez que aprietas "Publicar catálogo", además del link
-normal para compartir con tus clientes, te va a aparecer UN SEGUNDO
-LINK especial (con un código al final que cambia cada vez) — ese
-segundo link es "a prueba de caché": siempre te va a mostrar la
-versión más reciente de verdad, sin que ningún caché pueda engañarte.
+QUÉ ARREGLÉ
+-----------
+Corregí el patrón en TODOS los lugares donde pasaba esto:
+- Enviar un vale nuevo (gestor, venta directa en tienda, generar desde
+  admin).
+- CUALQUIER acción del admin sobre un vale ya existente: asignar
+  mensajero, marcar entregado, confirmar venta, pendiente de cobro,
+  cancelar, revertir, marcar/quitar comisión pagada. Esta es la parte
+  con más impacto — cualquiera de estas acciones podía fallar en
+  silencio.
+- Marcar comisiones en lote, agregar/editar gestores, mensajeros,
+  productos, categorías, cambiar foto de un gestor.
 
-QUÉ HACER AHORA
-----------------
-1. Sube esta carpeta a GitHub (reemplaza todo).
-2. Entra al admin, aprieta "Publicar catálogo" de nuevo.
-3. Usa el link especial (el segundo, el "para verificar") — ese
-   deberías verlo funcionando ya mismo, sin dudas.
-4. Si ese link especial TAMBIÉN se ve vacío, entonces sí hay algo más
-   que investigar — mándame captura de pantalla de exactamente eso y
-   seguimos ahí. Pero si el especial funciona y solo el link normal
-   (el que ya tenías guardado/compartido) se ve viejo, es 100% caché
-   — con el tiempo (unos minutos) se actualiza solo, o puedes forzarlo
-   agregando cualquier texto al final de la URL, ej:
-   ...catalogo.html?abc123
+VERIFICADO DE VERDAD
+---------------------
+Antes del arreglo: al enviar un vale de prueba (en una simulación
+controlada), confirmé que el sistema JAMÁS intentaba subirlo a
+Firestore — se quedaba local para siempre, sin ningún error, sin
+ningún intento de red.
+
+Después del arreglo: el mismo vale de prueba sube y se confirma
+correctamente en la interfaz en aproximadamente 1 segundo.
+
+CÓMO PROBAR
+-----------
+1. Sube esta carpeta completa a GitHub (reemplaza todo).
+2. Refresca con fuerza hasta ver "v28" (toca el numerito v28 arriba —
+   si dice "Ya tienes la última versión", confirma que app.js sí se
+   actualizó).
+3. Manda un vale de prueba desde un gestor y confirma que la
+   notificación de "subiendo" desaparece en unos segundos (ya no
+   debería quedarse pegada).
+4. Prueba también una acción del admin: asigna un mensajero a un vale
+   o confírmalo, y verifica que el gestor ve el cambio reflejado.
+
+Esta v28 reemplaza todas las entregas anteriores.
+
+Si después de esto algo sigue sin funcionar bien, toca el indicador de
+sincronización (el panel de diagnóstico que agregamos hace unas
+entregas) y mándame captura — con la causa raíz ya resuelta, cualquier
+cosa que quede debería ser mucho más fácil de precisar.

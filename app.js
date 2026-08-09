@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 27;
+const APP_VERSION = 28;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '6a0f7d00ab847aa7';
+let _LOCAL_BUILD_HASH = '2bb8a64bf526a7ab';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2469,9 +2469,19 @@ if (IS_ADMIN) {
 
 
 function patchVale(id, changes) {
-  const all = getVales(); const i = all.findIndex(v=>v.id===id);
-  if (i!==-1){
-    all[i]={...all[i],...changes};
+  // BUGFIX CRÍTICO: getVales() devuelve la MISMA referencia que _valesCache
+  // (no una copia). "all[i] = {...}" mutaba esa entrada DENTRO del array
+  // que _valesCache sigue apuntando, así que dentro de saveVales(),
+  // "prevVales = _valesCache" ya reflejaba el cambio — el diff comparaba
+  // el vale modificado contra SÍ MISMO, veía "sin cambios", y el patch
+  // (asignar mensajero, confirmar venta, marcar entregado, cancelar,
+  // marcar comisión pagada, etc. — TODO lo que pasa por patchVale) nunca
+  // se encolaba hacia Firestore. Se guardaba local nada más. Este es el
+  // mismo bug que en sendVale()/addGestor(), pero aquí afecta a CADA
+  // acción del admin sobre un vale ya existente, no solo a los nuevos.
+  // Fix: .map() construye un array NUEVO en vez de mutar el existente.
+  const all = getVales().map(v => v.id === id ? {...v, ...changes} : v);
+  if (all.some(v => v.id === id)) {
     // saveVales already writes to Firebase via _enqueueFB — no need for redundant fbUpdateVale
     // Previously, both saveVales (full 'set') and fbUpdateVale (partial 'update') were called,
     // causing race conditions where Firebase could overwrite local changes with stale data.
@@ -2563,8 +2573,10 @@ function valeNumStr(v) {
   return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
 }
 function patchProducto(id, changes) {
-  const all = getProductos(); const i = all.findIndex(p=>p.id===id);
-  if (i!==-1){all[i]={...all[i],...changes};saveProductos(all);}
+  // BUGFIX: mismo problema que patchVale() — no mutar el array que
+  // devuelve getProductos() (afecta stock, reservas, etc.).
+  const all = getProductos().map(p => p.id === id ? {...p, ...changes} : p);
+  if (all.some(p => p.id === id)) saveProductos(all);
 }
 
 // ══════════════════════════════════════════
@@ -3259,10 +3271,10 @@ function handleGestorPhoto(file) {
       // vuelta a guardar el base64 directo (comportamiento de antes).
       const uploaded = await uploadPhotoToGitHub(compressed, 'g');
       const photoValue = uploaded || compressed;
-      const list = getGestores();
-      const i = list.findIndex(g => g.id === activeGestorId);
-      if (i === -1) return;
-      list[i].photo = photoValue;
+      // BUGFIX: no mutar el array que devuelve getGestores() — ver el
+      // comentario detallado en sendVale()/patchVale().
+      const list = getGestores().map(g => g.id === activeGestorId ? {...g, photo: photoValue} : g);
+      if (!list.some(g => g.id === activeGestorId)) return;
       saveGestores(list); // → localStorage + Firebase → todos los dispositivos
       gestoresTabDirty = true;
       // Refrescar UI inmediatamente en este dispositivo
@@ -3320,10 +3332,10 @@ function changeGestorPhotoById(id) {
       compressImage(ev.target.result, 256, 0.72, async compressed => {
         if (!compressed) { showToast('Error al procesar la imagen'); return; }
         const uploaded = await uploadPhotoToGitHub(compressed, 'g');
-        const list = getGestores();
-        const i = list.findIndex(g => g.id === pendingGestorPhotoId);
-        if (i === -1) return;
-        list[i].photo = uploaded || compressed;
+        // BUGFIX: no mutar el array que devuelve getGestores().
+        const photoValue = uploaded || compressed;
+        const list = getGestores().map(g => g.id === pendingGestorPhotoId ? {...g, photo: photoValue} : g);
+        if (!list.some(g => g.id === pendingGestorPhotoId)) return;
         saveGestores(list);
         gestoresTabDirty = true;
         renderAdminGestoresList();
@@ -3797,21 +3809,26 @@ async function saveEditGestor() {
   const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
   const newName=document.getElementById('editGestorInput').value.trim();
   if(!newName){showToast('El nombre no puede estar vacío');return;}
-  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
-  if(list.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
-  list[i].name=newName;
-  list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  list[i].phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
+  const orig=getGestores();const i=orig.findIndex(g=>g.id===id);if(i===-1)return;
+  if(orig.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
+  // BUGFIX: no mutar los objetos/array que devuelve getGestores() — ver el
+  // comentario detallado en sendVale()/patchVale(). Se arma una copia
+  // propia del gestor editado y se muta ESA copia libremente.
+  const edited = {...orig[i]};
+  edited.name=newName;
+  edited.initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  edited.phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
   // ── Aplicar cambios de foto pendientes (subir/quitar) ──
   // _editGestorPhotoPending es el base64 recién comprimido (preview local) —
   // se sube a GitHub recién ahora, al guardar, para no subir fotos que el
   // usuario termine descartando cerrando el modal sin guardar.
   if (window._editGestorPhotoPending) {
     const uploaded = await uploadPhotoToGitHub(window._editGestorPhotoPending, 'g');
-    list[i].photo = uploaded || window._editGestorPhotoPending;
+    edited.photo = uploaded || window._editGestorPhotoPending;
   } else if (window._editGestorPhotoRemoved) {
-    delete list[i].photo;
+    delete edited.photo;
   }
+  const list = orig.map(g => g.id === id ? edited : g);
   saveGestores(list); // → localStorage + Firebase → se actualiza en todos los dispositivos
   closeEditGestorModal();
   gestoresTabDirty=true;rankingCache=null;
@@ -3823,8 +3840,10 @@ async function saveEditGestor() {
 }
 
 function resetGestorPass(id) {
-  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
-  const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
+  const orig=getGestores();if(!orig.some(g=>g.id===id))return;
+  // BUGFIX: no mutar el array que devuelve getGestores().
+  const np=genPassword().trim().toUpperCase();
+  saveGestores(orig.map(g => g.id === id ? {...g, password: np} : g));
   _logAudit('gestor_pass_reset', 'gestor:' + id);
   gestoresTabDirty=true;
   renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
@@ -3876,8 +3895,11 @@ function addGestor() {
   if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
   const password=genPassword();
-  list.push({id:Date.now(),name,initials,color,password,phone});
-  saveGestores(list);inp.value='';
+  // BUGFIX: mismo problema que en sendVale() — list ES _gestoresCache
+  // (getGestores() no devuelve una copia), así que list.push() mutaba el
+  // caché ANTES de que saveGestores() pudiera diferenciar "antes" vs
+  // "ahora" y el gestor nuevo nunca se encolaba hacia Firestore.
+  saveGestores([...list, {id:Date.now(),name,initials,color,password,phone}]);inp.value='';
   const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
@@ -4571,7 +4593,9 @@ function addMensajero() {
   const phoneInp=document.getElementById('newMensajeroPhoneInput');
   const rawPhone = phoneInp ? (phoneInp.value||'').trim() : '';
   const phone = _normalizePhone(rawPhone);
-  const list=getMensajeros();list.push({id:Date.now(),name,phone:phone||''});saveMensajeros(list);
+  // BUGFIX: ver comentario en sendVale()/addGestor() — no mutar el array
+  // que devuelve getMensajeros().
+  saveMensajeros([...getMensajeros(), {id:Date.now(),name,phone:phone||''}]);
   inp.value='';if(phoneInp) phoneInp.value='';
   renderMensajeros();maybeAutoSync();
   showToast(phone ? 'Mensajero agregado ✓' : 'Mensajero agregado (sin teléfono)');
@@ -5439,7 +5463,20 @@ function sendVale() {
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
     synced:false, // se marcará true cuando Firebase confirme el write
   };
-  const all=getVales();all.push(vale);saveVales(all);
+  // BUGFIX CRÍTICO: getVales() devuelve la MISMA referencia en memoria que
+  // _valesCache (no una copia). Hacer getVales().push(vale) mutaba
+  // _valesCache DIRECTAMENTE antes de llamar a saveVales() — así que dentro
+  // de saveVales(), "prevVales = _valesCache" ya incluía el vale nuevo
+  // (prevVales y v eran literalmente el mismo array). El diff contra "lo
+  // anterior" comparaba el vale contra SÍ MISMO, veía "sin cambios", y
+  // nunca llamaba a _enqueueFB — el vale se guardaba local pero JAMÁS se
+  // encolaba el write a Firestore. Esto explica el patrón reportado
+  // "el vale sale pero la subida se queda pegada": no era un problema de
+  // red ni de Firestore, el write ni siquiera se intentaba. Se reproduce
+  // siempre que _valesCache ya esté "tibio" (getVales() ya se llamó antes
+  // en la sesión, lo normal), que es el caso típico. Fix: construir un
+  // array NUEVO (spread) en vez de mutar el que devuelve getVales().
+  const all=[...getVales(), vale];saveVales(all);
   _logAudit('vale_sent', 'vale:' + vale.id + ' gestor:' + activeGestorId);
 
   // ── v15: Registrar Background Sync para que el SW reintente si la página
@@ -5726,7 +5763,9 @@ function addCategoria() {
   const inp=document.getElementById('newCatInput');const name=inp.value.trim();if(!name)return;
   const list=getCategorias();
   if(list.some(c=>c.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe');return;}
-  list.push({id:Date.now(),name});saveCategorias(list);inp.value='';renderStockCategorias();showToast('Categoría agregada');
+  // BUGFIX: ver comentario en sendVale()/addGestor() — no mutar el array
+  // que devuelve getCategorias().
+  saveCategorias([...list, {id:Date.now(),name}]);inp.value='';renderStockCategorias();showToast('Categoría agregada');
 }
 function removeCategoria(id) {
   if(getProductos().some(p=>p.catId===id)){showToast('Primero mueve o elimina los productos de esta categoría');return;}
@@ -6221,7 +6260,9 @@ async function saveProduct() {
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
-    const list=getProductos();list.push({id:newId,...prod});saveProductos(list);
+    // BUGFIX: ver comentario en sendVale()/addGestor() — no mutar el array
+    // que devuelve getProductos().
+    saveProductos([...getProductos(), {id:newId,...prod}]);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
   }
@@ -6267,7 +6308,11 @@ function venderDirecto(id) {
     commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:new Date().toISOString(),
     stockDecremented:true
   };
-  const all=getVales();all.push(vale);saveVales(all);
+  // BUGFIX: ver el comentario detallado en sendVale() — getVales().push()
+  // mutaba _valesCache antes de que saveVales() pudiera diferenciar "antes"
+  // vs "ahora", y el write nunca se encolaba. Usar spread evita mutar la
+  // referencia que devuelve getVales().
+  const all=[...getVales(), vale];saveVales(all);
   // No direct db.ref().set() — saveVales already enqueues via the write queue.
   // Direct db.ref() calls bypassed the retry queue and could lose data on network failure.
   _logAudit('direct_sale', 'product:' + id + ' qty:' + qty);
@@ -7278,12 +7323,20 @@ function markAllCommissionsEnSobre(gestorId,e) {
   const ts=new Date().toISOString();
   // Una sola escritura de todo el array, no N patchVale (que eran N subidas a Firebase).
   // Ver AUDITORIA-AXONTECH.md MEDIO 21.
-  const all=getVales();
+  // BUGFIX: getVales() devuelve la MISMA referencia que _valesCache — mutar
+  // los vales EN EL LUGAR (v.commissionPaid=...) los cambiaba dentro de
+  // _valesCache antes de llamar a saveVales(), así que su diff interno
+  // comparaba "antes" contra "ahora" viendo el mismo objeto ya modificado
+  // → nunca detectaba el cambio → el marcado de comisiones nunca se subía
+  // a Firestore (aunque se viera bien localmente). Fix: construir objetos
+  // y array nuevos con .map(), sin tocar los que ya están en el caché.
   let changed=false;
-  all.forEach(v=>{
+  const all=getVales().map(v=>{
     if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
-      v.commissionPaid=false;v.commissionStatus='en_sobre';v.commissionEnSobreTs=ts;changed=true;
+      changed=true;
+      return {...v, commissionPaid:false, commissionStatus:'en_sobre', commissionEnSobreTs:ts};
     }
+    return v;
   });
   if(changed) saveVales(all);
   gestoresTabDirty=true;
@@ -7294,12 +7347,15 @@ function markAllCommissionsCobrado(gestorId,e) {
   if(e)e.stopPropagation();
   const ts=new Date().toISOString();
   // Una sola escritura de todo el array, no N patchVale.
-  const all=getVales();
+  // BUGFIX: ver el comentario detallado en markAllCommissionsEnSobre() —
+  // mismo problema, mismo fix (.map() en vez de mutar en el lugar).
   let changed=false;
-  all.forEach(v=>{
+  const all=getVales().map(v=>{
     if(v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
-      v.commissionPaid=true;v.commissionStatus='cobrado';v.commissionPaidTs=ts;changed=true;
+      changed=true;
+      return {...v, commissionPaid:true, commissionStatus:'cobrado', commissionPaidTs:ts};
     }
+    return v;
   });
   if(changed) saveVales(all);
   gestoresTabDirty=true;
@@ -8884,7 +8940,10 @@ function sendAdminVale() {
   };
 
   // ── 1. Guardar el vale LOCALMENTE y encolar write a Firebase (síncrono, rápido) ──
-  const all = getVales(); all.push(vale); saveVales(all);
+  // BUGFIX: ver el comentario detallado en sendVale() — getVales().push()
+  // mutaba _valesCache antes de que saveVales() pudiera diferenciar "antes"
+  // vs "ahora", y el write nunca se encolaba.
+  const all = [...getVales(), vale]; saveVales(all);
   _logAudit('admin_vale_sent', 'vale:' + vale.id + ' gestor:' + gId);
 
   // ── 2. Feedback INMEDIATO al admin ──
