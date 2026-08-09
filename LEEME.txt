@@ -1,55 +1,46 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v26 — encontrado y arreglado el bug REAL del catálogo
+  AXONTECH v27 — el catálogo YA funciona en el repo, esto es caché
 ═══════════════════════════════════════════════════════════════════
 
-QUÉ HICE ESTA VEZ (diferente a las veces anteriores)
--------------------------------------------------------
-Pediste que revisara bien todo antes de entregar, así que en vez de
-solo leer el código, ESTA VEZ generé el catálogo real (con tus 35
-productos reales) y lo abrí en un navegador de verdad, automatizado,
-para ver exactamente qué pasaba. Ahí apareció el error real:
+VERIFIQUÉ TU CATÁLOGO REAL, EN VIVO
+--------------------------------------
+Descargué el catalogo.html que está AHORA MISMO publicado en tu
+repositorio de GitHub (axontech92/AXONTECH) — el mismo que se genera
+al apretar "Publicar catálogo" — y lo probé tal cual está, en un
+navegador de verdad, automatizado. Resultado: carga perfectamente tus
+35 productos, con categorías, precios y todo. Cero errores. Adjunto
+captura de ESTE archivo real (no uno de prueba).
 
-  "Invalid regular expression: /^(https?:|data:image|photos/:
-   Unterminated group"
+Esto confirma que el arreglo de la vez pasada SÍ se publicó bien y SÍ
+funciona. El archivo en sí ya no tiene el problema.
 
-Es decir: el catálogo generado tenía un error de sintaxis en su propio
-código interno. Cuando un navegador encuentra un error así, deja de
-ejecutar TODO lo que sigue en ese bloque de código — por eso la página
-se quedaba completamente vacía, sin productos, sin categorías, nada.
-No tenía que ver con el tamaño del archivo ni con las fotos (aunque
-esas SÍ valía la pena arreglarlas también, como ya hicimos) — era un
-error que rompía la página por completo, siempre, sin importar nada
-más.
+ENTONCES ¿POR QUÉ NO LO VES?
+-------------------------------
+Lo más probable es CACHÉ — o de tu navegador, o del sistema que usa
+GitHub para servir la página (que guarda copias por unos minutos para
+que cargue más rápido). El link de tu catálogo es SIEMPRE la misma
+dirección web, así que si la abriste antes de que se actualizara del
+todo, tu navegador (o el propio GitHub) puede seguir mostrándote la
+versión vieja guardada, aunque el archivo real ya esté arreglado.
 
-Confirmé que este bug ya existía desde ANTES de que empezáramos con
-la migración a Firestore — no lo causó nada de lo que hicimos, solo
-que ahora, probando de verdad en vez de solo leyendo, lo encontramos.
-
-Lo arreglé y volví a generar el catálogo real para confirmar: ahora sí
-carga las 35 tarjetas de producto correctamente, con categorías,
-precios, descripciones y botón de WhatsApp. Cero errores.
+QUÉ CAMBIÉ PARA QUE ESTO NO VUELVA A CONFUNDIR
+-------------------------------------------------
+Ahora, cada vez que aprietas "Publicar catálogo", además del link
+normal para compartir con tus clientes, te va a aparecer UN SEGUNDO
+LINK especial (con un código al final que cambia cada vez) — ese
+segundo link es "a prueba de caché": siempre te va a mostrar la
+versión más reciente de verdad, sin que ningún caché pueda engañarte.
 
 QUÉ HACER AHORA
 ----------------
-1. Sube esta carpeta completa a GitHub (reemplaza todo).
-2. Refresca con fuerza hasta ver "v26".
-3. En el admin: aprieta "☁️ Fotos a GitHub" en Stock (si no lo has
-   hecho ya) para migrar las fotos pesadas restantes.
-4. Aprieta "Publicar catálogo" de nuevo.
-5. Abre el link del catálogo en una pestaña nueva (o mándaselo a
-   alguien más para probar) y confirma que ahora sí ves los
-   productos.
-
-Si después de esto el catálogo TODAVÍA no carga, mándame el link
-exacto que estás abriendo y una captura de lo que ves — con eso puedo
-seguir el rastro directo.
-
-SOBRE LO DEL BADGE "v25/v26"
-------------------------------
-Aclaración de la vez pasada: el numerito de versión que ves arriba es
-solo texto fijo — no garantiza que el archivo de lógica (app.js) se
-haya actualizado también, son cachés separados. Para confirmar que
-app.js realmente se actualizó, toca el numerito "v26" (no el
-indicador de sincronización) — si dice "Ya tienes la última versión"
-confirma que sí. Si no, cierra todas las pestañas de la app y ábrela
-de nuevo (o prueba en una ventana de incógnito).
+1. Sube esta carpeta a GitHub (reemplaza todo).
+2. Entra al admin, aprieta "Publicar catálogo" de nuevo.
+3. Usa el link especial (el segundo, el "para verificar") — ese
+   deberías verlo funcionando ya mismo, sin dudas.
+4. Si ese link especial TAMBIÉN se ve vacío, entonces sí hay algo más
+   que investigar — mándame captura de pantalla de exactamente eso y
+   seguimos ahí. Pero si el especial funciona y solo el link normal
+   (el que ya tenías guardado/compartido) se ve viejo, es 100% caché
+   — con el tiempo (unos minutos) se actualiza solo, o puedes forzarlo
+   agregando cualquier texto al final de la URL, ej:
+   ...catalogo.html?abc123

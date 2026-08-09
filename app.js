@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 26;
+const APP_VERSION = 27;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '3728b4aedaf6febe';
+let _LOCAL_BUILD_HASH = '6a0f7d00ab847aa7';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7155,7 +7155,17 @@ async function publishCatalogNow() {
   const url=await publishCatalogToGitHub(html);
   if(url){
     showToast('✅ Catálogo publicado exitosamente');
-    setGhStatus(`✅ Publicado: <a href="${url}" target="_blank" style="color:var(--blue);word-break:break-all;">${url}</a><br><span style="font-size:10px;color:var(--gray-400);">GitHub Pages tarda ~1 min en actualizarse</span>`);
+    // BUGFIX: el link de catalogo.html no tenía ningún parámetro que cambie
+    // entre publicaciones — a diferencia de app.js/app.css (?v=N), así que
+    // el navegador (o el CDN de GitHub Pages) podía seguir sirviendo una
+    // copia vieja en caché durante varios minutos después de publicar,
+    // aunque el archivo real ya estuviera actualizado. Esto generaba
+    // confusión: "publiqué pero sigue sin cargar los productos" cuando en
+    // realidad SÍ se publicó bien, solo que el link mostraba la versión
+    // cacheada. Se agrega un ?t=timestamp único a ESTE link de verificación
+    // para forzar que el propio admin vea la versión recién publicada.
+    const verifyUrl = `${url}?t=${Date.now()}`;
+    setGhStatus(`✅ Publicado. Para verificar (evita caché): <a href="${verifyUrl}" target="_blank" style="color:var(--blue);word-break:break-all;">${verifyUrl}</a><br><span style="font-size:10px;color:var(--gray-400);">El link normal para compartir es: ${url}<br>GitHub Pages puede tardar 1-2 min en actualizarse — si acabas de publicar, espera un poco antes de verificar.</span>`);
   } else {
     setGhStatus('❌ Error al publicar. Revisa el token y el repo.');
   }
