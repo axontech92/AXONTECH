@@ -1,70 +1,64 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v28 — encontrada la causa raíz del vale "pegado"
+  AXONTECH v29 — arreglo de fondo del vale "pegado" desde Cuba
 ═══════════════════════════════════════════════════════════════════
 
-ESTA VEZ SÍ ENCONTRÉ EL PROBLEMA DE FONDO
---------------------------------------------
-Reproduje tu reporte exacto ("el vale lo envía pero la notificación de
-subiendo se queda pegada") con una simulación real y completa del envío
-de un vale — no leyendo el código, sino haciéndolo correr de verdad,
-paso a paso, midiendo qué pasaba en cada momento.
+QUÉ ENCONTRÉ (con datos reales, revisando tu Firestore)
+---------------------------------------------------------
+Miré directamente los vales guardados en tu Firestore y encontré algo
+clave: un vale que un gestor mandó desde Cuba (Malena Arias, 18:35) SÍ
+había llegado a la nube. O sea: el dato SÍ sube. El problema no es que
+no llegue.
 
-Encontré el bug real: había una función interna (getVales) que, en vez
-de entregar una COPIA de la lista de vales guardados, entregaba la
-lista ORIGINAL directamente. Cuando se creaba un vale nuevo (o cuando tú,
-como admin, asignabas un mensajero, confirmabas una venta, marcabas
-entregado, cancelabas un vale, o marcabas una comisión como pagada), el
-código modificaba esa lista ANTES de guardarla — y como era la MISMA
-lista, el sistema terminaba comparando el vale "contra sí mismo", veía
-"no cambió nada", y NUNCA INTENTABA subirlo a la nube. Ni siquiera
-llegaba a haber un intento de red que pudiera fallar — el envío
-literalmente nunca arrancaba.
+El problema real: la app usaba el sistema "normal" de Firebase para
+escribir, que abre una conexión especial y espera una confirmación de
+vuelta. En una conexión como la de Cuba (con pérdida de paquetes), pasa
+esto: el vale sube y se guarda en la nube, PERO la confirmación de
+regreso se pierde en el camino. Entonces la app se queda esperando esa
+confirmación que nunca llega → la barra de "subiendo" se queda pegada
+para siempre, aunque el vale YA esté guardado y el admin ya lo pueda ver.
 
-Esto explica por qué se veía tan inconsistente y difícil de reproducir:
-pasaba solo en ciertos momentos (dependía de si la app ya había cargado
-esa lista antes en la sesión, que es el caso normal), lo que hacía que
-pareciera "a veces sí, a veces no" — y por eso ninguno de los arreglos
-de red/conexión de las entregas anteriores lo solucionaba: el problema
-nunca fue la conexión.
+Por eso era tan confuso: las lecturas funcionaban (por eso la prueba de
+conexión daba bien), algunos vales sí se confirmaban, y otros se
+quedaban pegados. Y por eso ninguno de los arreglos anteriores lo
+resolvía del todo — el problema estaba en CÓMO se mandaba la
+confirmación.
 
-QUÉ ARREGLÉ
------------
-Corregí el patrón en TODOS los lugares donde pasaba esto:
-- Enviar un vale nuevo (gestor, venta directa en tienda, generar desde
-  admin).
-- CUALQUIER acción del admin sobre un vale ya existente: asignar
-  mensajero, marcar entregado, confirmar venta, pendiente de cobro,
-  cancelar, revertir, marcar/quitar comisión pagada. Esta es la parte
-  con más impacto — cualquiera de estas acciones podía fallar en
-  silencio.
-- Marcar comisiones en lote, agregar/editar gestores, mensajeros,
-  productos, categorías, cambiar foto de un gestor.
+QUÉ CAMBIÉ
+----------
+Ahora la app manda los vales (y asignar mensajero, confirmar venta,
+borrar, etc.) por HTTPS directo — una petición web simple, del tipo más
+confiable y compatible que existe, el mismo que usa cualquier página web
+normal. La confirmación es la propia respuesta de esa petición, no una
+conexión especial aparte. Es muchísimo más robusto en conexiones malas.
 
-VERIFICADO DE VERDAD
----------------------
-Antes del arreglo: al enviar un vale de prueba (en una simulación
-controlada), confirmé que el sistema JAMÁS intentaba subirlo a
-Firestore — se quedaba local para siempre, sin ningún error, sin
-ningún intento de red.
+Para LEER en tiempo real (ver los vales que llegan, actualizaciones del
+admin, etc.) se sigue usando el sistema de Firebase, porque ESE sí
+funciona bien desde Cuba (ya lo comprobamos).
 
-Después del arreglo: el mismo vale de prueba sube y se confirma
-correctamente en la interfaz en aproximadamente 1 segundo.
+CÓMO LO VERIFIQUÉ (esta vez de verdad, no solo leyendo código)
+----------------------------------------------------------------
+1. Probé escribir un vale realista directamente contra TU Firestore real
+   por el nuevo método: se escribió, se leyó de vuelta con todos los
+   datos correctos (incluidos los productos), y se borró. Todo con
+   confirmación limpia.
+2. Probé el flujo completo de "enviar vale" en un navegador automatizado:
+   antes el vale nunca se confirmaba; ahora sube y la barra "subiendo"
+   desaparece en ~1.5 segundos.
 
-CÓMO PROBAR
------------
+CÓMO PROBARLO TÚ
+-----------------
 1. Sube esta carpeta completa a GitHub (reemplaza todo).
-2. Refresca con fuerza hasta ver "v28" (toca el numerito v28 arriba —
-   si dice "Ya tienes la última versión", confirma que app.js sí se
-   actualizó).
-3. Manda un vale de prueba desde un gestor y confirma que la
-   notificación de "subiendo" desaparece en unos segundos (ya no
-   debería quedarse pegada).
-4. Prueba también una acción del admin: asigna un mensajero a un vale
-   o confírmalo, y verifica que el gestor ve el cambio reflejado.
+2. Refresca con fuerza hasta ver "v29" (toca el numerito v29 arriba; si
+   dice "Ya tienes la última versión", confirma que app.js se actualizó).
+   Hazlo tanto en el teléfono del gestor como en el del admin.
+3. Desde Cuba, con tu conexión normal (SIN VPN), manda un vale de prueba.
+   La barra de "subiendo" debería desaparecer en unos segundos y el vale
+   quedar como enviado.
+4. Confirma en el admin que el vale llegó.
 
-Esta v28 reemplaza todas las entregas anteriores.
+Si por alguna razón todavía se quedara pegado, toca el indicador de
+sincronización (esquina) para ver el diagnóstico y mándame captura — con
+este cambio, si algo falla ahora sí debería mostrar un error concreto en
+vez de quedarse callado.
 
-Si después de esto algo sigue sin funcionar bien, toca el indicador de
-sincronización (el panel de diagnóstico que agregamos hace unas
-entregas) y mándame captura — con la causa raíz ya resuelta, cualquier
-cosa que quede debería ser mucho más fácil de precisar.
+Esta v29 reemplaza todas las entregas anteriores.

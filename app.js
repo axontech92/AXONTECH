@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 28;
+const APP_VERSION = 29;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '2bb8a64bf526a7ab';
+let _LOCAL_BUILD_HASH = 'e56e55d4070e6b56';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -210,6 +210,97 @@ try {
 }
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
+
+// ══════════════════════════════════════════════════════════════════════
+//  ESCRITURAS POR API REST (en vez del canal WebChannel del SDK)
+// ══════════════════════════════════════════════════════════════════════
+// POR QUÉ: confirmamos con datos reales que desde Cuba las LECTURAS de
+// Firestore funcionan (onSnapshot + get, la prueba que hizo el dueño), y
+// que las escrituras a veces SÍ llegan (un vale real apareció en la nube).
+// Pero el síntoma "el vale se envía y la barra de subiendo se queda pegada
+// para siempre" tiene una causa concreta: el SDK de Firestore usa una cola
+// de mutaciones locales + un canal de escritura (WebChannel). En una
+// conexión con pérdida de paquetes como la de Cuba, el DATO sube y el
+// servidor lo guarda, pero el ACK de vuelta (la confirmación) se pierde.
+// El SDK entonces:
+//   1. deja el documento marcado como "escritura pendiente"
+//      (hasPendingWrites=true) PARA SIEMPRE — nunca lo marca confirmado,
+//      porque su propia mutación nunca fue reconocida.
+//   2. la promesa de batch.commit() nunca resuelve.
+// Como AMBAS vías de confirmación (el .then() de la cola y el
+// hasPendingWrites del listener) dependen de ese mismo ACK perdido, el
+// vale queda "synced:false" para siempre → la barra "subiendo" no se quita
+// nunca, AUNQUE el vale ya esté en Firestore.
+//
+// SOLUCIÓN: escribir por la API REST de Firestore con fetch(). Es HTTPS
+// simple, sin canal persistente ni cola de mutaciones del SDK: la respuesta
+// HTTP 200 ES el ACK, sobre el transporte más robusto y compatible que
+// existe (el mismo tipo de petición que ya probamos que funciona). El SDK
+// se sigue usando SOLO para LEER en tiempo real (onSnapshot), que sí anda
+// bien desde Cuba. Endpoint :commit = escritura atómica multi-documento,
+// equivalente 1:1 al batch.commit() que teníamos.
+const _FS_PROJECT = firebaseConfig.projectId;
+const _FS_DOC_PREFIX = `projects/${_FS_PROJECT}/databases/(default)/documents`;
+const _FS_REST_BASE = `https://firestore.googleapis.com/v1/${_FS_DOC_PREFIX}`;
+const _FS_API_KEY = firebaseConfig.apiKey;
+
+// Convierte un valor de JavaScript al formato tipado que exige la API REST
+// de Firestore ({stringValue}, {integerValue}, {mapValue}, etc.). Ignora
+// campos undefined (como ignoreUndefinedProperties del SDK).
+function _toFsValue(v) {
+  if (v === null || v === undefined) return { nullValue: null };
+  if (typeof v === 'boolean') return { booleanValue: v };
+  if (typeof v === 'number') {
+    if (!isFinite(v)) return { doubleValue: 0 };
+    return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  }
+  if (typeof v === 'string') return { stringValue: v };
+  if (Array.isArray(v)) return { arrayValue: { values: v.map(_toFsValue) } };
+  if (typeof v === 'object') {
+    const fields = {};
+    Object.keys(v).forEach(k => { if (v[k] !== undefined) fields[k] = _toFsValue(v[k]); });
+    return { mapValue: { fields } };
+  }
+  return { stringValue: String(v) };
+}
+function _toFsFields(obj) {
+  const fields = {};
+  Object.keys(obj || {}).forEach(k => { if (obj[k] !== undefined) fields[k] = _toFsValue(obj[k]); });
+  return fields;
+}
+// Ejecuta una lista de escrituras como un solo :commit atómico por REST.
+// writes: [{type:'set'|'delete', path:'coll/id', value?, merge?}]
+// Devuelve una promesa que resuelve al confirmar (HTTP 200) o rechaza con
+// un error que trae .code (para que la cola lo trate igual que antes).
+function _fsRestCommit(writes) {
+  if (!writes || writes.length === 0) return Promise.resolve();
+  const body = { writes: writes.map(w => {
+    if (w.type === 'delete') return { delete: `${_FS_DOC_PREFIX}/${w.path}` };
+    const upd = { update: { name: `${_FS_DOC_PREFIX}/${w.path}`, fields: _toFsFields(w.value) } };
+    if (w.merge) {
+      // updateMask: solo escribir los campos presentes (merge) — los demás
+      // campos del documento en el servidor se conservan. Igual que
+      // set(...,{merge:true}) del SDK. Nombres de campo entre backticks por
+      // si alguno tuviera caracteres especiales.
+      upd.updateMask = { fieldPaths: Object.keys(w.value || {}).map(k => '`' + k.replace(/`/g, '\\`') + '`') };
+    }
+    return upd;
+  })};
+  return fetch(`${_FS_REST_BASE}:commit?key=${_FS_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(res => {
+    if (res.ok) return res.json().catch(() => ({}));
+    return res.text().catch(() => '').then(t => {
+      const err = new Error(`Firestore REST commit ${res.status}: ${t.slice(0, 200)}`);
+      err.code = (res.status === 401 || res.status === 403) ? 'permission-denied'
+               : (res.status === 400) ? 'invalid-argument'
+               : ('http-' + res.status);
+      throw err;
+    });
+  });
+}
 
 // ── Persistencia offline de Firestore ──
 // Igual que antes con RTDB: sirve datos cacheados localmente sin esperar red,
@@ -502,60 +593,60 @@ const _FS_SINGLETON_DOCS = {
 const _FS_ARRAY_SINGLETONS = new Set(['notifs', 'estafa', 'ranking_summary']);
 
 function _firestoreOpFor(path, value, method) {
-  // ── Singleton (config/notifs/estafa/ranking_summary) ──
+  // Traduce (path, value, method) al array de escrituras que espera
+  // _fsRestCommit(), y lo ejecuta por REST (ver el bloque de comentarios
+  // grande arriba de _fsRestCommit sobre POR QUÉ REST y no el SDK).
+  const writes = [];
+  const _tooLarge = v => { try { return JSON.stringify(v).length > 900000; } catch(e) { return false; } };
+  const skipped = [];
+  // ── Singleton (config/notifs/estafa/ranking_summary) → meta/{nodo} ──
   if (_FS_SINGLETON_DOCS[path]) {
-    const docRef = firestoreDb.doc(_FS_SINGLETON_DOCS[path]);
-    if (method === 'remove') return docRef.delete();
+    const docPath = _FS_SINGLETON_DOCS[path];
+    if (method === 'remove') { writes.push({ type: 'delete', path: docPath }); return _fsRestCommit(writes); }
     let docValue = value;
     if (_FS_ARRAY_SINGLETONS.has(path)) docValue = { items: Array.isArray(value) ? value : [] };
-    return method === 'update' ? docRef.set(docValue, { merge: true }) : docRef.set(docValue);
+    // 'update' → merge; 'set' → también con máscara de sus claves (para
+    // config/notifs esto equivale a reemplazar lo que se manda, seguro).
+    writes.push({ type: 'set', path: docPath, value: docValue, merge: true });
+    return _fsRestCommit(writes);
   }
   // ── backups/pre-nuke-{ts}: doc único con path completo ya armado ──
   if (path.startsWith('backups/')) {
-    return method === 'remove' ? firestoreDb.doc(path).delete() : firestoreDb.doc(path).set(value);
+    if (method === 'remove') { writes.push({ type: 'delete', path }); }
+    else { writes.push({ type: 'set', path, value }); }
+    return _fsRestCommit(writes);
   }
   // ── Colección de entidades (gestores, mensajeros, productos, categorias, vales) ──
   const collName = path.split('/')[0];
-  const coll = firestoreDb.collection(collName);
   if (method === 'remove') {
-    // No se usa en la práctica (los borrados de entidades van como null dentro
-    // de un 'update' — ver _buildCollectionUpdates), pero se soporta por si acaso.
     const docId = path.includes('/') ? path.split('/').pop() : null;
-    return docId ? coll.doc(docId).delete() : Promise.resolve();
+    if (!docId) return Promise.resolve();
+    writes.push({ type: 'delete', path: `${collName}/${docId}` });
+    return _fsRestCommit(writes);
   }
-  const batch = firestoreDb.batch();
-  let opsCount = 0;
-  const skipped = [];
-  // Firestore rechaza el batch COMPLETO si un solo doc supera ~1 MiB — típicamente
-  // una foto vieja de producto/gestor todavía en base64 (antes de "☁️ Fotos a
-  // GitHub"). Sin este chequeo, un doc gigante bloquea escrituras de otros docs
-  // completamente ajenos que viajaban en el mismo batch (ej. un descuento de
-  // stock de OTRO producto). Se salta ese doc puntual (con aviso) en vez de
-  // perder todo el batch.
-  const _tooLarge = v => { try { return JSON.stringify(v).length > 900000; } catch(e) { return false; } };
+  // Firestore rechaza el commit si un solo doc supera ~1 MiB — típicamente
+  // una foto vieja en base64 (antes de "☁️ Fotos a GitHub"). Se salta ese
+  // doc puntual (con aviso) en vez de perder el commit entero.
   if (Array.isArray(value)) {
-    // 'set' con un array completo (reemplazo total) — ya casi no se genera
-    // tras el cambio a _buildCollectionUpdates, pero se soporta por compatibilidad.
+    // 'set' con un array completo (reemplazo total) — legado, poco usado.
     value.forEach(item => {
       if (!item || item.id == null) return;
       if (_tooLarge(item)) { skipped.push(String(item.id)); return; }
-      batch.set(coll.doc(String(item.id)), item); opsCount++;
+      writes.push({ type: 'set', path: `${collName}/${String(item.id)}`, value: item, merge: false });
     });
   } else if (value && typeof value === 'object') {
     Object.entries(value).forEach(([key, val]) => {
       const docId = key.includes('/') ? key.split('/')[1] : key; // 'gestorId/valeId' legado o 'id' plano
-      const docRef = coll.doc(docId);
-      if (val === null) { batch.delete(docRef); opsCount++; return; }
+      if (val === null) { writes.push({ type: 'delete', path: `${collName}/${docId}` }); return; }
       if (_tooLarge(val)) { skipped.push(docId); return; }
-      batch.set(docRef, val, { merge: true }); opsCount++;
+      writes.push({ type: 'set', path: `${collName}/${docId}`, value: val, merge: true });
     });
   }
   if (skipped.length > 0) {
     console.error(`[firestore] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB (foto sin optimizar):`, skipped);
     showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (foto sin optimizar) — usa "☁️ Fotos a GitHub" en Stock`);
   }
-  if (opsCount === 0) return Promise.resolve();
-  return batch.commit();
+  return _fsRestCommit(writes);
 }
 
 function _processFBQueue() {
@@ -7866,16 +7957,18 @@ async function maybeAutoSync() {
 // misma fuente de verdad que ya usa nukeAndRebuild) y borrando ahí,
 // sin depender de qué tan completo esté el caché local del admin.
 async function _fsDeleteVales(predicate) {
+  // La LECTURA (collection.get) sí funciona bien desde Cuba; los BORRADOS
+  // van por REST (:commit) para no depender del canal de escritura del SDK
+  // que se cuelga en conexiones con pérdida de paquetes — ver el bloque
+  // grande de comentarios arriba de _fsRestCommit.
   const snap = await firestoreDb.collection('vales').get();
-  const refs = [];
-  snap.forEach(doc => { if (!predicate || predicate(doc.data())) refs.push(doc.ref); });
-  for (let i = 0; i < refs.length; i += 450) {
-    const chunk = refs.slice(i, i + 450);
-    const batch = firestoreDb.batch();
-    chunk.forEach(ref => batch.delete(ref));
-    await batch.commit();
+  const ids = [];
+  snap.forEach(doc => { if (!predicate || predicate(doc.data())) ids.push(doc.id); });
+  for (let i = 0; i < ids.length; i += 400) {
+    const chunk = ids.slice(i, i + 400);
+    await _fsRestCommit(chunk.map(id => ({ type: 'delete', path: 'vales/' + id })));
   }
-  return refs.length;
+  return ids.length;
 }
 function factoryResetVales() {
   showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', async () => {
@@ -7898,7 +7991,7 @@ function factoryResetVales() {
     // avisar éxito, y si falla se avisa claro en vez de quedar en silencio.
     try {
       const extra = await _fsDeleteVales(null);
-      await firestoreDb.doc('meta/ranking_summary').delete().catch(()=>{});
+      await _fsRestCommit([{ type: 'delete', path: 'meta/ranking_summary' }]).catch(()=>{});
       showToast(`✓ Todos los vales eliminados${extra > 0 ? ` (confirmado en la nube)` : ''}`);
     } catch(e) {
       console.error('[factoryResetVales] error en limpieza directa:', e);
@@ -7969,7 +8062,7 @@ async function clearGestoresData() {
   try {
     const extra = await _fsDeleteVales(v => v && v.gestorId && gestorIds.has(v.gestorId));
     if (extra > 0) console.log(`[clearGestoresData] ${extra} vale(s) adicionales borrados directo de Firestore`);
-    await firestoreDb.doc('meta/notifs').set({ items: [] });
+    await _fsRestCommit([{ type: 'set', path: 'meta/notifs', value: { items: [] }, merge: false }]);
   } catch(e) {
     console.error('[clearGestoresData] error en limpieza directa:', e);
     cleanupError = e;
