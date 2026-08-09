@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 23;
+const APP_VERSION = 24;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '60a6e2a401be606d';
+let _LOCAL_BUILD_HASH = '359b4bad3a7bf10f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -194,7 +194,17 @@ const firestoreDb = firebase.firestore();
 // inspection. Esto debe llamarse ANTES de cualquier otra operación con
 // firestoreDb (incluido enablePersistence).
 try {
-  firestoreDb.settings({ experimentalForceLongPolling: true, useFetchStreams: false });
+  // ignoreUndefinedProperties: por defecto Firestore RECHAZA (lanza una
+  // excepción SÍNCRONA) cualquier escritura que contenga un campo con valor
+  // undefined — a diferencia de RTDB, que simplemente lo omitía. Un solo
+  // campo undefined en cualquier vale/gestor/producto (ej. un flujo que
+  // arma el objeto a mano y se olvida un campo opcional) podía tirar esa
+  // excepción DENTRO de _processFBQueue() sin try/catch alrededor,
+  // dejando _fbProcessing atascado en true para siempre — congelando TODA
+  // sincronización futura (vales, stock, todo) hasta recargar la página.
+  // Esto es exactamente el tipo de fallo silencioso y total que hay que
+  // evitar. Ver también el try/catch agregado en _processFBQueue más abajo.
+  firestoreDb.settings({ experimentalForceLongPolling: true, useFetchStreams: false, ignoreUndefinedProperties: true });
 } catch(e) {
   console.warn('Firestore settings (long-polling) error:', e);
 }
@@ -277,27 +287,49 @@ const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B
 // eran 15000 comparaciones por render.
 // Ahora: mantenemos un Map(id → objeto) que se reconstruye solo cuando el
 // array subyacente cambia (dirty flag). Lookup es O(1).
-let _productosMap = null;
-let _gestoresMap = null;
-let _mensajerosMap = null;
+// BUGFIX: la invalidación por "dirty flag" (_productosDirty/etc.) nunca
+// disparaba en la práctica — ese flag lo usa getProductos() para saber si
+// debe releer localStorage, y CUALQUIER escritura (local o desde Firestore)
+// lo deja en `false` inmediatamente después de refrescar el array. Como
+// resultado, este Map se construía UNA sola vez por sesión y nunca más se
+// reconstruía, aunque getProductos() sí devolviera datos frescos. Un
+// producto agregado por el admin después del primer productoOf() de la
+// sesión quedaba invisible para el picker de cantidad/precio (el grid sí lo
+// mostraba, porque lee getProductos() directo) hasta recargar la página.
+// Con los listeners en tiempo real de Firestore empujando catálogo nuevo a
+// sesiones de gestor que quedan abiertas por horas, esto pasaba todo el
+// tiempo. Fix: comparar la REFERENCIA del array contra la última usada para
+// construir el Map — getProductos()/getGestores()/getMensajeros() siempre
+// devuelven un array nuevo cuando el contenido cambió (tanto en saves
+// locales como en el listener de Firestore), así que esta comparación es
+// un invalidado correcto y barato (O(1) en el caso común de "no cambió").
+let _productosMap = null, _productosMapSrc = null;
+let _gestoresMap = null, _gestoresMapSrc = null;
+let _mensajerosMap = null, _mensajerosMapSrc = null;
 function _getProductosMap() {
-  if (!_productosMap || _productosDirty) {
+  const src = getProductos();
+  if (!_productosMap || _productosMapSrc !== src) {
     _productosMap = new Map();
-    getProductos().forEach(p => _productosMap.set(p.id, p));
+    src.forEach(p => _productosMap.set(p.id, p));
+    _productosMapSrc = src;
   }
   return _productosMap;
 }
 function _getGestoresMap() {
-  if (!_gestoresMap || _gestoresDirty) {
+  const src = getGestores();
+  if (!_gestoresMap || _gestoresMapSrc !== src) {
     _gestoresMap = new Map();
-    getGestores().forEach(g => _gestoresMap.set(g.id, g));
+    src.forEach(g => _gestoresMap.set(g.id, g));
+    _gestoresMapSrc = src;
   }
   return _gestoresMap;
 }
 function _getMensajerosMap() {
-  if (!_mensajerosMap || _mensajerosDirty) {
+  const src = getMensajeros();
+  if (!_mensajerosMap || _mensajerosMapSrc !== src) {
     _mensajerosMap = new Map();
-    getMensajeros().forEach(m => _mensajerosMap.set(m.id, m));
+    src.forEach(m => _mensajerosMap.set(m.id, m));
+    _mensajerosMapSrc = src;
   }
   return _mensajerosMap;
 }
@@ -484,17 +516,34 @@ function _firestoreOpFor(path, value, method) {
   }
   const batch = firestoreDb.batch();
   let opsCount = 0;
+  const skipped = [];
+  // Firestore rechaza el batch COMPLETO si un solo doc supera ~1 MiB — típicamente
+  // una foto vieja de producto/gestor todavía en base64 (antes de "☁️ Fotos a
+  // GitHub"). Sin este chequeo, un doc gigante bloquea escrituras de otros docs
+  // completamente ajenos que viajaban en el mismo batch (ej. un descuento de
+  // stock de OTRO producto). Se salta ese doc puntual (con aviso) en vez de
+  // perder todo el batch.
+  const _tooLarge = v => { try { return JSON.stringify(v).length > 900000; } catch(e) { return false; } };
   if (Array.isArray(value)) {
     // 'set' con un array completo (reemplazo total) — ya casi no se genera
     // tras el cambio a _buildCollectionUpdates, pero se soporta por compatibilidad.
-    value.forEach(item => { if (item && item.id != null) { batch.set(coll.doc(String(item.id)), item); opsCount++; } });
+    value.forEach(item => {
+      if (!item || item.id == null) return;
+      if (_tooLarge(item)) { skipped.push(String(item.id)); return; }
+      batch.set(coll.doc(String(item.id)), item); opsCount++;
+    });
   } else if (value && typeof value === 'object') {
     Object.entries(value).forEach(([key, val]) => {
       const docId = key.includes('/') ? key.split('/')[1] : key; // 'gestorId/valeId' legado o 'id' plano
       const docRef = coll.doc(docId);
-      if (val === null) { batch.delete(docRef); opsCount++; }
-      else { batch.set(docRef, val, { merge: true }); opsCount++; }
+      if (val === null) { batch.delete(docRef); opsCount++; return; }
+      if (_tooLarge(val)) { skipped.push(docId); return; }
+      batch.set(docRef, val, { merge: true }); opsCount++;
     });
+  }
+  if (skipped.length > 0) {
+    console.error(`[firestore] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB (foto sin optimizar):`, skipped);
+    showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (foto sin optimizar) — usa "☁️ Fotos a GitHub" en Stock`);
   }
   if (opsCount === 0) return Promise.resolve();
   return batch.commit();
@@ -545,9 +594,9 @@ function _processFBQueue() {
       let dropped = 0;
       Object.entries(value).forEach(([k, v]) => {
         if (v === null) { filtered[k] = null; return; }  // borrados siempre se mandan
-        // Para path 'vales' (admin), key es 'gestorId/valeId'; para 'vales/X', key es 'valeId'.
-        const keyVid = path === 'vales' ? (k.includes('/') ? k.split('/')[1] : k) : k;
-        const objVid = (v && typeof v === 'object' && v.id != null) ? String(v.id) : keyVid;
+        // La key ya es siempre el id plano del vale (colección 'vales' plana
+        // en Firestore) — se prefiere v.id cuando el valor trae uno propio.
+        const objVid = (v && typeof v === 'object' && v.id != null) ? String(v.id) : k;
         if (syncedIds.has(objVid)) { dropped++; return; }
         filtered[k] = v;
       });
@@ -577,7 +626,22 @@ function _processFBQueue() {
   if (callback === null && (method === 'set' || method === 'update')) {
     _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
   }
-  const op = _firestoreOpFor(path, value, method);
+  // _firestoreOpFor puede lanzar SÍNCRONAMENTE (ej. un campo con valor
+  // undefined en algún objeto armado a mano, que Firestore rechaza antes de
+  // tocar la red). Sin este try/catch, esa excepción se escapaba de
+  // _processFBQueue() entero y dejaba _fbProcessing atascado en true para
+  // siempre — congelando TODA sincronización futura hasta recargar la
+  // página. Convertirlo en una promesa rechazada deja que el .then()/.catch()
+  // de abajo lo trate exactamente igual que cualquier otro fallo de red
+  // (reintento con backoff y, si persiste, descarte a axon_failed_writes sin
+  // trabar la cola).
+  let op;
+  try {
+    op = _firestoreOpFor(path, value, method);
+  } catch (syncErr) {
+    console.error('[firestore] error síncrono armando el write:', syncErr);
+    op = Promise.reject(syncErr);
+  }
   // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
   // no debe liberar el candado ni arrancar un segundo consumidor).
   let requeued = false;
@@ -610,15 +674,22 @@ function _processFBQueue() {
   // v17: estimación REAL del throughput con navigator.connection.downlink.
   // A 10 Kbit/s reales, 6KB/s es optimista por 5x → timeouts demasiado cortos
   // → writes erroneamente reintentados → saturación del enlace.
-  // Fórmula v17: timeout = (payloadBytes / effectiveBps) * 1.3 + 3000ms (RTT WS)
+  // v22 (Firestore): se forzó experimentalForceLongPolling porque Cuba corta
+  // conexiones streaming de larga duración (WebSocket-like). Long-polling
+  // (peticiones HTTP cortas repetidas) típicamente tiene MÁS latencia de ida
+  // y vuelta que una conexión persistente, sobre todo con pérdida de
+  // paquetes — el +3000ms de RTT calibrado para WebSocket se quedaba corto,
+  // generando timeouts espurios (reintentos innecesarios) en writes que en
+  // realidad iban a terminar bien, solo que un poco más lento.
+  // Fórmula: timeout = (payloadBytes / effectiveBps) * 1.3 + 6000ms (RTT long-polling)
   // Cap máximo: 90s (antes 45s) para writes grandes en redes muy malas.
-  // Cap mínimo: 8s para writes pequeños (evita falsos timeout en redes con
-  // alta latencia inicial).
+  // Cap mínimo: 12s para writes pequeños (evita falsos timeout en redes con
+  // alta latencia inicial + varias peticiones HTTP de ida y vuelta).
   const payloadBytes = _payloadBytes(value);
   const effectiveBps = _estimateEffectiveThroughputBytesPerSec();
-  // ×1.3 safety margin para overhead real (frames WS, JSON parsing, ack)
-  const estimatedMs = Math.ceil((payloadBytes / effectiveBps) * 1000 * 1.3) + 3000;
-  const adaptiveTimeout = Math.min(90000, Math.max(8000, estimatedMs));
+  // ×1.3 safety margin para overhead real (headers HTTP repetidos, JSON parsing, ack)
+  const estimatedMs = Math.ceil((payloadBytes / effectiveBps) * 1000 * 1.3) + 6000;
+  const adaptiveTimeout = Math.min(90000, Math.max(12000, estimatedMs));
   _currentWriteTimeout = adaptiveTimeout;  // exponer para el indicador de sync
   const timeoutId = setTimeout(() => {
     if (settled) return;
@@ -1159,40 +1230,29 @@ function _ensurePendingValesEnqueued() {
   if (!activeGestorId) return;
   const mine = getVales().filter(v => v.gestorId === activeGestorId && v.synced !== true && v.status !== 'cancelled');
   if (mine.length === 0) return;
-  const myPath = `vales/${activeGestorId}`;
-  // Verificar si ya hay un write de vales/{gestorId} encolado
-  const hasValesWriteQueued = _fbWriteQueue.some(item =>
-    item.path === myPath ||
-    item.path === 'vales'
-  );
+  // BUGFIX: antes se encolaba al path legado 'vales/{gestorId}' (vestigio de
+  // RTDB) mientras saveVales() usa el path plano 'vales' — dos formas de
+  // path distintas para lo mismo, lo que rompía la fusión in-flight
+  // (_fbInFlightPending) entre esta función y saveVales() y generaba
+  // round-trips extra en redes ya lentas. Ahora usa el mismo path 'vales'
+  // siempre, coincidiendo exactamente con saveVales().
+  const hasValesWriteQueued = _fbWriteQueue.some(item => item.path === 'vales');
   if (hasValesWriteQueued) return; // ya hay uno en cola, no duplicar
   // ── v15: También salir si hay un write IN-FLIGHT para este path ──
   // Ese write ya está subiendo los vales pendientes. Si encolamos otro, el
   // in-flight merge lo fusionará al write actual (innecesario) Y al terminar
   // se flushéa como un nuevo write duplicado. Mejor no tocar nada.
-  if (_fbProcessing && _fbInFlightPending[myPath]) return;
-  if (_fbProcessing && _fbInFlightPending['vales']) return; // admin path (raro en gestor, pero por seguridad)
+  if (_fbProcessing && _fbInFlightPending['vales']) return;
   // Re-encolar un write con TODOS los vales pendientes de este gestor.
-  // v15: usar slimVale-equivalente para no mandar synced/isNew a Firebase.
+  // BUGFIX: antes armaba su PROPIO objeto "slim" a mano, que SÍ incluía
+  // status/mensajeroId/confirmedTs/adminNotes tal cual estuvieran en la
+  // copia local — bypaseando por completo el whitelist de slimValeGestor()
+  // y reabriendo la condición de carrera (copia stale del gestor pisando
+  // cambios del admin) que ese whitelist existe para cerrar. Ahora usa la
+  // MISMA función que saveVales(), sin duplicar lógica.
   const updates = {};
-  mine.forEach(v => {
-    const slim = {
-      id: v.id, valeNum: v.valeNum, gestorId: v.gestorId, ts: v.ts,
-      cliente: v.cliente, telefono: v.telefono, direccion: v.direccion,
-      carnet: v.carnet, mensajeria: v.mensajeria, articulo: v.articulo,
-      precioUSD: v.precioUSD, precioMN: v.precioMN, vuelto: v.vuelto,
-      total: v.total, garantia: v.garantia, comisionGestor: v.comisionGestor,
-      valeProductos: (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
-      status: v.status, mensajeroId: v.mensajeroId, confirmedTs: v.confirmedTs,
-      adminNotes: v.adminNotes,
-    };
-    if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
-    if (v.deliveredTs) slim.deliveredTs = v.deliveredTs;
-    if (v.commissionStatus) slim.commissionStatus = v.commissionStatus;
-    if (v.commissionPaid) slim.commissionPaid = v.commissionPaid;
-    updates[v.id] = slim;
-  });
-  _enqueueFB(myPath, updates, 'update');
+  mine.forEach(v => { updates[String(v.id)] = slimValeGestor(v, !!v.valeText); });
+  _enqueueFB('vales', updates, 'update');
   console.log(`[sync] Re-encolados ${mine.length} vales pendientes para gestor ${activeGestorId}`);
 }
 
@@ -1247,6 +1307,48 @@ const saveGestores  = v  => {
   _logAudit('gestores_update');
 };
 
+// ── Whitelist de campos que un GESTOR puede escribir en un vale ──
+// PROBLEMA ORIGINAL: el gestor tenía una copia local del vale que podía estar
+// desactualizada respecto a lo que el admin había cambiado (status,
+// mensajeroId, confirmedTs, adminNotes). Cualquier saveVales() del gestor
+// mandaba su copia local → pisaba los cambios del admin.
+// AHORA: el gestor solo escribe los campos que le pertenecen (datos del
+// cliente y productos). Los campos administrativos nunca se mandan desde el
+// dispositivo del gestor, así no pueden pisar cambios del admin.
+// A NIVEL DE MÓDULO (no dentro de saveVales) a propósito: _ensurePendingValesEnqueued()
+// también necesita esta misma función. Antes tenía su PROPIA copia inline que
+// NO aplicaba este whitelist (mandaba status/mensajeroId/confirmedTs/adminNotes
+// tal cual estuvieran en local) — reabría exactamente la misma condición de
+// carrera que este whitelist existe para cerrar. Una sola fuente de verdad.
+const GESTOR_WRITABLE_FIELDS = [
+  'id','valeNum','gestorId','ts','cliente','telefono','direccion',
+  'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
+  'total','garantia','comisionGestor'
+];
+function slimValeGestor(x, keepValeText) {
+  const slim = {};
+  GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
+  // valeProductos sin name — se busca por id al leer
+  slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
+  // Solo incluir valeText si ya existía (para vales viejos que ya lo traían)
+  if (x.valeText && keepValeText) slim.valeText = x.valeText;
+  // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
+  // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
+  // En Firestore esto además queda reforzado por set(...,{merge:true}): como
+  // slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
+  // puede tocarlos en el documento, sin importar qué tan vieja esté su copia.
+  if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
+  // Excepción explícita: cancelVale() permite al gestor cancelar su PROPIO
+  // vale mientras está 'pending' — el único valor de status que puede salir
+  // del dispositivo de un gestor es 'cancelled'; cualquier otro
+  // (confirmed/delivered/assigned/pending_payment) sigue siendo exclusivo
+  // del admin.
+  if (x.status === 'cancelled') {
+    slim.status = 'cancelled';
+    if (x.cancelledTs) slim.cancelledTs = x.cancelledTs;
+  }
+  return slim;
+}
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
 // Vales are synced via saveVales → _enqueueFB('vales', updates, 'update') through the write queue.
 // Individual fbUpdateVale was removed from patchVale to prevent race conditions.
@@ -1321,37 +1423,8 @@ const saveVales = v => {
     if (x.commissionPaid) slim.commissionPaid = x.commissionPaid;
     return slim;
   }
-  // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
-  // PROBLEMA: el gestor tenía una copia local del vale que podía estar desactualizada
-  // respecto a lo que el admin había cambiado (status, mensajeroId, confirmedTs,
-  // adminNotes). Cualquier saveVales() del gestor mandaba su copia local →
-  // pisaba los cambios del admin. En redes lentas la ventana de desincronización
-  // es de varios segundos → muy probable que pase.
-  // AHORA: el gestor solo escribe los campos que le pertenecen (datos del
-  // cliente y productos). Los campos administrativos nunca se mandan desde
-  // el dispositivo del gestor, así no pueden pisar cambios del admin.
-  const GESTOR_WRITABLE_FIELDS = [
-    'id','valeNum','gestorId','ts','cliente','telefono','direccion',
-    'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
-    'total','garantia','comisionGestor'
-  ];
-  function slimValeGestor(x) {
-    const slim = {};
-    GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
-    // valeProductos sin name — se busca por id al leer
-    slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
-    // Solo incluir valeText si ya existía en local (vales viejos)
-    if (x.valeText && prevMap.get(String(x.id))?.valeText) {
-      slim.valeText = x.valeText;
-    }
-    // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
-    // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
-    // En Firestore esto además queda reforzado por set(...,{merge:true}): como
-    // slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
-    // puede tocarlos en el documento, sin importar qué tan vieja esté su copia.
-    if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
-    return slim;
-  }
+  // slimValeGestor() y GESTOR_WRITABLE_FIELDS ahora viven a nivel de módulo
+  // (arriba de getVales) — compartidos con _ensurePendingValesEnqueued().
   // Doc id de Firestore = String(vale.id) — plano, sin gestorId (la colección
   // 'vales' es única y plana; gestorId vive como CAMPO dentro del documento).
   const curKeys = new Set();
@@ -1387,8 +1460,9 @@ const saveVales = v => {
       const key = String(x.id);
       const prev = prevMap.get(key);
       // v17: usar slimValeGestor — solo campos del gestor, nunca status/mensajeroId/etc.
-      const slim = slimValeGestor(x);
-      const prevSlim = prev ? slimValeGestor(prev) : null;
+      const hadValeText = !!(prev && prev.valeText);
+      const slim = slimValeGestor(x, hadValeText);
+      const prevSlim = prev ? slimValeGestor(prev, hadValeText) : null;
       if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
         updates[key] = slim;
       }
@@ -1856,7 +1930,14 @@ function listenToMyVales(gId) {
   gestorValesListener = firestoreDb.collection('vales').where('gestorId', '==', gId).onSnapshot(snap => {
     _syncCount++;
     try {
-      const newVales = snap.docs.map(d => d.data());
+      // BUGFIX: Firestore dispara onSnapshot OPTIMISTAMENTE en cuanto un write
+      // local se encola (antes de que el servidor lo confirme) — snap.docs
+      // incluye esos cambios con metadata.hasPendingWrites=true. Sin este
+      // chequeo, un vale podía marcarse synced:true (más abajo) solo porque
+      // el SDK ya lo tenía en su caché local, ANTES de saber si el write
+      // realmente llegó al servidor. Si ese write fallaba después, el vale
+      // quedaba synced:true para siempre sin que nadie se enterara.
+      const newVales = snap.docs.map(d => { const data = d.data(); data.__pendingWrite = d.metadata.hasPendingWrites; return data; });
       if (!snap.empty) {
         // v14: regenerar campos slimados al leer de Firebase.
         // - valeText: no se envía para vales nuevos; se regenera aquí.
@@ -1871,8 +1952,10 @@ function listenToMyVales(gId) {
               }
             });
           }
-          // Asegurar flags locales por defecto
-          if (v && v.synced === undefined) v.synced = true; // vino de Firebase → está synced
+          // Asegurar flags locales por defecto — solo "synced" si el servidor
+          // ya confirmó el write, no solo la caché local optimista del SDK.
+          if (v && v.synced === undefined) v.synced = !v.__pendingWrite;
+          if (v) delete v.__pendingWrite;
         });
 
         // ── v17 BUGFIX: MERGE de vales locales synced:false ──
@@ -1951,14 +2034,11 @@ function listenToMyVales(gId) {
   }, err => console.error('[firestore] listener error (mis vales):', err));
 }
 
-// Custom Firebase Vale individual operations — now using the write queue
-// NOTE: fbAddVale and fbRemoveVale are DEPRECATED — saveVales already enqueues a
-// full 'set' on the vales node. Calling these in addition to saveVales caused
-// race conditions. Kept for backward compatibility but no longer invoked from
-// sendVale / cancelVale / adminDeleteVale / sendAdminVale.
-function fbAddVale(v)    { _enqueueFB(`vales/${v.gestorId}/${v.id}`, v, 'set'); }
-function fbRemoveVale(v) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, null, 'remove'); }
-// fbUpdateVale removed — was unused dead code (see comment in patchVale).
+// fbAddVale/fbRemoveVale/fbUpdateVale eliminados — código muerto sin
+// llamadores (saveVales() ya encola todo lo necesario) que además usaban la
+// forma de path anidada vieja de RTDB (vales/{gestorId}/{valeId}), quedando
+// como una trampa para quien los reactivara sin darse cuenta del cambio de
+// esquema a Firestore.
 
 // ── Debounce de refreshUI para conexiones lentas ──
 // Firebase dispara un snapshot por cada write remoto. En una sesión activa
@@ -2192,7 +2272,10 @@ if (IS_ADMIN) {
       // 'vales' es una colección plana — cada documento YA es un vale
       // completo (a diferencia de RTDB, donde había que aplanar
       // gestorId → valeId → vale).
-      let flatVales = snap.docs.map(d => d.data());
+      // BUGFIX: ver el mismo comentario en listenToMyVales — no marcar
+      // synced:true a partir de la caché local optimista del SDK
+      // (metadata.hasPendingWrites), solo cuando el servidor ya confirmó.
+      let flatVales = snap.docs.map(d => { const data = d.data(); data.__pendingWrite = d.metadata.hasPendingWrites; return data; });
 
       if (!snap.empty) {
         // v14: regenerar campos slimados al leer de Firebase.
@@ -2206,7 +2289,8 @@ if (IS_ADMIN) {
               }
             });
           }
-          if (v && v.synced === undefined) v.synced = true;
+          if (v && v.synced === undefined) v.synced = !v.__pendingWrite;
+          if (v) delete v.__pendingWrite;
         });
 
         // ── v17 BUGFIX: MERGE de vales locales synced:false ──
@@ -2297,14 +2381,22 @@ if (IS_ADMIN) {
       if (s.empty) {
         const lGestores = getGestores();
         if (lGestores.length > 0) {
-          _enqueueFB('gestores', _buildCollectionUpdates(lGestores, null), 'update');
-          _enqueueFB('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
-          _enqueueFB('productos', _buildCollectionUpdates(getProductos(), null), 'update');
-          _enqueueFB('categorias', _buildCollectionUpdates(getCategorias(), null), 'update');
+          // BUGFIX: antes usaba _enqueueFB directo (sin trocear) — Firestore
+          // rechaza un batch de más de 500 operaciones, así que para un
+          // negocio con historial real (más de 500 vales, o simplemente
+          // muchos productos) este seed fallaba SIEMPRE (no es un fallo de
+          // red pasajero, es determinístico: pasa cada uno de los 4
+          // reintentos y termina descartado). _enqueueFBChunked trocea por
+          // tamaño de payload (~6KB/chunk), quedando muy por debajo del
+          // límite de 500 docs/batch — mismo mecanismo que ya usa saveVales().
+          _enqueueFBChunked('gestores', _buildCollectionUpdates(lGestores, null), 'update');
+          _enqueueFBChunked('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
+          _enqueueFBChunked('productos', _buildCollectionUpdates(getProductos(), null), 'update');
+          _enqueueFBChunked('categorias', _buildCollectionUpdates(getCategorias(), null), 'update');
           setFB('config', getConfig());
           const localVales = getVales();
           if (localVales.length) {
-            _enqueueFB('vales', _buildCollectionUpdates(localVales, null), 'update');
+            _enqueueFBChunked('vales', _buildCollectionUpdates(localVales, null), 'update');
           }
         }
       }
@@ -6105,7 +6197,7 @@ function venderDirecto(id) {
   // Create vale record for stats
   const vale={
     id:Date.now(),valeNum:getNextValeNum(),gestorId:'admin',ts:new Date().toISOString(),
-    cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',
+    cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',carnet:'',
     mensajeria:'',articulo:`${p.name} x${qty}`,
     precioUSD:p.precio,precioMN:'',
     vuelto:'',total:'Venta Local',garantia:p.garantia||'',
@@ -8177,33 +8269,28 @@ async function nukeAndRebuild() {
     if(!res.ok) throw new Error("No se pudo leer data.json");
     const data = await res.json();
 
-    // Step 2: Use atomic multi-location update instead of remove + update.
-    // This sets all new nodes AND nulls out the old ones in a single operation,
-    // so the database is never left in an empty state if the second step fails.
+    // Step 2: reemplazar por completo gestores/mensajeros/productos/categorias
+    // y borrar todos los vales/notifs/ranking_summary/estafa.
     showToast("Inyectando base de datos limpia...");
-    // Firestore no tiene un "borra todo bajo este path" atómico como RTDB —
-    // hay que listar los vales existentes para poder borrarlos documento por
-    // documento. Se junta todo en batches (límite real de Firestore: 500
-    // operaciones por batch, usamos 450 de margen).
-    const batchOps = [];
-    if(data.gestores) {
-       localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-       data.gestores.forEach(g => batchOps.push({ ref: firestoreDb.collection('gestores').doc(String(g.id)), type: 'set', value: g }));
-    }
-    if(data.mensajeros) {
-       localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-       data.mensajeros.forEach(m => batchOps.push({ ref: firestoreDb.collection('mensajeros').doc(String(m.id)), type: 'set', value: m }));
-    }
-    if(data.productos) {
-       localStorage.setItem('axon_productos', JSON.stringify(data.productos));
-       data.productos.forEach(p => batchOps.push({ ref: firestoreDb.collection('productos').doc(String(p.id)), type: 'set', value: p }));
-    }
-    if(data.categorias) {
-       localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-       data.categorias.forEach(c => batchOps.push({ ref: firestoreDb.collection('categorias').doc(String(c.id)), type: 'set', value: c }));
-    }
+    // BUGFIX: antes esto solo hacía SET de cada entrada de data.json — un
+    // gestor/producto creado desde el admin DESPUÉS de la última vez que se
+    // regeneró data.json sobrevivía al "reseteo total" como zombie, porque
+    // nunca se borraba. RTDB original usaba un update() atómico de todo el
+    // subárbol (equivalente a un reemplazo real). _fsReplaceCollection()
+    // restaura ese comportamiento: borra en Firestore cualquier doc que NO
+    // esté en el data.json nuevo.
+    if(data.gestores)   localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+    if(data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+    if(data.productos)  localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+    if(data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+    if(data.gestores)   await _fsReplaceCollection('gestores', data.gestores);
+    if(data.mensajeros) await _fsReplaceCollection('mensajeros', data.mensajeros);
+    if(data.productos)  await _fsReplaceCollection('productos', data.productos);
+    if(data.categorias) await _fsReplaceCollection('categorias', data.categorias);
+
     // Borrar vales/notifs/ranking_summary/estafa. NO tocar 'backups' — ahí
     // acabamos de guardar el snapshot pre-nuke.
+    const batchOps = [];
     const currentVales = await firestoreDb.collection('vales').get();
     currentVales.forEach(doc => batchOps.push({ ref: doc.ref, type: 'delete' }));
     batchOps.push({ ref: firestoreDb.doc('meta/notifs'), type: 'delete' });
@@ -8224,8 +8311,8 @@ async function nukeAndRebuild() {
     _notifsCache=null;_notifsDirty=true;
     _estafaCache=null;_estafaDirty=true;
 
-    // Aplicar todo en batches (varias operaciones atómicas en vez de una sola
-    // — Firestore no permite más de 500 escrituras en un mismo batch).
+    // Aplicar el borrado de vales/notifs/ranking_summary/estafa en batches
+    // (límite real de Firestore: 500 operaciones por batch, 450 de margen).
     for (let i = 0; i < batchOps.length; i += 450) {
       const chunk = batchOps.slice(i, i + 450);
       const batch = firestoreDb.batch();
@@ -8256,14 +8343,38 @@ function _rtdbNodeToArray(node) {
   if (!node) return [];
   return Array.isArray(node) ? node.filter(x => x != null) : Object.values(node).filter(x => x != null);
 }
-async function _fsWriteCollection(name, arr) {
+// BUGFIX: la versión anterior (_fsWriteCollection) solo hacía SET de cada
+// item — nunca borraba un doc que ya no estuviera en el array nuevo. RTDB
+// original usaba db.ref('/').update({...}) con paths completos, que SÍ
+// reemplaza el subárbol entero (cualquier gestor/producto ausente del
+// nuevo objeto desaparece). Tanto migrateToFirestore() como
+// nukeAndRebuild() dependen de este "reemplazo total", así que ahora
+// _fsReplaceCollection() primero lee lo que YA existe en Firestore y borra
+// lo que no esté en `arr` — mismo comportamiento que el reemplazo atómico
+// de RTDB, adaptado a los batches de Firestore. Devuelve la lista de ids
+// omitidos por ser demasiado grandes (>900KB, típicamente una foto vieja
+// en base64) para que el llamador pueda avisar al usuario.
+async function _fsReplaceCollection(name, arr) {
   const coll = firestoreDb.collection(name);
-  for (let i = 0; i < arr.length; i += 450) {
-    const chunk = arr.slice(i, i + 450);
+  const existing = await coll.get();
+  const keepIds = new Set(arr.filter(x => x && x.id != null).map(x => String(x.id)));
+  const skipped = [];
+  const ops = [];
+  arr.forEach(item => {
+    if (!item || item.id == null) return;
+    let tooLarge = false;
+    try { tooLarge = JSON.stringify(item).length > 900000; } catch(e) {}
+    if (tooLarge) { skipped.push(String(item.id)); return; }
+    ops.push({ ref: coll.doc(String(item.id)), type: 'set', value: item });
+  });
+  existing.forEach(doc => { if (!keepIds.has(doc.id)) ops.push({ ref: doc.ref, type: 'delete' }); });
+  for (let i = 0; i < ops.length; i += 450) {
+    const chunk = ops.slice(i, i + 450);
     const batch = firestoreDb.batch();
-    chunk.forEach(item => { if (item && item.id != null) batch.set(coll.doc(String(item.id)), item); });
+    chunk.forEach(op => { if (op.type === 'delete') batch.delete(op.ref); else batch.set(op.ref, op.value); });
     await batch.commit();
   }
+  return skipped;
 }
 async function migrateToFirestore() {
   const statusEl = document.getElementById('fsMigrateStatus');
@@ -8291,11 +8402,18 @@ async function migrateToFirestore() {
 
     setStatus(`⏳ Leído: ${rGestores.length} gestores, ${rMensajeros.length} mensajeros, ${rProductos.length} productos, ${rCategorias.length} categorías, ${rVales.length} vales.<br>Escribiendo en Firestore...`);
 
-    await _fsWriteCollection('gestores', rGestores);
-    await _fsWriteCollection('mensajeros', rMensajeros);
-    await _fsWriteCollection('productos', rProductos);
-    await _fsWriteCollection('categorias', rCategorias);
-    await _fsWriteCollection('vales', rVales);
+    // _fsReplaceCollection borra en Firestore cualquier doc que NO esté en
+    // la lectura fresca de RTDB — así una migración re-ejecutada también
+    // limpia entidades "zombie" que hubiera dejado el seed automático
+    // (ver "Initialize empty Firestore from local if Admin" más arriba,
+    // que puede correr con datos locales incompletos antes de que se
+    // aprete este botón).
+    const skippedByCollection = {};
+    skippedByCollection.gestores   = await _fsReplaceCollection('gestores', rGestores);
+    skippedByCollection.mensajeros = await _fsReplaceCollection('mensajeros', rMensajeros);
+    skippedByCollection.productos  = await _fsReplaceCollection('productos', rProductos);
+    skippedByCollection.categorias = await _fsReplaceCollection('categorias', rCategorias);
+    skippedByCollection.vales      = await _fsReplaceCollection('vales', rVales);
 
     await firestoreDb.doc('meta/config').set(rConfig);
     await firestoreDb.doc('meta/notifs').set({ items: rNotifs });
@@ -8325,12 +8443,20 @@ async function migrateToFirestore() {
       firestoreDb.collection('categorias').get(),
       firestoreDb.collection('vales').get(),
     ]);
+    // El conteo esperado descuenta los docs omitidos por ser demasiado
+    // grandes (fotos base64 sin optimizar) — esos NO son un error de la
+    // migración, así que no deben contar como "mismatch".
     const mismatches = [];
-    if (gSnap.size !== rGestores.length) mismatches.push(`gestores: RTDB=${rGestores.length} Firestore=${gSnap.size}`);
-    if (mSnap.size !== rMensajeros.length) mismatches.push(`mensajeros: RTDB=${rMensajeros.length} Firestore=${mSnap.size}`);
-    if (pSnap.size !== rProductos.length) mismatches.push(`productos: RTDB=${rProductos.length} Firestore=${pSnap.size}`);
-    if (cSnap.size !== rCategorias.length) mismatches.push(`categorias: RTDB=${rCategorias.length} Firestore=${cSnap.size}`);
-    if (vSnap.size !== rVales.length) mismatches.push(`vales: RTDB=${rVales.length} Firestore=${vSnap.size}`);
+    const expected = (arr, skipped) => arr.length - (skipped ? skipped.length : 0);
+    if (gSnap.size !== expected(rGestores, skippedByCollection.gestores)) mismatches.push(`gestores: esperado=${expected(rGestores, skippedByCollection.gestores)} Firestore=${gSnap.size}`);
+    if (mSnap.size !== expected(rMensajeros, skippedByCollection.mensajeros)) mismatches.push(`mensajeros: esperado=${expected(rMensajeros, skippedByCollection.mensajeros)} Firestore=${mSnap.size}`);
+    if (pSnap.size !== expected(rProductos, skippedByCollection.productos)) mismatches.push(`productos: esperado=${expected(rProductos, skippedByCollection.productos)} Firestore=${pSnap.size}`);
+    if (cSnap.size !== expected(rCategorias, skippedByCollection.categorias)) mismatches.push(`categorias: esperado=${expected(rCategorias, skippedByCollection.categorias)} Firestore=${cSnap.size}`);
+    if (vSnap.size !== expected(rVales, skippedByCollection.vales)) mismatches.push(`vales: esperado=${expected(rVales, skippedByCollection.vales)} Firestore=${vSnap.size}`);
+    const totalSkipped = Object.values(skippedByCollection).reduce((s, arr) => s + (arr ? arr.length : 0), 0);
+    if (totalSkipped > 0) {
+      mismatches.push(`${totalSkipped} elemento(s) omitido(s) por pesar más de ~900KB (foto sin optimizar) — usa "☁️ Fotos a GitHub" en Stock y vuelve a migrar`);
+    }
 
     // Spot-check de contenido: muestra aleatoria de hasta 8 vales.
     const sampleSize = Math.min(8, rVales.length);

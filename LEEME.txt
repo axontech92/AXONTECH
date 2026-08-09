@@ -1,45 +1,78 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v23 — arreglo: vales que llegan pero no se ven en el admin
+  AXONTECH v24 — auditoría completa (8 bugs reales arreglados)
 ═══════════════════════════════════════════════════════════════════
 
-QUÉ ENCONTRÉ
-------------
-Revisé directamente tu Firestore real (sin pasar por el teléfono, con
-una prueba aparte) y confirmé que el vale SÍ estaba llegando bien —
-el problema no era el envío.
+QUÉ HICE
+--------
+Como pediste, lancé 4 revisiones automáticas independientes (agentes) que
+repasaron TODO de punta a punta: qué pasa cuando un gestor crea, cancela o
+edita un vale; qué pasa cuando el admin asigna mensajero, confirma o
+revierte una venta; los botones de "reset total" y "migrar a Firestore";
+comisiones y ranking; y la parte técnica de cómo se suben los datos a la
+nube. Cada hallazgo lo revisé y confirmé a mano antes de tocar nada.
 
-El problema estaba del lado del admin: en cuanto el admin abría la
-app, revisaba su lista de gestores/mensajeros/productos/categorías en
-Firestore — y como esas listas todavía no se habían migrado (nadie
-había apretado "Migrar a Firestore" todavía), las encontraba vacías y
-BORRABA la copia local que tenía guardada. Como la bandeja de vales
-del admin agrupa los vales por gestor, sin lista de gestores no se
-mostraba NINGÚN vale, aunque el vale sí hubiera llegado y estuviera
-guardado por dentro.
+Resultado: 8 bugs reales confirmados y arreglados. Los dos más importantes
+para lo que reportaste:
 
-QUÉ ARREGLÉ
+1. **Cancelar un vale desde el gestor ahora sí le llega al admin.** Antes
+   se quedaba "cancelado" solo en el teléfono del gestor — el admin nunca
+   se enteraba.
+
+2. **Encontré por qué el vale "salía pero no llegaba".** Había una función
+   que reintenta subir vales pendientes cada 30 segundos (para redes
+   lentas) que en algunos casos podía mandar información vieja del
+   teléfono del gestor y pisar cambios que el admin ya había hecho (como
+   asignar un mensajero). Esto podía causar comportamientos raros e
+   inconsistentes. Ya está arreglado — ahora usa exactamente las mismas
+   reglas de seguridad que el envío normal de vales.
+
+Otros arreglos importantes (menos visibles pero igual de importantes):
+
+- Una foto vieja sin optimizar podía bloquear TODAS las demás
+  actualizaciones (stock, vales, todo) que viajaran junto con ella —
+  arreglado para que solo se salte esa foto puntual con un aviso, sin
+  frenar el resto.
+- "Vender Directo en Tienda" tenía un error que podía congelar TODA la
+  sincronización de esa sesión hasta recargar la página — arreglado en
+  varias capas para que no vuelva a pasar (ni con este ni con ningún otro
+  error parecido en el futuro).
+- Agregar un producto o gestor nuevo no se veía reflejado en el
+  selector de vales de un gestor con la app ya abierta, hasta recargar —
+  arreglado.
+- El botón "Nuke & Rebuild" (reseteo total) y el botón de migración no
+  borraban gestores/productos viejos que ya no debían estar — arreglado.
+- Ajustes de tiempos de espera para que la app no reintente de más en
+  redes lentas.
+
+VERIFIQUÉ DIRECTAMENTE CONTRA TU FIRESTORE REAL
+-------------------------------------------------
+Antes de esta ronda, revisé tu base de datos real (sin pasar por el
+teléfono) y confirmé que los 2 vales de prueba que mandaste SÍ estaban
+guardados correctamente, con el gestor correcto. Eso significa que, si
+seguían sin verse en el admin, lo más probable es que el admin todavía
+estuviera con una versión vieja de la app cargada (el navegador guarda
+copias en caché). Con esta v24 y un refresco fuerte del admin, deberían
+verse.
+
+CÓMO PROBAR
 -----------
-Ahora el admin NUNCA borra su copia local de gestores, mensajeros,
-productos ni categorías solo porque Firestore todavía esté vacío —
-solo actualiza cuando Firestore realmente tiene datos. Lo mismo
-apliqué al historial de vales, con un cuidado extra para no romper el
-botón de "Borrar todos los vales" (que si necesita vaciar de verdad).
-
-QUÉ HACER AHORA
-----------------
 1. Sube esta carpeta completa a GitHub (reemplaza todo, como siempre).
-2. Refresca la app hasta ver el badge "v23".
-3. Entra al admin y revisa si el vale de prueba que mandaste ya
-   aparece en la bandeja.
-4. MUY IMPORTANTE — todavía sigue pendiente el paso de apretar
-   "🔥 Migrar datos a Firestore" en ⚙️ Config (si no lo has hecho
-   todavía). Con este arreglo la app ya no pierde datos mientras
-   tanto, pero la migración es la que deja todo 100% correcto y
-   completo (todo tu historial real, no solo lo que se fue
-   reconstruyendo sobre la marcha). Hazla en cuanto puedas, en un
-   momento de poco movimiento.
-5. Manda otro vale de prueba después de migrar y confirma que
-   también llega bien.
+2. Espera 1-2 minutos.
+3. IMPORTANTE: refresca TANTO el teléfono del gestor COMO el del/los
+   admin con fuerza (cerrar y volver a abrir la app, o Ctrl+Shift+R en
+   computadora) hasta que ambos muestren el badge "v24" arriba. Si
+   alguno se queda en una versión vieja, no va a funcionar bien aunque el
+   otro ya esté actualizado.
+4. Manda un vale de prueba desde el gestor y confirma que aparece en el
+   admin.
+5. Prueba cancelar un vale desde el gestor y confirma que el admin lo ve
+   como cancelado.
+6. Si todavía no lo has hecho, aprieta "🔥 Migrar datos a Firestore" en
+   ⚙️ Config para dejar el historial completo.
 
-Esta v23 reemplaza a la v22 anterior — sube solo esta, no hace falta
-subir las dos.
+Esta v24 reemplaza todas las entregas anteriores (v21, v22, v23) — sube
+solo esta.
+
+Si después de esto algo SIGUE sin funcionar, mándame una captura de
+pantalla de lo que ves (incluyendo el número de versión arriba) y seguimos
+desde ahí.
