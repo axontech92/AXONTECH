@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 19;
+const APP_VERSION = 20;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '5ced7c783d104e36';
+let _LOCAL_BUILD_HASH = '29ed274499a6b3bf';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2974,21 +2974,30 @@ function handleGestorPhoto(file) {
   reader.onload = e => {
     showToast('🔄 Procesando foto...');
     // 256px, calidad 0.72 — suficiente para un avatar, ligero para Firebase sync
-    compressImage(e.target.result, 256, 0.72, compressed => {
+    compressImage(e.target.result, 256, 0.72, async compressed => {
       if (!compressed) { showToast('Error al procesar la imagen'); return; }
+      // Subir como archivo a GitHub en vez de guardar el base64 completo dentro
+      // del registro — si no hay GitHub configurado o la subida falla, cae de
+      // vuelta a guardar el base64 directo (comportamiento de antes).
+      const uploaded = await uploadPhotoToGitHub(compressed, 'g');
+      const photoValue = uploaded || compressed;
       const list = getGestores();
       const i = list.findIndex(g => g.id === activeGestorId);
       if (i === -1) return;
-      list[i].photo = compressed;
+      list[i].photo = photoValue;
       saveGestores(list); // → localStorage + Firebase → todos los dispositivos
       gestoresTabDirty = true;
       // Refrescar UI inmediatamente en este dispositivo
       doSelectGestor(activeGestorId);
       if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
       if (typeof renderGestorRanking === 'function') { rankingCache = null; renderGestorRanking(); }
-      const fmt = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
-      const kb = Math.round(compressed.length / 1024);
-      showToast(`✅ Foto actualizada (${fmt} · ${kb} KB)`);
+      if (uploaded) {
+        showToast('✅ Foto actualizada (subida a GitHub)');
+      } else {
+        const fmt = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
+        const kb = Math.round(compressed.length / 1024);
+        showToast(`✅ Foto actualizada (${fmt} · ${kb} KB)`);
+      }
     });
   };
   reader.onerror = () => showToast('Error al leer el archivo');
@@ -3030,17 +3039,18 @@ function changeGestorPhotoById(id) {
     const reader = new FileReader();
     reader.onload = ev => {
       showToast('🔄 Procesando foto...');
-      compressImage(ev.target.result, 256, 0.72, compressed => {
+      compressImage(ev.target.result, 256, 0.72, async compressed => {
         if (!compressed) { showToast('Error al procesar la imagen'); return; }
+        const uploaded = await uploadPhotoToGitHub(compressed, 'g');
         const list = getGestores();
         const i = list.findIndex(g => g.id === pendingGestorPhotoId);
         if (i === -1) return;
-        list[i].photo = compressed;
+        list[i].photo = uploaded || compressed;
         saveGestores(list);
         gestoresTabDirty = true;
         renderAdminGestoresList();
         renderGestores();
-        showToast('✅ Foto actualizada');
+        showToast(uploaded ? '✅ Foto actualizada (subida a GitHub)' : '✅ Foto actualizada');
       });
     };
     reader.readAsDataURL(file);
@@ -3505,7 +3515,7 @@ function closeEditGestorModal(){
   window._editGestorPhotoPending = null;
   window._editGestorPhotoRemoved = false;
 }
-function saveEditGestor() {
+async function saveEditGestor() {
   const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
   const newName=document.getElementById('editGestorInput').value.trim();
   if(!newName){showToast('El nombre no puede estar vacío');return;}
@@ -3515,8 +3525,12 @@ function saveEditGestor() {
   list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   list[i].phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
   // ── Aplicar cambios de foto pendientes (subir/quitar) ──
+  // _editGestorPhotoPending es el base64 recién comprimido (preview local) —
+  // se sube a GitHub recién ahora, al guardar, para no subir fotos que el
+  // usuario termine descartando cerrando el modal sin guardar.
   if (window._editGestorPhotoPending) {
-    list[i].photo = window._editGestorPhotoPending;
+    const uploaded = await uploadPhotoToGitHub(window._editGestorPhotoPending, 'g');
+    list[i].photo = uploaded || window._editGestorPhotoPending;
   } else if (window._editGestorPhotoRemoved) {
     delete list[i].photo;
   }
@@ -5765,6 +5779,111 @@ function closeOptimizePhotosModal() {
   const modal = document.getElementById('optimizePhotosModal');
   if (modal) modal.classList.remove('show');
 }
+
+// ══════════════════════════════════════════
+//  MIGRAR FOTOS EXISTENTES (base64) A ARCHIVOS EN GITHUB
+//  Retroactivo: productos y gestores subidos ANTES de que las fotos nuevas
+//  empezaran a subirse solas a GitHub (ver uploadPhotoToGitHub). Solo toca
+//  fotos que sigan siendo base64 — idempotente, se puede correr más de una
+//  vez sin problema (las ya migradas se saltan).
+// ══════════════════════════════════════════
+async function migratePhotosToGitHubFiles(onProgress) {
+  if (!ghToken() || !getConfig().ghRepo) {
+    throw new Error('Configura GitHub primero en ⚙️ Config (token + repo)');
+  }
+  const prodTargets = getProductos().filter(p => (p.photo || '').startsWith('data:image/'));
+  const gestorTargets = getGestores().filter(g => (g.photo || '').startsWith('data:image/'));
+  const total = prodTargets.length + gestorTargets.length;
+  let done = 0, migrated = 0, failed = 0;
+  if (total === 0) return { total: 0, migrated: 0, failed: 0 };
+
+  for (const p of prodTargets) {
+    done++;
+    if (onProgress) try { onProgress(done, total, p.name || `#${p.id}`); } catch (_) {}
+    try {
+      const uploaded = await uploadPhotoToGitHub(p.photo, 'p');
+      if (uploaded) { patchProducto(p.id, { photo: uploaded }); migrated++; }
+      else failed++;
+    } catch (e) { console.warn('migratePhotosToGitHubFiles: producto', p.id, e); failed++; }
+    await new Promise(r => setTimeout(r, 120)); // margen para el rate limit de la API de GitHub
+  }
+
+  // Gestores no tienen un patchX — hay que releer el array completo cada vez
+  // (mismo patrón que ya usan handleGestorPhoto/changeGestorPhotoById) para
+  // no pisar cambios que otro dispositivo haya hecho mientras tanto.
+  for (const g0 of gestorTargets) {
+    done++;
+    if (onProgress) try { onProgress(done, total, g0.name || `#${g0.id}`); } catch (_) {}
+    try {
+      const uploaded = await uploadPhotoToGitHub(g0.photo, 'g');
+      if (uploaded) {
+        const list = getGestores();
+        const i = list.findIndex(x => x.id === g0.id);
+        if (i !== -1) { list[i].photo = uploaded; saveGestores(list); migrated++; }
+        else failed++;
+      } else failed++;
+    } catch (e) { console.warn('migratePhotosToGitHubFiles: gestor', g0.id, e); failed++; }
+    await new Promise(r => setTimeout(r, 120));
+  }
+
+  return { total, migrated, failed };
+}
+
+let _migratingPhotosToGitHub = false;
+function migratePhotosToGitHubUI() {
+  if (_migratingPhotosToGitHub) { showToast('Ya hay una migración de fotos en curso...'); return; }
+  if (!ghToken() || !getConfig().ghRepo) { showToast('Configura GitHub primero en ⚙️ Config'); return; }
+  const prodCount = getProductos().filter(p => (p.photo || '').startsWith('data:image/')).length;
+  const gestorCount = getGestores().filter(g => (g.photo || '').startsWith('data:image/')).length;
+  const total = prodCount + gestorCount;
+  if (total === 0) { showToast('✅ Ninguna foto pendiente de subir — ya están todas como archivo'); return; }
+  showConfirmAction(
+    'Subir fotos a GitHub',
+    `Se subirán ${total} foto${total === 1 ? '' : 's'} (${prodCount} de productos, ${gestorCount} de gestores) como archivos a tu repositorio de GitHub, para dejar de ocupar espacio dentro de Firebase/Firestore. Puede tardar unos minutos.`,
+    'Subir fotos',
+    'btn-blue',
+    async () => {
+      _migratingPhotosToGitHub = true;
+      const modal = document.getElementById('optimizePhotosModal');
+      const titleEl = modal ? modal.querySelector('.modal-title') : null;
+      const subEl = modal ? modal.querySelector('.modal-sub') : null;
+      const prevTitle = titleEl ? titleEl.textContent : '';
+      const prevSub = subEl ? subEl.textContent : '';
+      if (titleEl) titleEl.textContent = '☁️ Subiendo fotos a GitHub';
+      if (subEl) subEl.textContent = 'Moviendo fotos fuera de Firebase para ahorrar espacio…';
+      if (modal) modal.classList.add('show');
+      const setProgress = (done, t, name) => {
+        const bar = document.getElementById('optimizeProgressBar');
+        const txt = document.getElementById('optimizeProgressText');
+        const nameEl = document.getElementById('optimizeProgressName');
+        const pct = t > 0 ? Math.round((done / t) * 100) : 0;
+        if (bar) bar.style.width = pct + '%';
+        if (txt) txt.textContent = `${done} / ${t} (${pct}%)`;
+        if (nameEl) nameEl.textContent = name ? `Subiendo: ${name}` : '';
+      };
+      setProgress(0, total, '');
+      try {
+        const result = await migratePhotosToGitHubFiles((done, t, name) => setProgress(done, t, name));
+        if (typeof renderProductGrid === 'function') renderProductGrid();
+        if (typeof renderStockCategorias === 'function') renderStockCategorias();
+        if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
+        if (typeof renderGestores === 'function') renderGestores();
+        maybeAutoSync();
+        const parts = [`✅ ${result.migrated} foto${result.migrated === 1 ? '' : 's'} subida${result.migrated === 1 ? '' : 's'} a GitHub`];
+        if (result.failed > 0) parts.push(`⚠️ ${result.failed} fallaron (revisa el token/repo y vuelve a intentar)`);
+        showToast(parts.join(' · '));
+      } catch (e) {
+        showToast('⚠️ ' + (e.message || 'Error al subir fotos'));
+      } finally {
+        _migratingPhotosToGitHub = false;
+        if (modal) modal.classList.remove('show');
+        if (titleEl) titleEl.textContent = prevTitle;
+        if (subEl) subEl.textContent = prevSub;
+      }
+    }
+  );
+}
+
 function handleProductPhoto(input) {
   const file=input.files[0];if(!file)return;
   // Validate file type and size to prevent UI freeze on huge non-image files
@@ -5795,9 +5914,17 @@ function handleProductPhoto(input) {
   reader.readAsDataURL(file);
 }
 function closeProductModal(){document.getElementById('productModal').classList.remove('show');editingProductId=null;}
-function saveProduct() {
+async function saveProduct() {
   const name=document.getElementById('pm-name').value.trim();if(!name){showToast('El nombre es obligatorio');return;}
   const catVal=document.getElementById('pm-cat').value;
+  // pm-foto puede ser: vacío, una ruta ya subida ("photos/xxx.webp", sin
+  // cambios), o un data URL base64 recién comprimido por handleProductPhoto
+  // (foto nueva o reemplazada) — solo en ese último caso hay que subirla.
+  let photoVal = document.getElementById('pm-foto').value.trim();
+  if (photoVal.startsWith('data:image/')) {
+    const uploaded = await uploadPhotoToGitHub(photoVal, 'p');
+    if (uploaded) photoVal = uploaded;
+  }
   const prod={
     name,description:document.getElementById('pm-desc').value.trim(),
     precio:document.getElementById('pm-precio').value.trim(),
@@ -5805,7 +5932,7 @@ function saveProduct() {
     puntos:parseFloat(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
     comision:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);const cur=document.getElementById('pm-comision-currency').value;return amt>0?(cur==='MN'?`${amt} MN`:`$${amt} USD`):''})(),
-    photo:document.getElementById('pm-foto').value.trim(),
+    photo:photoVal,
     catId:catVal?parseInt(catVal):null,
   };
   if(editingProductId){
@@ -6587,6 +6714,52 @@ function buildCatalogCardJS(p,cat,color,waPhone){
   const waMsg=`Hola, me interesa el producto: ${pName}${pPrice?' - '+pPrice:''}. Esta disponible?`;
   const waLink=waPhone?`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`:'';
   return `{id:${p.id},catId:${cat?cat.id:0},name:${esc(pName)},desc:${esc(pDesc)},price:${esc(pPrice)},photo:${esc(pPhoto)},catName:${esc(cat?cat.name:'')},catColor:'${color}',garantia:${esc(pGarantia)},waLink:${esc(waLink)}},`;
+}
+
+// ══════════════════════════════════════════
+//  FOTOS COMO ARCHIVO EN GITHUB (en vez de base64 embebido)
+// ══════════════════════════════════════════
+// Sube una foto ya comprimida (data URL base64, salida de compressImage) como
+// archivo nuevo a la carpeta photos/ del repo, reutilizando el mismo patrón
+// PUT de la API de contenidos de GitHub que ya usan syncToGitHub/
+// publishCatalogToGitHub. A diferencia de esas funciones, esto SIEMPRE crea
+// un archivo con nombre nuevo (timestamp + hash del contenido) — nunca
+// sobrescribe uno existente, así que no hace falta el GET previo por el sha.
+// Devuelve la ruta relativa ("photos/p-...webp") si se subió bien, o null si
+// no hay GitHub configurado o la subida falló — en ese caso el llamador debe
+// caer de vuelta a guardar el data URL base64 directo, como se hacía antes.
+async function uploadPhotoToGitHub(dataUrl, prefix) {
+  const cfg = getConfig();
+  if (!ghToken() || !cfg.ghRepo) return null;
+  const m = /^data:image\/([a-zA-Z0-9.+-]+);base64,(.*)$/.exec(dataUrl || '');
+  if (!m) return null;
+  const ext = m[1] === 'jpeg' ? 'jpg' : m[1];
+  const base64Content = m[2];
+  const parts = cfg.ghRepo.split('/').filter(Boolean);
+  if (parts.length < 2) return null;
+  const owner = parts[0], repo = parts.slice(1).join('/');
+  if ([owner, repo].some(s => /\.\.|[^a-zA-Z0-9._\-\/]/.test(s))) return null;
+  // Hash corto del contenido para el nombre — sigue la misma convención
+  // (prefix-timestamp-hash.ext) que los archivos ya subidos a mano en photos/.
+  let hash8 = Date.now().toString(16);
+  try {
+    const bytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    hash8 = Array.from(new Uint8Array(digest)).slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) { /* fallback al timestamp ya asignado arriba */ }
+  const filename = `photos/${prefix}-${Date.now()}-${hash8}.${ext}`;
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filename}`;
+  const headers = { Authorization: `token ${ghToken()}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+  try {
+    const body = { message: `Foto ${prefix === 'g' ? 'gestor' : 'producto'} · ${new Date().toLocaleString('es-ES')}`, content: base64Content };
+    const res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (res.ok) return filename;
+    console.error('uploadPhotoToGitHub error:', res.status, await res.text().catch(() => ''));
+    return null;
+  } catch (e) {
+    console.error('uploadPhotoToGitHub network error:', e);
+    return null;
+  }
 }
 
 // ══════════════════════════════════════════
