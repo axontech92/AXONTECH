@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=24">
+  <link rel="stylesheet" href="./app.css?v=25">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v24</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v25</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -786,7 +786,7 @@
 </div>
 
 <!-- Sync indicator (online/offline/pending writes) -->
-<div id="syncIndicator" class="online">
+<div id="syncIndicator" class="online" onclick="showSyncDiagnostics()" style="cursor:pointer;" title="Toca para ver el estado de sincronización">
   <span class="sync-dot"></span>
   <span id="syncLabel">En línea</span>
 </div>
@@ -1019,7 +1019,7 @@
 <script src="./firebase-app-compat.js"></script>
 <script src="./firebase-database-compat.js"></script>
 <script src="./firebase-firestore-compat.js"></script>
-<script src="./app.js?v=24"></script>
+<script src="./app.js?v=25"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

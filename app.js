@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '359b4bad3a7bf10f';
+let _LOCAL_BUILD_HASH = 'd6bdab281e2337a6';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -403,6 +403,12 @@ const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).
 const _fbWriteQueue = [];
 let _fbProcessing = false;
 const _FAILED_WRITES_LIMIT = 100;
+// Último error real de un write a Firestore (código + mensaje), para el
+// panel de diagnóstico (tocar el indicador de sync) — antes esta
+// información solo quedaba en la consola del navegador, invisible en un
+// teléfono, lo que hacía muy difícil saber POR QUÉ algo se quedaba
+// "pegado" sin pedirle capturas de pantalla de la consola al dueño.
+let _lastSyncError = null;
 // ── In-Flight Merge Buffer (v13) ──
 // Cuando un write a Firebase está EN PROCESO (op in flight), no está en
 // _fbWriteQueue — fue shift()ado. Si llega otro saveVales con más vales
@@ -421,8 +427,11 @@ const _fbInFlightPending = {};  // { path: { value, method } }
 // Persist queue to localStorage so it survives reloads / tab closes
 function _persistQueue() {
   try {
-    // Only persist non-callback items (callbacks are not serializable)
-    const serializable = _fbWriteQueue.map(({path, value, method, retries}) => ({path, value, method, retries}));
+    // Only persist non-callback items (callbacks are not serializable).
+    // chunked se persiste también — si no, un chunk sobreviviente a un
+    // reload perdería su protección contra re-fusionarse con otro write
+    // (ver comentario en _enqueueFB sobre por qué existe este flag).
+    const serializable = _fbWriteQueue.map(({path, value, method, retries, chunked}) => ({path, value, method, retries, chunked}));
     localStorage.setItem('axon_pending_writes', JSON.stringify(serializable));
   } catch(e) {/* storage full or unavailable */}
   _updateSyncIndicator();
@@ -572,7 +581,7 @@ function _processFBQueue() {
   _updateSyncIndicator();
   const item = _fbWriteQueue.shift();
   item.retries = (item.retries || 0) + 1;
-  const {path, method, callback} = item;
+  const {path, method, callback, chunked} = item;
   let value = item.value;  // v15: mutable, podemos filtrarle vales ya synced
 
   // ── v15 BUGFIX: filtrar vales ya synced del payload ANTES de enviar ──
@@ -623,7 +632,13 @@ function _processFBQueue() {
   // Si durante el procesamiento de este write llegan más saveVales al mismo
   // path, se acumularán en _fbInFlightPending[path]. Al terminar, los
   // flushearemos como un nuevo write.
-  if (callback === null && (method === 'set' || method === 'update')) {
+  // !chunked: un chunk de _enqueueFBChunked NO abre buffer in-flight —
+  // si lo hiciera, un write nuevo y no relacionado que llegue mientras este
+  // chunk puntual está en el aire se fusionaría en él, volviendo a inflar
+  // ese chunk por encima del tamaño por el que se troceó (ver comentario en
+  // _enqueueFB). Los chunks hermanos siguientes ya se encolan como items
+  // independientes (chunked:true), así que no necesitan este buffer.
+  if (callback === null && !chunked && (method === 'set' || method === 'update')) {
     _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
   }
   // _firestoreOpFor puede lanzar SÍNCRONAMENTE (ej. un campo con valor
@@ -695,6 +710,7 @@ function _processFBQueue() {
     if (settled) return;
     settled = true;
     console.warn(`Firebase write TIMEOUT (${adaptiveTimeout}ms, payload=${payloadBytes}B, est=${effectiveBps}B/s):`, path);
+    _lastSyncError = { code: 'timeout', msg: `sin respuesta tras ${Math.round(adaptiveTimeout/1000)}s`, ts: Date.now(), path };
     // Flush del buffer in-flight ANTES de reencolar el item.
     // Si el gestor mandó 5 vales mientras este write estaba colgado, esos 5
     // vales están en _fbInFlightPending[path] y deben encolarse como un nuevo
@@ -753,6 +769,7 @@ function _processFBQueue() {
       settled = true;
       clearTimeout(timeoutId);
       console.error("Firebase write error:", e);
+      _lastSyncError = { code: (e && e.code) ? e.code : 'desconocido', msg: (e && e.message) ? e.message : String(e), ts: Date.now(), path };
       // Mostrar el motivo real del error al usuario (antes solo quedaba en la
       // consola, invisible en un teléfono). 'permission-denied' es la causa
       // más común de un write que nunca sincroniza: las reglas de seguridad
@@ -818,7 +835,7 @@ function _processFBQueue() {
 //  ENQUEUE WITH MERGE (queue + in-flight)
 // ══════════════════════════════════════════════════════════════════
 // (El buffer _fbInFlightPending se declara arriba, junto con _fbWriteQueue.)
-function _enqueueFB(path, value, method='set', callback=null) {
+function _enqueueFB(path, value, method='set', callback=null, skipMerge=false) {
   // ── Batching para conexiones lentas ──
   // Antes: cada saveVales() encolaba un item separado. Si un gestor enviaba
   // 3 vales seguidos + editaba 1, habían 4 items encolados sobre paths
@@ -827,7 +844,21 @@ function _enqueueFB(path, value, method='set', callback=null) {
   // método 'set'/'update'), los fusionamos. Solo importa el ÚLTIMO valor.
   // Caso típico: saveVales() del gestor encola 'update' en 'vales/{gestorId}'.
   // Si llegan 3 saveVales seguidos, los 3 updates se fusionan en 1 solo.
-  if (callback === null) {
+  // BUGFIX: _enqueueFBChunked() parte un update grande en varios chunks de
+  // ~6KB CADA UNO A PROPÓSITO (para que un corte de red a medio camino solo
+  // pierda un chunk, no todo el lote). Pero como cada chunk se encola con
+  // esta MISMA función, el chunk #1 quedaba "in-flight" apenas se llamaba
+  // _processFBQueue() (síncrono hasta el batch.commit()), y los chunks
+  // #2..#N —encolados milisegundos después, en el mismo forEach— se
+  // fusionaban de vuelta en el buffer in-flight del chunk #1 (ver
+  // "In-Flight Merge Buffer" abajo). Al terminar el chunk #1, ese buffer
+  // se re-encolaba como UN SOLO write con TODOS los chunks juntos —
+  // deshaciendo el troceo por completo. Para un borrado grande (cientos de
+  // vales), esto podía volver a superar el límite de 500 operaciones por
+  // batch de Firestore, fallando siempre. `skipMerge=true` (usado solo por
+  // _enqueueFBChunked) hace que cada chunk se encole como item
+  // INDEPENDIENTE, sin fusionarse con otros chunks del mismo troceo.
+  if (callback === null && !skipMerge) {
     // Solo fusionar items sin callback (los callbacks no son serializables
     // y normalmente corresponden a operaciones críticas que no se fusionan).
     const methodIsMergeable = (method === 'set' || method === 'update');
@@ -853,7 +884,10 @@ function _enqueueFB(path, value, method='set', callback=null) {
       // para 'vales/X', el 'set' los sobreescribe a todos.
       for (let i = _fbWriteQueue.length - 1; i >= 0; i--) {
         const existing = _fbWriteQueue[i];
-        if (existing.path === path && (existing.method === method)) {
+        // !existing.chunked: un chunk de _enqueueFBChunked nunca acepta que
+        // OTRO write (chunk hermano o no) se le fusione encima — rompería
+        // el límite de tamaño por el que se troceó en primer lugar.
+        if (existing.path === path && (existing.method === method) && !existing.chunked) {
           // Mismo path, mismo método → fusionar valores (para 'update') o reemplazar (para 'set').
           if (method === 'update' && existing.value && typeof existing.value === 'object' && value && typeof value === 'object') {
             // Merge profundo de claves: el nuevo value gana sobre el existente.
@@ -875,7 +909,7 @@ function _enqueueFB(path, value, method='set', callback=null) {
       }
     }
   }
-  _fbWriteQueue.push({path, value, method, callback});
+  _fbWriteQueue.push({path, value, method, callback, chunked: skipMerge});
   _persistQueue();
   _processFBQueue();
 }
@@ -926,7 +960,9 @@ function _enqueueFBChunked(path, updates, method='update') {
   if (Object.keys(current).length > 0) chunks.push(current);
 
   console.log(`[sync] Splitting ${keys.length} updates into ${chunks.length} chunks (~${MAX_CHUNK_BYTES}B each, total ${totalBytes}B)`);
-  chunks.forEach(chunk => _enqueueFB(path, chunk, method));
+  // skipMerge=true: cada chunk es su propio item de cola, nunca se
+  // refusiona con otro chunk hermano (ver comentario en _enqueueFB).
+  chunks.forEach(chunk => _enqueueFB(path, chunk, method, null, true));
 }
 
 // ══════════════════════════════════════════
@@ -1091,6 +1127,31 @@ function _updateSyncIndicator() {
       ind.title = 'En línea — esperando primer cambio';
     }
   }
+}
+// ── Panel de diagnóstico (tocar el indicador de sync) ──
+// El `title` (tooltip) no se ve al tocar en la mayoría de los navegadores
+// de teléfono — por eso, pese a que _updateSyncIndicator ya arma un texto
+// informativo, en la práctica era invisible en un teléfono. Este panel
+// muestra lo mismo (y más: errores reales, versión, conteo de pendientes)
+// en un alert() — sin depender de hover ni de long-press, y fácil de
+// capturar en una captura de pantalla para mandarme si algo sigue mal.
+function showSyncDiagnostics() {
+  const pendingCount = _fbWriteQueue.length;
+  const unsyncedVales = _countPendingSyncVales();
+  const lines = [
+    `AXONTECH v${typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?'}`,
+    `Rol: ${IS_ADMIN ? 'Admin' : 'Gestor'}`,
+    `Conexión del navegador: ${_onlineStatus ? 'En línea' : 'Sin conexión'}`,
+    `Firestore conectado: ${_fbConnected ? 'Sí' : 'No'}`,
+    `Escrituras en cola: ${pendingCount}`,
+    `Vales sin confirmar: ${unsyncedVales}`,
+    `Última sync exitosa: ${_lastSyncAtStr || 'ninguna todavía'}`,
+  ];
+  if (_lastSyncError) {
+    const secAgo = Math.round((Date.now() - _lastSyncError.ts) / 1000);
+    lines.push('', `⚠️ Último error (hace ${secAgo}s, en "${_lastSyncError.path}"):`, `${_lastSyncError.code}: ${_lastSyncError.msg}`);
+  }
+  alert(lines.join('\n'));
 }
 // Formatea "hace Xs/m/h" para mostrar en el tooltip del indicador.
 function _formatAgo(ts) {
@@ -6983,37 +7044,78 @@ async function uploadPhotoToGitHub(dataUrl, prefix) {
 // ══════════════════════════════════════════
 //  PUBLISH CATALOG TO GITHUB PAGES
 // ══════════════════════════════════════════
+// BUGFIX: publishCatalogToGitHub() usaba la API de "Contents" (PUT directo
+// de un archivo), que GitHub limita a 1 MB — un límite duro, no negociable.
+// Con ~35 productos con descripciones reales (el negocio escribe fichas
+// técnicas largas), el catálogo generado YA pesa ~1.05 MB en base64, por
+// encima del límite. GitHub rechazaba la publicación (típicamente 400/422
+// "too large") y el catálogo publicado se quedaba pegado en la última
+// versión que sí cupo — el dueño veía "se publicó" (o un error que no
+// asoció con el tamaño) pero la página en línea no reflejaba los productos
+// actuales. Cada producto nuevo que se agrega lo empeora, así que no es un
+// caso raro — es cuestión de tiempo.
+// Fix: usar la Git Data API (blobs + trees + commits) en vez de Contents.
+// Un blob soporta hasta 100 MB — sin techo real para este caso de uso.
 async function publishCatalogToGitHub(htmlContent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
   const catalogPath='catalogo.html';
-  // Use utf8ToBase64 instead of deprecated btoa(unescape(encodeURIComponent(...)))
-  const content=utf8ToBase64(htmlContent);
   // Validate repo format (owner/repo) — reject path traversal
   const parts=cfg.ghRepo.split('/').filter(Boolean);
   if(parts.length < 2){showToast('Formato de repo inválido. Use: usuario/repositorio');return null;}
   const owner=parts[0];const repo=parts.slice(1).join('/');
   if([owner,repo].some(s => /\.\.|[^a-zA-Z0-9._\-\/]/.test(s))){showToast('Nombre de repo contiene caracteres inválidos');return null;}
-  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${catalogPath}`;
   const headers={Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
-  // Get existing SHA if file exists
-  let sha;
-  try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
-  const body={message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,content};
-  if(sha)body.sha=sha;
-  const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
-  if(res.ok){
-    // Construct GitHub Pages URL
-    const pagesUrl=`https://${owner}.github.io/${repo}/${catalogPath}`;
-    return pagesUrl;
-  } else {
-    const err=await res.json().catch(()=>({}));
-    const msg=err.message||'';
-    if(res.status===401)showToast('❌ Token inválido o expirado. Genera uno nuevo en GitHub Settings → Developer settings → Personal access tokens');
-    else if(res.status===404)showToast('❌ Repo no encontrado. Verifica el formato: usuario/nombre-repo');
-    else if(res.status===403)showToast('❌ Sin permisos. El token necesita permiso "repo" (full control)');
-    else showToast(`Error al publicar (${res.status}): ${msg}`);
-    console.error('GitHub publish error:',res.status,err);
+  const api=`https://api.github.com/repos/${owner}/${repo}`;
+  try {
+    // 1. Rama por defecto + último commit de esa rama.
+    const repoRes=await fetch(api,{headers});
+    if(!repoRes.ok){
+      if(repoRes.status===401)showToast('❌ Token inválido o expirado. Genera uno nuevo en GitHub Settings → Developer settings → Personal access tokens');
+      else if(repoRes.status===404)showToast('❌ Repo no encontrado. Verifica el formato: usuario/nombre-repo');
+      else showToast(`Error al publicar (${repoRes.status}) obteniendo el repo`);
+      return null;
+    }
+    const repoInfo=await repoRes.json();
+    const branch=repoInfo.default_branch||'main';
+    const refRes=await fetch(`${api}/git/refs/heads/${encodeURIComponent(branch)}`,{headers});
+    if(!refRes.ok){showToast(`Error al publicar (${refRes.status}) leyendo la rama ${branch}`);return null;}
+    const refInfo=await refRes.json();
+    const latestCommitSha=refInfo.object.sha;
+    // 2. Árbol base del último commit.
+    const commitRes=await fetch(`${api}/git/commits/${latestCommitSha}`,{headers});
+    if(!commitRes.ok){showToast(`Error al publicar (${commitRes.status}) leyendo el commit base`);return null;}
+    const commitInfo=await commitRes.json();
+    const baseTreeSha=commitInfo.tree.sha;
+    // 3. Blob con el HTML completo — sin el límite de 1MB de la API de Contents.
+    const blobRes=await fetch(`${api}/git/blobs`,{method:'POST',headers,body:JSON.stringify({content:utf8ToBase64(htmlContent),encoding:'base64'})});
+    if(!blobRes.ok){
+      const err=await blobRes.json().catch(()=>({}));
+      showToast(`❌ Error subiendo el catálogo (${blobRes.status}): ${err.message||''}`);
+      console.error('GitHub blob error:',blobRes.status,err);
+      return null;
+    }
+    const blobInfo=await blobRes.json();
+    // 4. Árbol nuevo: mismo árbol base, solo reemplazando catalogo.html.
+    const treeRes=await fetch(`${api}/git/trees`,{method:'POST',headers,body:JSON.stringify({base_tree:baseTreeSha,tree:[{path:catalogPath,mode:'100644',type:'blob',sha:blobInfo.sha}]})});
+    if(!treeRes.ok){showToast(`Error al publicar (${treeRes.status}) creando el árbol`);return null;}
+    const treeInfo=await treeRes.json();
+    // 5. Commit nuevo apuntando al árbol nuevo.
+    const newCommitRes=await fetch(`${api}/git/commits`,{method:'POST',headers,body:JSON.stringify({message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,tree:treeInfo.sha,parents:[latestCommitSha]})});
+    if(!newCommitRes.ok){showToast(`Error al publicar (${newCommitRes.status}) creando el commit`);return null;}
+    const newCommitInfo=await newCommitRes.json();
+    // 6. Mover la rama al commit nuevo.
+    const updateRefRes=await fetch(`${api}/git/refs/heads/${encodeURIComponent(branch)}`,{method:'PATCH',headers,body:JSON.stringify({sha:newCommitInfo.sha})});
+    if(!updateRefRes.ok){
+      const err=await updateRefRes.json().catch(()=>({}));
+      if(updateRefRes.status===403)showToast('❌ Sin permisos. El token necesita permiso "repo" (full control)');
+      else showToast(`Error al publicar (${updateRefRes.status}): ${err.message||''}`);
+      return null;
+    }
+    return `https://${owner}.github.io/${repo}/${catalogPath}`;
+  } catch(e) {
+    console.error('publishCatalogToGitHub network error:',e);
+    showToast('Error de red publicando el catálogo');
     return null;
   }
 }
@@ -7685,20 +7787,57 @@ async function maybeAutoSync() {
   _autoSyncTimer = setTimeout(() => { syncToGitHub(true).catch(()=>{}); }, 60000);
 }
 
+// BUGFIX: "borrar todos los vales" (y "limpiar vales y notifs" más abajo)
+// borraban solo lo que el CACHÉ LOCAL del admin conocía — saveVales() arma
+// el borrado comparando contra _valesCache, la copia en memoria de ESTE
+// dispositivo. Si ese caché estaba incompleto respecto a lo que de verdad
+// hay en Firestore (posible mientras no se haya corrido "Migrar a
+// Firestore" una vez, o si el admin no tenía sincronizados todos los
+// vales), los vales que el caché local no conocía NUNCA se borraban en
+// Firestore — seguían ahí, y por eso los gestores (que consultan Firestore
+// directo, no el caché del admin) los seguían viendo. _fsDeleteVales()
+// resuelve esto leyendo la colección 'vales' DIRECTO de Firestore (la
+// misma fuente de verdad que ya usa nukeAndRebuild) y borrando ahí,
+// sin depender de qué tan completo esté el caché local del admin.
+async function _fsDeleteVales(predicate) {
+  const snap = await firestoreDb.collection('vales').get();
+  const refs = [];
+  snap.forEach(doc => { if (!predicate || predicate(doc.data())) refs.push(doc.ref); });
+  for (let i = 0; i < refs.length; i += 450) {
+    const chunk = refs.slice(i, i + 450);
+    const batch = firestoreDb.batch();
+    chunk.forEach(ref => batch.delete(ref));
+    await batch.commit();
+  }
+  return refs.length;
+}
 function factoryResetVales() {
-  showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
+  showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', async () => {
     // saveVales([]) ya calcula el diff contra el cache previo y encola un
-    // delete por cada vale existente (updates[key] = null) — no hace falta
-    // (ni funcionaría) un 'remove' aparte sobre la colección completa.
+    // delete por cada vale existente (updates[key] = null) — cubre lo que
+    // el caché local del admin conocía, y actualiza la UI local al instante.
     saveVales([]);
-    // Clear ranking cache and summary so points reset to 0
     rankingCache=null;
     try { localStorage.removeItem('axon_ranking_summary'); } catch(e){}
-    _enqueueFB('ranking_summary', null, 'remove');
     gestoresTabDirty=true;statsTabDirty=true;
-    showToast('Todos los vales eliminados');
     selectedValeId=null;
     refreshUI();
+    showToast('Borrando todos los vales...');
+    // BUGFIX: antes se mostraba "eliminados" de inmediato, sin esperar a
+    // que el borrado remoto (encolado, async, puede fallar tras reintentos
+    // en una red mala) realmente terminara — el admin creía que ya estaba
+    // listo aunque en Firestore siguieran existiendo, y los gestores los
+    // seguían viendo. Ahora se espera la limpieza DIRECTA contra Firestore
+    // (la misma fuente de verdad que consultan los gestores) antes de
+    // avisar éxito, y si falla se avisa claro en vez de quedar en silencio.
+    try {
+      const extra = await _fsDeleteVales(null);
+      await firestoreDb.doc('meta/ranking_summary').delete().catch(()=>{});
+      showToast(`✓ Todos los vales eliminados${extra > 0 ? ` (confirmado en la nube)` : ''}`);
+    } catch(e) {
+      console.error('[factoryResetVales] error en limpieza directa:', e);
+      showToast('⚠️ Se guardó el borrado localmente pero falló al confirmar en la nube — revisa tu conexión y vuelve a intentar "Borrar todos los vales" para asegurar que a los gestores también se les borre.');
+    }
   });
 }
 
@@ -7718,7 +7857,7 @@ function changePassCfg() {
 // ══════════════════════════════════════════
 //  RESET GESTORES DATA — clear vales + notifs for fresh app start
 // ══════════════════════════════════════════
-function clearGestoresData() {
+async function clearGestoresData() {
   const vales = getVales();
   const notifs = getNotifs();
   const gestores = getGestores();
@@ -7747,8 +7886,28 @@ function clearGestoresData() {
   const remainingVales = vales.filter(v => !(v.gestorId && gestorIds.has(v.gestorId)));
   saveVales(remainingVales);
 
-  // 2) Clear all notifs
+  // 2) Clear all notifs (encolado — ver red de seguridad más abajo)
   saveNotifs([]);
+
+  // BUGFIX: antes esto disparaba el borrado directo de vales en un IIFE
+  // "fire and forget" (sin esperarlo) y saveNotifs([]) no tenía NINGÚN
+  // respaldo si su escritura encolada fallaba tras los reintentos — en
+  // ambos casos el admin veía "✓ listo" sin que el borrado realmente
+  // hubiera terminado (o hubiera fallado del todo) en Firestore, que es la
+  // fuente que consultan los gestores. Ahora se ESPERA la limpieza directa
+  // de vales (misma fuente de verdad que nukeAndRebuild) y también se
+  // fuerza notifs directo contra Firestore, antes de avisar éxito — y si
+  // algo falla, se avisa claro en vez de quedar en silencio.
+  showToast('Borrando vales y notificaciones...');
+  let cleanupError = null;
+  try {
+    const extra = await _fsDeleteVales(v => v && v.gestorId && gestorIds.has(v.gestorId));
+    if (extra > 0) console.log(`[clearGestoresData] ${extra} vale(s) adicionales borrados directo de Firestore`);
+    await firestoreDb.doc('meta/notifs').set({ items: [] });
+  } catch(e) {
+    console.error('[clearGestoresData] error en limpieza directa:', e);
+    cleanupError = e;
+  }
 
   // 3) Clear per-gestor local tracking flags (viewed/cleared/personal)
   try {
@@ -7775,12 +7934,16 @@ function clearGestoresData() {
     updateAdminBadge();
   } catch(e) { /* UI refs may not all be present on every page */ }
 
-  // 6) Status message
+  // 6) Status message — honesto sobre si la limpieza directa en Firestore
+  // (la que de verdad ven los gestores) terminó bien o falló.
   const s = document.getElementById('clearGestoresStatus');
-  if (s) {
-    s.innerHTML = `<span style="color:var(--green);">✓ Se eliminaron ${vCount} vales y ${nCount} notificaciones. Listo para empezar.</span>`;
+  if (cleanupError) {
+    if (s) s.innerHTML = `<span style="color:var(--red);">⚠️ Se borró localmente pero falló al confirmar en la nube — revisa tu conexión y vuelve a intentar.</span>`;
+    showToast('⚠️ Falló la limpieza en la nube — vuelve a intentar "Limpiar vales y notifs" para que a los gestores también se les borre');
+  } else {
+    if (s) s.innerHTML = `<span style="color:var(--green);">✓ Se eliminaron ${vCount} vales y ${nCount} notificaciones (confirmado en la nube). Listo para empezar.</span>`;
+    showToast(`✓ Datos limpiados: ${vCount} vales, ${nCount} notifs`);
   }
-  showToast(`🧹 Datos limpiados: ${vCount} vales, ${nCount} notifs`);
   maybeAutoSync();
 }
 

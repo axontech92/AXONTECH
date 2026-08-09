@@ -1,78 +1,61 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v24 — auditoría completa (8 bugs reales arreglados)
+  AXONTECH v25 — catálogo, borrado de vales/notifs, panel de diagnóstico
 ═══════════════════════════════════════════════════════════════════
 
-QUÉ HICE
---------
-Como pediste, lancé 4 revisiones automáticas independientes (agentes) que
-repasaron TODO de punta a punta: qué pasa cuando un gestor crea, cancela o
-edita un vale; qué pasa cuando el admin asigna mensajero, confirma o
-revierte una venta; los botones de "reset total" y "migrar a Firestore";
-comisiones y ranking; y la parte técnica de cómo se suben los datos a la
-nube. Cada hallazgo lo revisé y confirmé a mano antes de tocar nada.
+QUÉ REVISÉ Y ARREGLÉ ESTA VEZ
+-------------------------------
+Lancé otra revisión a fondo (con un segundo agente independiente,
+específicamente sobre "borrar no le llega a los gestores" y "vale
+duplicado") y verifiqué todo con datos reales de tu Firestore. Esto es
+lo que encontré y arreglé:
 
-Resultado: 8 bugs reales confirmados y arreglados. Los dos más importantes
-para lo que reportaste:
+1. **Catálogo que no cargaba productos** — confirmado matemáticamente:
+   con solo 35 productos, el catálogo ya pesa ~1.05 MB, y GitHub tiene
+   un límite DURO de 1 MB para publicar un archivo de la forma en que
+   la app lo hacía. Se publicaba mal (o fallaba) sin que quedara claro
+   por qué. Cambié el método de publicación a uno sin ese límite —
+   ahora puede crecer sin problema.
 
-1. **Cancelar un vale desde el gestor ahora sí le llega al admin.** Antes
-   se quedaba "cancelado" solo en el teléfono del gestor — el admin nunca
-   se enteraba.
+2. **"Borrar todos los vales" y "Limpiar vales y notifs" no le
+   llegaban a los gestores** — encontré DOS causas reales:
+   - Los botones avisaban "✓ listo" de inmediato, sin esperar a que el
+     borrado realmente terminara en la nube. Si esa parte fallaba (red
+     mala), tú veías "listo" pero el gestor seguía viendo todo. Ahora
+     esperan la confirmación real antes de avisar, y si algo falla te
+     lo dice claro (con instrucciones de qué hacer).
+   - Para borrados grandes (muchos vales a la vez), había un bug donde
+     el sistema que parte el borrado en pedacitos pequeños (para que
+     una red lenta no lo eche todo a perder) se volvía a juntar solo,
+     por accidente, en un pedazo demasiado grande — y Google/Firestore
+     lo rechazaba siempre. Arreglado.
 
-2. **Encontré por qué el vale "salía pero no llegaba".** Había una función
-   que reintenta subir vales pendientes cada 30 segundos (para redes
-   lentas) que en algunos casos podía mandar información vieja del
-   teléfono del gestor y pisar cambios que el admin ya había hecho (como
-   asignar un mensajero). Esto podía causar comportamientos raros e
-   inconsistentes. Ya está arreglado — ahora usa exactamente las mismas
-   reglas de seguridad que el envío normal de vales.
+3. **Vale duplicado**: revisé a fondo el código de envío de vales
+   (doble clic, reintentos del navegador, fusión de datos al recibir)
+   y no encontré ningún bug que genere un vale duplicado de verdad. Sí
+   encontré que, en teoría, dos vales podrían terminar con el MISMO
+   número de ticket si dos gestores mandan un vale casi al mismo
+   segundo estando ambos sin conexión — son dos vales reales y
+   distintos, pero con el mismo número, lo cual puede *parecer* un
+   duplicado. Si lo que viste fue eso (dos vales con el mismo número),
+   avísame para profundizar en esa parte específica.
 
-Otros arreglos importantes (menos visibles pero igual de importantes):
-
-- Una foto vieja sin optimizar podía bloquear TODAS las demás
-  actualizaciones (stock, vales, todo) que viajaran junto con ella —
-  arreglado para que solo se salte esa foto puntual con un aviso, sin
-  frenar el resto.
-- "Vender Directo en Tienda" tenía un error que podía congelar TODA la
-  sincronización de esa sesión hasta recargar la página — arreglado en
-  varias capas para que no vuelva a pasar (ni con este ni con ningún otro
-  error parecido en el futuro).
-- Agregar un producto o gestor nuevo no se veía reflejado en el
-  selector de vales de un gestor con la app ya abierta, hasta recargar —
-  arreglado.
-- El botón "Nuke & Rebuild" (reseteo total) y el botón de migración no
-  borraban gestores/productos viejos que ya no debían estar — arreglado.
-- Ajustes de tiempos de espera para que la app no reintente de más en
-  redes lentas.
-
-VERIFIQUÉ DIRECTAMENTE CONTRA TU FIRESTORE REAL
--------------------------------------------------
-Antes de esta ronda, revisé tu base de datos real (sin pasar por el
-teléfono) y confirmé que los 2 vales de prueba que mandaste SÍ estaban
-guardados correctamente, con el gestor correcto. Eso significa que, si
-seguían sin verse en el admin, lo más probable es que el admin todavía
-estuviera con una versión vieja de la app cargada (el navegador guarda
-copias en caché). Con esta v24 y un refresco fuerte del admin, deberían
-verse.
+4. **Panel de diagnóstico nuevo**: toca el indicador de sincronización
+   (arriba de cualquier pantalla) y te muestra el estado real:
+   conectado o no, cuántas cosas están pendientes de subir, y el
+   último error exacto si algo falló. Si algo se vuelve a "trabar",
+   tócalo y mándame una captura — así dejamos de adivinar.
 
 CÓMO PROBAR
 -----------
-1. Sube esta carpeta completa a GitHub (reemplaza todo, como siempre).
-2. Espera 1-2 minutos.
-3. IMPORTANTE: refresca TANTO el teléfono del gestor COMO el del/los
-   admin con fuerza (cerrar y volver a abrir la app, o Ctrl+Shift+R en
-   computadora) hasta que ambos muestren el badge "v24" arriba. Si
-   alguno se queda en una versión vieja, no va a funcionar bien aunque el
-   otro ya esté actualizado.
-4. Manda un vale de prueba desde el gestor y confirma que aparece en el
-   admin.
-5. Prueba cancelar un vale desde el gestor y confirma que el admin lo ve
-   como cancelado.
-6. Si todavía no lo has hecho, aprieta "🔥 Migrar datos a Firestore" en
-   ⚙️ Config para dejar el historial completo.
+1. Sube esta carpeta completa a GitHub (reemplaza todo).
+2. Refresca CON FUERZA tanto el/los admin como los gestores hasta ver
+   "v25" arriba en todos los dispositivos.
+3. Prueba: manda un vale, cancélalo, y confirma que el admin ve el
+   cambio. Prueba "Limpiar vales y notifs" y confirma que a un gestor
+   se le borra de verdad. Prueba publicar el catálogo y ábrelo en una
+   pestaña nueva para confirmar que carga los productos.
+4. Si algo sigue sin verse bien, toca el indicador de sincronización y
+   mándame captura de lo que dice — con esa información puedo ir
+   directo al problema real en vez de tener que adivinar.
 
-Esta v24 reemplaza todas las entregas anteriores (v21, v22, v23) — sube
-solo esta.
-
-Si después de esto algo SIGUE sin funcionar, mándame una captura de
-pantalla de lo que ves (incluyendo el número de versión arriba) y seguimos
-desde ahí.
+Esta v25 reemplaza todas las entregas anteriores.
