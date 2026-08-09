@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 22;
+const APP_VERSION = 23;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '56af5e33a1746019';
+let _LOCAL_BUILD_HASH = '60a6e2a401be606d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2124,11 +2124,22 @@ let _rankingIdleHandle = null;
     _syncCount++;
     try {
       const parsedVal = snap.docs.map(d => d.data());
-      try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
-      if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
-      else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
-      else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
-      else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
+      // BUGFIX: si Firestore todavía no tiene datos para esta colección
+      // (por ejemplo, antes de correr "Migrar a Firestore"), NO borrar la
+      // copia local — antes esto vaciaba gestores/mensajeros/productos/
+      // categorias en cuanto cargaba la app, y el admin dejaba de ver
+      // CUALQUIER vale en la bandeja (se agrupan por gestor: sin gestores
+      // locales, "no hay ningún vale pendiente" aunque los vales sí hayan
+      // llegado). Mismo criterio que ya usan los docs singleton (config/
+      // notifs/estafa) más abajo: un snapshot vacío solo se aplica si
+      // realmente no hay nada local que preservar.
+      if (parsedVal.length > 0) {
+        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
+        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
+        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
+        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
+        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
+      }
     } finally {
       _syncCount--;
       refreshUI();
@@ -2245,7 +2256,17 @@ if (IS_ADMIN) {
             _enqueueFB('ranking_summary', summary, 'set');
           }
         }, 3000);
-      } else {
+      } else if (localStorage.getItem('axon_fs_migrated') === '1') {
+        // BUGFIX: un snapshot vacío de Firestore es AMBIGUO — puede ser un
+        // factoryResetVales() legítimo, o simplemente que "Migrar a
+        // Firestore" todavía no se ha corrido (colección recién creada,
+        // vacía). Antes esto se trataba siempre como "vaciar todo", lo que
+        // borraba el historial local de vales del admin (heredado de RTDB)
+        // en cuanto cargaba esta versión, ANTES de que hubiera chance de
+        // migrar. Ahora solo se aplica el vaciado si ya sabemos con certeza
+        // que la migración ya corrió (bandera puesta por migrateToFirestore()
+        // al terminar con éxito) — así un reset real sigue funcionando, pero
+        // la ventana previa a migrar ya no pierde datos.
         // Firebase has no vales — clear everything, PERO preservar vales
         // locales synced:false (venta directa del admin pendiente de subir).
         const localPending = (getVales() || []).filter(v =>
@@ -8280,6 +8301,11 @@ async function migrateToFirestore() {
     await firestoreDb.doc('meta/notifs').set({ items: rNotifs });
     await firestoreDb.doc('meta/estafa').set({ items: rEstafa });
     await firestoreDb.doc('meta/ranking_summary').set({ items: rRanking });
+
+    // A partir de aquí, un snapshot vacío de 'vales' en Firestore ya se puede
+    // confiar como un vaciado real (factoryResetVales), no como "todavía no
+    // migré" — ver el listener de vales más arriba.
+    try { localStorage.setItem('axon_fs_migrated', '1'); } catch(e) {}
 
     // Backups: best-effort. Son snapshots históricos completos, pueden
     // superar el límite de 1 MiB/doc de Firestore — si uno falla, se

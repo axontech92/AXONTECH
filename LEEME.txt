@@ -1,52 +1,45 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v22 — arreglo urgente: vale colgado en "Subiendo..."
+  AXONTECH v23 — arreglo: vales que llegan pero no se ven en el admin
 ═══════════════════════════════════════════════════════════════════
 
-QUÉ PASÓ
---------
-Con la v21 (Firestore) el vale se quedó trabado en "Subiendo... / red
-lenta", igual que antes pasaba con la versión vieja. Investigué el
-motivo probando directamente contra tu base de datos real de Firestore
-(sin pasar por el teléfono) y confirmé algo importante:
+QUÉ ENCONTRÉ
+------------
+Revisé directamente tu Firestore real (sin pasar por el teléfono, con
+una prueba aparte) y confirmé que el vale SÍ estaba llegando bien —
+el problema no era el envío.
 
-  ✅ Los permisos SÍ dejan escribir — no era un problema de configuración
-     tuya en Firebase.
-  ⚠️ El problema parece ser que el SDK de Firestore, por defecto, usa una
-     conexión de "streaming" de larga duración (parecida a un WebSocket)
-     para mandar los datos — y ese tipo de conexión es exactamente lo que
-     las redes en Cuba suelen cortar o bloquear, aunque una petición
-     normal corta sí pase sin problema.
+El problema estaba del lado del admin: en cuanto el admin abría la
+app, revisaba su lista de gestores/mensajeros/productos/categorías en
+Firestore — y como esas listas todavía no se habían migrado (nadie
+había apretado "Migrar a Firestore" todavía), las encontraba vacías y
+BORRABA la copia local que tenía guardada. Como la bandeja de vales
+del admin agrupa los vales por gestor, sin lista de gestores no se
+mostraba NINGÚN vale, aunque el vale sí hubiera llegado y estuviera
+guardado por dentro.
 
-QUÉ CAMBIÉ
-----------
-Esta versión obliga a Firestore a usar peticiones HTTP cortas y
-repetidas en vez de esa conexión larga (se llama "long-polling"). A
-diferencia del intento anterior con Realtime Database (que usaba un
-truco interno no oficial y no bastó), esto es una función oficial y
-estable del SDK de Firestore — mucho más confiable.
-
-También agregué algo para que, si vuelve a fallar por otra razón, la
-app te muestre un mensaje con el motivo real del error (antes esa
-información solo quedaba invisible, oculta en la consola del navegador
-- ahora te avisa por pantalla).
-
-CÓMO PROBAR
+QUÉ ARREGLÉ
 -----------
-1. Sube esta carpeta completa a GitHub, reemplazando los archivos
-   anteriores (como siempre).
-2. Espera 1-2 minutos y refresca la app con fuerza (Ctrl+Shift+R en
-   computadora, o cerrar y volver a abrir en el teléfono) hasta ver
-   el badge "v22" arriba.
-3. IMPORTANTE — recordatorio del paso pendiente de la entrega
-   anterior: si todavía NO apretaste "🔥 Migrar datos a Firestore" en
-   ⚙️ Config, hazlo ahora (una sola vez, en un momento de poco
-   movimiento). Si ya lo hiciste, no hace falta repetirlo.
-4. Manda un vale de prueba desde un gestor con la conexión de datos
-   normal (sin VPN) y confirma que esta vez sube y desaparece el
-   aviso "Subiendo...".
-5. Si TODAVÍA se queda trabado, mándame captura — ahora debería
-   aparecer un mensaje de error más específico que me va a decir
-   exactamente qué está pasando.
+Ahora el admin NUNCA borra su copia local de gestores, mensajeros,
+productos ni categorías solo porque Firestore todavía esté vacío —
+solo actualiza cuando Firestore realmente tiene datos. Lo mismo
+apliqué al historial de vales, con un cuidado extra para no romper el
+botón de "Borrar todos los vales" (que si necesita vaciar de verdad).
 
-Este archivo reemplaza la entrega anterior (v21) — usa esta v22
-directamente, no hace falta subir las dos.
+QUÉ HACER AHORA
+----------------
+1. Sube esta carpeta completa a GitHub (reemplaza todo, como siempre).
+2. Refresca la app hasta ver el badge "v23".
+3. Entra al admin y revisa si el vale de prueba que mandaste ya
+   aparece en la bandeja.
+4. MUY IMPORTANTE — todavía sigue pendiente el paso de apretar
+   "🔥 Migrar datos a Firestore" en ⚙️ Config (si no lo has hecho
+   todavía). Con este arreglo la app ya no pierde datos mientras
+   tanto, pero la migración es la que deja todo 100% correcto y
+   completo (todo tu historial real, no solo lo que se fue
+   reconstruyendo sobre la marcha). Hazla en cuanto puedas, en un
+   momento de poco movimiento.
+5. Manda otro vale de prueba después de migrar y confirma que
+   también llega bien.
+
+Esta v23 reemplaza a la v22 anterior — sube solo esta, no hace falta
+subir las dos.
