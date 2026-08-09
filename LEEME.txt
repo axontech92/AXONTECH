@@ -1,0 +1,52 @@
+═══════════════════════════════════════════════════════════════════
+  AXONTECH v22 — arreglo urgente: vale colgado en "Subiendo..."
+═══════════════════════════════════════════════════════════════════
+
+QUÉ PASÓ
+--------
+Con la v21 (Firestore) el vale se quedó trabado en "Subiendo... / red
+lenta", igual que antes pasaba con la versión vieja. Investigué el
+motivo probando directamente contra tu base de datos real de Firestore
+(sin pasar por el teléfono) y confirmé algo importante:
+
+  ✅ Los permisos SÍ dejan escribir — no era un problema de configuración
+     tuya en Firebase.
+  ⚠️ El problema parece ser que el SDK de Firestore, por defecto, usa una
+     conexión de "streaming" de larga duración (parecida a un WebSocket)
+     para mandar los datos — y ese tipo de conexión es exactamente lo que
+     las redes en Cuba suelen cortar o bloquear, aunque una petición
+     normal corta sí pase sin problema.
+
+QUÉ CAMBIÉ
+----------
+Esta versión obliga a Firestore a usar peticiones HTTP cortas y
+repetidas en vez de esa conexión larga (se llama "long-polling"). A
+diferencia del intento anterior con Realtime Database (que usaba un
+truco interno no oficial y no bastó), esto es una función oficial y
+estable del SDK de Firestore — mucho más confiable.
+
+También agregué algo para que, si vuelve a fallar por otra razón, la
+app te muestre un mensaje con el motivo real del error (antes esa
+información solo quedaba invisible, oculta en la consola del navegador
+- ahora te avisa por pantalla).
+
+CÓMO PROBAR
+-----------
+1. Sube esta carpeta completa a GitHub, reemplazando los archivos
+   anteriores (como siempre).
+2. Espera 1-2 minutos y refresca la app con fuerza (Ctrl+Shift+R en
+   computadora, o cerrar y volver a abrir en el teléfono) hasta ver
+   el badge "v22" arriba.
+3. IMPORTANTE — recordatorio del paso pendiente de la entrega
+   anterior: si todavía NO apretaste "🔥 Migrar datos a Firestore" en
+   ⚙️ Config, hazlo ahora (una sola vez, en un momento de poco
+   movimiento). Si ya lo hiciste, no hace falta repetirlo.
+4. Manda un vale de prueba desde un gestor con la conexión de datos
+   normal (sin VPN) y confirma que esta vez sube y desaparece el
+   aviso "Subiendo...".
+5. Si TODAVÍA se queda trabado, mándame captura — ahora debería
+   aparecer un mensaje de error más específico que me va a decir
+   exactamente qué está pasando.
+
+Este archivo reemplaza la entrega anterior (v21) — usa esta v22
+directamente, no hace falta subir las dos.

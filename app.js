@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 21;
+const APP_VERSION = 22;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '9463c7507e986fe6';
+let _LOCAL_BUILD_HASH = '56af5e33a1746019';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -182,6 +182,22 @@ firebase.initializeApp(firebaseConfig);
 // única de datos existentes (ver migrateToFirestore) — nada más lo usa.
 const db = firebase.database();
 const firestoreDb = firebase.firestore();
+// ── Forzar long-polling en vez de streaming (WebChannel/HTTP2) ──
+// Probamos con una escritura REST simple (POST directo, sin SDK) que las
+// reglas de Firestore SÍ permiten el write — no es un problema de permisos.
+// Lo que sí puede fallar en redes restrictivas (como en Cuba) es la conexión
+// "streaming" de larga duración que el SDK usa por defecto para
+// onSnapshot()/writes (parecido a un WebSocket). Firestore, a diferencia de
+// RTDB, tiene soporte OFICIAL y estable para long-polling (peticiones HTTP
+// cortas repetidas en vez de una conexión persistente) — mucho más
+// confiable en redes que cortan conexiones largas o hacen deep packet
+// inspection. Esto debe llamarse ANTES de cualquier otra operación con
+// firestoreDb (incluido enablePersistence).
+try {
+  firestoreDb.settings({ experimentalForceLongPolling: true, useFetchStreams: false });
+} catch(e) {
+  console.warn('Firestore settings (long-polling) error:', e);
+}
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
 
@@ -666,6 +682,17 @@ function _processFBQueue() {
       settled = true;
       clearTimeout(timeoutId);
       console.error("Firebase write error:", e);
+      // Mostrar el motivo real del error al usuario (antes solo quedaba en la
+      // consola, invisible en un teléfono). 'permission-denied' es la causa
+      // más común de un write que nunca sincroniza: las reglas de seguridad
+      // de Firestore lo están bloqueando (typicamente porque la base se creó
+      // en "modo producción" — deniega todo por defecto hasta pegar reglas).
+      if (item.retries === 1 || item.retries >= 4) {
+        const code = (e && e.code) ? e.code : 'desconocido';
+        showToast(code === 'permission-denied'
+          ? '⚠️ Firestore rechazó el guardado (permisos) — avisa al admin, tu vale queda guardado en el teléfono'
+          : `⚠️ Error de sincronización (${code}) — tu vale queda guardado localmente`);
+      }
       // Flush del buffer in-flight antes de reencolar (igual que en timeout).
       _flushInFlight();
       if (item.retries < 4) {
