@@ -1,9 +1,9 @@
 {
-  "version": 32,
-  "versionStr": "v32",
-  "hash": "6fc190c5002d712b",
-  "hashFull": "6fc190c5002d712bdc1f04c455fb44e48ea9b31df7a833417e5aa62083f2908e",
-  "releasedAt": "2026-08-10 02:30",
+  "version": 33,
+  "versionStr": "v33",
+  "hash": "25b5405612621825",
+  "hashFull": "25b5405612621825c5fe34189b272633e669fbd6016af763d42005f2b488161b",
+  "releasedAt": "2026-08-10 03:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Fix crítico: el listener del gestor estaba borrando vales locales synced:true que no aparecían en el snapshot de Supabase (RLS bloqueando silenciosamente). Ahora se preservan, se marcan como huérfanos y se re-encolan. Además, todos los upserts usan return=representation para detectar si RLS bloquea."
+    "Fix crítico: el gestorId venía como string de Supabase JSONB y la comparación === fallaba → el polling traía el vale pero el filtro lo descartaba → el vale desaparecía del gestor. Ahora todas las comparaciones usan Number(). El vale debe quedarse visible con status 'pending' hasta que el admin lo procese."
   ]
 }

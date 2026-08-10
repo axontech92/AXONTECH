@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 32;
+const APP_VERSION = 33;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '6fc190c5002d712b';
+let _LOCAL_BUILD_HASH = '25b5405612621825';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -401,9 +401,13 @@ async function _doRestPoll() {
     if (IS_ADMIN) {
       const vales = await _sbRestGetCollection('vales');
       if (typeof window._handleValesSnap === 'function') window._handleValesSnap(_fakeSnap(vales));
-    } else if (activeGestorId) {
+    } else if (activeGestorId != null) {
       const all = await _sbRestGetCollection('vales');
-      const mine = all.filter(v => v && v.gestorId === activeGestorId);
+      // v32: comparación flexible con == en vez de === porque el gestorId puede
+      // venir como número o como string de Supabase JSONB según cómo se guardó.
+      // Number(v.gestorId) === Number(activeGestorId) es más seguro.
+      const gid = Number(activeGestorId);
+      const mine = all.filter(v => v && v.gestorId != null && Number(v.gestorId) === gid);
       if (typeof window._handleMyValesSnap === 'function') window._handleMyValesSnap(_fakeSnap(mine));
     }
     // ── Entidades (gestores/mensajeros/productos/categorias) ──
@@ -2284,8 +2288,12 @@ function listenToMyVales(gId) {
         // AHORA: preservamos TODOS los vales locales (synced:true o false)
         // que no estén en el snapshot. Los marcamos como huérfanos y los
         // re-encolamos para reintentar el write.
+        // v32: usar Number() para comparación robusta de gestorId (puede venir
+        // como string o número de Supabase JSONB).
+        const gidNum = Number(gId);
         const localVales = (getVales() || []).filter(v =>
-          v && v.gestorId === gId &&
+          v && v.gestorId != null &&
+          Number(v.gestorId) === gidNum &&
           v.status !== 'cancelled'
         );
         const fbIds = new Set(newVales.map(v => String(v && v.id)));
@@ -2350,17 +2358,19 @@ function listenToMyVales(gId) {
         }
         try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
       } else {
-        // Firebase has no vales — clear local too, PERO preservar vales
-        // locales synced:false (todavía no llegaron a Firebase).
-        // v17: si borramos TODO el cache local cuando FB está vacío, perdemos
-        // los vales que el gestor acaba de crear y aún no se han subido.
-        const localPending = (getVales() || []).filter(v =>
-          v && v.gestorId === gId &&
-          v.synced === false &&
+        // Firebase has no vales — clear local too, PERO preservar TODOS los
+        // vales locales del gestor (synced:true o false). Si el snap viene
+        // vacío pero hay vales locales, es porque el polling no los trajo
+        // todavía — NO borrarlos.
+        // v32: usar Number() para comparación robusta de gestorId.
+        const gidNum = Number(gId);
+        const localVales = (getVales() || []).filter(v =>
+          v && v.gestorId != null &&
+          Number(v.gestorId) === gidNum &&
           v.status !== 'cancelled'
         );
-        if (localPending.length > 0) {
-          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        if (localVales.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localVales)); _valesCache = localVales; _valesDirty = false; } catch(e) {}
         } else {
           try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
           rankingCache = null;
@@ -5193,7 +5203,9 @@ function renderMyVales() {
   // Asegurar que el banner de pendientes refleja el estado actual
   if (typeof _updatePendingSyncBanner === 'function') _updatePendingSyncBanner();
 
-  const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
+  // v32: comparación robusta con Number() por si gestorId viene como string
+  const gid = Number(activeGestorId);
+  const mine = getVales().filter(v => v && v.gestorId != null && Number(v.gestorId) === gid).reverse();
   const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
   // History now separates confirmed sales from pending_payment (awaiting collection) — both "completed" deliveries
   // but pending_payment represents an outstanding balance the gestor should track.

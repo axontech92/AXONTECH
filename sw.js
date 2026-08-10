@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '32';
-const CACHE = 'axontech-v32';
+const APP_VERSION  = '33';
+const CACHE = 'axontech-v33';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
