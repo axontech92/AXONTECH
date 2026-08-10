@@ -1,9 +1,9 @@
 {
-  "version": 30,
-  "versionStr": "v30",
-  "hash": "fad233a2f37acf3f",
-  "hashFull": "fad233a2f37acf3f",
-  "releasedAt": "2026-08-10 00:16",
+  "version": 31,
+  "versionStr": "v31",
+  "hash": "f831dc5c6e5407b1",
+  "hashFull": "f831dc5c6e5407b16582281e043fcef35a136f23254342c7a243532c19372a0c",
+  "releasedAt": "2026-08-10 01:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Las LECTURAS ahora también funcionan por HTTPS simple: además del canal en tiempo real de Firebase (que desde Cuba se bloquea), la app consulta los datos cada 12 segundos por HTTPS. Esto arregla que el vale se enviara pero NO llegara al admin — el admin, también en Cuba, tenía su canal de escucha bloqueado y nunca recibía nada. Probado simulando el canal completamente bloqueado: el vale sale, se confirma y el admin lo ve."
+    "Migración Firestore → Supabase. Firestore está bloqueado desde Cuba sin VPN; Supabase NO. SDKs de Firebase eliminados (-530KB), la app ahora va directo a Supabase por HTTPS. Polling cada 5s (en vez de 12s). Migración unívoca de datos desde el panel de admin."
   ]
 }

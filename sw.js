@@ -1,20 +1,17 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '30';
-const CACHE = 'axontech-v30';
+const APP_VERSION  = '31';
+const CACHE = 'axontech-v31';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
   './iconos/favicon-96.png', './iconos/icon-192.png', './iconos/icon-512.png',
   './iconos/icon-192-maskable.png', './iconos/icon-512-maskable.png', './iconos/icon-1024-maskable.png',
-  './offline.html',
-  // SDK de Firebase auto-hospedado (antes se pedía a gstatic.com en cada carga,
-  // un dominio externo más para reconectar/reintentar en redes lentas o con
-  // throttling). Al precachearlo aquí, después del primer install queda
-  // servido 100% local igual que el resto de la app.
-  './firebase-app-compat.js', './firebase-database-compat.js', './firebase-firestore-compat.js'
-  // v17: removido './data.json' (siempre 0 bytes, perdía 1 RTT en 3G al precachearlo).
+  './offline.html'
+  // v31: SDKs de Firebase eliminados — ya no se cargan. La app va directo a
+  // Supabase por HTTPS (fetch), sin SDK intermedio. Esto quita ~530KB del
+  // primer install y un dominio (gstatic.com) del camino crítico en Cuba.
   // NOTA: catalogo.html (~1MB con fotos base64 inline) NO se precachea.
   // Es una plantilla autocontenida para publicar en GitHub Pages, la app
   // nunca la carga localmente. Si se cachea, añade 1MB al primer install.

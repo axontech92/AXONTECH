@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 30;
+const APP_VERSION = 31;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'fad233a2f37acf3f';
+let _LOCAL_BUILD_HASH = 'f831dc5c6e5407b1';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -161,159 +161,184 @@ function base64ToUtf8(b64) {
 }
 
 // ══════════════════════════════════════════
-//  FIREBASE SETUP & DATA LAYER
+//  SUPABASE DATA LAYER (v31)
 // ══════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU",
-  authDomain: "axontech.firebaseapp.com",
-  databaseURL: "https://axontech-default-rtdb.firebaseio.com",
-  projectId: "axontech",
-  storageBucket: "axontech.firebasestorage.app",
-  messagingSenderId: "780537360829",
-  appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
+// POR QUÉ SUPABASE:
+// Firestore (firestore.googleapis.com) está bloqueado desde Cuba sin VPN
+// — confirmado con diagnostico-supabase.html el 2026-08-09. Supabase
+// (gdzsqwyedzrfituewdtt.supabase.co) SÍ responde desde Cuba, latencia
+// ~1 segundo a la API REST. Supabase es Postgres + PostgREST (API REST
+// automática sobre las tablas) + Realtime (WebSockets con fallback).
+// Modelo de datos: cada tabla tiene (id bigint primary key, data jsonb).
+// El objeto completo del vale/gestor/producto va dentro de `data` —
+// mismo modelo mental que un documento de Firestore, pero sobre Postgres.
+// Esto permite usar upsert atómico por id y select por id sin tener que
+// traducir cada campo a una columna distinta.
+
+const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
+const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
+const _SB_REST      = SUPABASE_URL + '/rest/v1';
+const _SB_AUTH_HDRS = {
+  'apikey':       SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type':  'application/json',
+  'Prefer':        'resolution=merge-duplicates',  // UPSERT en PostgREST
 };
-firebase.initializeApp(firebaseConfig);
-// ── Migración a Firestore ──
-// Realtime Database (RTDB) quedó inalcanzable sin VPN desde Cuba (confirmado
-// con pruebas reales — ver commits anteriores del forceLongPolling que
-// tampoco alcanzó). Firestore, en el MISMO proyecto de Firebase, sí conecta
-// bien sin VPN. `firestoreDb` es ahora el backend real de sincronización de
-// toda la app. `db` (RTDB) se mantiene inicializado SOLO para la migración
-// única de datos existentes (ver migrateToFirestore) — nada más lo usa.
-const db = firebase.database();
-const firestoreDb = firebase.firestore();
-// ── Forzar long-polling en vez de streaming (WebChannel/HTTP2) ──
-// Probamos con una escritura REST simple (POST directo, sin SDK) que las
-// reglas de Firestore SÍ permiten el write — no es un problema de permisos.
-// Lo que sí puede fallar en redes restrictivas (como en Cuba) es la conexión
-// "streaming" de larga duración que el SDK usa por defecto para
-// onSnapshot()/writes (parecido a un WebSocket). Firestore, a diferencia de
-// RTDB, tiene soporte OFICIAL y estable para long-polling (peticiones HTTP
-// cortas repetidas en vez de una conexión persistente) — mucho más
-// confiable en redes que cortan conexiones largas o hacen deep packet
-// inspection. Esto debe llamarse ANTES de cualquier otra operación con
-// firestoreDb (incluido enablePersistence).
-try {
-  // ignoreUndefinedProperties: por defecto Firestore RECHAZA (lanza una
-  // excepción SÍNCRONA) cualquier escritura que contenga un campo con valor
-  // undefined — a diferencia de RTDB, que simplemente lo omitía. Un solo
-  // campo undefined en cualquier vale/gestor/producto (ej. un flujo que
-  // arma el objeto a mano y se olvida un campo opcional) podía tirar esa
-  // excepción DENTRO de _processFBQueue() sin try/catch alrededor,
-  // dejando _fbProcessing atascado en true para siempre — congelando TODA
-  // sincronización futura (vales, stock, todo) hasta recargar la página.
-  // Esto es exactamente el tipo de fallo silencioso y total que hay que
-  // evitar. Ver también el try/catch agregado en _processFBQueue más abajo.
-  firestoreDb.settings({ experimentalForceLongPolling: true, useFetchStreams: false, ignoreUndefinedProperties: true });
-} catch(e) {
-  console.warn('Firestore settings (long-polling) error:', e);
-}
+
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
 
-// ══════════════════════════════════════════════════════════════════════
-//  ESCRITURAS POR API REST (en vez del canal WebChannel del SDK)
-// ══════════════════════════════════════════════════════════════════════
-// POR QUÉ: confirmamos con datos reales que desde Cuba las LECTURAS de
-// Firestore funcionan (onSnapshot + get, la prueba que hizo el dueño), y
-// que las escrituras a veces SÍ llegan (un vale real apareció en la nube).
-// Pero el síntoma "el vale se envía y la barra de subiendo se queda pegada
-// para siempre" tiene una causa concreta: el SDK de Firestore usa una cola
-// de mutaciones locales + un canal de escritura (WebChannel). En una
-// conexión con pérdida de paquetes como la de Cuba, el DATO sube y el
-// servidor lo guarda, pero el ACK de vuelta (la confirmación) se pierde.
-// El SDK entonces:
-//   1. deja el documento marcado como "escritura pendiente"
-//      (hasPendingWrites=true) PARA SIEMPRE — nunca lo marca confirmado,
-//      porque su propia mutación nunca fue reconocida.
-//   2. la promesa de batch.commit() nunca resuelve.
-// Como AMBAS vías de confirmación (el .then() de la cola y el
-// hasPendingWrites del listener) dependen de ese mismo ACK perdido, el
-// vale queda "synced:false" para siempre → la barra "subiendo" no se quita
-// nunca, AUNQUE el vale ya esté en Firestore.
-//
-// SOLUCIÓN: escribir por la API REST de Firestore con fetch(). Es HTTPS
-// simple, sin canal persistente ni cola de mutaciones del SDK: la respuesta
-// HTTP 200 ES el ACK, sobre el transporte más robusto y compatible que
-// existe (el mismo tipo de petición que ya probamos que funciona). El SDK
-// se sigue usando SOLO para LEER en tiempo real (onSnapshot), que sí anda
-// bien desde Cuba. Endpoint :commit = escritura atómica multi-documento,
-// equivalente 1:1 al batch.commit() que teníamos.
-const _FS_PROJECT = firebaseConfig.projectId;
-const _FS_DOC_PREFIX = `projects/${_FS_PROJECT}/databases/(default)/documents`;
-const _FS_REST_BASE = `https://firestore.googleapis.com/v1/${_FS_DOC_PREFIX}`;
-const _FS_API_KEY = firebaseConfig.apiKey;
+// ── Mapeo de nodos singleton (como en Firestore) ──
+// En Firestore: meta/{config,notifs,estafa,ranking_summary} (un doc por nombre)
+// En Supabase: tabla `meta` con primary key `name` (una fila por nombre)
+const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary'];
+// Estos guardaban un array envuelto en {items:[...]} en Firestore. En
+// Supabase guardamos el array DIRECTO en data (jsonb acepta arrays como
+// valor raíz). Al leer, ya no hay que desenvolver nada.
+const _SB_ARRAY_SINGLETONS = new Set(['notifs', 'estafa', 'ranking_summary']);
 
-// Convierte un valor de JavaScript al formato tipado que exige la API REST
-// de Firestore ({stringValue}, {integerValue}, {mapValue}, etc.). Ignora
-// campos undefined (como ignoreUndefinedProperties del SDK).
-function _toFsValue(v) {
-  if (v === null || v === undefined) return { nullValue: null };
-  if (typeof v === 'boolean') return { booleanValue: v };
-  if (typeof v === 'number') {
-    if (!isFinite(v)) return { doubleValue: 0 };
-    return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+// ── Helpers REST para Supabase ──
+// Lee una colección completa (tabla). Devuelve array de objetos JS
+// (ya con el contenido de `data` desenvuelto).
+async function _sbRestGetCollection(collName) {
+  // PostgREST: GET /rest/v1/{tabla}?select=data
+  // Como cada fila tiene (id, data), pedimos solo la columna `data`.
+  // Si la tabla está vacía devuelve [] (no error).
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) {
+    if (res.status === 404) return []; // tabla no existe todavía
+    throw new Error(`Supabase GET ${collName} ${res.status}: ${(await res.text()).slice(0,150)}`);
   }
-  if (typeof v === 'string') return { stringValue: v };
-  if (Array.isArray(v)) return { arrayValue: { values: v.map(_toFsValue) } };
-  if (typeof v === 'object') {
-    const fields = {};
-    Object.keys(v).forEach(k => { if (v[k] !== undefined) fields[k] = _toFsValue(v[k]); });
-    return { mapValue: { fields } };
-  }
-  return { stringValue: String(v) };
+  const rows = await res.json();
+  // Cada fila es {data: {...}} — desenvolver
+  return (rows || []).map(r => r.data).filter(x => x != null);
 }
-function _toFsFields(obj) {
-  const fields = {};
-  Object.keys(obj || {}).forEach(k => { if (obj[k] !== undefined) fields[k] = _toFsValue(obj[k]); });
-  return fields;
-}
-// ── DECODIFICADOR: formato tipado de Firestore REST → objeto JS normal ──
-// (inverso de _toFsValue). Necesario para LEER por REST.
-function _fromFsValue(v) {
-  if (!v || typeof v !== 'object') return null;
-  if ('nullValue' in v) return null;
-  if ('booleanValue' in v) return v.booleanValue;
-  if ('integerValue' in v) return Number(v.integerValue);
-  if ('doubleValue' in v) return Number(v.doubleValue);
-  if ('stringValue' in v) return v.stringValue;
-  if ('timestampValue' in v) return v.timestampValue;
-  if ('arrayValue' in v) return (v.arrayValue.values || []).map(_fromFsValue);
-  if ('mapValue' in v) return _fromFsFields(v.mapValue.fields || {});
-  return null;
-}
-function _fromFsFields(fields) {
-  const obj = {};
-  Object.keys(fields || {}).forEach(k => { obj[k] = _fromFsValue(fields[k]); });
-  return obj;
-}
-// Lee una colección completa por REST (HTTPS simple, paginado).
-function _fsRestGetCollection(collName) {
-  const out = [];
-  const fetchPage = (token) => {
-    const url = `${_FS_REST_BASE}/${collName}?pageSize=300&key=${_FS_API_KEY}` + (token ? `&pageToken=${encodeURIComponent(token)}` : '');
-    return fetch(url).then(res => {
-      if (!res.ok) throw new Error(`REST read ${collName} ${res.status}`);
-      return res.json();
-    }).then(j => {
-      (j.documents || []).forEach(d => out.push(_fromFsFields(d.fields || {})));
-      if (j.nextPageToken) return fetchPage(j.nextPageToken);
-      return out;
-    });
-  };
-  return fetchPage(null);
-}
-// Lee un documento único por REST (meta/config, meta/notifs, ...).
-function _fsRestGetDoc(docPath) {
-  return fetch(`${_FS_REST_BASE}/${docPath}?key=${_FS_API_KEY}`).then(res => {
+
+// Lee un documento singleton (tabla `meta`, fila por nombre).
+async function _sbRestGetMeta(name) {
+  const url = `${_SB_REST}/meta?select=data&name=eq.${encodeURIComponent(name)}`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) {
     if (res.status === 404) return null;
-    if (!res.ok) throw new Error(`REST read ${docPath} ${res.status}`);
-    return res.json().then(j => _fromFsFields(j.fields || {}));
-  });
+    throw new Error(`Supabase GET meta/${name} ${res.status}`);
+  }
+  const rows = await res.json();
+  if (!rows || rows.length === 0) return null;
+  return rows[0].data;
 }
-// Construye un objeto con la MISMA forma que un snapshot del SDK, para poder
-// reutilizar exactamente los mismos manejadores que usa onSnapshot() sin
-// duplicar la lógica de negocio.
+
+// UPSERT de una fila por id (inserta si no existe, actualiza si existe).
+// `value` es el objeto JS completo a guardar dentro de la columna `data`.
+async function _sbRestUpsert(collName, id, value) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
+  const body = JSON.stringify([{ id: id, data: value }]);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+    body: body,
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Supabase UPSERT ${collName}/${id} ${res.status}: ${t.slice(0,150)}`);
+  }
+}
+
+// UPSERT de múltiples filas en una sola petición (más eficiente que hacer
+// N requests separados — importante a 10 Kbit/s).
+async function _sbRestUpsertBatch(collName, items) {
+  // items: [{id, value}, ...]
+  if (!items || items.length === 0) return;
+  // Partir en chunks de 500 (límite recomendado por PostgREST)
+  const CHUNK = 500;
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const chunk = items.slice(i, i + CHUNK);
+    const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
+    const body = JSON.stringify(chunk.map(it => ({ id: it.id, data: it.value })));
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+      body: body,
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`Supabase UPSERT batch ${collName} ${res.status}: ${t.slice(0,150)}`);
+    }
+  }
+}
+
+// Borra un documento por id (DELETE /rest/v1/{tabla}?id=eq.X)
+async function _sbRestDelete(collName, id) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=eq.${encodeURIComponent(id)}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: _SB_AUTH_HDRS,
+  });
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Supabase DELETE ${collName}/${id} ${res.status}`);
+  }
+}
+
+// Borra toda una colección (DELETE sin filtro).
+async function _sbRestDeleteAll(collName) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=gte.0`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' },
+  });
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Supabase DELETE-ALL ${collName} ${res.status}`);
+  }
+}
+
+// Borra varios ids a la vez (más eficiente que N DELETEs separados).
+async function _sbRestDeleteBatch(collName, ids) {
+  if (!ids || ids.length === 0) return;
+  // PostgREST permite `?id=in.(1,2,3)` para filtrar por lista.
+  const CHUNK = 500;
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const chunk = ids.slice(i, i + CHUNK);
+    const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=in.(${chunk.map(x => encodeURIComponent(String(x))).join(',')})`;
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' },
+    });
+    if (!res.ok && res.status !== 404) {
+      throw new Error(`Supabase DELETE batch ${collName} ${res.status}`);
+    }
+  }
+}
+
+// UPSERT de un documento singleton en la tabla `meta`.
+async function _sbRestMetaUpsert(name, value) {
+  const url = `${_SB_REST}/meta`;
+  const body = JSON.stringify([{ name: name, data: value }]);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+    body: body,
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Supabase META UPSERT ${name} ${res.status}: ${t.slice(0,150)}`);
+  }
+}
+
+// Borra un documento singleton por nombre.
+async function _sbRestMetaDelete(name) {
+  const url = `${_SB_REST}/meta?name=eq.${encodeURIComponent(name)}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: _SB_AUTH_HDRS,
+  });
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Supabase META DELETE ${name} ${res.status}`);
+  }
+}
+
+// ── Constructor de snapshots falsos ──
+// Mantiene la MISMA forma que devolvía _fakeSnap() en Firestore, así los
+// listeners (window._handleValesSnap, window._handleMyValesSnap) no cambian.
 function _fakeSnap(arr) {
   const docs = (arr || []).map(o => ({
     id: String(o && o.id != null ? o.id : ''),
@@ -324,22 +349,18 @@ function _fakeSnap(arr) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  SONDEO POR HTTPS — respaldo cuando el streaming está bloqueado (Cuba)
+//  SONDEO POR HTTPS — fuente principal de sincronización (Cuba)
 // ══════════════════════════════════════════════════════════════════════
-// El SDK de Firestore recibe cambios en tiempo real por un canal de
-// streaming de larga duración. Desde Cuba ese canal es justamente lo que
-// se cae/bloquea: por eso un vale enviado con VPN llegaba a la nube pero
-// el ADMIN (también en Cuba, sin VPN) NUNCA lo veía aparecer — su canal
-// de escucha nunca recibía el empujón.
-// Solución: además del streaming, sondear los mismos datos por HTTPS
-// simple cada pocos segundos. Si el streaming funciona, el sondeo trae lo
-// mismo y no molesta (los manejadores son idempotentes). Si el streaming
-// está bloqueado, el sondeo es lo único que mantiene la app sincronizada.
-// Así la app entera (escribir Y leer) funciona sobre HTTPS común, que es
-// el transporte más difícil de bloquear.
+// En v30 esto era un "respaldo" del streaming de Firestore. En v31 es la
+// FUENTE PRINCIPAL — Supabase Realtime también usa WebSockets y puede
+// sufrir el mismo bloqueo que Firestore. HTTPS simple (REST) es lo más
+// robusto y quedó confirmado por el diagnóstico desde Cuba (latencia ~1s).
+// Frecuencia: cada 5s (vs 12s de v30) — los vales pesan 600 bytes, no hay
+// razón para esperar 12s para que el admin vea uno nuevo.
 let _restPollTimer = null;
 let _restPollInFlight = false;
-const _REST_POLL_MS = 12000;
+const _REST_POLL_MS = 5000;
+
 async function _doRestPoll() {
   if (_restPollInFlight) return;
   if (!navigator.onLine) return;
@@ -348,18 +369,19 @@ async function _doRestPoll() {
   try {
     // ── Vales ── (lo crítico: es lo que no llegaba al admin)
     if (IS_ADMIN) {
-      const vales = await _fsRestGetCollection('vales');
+      const vales = await _sbRestGetCollection('vales');
       if (typeof window._handleValesSnap === 'function') window._handleValesSnap(_fakeSnap(vales));
     } else if (activeGestorId) {
-      const all = await _fsRestGetCollection('vales');
+      const all = await _sbRestGetCollection('vales');
       const mine = all.filter(v => v && v.gestorId === activeGestorId);
       if (typeof window._handleMyValesSnap === 'function') window._handleMyValesSnap(_fakeSnap(mine));
     }
     // ── Entidades (gestores/mensajeros/productos/categorias) ──
-    // Mismo criterio que el listener: un resultado vacío NO borra lo local.
+    // Mismo criterio que antes: un resultado vacío NO borra lo local
+    // (puede ser que la tabla aún no exista, no que esté realmente vacía).
     for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
       try {
-        const arr = await _fsRestGetCollection(node);
+        const arr = await _sbRestGetCollection(node);
         if (arr.length > 0) {
           _syncCount++;
           try {
@@ -370,13 +392,12 @@ async function _doRestPoll() {
             else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
           } finally { _syncCount--; }
         }
-      } catch(e) { /* una colección puntual puede fallar; seguir con las demás */ }
+      } catch(e) { /* una tabla puntual puede fallar; seguir con las demás */ }
     }
     // ── Documentos únicos (config/notifs/estafa/ranking_summary) ──
-    for (const node of ['config', 'notifs', 'estafa', 'ranking_summary']) {
+    for (const node of _SB_SINGLETON_ROWS) {
       try {
-        const raw = await _fsRestGetDoc('meta/' + node);
-        const val = node === 'config' ? raw : (raw ? raw.items : null);
+        const val = await _sbRestGetMeta(node);
         if (val) {
           _syncCount++;
           try {
@@ -397,69 +418,17 @@ async function _doRestPoll() {
 }
 function _startRestPolling() {
   if (_restPollTimer) return; // ya está corriendo
-  _doRestPoll(); // primera pasada inmediata (no esperar 12s para la carga inicial)
+  _doRestPoll(); // primera pasada inmediata
   _restPollTimer = setInterval(_doRestPoll, _REST_POLL_MS);
-  // Al volver a primer plano o al recuperar conexión, sondear enseguida.
   document.addEventListener('visibilitychange', () => { if (!document.hidden) _doRestPoll(); });
   window.addEventListener('online', () => _doRestPoll());
 }
 
-// Ejecuta una lista de escrituras como un solo :commit atómico por REST.
-// writes: [{type:'set'|'delete', path:'coll/id', value?, merge?}]
-// Devuelve una promesa que resuelve al confirmar (HTTP 200) o rechaza con
-// un error que trae .code (para que la cola lo trate igual que antes).
-function _fsRestCommit(writes) {
-  if (!writes || writes.length === 0) return Promise.resolve();
-  const body = { writes: writes.map(w => {
-    if (w.type === 'delete') return { delete: `${_FS_DOC_PREFIX}/${w.path}` };
-    const upd = { update: { name: `${_FS_DOC_PREFIX}/${w.path}`, fields: _toFsFields(w.value) } };
-    if (w.merge) {
-      // updateMask: solo escribir los campos presentes (merge) — los demás
-      // campos del documento en el servidor se conservan. Igual que
-      // set(...,{merge:true}) del SDK. Nombres de campo entre backticks por
-      // si alguno tuviera caracteres especiales.
-      upd.updateMask = { fieldPaths: Object.keys(w.value || {}).map(k => '`' + k.replace(/`/g, '\\`') + '`') };
-    }
-    return upd;
-  })};
-  return fetch(`${_FS_REST_BASE}:commit?key=${_FS_API_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }).then(res => {
-    if (res.ok) return res.json().catch(() => ({}));
-    return res.text().catch(() => '').then(t => {
-      const err = new Error(`Firestore REST commit ${res.status}: ${t.slice(0, 200)}`);
-      err.code = (res.status === 401 || res.status === 403) ? 'permission-denied'
-               : (res.status === 400) ? 'invalid-argument'
-               : ('http-' + res.status);
-      throw err;
-    });
-  });
-}
-
-// ── Persistencia offline de Firestore ──
-// Igual que antes con RTDB: sirve datos cacheados localmente sin esperar red,
-// y sincroniza en background. Nota: solo se puede llamar una vez y antes de
-// cualquier otra operación con firestoreDb.
-try {
-  firestoreDb.enablePersistence({ synchronizeTabs: false }).catch(err => {
-    if (err && err.code !== 'unimplemented') {
-      console.warn('Firestore persistence no disponible:', err.code || err.message);
-    }
-  });
-} catch(e) {
-  console.warn('Firestore enablePersistence error:', e);
-}
-
 // ── Detección de conectividad ──
-// Firestore (a diferencia de RTDB) no expone un equivalente directo a
-// '.info/connected' en el SDK compat. Usamos navigator.onLine + los eventos
-// online/offline del navegador como proxy — menos preciso que la señal real
-// de RTDB (no sabe si Firestore específicamente está alcanzable, solo si hay
-// red), pero _processFBQueue ya tiene su propio timeout adaptativo y
-// reintentos con backoff como red de seguridad para el resto de los casos
-// (red "conectada" según el navegador pero Firestore inalcanzable).
+// Supabase no tiene un equivalente directo a '.info/connected'. Usamos
+// navigator.onLine + los eventos online/offline del navegador como proxy.
+// _processFBQueue ya tiene su timeout adaptativo y reintentos con backoff
+// como red de seguridad.
 let _fbConnected = navigator.onLine;
 window.addEventListener('online', () => {
   if (_fbConnected) return;
@@ -719,71 +688,101 @@ function _payloadBytes(value) {
 //    que se traduce a un batched write: cada entrada no-null es un
 //    set(...,{merge:true}) de ese documento, cada null es un delete().
 const _FS_SINGLETON_DOCS = {
-  config: 'meta/config',
-  notifs: 'meta/notifs',
-  estafa: 'meta/estafa',
-  ranking_summary: 'meta/ranking_summary',
+  config: 'config',
+  notifs: 'notifs',
+  estafa: 'estafa',
+  ranking_summary: 'ranking_summary',
 };
-// Estos nodos guardan un array en RTDB — Firestore no admite un array como
-// documento raíz, así que se envuelven/desenvuelven en {items: [...]}.
-const _FS_ARRAY_SINGLETONS = new Set(['notifs', 'estafa', 'ranking_summary']);
+// En Supabase el JSONB acepta arrays directamente como valor raíz, así que
+// ya no hace falta envolver en {items:[...]}. Set vacío por compatibilidad.
+const _FS_ARRAY_SINGLETONS = new Set([]);
 
-function _firestoreOpFor(path, value, method) {
-  // Traduce (path, value, method) al array de escrituras que espera
-  // _fsRestCommit(), y lo ejecuta por REST (ver el bloque de comentarios
-  // grande arriba de _fsRestCommit sobre POR QUÉ REST y no el SDK).
-  const writes = [];
+// ── v31: Traduce operaciones de la cola (forma RTDB/Firestore) a Supabase ──
+// La cola _fbWriteQueue sigue hablando en términos de "path" + "value" +
+// "method" — eso deja intacta toda la lógica de reintentos/timeout/backoff
+// de _processFBQueue, que no le importa CÓMO se hace el write, solo que
+// devuelva una Promise. Esta función es el único punto que traduce esa
+// forma a llamadas reales de Supabase REST.
+function _supabaseOpFor(path, value, method) {
   const _tooLarge = v => { try { return JSON.stringify(v).length > 900000; } catch(e) { return false; } };
   const skipped = [];
-  // ── Singleton (config/notifs/estafa/ranking_summary) → meta/{nodo} ──
+
+  // ── Singleton (config/notifs/estafa/ranking_summary) → meta/{name} ──
   if (_FS_SINGLETON_DOCS[path]) {
-    const docPath = _FS_SINGLETON_DOCS[path];
-    if (method === 'remove') { writes.push({ type: 'delete', path: docPath }); return _fsRestCommit(writes); }
-    let docValue = value;
-    if (_FS_ARRAY_SINGLETONS.has(path)) docValue = { items: Array.isArray(value) ? value : [] };
-    // 'update' → merge; 'set' → también con máscara de sus claves (para
-    // config/notifs esto equivale a reemplazar lo que se manda, seguro).
-    writes.push({ type: 'set', path: docPath, value: docValue, merge: true });
-    return _fsRestCommit(writes);
+    const name = _FS_SINGLETON_DOCS[path];
+    if (method === 'remove') return _sbRestMetaDelete(name);
+    return _sbRestMetaUpsert(name, value);
   }
-  // ── backups/pre-nuke-{ts}: doc único con path completo ya armado ──
+
+  // ── backups/{key}: doc único con path ya armado ──
   if (path.startsWith('backups/')) {
-    if (method === 'remove') { writes.push({ type: 'delete', path }); }
-    else { writes.push({ type: 'set', path, value }); }
-    return _fsRestCommit(writes);
+    const key = path.split('/').slice(1).join('/');
+    if (!key) return Promise.resolve();
+    if (method === 'remove') {
+      const url = `${_SB_REST}/backups?name=eq.${encodeURIComponent(key)}`;
+      return fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS })
+        .then(r => { if (!r.ok && r.status !== 404) throw new Error(`Supabase DELETE backups/${key} ${r.status}`); });
+    }
+    const url = `${_SB_REST}/backups`;
+    const body = JSON.stringify([{ name: key, data: value }]);
+    return fetch(url, {
+      method: 'POST',
+      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+      body: body,
+    }).then(r => {
+      if (!r.ok) return r.text().then(t => { throw new Error(`Supabase BACKUPS UPSERT ${key} ${r.status}: ${t.slice(0,150)}`); });
+    });
   }
+
   // ── Colección de entidades (gestores, mensajeros, productos, categorias, vales) ──
   const collName = path.split('/')[0];
+
   if (method === 'remove') {
     const docId = path.includes('/') ? path.split('/').pop() : null;
     if (!docId) return Promise.resolve();
-    writes.push({ type: 'delete', path: `${collName}/${docId}` });
-    return _fsRestCommit(writes);
+    return _sbRestDelete(collName, docId);
   }
-  // Firestore rechaza el commit si un solo doc supera ~1 MiB — típicamente
-  // una foto vieja en base64 (antes de "☁️ Fotos a GitHub"). Se salta ese
-  // doc puntual (con aviso) en vez de perder el commit entero.
+
   if (Array.isArray(value)) {
-    // 'set' con un array completo (reemplazo total) — legado, poco usado.
+    const items = [];
     value.forEach(item => {
       if (!item || item.id == null) return;
       if (_tooLarge(item)) { skipped.push(String(item.id)); return; }
-      writes.push({ type: 'set', path: `${collName}/${String(item.id)}`, value: item, merge: false });
+      items.push({ id: Number(item.id), value: item });
     });
-  } else if (value && typeof value === 'object') {
+    if (skipped.length > 0) {
+      console.error(`[supabase] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB:`, skipped);
+      showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (demasiado grande) — usa "☁️ Fotos a GitHub" en Stock`);
+    }
+    return _sbRestUpsertBatch(collName, items);
+  }
+
+  if (value && typeof value === 'object') {
+    const upsertItems = [];
+    const deleteIds = [];
     Object.entries(value).forEach(([key, val]) => {
-      const docId = key.includes('/') ? key.split('/')[1] : key; // 'gestorId/valeId' legado o 'id' plano
-      if (val === null) { writes.push({ type: 'delete', path: `${collName}/${docId}` }); return; }
+      const docId = key.includes('/') ? key.split('/').pop() : key;
+      if (val === null) { if (!isNaN(Number(docId))) deleteIds.push(Number(docId)); return; }
       if (_tooLarge(val)) { skipped.push(docId); return; }
-      writes.push({ type: 'set', path: `${collName}/${docId}`, value: val, merge: true });
+      const idNum = (val && typeof val === 'object' && val.id != null) ? Number(val.id) : Number(docId);
+      if (!isNaN(idNum)) upsertItems.push({ id: idNum, value: val });
     });
+    if (skipped.length > 0) {
+      console.error(`[supabase] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB:`, skipped);
+      showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (demasiado grande) — usa "☁️ Fotos a GitHub" en Stock`);
+    }
+    const ops = [];
+    if (upsertItems.length > 0) ops.push(_sbRestUpsertBatch(collName, upsertItems));
+    if (deleteIds.length > 0) ops.push(_sbRestDeleteBatch(collName, deleteIds));
+    if (ops.length === 0) return Promise.resolve();
+    return Promise.all(ops).then(() => {});
   }
-  if (skipped.length > 0) {
-    console.error(`[firestore] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB (foto sin optimizar):`, skipped);
-    showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (foto sin optimizar) — usa "☁️ Fotos a GitHub" en Stock`);
-  }
-  return _fsRestCommit(writes);
+
+  console.warn('[supabase] _supabaseOpFor: operación no reconocida:', { path, method, valueType: typeof value });
+  return Promise.resolve();
 }
+// Alias retrocompatible: _processFBQueue sigue llamando a _firestoreOpFor.
+const _firestoreOpFor = _supabaseOpFor;
 
 function _processFBQueue() {
   // v14: Si Firebase NO está conectado (_fbConnected === false), NO intentar
@@ -2320,11 +2319,12 @@ function listenToMyVales(gId) {
       refreshUI();
     }
   };
-  // El SDK (streaming) empuja cambios al instante cuando la red lo permite.
-  gestorValesListener = firestoreDb.collection('vales').where('gestorId', '==', gId)
-    .onSnapshot(window._handleMyValesSnap, err => console.error('[firestore] listener error (mis vales):', err));
-  // RESPALDO POR HTTPS: si el canal de streaming está bloqueado (Cuba), el
-  // sondeo periódico por HTTPS simple trae los mismos datos igual.
+  // v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
+  // HTTPS cada 5s (_startRestPolling) es la fuente única de actualizaciones.
+  // Para poder "desuscribirse" del listener (listenToMyVales se llama al
+  // cambiar de gestor), guardamos una función no-op — el polling global
+  // se encarga de todo y filtra por activeGestorId automáticamente.
+  gestorValesListener = function() { /* no-op en v31: polling global maneja todo */ };
   _startRestPolling();
 }
 
@@ -2492,33 +2492,14 @@ let _rankingIdleHandle = null;
 // renderGestorRanking() recalculaba los puntos desde getVales(), que en un
 // dispositivo de gestor SOLO contiene sus propios vales — el ranking mostraba
 // 0 pts para todos los demás gestores.
-// Colecciones de entidades reales: una entrada = un documento en Firestore.
+// Colecciones de entidades reales.
+// v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
+// HTTPS cada 5s (arrancado abajo con _startRestPolling) ya trae todas las
+// colecciones y llama a los manejadores correspondientes. Este forEach
+// queda como no-op — lo mantenemos para que cualquier referencia futura
+// no rompa, pero no registra ningún listener real.
 ['gestores', 'mensajeros', 'productos', 'categorias'].forEach(node => {
-  firestoreDb.collection(node).onSnapshot(snap => {
-    _syncCount++;
-    try {
-      const parsedVal = snap.docs.map(d => d.data());
-      // BUGFIX: si Firestore todavía no tiene datos para esta colección
-      // (por ejemplo, antes de correr "Migrar a Firestore"), NO borrar la
-      // copia local — antes esto vaciaba gestores/mensajeros/productos/
-      // categorias en cuanto cargaba la app, y el admin dejaba de ver
-      // CUALQUIER vale en la bandeja (se agrupan por gestor: sin gestores
-      // locales, "no hay ningún vale pendiente" aunque los vales sí hayan
-      // llegado). Mismo criterio que ya usan los docs singleton (config/
-      // notifs/estafa) más abajo: un snapshot vacío solo se aplica si
-      // realmente no hay nada local que preservar.
-      if (parsedVal.length > 0) {
-        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
-        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
-        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
-        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
-        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
-      }
-    } finally {
-      _syncCount--;
-      refreshUI();
-    }
-  }, err => console.error(`[firestore] listener error (${node}):`, err));
+  // no-op: _doRestPoll ya trae estas colecciones cada 5s
 });
 // Arrancar el sondeo por HTTPS desde el inicio en AMBAS páginas (admin y
 // gestor). Sin esto, un dispositivo nuevo con el streaming bloqueado no
@@ -2533,30 +2514,11 @@ _startRestPolling();
 // reciban el resumen de puntos que el admin calcula desde el árbol completo de
 // vales (ver el listener de 'vales' más abajo). Un gestor NUNCA tiene en su
 // caché local los vales de los demás gestores.
+// v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
+// HTTPS cada 5s ya trae todos los singletons (config/notifs/estafa/
+// ranking_summary) a través de _doRestPoll. No-op.
 ['config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
-  firestoreDb.doc('meta/'+node).onSnapshot(snap => {
-    _syncCount++;
-    try {
-      const raw = snap.exists ? snap.data() : null;
-      const val = node === 'config' ? raw : (raw ? raw.items : null);
-
-      // Only update local storage IF Firestore actually has data.
-      if (val) {
-        try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
-        if(node==='config'){_configCache=val;_configDirty=false;}
-        else if(node==='notifs'){_notifsCache=val;_notifsDirty=false;}
-        else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
-      } else {
-        const local = localStorage.getItem('axon_'+node);
-        if (!local || local === '[]' || local === '{}') {
-          try { localStorage.setItem('axon_'+node, node==='config'?'{}':'[]'); } catch(e) {}
-        }
-      }
-    } finally {
-      _syncCount--;
-      refreshUI();
-    }
-  }, err => console.error(`[firestore] listener error (${node}):`, err));
+  // no-op: _doRestPoll ya trae estos documentos cada 5s
 });
 
 // Vales Listeners
@@ -2670,26 +2632,25 @@ if (IS_ADMIN) {
       refreshUI();
     }
   };
-  firestoreDb.collection('vales')
-    .onSnapshot(window._handleValesSnap, err => console.error('[firestore] listener error (vales):', err));
+  // v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
+  // HTTPS cada 5s trae la colección 'vales' y llama a window._handleValesSnap
+  // automáticamente a través de _doRestPoll().
   _startRestPolling();
 }
 
-// Initialize empty Firestore from local if Admin (proyecto nuevo, sin datos aún)
+// Initialize empty Supabase from local if Admin (proyecto nuevo, sin datos aún)
 if (IS_ADMIN) {
   setTimeout(() => {
-    firestoreDb.collection('gestores').limit(1).get().then(s => {
-      if (s.empty) {
+    // v31: si la tabla 'gestores' está vacía en Supabase, sembrar con los
+    // datos locales del admin (primera vez). Usamos _sbRestGetCollection
+    // en vez de firestoreDb.collection().get() — ya no hay SDK Firestore.
+    _sbRestGetCollection('gestores').then(arr => {
+      if (arr && arr.length === 0) {
         const lGestores = getGestores();
         if (lGestores.length > 0) {
-          // BUGFIX: antes usaba _enqueueFB directo (sin trocear) — Firestore
-          // rechaza un batch de más de 500 operaciones, así que para un
-          // negocio con historial real (más de 500 vales, o simplemente
-          // muchos productos) este seed fallaba SIEMPRE (no es un fallo de
-          // red pasajero, es determinístico: pasa cada uno de los 4
-          // reintentos y termina descartado). _enqueueFBChunked trocea por
-          // tamaño de payload (~6KB/chunk), quedando muy por debajo del
-          // límite de 500 docs/batch — mismo mecanismo que ya usa saveVales().
+          // v31: el chunking sigue siendo útil para no mandar un payload
+          // gigante de una sola vez en redes lentas. _enqueueFBChunked
+          // trocea por tamaño (~6KB/chunk).
           _enqueueFBChunked('gestores', _buildCollectionUpdates(lGestores, null), 'update');
           _enqueueFBChunked('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
           _enqueueFBChunked('productos', _buildCollectionUpdates(getProductos(), null), 'update');
@@ -2701,7 +2662,7 @@ if (IS_ADMIN) {
           }
         }
       }
-    }).catch(e => console.error('[firestore] bootstrap check error:', e));
+    }).catch(e => console.error('[supabase] bootstrap check error:', e));
   }, 1500);
 }
 
@@ -2779,22 +2740,17 @@ async function _doReconcileNextValeNum() {
   try {
     const localCfg = getConfig();
     const localNext = localCfg.nextValeNum || 1;
-    // Transacción de Firestore: si remoto < local, llevarlo a local. Si
-    // remoto >= local, no tocar (alguien más ya lo adelantó). runTransaction
-    // hace el get+set atómico y reintenta sola en caso de contención — mismo
-    // espíritu que db.ref(...).transaction() de RTDB, adaptado a Firestore.
-    const configRef = firestoreDb.doc('meta/config');
-    let committed = false;
-    await firestoreDb.runTransaction(async tx => {
-      const snap = await tx.get(configRef);
-      const remote = (snap.exists && snap.data().nextValeNum) || 1;
-      if (remote < localNext) {
-        tx.set(configRef, { nextValeNum: localNext }, { merge: true });
-        committed = true;
-      }
-    });
-    if (committed) {
-      // La transacción hizo un cambio → remote era menor, lo subimos a localNext.
+    // v31: sin SDK Firestore, no hay runTransaction. Equivalente: leer el
+    // config remoto de Supabase por REST; si su nextValeNum es menor que
+    // el local, hacer UPSERT con el valor local. Si dos gestores hacen esto
+    // a la vez, el último en escribir gana (race benigno: el número real
+    // ya se asignó a cada vale por Date.now() que es único).
+    const remote = await _sbRestGetMeta('config');
+    const remoteNext = (remote && remote.nextValeNum) || 1;
+    if (remoteNext < localNext) {
+      // Merge: preservar los demás campos del config remoto si existen.
+      const merged = Object.assign({}, remote || {}, { nextValeNum: localNext });
+      await _sbRestMetaUpsert('config', merged);
       // Actualizar cache local para que el listener no lo revierta.
       const cfg = getConfig();
       cfg.nextValeNum = localNext;
@@ -8106,17 +8062,13 @@ async function maybeAutoSync() {
 // misma fuente de verdad que ya usa nukeAndRebuild) y borrando ahí,
 // sin depender de qué tan completo esté el caché local del admin.
 async function _fsDeleteVales(predicate) {
-  // La LECTURA (collection.get) sí funciona bien desde Cuba; los BORRADOS
-  // van por REST (:commit) para no depender del canal de escritura del SDK
-  // que se cuelga en conexiones con pérdida de paquetes — ver el bloque
-  // grande de comentarios arriba de _fsRestCommit.
-  const snap = await firestoreDb.collection('vales').get();
+  // v31: ya sin SDK Firestore. Lee la colección 'vales' por REST de Supabase
+  // y borra por IDs con _sbRestDeleteBatch. Mismo efecto, sin depender del
+  // canal de streaming del SDK que se cuelga en Cuba.
+  const all = await _sbRestGetCollection('vales');
   const ids = [];
-  snap.forEach(doc => { if (!predicate || predicate(doc.data())) ids.push(doc.id); });
-  for (let i = 0; i < ids.length; i += 400) {
-    const chunk = ids.slice(i, i + 400);
-    await _fsRestCommit(chunk.map(id => ({ type: 'delete', path: 'vales/' + id })));
-  }
+  all.forEach(v => { if (v && v.id != null && (!predicate || predicate(v))) ids.push(Number(v.id)); });
+  await _sbRestDeleteBatch('vales', ids);
   return ids.length;
 }
 function factoryResetVales() {
@@ -8140,7 +8092,7 @@ function factoryResetVales() {
     // avisar éxito, y si falla se avisa claro en vez de quedar en silencio.
     try {
       const extra = await _fsDeleteVales(null);
-      await _fsRestCommit([{ type: 'delete', path: 'meta/ranking_summary' }]).catch(()=>{});
+      await _sbRestMetaDelete('ranking_summary').catch(()=>{});
       showToast(`✓ Todos los vales eliminados${extra > 0 ? ` (confirmado en la nube)` : ''}`);
     } catch(e) {
       console.error('[factoryResetVales] error en limpieza directa:', e);
@@ -8210,8 +8162,10 @@ async function clearGestoresData() {
   let cleanupError = null;
   try {
     const extra = await _fsDeleteVales(v => v && v.gestorId && gestorIds.has(v.gestorId));
-    if (extra > 0) console.log(`[clearGestoresData] ${extra} vale(s) adicionales borrados directo de Firestore`);
-    await _fsRestCommit([{ type: 'set', path: 'meta/notifs', value: { items: [] }, merge: false }]);
+    if (extra > 0) console.log(`[clearGestoresData] ${extra} vale(s) adicionales borrados directo de Supabase`);
+    // v31: limpiar notifs directo en Supabase (era {items:[]} en Firestore;
+    // en Supabase el JSONB acepta arrays como raíz, así que mandamos [] directo).
+    await _sbRestMetaUpsert('notifs', []).catch(()=>{});
   } catch(e) {
     console.error('[clearGestoresData] error en limpieza directa:', e);
     cleanupError = e;
@@ -8759,14 +8713,12 @@ async function nukeAndRebuild() {
     if(data.productos)  await _fsReplaceCollection('productos', data.productos);
     if(data.categorias) await _fsReplaceCollection('categorias', data.categorias);
 
-    // Borrar vales/notifs/ranking_summary/estafa. NO tocar 'backups' — ahí
-    // acabamos de guardar el snapshot pre-nuke.
-    const batchOps = [];
-    const currentVales = await firestoreDb.collection('vales').get();
-    currentVales.forEach(doc => batchOps.push({ ref: doc.ref, type: 'delete' }));
-    batchOps.push({ ref: firestoreDb.doc('meta/notifs'), type: 'delete' });
-    batchOps.push({ ref: firestoreDb.doc('meta/ranking_summary'), type: 'delete' });
-    batchOps.push({ ref: firestoreDb.doc('meta/estafa'), type: 'delete' });
+    // v31: Borrar vales/notifs/ranking_summary/estafa directo en Supabase.
+    // NO tocar 'backups' — ahí acabamos de guardar el snapshot pre-nuke.
+    await _sbRestDeleteAll('vales').catch(()=>{});
+    await _sbRestMetaDelete('notifs').catch(()=>{});
+    await _sbRestMetaDelete('ranking_summary').catch(()=>{});
+    await _sbRestMetaDelete('estafa').catch(()=>{});
 
     // Clear localStorage vales/notifs/estafa (but preserve backup, admin hash, audit log)
     ['axon_vales','axon_notifs','axon_ranking_summary','axon_estafa','axon_pending_writes','axon_failed_writes'].forEach(k => {
@@ -8782,14 +8734,6 @@ async function nukeAndRebuild() {
     _notifsCache=null;_notifsDirty=true;
     _estafaCache=null;_estafaDirty=true;
 
-    // Aplicar el borrado de vales/notifs/ranking_summary/estafa en batches
-    // (límite real de Firestore: 500 operaciones por batch, 450 de margen).
-    for (let i = 0; i < batchOps.length; i += 450) {
-      const chunk = batchOps.slice(i, i + 450);
-      const batch = firestoreDb.batch();
-      chunk.forEach(op => { if (op.type === 'delete') batch.delete(op.ref); else batch.set(op.ref, op.value); });
-      await batch.commit();
-    }
     _logAudit('nuke_rebuild', 'system');
 
     showToast("¡Listo! Recargando...");
@@ -8826,59 +8770,158 @@ function _rtdbNodeToArray(node) {
 // omitidos por ser demasiado grandes (>900KB, típicamente una foto vieja
 // en base64) para que el llamador pueda avisar al usuario.
 async function _fsReplaceCollection(name, arr) {
-  const coll = firestoreDb.collection(name);
-  const existing = await coll.get();
+  // v31: reemplazo total de una colección en Supabase. Lee los IDs
+  // existentes, borra los que ya no están, y upserta los nuevos.
+  const existing = await _sbRestGetCollection(name);
+  const existingIds = new Set(existing.filter(x => x && x.id != null).map(x => String(x.id)));
   const keepIds = new Set(arr.filter(x => x && x.id != null).map(x => String(x.id)));
   const skipped = [];
-  const ops = [];
+  const upsertItems = [];
   arr.forEach(item => {
     if (!item || item.id == null) return;
     let tooLarge = false;
     try { tooLarge = JSON.stringify(item).length > 900000; } catch(e) {}
     if (tooLarge) { skipped.push(String(item.id)); return; }
-    ops.push({ ref: coll.doc(String(item.id)), type: 'set', value: item });
+    upsertItems.push({ id: Number(item.id), value: item });
   });
-  existing.forEach(doc => { if (!keepIds.has(doc.id)) ops.push({ ref: doc.ref, type: 'delete' }); });
-  for (let i = 0; i < ops.length; i += 450) {
-    const chunk = ops.slice(i, i + 450);
-    const batch = firestoreDb.batch();
-    chunk.forEach(op => { if (op.type === 'delete') batch.delete(op.ref); else batch.set(op.ref, op.value); });
-    await batch.commit();
-  }
+  // Borrar los IDs que existen en Supabase pero NO en el array nuevo
+  const deleteIds = [];
+  existingIds.forEach(id => { if (!keepIds.has(id)) deleteIds.push(Number(id)); });
+  if (upsertItems.length > 0) await _sbRestUpsertBatch(name, upsertItems);
+  if (deleteIds.length > 0) await _sbRestDeleteBatch(name, deleteIds);
   return skipped;
 }
+
+// ══════════════════════════════════════════════════════════════════════
+//  MIGRACIÓN DE DATOS: FIRESTORE → SUPABASE (v31)
+// ══════════════════════════════════════════════════════════════════════
+// Esta función migra los datos existentes de Firestore a Supabase. Solo
+// se ejecuta una vez (manualmente desde el panel de admin). Si los datos
+// ya están en Supabase (después de correr esto una vez o si el proyecto
+// está vacío), no hace falta volver a correrla.
+//
+// IMPORTANTE: Esta función necesita que la app tenga acceso AMBOS a
+// Firestore (para leer) y a Supabase (para escribir). Como Firestore
+// está bloqueado desde Cuba sin VPN, esta migración debe correrse CON
+// VPN o desde fuera de Cuba. Una vez migrado, la app funciona solo
+// con Supabase y el VPN ya no es necesario.
 async function migrateToFirestore() {
+  // ── Renombrada conceptualmente a migrateFirestoreToSupabase ──
+  // Mantenemos el nombre migrateToFirestore() porque hay llamadas en
+  // admin.html que lo invocan por ese nombre.
   const statusEl = document.getElementById('fsMigrateStatus');
   const setStatus = html => { if (statusEl) statusEl.innerHTML = html; };
-  if (!confirm('Esto LEE todos los datos actuales de Realtime Database y los ESCRIBE en Firestore. Es seguro repetir (no duplica, sobrescribe con los mismos IDs) y no borra ni toca RTDB. ¿Continuar?')) return;
-  setStatus('⏳ Leyendo datos de Realtime Database...');
+  if (!confirm('Esto LEE todos los datos actuales de Firestore y los ESCRIBE en Supabase. Es seguro repetir (no duplica, sobrescribe con los mismos IDs). Firestore está bloqueado desde Cuba sin VPN, así que probablemente necesites VPN para correr esto. ¿Continuar?')) return;
+  setStatus('⏳ Leyendo datos de Firestore...');
   try {
-    const snap = await db.ref('/').once('value');
-    const root = snap.val() || {};
-    const rGestores   = _rtdbNodeToArray(root.gestores);
-    const rMensajeros = _rtdbNodeToArray(root.mensajeros);
-    const rProductos  = _rtdbNodeToArray(root.productos);
-    const rCategorias = _rtdbNodeToArray(root.categorias);
-    const rConfig  = root.config || {};
-    const rNotifs  = _rtdbNodeToArray(root.notifs);
-    const rEstafa  = _rtdbNodeToArray(root.estafa);
-    const rRanking = _rtdbNodeToArray(root.ranking_summary);
-    // vales en RTDB están anidados vales/{gestorId}/{valeId} — aplanar a un
-    // solo array, que es el esquema plano que usa Firestore.
-    const rVales = [];
-    Object.values(root.vales || {}).forEach(byGestor => {
-      _rtdbNodeToArray(byGestor).forEach(v => { if (v && v.id != null) rVales.push(v); });
-    });
-    const rBackups = root.backups || {};
+    // v31: leer por REST de Firestore (sigue siendo alcanzable desde fuera
+    // de Cuba, así que con VPN funciona). Los helpers que usábamos antes
+    // eran _fsRestGetCollection (que todavía existe como función pero ya
+    // no usa Firestore). Como ya no tenemos firestoreDb, hacemos el fetch
+    // directo aquí.
+    const FS_BASE = 'https://firestore.googleapis.com/v1/projects/axontech/databases/(default)/documents';
+    const FS_KEY  = 'AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU';
+    const fsGetCollection = async (collName) => {
+      const out = [];
+      let token = null;
+      do {
+        const url = `${FS_BASE}/${collName}?pageSize=300&key=${FS_KEY}` + (token ? `&pageToken=${encodeURIComponent(token)}` : '');
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Firestore GET ${collName} ${res.status}`);
+        const j = await res.json();
+        (j.documents || []).forEach(d => {
+          // Desenvolver fields de Firestore al formato JS plano
+          const fields = d.fields || {};
+          const obj = {};
+          Object.keys(fields).forEach(k => {
+            const v = fields[k];
+            if ('nullValue' in v) obj[k] = null;
+            else if ('booleanValue' in v) obj[k] = v.booleanValue;
+            else if ('integerValue' in v) obj[k] = Number(v.integerValue);
+            else if ('doubleValue' in v) obj[k] = Number(v.doubleValue);
+            else if ('stringValue' in v) obj[k] = v.stringValue;
+            else if ('timestampValue' in v) obj[k] = v.timestampValue;
+            else if ('arrayValue' in v) obj[k] = (v.arrayValue.values || []).map(x => {
+              if ('stringValue' in x) return x.stringValue;
+              if ('integerValue' in x) return Number(x.integerValue);
+              if ('mapValue' in x) {
+                const m = {}; Object.keys(x.mapValue.fields || {}).forEach(k2 => {
+                  const v2 = x.mapValue.fields[k2];
+                  if ('stringValue' in v2) m[k2] = v2.stringValue;
+                  else if ('integerValue' in v2) m[k2] = Number(v2.integerValue);
+                  else if ('booleanValue' in v2) m[k2] = v2.booleanValue;
+                });
+                return m;
+              }
+              return null;
+            });
+            else if ('mapValue' in v) {
+              const m = {};
+              Object.keys(v.mapValue.fields || {}).forEach(k2 => {
+                const v2 = v.mapValue.fields[k2];
+                if ('stringValue' in v2) m[k2] = v2.stringValue;
+                else if ('integerValue' in v2) m[k2] = Number(v2.integerValue);
+                else if ('booleanValue' in v2) m[k2] = v2.booleanValue;
+                else if ('doubleValue' in v2) m[k2] = Number(v2.doubleValue);
+              });
+              obj[k] = m;
+            }
+          });
+          out.push(obj);
+        });
+        token = j.nextPageToken;
+      } while (token);
+      return out;
+    };
+    const fsGetMeta = async (name) => {
+      const res = await fetch(`${FS_BASE}/meta/${name}?key=${FS_KEY}`);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`Firestore GET meta/${name} ${res.status}`);
+      const j = await res.json();
+      // Desenvolver items si es un array singleton
+      const fields = j.fields || {};
+      if (fields.items && fields.items.arrayValue) {
+        return (fields.items.arrayValue.values || []).map(x => {
+          if ('mapValue' in x) {
+            const m = {};
+            Object.keys(x.mapValue.fields || {}).forEach(k => {
+              const v = x.mapValue.fields[k];
+              if ('stringValue' in v) m[k] = v.stringValue;
+              else if ('integerValue' in v) m[k] = Number(v.integerValue);
+              else if ('booleanValue' in v) m[k] = v.booleanValue;
+            });
+            return m;
+          }
+          if ('stringValue' in x) return x.stringValue;
+          if ('integerValue' in x) return Number(x.integerValue);
+          return null;
+        });
+      }
+      // Si no es array, desenvolver como objeto plano
+      const obj = {};
+      Object.keys(fields).forEach(k => {
+        const v = fields[k];
+        if ('stringValue' in v) obj[k] = v.stringValue;
+        else if ('integerValue' in v) obj[k] = Number(v.integerValue);
+        else if ('booleanValue' in v) obj[k] = v.booleanValue;
+        else if ('doubleValue' in v) obj[k] = Number(v.doubleValue);
+      });
+      return obj;
+    };
 
-    setStatus(`⏳ Leído: ${rGestores.length} gestores, ${rMensajeros.length} mensajeros, ${rProductos.length} productos, ${rCategorias.length} categorías, ${rVales.length} vales.<br>Escribiendo en Firestore...`);
+    setStatus('⏳ Leyendo colecciones de Firestore...');
+    const rGestores   = await fsGetCollection('gestores');
+    const rMensajeros = await fsGetCollection('mensajeros');
+    const rProductos  = await fsGetCollection('productos');
+    const rCategorias = await fsGetCollection('categorias');
+    const rVales      = await fsGetCollection('vales');
+    const rConfig     = await fsGetMeta('config') || {};
+    const rNotifs     = await fsGetMeta('notifs') || [];
+    const rEstafa     = await fsGetMeta('estafa') || [];
+    const rRanking    = await fsGetMeta('ranking_summary') || [];
 
-    // _fsReplaceCollection borra en Firestore cualquier doc que NO esté en
-    // la lectura fresca de RTDB — así una migración re-ejecutada también
-    // limpia entidades "zombie" que hubiera dejado el seed automático
-    // (ver "Initialize empty Firestore from local if Admin" más arriba,
-    // que puede correr con datos locales incompletos antes de que se
-    // aprete este botón).
+    setStatus(`⏳ Leído: ${rGestores.length} gestores, ${rMensajeros.length} mensajeros, ${rProductos.length} productos, ${rCategorias.length} categorías, ${rVales.length} vales.<br>Escribiendo en Supabase...`);
+
     const skippedByCollection = {};
     skippedByCollection.gestores   = await _fsReplaceCollection('gestores', rGestores);
     skippedByCollection.mensajeros = await _fsReplaceCollection('mensajeros', rMensajeros);
@@ -8886,73 +8929,39 @@ async function migrateToFirestore() {
     skippedByCollection.categorias = await _fsReplaceCollection('categorias', rCategorias);
     skippedByCollection.vales      = await _fsReplaceCollection('vales', rVales);
 
-    await firestoreDb.doc('meta/config').set(rConfig);
-    await firestoreDb.doc('meta/notifs').set({ items: rNotifs });
-    await firestoreDb.doc('meta/estafa').set({ items: rEstafa });
-    await firestoreDb.doc('meta/ranking_summary').set({ items: rRanking });
+    await _sbRestMetaUpsert('config', rConfig);
+    await _sbRestMetaUpsert('notifs', rNotifs);
+    await _sbRestMetaUpsert('estafa', rEstafa);
+    await _sbRestMetaUpsert('ranking_summary', rRanking);
 
-    // A partir de aquí, un snapshot vacío de 'vales' en Firestore ya se puede
-    // confiar como un vaciado real (factoryResetVales), no como "todavía no
-    // migré" — ver el listener de vales más arriba.
     try { localStorage.setItem('axon_fs_migrated', '1'); } catch(e) {}
 
-    // Backups: best-effort. Son snapshots históricos completos, pueden
-    // superar el límite de 1 MiB/doc de Firestore — si uno falla, se
-    // registra pero no se aborta la migración por eso (no son críticos
-    // para operar, solo una red de seguridad extra).
-    const backupFailures = [];
-    for (const [key, val] of Object.entries(rBackups)) {
-      try { await firestoreDb.doc('backups/' + key).set(val); }
-      catch(e) { backupFailures.push(key); }
-    }
-
-    setStatus('⏳ Verificando conteos en Firestore...');
-    const [gSnap, mSnap, pSnap, cSnap, vSnap] = await Promise.all([
-      firestoreDb.collection('gestores').get(),
-      firestoreDb.collection('mensajeros').get(),
-      firestoreDb.collection('productos').get(),
-      firestoreDb.collection('categorias').get(),
-      firestoreDb.collection('vales').get(),
+    setStatus('⏳ Verificando conteos en Supabase...');
+    const [gArr, mArr, pArr, cArr, vArr] = await Promise.all([
+      _sbRestGetCollection('gestores'),
+      _sbRestGetCollection('mensajeros'),
+      _sbRestGetCollection('productos'),
+      _sbRestGetCollection('categorias'),
+      _sbRestGetCollection('vales'),
     ]);
-    // El conteo esperado descuenta los docs omitidos por ser demasiado
-    // grandes (fotos base64 sin optimizar) — esos NO son un error de la
-    // migración, así que no deben contar como "mismatch".
     const mismatches = [];
     const expected = (arr, skipped) => arr.length - (skipped ? skipped.length : 0);
-    if (gSnap.size !== expected(rGestores, skippedByCollection.gestores)) mismatches.push(`gestores: esperado=${expected(rGestores, skippedByCollection.gestores)} Firestore=${gSnap.size}`);
-    if (mSnap.size !== expected(rMensajeros, skippedByCollection.mensajeros)) mismatches.push(`mensajeros: esperado=${expected(rMensajeros, skippedByCollection.mensajeros)} Firestore=${mSnap.size}`);
-    if (pSnap.size !== expected(rProductos, skippedByCollection.productos)) mismatches.push(`productos: esperado=${expected(rProductos, skippedByCollection.productos)} Firestore=${pSnap.size}`);
-    if (cSnap.size !== expected(rCategorias, skippedByCollection.categorias)) mismatches.push(`categorias: esperado=${expected(rCategorias, skippedByCollection.categorias)} Firestore=${cSnap.size}`);
-    if (vSnap.size !== expected(rVales, skippedByCollection.vales)) mismatches.push(`vales: esperado=${expected(rVales, skippedByCollection.vales)} Firestore=${vSnap.size}`);
-    const totalSkipped = Object.values(skippedByCollection).reduce((s, arr) => s + (arr ? arr.length : 0), 0);
-    if (totalSkipped > 0) {
-      mismatches.push(`${totalSkipped} elemento(s) omitido(s) por pesar más de ~900KB (foto sin optimizar) — usa "☁️ Fotos a GitHub" en Stock y vuelve a migrar`);
-    }
+    if (gArr.length !== expected(rGestores, skippedByCollection.gestores)) mismatches.push(`gestores: esperado=${expected(rGestores, skippedByCollection.gestores)} Supabase=${gArr.length}`);
+    if (mArr.length !== expected(rMensajeros, skippedByCollection.mensajeros)) mismatches.push(`mensajeros: esperado=${expected(rMensajeros, skippedByCollection.mensajeros)} Supabase=${mArr.length}`);
+    if (pArr.length !== expected(rProductos, skippedByCollection.productos)) mismatches.push(`productos: esperado=${expected(rProductos, skippedByCollection.productos)} Supabase=${pArr.length}`);
+    if (cArr.length !== expected(rCategorias, skippedByCollection.categorias)) mismatches.push(`categorias: esperado=${expected(rCategorias, skippedByCollection.categorias)} Supabase=${cArr.length}`);
+    if (vArr.length !== expected(rVales, skippedByCollection.vales)) mismatches.push(`vales: esperado=${expected(rVales, skippedByCollection.vales)} Supabase=${vArr.length}`);
 
-    // Spot-check de contenido: muestra aleatoria de hasta 8 vales.
-    const sampleSize = Math.min(8, rVales.length);
-    const sample = [...rVales].sort(() => Math.random() - 0.5).slice(0, sampleSize);
-    const spotErrors = [];
-    for (const v of sample) {
-      const doc = await firestoreDb.collection('vales').doc(String(v.id)).get();
-      if (!doc.exists) { spotErrors.push(`vale ${v.id}: falta en Firestore`); continue; }
-      const fv = doc.data();
-      if (fv.total !== v.total || fv.cliente !== v.cliente || fv.valeNum !== v.valeNum) {
-        spotErrors.push(`vale ${v.id}: datos no coinciden con RTDB`);
-      }
-    }
-
-    const problems = mismatches.concat(spotErrors);
-    if (backupFailures.length) problems.push(`backups no migrados (doc muy grande, no crítico): ${backupFailures.join(', ')}`);
+    const problems = mismatches.slice();
     if (problems.length === 0) {
-      setStatus(`✅ Migración completa y verificada.<br>Gestores: ${gSnap.size} · Mensajeros: ${mSnap.size} · Productos: ${pSnap.size} · Categorías: ${cSnap.size} · Vales: ${vSnap.size}<br>Spot-check de ${sampleSize} vales: OK.`);
-      showToast('Migración a Firestore verificada ✓');
+      setStatus(`✅ Migración a Supabase completa y verificada.<br>Gestores: ${gArr.length} · Mensajeros: ${mArr.length} · Productos: ${pArr.length} · Categorías: ${cArr.length} · Vales: ${vArr.length}`);
+      showToast('Migración a Supabase verificada ✓');
     } else {
-      setStatus(`⚠️ Migración terminada CON DIFERENCIAS — revisar antes de cortar producción:<br>${problems.join('<br>')}`);
-      showToast('Migración con diferencias — revisar antes de continuar');
+      setStatus(`⚠️ Migración terminada CON DIFERENCIAS:<br>${problems.join('<br>')}`);
+      showToast('Migración con diferencias — revisar');
     }
   } catch(e) {
-    console.error('[migrateToFirestore]', e);
+    console.error('[migrateToFirestore/Supabase]', e);
     setStatus('❌ Error durante la migración: ' + (e && e.message ? e.message : e));
     showToast('Error en la migración: ' + (e && e.message ? e.message : e));
   }
