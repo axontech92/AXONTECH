@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 34;
+const APP_VERSION = 35;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '2f2bd3ac8d792770';
+let _LOCAL_BUILD_HASH = 'e793151d2de098cd';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -622,8 +622,8 @@ function timeAgo(dateString) {
   return diffDays+'d';
 }
 const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
-const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
-const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
+const pendingOf   = gId=> { const n=Number(gId); return getVales().filter(v=>v&&v.gestorId!=null&&Number(v.gestorId)===n&&v.status==='pending').length; };
+const todayValesOf= gId=> { const n=Number(gId); return getVales().filter(v=>v&&v.gestorId!=null&&Number(v.gestorId)===n&&new Date(v.ts).toDateString()===todayStr()).length; };
 
 
 
@@ -1548,8 +1548,17 @@ function _startPollIfPending() {
 // vales ya están siendo subidos, no hay nada nuevo que encolar.
 function _ensurePendingValesEnqueued() {
   if (IS_ADMIN) return; // el admin no envía vales propios
-  if (!activeGestorId) return;
-  const mine = getVales().filter(v => v.gestorId === activeGestorId && v.synced !== true && v.status !== 'cancelled');
+  if (activeGestorId == null) return;
+  // v34: comparación robusta con Number() — gestorId puede venir como string
+  // de Supabase JSONB y la comparación === fallaba, haciendo que el vale
+  // NUNCA se re-encolara para subir a la nube.
+  const gidNum = Number(activeGestorId);
+  const mine = getVales().filter(v =>
+    v && v.gestorId != null &&
+    Number(v.gestorId) === gidNum &&
+    v.synced !== true &&
+    v.status !== 'cancelled'
+  );
   if (mine.length === 0) return;
   // BUGFIX: antes se encolaba al path legado 'vales/{gestorId}' (vestigio de
   // RTDB) mientras saveVales() usa el path plano 'vales' — dos formas de
@@ -1770,13 +1779,15 @@ const saveVales = v => {
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
     _enqueueFBChunked('vales', updates, 'update');
-  } else if (activeGestorId) {
+  } else if (activeGestorId != null) {
     // El gestor solo envía SUS vales — pero al mismo path 'vales' (colección
     // plana), no a una sub-rama propia como en RTDB. La protección contra
     // pisar vales/campos ajenos ya no depende de a qué "rama" se escribe,
     // sino de que slimValeGestor() (arriba) nunca incluye campos que no le
     // pertenecen, combinado con set(...,{merge:true}) documento-por-documento.
-    const mine = v.filter(x => x.gestorId === activeGestorId);
+    // v34: usar Number() para comparación robusta de gestorId.
+    const gidNum = Number(activeGestorId);
+    const mine = v.filter(x => x && x.gestorId != null && Number(x.gestorId) === gidNum);
     mine.forEach(x => {
       const key = String(x.id);
       const prev = prevMap.get(key);
@@ -1790,7 +1801,7 @@ const saveVales = v => {
     });
     if (Array.isArray(prevVales)) {
       const kept = new Set(mine.map(x => String(x.id)));
-      prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
+      prevVales.filter(x => x && x.gestorId != null && Number(x.gestorId) === gidNum).forEach(x => {
         if (!kept.has(String(x.id))) updates[String(x.id)] = null;
       });
     }
@@ -2874,7 +2885,7 @@ function renderGestorNotifs() {
   // Personal Notifs — check if cleared for this gestor
   const personalCleared = activeGestorId ? localStorage.getItem('axon_cleared_personal_' + activeGestorId) : null;
   const personalNotifs = notifs.filter(n => {
-    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'ranking_top3'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
+    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'ranking_top3'].includes(n.type) && activeGestorId && Number(n.gestorId) === Number(activeGestorId);
   });
 
   const sec = document.getElementById('gestorNotifsSection');
@@ -5203,7 +5214,7 @@ function renderGestorComisiones() {
   const list=document.getElementById('gestorComisionList');
   if(!section||!list||!activeGestorId){if(section)section.style.display='none';return;}
   // Get confirmed/pending_payment vales for this gestor
-  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&['confirmed','pending_payment'].includes(v.status));
+  const mine=getVales().filter(v=>Number(v.gestorId)===Number(activeGestorId)&&['confirmed','pending_payment'].includes(v.status));
   // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
   const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
   const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
@@ -5252,10 +5263,10 @@ function toggleGestorHistorial(){
   const clearBtn=document.getElementById('gestorHistClearBtn');
   if(hList) hList.style.display=_gestorHistOpen?'block':'none';
   if(arrow) arrow.textContent=_gestorHistOpen?'▲':'▼';
-  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);clearBtn.style.display=hv.length?'block':'none';}
+  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>Number(v.gestorId)===Number(activeGestorId)&&v.status==='confirmed'&&!v.hiddenFromHistory);clearBtn.style.display=hv.length?'block':'none';}
 }
 function clearGestorHistory(){
-  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);
+  const confirmed=getVales().filter(v=>Number(v.gestorId)===Number(activeGestorId)&&v.status==='confirmed'&&!v.hiddenFromHistory);
   if(!confirmed.length){showToast('No hay historial para ocultar');return;}
   showConfirmAction('¿Ocultar historial?',`Se ocultarán ${confirmed.length} vales completados de tu vista. <b>Los datos NO se borran</b> — el admin sigue viéndolos en estadísticas e historial. Esta acción es reversible desde el panel admin.`,'Ocultar','btn-red',()=>{
     // Mark vales as hidden for this gestor — do NOT delete

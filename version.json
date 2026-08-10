@@ -1,9 +1,9 @@
 {
-  "version": 34,
-  "versionStr": "v34",
-  "hash": "2f2bd3ac8d792770",
-  "hashFull": "2f2bd3ac8d7927700c738ac48cbacad3e35c09b5b20149b0f0b650c16ce92361",
-  "releasedAt": "2026-08-10 04:30",
+  "version": 35,
+  "versionStr": "v35",
+  "hash": "e793151d2de098cd",
+  "hashFull": "e793151d2de098cd260f9b2a632441a54061ffdc6b18338c3ea02f81be0d15bf",
+  "releasedAt": "2026-08-10 05:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Simplificación del listener de vales siguiendo la filosofía de v16. El merge complicado de v31-v33 tenía edge cases que perdían el vale. Ahora: si el polling trae vales, se guardan + se preservan vales locales synced:false. Si el polling viene vacío, NO se toca el cache local. El vale debe quedarse visible como 'Enviado · admin pendiente' hasta que el admin lo procese."
+    "Fix crítico: en saveVales (rama gestor) y _ensurePendingValesEnqueued, la comparación v.gestorId === activeGestorId fallaba porque gestorId venía como string de Supabase JSONB. El filtro descartaba el vale → nunca se encolaba el write → el vale nunca llegaba a la nube → el polling no lo encontraba → desaparecía. Ahora TODAS las comparaciones de gestorId usan Number()."
   ]
 }
