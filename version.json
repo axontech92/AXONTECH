@@ -1,9 +1,9 @@
 {
-  "version": 3,
-  "versionStr": "v3",
-  "hash": "cc727089acfa73b0",
-  "hashFull": "cc727089acfa73b095cd910ae4a16199e315ce3aa8c52a72147d93f5a49877cb",
-  "releasedAt": "2026-08-10 16:30",
+  "version": 4,
+  "versionStr": "v4",
+  "hash": "29dcce389192c52d",
+  "hashFull": "29dcce389192c52d5405c45ef55a42ff4f9db93c38e6ddc3d7066f28fefbbfaf",
+  "releasedAt": "2026-08-10 17:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Diseño B aplicado al dashboard del gestor: hero card con número principal + conversión destacada, banner verde de comisión con sombra, meta con porcentaje dentro de la barra, lista de comisiones con íconos en cuadros de color."
+    "Optimizado para móvil: todos los tamaños ahora usan clamp(min, preferred, max) — se adaptan al ancho de pantalla. Números grandes en desktop, más pequeños en móvil sin perder legibilidad. Íconos de comisiones escalables. Padding y gaps responsivos. Texto con word-break y min-width:0 para que no desborde en pantallas estrechas."
   ]
 }

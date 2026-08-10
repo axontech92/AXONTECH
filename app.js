@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 3;
+const APP_VERSION = 4;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'cc727089acfa73b0';
+let _LOCAL_BUILD_HASH = '29dcce389192c52d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5107,63 +5107,68 @@ function renderGestorDashboard() {
   const meta = cfg.metaPuntos || 100;
   const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
 
-  // v3 Diseño B: Moderno con hero card
-  // Hero card con número principal + conversión, debajo stats mini, luego banner de comisión y meta
+  // v4 OPTIMIZADO MÓVIL: tamaños responsivos con clamp(), media queries inline
+  // clamp(min, preferred, max) permite que el tamaño se adapte al ancho de pantalla
+  // En móvil (<400px): números más pequeños, padding reducido, gap menor
+  // En desktop: tamaños completos como antes
+
   const confirmedTotal = cur.confirmed + cur.pendingPay;
+
+  // Hero card: números con clamp() para que se escalen
   const heroHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
-        <div>
-          <div style="font-size:36px;font-weight:900;color:var(--blue);line-height:1;">${cur.total}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Vales ${range.label.toLowerCase()}</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:clamp(12px,4vw,16px);padding:clamp(12px,4vw,16px);margin-bottom:10px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:12px;">
+        <div style="min-width:0;flex:1;">
+          <div style="font-size:clamp(28px,9vw,36px);font-weight:900;color:var(--blue);line-height:1;">${cur.total}</div>
+          <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);margin-top:3px;">Vales ${range.label.toLowerCase()}</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:28px;font-weight:800;color:var(--green);line-height:1;">${cur.conversion}%</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Conversión</div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:clamp(22px,7vw,28px);font-weight:800;color:var(--green);line-height:1;">${cur.conversion}%</div>
+          <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);margin-top:3px;">Conversión</div>
         </div>
       </div>
-      <div style="display:flex;gap:12px;padding-top:12px;border-top:1px solid var(--border);">
-        <div style="flex:1;text-align:center;">
-          <div style="font-size:16px;font-weight:800;color:var(--green);">${confirmedTotal}</div>
-          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Confirmados</div>
+      <div style="display:flex;gap:clamp(6px,2vw,12px);padding-top:10px;border-top:1px solid var(--border);">
+        <div style="flex:1;text-align:center;min-width:0;">
+          <div style="font-size:clamp(14px,4.5vw,16px);font-weight:800;color:var(--green);">${confirmedTotal}</div>
+          <div style="font-size:clamp(8px,2.5vw,9px);color:var(--text-muted);margin-top:2px;">Confirmados</div>
         </div>
-        <div style="flex:1;text-align:center;">
-          <div style="font-size:16px;font-weight:800;color:#F59E0B;">${cur.pts}</div>
-          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Puntos ⭐</div>
+        <div style="flex:1;text-align:center;min-width:0;">
+          <div style="font-size:clamp(14px,4.5vw,16px);font-weight:800;color:#F59E0B;">${cur.pts}</div>
+          <div style="font-size:clamp(8px,2.5vw,9px);color:var(--text-muted);margin-top:2px;">Puntos ⭐</div>
         </div>
-        <div style="flex:1;text-align:center;">
-          <div style="font-size:16px;font-weight:800;color:var(--blue);">${prev ? _cmpArrow(cur.total, prev.total) : '—'}</div>
-          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">vs anterior</div>
+        <div style="flex:1;text-align:center;min-width:0;">
+          <div style="font-size:clamp(11px,3.5vw,13px);font-weight:800;color:var(--blue);">${prev ? _cmpArrow(cur.total, prev.total) : '—'}</div>
+          <div style="font-size:clamp(8px,2.5vw,9px);color:var(--text-muted);margin-top:2px;">vs anterior</div>
         </div>
       </div>
     </div>
   `;
 
-  // Banner verde de comisión (solo si hay)
+  // Banner verde de comisión — responsivo
   let comHTML = '';
   if (cur.comBadge || cur.closed > 0) {
-    comHTML = `<div style="background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);border-radius:14px;padding:14px 16px;margin-bottom:12px;color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 14px rgba(16,185,129,.25);">
-      <div>
-        <div style="font-size:11px;opacity:.9;text-transform:uppercase;letter-spacing:1px;">Comisión estimada</div>
-        <div style="font-size:20px;font-weight:900;margin-top:2px;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
+    comHTML = `<div style="background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);border-radius:clamp(10px,3.5vw,14px);padding:clamp(11px,3.5vw,14px) clamp(13px,4vw,16px);margin-bottom:10px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 4px 14px rgba(16,185,129,.25);">
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;">Comisión estimada</div>
+        <div style="font-size:clamp(16px,5.5vw,20px);font-weight:900;margin-top:2px;word-break:break-word;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
       </div>
-      <div style="font-size:28px;">💵</div>
+      <div style="font-size:clamp(20px,6vw,28px);flex-shrink:0;">💵</div>
     </div>`;
   }
 
-  // Meta de puntos con barra que muestra % dentro
+  // Meta de puntos — barra más gruesa en móvil para que se vea bien
   const metaHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-        <span style="font-size:12px;font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
-        <span style="font-size:12px;color:var(--text-muted);">${cur.pts} / ${meta} pts</span>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:clamp(10px,3.5vw,14px);padding:clamp(11px,3.5vw,14px);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+        <span style="font-size:clamp(11px,3.2vw,12px);font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
+        <span style="font-size:clamp(10px,3vw,12px);color:var(--text-muted);font-weight:600;white-space:nowrap;">${cur.pts}/${meta} pts</span>
       </div>
-      <div style="background:var(--surface3);border-radius:20px;height:12px;overflow:hidden;position:relative;">
+      <div style="background:var(--surface3);border-radius:20px;height:clamp(10px,3.5vw,12px);overflow:hidden;position:relative;">
         <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:20px;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;">
-          ${pctMeta >= 15 ? `<span style="font-size:9px;font-weight:800;color:#fff;">${pctMeta}%</span>` : ''}
+          ${pctMeta >= 15 ? `<span style="font-size:clamp(8px,2.5vw,9px);font-weight:800;color:#fff;">${pctMeta}%</span>` : ''}
         </div>
       </div>
-      ${pctMeta < 15 ? `<div style="text-align:right;font-size:10px;color:var(--text-muted);margin-top:3px;">${pctMeta}%</div>` : ''}
+      ${pctMeta < 15 ? `<div style="text-align:right;font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);margin-top:3px;">${pctMeta}%</div>` : ''}
     </div>
   `;
 
@@ -5296,47 +5301,47 @@ function renderGestorComisiones() {
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){section.style.display='none';return;}
   section.style.display='block';
 
-  // v3 Diseño B: Lista con íconos en cuadros de color
-  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:12px;">';
+  // v4 OPTIMIZADO MÓVIL: íconos más pequeños, padding reducido, texto con clamp()
+  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:clamp(10px,3.5vw,14px);overflow:hidden;margin-top:10px;">';
 
   if(pendientes.length){
     const s=sumCommissions(pendientes);
     const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
-    html += `<div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(249,115,22,.12);">⏳</div>
-        <div style="display:flex;flex-direction:column;">
-          <span style="font-size:13px;font-weight:700;color:var(--orange);">Pendiente</span>
-          <span style="font-size:10px;color:var(--text-muted);">${pendientes.length} comisión${pendientes.length!==1?'es':''} · se acumulan</span>
+    html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
+        <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(249,115,22,.12);flex-shrink:0;">⏳</div>
+        <div style="display:flex;flex-direction:column;min-width:0;">
+          <span style="font-size:clamp(12px,3.5vw,13px);font-weight:700;color:var(--orange);">Pendiente</span>
+          <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${pendientes.length} comisión${pendientes.length!==1?'es':''} · se acumulan</span>
         </div>
       </div>
-      <div style="font-size:14px;font-weight:800;color:var(--green);">${badge||'—'}</div>
+      <div style="font-size:clamp(12px,3.8vw,14px);font-weight:800;color:var(--green);white-space:nowrap;flex-shrink:0;">${badge||'—'}</div>
     </div>`;
   }
 
   if(enSobre.length){
-    html += `<div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(245,158,11,.12);">✉️</div>
-        <div style="display:flex;flex-direction:column;">
-          <span style="font-size:13px;font-weight:700;color:var(--yellow);">En sobre</span>
-          <span style="font-size:10px;color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''} · pend. entrega</span>
+    html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
+        <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(245,158,11,.12);flex-shrink:0;">✉️</div>
+        <div style="display:flex;flex-direction:column;min-width:0;">
+          <span style="font-size:clamp(12px,3.5vw,13px);font-weight:700;color:var(--yellow);">En sobre</span>
+          <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''} · pend. entrega</span>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);">—</div>
+      <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);flex-shrink:0;">—</div>
     </div>`;
   }
 
   if(cobrados.length){
-    html += `<div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(16,185,129,.12);">✅</div>
-        <div style="display:flex;flex-direction:column;">
-          <span style="font-size:13px;font-weight:700;color:var(--green);">Cobrados</span>
-          <span style="font-size:10px;color:var(--text-muted);">${cobrados.length} comisión${cobrados.length!==1?'es':''} · completado</span>
+    html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
+        <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(16,185,129,.12);flex-shrink:0;">✅</div>
+        <div style="display:flex;flex-direction:column;min-width:0;">
+          <span style="font-size:clamp(12px,3.5vw,13px);font-weight:700;color:var(--green);">Cobrados</span>
+          <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${cobrados.length} comisión${cobrados.length!==1?'es':''} · completado</span>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);">✓</div>
+      <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);flex-shrink:0;">✓</div>
     </div>`;
   }
 
