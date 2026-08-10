@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 9;
+const APP_VERSION = 10;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'fecf249068881681';
+let _LOCAL_BUILD_HASH = '2cea4dbf1db4fa8a';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2117,48 +2117,77 @@ function checkEstafaMatch(vale) {
   const vCarnet = norm(vale.carnet || '');
   lista.forEach(e => {
     const reasons = [];
-    // Phone match (exact digits only, no formatting)
-    if (e.telefono && vPhone) {
-      const ePhone = e.telefono.replace(/[\s\-()]/g, '');
-      if (ePhone && (vPhone.includes(ePhone) || ePhone.includes(vPhone))) reasons.push('teléfono: ' + e.telefono);
+
+    // ── Teléfono: coincidencia EXACTA (mínimo 7 dígitos en ambos) ──
+    // v10 FIX: ANTES usaba includes() bidireccional que causaba falsos
+    // positivos (ej: vale="5123" matcheaba estafa="51234567").
+    // Ahora requiere coincidencia exacta o por últimos 8 dígitos.
+    if (e.telefono && vPhone && vPhone.length >= 7) {
+      const ePhone = (e.telefono || '').replace(/[\s\-()]/g, '');
+      if (ePhone.length >= 7) {
+        // Coincidencia exacta o por últimos 8 dígitos (tolera prefijo país)
+        if (vPhone === ePhone) {
+          reasons.push('teléfono: ' + e.telefono);
+        } else if (vPhone.length >= 8 && ePhone.length >= 8) {
+          const tailV = vPhone.slice(-8);
+          const tailE = ePhone.slice(-8);
+          if (tailV === tailE) reasons.push('teléfono: ' + e.telefono);
+        }
+      }
     }
-    // Name match (fuzzy: normalized, partial, reversed)
-    if (e.nombre && vCliente) {
+
+    // ── Nombre: coincidencia EXACTA o palabra-completa ──
+    // v10 FIX: ANTES usaba includes() que hacía que "Juan" matcheara
+    // "Juan Pérez". Ahora requiere coincidencia exacta o que TODAS las
+    // palabras significativas (>=4 chars) del entry coincidan como
+    // palabra completa en el vale.
+    if (e.nombre && vCliente && vCliente.length >= 4) {
       const eNombre = norm(e.nombre);
-      if (eNombre && vCliente) {
-        // Exact normalized match
-        if (vCliente === eNombre) { reasons.push('nombre: ' + e.nombre); }
-        // One contains the other
-        else if (vCliente.includes(eNombre) || eNombre.includes(vCliente)) { reasons.push('nombre: ' + e.nombre); }
-        // Check each word of the name against each word of the entry
-        else {
-          const vWords = vCliente.split(/\s+/).filter(w=>w.length>2);
-          const eWords = eNombre.split(/\s+/).filter(w=>w.length>2);
-          let wordMatch = false;
-          for(const vw of vWords){ for(const ew of eWords){ if(vw.includes(ew)||ew.includes(vw)){wordMatch=true;break;} } if(wordMatch)break; }
-          if(wordMatch && vWords.length>=2 && eWords.length>=2) reasons.push('nombre similar: ' + e.nombre);
+      if (eNombre.length >= 4) {
+        if (vCliente === eNombre) {
+          reasons.push('nombre: ' + e.nombre);
+        } else {
+          // Matching palabra-completa: todas las palabras del entry deben
+          // aparecer como palabra exacta en el vale
+          const vWords = vCliente.split(/\s+/).filter(w => w.length >= 4);
+          const eWords = eNombre.split(/\s+/).filter(w => w.length >= 4);
+          if (eWords.length >= 2 && vWords.length >= 2) {
+            const vSet = new Set(vWords);
+            const allMatch = eWords.every(ew => vSet.has(ew));
+            if (allMatch) reasons.push('nombre similar: ' + e.nombre);
+          }
         }
       }
     }
-    // Address match (fuzzy: normalized, partial)
-    if (e.direccion && vDireccion) {
+
+    // ── Dirección: coincidencia EXACTA o 2+ palabras completas ──
+    // v10 FIX: mismo patrón que nombre — palabras completas, no includes()
+    if (e.direccion && vDireccion && vDireccion.length >= 5) {
       const eDir = norm(e.direccion);
-      if (eDir && vDireccion) {
-        if (vDireccion.includes(eDir) || eDir.includes(vDireccion)) { reasons.push('dirección: ' + e.direccion); }
-        else {
-          const vWords = vDireccion.split(/\s+/).filter(w=>w.length>3);
-          const eWords = eDir.split(/\s+/).filter(w=>w.length>3);
-          let matchCount = 0;
-          for(const vw of vWords){ for(const ew of eWords){ if(vw===ew||vw.includes(ew)||ew.includes(vw)){matchCount++;break;} } }
-          if(matchCount >= Math.min(2, eWords.length)) reasons.push('dirección similar: ' + e.direccion);
+      if (eDir.length >= 5) {
+        if (vDireccion === eDir) {
+          reasons.push('dirección: ' + e.direccion);
+        } else {
+          const vWords = vDireccion.split(/\s+/).filter(w => w.length >= 5);
+          const eWords = eDir.split(/\s+/).filter(w => w.length >= 5);
+          if (eWords.length >= 2) {
+            const vSet = new Set(vWords);
+            const matchCount = eWords.filter(ew => vSet.has(ew)).length;
+            if (matchCount >= 2) reasons.push('dirección similar: ' + e.direccion);
+          }
         }
       }
     }
-    // Carnet match (exact or partial)
-    if (e.carnet && vCarnet) {
+
+    // ── Carnet: coincidencia EXACTA (mínimo 5 caracteres) ──
+    // v10 FIX: ANTES usaba includes() bidireccional.
+    if (e.carnet && vCarnet && vCarnet.length >= 5) {
       const eCarnet = norm(e.carnet);
-      if (eCarnet && (vCarnet.includes(eCarnet) || eCarnet.includes(vCarnet))) reasons.push('carnet: ' + e.carnet);
+      if (eCarnet.length >= 5 && vCarnet === eCarnet) {
+        reasons.push('carnet: ' + e.carnet);
+      }
     }
+
     if (reasons.length) matches.push({ entry: e, reasons: reasons });
   });
   return matches;
@@ -5134,12 +5163,21 @@ function renderGestorDashboard() {
   `;
 
   // Banner verde de comisión
+  // v10: mensaje más claro cuando no hay comisión configurada
   let comHTML = '';
   if (cur.comBadge || cur.closed > 0) {
+    let badgeText;
+    if (cur.comBadge) {
+      badgeText = escapeHTML(cur.comBadge);
+    } else if (cur.com && cur.com.computed === false) {
+      badgeText = 'Comisión no configurada en productos';
+    } else {
+      badgeText = 'Sin comisión';
+    }
     comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
         <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
-        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
+        <div style="font-size:clamp(16px,5vw,24px);font-weight:700;margin-top:3px;">${badgeText}</div>
       </div>
       <div style="font-size:clamp(22px,7vw,30px);line-height:1;flex-shrink:0;">💵</div>
     </div>`;
