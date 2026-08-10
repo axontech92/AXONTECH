@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 2;
+const APP_VERSION = 3;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '280090f8ae9dbbf6';
+let _LOCAL_BUILD_HASH = 'cc727089acfa73b0';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5107,53 +5107,67 @@ function renderGestorDashboard() {
   const meta = cfg.metaPuntos || 100;
   const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
 
-  // v44: Diseño compacto — todo en una sola tarjeta con secciones claras
-  // Stats en grid 2x2 (no 4x1), comisión como fila destacada, meta con barra
-  const stats = [
-    { label:'Vales', val:cur.total, color:'var(--blue)', icon:'📋', cmp: prev ? _cmpArrow(cur.total, prev.total) : '' },
-    { label:'Confirmados', val:cur.confirmed + cur.pendingPay, color:'var(--green)', icon:'✅', cmp: prev ? _cmpArrow(cur.confirmed + cur.pendingPay, prev.confirmed + prev.pendingPay) : '' },
-    { label:'Puntos', val:cur.pts, color:'#F59E0B', icon:'⭐', cmp: prev ? _cmpArrow(cur.pts, prev.pts) : '' },
-    { label:'Conversión', val:cur.conversion + '%', color:'var(--orange)', icon:'📊', cmp: prev ? _cmpArrow(cur.conversion, prev.conversion) : '' },
-  ];
-
-  const statsHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-    ${stats.map(s => `
-      <div style="padding:10px 12px;background:var(--surface2);border-radius:10px;text-align:center;border:1px solid var(--border);">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">${s.icon} ${s.label}</div>
-        <div style="color:${s.color};font-size:22px;font-weight:800;line-height:1.1;">${s.val}</div>
-        ${s.cmp ? `<div style="margin-top:2px;font-size:9px;">${s.cmp}</div>` : ''}
-      </div>
-    `).join('')}
-  </div>`;
-
-  // Comisión — solo si hay algo que mostrar
-  let comHTML = '';
-  if (cur.comBadge || cur.closed > 0) {
-    comHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(5,150,105,.04));border:1px solid rgba(16,185,129,.2);border-radius:10px;margin-bottom:8px;">
-      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión (${range.label.toLowerCase()})</span>
-      ${cur.comBadge
-        ? `<span style="font-size:15px;font-weight:800;color:var(--green);">💵 ${escapeHTML(cur.comBadge)}</span>`
-        : `<span style="font-size:11px;color:var(--text-muted);">No computable</span>`}
-    </div>`;
-  }
-
-  // Meta de puntos — barra compacta
-  const metaHTML = `
-    <div style="padding:10px 12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-size:11px;font-weight:600;color:var(--text);">🎯 Meta de puntos</span>
-        <span style="font-size:11px;color:var(--text-muted);font-weight:600;">${cur.pts} / ${meta} pts</span>
-      </div>
-      <div style="background:var(--gray-100);border-radius:20px;height:10px;overflow:hidden;">
-        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg, var(--blue), var(--green));border-radius:20px;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;">
-          ${pctMeta >= 15 ? `<span style="font-size:8px;font-weight:800;color:white;">${pctMeta}%</span>` : ''}
+  // v3 Diseño B: Moderno con hero card
+  // Hero card con número principal + conversión, debajo stats mini, luego banner de comisión y meta
+  const confirmedTotal = cur.confirmed + cur.pendingPay;
+  const heroHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;">
+        <div>
+          <div style="font-size:36px;font-weight:900;color:var(--blue);line-height:1;">${cur.total}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Vales ${range.label.toLowerCase()}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:28px;font-weight:800;color:var(--green);line-height:1;">${cur.conversion}%</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Conversión</div>
         </div>
       </div>
-      ${pctMeta < 15 ? `<div style="text-align:right;font-size:10px;color:var(--text-muted);margin-top:2px;">${pctMeta}%</div>` : ''}
+      <div style="display:flex;gap:12px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:16px;font-weight:800;color:var(--green);">${confirmedTotal}</div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Confirmados</div>
+        </div>
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:16px;font-weight:800;color:#F59E0B;">${cur.pts}</div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Puntos ⭐</div>
+        </div>
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:16px;font-weight:800;color:var(--blue);">${prev ? _cmpArrow(cur.total, prev.total) : '—'}</div>
+          <div style="font-size:9px;color:var(--text-muted);margin-top:2px;">vs anterior</div>
+        </div>
+      </div>
     </div>
   `;
 
-  dash.innerHTML = statsHTML + comHTML + metaHTML;
+  // Banner verde de comisión (solo si hay)
+  let comHTML = '';
+  if (cur.comBadge || cur.closed > 0) {
+    comHTML = `<div style="background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);border-radius:14px;padding:14px 16px;margin-bottom:12px;color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 14px rgba(16,185,129,.25);">
+      <div>
+        <div style="font-size:11px;opacity:.9;text-transform:uppercase;letter-spacing:1px;">Comisión estimada</div>
+        <div style="font-size:20px;font-weight:900;margin-top:2px;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
+      </div>
+      <div style="font-size:28px;">💵</div>
+    </div>`;
+  }
+
+  // Meta de puntos con barra que muestra % dentro
+  const metaHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:12px;font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
+        <span style="font-size:12px;color:var(--text-muted);">${cur.pts} / ${meta} pts</span>
+      </div>
+      <div style="background:var(--surface3);border-radius:20px;height:12px;overflow:hidden;position:relative;">
+        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:20px;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;">
+          ${pctMeta >= 15 ? `<span style="font-size:9px;font-weight:800;color:#fff;">${pctMeta}%</span>` : ''}
+        </div>
+      </div>
+      ${pctMeta < 15 ? `<div style="text-align:right;font-size:10px;color:var(--text-muted);margin-top:3px;">${pctMeta}%</div>` : ''}
+    </div>
+  `;
+
+  dash.innerHTML = heroHTML + comHTML + metaHTML;
 }
 
 function renderMyVales() {
@@ -5282,57 +5296,47 @@ function renderGestorComisiones() {
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){section.style.display='none';return;}
   section.style.display='block';
 
-  // v44: Diseño compacto — una sola tarjeta con 3 filas (pendiente/sobre/cobrado)
-  // en vez de 3 tarjetas separadas que se veían "regadas"
-  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">';
+  // v3 Diseño B: Lista con íconos en cuadros de color
+  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:12px;">';
 
-  // Encabezado de la tarjeta
-  html += `<div style="padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);">
-    <div style="font-size:13px;font-weight:700;color:var(--text);">💰 Mis comisiones</div>
-  </div>`;
-
-  // Pendientes
   if(pendientes.length){
     const s=sumCommissions(pendientes);
     const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
-    html += `<div style="padding:12px 14px;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--orange);display:inline-block;"></span>
-          <span style="font-size:12px;font-weight:700;color:var(--orange);">Pendiente</span>
-          <span style="font-size:10px;color:var(--text-muted);background:var(--surface2);padding:1px 6px;border-radius:8px;">${pendientes.length}</span>
+    html += `<div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(249,115,22,.12);">⏳</div>
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:13px;font-weight:700;color:var(--orange);">Pendiente</span>
+          <span style="font-size:10px;color:var(--text-muted);">${pendientes.length} comisión${pendientes.length!==1?'es':''} · se acumulan</span>
         </div>
-        ${badge?`<span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${badge}</span>`:`<span style="font-size:11px;color:var(--text-muted);">—</span>`}
       </div>
-      <div style="font-size:10px;color:var(--text-muted);padding-left:16px;">Se acumulan hasta pasar al sobre</div>
+      <div style="font-size:14px;font-weight:800;color:var(--green);">${badge||'—'}</div>
     </div>`;
   }
 
-  // En sobre
   if(enSobre.length){
-    html += `<div style="padding:12px 14px;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--yellow);display:inline-block;"></span>
-          <span style="font-size:12px;font-weight:700;color:var(--yellow);">En sobre</span>
-          <span style="font-size:10px;color:var(--text-muted);background:var(--surface2);padding:1px 6px;border-radius:8px;">${enSobre.length}</span>
+    html += `<div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(245,158,11,.12);">✉️</div>
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:13px;font-weight:700;color:var(--yellow);">En sobre</span>
+          <span style="font-size:10px;color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''} · pend. entrega</span>
         </div>
-        <span style="font-size:10px;color:var(--text-muted);">Pendiente de entrega</span>
       </div>
+      <div style="font-size:11px;color:var(--text-muted);">—</div>
     </div>`;
   }
 
-  // Cobrados
   if(cobrados.length){
-    html += `<div style="padding:12px 14px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;"></span>
-          <span style="font-size:12px;font-weight:700;color:var(--green);">Cobrados</span>
-          <span style="font-size:10px;color:var(--text-muted);background:var(--surface2);padding:1px 6px;border-radius:8px;">${cobrados.length}</span>
+    html += `<div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(16,185,129,.12);">✅</div>
+        <div style="display:flex;flex-direction:column;">
+          <span style="font-size:13px;font-weight:700;color:var(--green);">Cobrados</span>
+          <span style="font-size:10px;color:var(--text-muted);">${cobrados.length} comisión${cobrados.length!==1?'es':''} · completado</span>
         </div>
-        <span style="font-size:10px;color:var(--text-muted);">✓ Completado</span>
       </div>
+      <div style="font-size:11px;color:var(--text-muted);">✓</div>
     </div>`;
   }
 

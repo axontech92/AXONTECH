@@ -1,9 +1,9 @@
 {
-  "version": 2,
-  "versionStr": "v2",
-  "hash": "280090f8ae9dbbf6",
-  "hashFull": "280090f8ae9dbbf68f9688d0e2b2b2d54c332fbcbd5d1225b83b14718c0af591",
-  "releasedAt": "2026-08-10 15:00",
+  "version": 3,
+  "versionStr": "v3",
+  "hash": "cc727089acfa73b0",
+  "hashFull": "cc727089acfa73b095cd910ae4a16199e315ce3aa8c52a72147d93f5a49877cb",
+  "releasedAt": "2026-08-10 16:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,11 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Reinicio de versiones a v2 (sistema de versiones reiniciado).",
-    "Rediseño del dashboard del gestor: stats en grid 2x2 compacto, comisión como fila destacada con gradiente verde, meta de puntos con barra de progreso que muestra el porcentaje dentro.",
-    "Rediseño de comisiones del gestor: una sola tarjeta con 3 filas (Pendiente/En sobre/Cobrado) en vez de 3 tarjetas separadas — más ordenado y compacto.",
-    "Fix vales sin opciones: status undefined muestra 'Pendiente' y los botones de acción.",
-    "Fix vale del gestor: campo de artículos es de solo lectura (obliga a escoger del catálogo).",
-    "Mejora vale del admin: mensajería en sección propia destacada."
+    "Diseño B aplicado al dashboard del gestor: hero card con número principal + conversión destacada, banner verde de comisión con sombra, meta con porcentaje dentro de la barra, lista de comisiones con íconos en cuadros de color."
   ]
 }
