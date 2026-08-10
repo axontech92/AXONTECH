@@ -1,9 +1,9 @@
 {
-  "version": 5,
-  "versionStr": "v5",
-  "hash": "0f41c710cf6a7b5a",
-  "hashFull": "0f41c710cf6a7b5a73fdf6814bdc609936cd4549b58ee983d70041b0a9984828",
-  "releasedAt": "2026-08-10 19:00",
+  "version": 6,
+  "versionStr": "v6",
+  "hash": "9a445617223bc614",
+  "hashFull": "9a445617223bc614f99293c0477935d640c41fcaa79072a1398d3522a7d2d753",
+  "releasedAt": "2026-08-10 20:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,7 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX dashboard móvil: stats con grid de 3 columnas + separadores verticales, textos cortos ('Confir-mados' con salto de línea), más padding y gap, banner de comisión con white-space:nowrap para que no se parta.",
-    "FIX catálogo en blanco: catalogo.html tenía una regex malformada (photos/ sin escapar) que causaba SyntaxError y mataba todo el JS → grilla vacía. Arreglado y validado con new Function."
+    "Rediseño del dashboard del gestor inspirado en la captura de referencia: hero card con números grandes (font-weight 700, letter-spacing negativo), 3 stats mini con separadores verticales, banner verde de comisión con gradiente #059669→#047857, meta de puntos con barra cyan. Todo responsivo con clamp() para móvil y PC."
   ]
 }

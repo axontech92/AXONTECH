@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 5;
+const APP_VERSION = 6;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '0f41c710cf6a7b5a';
+let _LOCAL_BUILD_HASH = '9a445617223bc614';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5107,65 +5107,67 @@ function renderGestorDashboard() {
   const meta = cfg.metaPuntos || 100;
   const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
 
-  // v5 FIX MÓVIL: layout más limpio, stats con suficiente espacio, textos cortos
+  // v6: Diseño limpio inspirado en la captura de referencia
+  // - Hero card con números grandes (Vales + Conversión)
+  // - 3 stats mini con separadores verticales sutiles
+  // - Banner verde de comisión con emoji
+  // - Meta con barra de progreso
   const confirmedTotal = cur.confirmed + cur.pendingPay;
 
   const heroHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4.5vw,18px);margin-bottom:10px;box-shadow:0 4px 20px rgba(0,0,0,.06);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px;">
-        <div style="min-width:0;flex:1;">
-          <div style="font-size:clamp(28px,9vw,38px);font-weight:900;color:var(--blue);line-height:1;">${cur.total}</div>
-          <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);margin-top:4px;">Vales ${range.label.toLowerCase()}</div>
+    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(16px,5vw,20px);margin-bottom:clamp(10px,3vw,14px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:clamp(12px,4vw,16px);">
+        <div>
+          <div style="font-size:clamp(30px,10vw,40px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
+          <div style="font-size:clamp(11px,3.2vw,13px);color:var(--text-muted);margin-top:4px;">Vales ${range.label.toLowerCase()}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div style="font-size:clamp(22px,7vw,30px);font-weight:800;color:var(--green);line-height:1;">${cur.conversion}%</div>
-          <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);margin-top:4px;">Conversión</div>
+        <div style="text-align:right;">
+          <div style="font-size:clamp(24px,8vw,32px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
+          <div style="font-size:clamp(11px,3.2vw,13px);color:var(--text-muted);margin-top:4px;">Conversión</div>
         </div>
       </div>
-      <div style="padding-top:12px;border-top:1px solid var(--border);">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(4px,1.5vw,8px);">
-          <div style="text-align:center;">
-            <div style="font-size:clamp(15px,4.5vw,18px);font-weight:800;color:var(--green);">${confirmedTotal}</div>
-            <div style="font-size:clamp(8px,2.5vw,9px);color:var(--text-muted);margin-top:3px;line-height:1.2;">Confir-<br>mados</div>
-          </div>
-          <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 4px;">
-            <div style="font-size:clamp(15px,4.5vw,18px);font-weight:800;color:#F59E0B;">${cur.pts}</div>
-            <div style="font-size:clamp(8px,2.5vw,9px);color:var(--text-muted);margin-top:3px;line-height:1.2;">Puntos</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:clamp(11px,3.5vw,13px);font-weight:800;color:var(--blue);padding-top:2px;">${prev ? _cmpArrow(cur.total, prev.total) : '—'}</div>
-            <div style="font-size:clamp(8px,2.5vw,9px);color:var(--text-muted);margin-top:3px;line-height:1.2;">vs<br>anterior</div>
-          </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding-top:clamp(12px,4vw,16px);border-top:1px solid var(--border);">
+        <div style="text-align:center;padding:0 clamp(4px,2vw,8px);">
+          <div style="font-size:clamp(16px,5vw,20px);font-weight:700;color:var(--green);">${confirmedTotal}</div>
+          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Confirmados</div>
+        </div>
+        <div style="text-align:center;padding:0 clamp(4px,2vw,8px);border-left:1px solid var(--border);border-right:1px solid var(--border);">
+          <div style="font-size:clamp(16px,5vw,20px);font-weight:700;color:#F59E0B;">${cur.pts}</div>
+          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
+        </div>
+        <div style="text-align:center;padding:0 clamp(4px,2vw,8px);">
+          <div style="font-size:clamp(13px,4vw,15px);font-weight:700;color:var(--blue);padding-top:2px;">${prev ? _cmpArrow(cur.total, prev.total) : '—'}</div>
+          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">vs anterior</div>
         </div>
       </div>
     </div>
   `;
 
-  // Banner verde de comisión — texto en una sola línea, bien alineado
+  // Banner verde de comisión
   let comHTML = '';
   if (cur.comBadge || cur.closed > 0) {
-    comHTML = `<div style="background:linear-gradient(135deg,var(--green) 0%,var(--green-dk) 100%);border-radius:clamp(10px,3.5vw,14px);padding:clamp(12px,4vw,15px) clamp(14px,4.5vw,18px);margin-bottom:10px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 4px 14px rgba(16,185,129,.25);">
-      <div style="min-width:0;flex:1;">
-        <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;">Comisión estimada</div>
-        <div style="font-size:clamp(16px,5.5vw,22px);font-weight:900;margin-top:2px;white-space:nowrap;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
+    comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(16px,5vw,20px) clamp(18px,5.5vw,24px);margin-bottom:clamp(10px,3vw,14px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div>
+        <div style="font-size:clamp(10px,3vw,12px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
+        <div style="font-size:clamp(20px,6.5vw,28px);font-weight:700;margin-top:4px;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
       </div>
-      <div style="font-size:clamp(22px,7vw,30px);flex-shrink:0;line-height:1;">💵</div>
+      <div style="font-size:clamp(24px,7vw,32px);line-height:1;flex-shrink:0;">💵</div>
     </div>`;
   }
 
-  // Meta de puntos — bien estructurada
+  // Meta de puntos
   const metaHTML = `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:clamp(10px,3.5vw,14px);padding:clamp(12px,4vw,15px);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
-        <span style="font-size:clamp(11px,3.2vw,12px);font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
-        <span style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);font-weight:600;white-space:nowrap;">${cur.pts} / ${meta} pts</span>
-      </div>
-      <div style="background:var(--surface3);border-radius:20px;height:clamp(10px,3.5vw,14px);overflow:hidden;position:relative;">
-        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));border-radius:20px;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;">
-          ${pctMeta >= 15 ? `<span style="font-size:clamp(8px,2.5vw,9px);font-weight:800;color:#fff;">${pctMeta}%</span>` : ''}
+    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(16px,5vw,20px);margin-bottom:clamp(10px,3vw,14px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(8px,2.5vw,12px);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:clamp(14px,4vw,16px);">🎯</span>
+          <span style="font-size:clamp(13px,3.8vw,15px);font-weight:600;color:var(--text);">Meta de puntos</span>
         </div>
+        <span style="font-size:clamp(11px,3.2vw,13px);color:var(--text-muted);font-weight:500;">${cur.pts} / ${meta} pts</span>
       </div>
-      ${pctMeta < 15 ? `<div style="text-align:right;font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);margin-top:4px;">${pctMeta}%</div>` : ''}
+      <div style="background:var(--surface3);border-radius:20px;height:clamp(8px,2.5vw,10px);overflow:hidden;">
+        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg,#0891B2,#0EA5E9);border-radius:20px;transition:width .6s;"></div>
+      </div>
     </div>
   `;
 
