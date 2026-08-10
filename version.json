@@ -1,9 +1,9 @@
 {
-  "version": 4,
-  "versionStr": "v4",
-  "hash": "29dcce389192c52d",
-  "hashFull": "29dcce389192c52d5405c45ef55a42ff4f9db93c38e6ddc3d7066f28fefbbfaf",
-  "releasedAt": "2026-08-10 17:30",
+  "version": 5,
+  "versionStr": "v5",
+  "hash": "0f41c710cf6a7b5a",
+  "hashFull": "0f41c710cf6a7b5a73fdf6814bdc609936cd4549b58ee983d70041b0a9984828",
+  "releasedAt": "2026-08-10 19:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,7 @@
     "sw.js"
   ],
   "changelog": [
-    "Optimizado para móvil: todos los tamaños ahora usan clamp(min, preferred, max) — se adaptan al ancho de pantalla. Números grandes en desktop, más pequeños en móvil sin perder legibilidad. Íconos de comisiones escalables. Padding y gaps responsivos. Texto con word-break y min-width:0 para que no desborde en pantallas estrechas."
+    "FIX dashboard móvil: stats con grid de 3 columnas + separadores verticales, textos cortos ('Confir-mados' con salto de línea), más padding y gap, banner de comisión con white-space:nowrap para que no se parta.",
+    "FIX catálogo en blanco: catalogo.html tenía una regex malformada (photos/ sin escapar) que causaba SyntaxError y mataba todo el JS → grilla vacía. Arreglado y validado con new Function."
   ]
 }
