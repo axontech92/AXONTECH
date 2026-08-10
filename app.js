@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 42;
+const APP_VERSION = 43;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '3e1f775a8e38de8e';
+let _LOCAL_BUILD_HASH = 'adc633a58845b933';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4257,7 +4257,7 @@ function renderValeDetail() {
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
     cancelled:{label:'Cancelado',cls:'sp-cancelled',icon:'🚫'},
   };
-  const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
+  const s=sMap[v.status]||sMap['pending'];  // v43: status undefined → 'Pendiente' (no 'UNDEFINED')
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
   let actHTML='';
   // Product link status — show picker if no products linked
@@ -4319,6 +4319,17 @@ function renderValeDetail() {
       <div style="font-weight:700;color:var(--red);">Vale Cancelado</div>
       ${v.cancelledTs?`<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${new Date(v.cancelledTs).toLocaleString('es-ES')}</div>`:''}
     </div>`;
+  } else {
+    // v43 FIX: status undefined/null/unknown → tratar como 'pending'.
+    // ANTES, un vale sin status no entraba en ninguna rama → actHTML quedaba
+    // vacío → no se mostraban botones de acción. Ahora mostramos los mismos
+    // botones que 'pending' para que el admin pueda procesar el vale.
+    actHTML=`${productPickerHTML}<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
+    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
+      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
+    </div>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
   const notesHighlight=v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
@@ -4351,6 +4362,10 @@ function renderValeDetail() {
             <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:100px;">${k}</td>
             <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
       </table>
+      ${v.mensajeria?`<div style="margin-top:10px;padding:10px 12px;background:rgba(0,109,138,.06);border:1px solid rgba(0,109,138,.2);border-radius:8px;">
+        <div style="font-size:10px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🛵 Mensajería</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">${escapeHTML(v.mensajeria)}</div>
+      </div>`:''}
       ${notesHighlight}
     </div>
     <div class="card" style="padding:10px 14px;display:flex;gap:6px;">

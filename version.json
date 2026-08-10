@@ -1,9 +1,9 @@
 {
-  "version": 42,
-  "versionStr": "v42",
-  "hash": "3e1f775a8e38de8e",
-  "hashFull": "3e1f775a8e38de8e07dee1682b2bc53100759e04e1e0c88f55e264494828efe3",
-  "releasedAt": "2026-08-10 12:30",
+  "version": 43,
+  "versionStr": "v43",
+  "hash": "adc633a58845b933",
+  "hashFull": "adc633a58845b9330967674d4e81a81fdd64a4173dbc20d7c3e7dcef3a350d65",
+  "releasedAt": "2026-08-10 13:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,8 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX: vales con mensajero asignado (status='assigned') ahora muestran botones 'Cobrado directo' y 'Entregado (Por cobrar)' — antes solo se podía confirmar la venta si el vale estaba en 'pending' o 'delivered' (estado este último inalcanzable en la práctica)."
+    "FIX vales sin opciones: status undefined ya no muestra 'UNDEFINED' — ahora muestra 'Pendiente' y los botones de acción (cobrar, asignar mensajero).",
+    "FIX vale del gestor: campo de artículos ahora es de solo lectura — obliga a escoger del catálogo, no se puede escribir manualmente.",
+    "MEJORA vale del admin: la mensajería ahora sale en su propia sección destacada (caja azul) en vez de mezclada en la tabla."
   ]
 }
