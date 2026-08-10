@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 10;
+const APP_VERSION = 11;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '2cea4dbf1db4fa8a';
+let _LOCAL_BUILD_HASH = 'a40e2bfd5b54271e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2458,12 +2458,15 @@ function _computeValesHash(vales) {
   // hacía clic en un vale (cambia seenByAdmin:true) el hash era idéntico →
   // refreshUI creía que no hubo cambios → no re-renderizaba → el gestor
   // nunca veía "👁️ Visto por admin" aunque el dato ya estaba en el cache.
+  // v11 FIX: incluir comisionGestor y commissionStatus/commissionPaid en el hash
+  // para que refreshUI detecte cambios en comisiones y re-renderice
   let h = '';
   for (let i = 0; i < vales.length; i++) {
     const v = vales[i];
     h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') +
-         ':' + (v.seenByAdmin ? '1' : '0') + ':' + (v.seenTs || '') + '|';
-    if (h.length > 800) break; // suficiente muestra
+         ':' + (v.seenByAdmin ? '1' : '0') + ':' + (v.seenTs || '') +
+         ':' + (v.comisionGestor || '') + ':' + (v.commissionStatus || '') + ':' + (v.commissionPaid ? '1' : '0') + '|';
+    if (h.length > 1200) break; // suficiente muestra
   }
   return h;
 }
@@ -7600,6 +7603,36 @@ function getValeCommissionParts(v) {
       }
     }
   });
+  // v11 FIX CRÍTICO: si el cálculo por producto falló (sin comisión en
+  // productos, producto borrado, etc.) usar v.comisionGestor como fallback.
+  // El gestor llena este campo al enviar el vale, y viaja a Supabase correctamente.
+  // ANTES, getValeCommissionParts ignoraba completamente v.comisionGestor →
+  // si el producto no tenía comisión configurada, mostraba "Sin comisión" aunque
+  // el vale tuviera el campo comisionGestor con un valor válido.
+  if ((!computable || parts.length === 0) && v.comisionGestor) {
+    const comStr = String(v.comisionGestor).trim();
+    // Parsear comisionGestor: puede ser "$5.00 USD", "1500 MN", "$5 USD + 200 MN", etc.
+    const segments = comStr.split('+').map(s => s.trim()).filter(Boolean);
+    let fbUSD = 0, fbMN = 0, fbOk = false;
+    segments.forEach(seg => {
+      const up = seg.toUpperCase();
+      const num = parsePrecioNum(seg);
+      if (up.includes('MN') || up.includes('CUP')) {
+        if (num > 0) { fbMN += num; fbOk = true; }
+      } else if (up.includes('USD') || up.includes('$')) {
+        if (num > 0) { fbUSD += num; fbOk = true; }
+      } else if (num > 0) {
+        fbUSD += num; fbOk = true; // default USD
+      }
+    });
+    if (fbOk) {
+      totalUSD = fbUSD;
+      totalMN = fbMN;
+      computable = true;
+      parts.push({ label: 'Comisión (vale)', com: comStr, currency: fbMN > 0 && fbUSD === 0 ? 'MN' : 'USD' });
+    }
+  }
+
   return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
     // Backward compat: total + currency for single-currency vales.
     // IMPORTANTE: si hay comisión mixta USD+MN, devolver null en total — que el

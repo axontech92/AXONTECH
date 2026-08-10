@@ -1,9 +1,9 @@
 {
-  "version": 10,
-  "versionStr": "v10",
-  "hash": "2cea4dbf1db4fa8a",
-  "hashFull": "2cea4dbf1db4fa8ab4d5893a682c98451a5c922d7fed5d008b8fd2131a764327",
-  "releasedAt": "2026-08-10 22:00",
+  "version": 11,
+  "versionStr": "v11",
+  "hash": "a40e2bfd5b54271e",
+  "hashFull": "a40e2bfd5b54271e7f676fbb2c1b2e735b441b5311136c31c8dd983e6722a965",
+  "releasedAt": "2026-08-10 22:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,7 +12,7 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX comisión 'No computable': ahora muestra 'Comisión no configurada en productos' o 'Sin comisión' según el caso, más claro para el gestor.",
-    "FIX detector de estafa: coincidencias EXACTAS en teléfono (=== o últimos 8 dígitos), nombre (palabra-completa), carnet (exacto) y dirección (2+ palabras completas). Ya no salta por coincidencias parciales (ej: '5123' no matchea '51234567')."
+    "FIX CRÍTICO comisiones: getValeCommissionParts ahora usa v.comisionGestor como fallback cuando el cálculo por producto falla. ANTES ignoraba completamente este campo del vale — si el producto no tenía comisión configurada, mostraba 'Sin comisión' aunque el vale tuviera el monto. Ahora parsea comisionGestor ($5 USD, 1500 MN, etc.) y lo muestra.",
+    "FIX hash: _computeValesHash ahora incluye comisionGestor, commissionStatus y commissionPaid para que refreshUI detecte cambios en comisiones y re-renderice automáticamente."
   ]
 }
