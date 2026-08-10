@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 36;
+const APP_VERSION = 37;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'e80c47b38cf7f261';
+let _LOCAL_BUILD_HASH = 'dcdb6770daa8fa8d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1038,7 +1038,7 @@ function _processFBQueue() {
       if (item.retries === 1 || item.retries >= 4) {
         const code = (e && e.code) ? e.code : 'desconocido';
         showToast(code === 'permission-denied'
-          ? '⚠️ Firestore rechazó el guardado (permisos) — avisa al admin, tu vale queda guardado en el teléfono'
+          ? '⚠️ La nube rechazó el guardado (permisos) — avisa al admin, tu vale queda guardado en el teléfono'
           : `⚠️ Error de sincronización (${code}) — tu vale queda guardado localmente`);
       }
       // Flush del buffer in-flight antes de reencolar (igual que en timeout).
@@ -1402,7 +1402,7 @@ function showSyncDiagnostics() {
     `AXONTECH v${typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?'}`,
     `Rol: ${IS_ADMIN ? 'Admin' : 'Gestor'}`,
     `Conexión del navegador: ${_onlineStatus ? 'En línea' : 'Sin conexión'}`,
-    `Firestore conectado: ${_fbConnected ? 'Sí' : 'No'}`,
+    `Supabase conectado: ${_fbConnected ? 'Sí' : 'No'}`,
     `Escrituras en cola: ${pendingCount}`,
     `Vales sin confirmar: ${unsyncedVales}`,
     `Última sync exitosa: ${_lastSyncAtStr || 'ninguna todavía'}`,
@@ -1629,7 +1629,7 @@ function _safeSetLS(key, value) {
   }
 }
 
-const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
+const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { const p = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); _gestoresCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
 const saveGestores  = v  => {
   const prev = _gestoresCache;
   _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false;
@@ -1668,22 +1668,28 @@ function slimValeGestor(x, keepValeText) {
   // como slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
   // puede tocarlos en el documento, sin importar qué tan vieja esté su copia.
   if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
-  // v35 FIX CRÍTICO: el gestor SÍ puede enviar status 'pending' (es el status
-  // inicial de un vale nuevo) y 'cancelled' (cancelar vale propio). Cualquier
-  // otro status (confirmed/delivered/assigned/pending_payment) sigue siendo
-  // exclusivo del admin.
-  // ANTES: solo se permitía 'cancelled' → el vale nuevo llegaba a Supabase
-  // SIN status → el polling del gestor lo traía con status: undefined → el
-  // filtro de activeVales lo descartaba → el vale DESAPARECÍA de la lista.
+  // v36 FIX CRÍTICO: el gestor SÍ puede enviar status 'pending' (status inicial
+  // al crear un vale) y 'cancelled' (cancelar vale propio). Cualquier otro status
+  // (assigned/delivered/confirmed/pending_payment) lo preservamos tal cual está
+  // para que el UPSERT de Supabase no lo borre al reemplazar la columna data.
+  // ANTES: solo se permitía 'cancelled' → el vale nuevo llegaba a Supabase SIN
+  // status → el polling del gestor lo traía con status: undefined → el filtro
+  // de activeVales lo descartaba → el vale DESAPARECÍA de la lista.
   if (x.status === 'cancelled') {
     slim.status = 'cancelled';
     if (x.cancelledTs) slim.cancelledTs = x.cancelledTs;
   } else if (x.status === 'pending') {
     slim.status = 'pending'; // status inicial legítimo del gestor al crear un vale
+  } else if (x.status !== undefined && x.status !== null) {
+    // Preservar el status que ya tenía (puesto por el admin) — no borrarlo
+    slim.status = x.status;
   }
+  // v36 FIX: incluir isNew para que el admin sepa que es un vale nuevo y
+  // dispare la alerta de estafa. El gestor crea el vale con isNew:true.
+  if (x.isNew !== undefined) slim.isNew = !!x.isNew;
   return slim;
 }
-const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
+const getVales      = () => { if (_valesDirty || !_valesCache) { try { const p = JSON.parse(localStorage.getItem('axon_vales') || '[]'); _valesCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
 // Vales are synced via saveVales → _enqueueFB('vales', updates, 'update') through the write queue.
 // Individual fbUpdateVale was removed from patchVale to prevent race conditions.
 // fbAddVale/fbRemoveVale are NO LONGER called by sendVale/cancelVale/adminDeleteVale
@@ -1741,6 +1747,12 @@ const saveVales = v => {
       mensajeroId: x.mensajeroId,
       confirmedTs: x.confirmedTs,
       adminNotes: x.adminNotes,
+      // v36 FIX CRÍTICO: incluir flags de "visto por admin" para que el gestor
+      // los reciba vía polling. ANTES estos campos no se enviaban a Supabase →
+      // el gestor nunca veía "👁️ Visto por admin" en su lista de vales.
+      isNew: !!x.isNew,
+      seenByAdmin: !!x.seenByAdmin,
+      seenTs: x.seenTs || null,
     };
     // Solo incluir valeText si ya existía (para no romper vales viejos que lo usan).
     // Si el vale lo generó buildValeText() al enviar, NO se envía — se regenera al leer.
@@ -1815,14 +1827,14 @@ const saveVales = v => {
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
 };
 
-const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
+const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { const parsed = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); _mensajerosCache = Array.isArray(parsed) ? parsed.filter(v => v != null) : []; } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
 const saveMensajeros= v  => {
   const prev = _mensajerosCache;
   _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false;
   if (!isSyncingFromFirebase()) _enqueueFB('mensajeros', _buildCollectionUpdates(v, prev), 'update');
 };
 
-const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
+const getProductos  = () => { if (_productosDirty || !_productosCache) { try { const p = JSON.parse(localStorage.getItem('axon_productos') || '[]'); _productosCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
 const saveProductos = v  => {
   const prev = _productosCache;
   _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false;
@@ -1830,7 +1842,7 @@ const saveProductos = v  => {
   triggerAutoPublishCatalog();
 };
 
-const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
+const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { const parsed = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); _categoriasCache = Array.isArray(parsed) ? parsed.filter(v => v != null) : []; } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
 const saveCategorias= v  => {
   const prev = _categoriasCache;
   _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false;
@@ -1852,7 +1864,7 @@ const setGhStatus = html => ['ghSyncStatus','ghSyncStatus2'].forEach(i => {
   if (el) el.innerHTML = html;
 });
 
-const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
+const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { const p = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); _notifsCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
 const saveNotifs    = v  => { _safeSetLS('axon_notifs', JSON.stringify(v)); _notifsCache = v; _notifsDirty = false; if (!isSyncingFromFirebase()) setFB('notifs', v); };
 
 // ══════════════════════════════════════════
@@ -2074,7 +2086,7 @@ renderNav();renderGrid();
 // ══════════════════════════════════════════
 let _estafaCache = null;
 let _estafaDirty = true;
-const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { _estafaCache = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
+const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { const p = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); _estafaCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
 const saveEstafa  = v  => { _safeSetLS('axon_estafa', JSON.stringify(v)); _estafaCache = v; _estafaDirty = false; if (!isSyncingFromFirebase()) setFB('estafa', v); };
 
 function checkEstafaMatch(vale) {
@@ -2306,7 +2318,7 @@ function listenToMyVales(gId) {
       if (!firstLoadVales) {
         const oldVales = getVales();
         mergedVales.forEach(nv => {
-          const ov = oldVales.find(x => x.id === nv.id);
+          const ov = oldVales.find(x => Number(x.id) === Number(nv.id));
           if (ov && ov.status !== nv.status) {
             const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
             if (nv.status === 'assigned') {
@@ -2591,7 +2603,7 @@ if (IS_ADMIN) {
 
       // Check for new vales with estafa matches before saving
       const oldVales = getVales();
-      const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
+      const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => Number(ov.id) === Number(nv.id)));
 
       // Guardar SIEMPRE que haya algo que guardar
       if (mergedFlatVales.length > 0) {
@@ -2611,7 +2623,7 @@ if (IS_ADMIN) {
       _rankingDebounce = setTimeout(() => {
         const gestores = getGestores();
         const summary = gestores.map(g => {
-          const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+          const pts = mergedFlatVales.filter(v=>Number(v.gestorId)===Number(g).id&&['confirmed','pending_payment'].includes(v.status))
             .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
           return { id: g.id, pts };
         });
@@ -2903,7 +2915,7 @@ function renderGestorNotifs() {
     const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','vale_seen','ranking_top3'].includes(n.type)?'ok':'';
     
     // Unread logic
-    const nIdx = notifs.findIndex(x => x.id === n.id);
+    const nIdx = notifs.findIndex(x => Number(x.id) === Number(n.id));
     const isUnread = !isPersonal && (viewedIdx === -1 || nIdx < viewedIdx);
     const cls=isUnread?'unread':`type-${typeClass}`;
     
@@ -2949,7 +2961,7 @@ function renderGestorNotifs() {
 
   if(sec) {
     const unread = globalNotifs.filter(n => {
-       const idx = notifs.findIndex(x => x.id === n.id);
+       const idx = notifs.findIndex(x => Number(x.id) === Number(n.id));
        return viewedIdx === -1 || idx < viewedIdx;
     }).length;
     const badge = document.getElementById('notifUnreadBadge');
@@ -3868,7 +3880,7 @@ function renderAdminGestoresList() {
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
   c.innerHTML=list.map(g=>{
-    const vales=getVales().filter(v=>v.gestorId===g.id);
+    const vales=getVales().filter(v=>Number(v.gestorId)===Number(g).id);
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
     const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
@@ -4062,7 +4074,7 @@ function copyGestorPass(id) {
 function removeGestor(id) {
   const g = gestorOf(id);
   if (!g) return;
-  const hasVales = getVales().some(v=>v.gestorId===id);
+  const hasVales = getVales().some(v=>Number(v.gestorId)===Number(id));
   const sub = hasVales ? 'Tiene vales registrados. Si lo borras, quedarán huérfanos.' : 'El gestor será borrado del sistema.';
   showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
     const newList = getGestores().filter(x=>x.id!==id);
@@ -4109,7 +4121,7 @@ function renderAdminGestores() {
   
   // Only show gestores that have AT LEAST ONE pending vale (excluye confirmed, delivered y cancelled)
   const gestoresConPendientes = gestores.filter(g => {
-     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled');
+     return vales.some(v => Number(v.gestorId) === Number(g).id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled');
   });
 
   if(gestoresConPendientes.length === 0) {
@@ -4119,7 +4131,7 @@ function renderAdminGestores() {
 
   gestoresConPendientes.forEach(g => {
     // Only fetch active (not confirmed/delivered/cancelled)
-    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled').reverse();
+    const pendingVales = vales.filter(v => Number(v.gestorId) === Number(g).id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled').reverse();
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -4993,7 +5005,7 @@ function getGestorHistPeriodRange() {
 }
 
 function _computeGestorStatsForRange(gestorId, from, to) {
-  let vales = getVales().filter(v => v.gestorId === gestorId);
+  let vales = getVales().filter(v => Number(v.gestorId) === Number(gestorId));
   if (from) vales = vales.filter(v => localDay(v.ts) >= from);
   if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
   const total = vales.length;
@@ -6328,7 +6340,7 @@ async function migratePhotosToGitHubFiles(onProgress) {
       const uploaded = await uploadPhotoToGitHub(g0.photo, 'g');
       if (uploaded) {
         const list = getGestores();
-        const i = list.findIndex(x => x.id === g0.id);
+        const i = list.findIndex(x => Number(x.id) === Number(g0.id));
         if (i !== -1) { list[i].photo = uploaded; saveGestores(list); migrated++; }
         else failed++;
       } else failed++;
@@ -6490,7 +6502,7 @@ function venderDirecto(id) {
   
   // Create vale record for stats
   const vale={
-    id:Date.now(),valeNum:getNextValeNum(),gestorId:'admin',ts:new Date().toISOString(),
+    id:Date.now(),valeNum:getNextValeNum(),gestorId:0,ts:new Date().toISOString(),
     cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',carnet:'',
     mensajeria:'',articulo:`${p.name} x${qty}`,
     precioUSD:p.precio,precioMN:'',
@@ -6585,7 +6597,7 @@ function _renderMiniBarChart7d(gestorId) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const ds = localDay(d);
-    const count = getVales().filter(v => v.gestorId === gestorId && localDay(v.ts) === ds).length;
+    const count = getVales().filter(v => Number(v.gestorId) === Number(gestorId) && localDay(v.ts) === ds).length;
     days.push({ ds, count, label: d.toLocaleDateString('es-ES', { weekday:'short' }).slice(0,1).toUpperCase() });
   }
   const max = Math.max(1, ...days.map(d => d.count));
@@ -6620,7 +6632,7 @@ function _topProductsForGestor(vales, limit=3) {
 
 // Inactive gestor check — last vale older than threshold
 function _gestorInactivityDays(gestorId) {
-  const gv = getVales().filter(v => v.gestorId === gestorId);
+  const gv = getVales().filter(v => Number(v.gestorId) === Number(gestorId));
   if (!gv.length) return null; // never created a vale
   const last = gv.reduce((max, v) => v.ts > max ? v.ts : max, '');
   if (!last) return null;
@@ -6630,7 +6642,7 @@ function _gestorInactivityDays(gestorId) {
 
 // Render a single expandible gestor card for the Estadísticas panel
 function _renderStatsGestorCard(g, vales, from, to) {
-  const gv = vales.filter(v => v.gestorId === g.id);
+  const gv = vales.filter(v => Number(v.gestorId) === Number(g).id);
   const gc = gv.filter(v => v.status === 'confirmed').length;
   const gPendingPay = gv.filter(v => v.status === 'pending_payment').length;
   const pts = gv.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
@@ -7296,6 +7308,22 @@ async function uploadPhotoToGitHub(dataUrl, prefix) {
 async function publishCatalogToGitHub(htmlContent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
+  // v37 FIX CRÍTICO: validar que el JS del catálogo generado parsea sin errores
+  // antes de publicarlo. ANTES, un regex roto en el HTML inline provocaba
+  // SyntaxError al cargar el catálogo → ningún producto se mostraba →
+  // "el catálogo sale bien al principio pero al rato deja de mostrar productos"
+  // (cuando expiraba el cache del navegador).
+  try {
+    const scriptMatch = htmlContent.match(/<script>([\s\S]*?)<\/script>/);
+    if (scriptMatch) {
+      // new Function lanza SyntaxError si el código no parsea
+      new Function(scriptMatch[1]);
+    }
+  } catch(e) {
+    console.error('[catalog] JS del catálogo no parsea — NO se publica:', e.message);
+    showToast('❌ El catálogo generado tiene un error de sintaxis. No se publicó. Revisa buildCatalogHTML.');
+    return null;
+  }
   const catalogPath='catalogo.html';
   // Validate repo format (owner/repo) — reject path traversal
   const parts=cfg.ghRepo.split('/').filter(Boolean);
@@ -7524,7 +7552,7 @@ function markAllCommissionsEnSobre(gestorId,e) {
   // y array nuevos con .map(), sin tocar los que ya están en el caché.
   let changed=false;
   const all=getVales().map(v=>{
-    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
+    if(Number(v.gestorId)===Number(gestorId)&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
       changed=true;
       return {...v, commissionPaid:false, commissionStatus:'en_sobre', commissionEnSobreTs:ts};
     }
@@ -7543,7 +7571,7 @@ function markAllCommissionsCobrado(gestorId,e) {
   // mismo problema, mismo fix (.map() en vez de mutar en el lugar).
   let changed=false;
   const all=getVales().map(v=>{
-    if(v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
+    if(Number(v.gestorId)===Number(gestorId)&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
       changed=true;
       return {...v, commissionPaid:true, commissionStatus:'cobrado', commissionPaidTs:ts};
     }
@@ -7707,7 +7735,7 @@ function renderGestorRanking() {
   if (!Array.isArray(summary)) summary = [];
 
   const ranked=gestores.map(g=>{
-    const s = summary.find(x => x.id === g.id);
+    const s = summary.find(x => Number(x.id) === Number(g.id));
     return {...g, pts: s ? s.pts : 0};
   }).sort((a,b)=>b.pts-a.pts);
   const medals=['🥇','🥈','🥉'];
@@ -8220,7 +8248,7 @@ function getTop3Ranked() {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g).id).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     return {...g,pts};
   }).sort((a,b)=>b.pts-a.pts);
@@ -8232,7 +8260,7 @@ function getGestorRank(gestorId) {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g).id).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     return {id:g.id,pts};
   }).sort((a,b)=>b.pts-a.pts);
@@ -8242,7 +8270,7 @@ function getGestorRank(gestorId) {
 
 // Get a specific gestor's total points
 function getGestorPoints(gestorId) {
-  const confirmedVales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
+  const confirmedVales=getVales().filter(v=>Number(v.gestorId)===Number(gestorId)&&['confirmed','pending_payment'].includes(v.status));
   return confirmedVales.reduce((sum,v)=>
     sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
 }
@@ -8479,7 +8507,7 @@ function checkGoalReached(gestorId, currentValeId) {
   const pts=getGestorPoints(gestorId);
   if(pts>=meta){
     // Celebrate only if THIS sale crossed the threshold (exclude current vale from prev total)
-    const vales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
+    const vales=getVales().filter(v=>Number(v.gestorId)===Number(gestorId)&&['confirmed','pending_payment'].includes(v.status));
     const prev=vales.filter(v=>v.id!==currentValeId).reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     if(prev<meta){
       // EPIC GLOW PULSE — Full-screen celebration

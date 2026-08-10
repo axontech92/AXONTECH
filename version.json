@@ -1,9 +1,9 @@
 {
-  "version": 36,
-  "versionStr": "v36",
-  "hash": "e80c47b38cf7f261",
-  "hashFull": "e80c47b38cf7f26141187c3ff003bea5a5f02c3ce101f8c11b48de2b252007de",
-  "releasedAt": "2026-08-10 06:30",
+  "version": 37,
+  "versionStr": "v37",
+  "hash": "dcdb6770daa8fa8d",
+  "hashFull": "dcdb6770daa8fa8d8948d85b4029fedcd7dca422e5652e4edce420b1d0e85094",
+  "releasedAt": "2026-08-10 07:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,11 @@
     "sw.js"
   ],
   "changelog": [
-    "Fix crítico del bug que hacía que el vale desapareciera del gestor en cuanto llegaba al admin. Causa raíz: slimValeGestor() solo permitía enviar status='cancelled' a Supabase. El vale nuevo del gestor llegaba SIN status → el polling del gestor lo traía con status:undefined → el filtro de activeVales lo descartaba. Ahora slimValeGestor() también envía status='pending' (el status inicial legítimo). El contador 'VALES: 6' sí contaba el vale porque no filtra por status, pero la lista 'MIS VALES ACTIVOS' lo descartaba. Esto era el bug real desde v31."
+    "Fix notificaciones del gestor: slimVale() ahora incluye seenByAdmin/isNew/seenTs para que el gestor reciba 'Visto por admin', 'Con mensajero' y 'Venta completada' cuando el admin procesa el vale.",
+    "Fix slimValeGestor(): preserva el status existente (no lo borra) cuando el admin ya lo cambió.",
+    "Fix tipo: gestorId:'admin' cambiado a gestorId:0 en venderDirecto (consistencia de tipos).",
+    "Fix sanitización: getVales/getGestores/getProductos/getNotifs/getEstafa ahora filtran items null/undefined (previene crashes).",
+    "Fix catálogo: publishCatalogToGitHub ahora valida que el JS del catálogo parsea sin errores antes de publicarlo (previene el bug de 'productos desaparecen al rato').",
+    "Limpieza: textos 'Firestore' cambiados a 'Supabase' en panel de diagnóstico y mensajes de error."
   ]
 }
