@@ -1,9 +1,9 @@
 {
-  "version": 8,
-  "versionStr": "v8",
-  "hash": "0c127bacd7b4e9f7",
-  "hashFull": "0c127bacd7b4e9f7451b92cda8a5afb70e42377b62e47f0981f7b380eff6872f",
-  "releasedAt": "2026-08-10 21:00",
+  "version": 9,
+  "versionStr": "v9",
+  "hash": "fecf249068881681",
+  "hashFull": "fecf2490688816815ca459a61141ee8d75b28f220aa83b1b91b3723a4c170abe",
+  "releasedAt": "2026-08-10 21:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX layout móvil: KPIs ahora usan grid auto-fit con minmax(80px,1fr) — se adaptan automáticamente al ancho. En móvil caben 2 por fila (2x2), en PC 4 en fila. Ya no se rompe el diseño en pantallas estrechas."
+    "FIX CRÍTICO layout: el contenedor #gestorHistDashboard tenía display:grid con 4 columnas que partía los 3 bloques (KPIs, comisión, meta) uno al lado del otro. Cambiado a display:block para que vayan uno debajo del otro como debe ser."
   ]
 }

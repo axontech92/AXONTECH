@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 8;
+const APP_VERSION = 9;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '0c127bacd7b4e9f7';
+let _LOCAL_BUILD_HASH = 'fecf249068881681';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5107,55 +5107,27 @@ function renderGestorDashboard() {
   const meta = cfg.metaPuntos || 100;
   const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
 
-  // v8: KPIs en grid responsivo — 2 columnas en móvil (2x2), 4 columnas en PC
-  // La captura de referencia muestra 4 en fila en PC, pero en móvil eso se rompe
+  // v9: KPIs en grid de 4 columnas fijo (el contenedor padre ya es display:block)
   const confirmedTotal = cur.confirmed + cur.pendingPay;
 
   const heroHTML = `
     <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px);margin-bottom:clamp(8px,2.5vw,12px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(8px,3vw,14px);">
-        <div style="text-align:center;padding:clamp(6px,2vw,10px) 4px;">
-          <div style="font-size:clamp(24px,8vw,34px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Vales</div>
-        </div>
-        <div style="text-align:center;padding:clamp(6px,2vw,10px) 4px;">
-          <div style="font-size:clamp(24px,8vw,34px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${confirmedTotal}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Confirmados</div>
-        </div>
-        <div style="text-align:center;padding:clamp(6px,2vw,10px) 4px;">
-          <div style="font-size:clamp(24px,8vw,34px);font-weight:700;color:#F59E0B;line-height:1;letter-spacing:-.02em;">${cur.pts}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
-        </div>
-        <div style="text-align:center;padding:clamp(6px,2vw,10px) 4px;">
-          <div style="font-size:clamp(20px,6vw,28px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Conversión</div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // En PC (>=600px) cambiar a 4 columnas con CSS media query inline no es posible
-  // en un template string, así que usamos un style tag que se inyecta una sola vez
-  // Mejor: usar grid-template-columns con repeat(auto-fit, minmax(120px, 1fr))
-  // que automáticamente pone 4 en PC y 2 en móvil según el ancho disponible
-  const heroHTMLResponsive = `
-    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px);margin-bottom:clamp(8px,2.5vw,12px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:clamp(6px,2vw,12px);">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(4px,1.5vw,8px);">
         <div style="text-align:center;">
-          <div style="font-size:clamp(24px,8vw,34px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Vales</div>
+          <div style="font-size:clamp(20px,6.5vw,30px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Vales</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:clamp(24px,8vw,34px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${confirmedTotal}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Confirmados</div>
+          <div style="font-size:clamp(20px,6.5vw,30px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${confirmedTotal}</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Confir.</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:clamp(24px,8vw,34px);font-weight:700;color:#F59E0B;line-height:1;letter-spacing:-.02em;">${cur.pts}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
+          <div style="font-size:clamp(20px,6.5vw,30px);font-weight:700;color:#F59E0B;line-height:1;letter-spacing:-.02em;">${cur.pts}</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
         </div>
         <div style="text-align:center;">
-          <div style="font-size:clamp(20px,6vw,28px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Conversión</div>
+          <div style="font-size:clamp(16px,5vw,24px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Conv.</div>
         </div>
       </div>
     </div>
@@ -5189,8 +5161,7 @@ function renderGestorDashboard() {
     </div>
   `;
 
-  // Usar la versión responsive (auto-fit) que se adapta automáticamente
-  dash.innerHTML = heroHTMLResponsive + comHTML + metaHTML;
+  dash.innerHTML = heroHTML + comHTML + metaHTML;
 }
 
 function renderMyVales() {
