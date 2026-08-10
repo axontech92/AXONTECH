@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 37;
+const APP_VERSION = 38;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'dcdb6770daa8fa8d';
+let _LOCAL_BUILD_HASH = '8fc12677231126f7';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5126,7 +5126,11 @@ function renderMyVales() {
   // v32: comparación robusta con Number() por si gestorId viene como string
   const gid = Number(activeGestorId);
   const mine = getVales().filter(v => v && v.gestorId != null && Number(v.gestorId) === gid).reverse();
-  const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
+  // v37 FIX DEFENSIVO: si un vale NO tiene status definido (undefined/null),
+  // asumir que es 'pending' — es el status inicial legítimo de un vale recién
+  // enviado. ANTES, un vale sin status quedaba fuera de activeVales Y de
+  // historyVales → desaparecía de la UI aunque estuviera en el cache.
+  const activeVales = mine.filter(v => ['pending',undefined,null,'assigned','delivered','pending_payment'].includes(v.status));
   // History now separates confirmed sales from pending_payment (awaiting collection) — both "completed" deliveries
   // but pending_payment represents an outstanding balance the gestor should track.
   const historyVales = mine.filter(v => v.status === 'confirmed' && !v.hiddenFromHistory);
@@ -5156,11 +5160,11 @@ function renderMyVales() {
     c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Sin vales activos</div></div>';
   } else {
     c.innerHTML=activeVales.map(v=>{
-      let s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      let s=sMap[v.status]||sMap['pending'];  // v37: si status es undefined, usar 'pending'
       // Si el vale aún no se ha confirmado en Firebase, mostrar "Subiendo..." como label principal
       if(v.synced === false) s=pendingSyncing;
       // Show "Visto por admin" status when the admin has already opened this pending vale
-      else if(v.status==='pending' && v.seenByAdmin) s=pendingSeen;
+      else if((v.status==='pending'||v.status==null) && v.seenByAdmin) s=pendingSeen;
       const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
       const canCancel=v.status==='pending';
       return `<div class="mv-card st-${v.status}">

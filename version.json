@@ -1,9 +1,9 @@
 {
-  "version": 37,
-  "versionStr": "v37",
-  "hash": "dcdb6770daa8fa8d",
-  "hashFull": "dcdb6770daa8fa8d8948d85b4029fedcd7dca422e5652e4edce420b1d0e85094",
-  "releasedAt": "2026-08-10 07:30",
+  "version": 38,
+  "versionStr": "v38",
+  "hash": "8fc12677231126f7",
+  "hashFull": "8fc12677231126f765808b69a55f12c2192806dd809f6c36a057785c0623a9a7",
+  "releasedAt": "2026-08-10 08:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,11 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Fix notificaciones del gestor: slimVale() ahora incluye seenByAdmin/isNew/seenTs para que el gestor reciba 'Visto por admin', 'Con mensajero' y 'Venta completada' cuando el admin procesa el vale.",
-    "Fix slimValeGestor(): preserva el status existente (no lo borra) cuando el admin ya lo cambió.",
-    "Fix tipo: gestorId:'admin' cambiado a gestorId:0 en venderDirecto (consistencia de tipos).",
-    "Fix sanitización: getVales/getGestores/getProductos/getNotifs/getEstafa ahora filtran items null/undefined (previene crashes).",
-    "Fix catálogo: publishCatalogToGitHub ahora valida que el JS del catálogo parsea sin errores antes de publicarlo (previene el bug de 'productos desaparecen al rato').",
-    "Limpieza: textos 'Firestore' cambiados a 'Supabase' en panel de diagnóstico y mensajes de error."
+    "Fix defensivo en renderMyVales: vales sin status definido (undefined/null) ahora se tratan como 'pending' y se muestran en activos con label 'Enviado · admin pendiente' o 'Visto por admin 👁️' según corresponda."
   ]
 }
