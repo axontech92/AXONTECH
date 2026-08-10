@@ -1,9 +1,9 @@
 {
-  "version": 6,
-  "versionStr": "v6",
-  "hash": "9a445617223bc614",
-  "hashFull": "9a445617223bc614f99293c0477935d640c41fcaa79072a1398d3522a7d2d753",
-  "releasedAt": "2026-08-10 20:00",
+  "version": 7,
+  "versionStr": "v7",
+  "hash": "d01d06ae32cbefd2",
+  "hashFull": "d01d06ae32cbefd2f5d4b68b972f89f75b242aced058188ef4e4c152aaf2f280",
+  "releasedAt": "2026-08-10 20:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,7 @@
     "sw.js"
   ],
   "changelog": [
-    "Rediseño del dashboard del gestor inspirado en la captura de referencia: hero card con números grandes (font-weight 700, letter-spacing negativo), 3 stats mini con separadores verticales, banner verde de comisión con gradiente #059669→#047857, meta de puntos con barra cyan. Todo responsivo con clamp() para móvil y PC."
+    "FIX layout dashboard: 4 KPIs en una sola fila horizontal (Vales, Confirmados, Puntos, Conversión) como en la captura de referencia. Ya no son 2 filas.",
+    "FIX botón limpiar notificaciones: añadido botón 🗑️ Limpiar en el apartado de Mis Alertas del gestor."
   ]
 }

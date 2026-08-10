@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 6;
+const APP_VERSION = 7;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '9a445617223bc614';
+let _LOCAL_BUILD_HASH = 'd01d06ae32cbefd2';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5107,37 +5107,31 @@ function renderGestorDashboard() {
   const meta = cfg.metaPuntos || 100;
   const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
 
-  // v6: Diseño limpio inspirado en la captura de referencia
-  // - Hero card con números grandes (Vales + Conversión)
-  // - 3 stats mini con separadores verticales sutiles
-  // - Banner verde de comisión con emoji
-  // - Meta con barra de progreso
+  // v7: Layout exacto como la captura de referencia:
+  // - 4 KPIs en una sola fila horizontal (no 2 filas)
+  // - Banner verde de comisión
+  // - Meta de puntos con barra
+  // - Lista de comisiones una abajo de otra (no lado a lado)
   const confirmedTotal = cur.confirmed + cur.pendingPay;
 
   const heroHTML = `
-    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(16px,5vw,20px);margin-bottom:clamp(10px,3vw,14px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:clamp(12px,4vw,16px);">
-        <div>
-          <div style="font-size:clamp(30px,10vw,40px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
-          <div style="font-size:clamp(11px,3.2vw,13px);color:var(--text-muted);margin-top:4px;">Vales ${range.label.toLowerCase()}</div>
+    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px);margin-bottom:clamp(8px,2.5vw,12px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(2px,1vw,8px);">
+        <div style="text-align:center;">
+          <div style="font-size:clamp(22px,7vw,32px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Vales</div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-size:clamp(24px,8vw,32px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
-          <div style="font-size:clamp(11px,3.2vw,13px);color:var(--text-muted);margin-top:4px;">Conversión</div>
+        <div style="text-align:center;">
+          <div style="font-size:clamp(22px,7vw,32px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${confirmedTotal}</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Confirmados</div>
         </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding-top:clamp(12px,4vw,16px);border-top:1px solid var(--border);">
-        <div style="text-align:center;padding:0 clamp(4px,2vw,8px);">
-          <div style="font-size:clamp(16px,5vw,20px);font-weight:700;color:var(--green);">${confirmedTotal}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Confirmados</div>
+        <div style="text-align:center;">
+          <div style="font-size:clamp(22px,7vw,32px);font-weight:700;color:#F59E0B;line-height:1;letter-spacing:-.02em;">${cur.pts}</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
         </div>
-        <div style="text-align:center;padding:0 clamp(4px,2vw,8px);border-left:1px solid var(--border);border-right:1px solid var(--border);">
-          <div style="font-size:clamp(16px,5vw,20px);font-weight:700;color:#F59E0B;">${cur.pts}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
-        </div>
-        <div style="text-align:center;padding:0 clamp(4px,2vw,8px);">
-          <div style="font-size:clamp(13px,4vw,15px);font-weight:700;color:var(--blue);padding-top:2px;">${prev ? _cmpArrow(cur.total, prev.total) : '—'}</div>
-          <div style="font-size:clamp(9px,2.8vw,11px);color:var(--text-muted);margin-top:4px;">vs anterior</div>
+        <div style="text-align:center;">
+          <div style="font-size:clamp(18px,5.5vw,26px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
+          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Conversión</div>
         </div>
       </div>
     </div>
@@ -5146,24 +5140,24 @@ function renderGestorDashboard() {
   // Banner verde de comisión
   let comHTML = '';
   if (cur.comBadge || cur.closed > 0) {
-    comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(16px,5vw,20px) clamp(18px,5.5vw,24px);margin-bottom:clamp(10px,3vw,14px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+    comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
-        <div style="font-size:clamp(10px,3vw,12px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
-        <div style="font-size:clamp(20px,6.5vw,28px);font-weight:700;margin-top:4px;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
+        <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
+        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${cur.comBadge ? escapeHTML(cur.comBadge) : 'No computable'}</div>
       </div>
-      <div style="font-size:clamp(24px,7vw,32px);line-height:1;flex-shrink:0;">💵</div>
+      <div style="font-size:clamp(22px,7vw,30px);line-height:1;flex-shrink:0;">💵</div>
     </div>`;
   }
 
   // Meta de puntos
   const metaHTML = `
-    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(16px,5vw,20px);margin-bottom:clamp(10px,3vw,14px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
+    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px);margin-bottom:clamp(8px,2.5vw,12px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(8px,2.5vw,12px);">
         <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:clamp(14px,4vw,16px);">🎯</span>
-          <span style="font-size:clamp(13px,3.8vw,15px);font-weight:600;color:var(--text);">Meta de puntos</span>
+          <span style="font-size:clamp(13px,4vw,15px);">🎯</span>
+          <span style="font-size:clamp(12px,3.5vw,14px);font-weight:600;color:var(--text);">Meta de puntos</span>
         </div>
-        <span style="font-size:clamp(11px,3.2vw,13px);color:var(--text-muted);font-weight:500;">${cur.pts} / ${meta} pts</span>
+        <span style="font-size:clamp(10px,3vw,12px);color:var(--text-muted);font-weight:500;">${cur.pts} / ${meta} pts</span>
       </div>
       <div style="background:var(--surface3);border-radius:20px;height:clamp(8px,2.5vw,10px);overflow:hidden;">
         <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg,#0891B2,#0EA5E9);border-radius:20px;transition:width .6s;"></div>

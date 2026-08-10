@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=6">
+  <link rel="stylesheet" href="./app.css?v=7">
   <style>
     /* Splash screen inline — no depende de app.css.
        Se muestra INMEDIATAMENTE al cargar el HTML, antes de que app.js termine.
@@ -58,7 +58,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v6</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v7</span>
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
@@ -119,7 +119,10 @@
 
     <!-- Notificaciones personales (visible solo para el gestor logueado) -->
     <div id="gestorPersonalNotifsSection" style="display:none;margin-bottom:14px;">
-      <div class="lbl" style="margin-top:0;">🔔 Mis Alertas</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div class="lbl" style="margin-top:0;">🔔 Mis Alertas</div>
+        <button class="btn btn-ghost btn-sm" onclick="clearGestorNotifs()" style="font-size:10px;padding:4px 10px;">🗑️ Limpiar</button>
+      </div>
       <div id="gestorPersonalNotifsList"></div>
     </div>
 
@@ -708,7 +711,7 @@
      firebase-firestore. Esto quita ~530KB de JS que el navegador tenía
      que bajar y parsear en cada carga, y elimina la dependencia del
      dominio gstatic.com que puede ser lento en Cuba. -->
-<script src="./app.js?v=6"></script>
+<script src="./app.js?v=7"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
