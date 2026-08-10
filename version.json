@@ -1,9 +1,9 @@
 {
-  "version": 43,
-  "versionStr": "v43",
-  "hash": "adc633a58845b933",
-  "hashFull": "adc633a58845b9330967674d4e81a81fdd64a4173dbc20d7c3e7dcef3a350d65",
-  "releasedAt": "2026-08-10 13:30",
+  "version": 2,
+  "versionStr": "v2",
+  "hash": "280090f8ae9dbbf6",
+  "hashFull": "280090f8ae9dbbf68f9688d0e2b2b2d54c332fbcbd5d1225b83b14718c0af591",
+  "releasedAt": "2026-08-10 15:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,8 +12,11 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX vales sin opciones: status undefined ya no muestra 'UNDEFINED' — ahora muestra 'Pendiente' y los botones de acción (cobrar, asignar mensajero).",
-    "FIX vale del gestor: campo de artículos ahora es de solo lectura — obliga a escoger del catálogo, no se puede escribir manualmente.",
-    "MEJORA vale del admin: la mensajería ahora sale en su propia sección destacada (caja azul) en vez de mezclada en la tabla."
+    "Reinicio de versiones a v2 (sistema de versiones reiniciado).",
+    "Rediseño del dashboard del gestor: stats en grid 2x2 compacto, comisión como fila destacada con gradiente verde, meta de puntos con barra de progreso que muestra el porcentaje dentro.",
+    "Rediseño de comisiones del gestor: una sola tarjeta con 3 filas (Pendiente/En sobre/Cobrado) en vez de 3 tarjetas separadas — más ordenado y compacto.",
+    "Fix vales sin opciones: status undefined muestra 'Pendiente' y los botones de acción.",
+    "Fix vale del gestor: campo de artículos es de solo lectura (obliga a escoger del catálogo).",
+    "Mejora vale del admin: mensajería en sección propia destacada."
   ]
 }
