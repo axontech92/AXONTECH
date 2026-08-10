@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 35;
+const APP_VERSION = 36;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'e793151d2de098cd';
+let _LOCAL_BUILD_HASH = 'e80c47b38cf7f261';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1662,20 +1662,24 @@ function slimValeGestor(x, keepValeText) {
   slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
   // Solo incluir valeText si ya existía (para vales viejos que ya lo traían)
   if (x.valeText && keepValeText) slim.valeText = x.valeText;
-  // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
+  // NO incluir mensajeroId, confirmedTs, adminNotes — son del admin.
   // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
-  // En Firestore esto además queda reforzado por set(...,{merge:true}): como
-  // slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
+  // En Firestore/Supabase esto además queda reforzado por set(...,{merge:true}):
+  // como slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
   // puede tocarlos en el documento, sin importar qué tan vieja esté su copia.
   if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
-  // Excepción explícita: cancelVale() permite al gestor cancelar su PROPIO
-  // vale mientras está 'pending' — el único valor de status que puede salir
-  // del dispositivo de un gestor es 'cancelled'; cualquier otro
-  // (confirmed/delivered/assigned/pending_payment) sigue siendo exclusivo
-  // del admin.
+  // v35 FIX CRÍTICO: el gestor SÍ puede enviar status 'pending' (es el status
+  // inicial de un vale nuevo) y 'cancelled' (cancelar vale propio). Cualquier
+  // otro status (confirmed/delivered/assigned/pending_payment) sigue siendo
+  // exclusivo del admin.
+  // ANTES: solo se permitía 'cancelled' → el vale nuevo llegaba a Supabase
+  // SIN status → el polling del gestor lo traía con status: undefined → el
+  // filtro de activeVales lo descartaba → el vale DESAPARECÍA de la lista.
   if (x.status === 'cancelled') {
     slim.status = 'cancelled';
     if (x.cancelledTs) slim.cancelledTs = x.cancelledTs;
+  } else if (x.status === 'pending') {
+    slim.status = 'pending'; // status inicial legítimo del gestor al crear un vale
   }
   return slim;
 }
