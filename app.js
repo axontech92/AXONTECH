@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 40;
+const APP_VERSION = 42;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'e9cd444cc0e220e6';
+let _LOCAL_BUILD_HASH = '3e1f775a8e38de8e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1897,6 +1897,14 @@ function buildCatalogHTML() {
   if(!allProds.length) return null;
   const cfg=getConfig();
   const waPhone=cfg.catalogPhone||cfg.adminPhone||'';
+  // v41 FIX: si no hay teléfono configurado, NO generar el catálogo.
+  // ANTES, sin teléfono, TODOS los productos se generaban con waLink:''
+  // y el catálogo los mostraba como "No disponible" — confundiendo al
+  // admin y al cliente. Ahora avisamos claro.
+  if(!waPhone){
+    showToast('⚠️ Configura un teléfono en ⚙️ Config antes de publicar el catálogo. Sin teléfono, todos los productos aparecen como "No disponible".');
+    return null;
+  }
   const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
   const dateStr=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
   let catCardsJS='';
@@ -2058,7 +2066,7 @@ function renderGrid(){
     if(p.garantia){s+='<span class="badge badge-garantia">Garantia: '+escapeHTML(p.garantia)+'</span>';}
     s+='</div>';
     if(p.waLink){s+='<a class="wa-btn" href="'+escapeHTML(p.waLink)+'" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
-    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>';}
+    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">WhatsApp no configurado</div>';}
     s+='</div></div>';
     return s;
   }).join('');
@@ -2416,13 +2424,17 @@ try {
 let _lastValesHash = '';
 function _computeValesHash(vales) {
   if (!Array.isArray(vales) || !vales.length) return '';
-  // Hash barato: combinar id+status+ts del último vale modificado.
-  // Suficiente para detectar si un nuevo snapshot realmente cambió algo.
+  // Hash barato: combinar id+status+ts+seenByAdmin+seenTs del último vale modificado.
+  // v41 FIX: ANTES no incluía seenByAdmin ni seenTs, así que cuando el admin
+  // hacía clic en un vale (cambia seenByAdmin:true) el hash era idéntico →
+  // refreshUI creía que no hubo cambios → no re-renderizaba → el gestor
+  // nunca veía "👁️ Visto por admin" aunque el dato ya estaba en el cache.
   let h = '';
   for (let i = 0; i < vales.length; i++) {
     const v = vales[i];
-    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') + '|';
-    if (h.length > 500) break; // suficiente muestra
+    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') +
+         ':' + (v.seenByAdmin ? '1' : '0') + ':' + (v.seenTs || '') + '|';
+    if (h.length > 800) break; // suficiente muestra
   }
   return h;
 }
@@ -4270,7 +4282,12 @@ function renderValeDetail() {
     actHTML=`${productPickerHTML}<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
       <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
       <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
+      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🔄 Reenviar vale</button>
+      <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
+        <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
+      </div>`;
   } else if(v.status==='delivered'){
     actHTML=`${productPickerHTML}<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
       <div style="font-size:24px;margin-bottom:4px;">🛵</div>

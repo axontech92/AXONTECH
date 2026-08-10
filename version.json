@@ -1,9 +1,9 @@
 {
-  "version": 40,
-  "versionStr": "v40",
-  "hash": "e9cd444cc0e220e6",
-  "hashFull": "e9cd444cc0e220e63d1e0f565f50673294b567aa73bb5629baf5b544ebd90dde",
-  "releasedAt": "2026-08-10 10:30",
+  "version": 42,
+  "versionStr": "v42",
+  "hash": "3e1f775a8e38de8e",
+  "hashFull": "3e1f775a8e38de8e07dee1682b2bc53100759e04e1e0c88f55e264494828efe3",
+  "releasedAt": "2026-08-10 12:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,8 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO 1: Vales borrados por el admin ahora sí desaparecen del gestor. El listener del gestor no reemplazaba el cache cuando el polling venía vacío.",
-    "FIX CRÍTICO 2: Estados 'Visto por admin', 'Con mensajero', 'Venta confirmada' ahora llegan al gestor. El filtro de vales synced:true en _processFBQueue dropeaba todos los writes del admin (no solo retries).",
-    "FIX UI: Modal de asignar mensajero ahora solo tiene 'Asignar' (quitado 'Copiar y asignar' y 'WhatsApp')."
+    "FIX: vales con mensajero asignado (status='assigned') ahora muestran botones 'Cobrado directo' y 'Entregado (Por cobrar)' — antes solo se podía confirmar la venta si el vale estaba en 'pending' o 'delivered' (estado este último inalcanzable en la práctica)."
   ]
 }
