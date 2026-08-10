@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 29;
+const APP_VERSION = 30;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'e56e55d4070e6b56';
+let _LOCAL_BUILD_HASH = 'fad233a2f37acf3f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -268,6 +268,142 @@ function _toFsFields(obj) {
   Object.keys(obj || {}).forEach(k => { if (obj[k] !== undefined) fields[k] = _toFsValue(obj[k]); });
   return fields;
 }
+// ── DECODIFICADOR: formato tipado de Firestore REST → objeto JS normal ──
+// (inverso de _toFsValue). Necesario para LEER por REST.
+function _fromFsValue(v) {
+  if (!v || typeof v !== 'object') return null;
+  if ('nullValue' in v) return null;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return Number(v.doubleValue);
+  if ('stringValue' in v) return v.stringValue;
+  if ('timestampValue' in v) return v.timestampValue;
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(_fromFsValue);
+  if ('mapValue' in v) return _fromFsFields(v.mapValue.fields || {});
+  return null;
+}
+function _fromFsFields(fields) {
+  const obj = {};
+  Object.keys(fields || {}).forEach(k => { obj[k] = _fromFsValue(fields[k]); });
+  return obj;
+}
+// Lee una colección completa por REST (HTTPS simple, paginado).
+function _fsRestGetCollection(collName) {
+  const out = [];
+  const fetchPage = (token) => {
+    const url = `${_FS_REST_BASE}/${collName}?pageSize=300&key=${_FS_API_KEY}` + (token ? `&pageToken=${encodeURIComponent(token)}` : '');
+    return fetch(url).then(res => {
+      if (!res.ok) throw new Error(`REST read ${collName} ${res.status}`);
+      return res.json();
+    }).then(j => {
+      (j.documents || []).forEach(d => out.push(_fromFsFields(d.fields || {})));
+      if (j.nextPageToken) return fetchPage(j.nextPageToken);
+      return out;
+    });
+  };
+  return fetchPage(null);
+}
+// Lee un documento único por REST (meta/config, meta/notifs, ...).
+function _fsRestGetDoc(docPath) {
+  return fetch(`${_FS_REST_BASE}/${docPath}?key=${_FS_API_KEY}`).then(res => {
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`REST read ${docPath} ${res.status}`);
+    return res.json().then(j => _fromFsFields(j.fields || {}));
+  });
+}
+// Construye un objeto con la MISMA forma que un snapshot del SDK, para poder
+// reutilizar exactamente los mismos manejadores que usa onSnapshot() sin
+// duplicar la lógica de negocio.
+function _fakeSnap(arr) {
+  const docs = (arr || []).map(o => ({
+    id: String(o && o.id != null ? o.id : ''),
+    data: () => o,
+    metadata: { hasPendingWrites: false }, // viene del servidor: ya confirmado
+  }));
+  return { docs, empty: docs.length === 0, size: docs.length, forEach: fn => docs.forEach(fn) };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  SONDEO POR HTTPS — respaldo cuando el streaming está bloqueado (Cuba)
+// ══════════════════════════════════════════════════════════════════════
+// El SDK de Firestore recibe cambios en tiempo real por un canal de
+// streaming de larga duración. Desde Cuba ese canal es justamente lo que
+// se cae/bloquea: por eso un vale enviado con VPN llegaba a la nube pero
+// el ADMIN (también en Cuba, sin VPN) NUNCA lo veía aparecer — su canal
+// de escucha nunca recibía el empujón.
+// Solución: además del streaming, sondear los mismos datos por HTTPS
+// simple cada pocos segundos. Si el streaming funciona, el sondeo trae lo
+// mismo y no molesta (los manejadores son idempotentes). Si el streaming
+// está bloqueado, el sondeo es lo único que mantiene la app sincronizada.
+// Así la app entera (escribir Y leer) funciona sobre HTTPS común, que es
+// el transporte más difícil de bloquear.
+let _restPollTimer = null;
+let _restPollInFlight = false;
+const _REST_POLL_MS = 12000;
+async function _doRestPoll() {
+  if (_restPollInFlight) return;
+  if (!navigator.onLine) return;
+  if (document.hidden) return; // no gastar datos con la app en segundo plano
+  _restPollInFlight = true;
+  try {
+    // ── Vales ── (lo crítico: es lo que no llegaba al admin)
+    if (IS_ADMIN) {
+      const vales = await _fsRestGetCollection('vales');
+      if (typeof window._handleValesSnap === 'function') window._handleValesSnap(_fakeSnap(vales));
+    } else if (activeGestorId) {
+      const all = await _fsRestGetCollection('vales');
+      const mine = all.filter(v => v && v.gestorId === activeGestorId);
+      if (typeof window._handleMyValesSnap === 'function') window._handleMyValesSnap(_fakeSnap(mine));
+    }
+    // ── Entidades (gestores/mensajeros/productos/categorias) ──
+    // Mismo criterio que el listener: un resultado vacío NO borra lo local.
+    for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
+      try {
+        const arr = await _fsRestGetCollection(node);
+        if (arr.length > 0) {
+          _syncCount++;
+          try {
+            try { localStorage.setItem('axon_'+node, JSON.stringify(arr)); } catch(e) {}
+            if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
+            else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
+            else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
+            else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
+          } finally { _syncCount--; }
+        }
+      } catch(e) { /* una colección puntual puede fallar; seguir con las demás */ }
+    }
+    // ── Documentos únicos (config/notifs/estafa/ranking_summary) ──
+    for (const node of ['config', 'notifs', 'estafa', 'ranking_summary']) {
+      try {
+        const raw = await _fsRestGetDoc('meta/' + node);
+        const val = node === 'config' ? raw : (raw ? raw.items : null);
+        if (val) {
+          _syncCount++;
+          try {
+            try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
+            if(node==='config'){_configCache=val;_configDirty=false;}
+            else if(node==='notifs'){_notifsCache=val;_notifsDirty=false;}
+            else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
+          } finally { _syncCount--; }
+        }
+      } catch(e) { /* idem */ }
+    }
+    refreshUI();
+  } catch(e) {
+    console.warn('[rest-poll] error:', e && e.message);
+  } finally {
+    _restPollInFlight = false;
+  }
+}
+function _startRestPolling() {
+  if (_restPollTimer) return; // ya está corriendo
+  _doRestPoll(); // primera pasada inmediata (no esperar 12s para la carga inicial)
+  _restPollTimer = setInterval(_doRestPoll, _REST_POLL_MS);
+  // Al volver a primer plano o al recuperar conexión, sondear enseguida.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) _doRestPoll(); });
+  window.addEventListener('online', () => _doRestPoll());
+}
+
 // Ejecuta una lista de escrituras como un solo :commit atómico por REST.
 // writes: [{type:'set'|'delete', path:'coll/id', value?, merge?}]
 // Devuelve una promesa que resuelve al confirmar (HTTP 200) o rechaza con
@@ -2079,7 +2215,7 @@ function listenToMyVales(gId) {
   firstLoadVales = true;
   // 'vales' es una colección plana en Firestore (no una sub-rama por gestor
   // como en RTDB) — cada gestor filtra la SUYA con una query por campo.
-  gestorValesListener = firestoreDb.collection('vales').where('gestorId', '==', gId).onSnapshot(snap => {
+  window._handleMyValesSnap = function(snap) {
     _syncCount++;
     try {
       // BUGFIX: Firestore dispara onSnapshot OPTIMISTAMENTE en cuanto un write
@@ -2183,7 +2319,13 @@ function listenToMyVales(gId) {
       _syncCount--;
       refreshUI();
     }
-  }, err => console.error('[firestore] listener error (mis vales):', err));
+  };
+  // El SDK (streaming) empuja cambios al instante cuando la red lo permite.
+  gestorValesListener = firestoreDb.collection('vales').where('gestorId', '==', gId)
+    .onSnapshot(window._handleMyValesSnap, err => console.error('[firestore] listener error (mis vales):', err));
+  // RESPALDO POR HTTPS: si el canal de streaming está bloqueado (Cuba), el
+  // sondeo periódico por HTTPS simple trae los mismos datos igual.
+  _startRestPolling();
 }
 
 // fbAddVale/fbRemoveVale/fbUpdateVale eliminados — código muerto sin
@@ -2378,6 +2520,10 @@ let _rankingIdleHandle = null;
     }
   }, err => console.error(`[firestore] listener error (${node}):`, err));
 });
+// Arrancar el sondeo por HTTPS desde el inicio en AMBAS páginas (admin y
+// gestor). Sin esto, un dispositivo nuevo con el streaming bloqueado no
+// recibiría ni la lista de gestores para poder seleccionarse.
+_startRestPolling();
 
 // Nodos singleton: un solo documento en meta/{node}. 'notifs'/'estafa'/
 // 'ranking_summary' guardan un array envuelto en {items:[...]} porque
@@ -2418,7 +2564,7 @@ if (IS_ADMIN) {
   // Admin listens to ALL vales from all gestores — with try/finally
   let _rankingDebounce = null;
   let _lastRankingSummary = '';  // hash del último summary enviado → evitar writes redundantes
-  firestoreDb.collection('vales').onSnapshot(snap => {
+  window._handleValesSnap = function(snap) {
     _syncCount++;
     try {
       // 'vales' es una colección plana — cada documento YA es un vale
@@ -2523,7 +2669,10 @@ if (IS_ADMIN) {
       _syncCount--;
       refreshUI();
     }
-  }, err => console.error('[firestore] listener error (vales):', err));
+  };
+  firestoreDb.collection('vales')
+    .onSnapshot(window._handleValesSnap, err => console.error('[firestore] listener error (vales):', err));
+  _startRestPolling();
 }
 
 // Initialize empty Firestore from local if Admin (proyecto nuevo, sin datos aún)

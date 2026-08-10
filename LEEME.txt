@@ -1,64 +1,55 @@
 ═══════════════════════════════════════════════════════════════════
-  AXONTECH v29 — arreglo de fondo del vale "pegado" desde Cuba
+  AXONTECH v30 — el vale ahora SÍ llega al admin desde Cuba
 ═══════════════════════════════════════════════════════════════════
 
-QUÉ ENCONTRÉ (con datos reales, revisando tu Firestore)
----------------------------------------------------------
-Miré directamente los vales guardados en tu Firestore y encontré algo
-clave: un vale que un gestor mandó desde Cuba (Malena Arias, 18:35) SÍ
-había llegado a la nube. O sea: el dato SÍ sube. El problema no es que
-no llegue.
+TU PISTA FUE LA CLAVE
+----------------------
+Cuando dijiste "con VPN sí sale, PERO no llega al admin", eso me dio el
+dato que faltaba todo el día. Si sale pero no llega, el problema ya no
+es solo enviar — es RECIBIR.
 
-El problema real: la app usaba el sistema "normal" de Firebase para
-escribir, que abre una conexión especial y espera una confirmación de
-vuelta. En una conexión como la de Cuba (con pérdida de paquetes), pasa
-esto: el vale sube y se guarda en la nube, PERO la confirmación de
-regreso se pierde en el camino. Entonces la app se queda esperando esa
-confirmación que nunca llega → la barra de "subiendo" se queda pegada
-para siempre, aunque el vale YA esté guardado y el admin ya lo pueda ver.
+Lo que pasaba: la app tiene dos partes. ENVIAR (que arreglé en la v29,
+ya va por HTTPS normal) y RECIBIR EN TIEMPO REAL. Esa segunda parte
+seguía usando una "conexión de escucha" permanente de Firebase — que es
+justo lo que se bloquea desde Cuba.
 
-Por eso era tan confuso: las lecturas funcionaban (por eso la prueba de
-conexión daba bien), algunos vales sí se confirmaban, y otros se
-quedaban pegados. Y por eso ninguno de los arreglos anteriores lo
-resolvía del todo — el problema estaba en CÓMO se mandaba la
-confirmación.
+Y aquí está el detalle: TU ADMIN TAMBIÉN ESTÁ EN CUBA. Entonces su
+conexión de escucha nunca se establecía, y por eso nunca recibía nada,
+aunque el vale ya estuviera guardado en la nube. La app estaba a medias:
+mandaba, pero no recibía.
 
 QUÉ CAMBIÉ
 ----------
-Ahora la app manda los vales (y asignar mensajero, confirmar venta,
-borrar, etc.) por HTTPS directo — una petición web simple, del tipo más
-confiable y compatible que existe, el mismo que usa cualquier página web
-normal. La confirmación es la propia respuesta de esa petición, no una
-conexión especial aparte. Es muchísimo más robusto en conexiones malas.
+Ahora la app también CONSULTA los datos por HTTPS normal cada 12
+segundos, además de la conexión de escucha. Si la escucha funciona,
+llega al instante. Si está bloqueada (Cuba), la consulta por HTTPS trae
+lo mismo igual. Toda la app — enviar Y recibir — ya funciona sobre
+HTTPS común, que es lo más difícil de bloquear.
 
-Para LEER en tiempo real (ver los vales que llegan, actualizaciones del
-admin, etc.) se sigue usando el sistema de Firebase, porque ESE sí
-funciona bien desde Cuba (ya lo comprobamos).
+CÓMO LO PROBÉ (simulando Cuba de verdad)
+------------------------------------------
+Armé una simulación donde la conexión de escucha de Firebase está
+COMPLETAMENTE bloqueada, y solo pasa HTTPS. Resultado:
+  1. El gestor envía el vale -> se confirma (deja de decir "subiendo")
+  2. El vale llega a la nube
+  3. EL ADMIN LO VE al abrir su panel
+Antes de este cambio, ese mismo escenario dejaba al admin sin nada.
 
-CÓMO LO VERIFIQUÉ (esta vez de verdad, no solo leyendo código)
-----------------------------------------------------------------
-1. Probé escribir un vale realista directamente contra TU Firestore real
-   por el nuevo método: se escribió, se leyó de vuelta con todos los
-   datos correctos (incluidos los productos), y se borró. Todo con
-   confirmación limpia.
-2. Probé el flujo completo de "enviar vale" en un navegador automatizado:
-   antes el vale nunca se confirmaba; ahora sube y la barra "subiendo"
-   desaparece en ~1.5 segundos.
+CÓMO PROBARLO
+--------------
+1. Sube esta carpeta a GitHub (reemplaza todo).
+2. Refresca con fuerza hasta ver "v30" en AMBOS: gestor y admin.
+   (Toca el numerito v30; si dice "Ya tienes la última versión", listo.)
+3. SIN VPN, manda un vale desde el gestor.
+4. En el admin, espera hasta ~15 segundos y revisa la bandeja.
 
-CÓMO PROBARLO TÚ
+IMPORTANTE: ahora puede tardar unos segundos más en aparecer (hasta 12),
+porque va por consultas periódicas en vez de un empujón instantáneo. Es
+el precio de que funcione sin VPN. Si la conexión de escucha llega a
+funcionar, sigue siendo instantáneo.
+
+SI AUN ASÍ FALLA
 -----------------
-1. Sube esta carpeta completa a GitHub (reemplaza todo).
-2. Refresca con fuerza hasta ver "v29" (toca el numerito v29 arriba; si
-   dice "Ya tienes la última versión", confirma que app.js se actualizó).
-   Hazlo tanto en el teléfono del gestor como en el del admin.
-3. Desde Cuba, con tu conexión normal (SIN VPN), manda un vale de prueba.
-   La barra de "subiendo" debería desaparecer en unos segundos y el vale
-   quedar como enviado.
-4. Confirma en el admin que el vale llegó.
-
-Si por alguna razón todavía se quedara pegado, toca el indicador de
-sincronización (esquina) para ver el diagnóstico y mándame captura — con
-este cambio, si algo falla ahora sí debería mostrar un error concreto en
-vez de quedarse callado.
-
-Esta v29 reemplaza todas las entregas anteriores.
+Toca el indicador de sincronización (esquina) y mándame captura. Ahí
+verás si hay un error concreto. Con eso sabremos si hay que cambiar de
+proveedor (ver mi mensaje sobre Cloudflare).
