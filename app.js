@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 39;
+const APP_VERSION = 40;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd7c7283a4965b6b0';
+let _LOCAL_BUILD_HASH = 'e9cd444cc0e220e6';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -851,7 +851,15 @@ function _processFBQueue() {
   // es desperdicio de ancho de banda en redes lentas y causa la sensación de
   // "vuelve a sincronizar todos". Aquí filtramos esos vales antes del write.
   // Solo aplica a writes de vales (path 'vales' o 'vales/{gestorId}'), method 'update'.
-  if (method === 'update' && value && typeof value === 'object' &&
+  //
+  // v40 FIX CRÍTICO: ANTES este filtro se aplicaba a TODOS los writes, no solo
+  // a retries. Como el polling del admin marca TODOS los vales con synced:true,
+  // cualquier patchVale posterior (cambiar status, seenByAdmin, etc.) era
+  // DROPEADO silenciosamente → los cambios nunca llegaban a Supabase → el
+  // gestor nunca veía "Visto por admin", "Con mensajero", "Venta confirmada".
+  // Ahora solo filtramos en retries (item.retries > 1), que era la intención
+  // original del comentario.
+  if (item.retries > 1 && method === 'update' && value && typeof value === 'object' &&
       (path === 'vales' || path.startsWith('vales/'))) {
     const syncedIds = new Set(
       getVales()
@@ -2342,20 +2350,16 @@ function listenToMyVales(gId) {
         });
       }
 
-      // Guardar SIEMPRE — ya sea el snap (si tenía vales) o los vales locales
-      // pendientes (si el snap estaba vacío pero hay vales locales).
-      // v33: esto es lo que cambié — antes, si el snap estaba vacío y no había
-      // vales locales synced:false, se borraba el cache. Ahora, si el snap
-      // está vacío, NO tocamos el cache (conservamos vales existentes).
-      if (mergedVales.length > 0) {
-        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
-      }
-      // Si mergedVales está vacío Y el snap también, NO borrar el cache local.
-      // Solo borrar si el snap viene explícitamente con 0 vales Y no hay
-      // vales locales (caso de "borrar todo" desde el admin).
-      // Para detectar eso, comparamos con el cache local: si el cache local
-      // tenía vales y el snap viene vacío, asumimos que el polling no los trajo
-      // (no que se borraron), y conservamos lo local.
+      // v40 FIX CRÍTICO: guardar SIEMPRE el resultado del polling, incluso si
+      // está vacío. ANTES, si el snap venía vacío (porque el admin borró los
+      // vales en Supabase), el cache local NO se tocaba → el gestor seguía
+      // viendo los vales borrados para siempre.
+      // Ahora: si el polling trajo un snap vacío, significa que Supabase no
+      // tiene vales del gestor → borrar el cache local también (excepto
+      // vales locales synced:false que aún no se han subido).
+      // Si el polling falla (network error), _doRestPoll no llama a este
+      // handler, así que estamos seguros de que un snap vacío es legítimo.
+      try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
 
       firstLoadVales = false;
     } finally {
@@ -2605,12 +2609,10 @@ if (IS_ADMIN) {
       const oldVales = getVales();
       const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => Number(ov.id) === Number(nv.id)));
 
-      // Guardar SIEMPRE que haya algo que guardar
-      if (mergedFlatVales.length > 0) {
-        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
-      }
-      // Si mergedFlatVales está vacío, NO borrar el cache (el polling puede
-      // haber fallado o la tabla puede estar temporalmente inaccesible).
+      // v40 FIX: guardar SIEMPRE, incluso si está vacío. Si el admin hizo
+      // factoryResetVales() o clearGestoresData(), Supabase queda vacío y el
+      // polling trae [] → el cache local debe vaciarse también.
+      try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
 
       // Show estafa alert for new vales that match blacklist
       newIds.forEach(nv => {
