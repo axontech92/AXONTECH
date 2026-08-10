@@ -1,9 +1,9 @@
 {
-  "version": 12,
-  "versionStr": "v12",
-  "hash": "0ad66755f50d1ccb",
-  "hashFull": "0ad66755f50d1ccb9805e1fba0f0b954157ba98ee241050b1bc22a9a3ec1e482",
-  "releasedAt": "2026-08-10 23:00",
+  "version": 13,
+  "versionStr": "v13",
+  "hash": "f7490926b3b90dc0",
+  "hashFull": "f7490926b3b90dc01976f1145b75b2e6b9e07d92aca659af84e9aa11e3048470",
+  "releasedAt": "2026-08-10 23:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX comisiones: si no hay comisión calculable, ya NO se muestra el banner verde con 'No computable'. En su lugar, mensaje discreto pidiendo al admin configurar comisiones en los productos del catálogo. Si hay comisión, se muestra el banner verde con el monto."
+    "FIX diseño: eliminada la caja de mensaje 'Las comisiones se mostrarán aquí...' que rompía el diseño. Si no hay comisión, simplemente no se muestra el banner. El diseño queda limpio: KPIs → (banner verde si hay comisión) → Meta de puntos."
   ]
 }

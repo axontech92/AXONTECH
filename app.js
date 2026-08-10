@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 12;
+const APP_VERSION = 13;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '0ad66755f50d1ccb';
+let _LOCAL_BUILD_HASH = 'f7490926b3b90dc0';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5165,9 +5165,8 @@ function renderGestorDashboard() {
     </div>
   `;
 
-  // v12: si hay comisión, mostrar el banner verde. Si NO hay comisión,
-  // NO mostrar el banner (antes mostraba "No computable" / "Sin comisión"
-  // que confundía al gestor). Solo mostrar si hay un monto real.
+  // v13: si hay comisión, mostrar el banner verde. Si NO hay, no mostrar nada.
+  // El mensaje de "configure comisiones" confundía y rompía el diseño.
   let comHTML = '';
   if (cur.comBadge) {
     comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -5176,16 +5175,6 @@ function renderGestorDashboard() {
         <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${escapeHTML(cur.comBadge)}</div>
       </div>
       <div style="font-size:clamp(22px,7vw,30px);line-height:1;flex-shrink:0;">💵</div>
-    </div>`;
-  } else if (cur.closed > 0) {
-    // Hay vales confirmados pero no se pudo calcular comisión.
-    // Mostrar mensaje discreto (no banner verde grande) pidiendo al admin
-    // configurar comisiones en los productos del catálogo.
-    comHTML = `<div style="background:var(--surface2);border:1px dashed var(--border);border-radius:clamp(10px,3.5vw,14px);padding:clamp(10px,3vw,14px) clamp(12px,4vw,16px);margin-bottom:clamp(8px,2.5vw,12px);">
-      <div style="font-size:clamp(10px,3vw,12px);color:var(--text-muted);display:flex;align-items:center;gap:8px;">
-        <span style="font-size:clamp(14px,4vw,16px);">💰</span>
-        <span>Las comisiones se mostrarán aquí cuando el admin configure comisiones en los productos del catálogo.</span>
-      </div>
     </div>`;
   }
 
