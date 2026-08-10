@@ -1,9 +1,9 @@
 {
-  "version": 11,
-  "versionStr": "v11",
-  "hash": "a40e2bfd5b54271e",
-  "hashFull": "a40e2bfd5b54271e7f676fbb2c1b2e735b441b5311136c31c8dd983e6722a965",
-  "releasedAt": "2026-08-10 22:30",
+  "version": 12,
+  "versionStr": "v12",
+  "hash": "0ad66755f50d1ccb",
+  "hashFull": "0ad66755f50d1ccb9805e1fba0f0b954157ba98ee241050b1bc22a9a3ec1e482",
+  "releasedAt": "2026-08-10 23:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,7 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO comisiones: getValeCommissionParts ahora usa v.comisionGestor como fallback cuando el cálculo por producto falla. ANTES ignoraba completamente este campo del vale — si el producto no tenía comisión configurada, mostraba 'Sin comisión' aunque el vale tuviera el monto. Ahora parsea comisionGestor ($5 USD, 1500 MN, etc.) y lo muestra.",
-    "FIX hash: _computeValesHash ahora incluye comisionGestor, commissionStatus y commissionPaid para que refreshUI detecte cambios en comisiones y re-renderice automáticamente."
+    "FIX comisiones: si no hay comisión calculable, ya NO se muestra el banner verde con 'No computable'. En su lugar, mensaje discreto pidiendo al admin configurar comisiones en los productos del catálogo. Si hay comisión, se muestra el banner verde con el monto."
   ]
 }
