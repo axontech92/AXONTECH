@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 13;
+const APP_VERSION = 14;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'f7490926b3b90dc0';
+let _LOCAL_BUILD_HASH = 'e6d29c8053ed2d83';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5165,18 +5165,15 @@ function renderGestorDashboard() {
     </div>
   `;
 
-  // v13: si hay comisión, mostrar el banner verde. Si NO hay, no mostrar nada.
-  // El mensaje de "configure comisiones" confundía y rompía el diseño.
-  let comHTML = '';
-  if (cur.comBadge) {
-    comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+  // v14: banner verde SIEMPRE visible. Si hay comisión, muestra el monto.
+  // Si no, muestra $0.00. Nunca se oculta.
+  let comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
         <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
-        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${escapeHTML(cur.comBadge)}</div>
+        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${cur.comBadge ? escapeHTML(cur.comBadge) : '$0.00 USD'}</div>
       </div>
       <div style="font-size:clamp(22px,7vw,30px);line-height:1;flex-shrink:0;">💵</div>
     </div>`;
-  }
 
   // Meta de puntos
   const metaHTML = `
