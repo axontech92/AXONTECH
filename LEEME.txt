@@ -1,55 +1,40 @@
-═══════════════════════════════════════════════════════════════════
-  AXONTECH v30 — el vale ahora SÍ llega al admin desde Cuba
-═══════════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════════════════
+  PRUEBA DE 2 MINUTOS — para dejar de adivinar
+═══════════════════════════════════════════════════════════════
 
-TU PISTA FUE LA CLAVE
+Antes de seguir cambiando código (o de migrar a Cloudflare y gastar
+más), necesito UNA medición hecha desde tu conexión. Yo no puedo
+probar desde Cuba — mi entorno está fuera, y esa es la razón real de
+que llevemos todo el día en círculos.
+
+Verifiqué lo que sí podía desde aquí y descarté dos sospechas:
+  - Los permisos de Firestore: están bien (probé escribir y funcionó)
+  - CORS (que Google autorice tu dominio): está bien también
+O sea, no es configuración. Es red — y eso solo se mide desde allá.
+
+QUÉ HACER (2 minutos)
 ----------------------
-Cuando dijiste "con VPN sí sale, PERO no llega al admin", eso me dio el
-dato que faltaba todo el día. Si sale pero no llega, el problema ya no
-es solo enviar — es RECIBIR.
+1. Sube esta carpeta a GitHub como siempre.
+2. QUITA EL VPN.
+3. En el teléfono, abre:
+   https://axontech92.github.io/AXONTECH/diagnostico.html
+4. Toca "Empezar prueba" y espera (puede tardar hasta 1 minuto).
+5. Toca "Copiar resultados" y pégamelos en el chat.
+   (o mándame una captura de pantalla)
 
-Lo que pasaba: la app tiene dos partes. ENVIAR (que arreglé en la v29,
-ya va por HTTPS normal) y RECIBIR EN TIEMPO REAL. Esa segunda parte
-seguía usando una "conexión de escucha" permanente de Firebase — que es
-justo lo que se bloquea desde Cuba.
+QUÉ VOY A SABER CON ESO
+------------------------
+La prueba mide 6 canales por separado, incluido si GitHub funciona
+(que ya lo usas para fotos y catálogo) y si Cloudflare es alcanzable.
 
-Y aquí está el detalle: TU ADMIN TAMBIÉN ESTÁ EN CUBA. Entonces su
-conexión de escucha nunca se establecía, y por eso nunca recibía nada,
-aunque el vale ya estuviera guardado en la nube. La app estaba a medias:
-mandaba, pero no recibía.
+- Si Firestore da OK por HTTPS -> NO hay que migrar, el problema está
+  en el código y con el resultado lo ubico rápido.
+- Si Firestore falla pero otros dan OK -> confirmado el bloqueo, y la
+  prueba misma me dice a cuál proveedor conviene migrar.
+- Si falla todo -> no era Firestore, era la conexión en ese momento.
 
-QUÉ CAMBIÉ
-----------
-Ahora la app también CONSULTA los datos por HTTPS normal cada 12
-segundos, además de la conexión de escucha. Si la escucha funciona,
-llega al instante. Si está bloqueada (Cuba), la consulta por HTTPS trae
-lo mismo igual. Toda la app — enviar Y recibir — ya funciona sobre
-HTTPS común, que es lo más difícil de bloquear.
+Con ese dato dejamos de adivinar y vamos directo a la solución
+correcta, en vez de probar a ciegas.
 
-CÓMO LO PROBÉ (simulando Cuba de verdad)
-------------------------------------------
-Armé una simulación donde la conexión de escucha de Firebase está
-COMPLETAMENTE bloqueada, y solo pasa HTTPS. Resultado:
-  1. El gestor envía el vale -> se confirma (deja de decir "subiendo")
-  2. El vale llega a la nube
-  3. EL ADMIN LO VE al abrir su panel
-Antes de este cambio, ese mismo escenario dejaba al admin sin nada.
-
-CÓMO PROBARLO
---------------
-1. Sube esta carpeta a GitHub (reemplaza todo).
-2. Refresca con fuerza hasta ver "v30" en AMBOS: gestor y admin.
-   (Toca el numerito v30; si dice "Ya tienes la última versión", listo.)
-3. SIN VPN, manda un vale desde el gestor.
-4. En el admin, espera hasta ~15 segundos y revisa la bandeja.
-
-IMPORTANTE: ahora puede tardar unos segundos más en aparecer (hasta 12),
-porque va por consultas periódicas en vez de un empujón instantáneo. Es
-el precio de que funcione sin VPN. Si la conexión de escucha llega a
-funcionar, sigue siendo instantáneo.
-
-SI AUN ASÍ FALLA
------------------
-Toca el indicador de sincronización (esquina) y mándame captura. Ahí
-verás si hay un error concreto. Con eso sabremos si hay que cambiar de
-proveedor (ver mi mensaje sobre Cloudflare).
+NOTA: esta carpeta trae también la v30 (por si no la habías subido).
+Pero lo importante ahora es la prueba, no la v30.
