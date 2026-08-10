@@ -1,9 +1,9 @@
 {
-  "version": 38,
-  "versionStr": "v38",
-  "hash": "8fc12677231126f7",
-  "hashFull": "8fc12677231126f765808b69a55f12c2192806dd809f6c36a057785c0623a9a7",
-  "releasedAt": "2026-08-10 08:30",
+  "version": 39,
+  "versionStr": "v39",
+  "hash": "d7c7283a4965b6b0",
+  "hashFull": "d7c7283a4965b6b0cc0b1c5d6d7ff3ab421150bb1a2b4cc93cf24cf8b8d29e82",
+  "releasedAt": "2026-08-10 09:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,8 @@
     "sw.js"
   ],
   "changelog": [
-    "Fix defensivo en renderMyVales: vales sin status definido (undefined/null) ahora se tratan como 'pending' y se muestran en activos con label 'Enviado · admin pendiente' o 'Visto por admin 👁️' según corresponda."
+    "FIX CRÍTICO admin: Number(g).id era NaN → bandeja de entrada del admin siempre vacía. Arreglado a Number(g.id).",
+    "FIX admin: vales sin status definido ahora aparecen como Pendientes en la bandeja.",
+    "FIX clearGestoresData: gestorIds.has() fallaba por tipo (string vs número) → los vales de gestores no se borraban. Ahora usa Set de strings."
   ]
 }

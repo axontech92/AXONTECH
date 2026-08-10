@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 38;
+const APP_VERSION = 39;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '8fc12677231126f7';
+let _LOCAL_BUILD_HASH = 'd7c7283a4965b6b0';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2623,7 +2623,7 @@ if (IS_ADMIN) {
       _rankingDebounce = setTimeout(() => {
         const gestores = getGestores();
         const summary = gestores.map(g => {
-          const pts = mergedFlatVales.filter(v=>Number(v.gestorId)===Number(g).id&&['confirmed','pending_payment'].includes(v.status))
+          const pts = mergedFlatVales.filter(v=>Number(v.gestorId)===Number(g.id)&&['confirmed','pending_payment'].includes(v.status))
             .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
           return { id: g.id, pts };
         });
@@ -3880,7 +3880,7 @@ function renderAdminGestoresList() {
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
   c.innerHTML=list.map(g=>{
-    const vales=getVales().filter(v=>Number(v.gestorId)===Number(g).id);
+    const vales=getVales().filter(v=>Number(v.gestorId)===Number(g.id));
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
     const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
@@ -4120,8 +4120,11 @@ function renderAdminGestores() {
   let html = '';
   
   // Only show gestores that have AT LEAST ONE pending vale (excluye confirmed, delivered y cancelled)
+  // v38 FIX: vales sin status definido (undefined/null) se consideran pendientes —
+  // son vales recién enviados que aún no tienen status explícito en Supabase.
+  const isPending = v => v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled';
   const gestoresConPendientes = gestores.filter(g => {
-     return vales.some(v => Number(v.gestorId) === Number(g).id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled');
+     return vales.some(v => Number(v.gestorId) === Number(g.id) && isPending(v));
   });
 
   if(gestoresConPendientes.length === 0) {
@@ -4131,7 +4134,7 @@ function renderAdminGestores() {
 
   gestoresConPendientes.forEach(g => {
     // Only fetch active (not confirmed/delivered/cancelled)
-    const pendingVales = vales.filter(v => Number(v.gestorId) === Number(g).id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled').reverse();
+    const pendingVales = vales.filter(v => Number(v.gestorId) === Number(g.id) && isPending(v)).reverse();
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -4173,8 +4176,8 @@ function buildInboxCard(v) {
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
     cancelled:{label:'Cancelado',cls:'sp-cancelled'}
   };
-  const s=sMap[v.status]||{label:v.status,cls:''};
-  const isNew=v.isNew&&v.status==='pending';
+  const s=sMap[v.status]||sMap['pending']||{label:'Pendiente',cls:'sp-pending'};  // v38: fallback a pendiente
+  const isNew=v.isNew&&(v.status==='pending'||v.status==null);
   const sel=v.id===selectedValeId;
   const estafaMatch=checkEstafaMatch(v);
   const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
@@ -6646,7 +6649,7 @@ function _gestorInactivityDays(gestorId) {
 
 // Render a single expandible gestor card for the Estadísticas panel
 function _renderStatsGestorCard(g, vales, from, to) {
-  const gv = vales.filter(v => Number(v.gestorId) === Number(g).id);
+  const gv = vales.filter(v => Number(v.gestorId) === Number(g.id));
   const gc = gv.filter(v => v.status === 'confirmed').length;
   const gPendingPay = gv.filter(v => v.status === 'pending_payment').length;
   const pts = gv.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
@@ -8150,9 +8153,10 @@ async function clearGestoresData() {
   const notifs = getNotifs();
   const gestores = getGestores();
 
-  // Count what will be deleted
-  const gestorIds = new Set(gestores.map(g => g.id));
-  const valesToRemove = vales.filter(v => v.gestorId && gestorIds.has(v.gestorId));
+  // v38 FIX: normalizar gestorIds a Set de strings para que Set.has() funcione
+  // sin importar si v.gestorId viene como string o número de Supabase.
+  const gestorIds = new Set(gestores.map(g => String(g.id)));
+  const valesToRemove = vales.filter(v => v && v.gestorId != null && gestorIds.has(String(v.gestorId)));
   // All notifs are tied to gestor activity — remove them all (both global + personal)
   // since they exist to inform gestors about stock/vales/ranking.
   const notifsToRemove = notifs;
@@ -8171,7 +8175,7 @@ async function clearGestoresData() {
   if (!confirm('¿Última confirmación? Esta acción es irreversible.')) return;
 
   // 1) Keep only vales NOT tied to a known gestor (e.g. admin-generated vales without gestorId)
-  const remainingVales = vales.filter(v => !(v.gestorId && gestorIds.has(v.gestorId)));
+  const remainingVales = vales.filter(v => !(v && v.gestorId != null && gestorIds.has(String(v.gestorId))));
   saveVales(remainingVales);
 
   // 2) Clear all notifs (encolado — ver red de seguridad más abajo)
@@ -8189,7 +8193,7 @@ async function clearGestoresData() {
   showToast('Borrando vales y notificaciones...');
   let cleanupError = null;
   try {
-    const extra = await _fsDeleteVales(v => v && v.gestorId && gestorIds.has(v.gestorId));
+    const extra = await _fsDeleteVales(v => v && v.gestorId != null && gestorIds.has(String(v.gestorId)));
     if (extra > 0) console.log(`[clearGestoresData] ${extra} vale(s) adicionales borrados directo de Supabase`);
     // v31: limpiar notifs directo en Supabase (era {items:[]} en Firestore;
     // en Supabase el JSONB acepta arrays como raíz, así que mandamos [] directo).
@@ -8252,7 +8256,7 @@ function getTop3Ranked() {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g).id).reduce((sum,v)=>
+    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g.id)).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     return {...g,pts};
   }).sort((a,b)=>b.pts-a.pts);
@@ -8264,7 +8268,7 @@ function getGestorRank(gestorId) {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g).id).reduce((sum,v)=>
+    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g.id)).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     return {id:g.id,pts};
   }).sort((a,b)=>b.pts-a.pts);
