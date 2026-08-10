@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 31;
+const APP_VERSION = 32;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'f831dc5c6e5407b1';
+let _LOCAL_BUILD_HASH = '6fc190c5002d712b';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -230,25 +230,36 @@ async function _sbRestGetMeta(name) {
 
 // UPSERT de una fila por id (inserta si no existe, actualiza si existe).
 // `value` es el objeto JS completo a guardar dentro de la columna `data`.
+// v31: usa return=representation para detectar RLS bloqueando.
 async function _sbRestUpsert(collName, id, value) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
   const body = JSON.stringify([{ id: id, data: value }]);
   const res = await fetch(url, {
     method: 'POST',
-    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
     body: body,
   });
   if (!res.ok) {
     const t = await res.text();
     throw new Error(`Supabase UPSERT ${collName}/${id} ${res.status}: ${t.slice(0,150)}`);
   }
+  // Verificar que realmente se guardó
+  const rows = await res.json().catch(() => []);
+  if (Array.isArray(rows) && rows.length === 0) {
+    console.error(`[supabase] RLS bloqueó el UPSERT de ${collName}/${id} — revisa supabase_schema.sql`);
+  }
 }
 
 // UPSERT de múltiples filas en una sola petición (más eficiente que hacer
 // N requests separados — importante a 10 Kbit/s).
+// v31: usa `return=representation` para que Supabase devuelva las filas
+// afectadas. Si devuelve vacío, es señal de que RLS bloqueó el write
+// silenciosamente — la promesa resuelve con la lista de ids efectivamente
+// guardados, para que el caller pueda detectar fallos.
 async function _sbRestUpsertBatch(collName, items) {
   // items: [{id, value}, ...]
-  if (!items || items.length === 0) return;
+  if (!items || items.length === 0) return [];
+  const savedIds = [];
   // Partir en chunks de 500 (límite recomendado por PostgREST)
   const CHUNK = 500;
   for (let i = 0; i < items.length; i += CHUNK) {
@@ -257,14 +268,28 @@ async function _sbRestUpsertBatch(collName, items) {
     const body = JSON.stringify(chunk.map(it => ({ id: it.id, data: it.value })));
     const res = await fetch(url, {
       method: 'POST',
-      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
       body: body,
     });
     if (!res.ok) {
       const t = await res.text();
       throw new Error(`Supabase UPSERT batch ${collName} ${res.status}: ${t.slice(0,150)}`);
     }
+    // v31: verificar que las filas realmente se guardaron.
+    // PostgREST devuelve un array con las filas afectadas si return=representation.
+    // Si devuelve vacío, las políticas RLS bloquearon silenciosamente.
+    const rows = await res.json().catch(() => []);
+    if (Array.isArray(rows)) {
+      rows.forEach(r => { if (r && r.id != null) savedIds.push(Number(r.id)); });
+    }
+    // Si rows está vacío o tiene menos elementos de los esperados, las
+    // políticas RLS pueden estar bloqueando. Lo registramos pero NO lanzamos
+    // error — el listener del gestor se encargará de reintentar.
+    if (Array.isArray(rows) && rows.length < chunk.length) {
+      console.error(`[supabase] RLS posiblemente bloqueando writes en '${collName}': enviados=${chunk.length} guardados=${rows.length}. Revisa que las políticas RLS estén creadas (supabase_schema.sql).`);
+    }
   }
+  return savedIds;
 }
 
 // Borra un documento por id (DELETE /rest/v1/{tabla}?id=eq.X)
@@ -315,12 +340,17 @@ async function _sbRestMetaUpsert(name, value) {
   const body = JSON.stringify([{ name: name, data: value }]);
   const res = await fetch(url, {
     method: 'POST',
-    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
+    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
     body: body,
   });
   if (!res.ok) {
     const t = await res.text();
     throw new Error(`Supabase META UPSERT ${name} ${res.status}: ${t.slice(0,150)}`);
+  }
+  // Verificar que realmente se guardó
+  const rows = await res.json().catch(() => []);
+  if (Array.isArray(rows) && rows.length === 0) {
+    console.error(`[supabase] RLS bloqueó el META UPSERT de ${name} — revisa supabase_schema.sql`);
   }
 }
 
@@ -2245,25 +2275,49 @@ function listenToMyVales(gId) {
           if (v) delete v.__pendingWrite;
         });
 
-        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
-        // En conexiones lentas (10 Kbit/s), el listener de Firebase puede
-        // disparar ANTES de que el write del vale pendiente se confirme.
-        // El snapshot NO incluye el vale local, y antes reemplazábamos el
-        // cache local con él → el vale "desaparecía" de la UI por varios
-        // segundos hasta que el write confirmara y disparara un nuevo
-        // snapshot que sí lo incluyera.
-        // Ahora preservamos los vales locales synced:false que no estén
-        // en el snapshot, hasta que se confirmen (synced:true).
-        const localPending = (getVales() || []).filter(v =>
+        // ── v31 BUGFIX CRÍTICO: preservar vales locales que NO están en el snapshot ──
+        // ANTES (v30): solo se preservaban vales con synced:false. Si un vale
+        // se marcaba synced:true (porque el write devolvió 200 OK) pero en
+        // realidad NO se guardó en Supabase (RLS bloqueando silenciosamente,
+        // o race condition), el polling traía un snapshot SIN ese vale, y el
+        // merge lo borraba del cache local → el vale DESAPARECÍA del gestor.
+        // AHORA: preservamos TODOS los vales locales (synced:true o false)
+        // que no estén en el snapshot. Los marcamos como huérfanos y los
+        // re-encolamos para reintentar el write.
+        const localVales = (getVales() || []).filter(v =>
           v && v.gestorId === gId &&
-          v.synced === false &&
           v.status !== 'cancelled'
         );
         const fbIds = new Set(newVales.map(v => String(v && v.id)));
-        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        const orphaned = localVales.filter(v => !fbIds.has(String(v.id)));
         let mergedVales = newVales;
         if (orphaned.length > 0) {
           mergedVales = newVales.concat(orphaned);
+          // v31: re-encolar el write de los vales huérfanos marcados como
+          // synced:true (los synced:false ya están siendo procesados por
+          // la cola). Esto recupera vales que "se perdieron" porque Supabase
+          // devolvió 200 pero no guardó (RLS mal configurada, etc.).
+          const syncedOrphans = orphaned.filter(v => v.synced === true);
+          if (syncedOrphans.length > 0) {
+            console.warn(`[sync] ${syncedOrphans.length} vale(s) marcado(s) synced:true pero NO aparecen en Supabase — re-encolando write`);
+            // Marcar como no-synced para que vuelvan a la cola
+            const all = getVales();
+            let changed = false;
+            syncedOrphans.forEach(so => {
+              const idx = all.findIndex(v => v.id === so.id);
+              if (idx !== -1 && all[idx].synced === true) {
+                all[idx].synced = false;
+                changed = true;
+              }
+            });
+            if (changed) {
+              _safeSetLS('axon_vales', JSON.stringify(all));
+              _valesCache = all;
+              _valesDirty = false;
+              // Re-encolar writes para esos vales
+              setTimeout(_ensurePendingValesEnqueued, 100);
+            }
+          }
         }
         mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
 
@@ -2553,19 +2607,41 @@ if (IS_ADMIN) {
           if (v) delete v.__pendingWrite;
         });
 
-        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
-        // El admin también puede tener vales locales pendientes (raro, pero
-        // pasa si crea vales directos en venta local mientras Firebase está
-        // caído). Preservarlos para no perderlos antes del write.
-        const localPending = (getVales() || []).filter(v =>
-          v && v.synced === false &&
-          v.status !== 'cancelled'
+        // ── v31 BUGFIX CRÍTICO: preservar vales locales que NO están en el snapshot ──
+        // Mismo fix que en el listener del gestor: si un vale se marcó
+        // synced:true pero el polling NO lo trae (porque el write falló
+        // silenciosamente en Supabase), NO borrarlo del cache local.
+        // Preservarlo y re-encolar el write.
+        const localVales = (getVales() || []).filter(v =>
+          v && v.status !== 'cancelled'
         );
         const fbIds = new Set(flatVales.map(v => String(v && v.id)));
-        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        const orphaned = localVales.filter(v => !fbIds.has(String(v.id)));
         let mergedFlatVales = flatVales;
         if (orphaned.length > 0) {
           mergedFlatVales = flatVales.concat(orphaned);
+          // v31: re-encolar el write de los vales huérfanos marcados como
+          // synced:true (los synced:false ya están siendo procesados).
+          const syncedOrphans = orphaned.filter(v => v.synced === true);
+          if (syncedOrphans.length > 0) {
+            console.warn(`[sync] admin: ${syncedOrphans.length} vale(s) marcado(s) synced:true pero NO aparecen en Supabase — re-encolando write`);
+            const all = getVales();
+            let changed = false;
+            syncedOrphans.forEach(so => {
+              const idx = all.findIndex(v => v.id === so.id);
+              if (idx !== -1 && all[idx].synced === true) {
+                all[idx].synced = false;
+                changed = true;
+              }
+            });
+            if (changed) {
+              _safeSetLS('axon_vales', JSON.stringify(all));
+              _valesCache = all;
+              _valesDirty = false;
+              // Re-encolar writes para esos vales
+              setTimeout(_ensurePendingValesEnqueued, 100);
+            }
+          }
         }
         mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
 

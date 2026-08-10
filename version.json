@@ -1,9 +1,9 @@
 {
-  "version": 31,
-  "versionStr": "v31",
-  "hash": "f831dc5c6e5407b1",
-  "hashFull": "f831dc5c6e5407b16582281e043fcef35a136f23254342c7a243532c19372a0c",
-  "releasedAt": "2026-08-10 01:30",
+  "version": 32,
+  "versionStr": "v32",
+  "hash": "6fc190c5002d712b",
+  "hashFull": "6fc190c5002d712bdc1f04c455fb44e48ea9b31df7a833417e5aa62083f2908e",
+  "releasedAt": "2026-08-10 02:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Migración Firestore → Supabase. Firestore está bloqueado desde Cuba sin VPN; Supabase NO. SDKs de Firebase eliminados (-530KB), la app ahora va directo a Supabase por HTTPS. Polling cada 5s (en vez de 12s). Migración unívoca de datos desde el panel de admin."
+    "Fix crítico: el listener del gestor estaba borrando vales locales synced:true que no aparecían en el snapshot de Supabase (RLS bloqueando silenciosamente). Ahora se preservan, se marcan como huérfanos y se re-encolan. Además, todos los upserts usan return=representation para detectar si RLS bloquea."
   ]
 }
