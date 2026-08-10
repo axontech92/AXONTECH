@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 33;
+const APP_VERSION = 34;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '25b5405612621825';
+let _LOCAL_BUILD_HASH = '2f2bd3ac8d792770';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2241,154 +2241,104 @@ function renderEstafaList() {
 // RTDB. Ya no aplica: 'vales' es una colección plana en Firestore, doc id =
 // String(vale.id) — ver _buildCollectionUpdates.)
 
-let gestorValesListener = null; // función de desuscripción que devuelve onSnapshot()
+let gestorValesListener = null;
 let firstLoadVales = true;
 function listenToMyVales(gId) {
   if (gestorValesListener) { gestorValesListener(); gestorValesListener = null; }
   firstLoadVales = true;
-  // 'vales' es una colección plana en Firestore (no una sub-rama por gestor
-  // como en RTDB) — cada gestor filtra la SUYA con una query por campo.
+  // v33: filosofía v16 — simpleza. El polling trae los vales del gestor desde
+  // Supabase. Si el snap tiene vales, los guardamos (reemplazo directo como en
+  // v16) PERO preservando vales locales synced:false que no estén en el snap
+  // (porque el write puede no haberse confirmado todavía). Si el snap viene
+  // vacío, NO tocamos el cache local (no borramos vales existentes).
   window._handleMyValesSnap = function(snap) {
     _syncCount++;
     try {
-      // BUGFIX: Firestore dispara onSnapshot OPTIMISTAMENTE en cuanto un write
-      // local se encola (antes de que el servidor lo confirme) — snap.docs
-      // incluye esos cambios con metadata.hasPendingWrites=true. Sin este
-      // chequeo, un vale podía marcarse synced:true (más abajo) solo porque
-      // el SDK ya lo tenía en su caché local, ANTES de saber si el write
-      // realmente llegó al servidor. Si ese write fallaba después, el vale
-      // quedaba synced:true para siempre sin que nadie se enterara.
-      const newVales = snap.docs.map(d => { const data = d.data(); data.__pendingWrite = d.metadata.hasPendingWrites; return data; });
-      if (!snap.empty) {
-        // v14: regenerar campos slimados al leer de Firebase.
-        // - valeText: no se envía para vales nuevos; se regenera aquí.
-        // - name de valeProductos: se busca por id con productoOf().
-        newVales.forEach(v => {
-          if (v && !v.valeText) v.valeText = regenerateValeText(v);
-          if (v && Array.isArray(v.valeProductos)) {
-            v.valeProductos.forEach(p => {
-              if (!p.name) {
-                const prod = productoOf(p.id);
-                if (prod) p.name = prod.name;
-              }
-            });
-          }
-          // Asegurar flags locales por defecto — solo "synced" si el servidor
-          // ya confirmó el write, no solo la caché local optimista del SDK.
-          if (v && v.synced === undefined) v.synced = !v.__pendingWrite;
-          if (v) delete v.__pendingWrite;
-        });
+      const newVales = snap.docs.map(d => d.data());
+      const gidNum = Number(gId);
 
-        // ── v31 BUGFIX CRÍTICO: preservar vales locales que NO están en el snapshot ──
-        // ANTES (v30): solo se preservaban vales con synced:false. Si un vale
-        // se marcaba synced:true (porque el write devolvió 200 OK) pero en
-        // realidad NO se guardó en Supabase (RLS bloqueando silenciosamente,
-        // o race condition), el polling traía un snapshot SIN ese vale, y el
-        // merge lo borraba del cache local → el vale DESAPARECÍA del gestor.
-        // AHORA: preservamos TODOS los vales locales (synced:true o false)
-        // que no estén en el snapshot. Los marcamos como huérfanos y los
-        // re-encolamos para reintentar el write.
-        // v32: usar Number() para comparación robusta de gestorId (puede venir
-        // como string o número de Supabase JSONB).
-        const gidNum = Number(gId);
-        const localVales = (getVales() || []).filter(v =>
-          v && v.gestorId != null &&
-          Number(v.gestorId) === gidNum &&
-          v.status !== 'cancelled'
-        );
-        const fbIds = new Set(newVales.map(v => String(v && v.id)));
-        const orphaned = localVales.filter(v => !fbIds.has(String(v.id)));
-        let mergedVales = newVales;
-        if (orphaned.length > 0) {
-          mergedVales = newVales.concat(orphaned);
-          // v31: re-encolar el write de los vales huérfanos marcados como
-          // synced:true (los synced:false ya están siendo procesados por
-          // la cola). Esto recupera vales que "se perdieron" porque Supabase
-          // devolvió 200 pero no guardó (RLS mal configurada, etc.).
-          const syncedOrphans = orphaned.filter(v => v.synced === true);
-          if (syncedOrphans.length > 0) {
-            console.warn(`[sync] ${syncedOrphans.length} vale(s) marcado(s) synced:true pero NO aparecen en Supabase — re-encolando write`);
-            // Marcar como no-synced para que vuelvan a la cola
-            const all = getVales();
-            let changed = false;
-            syncedOrphans.forEach(so => {
-              const idx = all.findIndex(v => v.id === so.id);
-              if (idx !== -1 && all[idx].synced === true) {
-                all[idx].synced = false;
-                changed = true;
-              }
-            });
-            if (changed) {
-              _safeSetLS('axon_vales', JSON.stringify(all));
-              _valesCache = all;
-              _valesDirty = false;
-              // Re-encolar writes para esos vales
-              setTimeout(_ensurePendingValesEnqueued, 100);
-            }
-          }
-        }
-        mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-
-        if (!firstLoadVales) {
-          const oldVales = getVales();
-          mergedVales.forEach(nv => {
-            const ov = oldVales.find(x => x.id === nv.id);
-            if (ov && ov.status !== nv.status) {
-              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
-              
-              if (nv.status === 'assigned') {
-                sendBrowserNotif('Venta en camino 🛵', '...');
-                playSound('confirm');
-              } else if (nv.status === 'delivered') {
-                sendBrowserNotif('Venta entregada 🎉', prodNames);
-                playSound('confirm');
-              } else if (nv.status === 'confirmed') {
-                let amtStr = '';
-                if(typeof getValeCommissionParts === 'function'){
-                  const cp = getValeCommissionParts(nv);
-                  if(cp.total !== null && cp.total > 0) {
-                     amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
-                  }
-                }
-                sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
-                playSound('confirm');
-              }
+      // Regenerar campos slimados al leer de Supabase
+      newVales.forEach(v => {
+        if (v && !v.valeText) v.valeText = regenerateValeText(v);
+        if (v && Array.isArray(v.valeProductos)) {
+          v.valeProductos.forEach(p => {
+            if (!p.name) {
+              const prod = productoOf(p.id);
+              if (prod) p.name = prod.name;
             }
           });
         }
-        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
-      } else {
-        // Firebase has no vales — clear local too, PERO preservar TODOS los
-        // vales locales del gestor (synced:true o false). Si el snap viene
-        // vacío pero hay vales locales, es porque el polling no los trajo
-        // todavía — NO borrarlos.
-        // v32: usar Number() para comparación robusta de gestorId.
-        const gidNum = Number(gId);
-        const localVales = (getVales() || []).filter(v =>
-          v && v.gestorId != null &&
-          Number(v.gestorId) === gidNum &&
-          v.status !== 'cancelled'
-        );
-        if (localVales.length > 0) {
-          try { localStorage.setItem('axon_vales', JSON.stringify(localVales)); _valesCache = localVales; _valesDirty = false; } catch(e) {}
-        } else {
-          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
-          rankingCache = null;
-          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
-        }
+        // Vales que vienen de Supabase están confirmados
+        if (v && v.synced === undefined) v.synced = true;
+      });
+
+      // Preservar vales locales synced:false que no estén en el snap
+      // (el write todavía no se confirmó, el polling no los trae todavía)
+      const fbIds = new Set(newVales.map(v => String(v && v.id)));
+      const localPending = (getVales() || []).filter(v =>
+        v && v.gestorId != null &&
+        Number(v.gestorId) === gidNum &&
+        v.synced === false &&
+        v.status !== 'cancelled' &&
+        !fbIds.has(String(v.id))
+      );
+
+      // mergedVales = vales del snap + vales locales pendientes
+      let mergedVales = newVales.concat(localPending);
+      mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+      // Notificaciones de cambio de status (como en v16)
+      if (!firstLoadVales) {
+        const oldVales = getVales();
+        mergedVales.forEach(nv => {
+          const ov = oldVales.find(x => x.id === nv.id);
+          if (ov && ov.status !== nv.status) {
+            const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
+            if (nv.status === 'assigned') {
+              sendBrowserNotif('Venta en camino 🛵', '...');
+              playSound('confirm');
+            } else if (nv.status === 'delivered') {
+              sendBrowserNotif('Venta entregada 🎉', prodNames);
+              playSound('confirm');
+            } else if (nv.status === 'confirmed') {
+              let amtStr = '';
+              if(typeof getValeCommissionParts === 'function'){
+                const cp = getValeCommissionParts(nv);
+                if(cp.total !== null && cp.total > 0) {
+                   amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+                }
+              }
+              sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+              playSound('confirm');
+            }
+          }
+        });
       }
+
+      // Guardar SIEMPRE — ya sea el snap (si tenía vales) o los vales locales
+      // pendientes (si el snap estaba vacío pero hay vales locales).
+      // v33: esto es lo que cambié — antes, si el snap estaba vacío y no había
+      // vales locales synced:false, se borraba el cache. Ahora, si el snap
+      // está vacío, NO tocamos el cache (conservamos vales existentes).
+      if (mergedVales.length > 0) {
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
+      }
+      // Si mergedVales está vacío Y el snap también, NO borrar el cache local.
+      // Solo borrar si el snap viene explícitamente con 0 vales Y no hay
+      // vales locales (caso de "borrar todo" desde el admin).
+      // Para detectar eso, comparamos con el cache local: si el cache local
+      // tenía vales y el snap viene vacío, asumimos que el polling no los trajo
+      // (no que se borraron), y conservamos lo local.
+
       firstLoadVales = false;
     } finally {
       _syncCount--;
       refreshUI();
     }
   };
-  // v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
-  // HTTPS cada 5s (_startRestPolling) es la fuente única de actualizaciones.
-  // Para poder "desuscribirse" del listener (listenToMyVales se llama al
-  // cambiar de gestor), guardamos una función no-op — el polling global
-  // se encarga de todo y filtra por activeGestorId automáticamente.
-  gestorValesListener = function() { /* no-op en v31: polling global maneja todo */ };
+  // v33: el polling global (_startRestPolling) se encarga de llamar a
+  // _handleMyValesSnap cada 5s con los vales del gestor. No hay onSnapshot.
+  gestorValesListener = function() { /* no-op en v33: polling global maneja todo */ };
   _startRestPolling();
 }
 
@@ -2593,126 +2543,69 @@ if (IS_ADMIN) {
   window._handleValesSnap = function(snap) {
     _syncCount++;
     try {
-      // 'vales' es una colección plana — cada documento YA es un vale
-      // completo (a diferencia de RTDB, donde había que aplanar
-      // gestorId → valeId → vale).
-      // BUGFIX: ver el mismo comentario en listenToMyVales — no marcar
-      // synced:true a partir de la caché local optimista del SDK
-      // (metadata.hasPendingWrites), solo cuando el servidor ya confirmó.
-      let flatVales = snap.docs.map(d => { const data = d.data(); data.__pendingWrite = d.metadata.hasPendingWrites; return data; });
+      // v33: filosofía v16 — simpleza. El polling trae TODOS los vales de
+      // Supabase. Los guardamos (reemplazo directo) PERO preservando vales
+      // locales synced:false que no estén en el snap (write sin confirmar).
+      // Si el snap viene vacío, NO tocamos el cache local.
+      let flatVales = snap.docs.map(d => d.data());
 
-      if (!snap.empty) {
-        // v14: regenerar campos slimados al leer de Firebase.
-        flatVales.forEach(v => {
-          if (v && !v.valeText) v.valeText = regenerateValeText(v);
-          if (v && Array.isArray(v.valeProductos)) {
-            v.valeProductos.forEach(p => {
-              if (!p.name) {
-                const prod = productoOf(p.id);
-                if (prod) p.name = prod.name;
-              }
-            });
-          }
-          if (v && v.synced === undefined) v.synced = !v.__pendingWrite;
-          if (v) delete v.__pendingWrite;
-        });
-
-        // ── v31 BUGFIX CRÍTICO: preservar vales locales que NO están en el snapshot ──
-        // Mismo fix que en el listener del gestor: si un vale se marcó
-        // synced:true pero el polling NO lo trae (porque el write falló
-        // silenciosamente en Supabase), NO borrarlo del cache local.
-        // Preservarlo y re-encolar el write.
-        const localVales = (getVales() || []).filter(v =>
-          v && v.status !== 'cancelled'
-        );
-        const fbIds = new Set(flatVales.map(v => String(v && v.id)));
-        const orphaned = localVales.filter(v => !fbIds.has(String(v.id)));
-        let mergedFlatVales = flatVales;
-        if (orphaned.length > 0) {
-          mergedFlatVales = flatVales.concat(orphaned);
-          // v31: re-encolar el write de los vales huérfanos marcados como
-          // synced:true (los synced:false ya están siendo procesados).
-          const syncedOrphans = orphaned.filter(v => v.synced === true);
-          if (syncedOrphans.length > 0) {
-            console.warn(`[sync] admin: ${syncedOrphans.length} vale(s) marcado(s) synced:true pero NO aparecen en Supabase — re-encolando write`);
-            const all = getVales();
-            let changed = false;
-            syncedOrphans.forEach(so => {
-              const idx = all.findIndex(v => v.id === so.id);
-              if (idx !== -1 && all[idx].synced === true) {
-                all[idx].synced = false;
-                changed = true;
-              }
-            });
-            if (changed) {
-              _safeSetLS('axon_vales', JSON.stringify(all));
-              _valesCache = all;
-              _valesDirty = false;
-              // Re-encolar writes para esos vales
-              setTimeout(_ensurePendingValesEnqueued, 100);
+      // Regenerar campos slimados
+      flatVales.forEach(v => {
+        if (v && !v.valeText) v.valeText = regenerateValeText(v);
+        if (v && Array.isArray(v.valeProductos)) {
+          v.valeProductos.forEach(p => {
+            if (!p.name) {
+              const prod = productoOf(p.id);
+              if (prod) p.name = prod.name;
             }
-          }
-        }
-        mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-
-        // Check for new vales with estafa matches before saving
-        const oldVales = getVales();
-        const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
-        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
-        // Show estafa alert for new vales that match blacklist
-        newIds.forEach(nv => {
-          const estafaMatches = checkEstafaMatch(nv);
-          if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
-        });
-
-        // Debounced ranking summary update — 3s en lugar de 500ms.
-        // Antes: cada snapshot de vales → 500ms después → set('ranking_summary').
-        // En una sesión activa con varios gestores, eso eran 5-10 writes/min
-        // de ranking_summary, casi siempre con el mismo contenido.
-        // Ahora: 3s de debounce + diff de contenido (si los puntos no cambiaron,
-        // no se escribe nada).
-        clearTimeout(_rankingDebounce);
-        _rankingDebounce = setTimeout(() => {
-          const gestores = getGestores();
-          const summary = gestores.map(g => {
-            const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
-              .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-            return { id: g.id, pts };
           });
-          // Diff: si el summary es idéntico al último enviado, no escribir.
-          const summaryStr = JSON.stringify(summary);
-          if (summaryStr !== _lastRankingSummary) {
-            _lastRankingSummary = summaryStr;
-            _enqueueFB('ranking_summary', summary, 'set');
-          }
-        }, 3000);
-      } else if (localStorage.getItem('axon_fs_migrated') === '1') {
-        // BUGFIX: un snapshot vacío de Firestore es AMBIGUO — puede ser un
-        // factoryResetVales() legítimo, o simplemente que "Migrar a
-        // Firestore" todavía no se ha corrido (colección recién creada,
-        // vacía). Antes esto se trataba siempre como "vaciar todo", lo que
-        // borraba el historial local de vales del admin (heredado de RTDB)
-        // en cuanto cargaba esta versión, ANTES de que hubiera chance de
-        // migrar. Ahora solo se aplica el vaciado si ya sabemos con certeza
-        // que la migración ya corrió (bandera puesta por migrateToFirestore()
-        // al terminar con éxito) — así un reset real sigue funcionando, pero
-        // la ventana previa a migrar ya no pierde datos.
-        // Firebase has no vales — clear everything, PERO preservar vales
-        // locales synced:false (venta directa del admin pendiente de subir).
-        const localPending = (getVales() || []).filter(v =>
-          v && v.synced === false &&
-          v.status !== 'cancelled'
-        );
-        if (localPending.length > 0) {
-          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
-        } else {
-          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
-          rankingCache = null;
-          _lastRankingSummary = '';
-          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
-          _enqueueFB('ranking_summary', null, 'remove');
         }
+        if (v && v.synced === undefined) v.synced = true;
+      });
+
+      // Preservar vales locales synced:false que no estén en el snap
+      const fbIds = new Set(flatVales.map(v => String(v && v.id)));
+      const localPending = (getVales() || []).filter(v =>
+        v && v.synced === false &&
+        v.status !== 'cancelled' &&
+        !fbIds.has(String(v.id))
+      );
+
+      let mergedFlatVales = flatVales.concat(localPending);
+      mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+      // Check for new vales with estafa matches before saving
+      const oldVales = getVales();
+      const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
+
+      // Guardar SIEMPRE que haya algo que guardar
+      if (mergedFlatVales.length > 0) {
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
       }
+      // Si mergedFlatVales está vacío, NO borrar el cache (el polling puede
+      // haber fallado o la tabla puede estar temporalmente inaccesible).
+
+      // Show estafa alert for new vales that match blacklist
+      newIds.forEach(nv => {
+        const estafaMatches = checkEstafaMatch(nv);
+        if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
+      });
+
+      // Debounced ranking summary update
+      clearTimeout(_rankingDebounce);
+      _rankingDebounce = setTimeout(() => {
+        const gestores = getGestores();
+        const summary = gestores.map(g => {
+          const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+            .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+          return { id: g.id, pts };
+        });
+        const summaryStr = JSON.stringify(summary);
+        if (summaryStr !== _lastRankingSummary) {
+          _lastRankingSummary = summaryStr;
+          _enqueueFB('ranking_summary', summary, 'set');
+        }
+      }, 3000);
     } finally {
       _syncCount--;
       refreshUI();
