@@ -1,9 +1,9 @@
 {
-  "version": 15,
-  "versionStr": "v15",
-  "hash": "f2454be8da35c7b0",
-  "hashFull": "f2454be8da35c7b0022f26c3c097b20886cb2d33e9ab869474813cc89e7d2b15",
-  "releasedAt": "2026-08-11 00:30",
+  "version": 16,
+  "versionStr": "v16",
+  "hash": "aa33d9df206560f2",
+  "hashFull": "aa33d9df206560f2257f4077bf96fe2b0a783c515d9705d5c785cb5877c41ccb",
+  "releasedAt": "2026-08-11 01:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX comisiones: getValeCommissionParts ahora usa v.comisionGestor PRIMERO (antes era fallback). Si el vale tiene comisionGestor con un valor, lo muestra directamente sin intentar calcular desde productos."
+    "FIX comisiones gestor: sumCommissions ya no falla si un vale no tiene comisión (solo falla si NINGUNO tiene). Banner del gestor ahora calcula comisión de TODOS los vales confirmados, no solo los del período. Mis Comisiones muestra $0.00 si no hay monto en vez de '—'."
   ]
 }

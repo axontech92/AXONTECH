@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 15;
+const APP_VERSION = 16;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'f2454be8da35c7b0';
+let _LOCAL_BUILD_HASH = 'aa33d9df206560f2';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5165,12 +5165,22 @@ function renderGestorDashboard() {
     </div>
   `;
 
-  // v14: banner verde SIEMPRE visible. Si hay comisión, muestra el monto.
-  // Si no, muestra $0.00. Nunca se oculta.
+  // v16: banner verde SIEMPRE visible. Calcular comisión de TODOS los vales
+  // confirmados/pending_payment (no solo los del período) para que el gestor
+  // vea su comisión total acumulada.
+  const gidNum = Number(activeGestorId);
+  const allMyVales = getVales().filter(v =>
+    v && v.gestorId != null && Number(v.gestorId) === gidNum &&
+    ['confirmed','pending_payment'].includes(v.status)
+  );
+  const allCom = sumCommissions(allMyVales);
+  const allComBadge = fmtComisionBadge(allCom.usd, allCom.mn, allCom.computed);
+  const displayComBadge = allComBadge || (cur.comBadge || '$0.00 USD');
+
   let comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
         <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
-        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${cur.comBadge ? escapeHTML(cur.comBadge) : '$0.00 USD'}</div>
+        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${escapeHTML(displayComBadge)}</div>
       </div>
       <div style="font-size:clamp(22px,7vw,30px);line-height:1;flex-shrink:0;">💵</div>
     </div>`;
@@ -5326,6 +5336,8 @@ function renderGestorComisiones() {
   if(pendientes.length){
     const s=sumCommissions(pendientes);
     const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
+    // v16: si no hay badge pero hay comisiones pendientes, mostrar $0.00
+    const displayBadge = badge || '$0.00 USD';
     html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
         <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(249,115,22,.12);flex-shrink:0;">⏳</div>
@@ -5334,7 +5346,7 @@ function renderGestorComisiones() {
           <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${pendientes.length} comisión${pendientes.length!==1?'es':''} · se acumulan</span>
         </div>
       </div>
-      <div style="font-size:clamp(12px,3.8vw,14px);font-weight:800;color:var(--green);white-space:nowrap;flex-shrink:0;">${badge||'—'}</div>
+      <div style="font-size:clamp(12px,3.8vw,14px);font-weight:800;color:var(--green);white-space:nowrap;flex-shrink:0;">${displayBadge}</div>
     </div>`;
   }
 
@@ -7758,13 +7770,22 @@ function unpayCommission(valeId,e) {
   renderComisiones();
 }
 // Helper: sum commissions from vales, returns {usd, mn, computed}
+// v16 FIX: si un vale no tiene comisión, no marca todo como "no computable".
+// Solo suma lo que se pueda, y marca computed=false solo si NINGÚN vale tiene comisión.
 function sumCommissions(vales) {
-  let usd=0,mn=0,computed=true;
+  let usd=0,mn=0,computed=true,hasAny=false;
   vales.forEach(v=>{
     const r=getValeCommissionParts(v);
-    if(r.totalUSD===null&&r.totalMN===null){computed=false;}
-    else{if(r.totalUSD!==null)usd+=r.totalUSD;if(r.totalMN!==null)mn+=r.totalMN;}
+    if(r.totalUSD===null&&r.totalMN===null){
+      // Este vale no tiene comisión — no afecta al total
+    } else {
+      hasAny=true;
+      if(r.totalUSD!==null)usd+=r.totalUSD;
+      if(r.totalMN!==null)mn+=r.totalMN;
+    }
   });
+  // Solo marcar como "no computable" si NINGÚN vale tiene comisión
+  if(!hasAny) computed=false;
   return{usd,mn,computed};
 }
 function fmtComisionBadge(usd,mn,computed) {
