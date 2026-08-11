@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 14;
+const APP_VERSION = 15;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'e6d29c8053ed2d83';
+let _LOCAL_BUILD_HASH = 'f2454be8da35c7b0';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7544,6 +7544,45 @@ function toggleComisionGestor(id) {
   renderComisiones();
 }
 function getValeCommissionParts(v) {
+  // v15 FIX: usar comisionGestor PRIMERO si existe. Si no, calcular desde productos.
+  // ANTES intentaba productos primero y comisionGestor como fallback, pero
+  // los vales viejos no tienen valeProductos (fueron creados sin picker).
+  // Ahora: si comisionGestor tiene un valor, usarlo directamente.
+  if (v.comisionGestor && String(v.comisionGestor).trim()) {
+    const comStr = String(v.comisionGestor).trim();
+    const segments = comStr.split('+').map(s => s.trim()).filter(Boolean);
+    let fbUSD = 0, fbMN = 0, fbOk = false;
+    segments.forEach(seg => {
+      const up = seg.toUpperCase();
+      const num = parsePrecioNum(seg);
+      if (up.includes('MN') || up.includes('CUP')) {
+        if (num > 0) { fbMN += num; fbOk = true; }
+      } else if (up.includes('USD') || up.includes('$')) {
+        if (num > 0) { fbUSD += num; fbOk = true; }
+      } else if (num > 0) {
+        fbUSD += num; fbOk = true;
+      }
+    });
+    if (fbOk) {
+      return {
+        parts: [{ label: 'Comisión', com: comStr, currency: fbMN > 0 && fbUSD === 0 ? 'MN' : 'USD' }],
+        totalUSD: fbUSD > 0 ? fbUSD : null,
+        totalMN: fbMN > 0 ? fbMN : null,
+        get total() {
+          const hasUSD = this.totalUSD !== null && this.totalUSD > 0;
+          const hasMN = this.totalMN !== null && this.totalMN > 0;
+          if (hasUSD && hasMN) return null;
+          if (hasUSD) return this.totalUSD;
+          if (hasMN) return this.totalMN;
+          return null;
+        },
+        get isMixed() { return (this.totalUSD !== null && this.totalUSD > 0) && (this.totalMN !== null && this.totalMN > 0); },
+        get currency() { return (this.totalMN !== null && this.totalMN > 0 && (!this.totalUSD || this.totalUSD === 0)) ? 'MN' : 'USD'; }
+      };
+    }
+  }
+
+  // Si no hay comisionGestor, calcular desde productos
   const items=v.valeProductos||[];
   const parts=[];
   let totalUSD=0,totalMN=0;let computable=true;
