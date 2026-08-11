@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 16;
+const APP_VERSION = 18;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'aa33d9df206560f2';
+let _LOCAL_BUILD_HASH = '7bc8308626c52b0d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -161,319 +161,83 @@ function base64ToUtf8(b64) {
 }
 
 // ══════════════════════════════════════════
-//  SUPABASE DATA LAYER (v31)
+//  FIREBASE SETUP & DATA LAYER
 // ══════════════════════════════════════════
-// POR QUÉ SUPABASE:
-// Firestore (firestore.googleapis.com) está bloqueado desde Cuba sin VPN
-// — confirmado con diagnostico-supabase.html el 2026-08-09. Supabase
-// (gdzsqwyedzrfituewdtt.supabase.co) SÍ responde desde Cuba, latencia
-// ~1 segundo a la API REST. Supabase es Postgres + PostgREST (API REST
-// automática sobre las tablas) + Realtime (WebSockets con fallback).
-// Modelo de datos: cada tabla tiene (id bigint primary key, data jsonb).
-// El objeto completo del vale/gestor/producto va dentro de `data` —
-// mismo modelo mental que un documento de Firestore, pero sobre Postgres.
-// Esto permite usar upsert atómico por id y select por id sin tener que
-// traducir cada campo a una columna distinta.
-
-const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
-const _SB_REST      = SUPABASE_URL + '/rest/v1';
-const _SB_AUTH_HDRS = {
-  'apikey':       SUPABASE_KEY,
-  'Authorization': 'Bearer ' + SUPABASE_KEY,
-  'Content-Type':  'application/json',
-  'Prefer':        'resolution=merge-duplicates',  // UPSERT en PostgREST
+const firebaseConfig = {
+  apiKey: "AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU",
+  authDomain: "axontech.firebaseapp.com",
+  databaseURL: "https://axontech-default-rtdb.firebaseio.com",
+  projectId: "axontech",
+  storageBucket: "axontech.firebasestorage.app",
+  messagingSenderId: "780537360829",
+  appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
 };
-
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
 
-// ── Mapeo de nodos singleton (como en Firestore) ──
-// En Firestore: meta/{config,notifs,estafa,ranking_summary} (un doc por nombre)
-// En Supabase: tabla `meta` con primary key `name` (una fila por nombre)
-const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary'];
-// Estos guardaban un array envuelto en {items:[...]} en Firestore. En
-// Supabase guardamos el array DIRECTO en data (jsonb acepta arrays como
-// valor raíz). Al leer, ya no hay que desenvolver nada.
-const _SB_ARRAY_SINGLETONS = new Set(['notifs', 'estafa', 'ranking_summary']);
-
-// ── Helpers REST para Supabase ──
-// Lee una colección completa (tabla). Devuelve array de objetos JS
-// (ya con el contenido de `data` desenvuelto).
-async function _sbRestGetCollection(collName) {
-  // PostgREST: GET /rest/v1/{tabla}?select=data
-  // Como cada fila tiene (id, data), pedimos solo la columna `data`.
-  // Si la tabla está vacía devuelve [] (no error).
-  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
-  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
-  if (!res.ok) {
-    if (res.status === 404) return []; // tabla no existe todavía
-    throw new Error(`Supabase GET ${collName} ${res.status}: ${(await res.text()).slice(0,150)}`);
-  }
-  const rows = await res.json();
-  // Cada fila es {data: {...}} — desenvolver
-  return (rows || []).map(r => r.data).filter(x => x != null);
-}
-
-// Lee un documento singleton (tabla `meta`, fila por nombre).
-async function _sbRestGetMeta(name) {
-  const url = `${_SB_REST}/meta?select=data&name=eq.${encodeURIComponent(name)}`;
-  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
-  if (!res.ok) {
-    if (res.status === 404) return null;
-    throw new Error(`Supabase GET meta/${name} ${res.status}`);
-  }
-  const rows = await res.json();
-  if (!rows || rows.length === 0) return null;
-  return rows[0].data;
-}
-
-// UPSERT de una fila por id (inserta si no existe, actualiza si existe).
-// `value` es el objeto JS completo a guardar dentro de la columna `data`.
-// v31: usa return=representation para detectar RLS bloqueando.
-async function _sbRestUpsert(collName, id, value) {
-  const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
-  const body = JSON.stringify([{ id: id, data: value }]);
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-    body: body,
+// ── Persistencia offline de Firebase ──
+// Habilita el cache local de Firebase RTDB: en la próxima carga, los listeners
+// sirven los datos cacheados INMEDIATAMENTE (sin round-trip al servidor) y
+// luego sincronizan en background. En 3G esto ahorra 2-5s en cada arranque.
+// Si la app ya está en modo standalone (PWA instalada) o el navegador soporta
+// IndexedDB (todos los modernos), esto es transparente.
+// Nota: solo se puede llamar UNA vez por app y debe ser antes de cualquier
+// referencia a db.ref(). Aquí se llama justo después de firebase.database().
+try {
+  db.enablePersistence({ synchronizeTabs: false }).catch(err => {
+    // Errores comunes que NO son problema:
+    // - 'failed: tab mutually exclusive' → otra pestaña ya tiene persistence.
+    // - 'failed: existing frame' → iframe en contexto sin persistence.
+    // Solo loguear en console, no molestar al usuario.
+    if (err && err.code !== 'implementation-dependent') {
+      console.warn('Firebase persistence no disponible:', err.code || err.message);
+    }
   });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`Supabase UPSERT ${collName}/${id} ${res.status}: ${t.slice(0,150)}`);
-  }
-  // Verificar que realmente se guardó
-  const rows = await res.json().catch(() => []);
-  if (Array.isArray(rows) && rows.length === 0) {
-    console.error(`[supabase] RLS bloqueó el UPSERT de ${collName}/${id} — revisa supabase_schema.sql`);
-  }
+} catch(e) {
+  // Algunos navegadores muy viejos no tienen enablePersistence.
+  console.warn('Firebase enablePersistence error:', e);
 }
 
-// UPSERT de múltiples filas en una sola petición (más eficiente que hacer
-// N requests separados — importante a 10 Kbit/s).
-// v31: usa `return=representation` para que Supabase devuelva las filas
-// afectadas. Si devuelve vacío, es señal de que RLS bloqueó el write
-// silenciosamente — la promesa resuelve con la lista de ids efectivamente
-// guardados, para que el caller pueda detectar fallos.
-async function _sbRestUpsertBatch(collName, items) {
-  // items: [{id, value}, ...]
-  if (!items || items.length === 0) return [];
-  const savedIds = [];
-  // Partir en chunks de 500 (límite recomendado por PostgREST)
-  const CHUNK = 500;
-  for (let i = 0; i < items.length; i += CHUNK) {
-    const chunk = items.slice(i, i + CHUNK);
-    const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
-    const body = JSON.stringify(chunk.map(it => ({ id: it.id, data: it.value })));
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-      body: body,
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error(`Supabase UPSERT batch ${collName} ${res.status}: ${t.slice(0,150)}`);
+// ── Ajustes de reconexión para conexiones lentas/inestables ──
+// Firebase SDK tiene auto-reconnect, pero los defaults están pensados para
+// conexiones estables. En 3G cubano, la conexión se cae cada pocos minutos
+// por cortes breves (2-10s). Ajustamos:
+// - maxReconnectDelay: bajar de 30s (default) a 8s. Si la red vuelve rápido,
+//   reconectamos antes.
+// - retryCountIntervals: intervals más cortos al inicio.
+//
+// v14: trackeamos _fbConnected explícitamente. Si NO estamos conectados,
+// _processFBQueue() NO intenta hacer el write (que tardaría 8s en timeout).
+// En su lugar, deja los items en la cola y los procesa cuando vuelva la
+// conexión. Esto evita el cuelgue "Subiendo..." en redes donde el WebSocket
+// de Firebase ni siquiera pudo establecerse.
+let _fbConnected = false;  // ¿Firebase WebSocket está realmente conectado?
+try {
+  const rtdb = db.ref('.info/connected');
+  let _wasConnected = false;
+  rtdb.on('value', snap => {
+    const connected = snap.val() === true;
+    _fbConnected = connected;
+    if (connected && !_wasConnected) {
+      _wasConnected = true;
+      // Al reconectar, forzar el procesamiento de la cola de writes pendientes.
+      // v15: también llamar _ensurePendingValesEnqueued por si hay vales
+      // huérfanos (synced:false) que NO están encolados (p.ej. tras descarte
+      // por 4 reintentos). Antes solo llamábamos _processFBQueue, lo que
+      // dejaba vales pendientes sin recover si la cola estaba vacía.
+      setTimeout(() => {
+        _ensurePendingValesEnqueued();
+        _processFBQueue();
+      }, 100);
+      _updateSyncIndicator();
+    } else if (!connected && _wasConnected) {
+      _wasConnected = false;
+      _updateSyncIndicator();
     }
-    // v31: verificar que las filas realmente se guardaron.
-    // PostgREST devuelve un array con las filas afectadas si return=representation.
-    // Si devuelve vacío, las políticas RLS bloquearon silenciosamente.
-    const rows = await res.json().catch(() => []);
-    if (Array.isArray(rows)) {
-      rows.forEach(r => { if (r && r.id != null) savedIds.push(Number(r.id)); });
-    }
-    // Si rows está vacío o tiene menos elementos de los esperados, las
-    // políticas RLS pueden estar bloqueando. Lo registramos pero NO lanzamos
-    // error — el listener del gestor se encargará de reintentar.
-    if (Array.isArray(rows) && rows.length < chunk.length) {
-      console.error(`[supabase] RLS posiblemente bloqueando writes en '${collName}': enviados=${chunk.length} guardados=${rows.length}. Revisa que las políticas RLS estén creadas (supabase_schema.sql).`);
-    }
-  }
-  return savedIds;
-}
-
-// Borra un documento por id (DELETE /rest/v1/{tabla}?id=eq.X)
-async function _sbRestDelete(collName, id) {
-  const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=eq.${encodeURIComponent(id)}`;
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers: _SB_AUTH_HDRS,
   });
-  if (!res.ok && res.status !== 404) {
-    throw new Error(`Supabase DELETE ${collName}/${id} ${res.status}`);
-  }
-}
-
-// Borra toda una colección (DELETE sin filtro).
-async function _sbRestDeleteAll(collName) {
-  const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=gte.0`;
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' },
-  });
-  if (!res.ok && res.status !== 404) {
-    throw new Error(`Supabase DELETE-ALL ${collName} ${res.status}`);
-  }
-}
-
-// Borra varios ids a la vez (más eficiente que N DELETEs separados).
-async function _sbRestDeleteBatch(collName, ids) {
-  if (!ids || ids.length === 0) return;
-  // PostgREST permite `?id=in.(1,2,3)` para filtrar por lista.
-  const CHUNK = 500;
-  for (let i = 0; i < ids.length; i += CHUNK) {
-    const chunk = ids.slice(i, i + CHUNK);
-    const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=in.(${chunk.map(x => encodeURIComponent(String(x))).join(',')})`;
-    const res = await fetch(url, {
-      method: 'DELETE',
-      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' },
-    });
-    if (!res.ok && res.status !== 404) {
-      throw new Error(`Supabase DELETE batch ${collName} ${res.status}`);
-    }
-  }
-}
-
-// UPSERT de un documento singleton en la tabla `meta`.
-async function _sbRestMetaUpsert(name, value) {
-  const url = `${_SB_REST}/meta`;
-  const body = JSON.stringify([{ name: name, data: value }]);
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' },
-    body: body,
-  });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`Supabase META UPSERT ${name} ${res.status}: ${t.slice(0,150)}`);
-  }
-  // Verificar que realmente se guardó
-  const rows = await res.json().catch(() => []);
-  if (Array.isArray(rows) && rows.length === 0) {
-    console.error(`[supabase] RLS bloqueó el META UPSERT de ${name} — revisa supabase_schema.sql`);
-  }
-}
-
-// Borra un documento singleton por nombre.
-async function _sbRestMetaDelete(name) {
-  const url = `${_SB_REST}/meta?name=eq.${encodeURIComponent(name)}`;
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers: _SB_AUTH_HDRS,
-  });
-  if (!res.ok && res.status !== 404) {
-    throw new Error(`Supabase META DELETE ${name} ${res.status}`);
-  }
-}
-
-// ── Constructor de snapshots falsos ──
-// Mantiene la MISMA forma que devolvía _fakeSnap() en Firestore, así los
-// listeners (window._handleValesSnap, window._handleMyValesSnap) no cambian.
-function _fakeSnap(arr) {
-  const docs = (arr || []).map(o => ({
-    id: String(o && o.id != null ? o.id : ''),
-    data: () => o,
-    metadata: { hasPendingWrites: false }, // viene del servidor: ya confirmado
-  }));
-  return { docs, empty: docs.length === 0, size: docs.length, forEach: fn => docs.forEach(fn) };
-}
-
-// ══════════════════════════════════════════════════════════════════════
-//  SONDEO POR HTTPS — fuente principal de sincronización (Cuba)
-// ══════════════════════════════════════════════════════════════════════
-// En v30 esto era un "respaldo" del streaming de Firestore. En v31 es la
-// FUENTE PRINCIPAL — Supabase Realtime también usa WebSockets y puede
-// sufrir el mismo bloqueo que Firestore. HTTPS simple (REST) es lo más
-// robusto y quedó confirmado por el diagnóstico desde Cuba (latencia ~1s).
-// Frecuencia: cada 5s (vs 12s de v30) — los vales pesan 600 bytes, no hay
-// razón para esperar 12s para que el admin vea uno nuevo.
-let _restPollTimer = null;
-let _restPollInFlight = false;
-const _REST_POLL_MS = 5000;
-
-async function _doRestPoll() {
-  if (_restPollInFlight) return;
-  if (!navigator.onLine) return;
-  if (document.hidden) return; // no gastar datos con la app en segundo plano
-  _restPollInFlight = true;
-  try {
-    // ── Vales ── (lo crítico: es lo que no llegaba al admin)
-    if (IS_ADMIN) {
-      const vales = await _sbRestGetCollection('vales');
-      if (typeof window._handleValesSnap === 'function') window._handleValesSnap(_fakeSnap(vales));
-    } else if (activeGestorId != null) {
-      const all = await _sbRestGetCollection('vales');
-      // v32: comparación flexible con == en vez de === porque el gestorId puede
-      // venir como número o como string de Supabase JSONB según cómo se guardó.
-      // Number(v.gestorId) === Number(activeGestorId) es más seguro.
-      const gid = Number(activeGestorId);
-      const mine = all.filter(v => v && v.gestorId != null && Number(v.gestorId) === gid);
-      if (typeof window._handleMyValesSnap === 'function') window._handleMyValesSnap(_fakeSnap(mine));
-    }
-    // ── Entidades (gestores/mensajeros/productos/categorias) ──
-    // Mismo criterio que antes: un resultado vacío NO borra lo local
-    // (puede ser que la tabla aún no exista, no que esté realmente vacía).
-    for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
-      try {
-        const arr = await _sbRestGetCollection(node);
-        if (arr.length > 0) {
-          _syncCount++;
-          try {
-            try { localStorage.setItem('axon_'+node, JSON.stringify(arr)); } catch(e) {}
-            if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
-            else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
-            else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
-            else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
-          } finally { _syncCount--; }
-        }
-      } catch(e) { /* una tabla puntual puede fallar; seguir con las demás */ }
-    }
-    // ── Documentos únicos (config/notifs/estafa/ranking_summary) ──
-    for (const node of _SB_SINGLETON_ROWS) {
-      try {
-        const val = await _sbRestGetMeta(node);
-        if (val) {
-          _syncCount++;
-          try {
-            try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
-            if(node==='config'){_configCache=val;_configDirty=false;}
-            else if(node==='notifs'){_notifsCache=val;_notifsDirty=false;}
-            else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
-          } finally { _syncCount--; }
-        }
-      } catch(e) { /* idem */ }
-    }
-    refreshUI();
-  } catch(e) {
-    console.warn('[rest-poll] error:', e && e.message);
-  } finally {
-    _restPollInFlight = false;
-  }
-}
-function _startRestPolling() {
-  if (_restPollTimer) return; // ya está corriendo
-  _doRestPoll(); // primera pasada inmediata
-  _restPollTimer = setInterval(_doRestPoll, _REST_POLL_MS);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) _doRestPoll(); });
-  window.addEventListener('online', () => _doRestPoll());
-}
-
-// ── Detección de conectividad ──
-// Supabase no tiene un equivalente directo a '.info/connected'. Usamos
-// navigator.onLine + los eventos online/offline del navegador como proxy.
-// _processFBQueue ya tiene su timeout adaptativo y reintentos con backoff
-// como red de seguridad.
-let _fbConnected = navigator.onLine;
-window.addEventListener('online', () => {
-  if (_fbConnected) return;
-  _fbConnected = true;
-  setTimeout(() => { _ensurePendingValesEnqueued(); _processFBQueue(); }, 100);
-  _updateSyncIndicator();
-});
-window.addEventListener('offline', () => {
-  _fbConnected = false;
-  _updateSyncIndicator();
-});
+} catch(e) { /* .info/connected listener opcional */ }
 
 // ══════════════════════════════════════════
 //  STATE
@@ -517,49 +281,27 @@ const GESTOR_COLORS = ['#2563EB','#7C3AED','#059669','#DC2626','#D97706','#0891B
 // eran 15000 comparaciones por render.
 // Ahora: mantenemos un Map(id → objeto) que se reconstruye solo cuando el
 // array subyacente cambia (dirty flag). Lookup es O(1).
-// BUGFIX: la invalidación por "dirty flag" (_productosDirty/etc.) nunca
-// disparaba en la práctica — ese flag lo usa getProductos() para saber si
-// debe releer localStorage, y CUALQUIER escritura (local o desde Firestore)
-// lo deja en `false` inmediatamente después de refrescar el array. Como
-// resultado, este Map se construía UNA sola vez por sesión y nunca más se
-// reconstruía, aunque getProductos() sí devolviera datos frescos. Un
-// producto agregado por el admin después del primer productoOf() de la
-// sesión quedaba invisible para el picker de cantidad/precio (el grid sí lo
-// mostraba, porque lee getProductos() directo) hasta recargar la página.
-// Con los listeners en tiempo real de Firestore empujando catálogo nuevo a
-// sesiones de gestor que quedan abiertas por horas, esto pasaba todo el
-// tiempo. Fix: comparar la REFERENCIA del array contra la última usada para
-// construir el Map — getProductos()/getGestores()/getMensajeros() siempre
-// devuelven un array nuevo cuando el contenido cambió (tanto en saves
-// locales como en el listener de Firestore), así que esta comparación es
-// un invalidado correcto y barato (O(1) en el caso común de "no cambió").
-let _productosMap = null, _productosMapSrc = null;
-let _gestoresMap = null, _gestoresMapSrc = null;
-let _mensajerosMap = null, _mensajerosMapSrc = null;
+let _productosMap = null;
+let _gestoresMap = null;
+let _mensajerosMap = null;
 function _getProductosMap() {
-  const src = getProductos();
-  if (!_productosMap || _productosMapSrc !== src) {
+  if (!_productosMap || _productosDirty) {
     _productosMap = new Map();
-    src.forEach(p => _productosMap.set(p.id, p));
-    _productosMapSrc = src;
+    getProductos().forEach(p => _productosMap.set(p.id, p));
   }
   return _productosMap;
 }
 function _getGestoresMap() {
-  const src = getGestores();
-  if (!_gestoresMap || _gestoresMapSrc !== src) {
+  if (!_gestoresMap || _gestoresDirty) {
     _gestoresMap = new Map();
-    src.forEach(g => _gestoresMap.set(g.id, g));
-    _gestoresMapSrc = src;
+    getGestores().forEach(g => _gestoresMap.set(g.id, g));
   }
   return _gestoresMap;
 }
 function _getMensajerosMap() {
-  const src = getMensajeros();
-  if (!_mensajerosMap || _mensajerosMapSrc !== src) {
+  if (!_mensajerosMap || _mensajerosDirty) {
     _mensajerosMap = new Map();
-    src.forEach(m => _mensajerosMap.set(m.id, m));
-    _mensajerosMapSrc = src;
+    getMensajeros().forEach(m => _mensajerosMap.set(m.id, m));
   }
   return _mensajerosMap;
 }
@@ -622,8 +364,8 @@ function timeAgo(dateString) {
   return diffDays+'d';
 }
 const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
-const pendingOf   = gId=> { const n=Number(gId); return getVales().filter(v=>v&&v.gestorId!=null&&Number(v.gestorId)===n&&v.status==='pending').length; };
-const todayValesOf= gId=> { const n=Number(gId); return getVales().filter(v=>v&&v.gestorId!=null&&Number(v.gestorId)===n&&new Date(v.ts).toDateString()===todayStr()).length; };
+const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
+const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
 
 
 
@@ -633,12 +375,6 @@ const todayValesOf= gId=> { const n=Number(gId); return getVales().filter(v=>v&&
 const _fbWriteQueue = [];
 let _fbProcessing = false;
 const _FAILED_WRITES_LIMIT = 100;
-// Último error real de un write a Firestore (código + mensaje), para el
-// panel de diagnóstico (tocar el indicador de sync) — antes esta
-// información solo quedaba en la consola del navegador, invisible en un
-// teléfono, lo que hacía muy difícil saber POR QUÉ algo se quedaba
-// "pegado" sin pedirle capturas de pantalla de la consola al dueño.
-let _lastSyncError = null;
 // ── In-Flight Merge Buffer (v13) ──
 // Cuando un write a Firebase está EN PROCESO (op in flight), no está en
 // _fbWriteQueue — fue shift()ado. Si llega otro saveVales con más vales
@@ -657,11 +393,8 @@ const _fbInFlightPending = {};  // { path: { value, method } }
 // Persist queue to localStorage so it survives reloads / tab closes
 function _persistQueue() {
   try {
-    // Only persist non-callback items (callbacks are not serializable).
-    // chunked se persiste también — si no, un chunk sobreviviente a un
-    // reload perdería su protección contra re-fusionarse con otro write
-    // (ver comentario en _enqueueFB sobre por qué existe este flag).
-    const serializable = _fbWriteQueue.map(({path, value, method, retries, chunked}) => ({path, value, method, retries, chunked}));
+    // Only persist non-callback items (callbacks are not serializable)
+    const serializable = _fbWriteQueue.map(({path, value, method, retries}) => ({path, value, method, retries}));
     localStorage.setItem('axon_pending_writes', JSON.stringify(serializable));
   } catch(e) {/* storage full or unavailable */}
   _updateSyncIndicator();
@@ -705,125 +438,12 @@ function _payloadBytes(value) {
   } catch(_) { return 0; }
 }
 
-// ── Traducción de operaciones de la cola (RTDB-shaped) a Firestore ──
-// La cola (_fbWriteQueue) sigue hablando en términos de "path" + "value" +
-// "method" tal como se diseñó para RTDB — eso deja intacta toda la lógica de
-// reintentos/timeout/backoff/buffer-in-flight de _processFBQueue, que no le
-// importa CÓMO se hace el write, solo que devuelva una Promise. Esta función
-// es el único punto que traduce esa forma a llamadas reales de Firestore.
-//
-// Dos formas de "path" llegan aquí:
-//  - Nodos singleton (config/notifs/estafa/ranking_summary): un solo
-//    documento en meta/{nodo}. method 'set' reemplaza el doc completo,
-//    'update' hace merge de campos, 'remove' lo borra.
-//  - Colecciones de entidades (gestores/mensajeros/productos/categorias/
-//    vales) y 'backups/...': 'value' es un objeto {id: entidad|null, ...}
-//    (method 'update', construido por _buildCollectionUpdates — ver saveX())
-//    que se traduce a un batched write: cada entrada no-null es un
-//    set(...,{merge:true}) de ese documento, cada null es un delete().
-const _FS_SINGLETON_DOCS = {
-  config: 'config',
-  notifs: 'notifs',
-  estafa: 'estafa',
-  ranking_summary: 'ranking_summary',
-};
-// En Supabase el JSONB acepta arrays directamente como valor raíz, así que
-// ya no hace falta envolver en {items:[...]}. Set vacío por compatibilidad.
-const _FS_ARRAY_SINGLETONS = new Set([]);
-
-// ── v31: Traduce operaciones de la cola (forma RTDB/Firestore) a Supabase ──
-// La cola _fbWriteQueue sigue hablando en términos de "path" + "value" +
-// "method" — eso deja intacta toda la lógica de reintentos/timeout/backoff
-// de _processFBQueue, que no le importa CÓMO se hace el write, solo que
-// devuelva una Promise. Esta función es el único punto que traduce esa
-// forma a llamadas reales de Supabase REST.
-function _supabaseOpFor(path, value, method) {
-  const _tooLarge = v => { try { return JSON.stringify(v).length > 900000; } catch(e) { return false; } };
-  const skipped = [];
-
-  // ── Singleton (config/notifs/estafa/ranking_summary) → meta/{name} ──
-  if (_FS_SINGLETON_DOCS[path]) {
-    const name = _FS_SINGLETON_DOCS[path];
-    if (method === 'remove') return _sbRestMetaDelete(name);
-    return _sbRestMetaUpsert(name, value);
-  }
-
-  // ── backups/{key}: doc único con path ya armado ──
-  if (path.startsWith('backups/')) {
-    const key = path.split('/').slice(1).join('/');
-    if (!key) return Promise.resolve();
-    if (method === 'remove') {
-      const url = `${_SB_REST}/backups?name=eq.${encodeURIComponent(key)}`;
-      return fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS })
-        .then(r => { if (!r.ok && r.status !== 404) throw new Error(`Supabase DELETE backups/${key} ${r.status}`); });
-    }
-    const url = `${_SB_REST}/backups`;
-    const body = JSON.stringify([{ name: key, data: value }]);
-    return fetch(url, {
-      method: 'POST',
-      headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates' },
-      body: body,
-    }).then(r => {
-      if (!r.ok) return r.text().then(t => { throw new Error(`Supabase BACKUPS UPSERT ${key} ${r.status}: ${t.slice(0,150)}`); });
-    });
-  }
-
-  // ── Colección de entidades (gestores, mensajeros, productos, categorias, vales) ──
-  const collName = path.split('/')[0];
-
-  if (method === 'remove') {
-    const docId = path.includes('/') ? path.split('/').pop() : null;
-    if (!docId) return Promise.resolve();
-    return _sbRestDelete(collName, docId);
-  }
-
-  if (Array.isArray(value)) {
-    const items = [];
-    value.forEach(item => {
-      if (!item || item.id == null) return;
-      if (_tooLarge(item)) { skipped.push(String(item.id)); return; }
-      items.push({ id: Number(item.id), value: item });
-    });
-    if (skipped.length > 0) {
-      console.error(`[supabase] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB:`, skipped);
-      showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (demasiado grande) — usa "☁️ Fotos a GitHub" en Stock`);
-    }
-    return _sbRestUpsertBatch(collName, items);
-  }
-
-  if (value && typeof value === 'object') {
-    const upsertItems = [];
-    const deleteIds = [];
-    Object.entries(value).forEach(([key, val]) => {
-      const docId = key.includes('/') ? key.split('/').pop() : key;
-      if (val === null) { if (!isNaN(Number(docId))) deleteIds.push(Number(docId)); return; }
-      if (_tooLarge(val)) { skipped.push(docId); return; }
-      const idNum = (val && typeof val === 'object' && val.id != null) ? Number(val.id) : Number(docId);
-      if (!isNaN(idNum)) upsertItems.push({ id: idNum, value: val });
-    });
-    if (skipped.length > 0) {
-      console.error(`[supabase] ${skipped.length} doc(s) omitido(s) en '${collName}' por exceder ~900KB:`, skipped);
-      showToast(`⚠️ ${skipped.length} elemento(s) de ${collName} no se pudieron subir (demasiado grande) — usa "☁️ Fotos a GitHub" en Stock`);
-    }
-    const ops = [];
-    if (upsertItems.length > 0) ops.push(_sbRestUpsertBatch(collName, upsertItems));
-    if (deleteIds.length > 0) ops.push(_sbRestDeleteBatch(collName, deleteIds));
-    if (ops.length === 0) return Promise.resolve();
-    return Promise.all(ops).then(() => {});
-  }
-
-  console.warn('[supabase] _supabaseOpFor: operación no reconocida:', { path, method, valueType: typeof value });
-  return Promise.resolve();
-}
-// Alias retrocompatible: _processFBQueue sigue llamando a _firestoreOpFor.
-const _firestoreOpFor = _supabaseOpFor;
-
 function _processFBQueue() {
   // v14: Si Firebase NO está conectado (_fbConnected === false), NO intentar
   // hacer el write. En redes muy malas, el WebSocket de Firebase puede tardar
   // 5-10s en establecerse, y cada write intentado fallaría tras el timeout
   // de 8s. En su lugar, dejamos los items en la cola y esperamos a que el
-  // evento 'online' del navegador dispare _processFBQueue() cuando vuelva la
+  // listener de .info/connected dispare _processFBQueue() cuando vuelva la
   // conexión. El indicador muestra "Sin conexión a la nube" para que el
   // usuario sepa que sus vales están guardados localmente.
   if (_fbProcessing || _fbWriteQueue.length === 0) {
@@ -832,7 +452,7 @@ function _processFBQueue() {
   }
   if (!_fbConnected) {
     // Firebase desconectado — NO intentar writes. Los items se quedan en
-    // la cola (persistida en localStorage). El evento 'online' del navegador
+    // la cola (persistida en localStorage). El listener de .info/connected
     // llamará a _processFBQueue() cuando se reconecte.
     _updateSyncIndicator();
     return;
@@ -841,7 +461,7 @@ function _processFBQueue() {
   _updateSyncIndicator();
   const item = _fbWriteQueue.shift();
   item.retries = (item.retries || 0) + 1;
-  const {path, method, callback, chunked} = item;
+  const {path, method, callback} = item;
   let value = item.value;  // v15: mutable, podemos filtrarle vales ya synced
 
   // ── v15 BUGFIX: filtrar vales ya synced del payload ANTES de enviar ──
@@ -851,15 +471,7 @@ function _processFBQueue() {
   // es desperdicio de ancho de banda en redes lentas y causa la sensación de
   // "vuelve a sincronizar todos". Aquí filtramos esos vales antes del write.
   // Solo aplica a writes de vales (path 'vales' o 'vales/{gestorId}'), method 'update'.
-  //
-  // v40 FIX CRÍTICO: ANTES este filtro se aplicaba a TODOS los writes, no solo
-  // a retries. Como el polling del admin marca TODOS los vales con synced:true,
-  // cualquier patchVale posterior (cambiar status, seenByAdmin, etc.) era
-  // DROPEADO silenciosamente → los cambios nunca llegaban a Supabase → el
-  // gestor nunca veía "Visto por admin", "Con mensajero", "Venta confirmada".
-  // Ahora solo filtramos en retries (item.retries > 1), que era la intención
-  // original del comentario.
-  if (item.retries > 1 && method === 'update' && value && typeof value === 'object' &&
+  if (method === 'update' && value && typeof value === 'object' &&
       (path === 'vales' || path.startsWith('vales/'))) {
     const syncedIds = new Set(
       getVales()
@@ -871,9 +483,9 @@ function _processFBQueue() {
       let dropped = 0;
       Object.entries(value).forEach(([k, v]) => {
         if (v === null) { filtered[k] = null; return; }  // borrados siempre se mandan
-        // La key ya es siempre el id plano del vale (colección 'vales' plana
-        // en Firestore) — se prefiere v.id cuando el valor trae uno propio.
-        const objVid = (v && typeof v === 'object' && v.id != null) ? String(v.id) : k;
+        // Para path 'vales' (admin), key es 'gestorId/valeId'; para 'vales/X', key es 'valeId'.
+        const keyVid = path === 'vales' ? (k.includes('/') ? k.split('/')[1] : k) : k;
+        const objVid = (v && typeof v === 'object' && v.id != null) ? String(v.id) : keyVid;
         if (syncedIds.has(objVid)) { dropped++; return; }
         filtered[k] = v;
       });
@@ -900,31 +512,11 @@ function _processFBQueue() {
   // Si durante el procesamiento de este write llegan más saveVales al mismo
   // path, se acumularán en _fbInFlightPending[path]. Al terminar, los
   // flushearemos como un nuevo write.
-  // !chunked: un chunk de _enqueueFBChunked NO abre buffer in-flight —
-  // si lo hiciera, un write nuevo y no relacionado que llegue mientras este
-  // chunk puntual está en el aire se fusionaría en él, volviendo a inflar
-  // ese chunk por encima del tamaño por el que se troceó (ver comentario en
-  // _enqueueFB). Los chunks hermanos siguientes ya se encolan como items
-  // independientes (chunked:true), así que no necesitan este buffer.
-  if (callback === null && !chunked && (method === 'set' || method === 'update')) {
+  if (callback === null && (method === 'set' || method === 'update')) {
     _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
   }
-  // _firestoreOpFor puede lanzar SÍNCRONAMENTE (ej. un campo con valor
-  // undefined en algún objeto armado a mano, que Firestore rechaza antes de
-  // tocar la red). Sin este try/catch, esa excepción se escapaba de
-  // _processFBQueue() entero y dejaba _fbProcessing atascado en true para
-  // siempre — congelando TODA sincronización futura hasta recargar la
-  // página. Convertirlo en una promesa rechazada deja que el .then()/.catch()
-  // de abajo lo trate exactamente igual que cualquier otro fallo de red
-  // (reintento con backoff y, si persiste, descarte a axon_failed_writes sin
-  // trabar la cola).
-  let op;
-  try {
-    op = _firestoreOpFor(path, value, method);
-  } catch (syncErr) {
-    console.error('[firestore] error síncrono armando el write:', syncErr);
-    op = Promise.reject(syncErr);
-  }
+  const ref = db.ref(path);
+  const op = method === 'remove' ? ref.remove() : method === 'update' ? ref.update(value) : ref.set(value);
   // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
   // no debe liberar el candado ni arrancar un segundo consumidor).
   let requeued = false;
@@ -957,28 +549,20 @@ function _processFBQueue() {
   // v17: estimación REAL del throughput con navigator.connection.downlink.
   // A 10 Kbit/s reales, 6KB/s es optimista por 5x → timeouts demasiado cortos
   // → writes erroneamente reintentados → saturación del enlace.
-  // v22 (Firestore): se forzó experimentalForceLongPolling porque Cuba corta
-  // conexiones streaming de larga duración (WebSocket-like). Long-polling
-  // (peticiones HTTP cortas repetidas) típicamente tiene MÁS latencia de ida
-  // y vuelta que una conexión persistente, sobre todo con pérdida de
-  // paquetes — el +3000ms de RTT calibrado para WebSocket se quedaba corto,
-  // generando timeouts espurios (reintentos innecesarios) en writes que en
-  // realidad iban a terminar bien, solo que un poco más lento.
-  // Fórmula: timeout = (payloadBytes / effectiveBps) * 1.3 + 6000ms (RTT long-polling)
+  // Fórmula v17: timeout = (payloadBytes / effectiveBps) * 1.3 + 3000ms (RTT WS)
   // Cap máximo: 90s (antes 45s) para writes grandes en redes muy malas.
-  // Cap mínimo: 12s para writes pequeños (evita falsos timeout en redes con
-  // alta latencia inicial + varias peticiones HTTP de ida y vuelta).
+  // Cap mínimo: 8s para writes pequeños (evita falsos timeout en redes con
+  // alta latencia inicial).
   const payloadBytes = _payloadBytes(value);
   const effectiveBps = _estimateEffectiveThroughputBytesPerSec();
-  // ×1.3 safety margin para overhead real (headers HTTP repetidos, JSON parsing, ack)
-  const estimatedMs = Math.ceil((payloadBytes / effectiveBps) * 1000 * 1.3) + 6000;
-  const adaptiveTimeout = Math.min(90000, Math.max(12000, estimatedMs));
+  // ×1.3 safety margin para overhead real (frames WS, JSON parsing, ack)
+  const estimatedMs = Math.ceil((payloadBytes / effectiveBps) * 1000 * 1.3) + 3000;
+  const adaptiveTimeout = Math.min(90000, Math.max(8000, estimatedMs));
   _currentWriteTimeout = adaptiveTimeout;  // exponer para el indicador de sync
   const timeoutId = setTimeout(() => {
     if (settled) return;
     settled = true;
     console.warn(`Firebase write TIMEOUT (${adaptiveTimeout}ms, payload=${payloadBytes}B, est=${effectiveBps}B/s):`, path);
-    _lastSyncError = { code: 'timeout', msg: `sin respuesta tras ${Math.round(adaptiveTimeout/1000)}s`, ts: Date.now(), path };
     // Flush del buffer in-flight ANTES de reencolar el item.
     // Si el gestor mandó 5 vales mientras este write estaba colgado, esos 5
     // vales están en _fbInFlightPending[path] y deben encolarse como un nuevo
@@ -1037,18 +621,6 @@ function _processFBQueue() {
       settled = true;
       clearTimeout(timeoutId);
       console.error("Firebase write error:", e);
-      _lastSyncError = { code: (e && e.code) ? e.code : 'desconocido', msg: (e && e.message) ? e.message : String(e), ts: Date.now(), path };
-      // Mostrar el motivo real del error al usuario (antes solo quedaba en la
-      // consola, invisible en un teléfono). 'permission-denied' es la causa
-      // más común de un write que nunca sincroniza: las reglas de seguridad
-      // de Firestore lo están bloqueando (typicamente porque la base se creó
-      // en "modo producción" — deniega todo por defecto hasta pegar reglas).
-      if (item.retries === 1 || item.retries >= 4) {
-        const code = (e && e.code) ? e.code : 'desconocido';
-        showToast(code === 'permission-denied'
-          ? '⚠️ La nube rechazó el guardado (permisos) — avisa al admin, tu vale queda guardado en el teléfono'
-          : `⚠️ Error de sincronización (${code}) — tu vale queda guardado localmente`);
-      }
       // Flush del buffer in-flight antes de reencolar (igual que en timeout).
       _flushInFlight();
       if (item.retries < 4) {
@@ -1103,7 +675,7 @@ function _processFBQueue() {
 //  ENQUEUE WITH MERGE (queue + in-flight)
 // ══════════════════════════════════════════════════════════════════
 // (El buffer _fbInFlightPending se declara arriba, junto con _fbWriteQueue.)
-function _enqueueFB(path, value, method='set', callback=null, skipMerge=false) {
+function _enqueueFB(path, value, method='set', callback=null) {
   // ── Batching para conexiones lentas ──
   // Antes: cada saveVales() encolaba un item separado. Si un gestor enviaba
   // 3 vales seguidos + editaba 1, habían 4 items encolados sobre paths
@@ -1112,21 +684,7 @@ function _enqueueFB(path, value, method='set', callback=null, skipMerge=false) {
   // método 'set'/'update'), los fusionamos. Solo importa el ÚLTIMO valor.
   // Caso típico: saveVales() del gestor encola 'update' en 'vales/{gestorId}'.
   // Si llegan 3 saveVales seguidos, los 3 updates se fusionan en 1 solo.
-  // BUGFIX: _enqueueFBChunked() parte un update grande en varios chunks de
-  // ~6KB CADA UNO A PROPÓSITO (para que un corte de red a medio camino solo
-  // pierda un chunk, no todo el lote). Pero como cada chunk se encola con
-  // esta MISMA función, el chunk #1 quedaba "in-flight" apenas se llamaba
-  // _processFBQueue() (síncrono hasta el batch.commit()), y los chunks
-  // #2..#N —encolados milisegundos después, en el mismo forEach— se
-  // fusionaban de vuelta en el buffer in-flight del chunk #1 (ver
-  // "In-Flight Merge Buffer" abajo). Al terminar el chunk #1, ese buffer
-  // se re-encolaba como UN SOLO write con TODOS los chunks juntos —
-  // deshaciendo el troceo por completo. Para un borrado grande (cientos de
-  // vales), esto podía volver a superar el límite de 500 operaciones por
-  // batch de Firestore, fallando siempre. `skipMerge=true` (usado solo por
-  // _enqueueFBChunked) hace que cada chunk se encole como item
-  // INDEPENDIENTE, sin fusionarse con otros chunks del mismo troceo.
-  if (callback === null && !skipMerge) {
+  if (callback === null) {
     // Solo fusionar items sin callback (los callbacks no son serializables
     // y normalmente corresponden a operaciones críticas que no se fusionan).
     const methodIsMergeable = (method === 'set' || method === 'update');
@@ -1152,10 +710,7 @@ function _enqueueFB(path, value, method='set', callback=null, skipMerge=false) {
       // para 'vales/X', el 'set' los sobreescribe a todos.
       for (let i = _fbWriteQueue.length - 1; i >= 0; i--) {
         const existing = _fbWriteQueue[i];
-        // !existing.chunked: un chunk de _enqueueFBChunked nunca acepta que
-        // OTRO write (chunk hermano o no) se le fusione encima — rompería
-        // el límite de tamaño por el que se troceó en primer lugar.
-        if (existing.path === path && (existing.method === method) && !existing.chunked) {
+        if (existing.path === path && (existing.method === method)) {
           // Mismo path, mismo método → fusionar valores (para 'update') o reemplazar (para 'set').
           if (method === 'update' && existing.value && typeof existing.value === 'object' && value && typeof value === 'object') {
             // Merge profundo de claves: el nuevo value gana sobre el existente.
@@ -1177,7 +732,7 @@ function _enqueueFB(path, value, method='set', callback=null, skipMerge=false) {
       }
     }
   }
-  _fbWriteQueue.push({path, value, method, callback, chunked: skipMerge});
+  _fbWriteQueue.push({path, value, method, callback});
   _persistQueue();
   _processFBQueue();
 }
@@ -1228,9 +783,7 @@ function _enqueueFBChunked(path, updates, method='update') {
   if (Object.keys(current).length > 0) chunks.push(current);
 
   console.log(`[sync] Splitting ${keys.length} updates into ${chunks.length} chunks (~${MAX_CHUNK_BYTES}B each, total ${totalBytes}B)`);
-  // skipMerge=true: cada chunk es su propio item de cola, nunca se
-  // refusiona con otro chunk hermano (ver comentario en _enqueueFB).
-  chunks.forEach(chunk => _enqueueFB(path, chunk, method, null, true));
+  chunks.forEach(chunk => _enqueueFB(path, chunk, method));
 }
 
 // ══════════════════════════════════════════
@@ -1396,31 +949,6 @@ function _updateSyncIndicator() {
     }
   }
 }
-// ── Panel de diagnóstico (tocar el indicador de sync) ──
-// El `title` (tooltip) no se ve al tocar en la mayoría de los navegadores
-// de teléfono — por eso, pese a que _updateSyncIndicator ya arma un texto
-// informativo, en la práctica era invisible en un teléfono. Este panel
-// muestra lo mismo (y más: errores reales, versión, conteo de pendientes)
-// en un alert() — sin depender de hover ni de long-press, y fácil de
-// capturar en una captura de pantalla para mandarme si algo sigue mal.
-function showSyncDiagnostics() {
-  const pendingCount = _fbWriteQueue.length;
-  const unsyncedVales = _countPendingSyncVales();
-  const lines = [
-    `AXONTECH v${typeof APP_VERSION !== 'undefined' ? APP_VERSION : '?'}`,
-    `Rol: ${IS_ADMIN ? 'Admin' : 'Gestor'}`,
-    `Conexión del navegador: ${_onlineStatus ? 'En línea' : 'Sin conexión'}`,
-    `Supabase conectado: ${_fbConnected ? 'Sí' : 'No'}`,
-    `Escrituras en cola: ${pendingCount}`,
-    `Vales sin confirmar: ${unsyncedVales}`,
-    `Última sync exitosa: ${_lastSyncAtStr || 'ninguna todavía'}`,
-  ];
-  if (_lastSyncError) {
-    const secAgo = Math.round((Date.now() - _lastSyncError.ts) / 1000);
-    lines.push('', `⚠️ Último error (hace ${secAgo}s, en "${_lastSyncError.path}"):`, `${_lastSyncError.code}: ${_lastSyncError.msg}`);
-  }
-  alert(lines.join('\n'));
-}
 // Formatea "hace Xs/m/h" para mostrar en el tooltip del indicador.
 function _formatAgo(ts) {
   if (!ts) return '';
@@ -1556,63 +1084,49 @@ function _startPollIfPending() {
 // vales ya están siendo subidos, no hay nada nuevo que encolar.
 function _ensurePendingValesEnqueued() {
   if (IS_ADMIN) return; // el admin no envía vales propios
-  if (activeGestorId == null) return;
-  // v34: comparación robusta con Number() — gestorId puede venir como string
-  // de Supabase JSONB y la comparación === fallaba, haciendo que el vale
-  // NUNCA se re-encolara para subir a la nube.
-  const gidNum = Number(activeGestorId);
-  const mine = getVales().filter(v =>
-    v && v.gestorId != null &&
-    Number(v.gestorId) === gidNum &&
-    v.synced !== true &&
-    v.status !== 'cancelled'
-  );
+  if (!activeGestorId) return;
+  const mine = getVales().filter(v => v.gestorId === activeGestorId && v.synced !== true && v.status !== 'cancelled');
   if (mine.length === 0) return;
-  // BUGFIX: antes se encolaba al path legado 'vales/{gestorId}' (vestigio de
-  // RTDB) mientras saveVales() usa el path plano 'vales' — dos formas de
-  // path distintas para lo mismo, lo que rompía la fusión in-flight
-  // (_fbInFlightPending) entre esta función y saveVales() y generaba
-  // round-trips extra en redes ya lentas. Ahora usa el mismo path 'vales'
-  // siempre, coincidiendo exactamente con saveVales().
-  const hasValesWriteQueued = _fbWriteQueue.some(item => item.path === 'vales');
+  const myPath = `vales/${activeGestorId}`;
+  // Verificar si ya hay un write de vales/{gestorId} encolado
+  const hasValesWriteQueued = _fbWriteQueue.some(item =>
+    item.path === myPath ||
+    item.path === 'vales'
+  );
   if (hasValesWriteQueued) return; // ya hay uno en cola, no duplicar
   // ── v15: También salir si hay un write IN-FLIGHT para este path ──
   // Ese write ya está subiendo los vales pendientes. Si encolamos otro, el
   // in-flight merge lo fusionará al write actual (innecesario) Y al terminar
   // se flushéa como un nuevo write duplicado. Mejor no tocar nada.
-  if (_fbProcessing && _fbInFlightPending['vales']) return;
+  if (_fbProcessing && _fbInFlightPending[myPath]) return;
+  if (_fbProcessing && _fbInFlightPending['vales']) return; // admin path (raro en gestor, pero por seguridad)
   // Re-encolar un write con TODOS los vales pendientes de este gestor.
-  // BUGFIX: antes armaba su PROPIO objeto "slim" a mano, que SÍ incluía
-  // status/mensajeroId/confirmedTs/adminNotes tal cual estuvieran en la
-  // copia local — bypaseando por completo el whitelist de slimValeGestor()
-  // y reabriendo la condición de carrera (copia stale del gestor pisando
-  // cambios del admin) que ese whitelist existe para cerrar. Ahora usa la
-  // MISMA función que saveVales(), sin duplicar lógica.
+  // v15: usar slimVale-equivalente para no mandar synced/isNew a Firebase.
   const updates = {};
-  mine.forEach(v => { updates[String(v.id)] = slimValeGestor(v, !!v.valeText); });
-  _enqueueFB('vales', updates, 'update');
+  mine.forEach(v => {
+    const slim = {
+      id: v.id, valeNum: v.valeNum, gestorId: v.gestorId, ts: v.ts,
+      cliente: v.cliente, telefono: v.telefono, direccion: v.direccion,
+      carnet: v.carnet, mensajeria: v.mensajeria, articulo: v.articulo,
+      precioUSD: v.precioUSD, precioMN: v.precioMN, vuelto: v.vuelto,
+      total: v.total, garantia: v.garantia, comisionGestor: v.comisionGestor,
+      valeProductos: (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
+      status: v.status, mensajeroId: v.mensajeroId, confirmedTs: v.confirmedTs,
+      adminNotes: v.adminNotes,
+    };
+    if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
+    if (v.deliveredTs) slim.deliveredTs = v.deliveredTs;
+    if (v.commissionStatus) slim.commissionStatus = v.commissionStatus;
+    if (v.commissionPaid) slim.commissionPaid = v.commissionPaid;
+    updates[v.id] = slim;
+  });
+  _enqueueFB(myPath, updates, 'update');
   console.log(`[sync] Re-encolados ${mine.length} vales pendientes para gestor ${activeGestorId}`);
 }
 
 const setFB = (path, v) => {
   _enqueueFB(path, v, 'set');
 };
-
-// Construye un objeto {id: entidad|null, ...} comparando el array nuevo
-// contra la copia anterior conocida — usado por saveGestores/saveMensajeros/
-// saveProductos/saveCategorias para encolar solo lo que cambió (documento por
-// documento en Firestore) en vez de reemplazar la colección entera a ciegas.
-// Mismo patrón que ya usa saveVales, generalizado a cualquier colección
-// simple de entidades con `.id`.
-function _buildCollectionUpdates(newArr, prevArr) {
-  const updates = {};
-  newArr.forEach(x => { updates[String(x.id)] = x; });
-  if (Array.isArray(prevArr)) {
-    const kept = new Set(newArr.map(x => String(x.id)));
-    prevArr.forEach(x => { if (!kept.has(String(x.id))) updates[String(x.id)] = null; });
-  }
-  return updates;
-}
 
 // ═══ In-memory cache layer ═══
 let _gestoresCache = null, _gestoresDirty = true;
@@ -1637,84 +1151,30 @@ function _safeSetLS(key, value) {
   }
 }
 
-const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { const p = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); _gestoresCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
-const saveGestores  = v  => {
-  const prev = _gestoresCache;
-  _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false;
-  if (!isSyncingFromFirebase()) _enqueueFB('gestores', _buildCollectionUpdates(v, prev), 'update');
-  _logAudit('gestores_update');
-};
+const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
+const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; if (!isSyncingFromFirebase()) setFB('gestores', v); _logAudit('gestores_update'); };
 
-// ── Whitelist de campos que un GESTOR puede escribir en un vale ──
-// PROBLEMA ORIGINAL: el gestor tenía una copia local del vale que podía estar
-// desactualizada respecto a lo que el admin había cambiado (status,
-// mensajeroId, confirmedTs, adminNotes). Cualquier saveVales() del gestor
-// mandaba su copia local → pisaba los cambios del admin.
-// AHORA: el gestor solo escribe los campos que le pertenecen (datos del
-// cliente y productos). Los campos administrativos nunca se mandan desde el
-// dispositivo del gestor, así no pueden pisar cambios del admin.
-// A NIVEL DE MÓDULO (no dentro de saveVales) a propósito: _ensurePendingValesEnqueued()
-// también necesita esta misma función. Antes tenía su PROPIA copia inline que
-// NO aplicaba este whitelist (mandaba status/mensajeroId/confirmedTs/adminNotes
-// tal cual estuvieran en local) — reabría exactamente la misma condición de
-// carrera que este whitelist existe para cerrar. Una sola fuente de verdad.
-const GESTOR_WRITABLE_FIELDS = [
-  'id','valeNum','gestorId','ts','cliente','telefono','direccion',
-  'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
-  'total','garantia','comisionGestor'
-];
-function slimValeGestor(x, keepValeText) {
-  const slim = {};
-  GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
-  // valeProductos sin name — se busca por id al leer
-  slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
-  // Solo incluir valeText si ya existía (para vales viejos que ya lo traían)
-  if (x.valeText && keepValeText) slim.valeText = x.valeText;
-  // NO incluir mensajeroId, confirmedTs, adminNotes — son del admin.
-  // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
-  // En Firestore/Supabase esto además queda reforzado por set(...,{merge:true}):
-  // como slimValeGestor() nunca incluye estos campos, un write de gestor JAMÁS
-  // puede tocarlos en el documento, sin importar qué tan vieja esté su copia.
-  if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
-  // v36 FIX CRÍTICO: el gestor SÍ puede enviar status 'pending' (status inicial
-  // al crear un vale) y 'cancelled' (cancelar vale propio). Cualquier otro status
-  // (assigned/delivered/confirmed/pending_payment) lo preservamos tal cual está
-  // para que el UPSERT de Supabase no lo borre al reemplazar la columna data.
-  // ANTES: solo se permitía 'cancelled' → el vale nuevo llegaba a Supabase SIN
-  // status → el polling del gestor lo traía con status: undefined → el filtro
-  // de activeVales lo descartaba → el vale DESAPARECÍA de la lista.
-  if (x.status === 'cancelled') {
-    slim.status = 'cancelled';
-    if (x.cancelledTs) slim.cancelledTs = x.cancelledTs;
-  } else if (x.status === 'pending') {
-    slim.status = 'pending'; // status inicial legítimo del gestor al crear un vale
-  } else if (x.status !== undefined && x.status !== null) {
-    // Preservar el status que ya tenía (puesto por el admin) — no borrarlo
-    slim.status = x.status;
-  }
-  // v36 FIX: incluir isNew para que el admin sepa que es un vale nuevo y
-  // dispare la alerta de estafa. El gestor crea el vale con isNew:true.
-  if (x.isNew !== undefined) slim.isNew = !!x.isNew;
-  return slim;
-}
-const getVales      = () => { if (_valesDirty || !_valesCache) { try { const p = JSON.parse(localStorage.getItem('axon_vales') || '[]'); _valesCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
+const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
 // Vales are synced via saveVales → _enqueueFB('vales', updates, 'update') through the write queue.
 // Individual fbUpdateVale was removed from patchVale to prevent race conditions.
 // fbAddVale/fbRemoveVale are NO LONGER called by sendVale/cancelVale/adminDeleteVale
 // because saveVales already enqueues the write on the vales node.
 //
-// IMPORTANTE — por qué 'update' (merge por documento) y no un 'set' del árbol
-// completo:
+// IMPORTANTE — por qué 'update' y no 'set':
 // saveVales() se llama con la copia LOCAL EN MEMORIA de todos los vales (admin) o de
 // los propios (gestor). Esa copia puede estar desactualizada si otro dispositivo
-// escribió en Firestore hace un instante y el listener de este dispositivo
-// todavía no procesó esa actualización (delay de red típico: 100ms–1s). En
-// Firestore cada vale es su PROPIO documento (colección `vales`, doc id = String(id))
-// — a diferencia del árbol anidado de RTDB, escribir el vale X con
-// set(...,{merge:true}) JAMÁS puede tocar el vale Y, sin importar qué tan
-// desactualizada esté la copia local en otros aspectos. Los borrados reales
-// (cancelar/eliminar vale) se detectan comparando contra la copia anterior
-// (`prevVales`) y se envían como `null` explícito para esos documentos puntuales.
+// (un gestor enviando un vale nuevo, o el admin cambiando el estado de un vale)
+// escribió en Firebase hace un instante y el listener `db.ref('vales').on('value', ...)`
+// de este dispositivo todavía no procesó esa actualización (delay de red típico:
+// 100ms–1s). Antes se hacía un `set()` del árbol COMPLETO reconstruido desde esa
+// copia local: eso reemplazaba TODO el nodo 'vales' en Firebase, borrando
+// silenciosamente cualquier vale que hubiera llegado de otro dispositivo en esa
+// ventana de tiempo — esto es lo que causaba que "los vales no llegaran bien".
+// Con `update()` (multi-path update) solo se tocan las rutas gestorId/valeId que
+// esta llamada realmente conoce; cualquier vale ajeno que ya esté en Firebase pero
+// no en la copia local queda intacto. Los borrados reales (cancelar/eliminar vale)
+// se detectan comparando contra la copia anterior (`prevVales`) y se envían como
+// `null` explícito para esas rutas puntuales.
 const saveVales = v => {
   const prevVales = _valesCache; // snapshot antes de este guardado, para detectar borrados reales
   _safeSetLS('axon_vales', JSON.stringify(v));
@@ -1724,10 +1184,12 @@ const saveVales = v => {
   // v13: solo encolar vales nuevos/cambiados (no todo el array).
   // v14: NO enviar valeText (~300-500 bytes), name de valeProductos (~20 bytes/item),
   //      ni flags locales (synced, isNew) a Firebase. Se regeneran al leer.
+  // En redes de 50Kbit/s (~6KB/s), reducir 500 bytes por vale = 80ms menos por write.
+  // Para 5 vales seguidos, eso son 400ms menos de bloqueo del WebSocket.
   const updates = {};
   const prevMap = new Map();
   if (Array.isArray(prevVales)) {
-    prevVales.forEach(x => { prevMap.set(String(x.id), x); });
+    prevVales.forEach(x => { prevMap.set(`${x.gestorId}/${x.id}`, x); });
   }
   // Helper: crea una versión "slim" del vale para enviar a Firebase.
   // Quita campos que se pueden regenerar al leer.
@@ -1755,12 +1217,8 @@ const saveVales = v => {
       mensajeroId: x.mensajeroId,
       confirmedTs: x.confirmedTs,
       adminNotes: x.adminNotes,
-      // v36 FIX CRÍTICO: incluir flags de "visto por admin" para que el gestor
-      // los reciba vía polling. ANTES estos campos no se enviaban a Supabase →
-      // el gestor nunca veía "👁️ Visto por admin" en su lista de vales.
-      isNew: !!x.isNew,
-      seenByAdmin: !!x.seenByAdmin,
-      seenTs: x.seenTs || null,
+      recogidaTienda: !!x.recogidaTienda,
+      ubicacion: x.ubicacion || null,
     };
     // Solo incluir valeText si ya existía (para no romper vales viejos que lo usan).
     // Si el vale lo generó buildValeText() al enviar, NO se envía — se regenera al leer.
@@ -1768,7 +1226,7 @@ const saveVales = v => {
     // (No lo quitamos explícitamente para no perder datos existentes.)
     // Para vales NUEVOS: simplemente no lo incluimos.
     // Para vales MODIFICADOS que ya tenían valeText en Firebase: lo incluimos.
-    if (x.valeText && prevMap.get(String(x.id))?.valeText) {
+    if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
       slim.valeText = x.valeText;
     }
     // No incluir synced (flag local), isNew (flag temporal), deliveredTs (solo si existe)
@@ -1777,14 +1235,38 @@ const saveVales = v => {
     if (x.commissionPaid) slim.commissionPaid = x.commissionPaid;
     return slim;
   }
-  // slimValeGestor() y GESTOR_WRITABLE_FIELDS ahora viven a nivel de módulo
-  // (arriba de getVales) — compartidos con _ensurePendingValesEnqueued().
-  // Doc id de Firestore = String(vale.id) — plano, sin gestorId (la colección
-  // 'vales' es única y plana; gestorId vive como CAMPO dentro del documento).
+  // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
+  // PROBLEMA: el gestor tenía una copia local del vale que podía estar desactualizada
+  // respecto a lo que el admin había cambiado (status, mensajeroId, confirmedTs,
+  // adminNotes). Cualquier saveVales() del gestor mandaba su copia local →
+  // pisaba los cambios del admin. En redes lentas la ventana de desincronización
+  // es de varios segundos → muy probable que pase.
+  // AHORA: el gestor solo escribe los campos que le pertenecen (datos del
+  // cliente y productos). Los campos administrativos nunca se mandan desde
+  // el dispositivo del gestor, así no pueden pisar cambios del admin.
+  const GESTOR_WRITABLE_FIELDS = [
+    'id','valeNum','gestorId','ts','cliente','telefono','direccion',
+    'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
+    'total','garantia','comisionGestor','recogidaTienda','ubicacion'
+  ];
+  function slimValeGestor(x) {
+    const slim = {};
+    GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
+    // valeProductos sin name — se busca por id al leer
+    slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
+    // Solo incluir valeText si ya existía en local (vales viejos)
+    if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
+      slim.valeText = x.valeText;
+    }
+    // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
+    // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
+    if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
+    return slim;
+  }
   const curKeys = new Set();
   if (IS_ADMIN) {
     v.forEach(x => {
-      const key = String(x.id);
+      const key = `${x.gestorId}/${x.id}`;
       curKeys.add(key);
       const prev = prevMap.get(key);
       // Solo encolar si es nuevo o cambió (comparación por JSON stringify del slim)
@@ -1797,65 +1279,45 @@ const saveVales = v => {
     // Borrados reales: vales que estaban en prevVales pero ya no están en v
     if (Array.isArray(prevVales)) {
       prevVales.forEach(x => {
-        const key = String(x.id);
+        const key = `${x.gestorId}/${x.id}`;
         if (!curKeys.has(key)) updates[key] = null;
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
     _enqueueFBChunked('vales', updates, 'update');
-  } else if (activeGestorId != null) {
-    // El gestor solo envía SUS vales — pero al mismo path 'vales' (colección
-    // plana), no a una sub-rama propia como en RTDB. La protección contra
-    // pisar vales/campos ajenos ya no depende de a qué "rama" se escribe,
-    // sino de que slimValeGestor() (arriba) nunca incluye campos que no le
-    // pertenecen, combinado con set(...,{merge:true}) documento-por-documento.
-    // v34: usar Number() para comparación robusta de gestorId.
-    const gidNum = Number(activeGestorId);
-    const mine = v.filter(x => x && x.gestorId != null && Number(x.gestorId) === gidNum);
+  } else if (activeGestorId) {
+    // El gestor SOLO puede escribir su propia rama. Nunca 'vales' a secas,
+    // porque tocaría los vales de los demás gestores.
+    const mine = v.filter(x => x.gestorId === activeGestorId);
     mine.forEach(x => {
-      const key = String(x.id);
-      const prev = prevMap.get(key);
+      const prev = prevMap.get(`${x.gestorId}/${x.id}`);
       // v17: usar slimValeGestor — solo campos del gestor, nunca status/mensajeroId/etc.
-      const hadValeText = !!(prev && prev.valeText);
-      const slim = slimValeGestor(x, hadValeText);
-      const prevSlim = prev ? slimValeGestor(prev, hadValeText) : null;
+      const slim = slimValeGestor(x);
+      const prevSlim = prev ? slimValeGestor(prev) : null;
       if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
-        updates[key] = slim;
+        updates[x.id] = slim;
       }
     });
     if (Array.isArray(prevVales)) {
-      const kept = new Set(mine.map(x => String(x.id)));
-      prevVales.filter(x => x && x.gestorId != null && Number(x.gestorId) === gidNum).forEach(x => {
-        if (!kept.has(String(x.id))) updates[String(x.id)] = null;
+      const kept = new Set(mine.map(x => x.id));
+      prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
+        if (!kept.has(x.id)) updates[x.id] = null;
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
-    _enqueueFBChunked('vales', updates, 'update');
+    _enqueueFBChunked(`vales/${activeGestorId}`, updates, 'update');
   }
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
 };
 
-const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { const parsed = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); _mensajerosCache = Array.isArray(parsed) ? parsed.filter(v => v != null) : []; } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
-const saveMensajeros= v  => {
-  const prev = _mensajerosCache;
-  _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false;
-  if (!isSyncingFromFirebase()) _enqueueFB('mensajeros', _buildCollectionUpdates(v, prev), 'update');
-};
+const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
+const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; if (!isSyncingFromFirebase()) setFB('mensajeros', v); };
 
-const getProductos  = () => { if (_productosDirty || !_productosCache) { try { const p = JSON.parse(localStorage.getItem('axon_productos') || '[]'); _productosCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
-const saveProductos = v  => {
-  const prev = _productosCache;
-  _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false;
-  if (!isSyncingFromFirebase()) _enqueueFB('productos', _buildCollectionUpdates(v, prev), 'update');
-  triggerAutoPublishCatalog();
-};
+const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
+const saveProductos = v  => { _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; if (!isSyncingFromFirebase()) setFB('productos', v); triggerAutoPublishCatalog(); };
 
-const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { const parsed = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); _categoriasCache = Array.isArray(parsed) ? parsed.filter(v => v != null) : []; } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
-const saveCategorias= v  => {
-  const prev = _categoriasCache;
-  _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false;
-  if (!isSyncingFromFirebase()) _enqueueFB('categorias', _buildCollectionUpdates(v, prev), 'update');
-};
+const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
+const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromFirebase()) setFB('categorias', v); };
 
 const getConfig     = () => { if (_configDirty || !_configCache) { try { _configCache = JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { _configCache = {}; } _configDirty = false; } return _configCache; };
 const saveConfig    = v  => { _safeSetLS('axon_config', JSON.stringify(v)); _configCache = v; _configDirty = false; if (!isSyncingFromFirebase()) setFB('config', v); };
@@ -1872,7 +1334,7 @@ const setGhStatus = html => ['ghSyncStatus','ghSyncStatus2'].forEach(i => {
   if (el) el.innerHTML = html;
 });
 
-const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { const p = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); _notifsCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
+const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
 const saveNotifs    = v  => { _safeSetLS('axon_notifs', JSON.stringify(v)); _notifsCache = v; _notifsDirty = false; if (!isSyncingFromFirebase()) setFB('notifs', v); };
 
 // ══════════════════════════════════════════
@@ -1897,14 +1359,6 @@ function buildCatalogHTML() {
   if(!allProds.length) return null;
   const cfg=getConfig();
   const waPhone=cfg.catalogPhone||cfg.adminPhone||'';
-  // v41 FIX: si no hay teléfono configurado, NO generar el catálogo.
-  // ANTES, sin teléfono, TODOS los productos se generaban con waLink:''
-  // y el catálogo los mostraba como "No disponible" — confundiendo al
-  // admin y al cliente. Ahora avisamos claro.
-  if(!waPhone){
-    showToast('⚠️ Configura un teléfono en ⚙️ Config antes de publicar el catálogo. Sin teléfono, todos los productos aparecen como "No disponible".');
-    return null;
-  }
   const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
   const dateStr=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
   let catCardsJS='';
@@ -2055,7 +1509,7 @@ function renderGrid(){
     var s='<div class="card" onclick="openProduct('+p.id+')" style="cursor:pointer;">';
     s+='<div class="card-img">';
     // Validate photo URL — only allow http(s) and data URIs
-    if(p.photo && /^(https?:|data:image|photos\\/|\\.\\/photos\\/)/i.test(p.photo)){s+='<img src="'+escapeHTML(p.photo)+'" data-img="1" loading="lazy">';}
+    if(p.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(p.photo)){s+='<img src="'+escapeHTML(p.photo)+'" data-img="1" loading="lazy">';}
     s+='<div class="no-img" style="'+(p.photo?'display:none':'')+'">&#128230;</div>';
     if(p.catName){s+='<div class="card-cat" style="background:'+escapeHTML(p.catColor)+'">'+escapeHTML(p.catName)+'</div>';}
     s+='</div><div class="card-body">';
@@ -2066,7 +1520,7 @@ function renderGrid(){
     if(p.garantia){s+='<span class="badge badge-garantia">Garantia: '+escapeHTML(p.garantia)+'</span>';}
     s+='</div>';
     if(p.waLink){s+='<a class="wa-btn" href="'+escapeHTML(p.waLink)+'" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
-    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">WhatsApp no configurado</div>';}
+    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>';}
     s+='</div></div>';
     return s;
   }).join('');
@@ -2075,7 +1529,7 @@ function openProduct(id){
   var p=products.find(function(x){return x.id===id});if(!p)return;
   var c=document.getElementById('pmodalContent');
   var h='';
-  if(p.photo && /^(https?:|data:image|photos\\/|\\.\\/photos\\/)/i.test(p.photo)){h+='<img class="pmodal-img" src="'+escapeHTML(p.photo)+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
+  if(p.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(p.photo)){h+='<img class="pmodal-img" src="'+escapeHTML(p.photo)+'" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';}
   else{h+='<div class="pmodal-noimg">&#128230;</div>';}
   h+='<div class="pmodal-body">';
   if(p.catName){h+='<div class="pmodal-cat" style="background:'+escapeHTML(p.catColor)+'">'+escapeHTML(p.catName)+'</div>';}
@@ -2102,7 +1556,7 @@ renderNav();renderGrid();
 // ══════════════════════════════════════════
 let _estafaCache = null;
 let _estafaDirty = true;
-const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { const p = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); _estafaCache = Array.isArray(p) ? p.filter(v => v != null) : []; } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
+const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { _estafaCache = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
 const saveEstafa  = v  => { _safeSetLS('axon_estafa', JSON.stringify(v)); _estafaCache = v; _estafaDirty = false; if (!isSyncingFromFirebase()) setFB('estafa', v); };
 
 function checkEstafaMatch(vale) {
@@ -2117,77 +1571,48 @@ function checkEstafaMatch(vale) {
   const vCarnet = norm(vale.carnet || '');
   lista.forEach(e => {
     const reasons = [];
-
-    // ── Teléfono: coincidencia EXACTA (mínimo 7 dígitos en ambos) ──
-    // v10 FIX: ANTES usaba includes() bidireccional que causaba falsos
-    // positivos (ej: vale="5123" matcheaba estafa="51234567").
-    // Ahora requiere coincidencia exacta o por últimos 8 dígitos.
-    if (e.telefono && vPhone && vPhone.length >= 7) {
-      const ePhone = (e.telefono || '').replace(/[\s\-()]/g, '');
-      if (ePhone.length >= 7) {
-        // Coincidencia exacta o por últimos 8 dígitos (tolera prefijo país)
-        if (vPhone === ePhone) {
-          reasons.push('teléfono: ' + e.telefono);
-        } else if (vPhone.length >= 8 && ePhone.length >= 8) {
-          const tailV = vPhone.slice(-8);
-          const tailE = ePhone.slice(-8);
-          if (tailV === tailE) reasons.push('teléfono: ' + e.telefono);
-        }
-      }
+    // Phone match (exact digits only, no formatting)
+    if (e.telefono && vPhone) {
+      const ePhone = e.telefono.replace(/[\s\-()]/g, '');
+      if (ePhone && (vPhone.includes(ePhone) || ePhone.includes(vPhone))) reasons.push('teléfono: ' + e.telefono);
     }
-
-    // ── Nombre: coincidencia EXACTA o palabra-completa ──
-    // v10 FIX: ANTES usaba includes() que hacía que "Juan" matcheara
-    // "Juan Pérez". Ahora requiere coincidencia exacta o que TODAS las
-    // palabras significativas (>=4 chars) del entry coincidan como
-    // palabra completa en el vale.
-    if (e.nombre && vCliente && vCliente.length >= 4) {
+    // Name match (fuzzy: normalized, partial, reversed)
+    if (e.nombre && vCliente) {
       const eNombre = norm(e.nombre);
-      if (eNombre.length >= 4) {
-        if (vCliente === eNombre) {
-          reasons.push('nombre: ' + e.nombre);
-        } else {
-          // Matching palabra-completa: todas las palabras del entry deben
-          // aparecer como palabra exacta en el vale
-          const vWords = vCliente.split(/\s+/).filter(w => w.length >= 4);
-          const eWords = eNombre.split(/\s+/).filter(w => w.length >= 4);
-          if (eWords.length >= 2 && vWords.length >= 2) {
-            const vSet = new Set(vWords);
-            const allMatch = eWords.every(ew => vSet.has(ew));
-            if (allMatch) reasons.push('nombre similar: ' + e.nombre);
-          }
+      if (eNombre && vCliente) {
+        // Exact normalized match
+        if (vCliente === eNombre) { reasons.push('nombre: ' + e.nombre); }
+        // One contains the other
+        else if (vCliente.includes(eNombre) || eNombre.includes(vCliente)) { reasons.push('nombre: ' + e.nombre); }
+        // Check each word of the name against each word of the entry
+        else {
+          const vWords = vCliente.split(/\s+/).filter(w=>w.length>2);
+          const eWords = eNombre.split(/\s+/).filter(w=>w.length>2);
+          let wordMatch = false;
+          for(const vw of vWords){ for(const ew of eWords){ if(vw.includes(ew)||ew.includes(vw)){wordMatch=true;break;} } if(wordMatch)break; }
+          if(wordMatch && vWords.length>=2 && eWords.length>=2) reasons.push('nombre similar: ' + e.nombre);
         }
       }
     }
-
-    // ── Dirección: coincidencia EXACTA o 2+ palabras completas ──
-    // v10 FIX: mismo patrón que nombre — palabras completas, no includes()
-    if (e.direccion && vDireccion && vDireccion.length >= 5) {
+    // Address match (fuzzy: normalized, partial)
+    if (e.direccion && vDireccion) {
       const eDir = norm(e.direccion);
-      if (eDir.length >= 5) {
-        if (vDireccion === eDir) {
-          reasons.push('dirección: ' + e.direccion);
-        } else {
-          const vWords = vDireccion.split(/\s+/).filter(w => w.length >= 5);
-          const eWords = eDir.split(/\s+/).filter(w => w.length >= 5);
-          if (eWords.length >= 2) {
-            const vSet = new Set(vWords);
-            const matchCount = eWords.filter(ew => vSet.has(ew)).length;
-            if (matchCount >= 2) reasons.push('dirección similar: ' + e.direccion);
-          }
+      if (eDir && vDireccion) {
+        if (vDireccion.includes(eDir) || eDir.includes(vDireccion)) { reasons.push('dirección: ' + e.direccion); }
+        else {
+          const vWords = vDireccion.split(/\s+/).filter(w=>w.length>3);
+          const eWords = eDir.split(/\s+/).filter(w=>w.length>3);
+          let matchCount = 0;
+          for(const vw of vWords){ for(const ew of eWords){ if(vw===ew||vw.includes(ew)||ew.includes(vw)){matchCount++;break;} } }
+          if(matchCount >= Math.min(2, eWords.length)) reasons.push('dirección similar: ' + e.direccion);
         }
       }
     }
-
-    // ── Carnet: coincidencia EXACTA (mínimo 5 caracteres) ──
-    // v10 FIX: ANTES usaba includes() bidireccional.
-    if (e.carnet && vCarnet && vCarnet.length >= 5) {
+    // Carnet match (exact or partial)
+    if (e.carnet && vCarnet) {
       const eCarnet = norm(e.carnet);
-      if (eCarnet.length >= 5 && vCarnet === eCarnet) {
-        reasons.push('carnet: ' + e.carnet);
-      }
+      if (eCarnet && (vCarnet.includes(eCarnet) || eCarnet.includes(vCarnet))) reasons.push('carnet: ' + e.carnet);
     }
-
     if (reasons.length) matches.push({ entry: e, reasons: reasons });
   });
   return matches;
@@ -2309,112 +1734,128 @@ function renderEstafaList() {
   c.innerHTML = html;
 }
 
-// (_valesToFirebaseObj — anidaba vales por gestorId/valeId para el árbol de
-// RTDB. Ya no aplica: 'vales' es una colección plana en Firestore, doc id =
-// String(vale.id) — ver _buildCollectionUpdates.)
+// Helper: convert vales array to Firebase nested object
+function _valesToFirebaseObj(vales) {
+  const obj = {};
+  vales.forEach(v => {
+    if (!obj[v.gestorId]) obj[v.gestorId] = {};
+    obj[v.gestorId][v.id] = v;
+  });
+  return obj;
+}
 
 let gestorValesListener = null;
 let firstLoadVales = true;
 function listenToMyVales(gId) {
-  if (gestorValesListener) { gestorValesListener(); gestorValesListener = null; }
+  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
   firstLoadVales = true;
-  // v33: filosofía v16 — simpleza. El polling trae los vales del gestor desde
-  // Supabase. Si el snap tiene vales, los guardamos (reemplazo directo como en
-  // v16) PERO preservando vales locales synced:false que no estén en el snap
-  // (porque el write puede no haberse confirmado todavía). Si el snap viene
-  // vacío, NO tocamos el cache local (no borramos vales existentes).
-  window._handleMyValesSnap = function(snap) {
+  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
     _syncCount++;
     try {
-      const newVales = snap.docs.map(d => d.data());
-      const gidNum = Number(gId);
+      const val = snap.val();
+      if (val) {
+        const newVales = Object.values(val);
+        // v14: regenerar campos slimados al leer de Firebase.
+        // - valeText: no se envía para vales nuevos; se regenera aquí.
+        // - name de valeProductos: se busca por id con productoOf().
+        newVales.forEach(v => {
+          if (v && !v.valeText) v.valeText = regenerateValeText(v);
+          if (v && Array.isArray(v.valeProductos)) {
+            v.valeProductos.forEach(p => {
+              if (!p.name) {
+                const prod = productoOf(p.id);
+                if (prod) p.name = prod.name;
+              }
+            });
+          }
+          // Asegurar flags locales por defecto
+          if (v && v.synced === undefined) v.synced = true; // vino de Firebase → está synced
+        });
 
-      // Regenerar campos slimados al leer de Supabase
-      newVales.forEach(v => {
-        if (v && !v.valeText) v.valeText = regenerateValeText(v);
-        if (v && Array.isArray(v.valeProductos)) {
-          v.valeProductos.forEach(p => {
-            if (!p.name) {
-              const prod = productoOf(p.id);
-              if (prod) p.name = prod.name;
+        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
+        // En conexiones lentas (10 Kbit/s), el listener de Firebase puede
+        // disparar ANTES de que el write del vale pendiente se confirme.
+        // El snapshot NO incluye el vale local, y antes reemplazábamos el
+        // cache local con él → el vale "desaparecía" de la UI por varios
+        // segundos hasta que el write confirmara y disparara un nuevo
+        // snapshot que sí lo incluyera.
+        // Ahora preservamos los vales locales synced:false que no estén
+        // en el snapshot, hasta que se confirmen (synced:true).
+        const localPending = (getVales() || []).filter(v =>
+          v && v.gestorId === gId &&
+          v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        const fbIds = new Set(newVales.map(v => String(v && v.id)));
+        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        let mergedVales = newVales;
+        if (orphaned.length > 0) {
+          mergedVales = newVales.concat(orphaned);
+        }
+        mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+        if (!firstLoadVales) {
+          const oldVales = getVales();
+          mergedVales.forEach(nv => {
+            const ov = oldVales.find(x => x.id === nv.id);
+            if (ov && ov.status !== nv.status) {
+              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
+              
+              if (nv.status === 'assigned') {
+                sendBrowserNotif('Venta en camino 🛵', '...');
+                playSound('confirm');
+              } else if (nv.status === 'delivered') {
+                sendBrowserNotif('Venta entregada 🎉', prodNames);
+                playSound('confirm');
+              } else if (nv.status === 'confirmed') {
+                let amtStr = '';
+                if(typeof getValeCommissionParts === 'function'){
+                  const cp = getValeCommissionParts(nv);
+                  if(cp.total !== null && cp.total > 0) {
+                     amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+                  }
+                }
+                sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+                playSound('confirm');
+              }
             }
           });
         }
-        // Vales que vienen de Supabase están confirmados
-        if (v && v.synced === undefined) v.synced = true;
-      });
-
-      // Preservar vales locales synced:false que no estén en el snap
-      // (el write todavía no se confirmó, el polling no los trae todavía)
-      const fbIds = new Set(newVales.map(v => String(v && v.id)));
-      const localPending = (getVales() || []).filter(v =>
-        v && v.gestorId != null &&
-        Number(v.gestorId) === gidNum &&
-        v.synced === false &&
-        v.status !== 'cancelled' &&
-        !fbIds.has(String(v.id))
-      );
-
-      // mergedVales = vales del snap + vales locales pendientes
-      let mergedVales = newVales.concat(localPending);
-      mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-
-      // Notificaciones de cambio de status (como en v16)
-      if (!firstLoadVales) {
-        const oldVales = getVales();
-        mergedVales.forEach(nv => {
-          const ov = oldVales.find(x => Number(x.id) === Number(nv.id));
-          if (ov && ov.status !== nv.status) {
-            const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
-            if (nv.status === 'assigned') {
-              sendBrowserNotif('Venta en camino 🛵', '...');
-              playSound('confirm');
-            } else if (nv.status === 'delivered') {
-              sendBrowserNotif('Venta entregada 🎉', prodNames);
-              playSound('confirm');
-            } else if (nv.status === 'confirmed') {
-              let amtStr = '';
-              if(typeof getValeCommissionParts === 'function'){
-                const cp = getValeCommissionParts(nv);
-                if(cp.total !== null && cp.total > 0) {
-                   amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
-                }
-              }
-              sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
-              playSound('confirm');
-            }
-          }
-        });
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
+      } else {
+        // Firebase has no vales — clear local too, PERO preservar vales
+        // locales synced:false (todavía no llegaron a Firebase).
+        // v17: si borramos TODO el cache local cuando FB está vacío, perdemos
+        // los vales que el gestor acaba de crear y aún no se han subido.
+        const localPending = (getVales() || []).filter(v =>
+          v && v.gestorId === gId &&
+          v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        if (localPending.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        } else {
+          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+          rankingCache = null;
+          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+        }
       }
-
-      // v40 FIX CRÍTICO: guardar SIEMPRE el resultado del polling, incluso si
-      // está vacío. ANTES, si el snap venía vacío (porque el admin borró los
-      // vales en Supabase), el cache local NO se tocaba → el gestor seguía
-      // viendo los vales borrados para siempre.
-      // Ahora: si el polling trajo un snap vacío, significa que Supabase no
-      // tiene vales del gestor → borrar el cache local también (excepto
-      // vales locales synced:false que aún no se han subido).
-      // Si el polling falla (network error), _doRestPoll no llama a este
-      // handler, así que estamos seguros de que un snap vacío es legítimo.
-      try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
-
       firstLoadVales = false;
     } finally {
       _syncCount--;
       refreshUI();
     }
-  };
-  // v33: el polling global (_startRestPolling) se encarga de llamar a
-  // _handleMyValesSnap cada 5s con los vales del gestor. No hay onSnapshot.
-  gestorValesListener = function() { /* no-op en v33: polling global maneja todo */ };
-  _startRestPolling();
+  });
 }
 
-// fbAddVale/fbRemoveVale/fbUpdateVale eliminados — código muerto sin
-// llamadores (saveVales() ya encola todo lo necesario) que además usaban la
-// forma de path anidada vieja de RTDB (vales/{gestorId}/{valeId}), quedando
-// como una trampa para quien los reactivara sin darse cuenta del cambio de
-// esquema a Firestore.
+// Custom Firebase Vale individual operations — now using the write queue
+// NOTE: fbAddVale and fbRemoveVale are DEPRECATED — saveVales already enqueues a
+// full 'set' on the vales node. Calling these in addition to saveVales caused
+// race conditions. Kept for backward compatibility but no longer invoked from
+// sendVale / cancelVale / adminDeleteVale / sendAdminVale.
+function fbAddVale(v)    { _enqueueFB(`vales/${v.gestorId}/${v.id}`, v, 'set'); }
+function fbRemoveVale(v) { _enqueueFB(`vales/${v.gestorId}/${v.id}`, null, 'remove'); }
+// fbUpdateVale removed — was unused dead code (see comment in patchVale).
 
 // ── Debounce de refreshUI para conexiones lentas ──
 // Firebase dispara un snapshot por cada write remoto. En una sesión activa
@@ -2453,20 +1894,13 @@ try {
 let _lastValesHash = '';
 function _computeValesHash(vales) {
   if (!Array.isArray(vales) || !vales.length) return '';
-  // Hash barato: combinar id+status+ts+seenByAdmin+seenTs del último vale modificado.
-  // v41 FIX: ANTES no incluía seenByAdmin ni seenTs, así que cuando el admin
-  // hacía clic en un vale (cambia seenByAdmin:true) el hash era idéntico →
-  // refreshUI creía que no hubo cambios → no re-renderizaba → el gestor
-  // nunca veía "👁️ Visto por admin" aunque el dato ya estaba en el cache.
-  // v11 FIX: incluir comisionGestor y commissionStatus/commissionPaid en el hash
-  // para que refreshUI detecte cambios en comisiones y re-renderice
+  // Hash barato: combinar id+status+ts del último vale modificado.
+  // Suficiente para detectar si un nuevo snapshot realmente cambió algo.
   let h = '';
   for (let i = 0; i < vales.length; i++) {
     const v = vales[i];
-    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') +
-         ':' + (v.seenByAdmin ? '1' : '0') + ':' + (v.seenTs || '') +
-         ':' + (v.comisionGestor || '') + ':' + (v.commissionStatus || '') + ':' + (v.commissionPaid ? '1' : '0') + '|';
-    if (h.length > 1200) break; // suficiente muestra
+    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') + '|';
+    if (h.length > 500) break; // suficiente muestra
   }
   return h;
 }
@@ -2581,33 +2015,38 @@ let _rankingIdleHandle = null;
 // renderGestorRanking() recalculaba los puntos desde getVales(), que en un
 // dispositivo de gestor SOLO contiene sus propios vales — el ranking mostraba
 // 0 pts para todos los demás gestores.
-// Colecciones de entidades reales.
-// v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
-// HTTPS cada 5s (arrancado abajo con _startRestPolling) ya trae todas las
-// colecciones y llama a los manejadores correspondientes. Este forEach
-// queda como no-op — lo mantenemos para que cualquier referencia futura
-// no rompa, pero no registra ningún listener real.
-['gestores', 'mensajeros', 'productos', 'categorias'].forEach(node => {
-  // no-op: _doRestPoll ya trae estas colecciones cada 5s
-});
-// Arrancar el sondeo por HTTPS desde el inicio en AMBAS páginas (admin y
-// gestor). Sin esto, un dispositivo nuevo con el streaming bloqueado no
-// recibiría ni la lista de gestores para poder seleccionarse.
-_startRestPolling();
-
-// Nodos singleton: un solo documento en meta/{node}. 'notifs'/'estafa'/
-// 'ranking_summary' guardan un array envuelto en {items:[...]} porque
-// Firestore no admite un array como raíz de documento — 'config' es un
-// objeto plano, sin envolver.
-// 'ranking_summary' está incluido aquí para que TODOS los dispositivos de gestor
-// reciban el resumen de puntos que el admin calcula desde el árbol completo de
-// vales (ver el listener de 'vales' más abajo). Un gestor NUNCA tiene en su
-// caché local los vales de los demás gestores.
-// v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
-// HTTPS cada 5s ya trae todos los singletons (config/notifs/estafa/
-// ranking_summary) a través de _doRestPoll. No-op.
-['config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
-  // no-op: _doRestPoll ya trae estos documentos cada 5s
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
+  db.ref(node).on('value', snap => {
+    _syncCount++;
+    try {
+      const val = snap.val();
+      
+      // Only update local storage IF Firebase actually has data.
+      if (val) {
+        let parsedVal = val;
+        if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
+          parsedVal = Object.values(val);
+        }
+        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
+        // Update in-memory cache
+        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
+        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
+        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
+        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
+        else if(node==='config'){_configCache=parsedVal;_configDirty=false;}
+        else if(node==='notifs'){_notifsCache=parsedVal;_notifsDirty=false;}
+        else if(node==='estafa'){_estafaCache=parsedVal;_estafaDirty=false;}
+      } else {
+        const local = localStorage.getItem('axon_'+node);
+        if (!local || local === '[]' || local === '{}') {
+          try { localStorage.setItem('axon_'+node, node==='config'?'{}':'[]'); } catch(e) {}
+        }
+      }
+    } finally {
+      _syncCount--;
+      refreshUI();
+    }
+  });
 });
 
 // Vales Listeners
@@ -2615,106 +2054,123 @@ if (IS_ADMIN) {
   // Admin listens to ALL vales from all gestores — with try/finally
   let _rankingDebounce = null;
   let _lastRankingSummary = '';  // hash del último summary enviado → evitar writes redundantes
-  window._handleValesSnap = function(snap) {
+  db.ref('vales').on('value', snap => {
     _syncCount++;
     try {
-      // v33: filosofía v16 — simpleza. El polling trae TODOS los vales de
-      // Supabase. Los guardamos (reemplazo directo) PERO preservando vales
-      // locales synced:false que no estén en el snap (write sin confirmar).
-      // Si el snap viene vacío, NO tocamos el cache local.
-      let flatVales = snap.docs.map(d => d.data());
+      const val = snap.val();
 
-      // Regenerar campos slimados
-      flatVales.forEach(v => {
-        if (v && !v.valeText) v.valeText = regenerateValeText(v);
-        if (v && Array.isArray(v.valeProductos)) {
-          v.valeProductos.forEach(p => {
-            if (!p.name) {
-              const prod = productoOf(p.id);
-              if (prod) p.name = prod.name;
-            }
-          });
-        }
-        if (v && v.synced === undefined) v.synced = true;
-      });
-
-      // Preservar vales locales synced:false que no estén en el snap
-      const fbIds = new Set(flatVales.map(v => String(v && v.id)));
-      const localPending = (getVales() || []).filter(v =>
-        v && v.synced === false &&
-        v.status !== 'cancelled' &&
-        !fbIds.has(String(v.id))
-      );
-
-      let mergedFlatVales = flatVales.concat(localPending);
-      mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-
-      // Check for new vales with estafa matches before saving
-      const oldVales = getVales();
-      const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => Number(ov.id) === Number(nv.id)));
-
-      // v40 FIX: guardar SIEMPRE, incluso si está vacío. Si el admin hizo
-      // factoryResetVales() o clearGestoresData(), Supabase queda vacío y el
-      // polling trae [] → el cache local debe vaciarse también.
-      try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
-
-      // Show estafa alert for new vales that match blacklist
-      newIds.forEach(nv => {
-        const estafaMatches = checkEstafaMatch(nv);
-        if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
-      });
-
-      // Debounced ranking summary update
-      clearTimeout(_rankingDebounce);
-      _rankingDebounce = setTimeout(() => {
-        const gestores = getGestores();
-        const summary = gestores.map(g => {
-          const pts = mergedFlatVales.filter(v=>Number(v.gestorId)===Number(g.id)&&['confirmed','pending_payment'].includes(v.status))
-            .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-          return { id: g.id, pts };
+      if (val) {
+        let flatVales = [];
+        Object.values(val).forEach(gVales => {
+          if(gVales) flatVales.push(...Object.values(gVales));
         });
-        const summaryStr = JSON.stringify(summary);
-        if (summaryStr !== _lastRankingSummary) {
-          _lastRankingSummary = summaryStr;
-          _enqueueFB('ranking_summary', summary, 'set');
+        // v14: regenerar campos slimados al leer de Firebase.
+        flatVales.forEach(v => {
+          if (v && !v.valeText) v.valeText = regenerateValeText(v);
+          if (v && Array.isArray(v.valeProductos)) {
+            v.valeProductos.forEach(p => {
+              if (!p.name) {
+                const prod = productoOf(p.id);
+                if (prod) p.name = prod.name;
+              }
+            });
+          }
+          if (v && v.synced === undefined) v.synced = true;
+        });
+
+        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
+        // El admin también puede tener vales locales pendientes (raro, pero
+        // pasa si crea vales directos en venta local mientras Firebase está
+        // caído). Preservarlos para no perderlos antes del write.
+        const localPending = (getVales() || []).filter(v =>
+          v && v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        const fbIds = new Set(flatVales.map(v => String(v && v.id)));
+        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        let mergedFlatVales = flatVales;
+        if (orphaned.length > 0) {
+          mergedFlatVales = flatVales.concat(orphaned);
         }
-      }, 3000);
+        mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+        // Check for new vales with estafa matches before saving
+        const oldVales = getVales();
+        const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
+        // Show estafa alert for new vales that match blacklist
+        newIds.forEach(nv => {
+          const estafaMatches = checkEstafaMatch(nv);
+          if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
+        });
+
+        // Debounced ranking summary update — 3s en lugar de 500ms.
+        // Antes: cada snapshot de vales → 500ms después → set('ranking_summary').
+        // En una sesión activa con varios gestores, eso eran 5-10 writes/min
+        // de ranking_summary, casi siempre con el mismo contenido.
+        // Ahora: 3s de debounce + diff de contenido (si los puntos no cambiaron,
+        // no se escribe nada).
+        clearTimeout(_rankingDebounce);
+        _rankingDebounce = setTimeout(() => {
+          const gestores = getGestores();
+          const summary = gestores.map(g => {
+            const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+              .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+            return { id: g.id, pts };
+          });
+          // Diff: si el summary es idéntico al último enviado, no escribir.
+          const summaryStr = JSON.stringify(summary);
+          if (summaryStr !== _lastRankingSummary) {
+            _lastRankingSummary = summaryStr;
+            _enqueueFB('ranking_summary', summary, 'set');
+          }
+        }, 3000);
+      } else {
+        // Firebase has no vales — clear everything, PERO preservar vales
+        // locales synced:false (venta directa del admin pendiente de subir).
+        const localPending = (getVales() || []).filter(v =>
+          v && v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        if (localPending.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        } else {
+          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+          rankingCache = null;
+          _lastRankingSummary = '';
+          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+          _enqueueFB('ranking_summary', null, 'remove');
+        }
+      }
     } finally {
       _syncCount--;
       refreshUI();
     }
-  };
-  // v31: ya NO usamos onSnapshot (SDK Firestore eliminado). El polling por
-  // HTTPS cada 5s trae la colección 'vales' y llama a window._handleValesSnap
-  // automáticamente a través de _doRestPoll().
-  _startRestPolling();
+  });
 }
 
-// Initialize empty Supabase from local if Admin (proyecto nuevo, sin datos aún)
+// Initialize empty Firebase from local if Admin
 if (IS_ADMIN) {
   setTimeout(() => {
-    // v31: si la tabla 'gestores' está vacía en Supabase, sembrar con los
-    // datos locales del admin (primera vez). Usamos _sbRestGetCollection
-    // en vez de firestoreDb.collection().get() — ya no hay SDK Firestore.
-    _sbRestGetCollection('gestores').then(arr => {
-      if (arr && arr.length === 0) {
-        const lGestores = getGestores();
-        if (lGestores.length > 0) {
-          // v31: el chunking sigue siendo útil para no mandar un payload
-          // gigante de una sola vez en redes lentas. _enqueueFBChunked
-          // trocea por tamaño (~6KB/chunk).
-          _enqueueFBChunked('gestores', _buildCollectionUpdates(lGestores, null), 'update');
-          _enqueueFBChunked('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
-          _enqueueFBChunked('productos', _buildCollectionUpdates(getProductos(), null), 'update');
-          _enqueueFBChunked('categorias', _buildCollectionUpdates(getCategorias(), null), 'update');
-          setFB('config', getConfig());
-          const localVales = getVales();
-          if (localVales.length) {
-            _enqueueFBChunked('vales', _buildCollectionUpdates(localVales, null), 'update');
-          }
+    db.ref('.info/connected').once('value').then(() => {
+      db.ref('gestores').once('value').then(s => {
+        if (!s.val()) {
+           const lGestores = getGestores();
+           if(lGestores.length > 0) {
+             setFB('gestores', lGestores);
+             setFB('mensajeros', getMensajeros());
+             setFB('productos', getProductos());
+             setFB('categorias', getCategorias());
+             setFB('config', getConfig());
+             const localVales = getVales();
+             if(localVales.length){
+               // Use write queue instead of direct db.ref().set() to enable retries
+               _enqueueFB('vales', _valesToFirebaseObj(localVales), 'set');
+             }
+           }
         }
-      }
-    }).catch(e => console.error('[supabase] bootstrap check error:', e));
+      });
+    });
   }, 1500);
 }
 
@@ -2722,19 +2178,9 @@ if (IS_ADMIN) {
 
 
 function patchVale(id, changes) {
-  // BUGFIX CRÍTICO: getVales() devuelve la MISMA referencia que _valesCache
-  // (no una copia). "all[i] = {...}" mutaba esa entrada DENTRO del array
-  // que _valesCache sigue apuntando, así que dentro de saveVales(),
-  // "prevVales = _valesCache" ya reflejaba el cambio — el diff comparaba
-  // el vale modificado contra SÍ MISMO, veía "sin cambios", y el patch
-  // (asignar mensajero, confirmar venta, marcar entregado, cancelar,
-  // marcar comisión pagada, etc. — TODO lo que pasa por patchVale) nunca
-  // se encolaba hacia Firestore. Se guardaba local nada más. Este es el
-  // mismo bug que en sendVale()/addGestor(), pero aquí afecta a CADA
-  // acción del admin sobre un vale ya existente, no solo a los nuevos.
-  // Fix: .map() construye un array NUEVO en vez de mutar el existente.
-  const all = getVales().map(v => v.id === id ? {...v, ...changes} : v);
-  if (all.some(v => v.id === id)) {
+  const all = getVales(); const i = all.findIndex(v=>v.id===id);
+  if (i!==-1){
+    all[i]={...all[i],...changes};
     // saveVales already writes to Firebase via _enqueueFB — no need for redundant fbUpdateVale
     // Previously, both saveVales (full 'set') and fbUpdateVale (partial 'update') were called,
     // causing race conditions where Firebase could overwrite local changes with stale data.
@@ -2792,17 +2238,16 @@ async function _doReconcileNextValeNum() {
   try {
     const localCfg = getConfig();
     const localNext = localCfg.nextValeNum || 1;
-    // v31: sin SDK Firestore, no hay runTransaction. Equivalente: leer el
-    // config remoto de Supabase por REST; si su nextValeNum es menor que
-    // el local, hacer UPSERT con el valor local. Si dos gestores hacen esto
-    // a la vez, el último en escribir gana (race benigno: el número real
-    // ya se asignó a cada vale por Date.now() que es único).
-    const remote = await _sbRestGetMeta('config');
-    const remoteNext = (remote && remote.nextValeNum) || 1;
-    if (remoteNext < localNext) {
-      // Merge: preservar los demás campos del config remoto si existen.
-      const merged = Object.assign({}, remote || {}, { nextValeNum: localNext });
-      await _sbRestMetaUpsert('config', merged);
+    // transaction: si remoto < local, llevarlo a local. Si remoto > local,
+    // adoptar el remoto (alguien más lo adelantó).
+    const result = await db.ref('config/nextValeNum').transaction(curr => {
+      const remote = curr || 1;
+      if (remote < localNext) return localNext;
+      // remote >= localNext: el remoto ya está adelantado, no tocar.
+      return; // undefined → abortar transaction (no cambiar nada)
+    }, undefined, false);
+    if (result && result.committed) {
+      // La transacción hizo un cambio → remote era menor, lo subimos a localNext.
       // Actualizar cache local para que el listener no lo revierta.
       const cfg = getConfig();
       cfg.nextValeNum = localNext;
@@ -2821,10 +2266,8 @@ function valeNumStr(v) {
   return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
 }
 function patchProducto(id, changes) {
-  // BUGFIX: mismo problema que patchVale() — no mutar el array que
-  // devuelve getProductos() (afecta stock, reservas, etc.).
-  const all = getProductos().map(p => p.id === id ? {...p, ...changes} : p);
-  if (all.some(p => p.id === id)) saveProductos(all);
+  const all = getProductos(); const i = all.findIndex(p=>p.id===id);
+  if (i!==-1){all[i]={...all[i],...changes};saveProductos(all);}
 }
 
 // ══════════════════════════════════════════
@@ -2947,7 +2390,7 @@ function renderGestorNotifs() {
   // Personal Notifs — check if cleared for this gestor
   const personalCleared = activeGestorId ? localStorage.getItem('axon_cleared_personal_' + activeGestorId) : null;
   const personalNotifs = notifs.filter(n => {
-    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'ranking_top3'].includes(n.type) && activeGestorId && Number(n.gestorId) === Number(activeGestorId);
+    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'ranking_top3'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
   });
 
   const sec = document.getElementById('gestorNotifsSection');
@@ -2961,7 +2404,7 @@ function renderGestorNotifs() {
     const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','vale_seen','ranking_top3'].includes(n.type)?'ok':'';
     
     // Unread logic
-    const nIdx = notifs.findIndex(x => Number(x.id) === Number(n.id));
+    const nIdx = notifs.findIndex(x => x.id === n.id);
     const isUnread = !isPersonal && (viewedIdx === -1 || nIdx < viewedIdx);
     const cls=isUnread?'unread':`type-${typeClass}`;
     
@@ -3007,7 +2450,7 @@ function renderGestorNotifs() {
 
   if(sec) {
     const unread = globalNotifs.filter(n => {
-       const idx = notifs.findIndex(x => Number(x.id) === Number(n.id));
+       const idx = notifs.findIndex(x => x.id === n.id);
        return viewedIdx === -1 || idx < viewedIdx;
     }).length;
     const badge = document.getElementById('notifUnreadBadge');
@@ -3153,7 +2596,7 @@ function adminTab(tab) {
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
   if(tab==='mensajeros'){renderMensajeroSelector();renderPendingCobroSection();renderMensajeroVales();}
-  if(tab==='config'){loadGhConfigUI();loadMaintenanceModeUI();}
+  if(tab==='config'){loadGhConfigUI();}
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
 }
@@ -3512,30 +2955,21 @@ function handleGestorPhoto(file) {
   reader.onload = e => {
     showToast('🔄 Procesando foto...');
     // 256px, calidad 0.72 — suficiente para un avatar, ligero para Firebase sync
-    compressImage(e.target.result, 256, 0.72, async compressed => {
+    compressImage(e.target.result, 256, 0.72, compressed => {
       if (!compressed) { showToast('Error al procesar la imagen'); return; }
-      // Subir como archivo a GitHub en vez de guardar el base64 completo dentro
-      // del registro — si no hay GitHub configurado o la subida falla, cae de
-      // vuelta a guardar el base64 directo (comportamiento de antes).
-      const uploaded = await uploadPhotoToGitHub(compressed, 'g');
-      const photoValue = uploaded || compressed;
-      // BUGFIX: no mutar el array que devuelve getGestores() — ver el
-      // comentario detallado en sendVale()/patchVale().
-      const list = getGestores().map(g => g.id === activeGestorId ? {...g, photo: photoValue} : g);
-      if (!list.some(g => g.id === activeGestorId)) return;
+      const list = getGestores();
+      const i = list.findIndex(g => g.id === activeGestorId);
+      if (i === -1) return;
+      list[i].photo = compressed;
       saveGestores(list); // → localStorage + Firebase → todos los dispositivos
       gestoresTabDirty = true;
       // Refrescar UI inmediatamente en este dispositivo
       doSelectGestor(activeGestorId);
       if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
       if (typeof renderGestorRanking === 'function') { rankingCache = null; renderGestorRanking(); }
-      if (uploaded) {
-        showToast('✅ Foto actualizada (subida a GitHub)');
-      } else {
-        const fmt = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
-        const kb = Math.round(compressed.length / 1024);
-        showToast(`✅ Foto actualizada (${fmt} · ${kb} KB)`);
-      }
+      const fmt = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
+      const kb = Math.round(compressed.length / 1024);
+      showToast(`✅ Foto actualizada (${fmt} · ${kb} KB)`);
     });
   };
   reader.onerror = () => showToast('Error al leer el archivo');
@@ -3577,18 +3011,17 @@ function changeGestorPhotoById(id) {
     const reader = new FileReader();
     reader.onload = ev => {
       showToast('🔄 Procesando foto...');
-      compressImage(ev.target.result, 256, 0.72, async compressed => {
+      compressImage(ev.target.result, 256, 0.72, compressed => {
         if (!compressed) { showToast('Error al procesar la imagen'); return; }
-        const uploaded = await uploadPhotoToGitHub(compressed, 'g');
-        // BUGFIX: no mutar el array que devuelve getGestores().
-        const photoValue = uploaded || compressed;
-        const list = getGestores().map(g => g.id === pendingGestorPhotoId ? {...g, photo: photoValue} : g);
-        if (!list.some(g => g.id === pendingGestorPhotoId)) return;
+        const list = getGestores();
+        const i = list.findIndex(g => g.id === pendingGestorPhotoId);
+        if (i === -1) return;
+        list[i].photo = compressed;
         saveGestores(list);
         gestoresTabDirty = true;
         renderAdminGestoresList();
         renderGestores();
-        showToast(uploaded ? '✅ Foto actualizada (subida a GitHub)' : '✅ Foto actualizada');
+        showToast('✅ Foto actualizada');
       });
     };
     reader.readAsDataURL(file);
@@ -3648,7 +3081,7 @@ function submitGestorPass() {
 }
 function changeGestor() {
   if (gestorValesListener && activeGestorId) {
-    gestorValesListener();
+    db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
     gestorValesListener = null;
   }
   activeGestorId=null;
@@ -3926,7 +3359,7 @@ function renderAdminGestoresList() {
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
   c.innerHTML=list.map(g=>{
-    const vales=getVales().filter(v=>Number(v.gestorId)===Number(g.id));
+    const vales=getVales().filter(v=>v.gestorId===g.id);
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
     const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
@@ -4053,30 +3486,21 @@ function closeEditGestorModal(){
   window._editGestorPhotoPending = null;
   window._editGestorPhotoRemoved = false;
 }
-async function saveEditGestor() {
+function saveEditGestor() {
   const id=parseInt(document.getElementById('editGestorModal').dataset.gestorId);
   const newName=document.getElementById('editGestorInput').value.trim();
   if(!newName){showToast('El nombre no puede estar vacío');return;}
-  const orig=getGestores();const i=orig.findIndex(g=>g.id===id);if(i===-1)return;
-  if(orig.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
-  // BUGFIX: no mutar los objetos/array que devuelve getGestores() — ver el
-  // comentario detallado en sendVale()/patchVale(). Se arma una copia
-  // propia del gestor editado y se muta ESA copia libremente.
-  const edited = {...orig[i]};
-  edited.name=newName;
-  edited.initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  edited.phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
+  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
+  if(list.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
+  list[i].name=newName;
+  list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  list[i].phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
   // ── Aplicar cambios de foto pendientes (subir/quitar) ──
-  // _editGestorPhotoPending es el base64 recién comprimido (preview local) —
-  // se sube a GitHub recién ahora, al guardar, para no subir fotos que el
-  // usuario termine descartando cerrando el modal sin guardar.
   if (window._editGestorPhotoPending) {
-    const uploaded = await uploadPhotoToGitHub(window._editGestorPhotoPending, 'g');
-    edited.photo = uploaded || window._editGestorPhotoPending;
+    list[i].photo = window._editGestorPhotoPending;
   } else if (window._editGestorPhotoRemoved) {
-    delete edited.photo;
+    delete list[i].photo;
   }
-  const list = orig.map(g => g.id === id ? edited : g);
   saveGestores(list); // → localStorage + Firebase → se actualiza en todos los dispositivos
   closeEditGestorModal();
   gestoresTabDirty=true;rankingCache=null;
@@ -4088,10 +3512,8 @@ async function saveEditGestor() {
 }
 
 function resetGestorPass(id) {
-  const orig=getGestores();if(!orig.some(g=>g.id===id))return;
-  // BUGFIX: no mutar el array que devuelve getGestores().
-  const np=genPassword().trim().toUpperCase();
-  saveGestores(orig.map(g => g.id === id ? {...g, password: np} : g));
+  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
+  const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
   _logAudit('gestor_pass_reset', 'gestor:' + id);
   gestoresTabDirty=true;
   renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
@@ -4120,7 +3542,7 @@ function copyGestorPass(id) {
 function removeGestor(id) {
   const g = gestorOf(id);
   if (!g) return;
-  const hasVales = getVales().some(v=>Number(v.gestorId)===Number(id));
+  const hasVales = getVales().some(v=>v.gestorId===id);
   const sub = hasVales ? 'Tiene vales registrados. Si lo borras, quedarán huérfanos.' : 'El gestor será borrado del sistema.';
   showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
     const newList = getGestores().filter(x=>x.id!==id);
@@ -4143,11 +3565,8 @@ function addGestor() {
   if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
   const password=genPassword();
-  // BUGFIX: mismo problema que en sendVale() — list ES _gestoresCache
-  // (getGestores() no devuelve una copia), así que list.push() mutaba el
-  // caché ANTES de que saveGestores() pudiera diferenciar "antes" vs
-  // "ahora" y el gestor nuevo nunca se encolaba hacia Firestore.
-  saveGestores([...list, {id:Date.now(),name,initials,color,password,phone}]);inp.value='';
+  list.push({id:Date.now(),name,initials,color,password,phone});
+  saveGestores(list);inp.value='';
   const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
@@ -4166,11 +3585,8 @@ function renderAdminGestores() {
   let html = '';
   
   // Only show gestores that have AT LEAST ONE pending vale (excluye confirmed, delivered y cancelled)
-  // v38 FIX: vales sin status definido (undefined/null) se consideran pendientes —
-  // son vales recién enviados que aún no tienen status explícito en Supabase.
-  const isPending = v => v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled';
   const gestoresConPendientes = gestores.filter(g => {
-     return vales.some(v => Number(v.gestorId) === Number(g.id) && isPending(v));
+     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled');
   });
 
   if(gestoresConPendientes.length === 0) {
@@ -4180,7 +3596,7 @@ function renderAdminGestores() {
 
   gestoresConPendientes.forEach(g => {
     // Only fetch active (not confirmed/delivered/cancelled)
-    const pendingVales = vales.filter(v => Number(v.gestorId) === Number(g.id) && isPending(v)).reverse();
+    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled').reverse();
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -4222,8 +3638,8 @@ function buildInboxCard(v) {
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
     cancelled:{label:'Cancelado',cls:'sp-cancelled'}
   };
-  const s=sMap[v.status]||sMap['pending']||{label:'Pendiente',cls:'sp-pending'};  // v38: fallback a pendiente
-  const isNew=v.isNew&&(v.status==='pending'||v.status==null);
+  const s=sMap[v.status]||{label:v.status,cls:''};
+  const isNew=v.isNew&&v.status==='pending';
   const sel=v.id===selectedValeId;
   const estafaMatch=checkEstafaMatch(v);
   const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
@@ -4289,7 +3705,7 @@ function renderValeDetail() {
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
     cancelled:{label:'Cancelado',cls:'sp-cancelled',icon:'🚫'},
   };
-  const s=sMap[v.status]||sMap['pending'];  // v43: status undefined → 'Pendiente' (no 'UNDEFINED')
+  const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
   let actHTML='';
   // Product link status — show picker if no products linked
@@ -4314,12 +3730,7 @@ function renderValeDetail() {
     actHTML=`${productPickerHTML}<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
       <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
       <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🔄 Reenviar vale</button>
-      <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-        <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
-        <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
-      </div>`;
+      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
   } else if(v.status==='delivered'){
     actHTML=`${productPickerHTML}<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
       <div style="font-size:24px;margin-bottom:4px;">🛵</div>
@@ -4350,17 +3761,6 @@ function renderValeDetail() {
       <div style="font-size:26px;margin-bottom:4px;">🚫</div>
       <div style="font-weight:700;color:var(--red);">Vale Cancelado</div>
       ${v.cancelledTs?`<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${new Date(v.cancelledTs).toLocaleString('es-ES')}</div>`:''}
-    </div>`;
-  } else {
-    // v43 FIX: status undefined/null/unknown → tratar como 'pending'.
-    // ANTES, un vale sin status no entraba en ninguna rama → actHTML quedaba
-    // vacío → no se mostraban botones de acción. Ahora mostramos los mismos
-    // botones que 'pending' para que el admin pueda procesar el vale.
-    actHTML=`${productPickerHTML}<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
-    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
-      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
     </div>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
@@ -4394,7 +3794,15 @@ function renderValeDetail() {
             <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:100px;">${k}</td>
             <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
       </table>
-      ${v.mensajeria?`<div style="margin-top:10px;padding:10px 12px;background:rgba(0,109,138,.06);border:1px solid rgba(0,109,138,.2);border-radius:8px;">
+      ${v.recogidaTienda?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;display:flex;align-items:center;gap:6px;">
+        <span style="font-size:14px;">🏪</span>
+        <span style="font-size:12px;font-weight:700;color:var(--blue);">Recogida en tienda</span>
+      </div>`:''}
+      ${v.ubicacion?`<div style="margin-top:8px;padding:8px 12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;">
+        <div style="font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">📍 Ubicación compartida</div>
+        <a href="${escapeAttr(v.ubicacion)}" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:underline;word-break:break-all;">Abrir en Google Maps</a>
+      </div>`:''}
+      ${v.mensajeria?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.06);border:1px solid rgba(0,109,138,.2);border-radius:8px;">
         <div style="font-size:10px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🛵 Mensajería</div>
         <div style="font-size:13px;font-weight:600;color:var(--text);">${escapeHTML(v.mensajeria)}</div>
       </div>`:''}
@@ -4864,9 +4272,7 @@ function addMensajero() {
   const phoneInp=document.getElementById('newMensajeroPhoneInput');
   const rawPhone = phoneInp ? (phoneInp.value||'').trim() : '';
   const phone = _normalizePhone(rawPhone);
-  // BUGFIX: ver comentario en sendVale()/addGestor() — no mutar el array
-  // que devuelve getMensajeros().
-  saveMensajeros([...getMensajeros(), {id:Date.now(),name,phone:phone||''}]);
+  const list=getMensajeros();list.push({id:Date.now(),name,phone:phone||''});saveMensajeros(list);
   inp.value='';if(phoneInp) phoneInp.value='';
   renderMensajeros();maybeAutoSync();
   showToast(phone ? 'Mensajero agregado ✓' : 'Mensajero agregado (sin teléfono)');
@@ -5074,7 +4480,7 @@ function getGestorHistPeriodRange() {
 }
 
 function _computeGestorStatsForRange(gestorId, from, to) {
-  let vales = getVales().filter(v => Number(v.gestorId) === Number(gestorId));
+  let vales = getVales().filter(v => v.gestorId === gestorId);
   if (from) vales = vales.filter(v => localDay(v.ts) >= from);
   if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
   const total = vales.length;
@@ -5134,74 +4540,55 @@ function renderGestorDashboard() {
     ? _computeGestorStatsForRange(activeGestorId, range.prevFrom, range.prevTo)
     : null;
 
-  // Meta progress
+  // Meta progress bar
   const cfg = getConfig();
   const meta = cfg.metaPuntos || 100;
   const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
 
-  // v9: KPIs en grid de 4 columnas fijo (el contenedor padre ya es display:block)
-  const confirmedTotal = cur.confirmed + cur.pendingPay;
+  // Build the 4-stat summary
+  const stats = [
+    { label:'Vales', val:cur.total, color:'var(--blue)', cmp: prev ? _cmpArrow(cur.total, prev.total) : '' },
+    { label:'Confirmados', val:cur.confirmed + cur.pendingPay, color:'var(--green)', cmp: prev ? _cmpArrow(cur.confirmed + cur.pendingPay, prev.confirmed + prev.pendingPay) : '' },
+    { label:'Puntos ⭐', val:cur.pts, color:'#F59E0B', cmp: prev ? _cmpArrow(cur.pts, prev.pts) : '' },
+    { label:'Conversión', val:cur.conversion + '%', color:'var(--orange)', cmp: prev ? _cmpArrow(cur.conversion, prev.conversion) : '' },
+  ];
 
-  const heroHTML = `
-    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px);margin-bottom:clamp(8px,2.5vw,12px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(4px,1.5vw,8px);">
-        <div style="text-align:center;">
-          <div style="font-size:clamp(20px,6.5vw,30px);font-weight:700;color:var(--blue);line-height:1;letter-spacing:-.02em;">${cur.total}</div>
-          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Vales</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:clamp(20px,6.5vw,30px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${confirmedTotal}</div>
-          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Confir.</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:clamp(20px,6.5vw,30px);font-weight:700;color:#F59E0B;line-height:1;letter-spacing:-.02em;">${cur.pts}</div>
-          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Puntos ⭐</div>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:clamp(16px,5vw,24px);font-weight:700;color:var(--green);line-height:1;letter-spacing:-.02em;">${cur.conversion}%</div>
-          <div style="font-size:clamp(8px,2.5vw,10px);color:var(--text-muted);margin-top:4px;">Conv.</div>
-        </div>
-      </div>
+  const statsHTML = stats.map(s => `
+    <div class="stat-card" style="padding:10px 8px;text-align:center;">
+      <div class="stat-num" style="color:${s.color};font-size:20px;">${s.val}</div>
+      <div class="stat-lbl" style="font-size:10px;">${s.label}</div>
+      ${s.cmp ? `<div style="margin-top:2px;">${s.cmp}</div>` : ''}
     </div>
-  `;
+  `).join('');
 
-  // v16: banner verde SIEMPRE visible. Calcular comisión de TODOS los vales
-  // confirmados/pending_payment (no solo los del período) para que el gestor
-  // vea su comisión total acumulada.
-  const gidNum = Number(activeGestorId);
-  const allMyVales = getVales().filter(v =>
-    v && v.gestorId != null && Number(v.gestorId) === gidNum &&
-    ['confirmed','pending_payment'].includes(v.status)
-  );
-  const allCom = sumCommissions(allMyVales);
-  const allComBadge = fmtComisionBadge(allCom.usd, allCom.mn, allCom.computed);
-  const displayComBadge = allComBadge || (cur.comBadge || '$0.00 USD');
-
-  let comHTML = `<div style="background:linear-gradient(135deg,#059669 0%,#047857 100%);color:#fff;border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px) clamp(16px,5vw,22px);margin-bottom:clamp(8px,2.5vw,12px);display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <div>
-        <div style="font-size:clamp(9px,2.8vw,11px);opacity:.9;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Comisión estimada</div>
-        <div style="font-size:clamp(18px,6vw,26px);font-weight:700;margin-top:3px;">${escapeHTML(displayComBadge)}</div>
-      </div>
-      <div style="font-size:clamp(22px,7vw,30px);line-height:1;flex-shrink:0;">💵</div>
+  // Commission summary line
+  let comLine = '';
+  if (cur.comBadge) {
+    comLine = `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;gap:6px;">
+      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión estimada (${range.label.toLowerCase()})</span>
+      <span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${escapeHTML(cur.comBadge)}</span>
     </div>`;
+  } else if (cur.closed > 0) {
+    comLine = `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;gap:6px;">
+      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión estimada (${range.label.toLowerCase()})</span>
+      <span style="font-size:12px;color:var(--gray-400);">No computable</span>
+    </div>`;
+  }
 
-  // Meta de puntos
+  // Meta progress bar
   const metaHTML = `
-    <div style="background:var(--surface);border-radius:clamp(12px,4vw,16px);padding:clamp(14px,4vw,18px);margin-bottom:clamp(8px,2.5vw,12px);box-shadow:0 2px 8px rgba(0,0,0,.04);">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(8px,2.5vw,12px);">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="font-size:clamp(13px,4vw,15px);">🎯</span>
-          <span style="font-size:clamp(12px,3.5vw,14px);font-weight:600;color:var(--text);">Meta de puntos</span>
-        </div>
-        <span style="font-size:clamp(10px,3vw,12px);color:var(--text-muted);font-weight:500;">${cur.pts} / ${meta} pts</span>
+    <div style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
+        <span style="font-size:11px;font-weight:600;color:var(--text);">🎯 Meta de puntos</span>
+        <span style="font-size:11px;color:var(--gray-400);">${cur.pts} / ${meta} pts · ${pctMeta}%</span>
       </div>
-      <div style="background:var(--surface3);border-radius:20px;height:clamp(8px,2.5vw,10px);overflow:hidden;">
-        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg,#0891B2,#0EA5E9);border-radius:20px;transition:width .6s;"></div>
+      <div style="background:var(--gray-100);border-radius:20px;height:8px;overflow:hidden;">
+        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg, var(--blue), var(--green));border-radius:20px;transition:width .6s;"></div>
       </div>
     </div>
   `;
 
-  dash.innerHTML = heroHTML + comHTML + metaHTML;
+  dash.innerHTML = statsHTML + comLine + metaHTML;
 }
 
 function renderMyVales() {
@@ -5211,14 +4598,8 @@ function renderMyVales() {
   // Asegurar que el banner de pendientes refleja el estado actual
   if (typeof _updatePendingSyncBanner === 'function') _updatePendingSyncBanner();
 
-  // v32: comparación robusta con Number() por si gestorId viene como string
-  const gid = Number(activeGestorId);
-  const mine = getVales().filter(v => v && v.gestorId != null && Number(v.gestorId) === gid).reverse();
-  // v37 FIX DEFENSIVO: si un vale NO tiene status definido (undefined/null),
-  // asumir que es 'pending' — es el status inicial legítimo de un vale recién
-  // enviado. ANTES, un vale sin status quedaba fuera de activeVales Y de
-  // historyVales → desaparecía de la UI aunque estuviera en el cache.
-  const activeVales = mine.filter(v => ['pending',undefined,null,'assigned','delivered','pending_payment'].includes(v.status));
+  const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
+  const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
   // History now separates confirmed sales from pending_payment (awaiting collection) — both "completed" deliveries
   // but pending_payment represents an outstanding balance the gestor should track.
   const historyVales = mine.filter(v => v.status === 'confirmed' && !v.hiddenFromHistory);
@@ -5248,11 +4629,11 @@ function renderMyVales() {
     c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Sin vales activos</div></div>';
   } else {
     c.innerHTML=activeVales.map(v=>{
-      let s=sMap[v.status]||sMap['pending'];  // v37: si status es undefined, usar 'pending'
+      let s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
       // Si el vale aún no se ha confirmado en Firebase, mostrar "Subiendo..." como label principal
       if(v.synced === false) s=pendingSyncing;
       // Show "Visto por admin" status when the admin has already opened this pending vale
-      else if((v.status==='pending'||v.status==null) && v.seenByAdmin) s=pendingSeen;
+      else if(v.status==='pending' && v.seenByAdmin) s=pendingSeen;
       const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
       const canCancel=v.status==='pending';
       return `<div class="mv-card st-${v.status}">
@@ -5322,61 +4703,45 @@ function renderGestorComisiones() {
   const list=document.getElementById('gestorComisionList');
   if(!section||!list||!activeGestorId){if(section)section.style.display='none';return;}
   // Get confirmed/pending_payment vales for this gestor
-  const mine=getVales().filter(v=>Number(v.gestorId)===Number(activeGestorId)&&['confirmed','pending_payment'].includes(v.status));
+  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&['confirmed','pending_payment'].includes(v.status));
   // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
   const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
   const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
   const cobrados=mine.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){section.style.display='none';return;}
   section.style.display='block';
-
-  // v4 OPTIMIZADO MÓVIL: íconos más pequeños, padding reducido, texto con clamp()
-  let html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:clamp(10px,3.5vw,14px);overflow:hidden;margin-top:10px;">';
-
+  let html='';
+  // Pendientes section — mostrar solo "Pendiente" con el total, sin detalles
   if(pendientes.length){
     const s=sumCommissions(pendientes);
     const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
-    // v16: si no hay badge pero hay comisiones pendientes, mostrar $0.00
-    const displayBadge = badge || '$0.00 USD';
-    html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
-        <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(249,115,22,.12);flex-shrink:0;">⏳</div>
-        <div style="display:flex;flex-direction:column;min-width:0;">
-          <span style="font-size:clamp(12px,3.5vw,13px);font-weight:700;color:var(--orange);">Pendiente</span>
-          <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${pendientes.length} comisión${pendientes.length!==1?'es':''} · se acumulan</span>
-        </div>
+    html+=`<div class="card" style="border-left:3px solid var(--orange);margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;font-weight:700;color:var(--orange);">⏳ Pendiente</span>
+        ${badge?`<span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${badge}</span>`:`<span style="font-size:12px;font-weight:700;color:var(--orange);">${pendientes.length} comisión${pendientes.length!==1?'es':''}</span>`}
       </div>
-      <div style="font-size:clamp(12px,3.8vw,14px);font-weight:800;color:var(--green);white-space:nowrap;flex-shrink:0;">${displayBadge}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Se acumulan cada día hasta que se pasen al sobre</div>
     </div>`;
   }
-
+  // En sobre — NO mostrar montos, solo indicar que están en sobre (no seguir sumando)
   if(enSobre.length){
-    html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border);">
-      <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
-        <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(245,158,11,.12);flex-shrink:0;">✉️</div>
-        <div style="display:flex;flex-direction:column;min-width:0;">
-          <span style="font-size:clamp(12px,3.5vw,13px);font-weight:700;color:var(--yellow);">En sobre</span>
-          <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''} · pend. entrega</span>
-        </div>
+    html+=`<div class="card" style="border-left:3px solid var(--yellow);margin-bottom:8px;opacity:.8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:var(--yellow);">✉️ En sobre</span>
+        <span style="font-size:11px;color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''}</span>
       </div>
-      <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);flex-shrink:0;">—</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Pendiente de entrega</div>
     </div>`;
   }
-
+  // Cobrados — solo conteo sin montos
   if(cobrados.length){
-    html += `<div style="padding:clamp(10px,3.5vw,14px) clamp(12px,4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:8px;">
-      <div style="display:flex;align-items:center;gap:clamp(8px,2.5vw,10px);min-width:0;flex:1;">
-        <div style="width:clamp(30px,9vw,36px);height:clamp(30px,9vw,36px);border-radius:clamp(8px,2.5vw,10px);display:flex;align-items:center;justify-content:center;font-size:clamp(15px,4.5vw,18px);background:rgba(16,185,129,.12);flex-shrink:0;">✅</div>
-        <div style="display:flex;flex-direction:column;min-width:0;">
-          <span style="font-size:clamp(12px,3.5vw,13px);font-weight:700;color:var(--green);">Cobrados</span>
-          <span style="font-size:clamp(9px,2.8vw,10px);color:var(--text-muted);">${cobrados.length} comisión${cobrados.length!==1?'es':''} · completado</span>
-        </div>
+    html+=`<div class="card" style="border-left:3px solid var(--green);opacity:.6;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:var(--green);">💰 Cobrados</span>
+        <span style="font-size:11px;color:var(--text-muted);">${cobrados.length}</span>
       </div>
-      <div style="font-size:clamp(10px,3vw,11px);color:var(--text-muted);flex-shrink:0;">✓</div>
     </div>`;
   }
-
-  html += '</div>';
   list.innerHTML=html;
 }
 let _gestorHistOpen=false;
@@ -5387,10 +4752,10 @@ function toggleGestorHistorial(){
   const clearBtn=document.getElementById('gestorHistClearBtn');
   if(hList) hList.style.display=_gestorHistOpen?'block':'none';
   if(arrow) arrow.textContent=_gestorHistOpen?'▲':'▼';
-  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>Number(v.gestorId)===Number(activeGestorId)&&v.status==='confirmed'&&!v.hiddenFromHistory);clearBtn.style.display=hv.length?'block':'none';}
+  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);clearBtn.style.display=hv.length?'block':'none';}
 }
 function clearGestorHistory(){
-  const confirmed=getVales().filter(v=>Number(v.gestorId)===Number(activeGestorId)&&v.status==='confirmed'&&!v.hiddenFromHistory);
+  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);
   if(!confirmed.length){showToast('No hay historial para ocultar');return;}
   showConfirmAction('¿Ocultar historial?',`Se ocultarán ${confirmed.length} vales completados de tu vista. <b>Los datos NO se borran</b> — el admin sigue viéndolos en estadísticas e historial. Esta acción es reversible desde el panel admin.`,'Ocultar','btn-red',()=>{
     // Mark vales as hidden for this gestor — do NOT delete
@@ -5728,11 +5093,35 @@ function saveCatalogPhone() {
   const cfg=getConfig();cfg.catalogPhone=phone;saveConfig(cfg);showToast('Número catálogo guardado ✓');
   triggerAutoPublishCatalog();
 }
+// v18: cuando se marca "recogida en tienda", deshabilitar dirección y mensajería
+function onRecogidaTiendaChange() {
+  const chk = document.getElementById('vf-recogidaTienda');
+  if (!chk) return;
+  const isStore = chk.checked;
+  const dir = document.getElementById('vf-direccion');
+  const men = document.getElementById('vf-mensajeria');
+  const ubi = document.getElementById('vf-ubicacion');
+  const ubiRow = document.getElementById('vf-ubicacionRow');
+  if (isStore) {
+    if (dir) { dir.value = 'Recogida en tienda'; dir.style.background = 'var(--surface2)'; dir.style.color = 'var(--text-muted)'; }
+    if (men) { men.value = 'Sin envío'; men.style.background = 'var(--surface2)'; men.style.color = 'var(--text-muted)'; }
+    if (ubi) ubi.value = '';
+    if (ubiRow) ubiRow.style.display = 'none';
+  } else {
+    if (dir) { if (dir.value === 'Recogida en tienda') dir.value = ''; dir.style.background = ''; dir.style.color = ''; }
+    if (men) { if (men.value === 'Sin envío') men.value = ''; men.style.background = ''; men.style.color = ''; }
+    if (ubiRow) ubiRow.style.display = '';
+  }
+  onFormInput();
+}
+
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-carnet','vf-mensajeria','vf-articulo',
-   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor'].forEach(id=>{
+   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor','vf-ubicacion'].forEach(id=>{
      const el=document.getElementById(id);if(el)el.value='';
    });
+  const chk=document.getElementById('vf-recogidaTienda');if(chk)chk.checked=false;
+  onRecogidaTiendaChange();
   currentValeProductos=[];selectedProductsUI=[];
   renderSelectedProductsUI();
   
@@ -5753,7 +5142,6 @@ let _isSendingVale = false;
 function sendVale() {
   if(_isSendingVale) return; // Prevent double submission
   if(!activeGestorId){showToast('Selecciona tu nombre primero');return;}
-  if(getConfig().maintenanceMode){showToast('🚧 Sistema en mantenimiento — intenta de nuevo en unos minutos');return;}
   if(REQUIRED.some(id=>!fVal(id))){showToast('Completa los campos obligatorios (*)');return;}
   _isSendingVale = true;
   const btn=document.getElementById('sendValeBtn');
@@ -5771,24 +5159,13 @@ function sendVale() {
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
+    recogidaTienda:!!document.getElementById('vf-recogidaTienda')?.checked,
+    ubicacion:fVal('vf-ubicacion'),
     valeProductos:currentValeProductos,valeText:buildValeText(),
     status:'pending',mensajeroId:null,confirmedTs:null,isNew:true,adminNotes:'',
     synced:false, // se marcará true cuando Firebase confirme el write
   };
-  // BUGFIX CRÍTICO: getVales() devuelve la MISMA referencia en memoria que
-  // _valesCache (no una copia). Hacer getVales().push(vale) mutaba
-  // _valesCache DIRECTAMENTE antes de llamar a saveVales() — así que dentro
-  // de saveVales(), "prevVales = _valesCache" ya incluía el vale nuevo
-  // (prevVales y v eran literalmente el mismo array). El diff contra "lo
-  // anterior" comparaba el vale contra SÍ MISMO, veía "sin cambios", y
-  // nunca llamaba a _enqueueFB — el vale se guardaba local pero JAMÁS se
-  // encolaba el write a Firestore. Esto explica el patrón reportado
-  // "el vale sale pero la subida se queda pegada": no era un problema de
-  // red ni de Firestore, el write ni siquiera se intentaba. Se reproduce
-  // siempre que _valesCache ya esté "tibio" (getVales() ya se llamó antes
-  // en la sesión, lo normal), que es el caso típico. Fix: construir un
-  // array NUEVO (spread) en vez de mutar el que devuelve getVales().
-  const all=[...getVales(), vale];saveVales(all);
+  const all=getVales();all.push(vale);saveVales(all);
   _logAudit('vale_sent', 'vale:' + vale.id + ' gestor:' + activeGestorId);
 
   // ── v15: Registrar Background Sync para que el SW reintente si la página
@@ -6075,9 +5452,7 @@ function addCategoria() {
   const inp=document.getElementById('newCatInput');const name=inp.value.trim();if(!name)return;
   const list=getCategorias();
   if(list.some(c=>c.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe');return;}
-  // BUGFIX: ver comentario en sendVale()/addGestor() — no mutar el array
-  // que devuelve getCategorias().
-  saveCategorias([...list, {id:Date.now(),name}]);inp.value='';renderStockCategorias();showToast('Categoría agregada');
+  list.push({id:Date.now(),name});saveCategorias(list);inp.value='';renderStockCategorias();showToast('Categoría agregada');
 }
 function removeCategoria(id) {
   if(getProductos().some(p=>p.catId===id)){showToast('Primero mueve o elimina los productos de esta categoría');return;}
@@ -6409,111 +5784,6 @@ function closeOptimizePhotosModal() {
   const modal = document.getElementById('optimizePhotosModal');
   if (modal) modal.classList.remove('show');
 }
-
-// ══════════════════════════════════════════
-//  MIGRAR FOTOS EXISTENTES (base64) A ARCHIVOS EN GITHUB
-//  Retroactivo: productos y gestores subidos ANTES de que las fotos nuevas
-//  empezaran a subirse solas a GitHub (ver uploadPhotoToGitHub). Solo toca
-//  fotos que sigan siendo base64 — idempotente, se puede correr más de una
-//  vez sin problema (las ya migradas se saltan).
-// ══════════════════════════════════════════
-async function migratePhotosToGitHubFiles(onProgress) {
-  if (!ghToken() || !getConfig().ghRepo) {
-    throw new Error('Configura GitHub primero en ⚙️ Config (token + repo)');
-  }
-  const prodTargets = getProductos().filter(p => (p.photo || '').startsWith('data:image/'));
-  const gestorTargets = getGestores().filter(g => (g.photo || '').startsWith('data:image/'));
-  const total = prodTargets.length + gestorTargets.length;
-  let done = 0, migrated = 0, failed = 0;
-  if (total === 0) return { total: 0, migrated: 0, failed: 0 };
-
-  for (const p of prodTargets) {
-    done++;
-    if (onProgress) try { onProgress(done, total, p.name || `#${p.id}`); } catch (_) {}
-    try {
-      const uploaded = await uploadPhotoToGitHub(p.photo, 'p');
-      if (uploaded) { patchProducto(p.id, { photo: uploaded }); migrated++; }
-      else failed++;
-    } catch (e) { console.warn('migratePhotosToGitHubFiles: producto', p.id, e); failed++; }
-    await new Promise(r => setTimeout(r, 120)); // margen para el rate limit de la API de GitHub
-  }
-
-  // Gestores no tienen un patchX — hay que releer el array completo cada vez
-  // (mismo patrón que ya usan handleGestorPhoto/changeGestorPhotoById) para
-  // no pisar cambios que otro dispositivo haya hecho mientras tanto.
-  for (const g0 of gestorTargets) {
-    done++;
-    if (onProgress) try { onProgress(done, total, g0.name || `#${g0.id}`); } catch (_) {}
-    try {
-      const uploaded = await uploadPhotoToGitHub(g0.photo, 'g');
-      if (uploaded) {
-        const list = getGestores();
-        const i = list.findIndex(x => Number(x.id) === Number(g0.id));
-        if (i !== -1) { list[i].photo = uploaded; saveGestores(list); migrated++; }
-        else failed++;
-      } else failed++;
-    } catch (e) { console.warn('migratePhotosToGitHubFiles: gestor', g0.id, e); failed++; }
-    await new Promise(r => setTimeout(r, 120));
-  }
-
-  return { total, migrated, failed };
-}
-
-let _migratingPhotosToGitHub = false;
-function migratePhotosToGitHubUI() {
-  if (_migratingPhotosToGitHub) { showToast('Ya hay una migración de fotos en curso...'); return; }
-  if (!ghToken() || !getConfig().ghRepo) { showToast('Configura GitHub primero en ⚙️ Config'); return; }
-  const prodCount = getProductos().filter(p => (p.photo || '').startsWith('data:image/')).length;
-  const gestorCount = getGestores().filter(g => (g.photo || '').startsWith('data:image/')).length;
-  const total = prodCount + gestorCount;
-  if (total === 0) { showToast('✅ Ninguna foto pendiente de subir — ya están todas como archivo'); return; }
-  showConfirmAction(
-    'Subir fotos a GitHub',
-    `Se subirán ${total} foto${total === 1 ? '' : 's'} (${prodCount} de productos, ${gestorCount} de gestores) como archivos a tu repositorio de GitHub, para dejar de ocupar espacio dentro de Firebase/Firestore. Puede tardar unos minutos.`,
-    'Subir fotos',
-    'btn-blue',
-    async () => {
-      _migratingPhotosToGitHub = true;
-      const modal = document.getElementById('optimizePhotosModal');
-      const titleEl = modal ? modal.querySelector('.modal-title') : null;
-      const subEl = modal ? modal.querySelector('.modal-sub') : null;
-      const prevTitle = titleEl ? titleEl.textContent : '';
-      const prevSub = subEl ? subEl.textContent : '';
-      if (titleEl) titleEl.textContent = '☁️ Subiendo fotos a GitHub';
-      if (subEl) subEl.textContent = 'Moviendo fotos fuera de Firebase para ahorrar espacio…';
-      if (modal) modal.classList.add('show');
-      const setProgress = (done, t, name) => {
-        const bar = document.getElementById('optimizeProgressBar');
-        const txt = document.getElementById('optimizeProgressText');
-        const nameEl = document.getElementById('optimizeProgressName');
-        const pct = t > 0 ? Math.round((done / t) * 100) : 0;
-        if (bar) bar.style.width = pct + '%';
-        if (txt) txt.textContent = `${done} / ${t} (${pct}%)`;
-        if (nameEl) nameEl.textContent = name ? `Subiendo: ${name}` : '';
-      };
-      setProgress(0, total, '');
-      try {
-        const result = await migratePhotosToGitHubFiles((done, t, name) => setProgress(done, t, name));
-        if (typeof renderProductGrid === 'function') renderProductGrid();
-        if (typeof renderStockCategorias === 'function') renderStockCategorias();
-        if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
-        if (typeof renderGestores === 'function') renderGestores();
-        maybeAutoSync();
-        const parts = [`✅ ${result.migrated} foto${result.migrated === 1 ? '' : 's'} subida${result.migrated === 1 ? '' : 's'} a GitHub`];
-        if (result.failed > 0) parts.push(`⚠️ ${result.failed} fallaron (revisa el token/repo y vuelve a intentar)`);
-        showToast(parts.join(' · '));
-      } catch (e) {
-        showToast('⚠️ ' + (e.message || 'Error al subir fotos'));
-      } finally {
-        _migratingPhotosToGitHub = false;
-        if (modal) modal.classList.remove('show');
-        if (titleEl) titleEl.textContent = prevTitle;
-        if (subEl) subEl.textContent = prevSub;
-      }
-    }
-  );
-}
-
 function handleProductPhoto(input) {
   const file=input.files[0];if(!file)return;
   // Validate file type and size to prevent UI freeze on huge non-image files
@@ -6544,17 +5814,9 @@ function handleProductPhoto(input) {
   reader.readAsDataURL(file);
 }
 function closeProductModal(){document.getElementById('productModal').classList.remove('show');editingProductId=null;}
-async function saveProduct() {
+function saveProduct() {
   const name=document.getElementById('pm-name').value.trim();if(!name){showToast('El nombre es obligatorio');return;}
   const catVal=document.getElementById('pm-cat').value;
-  // pm-foto puede ser: vacío, una ruta ya subida ("photos/xxx.webp", sin
-  // cambios), o un data URL base64 recién comprimido por handleProductPhoto
-  // (foto nueva o reemplazada) — solo en ese último caso hay que subirla.
-  let photoVal = document.getElementById('pm-foto').value.trim();
-  if (photoVal.startsWith('data:image/')) {
-    const uploaded = await uploadPhotoToGitHub(photoVal, 'p');
-    if (uploaded) photoVal = uploaded;
-  }
   const prod={
     name,description:document.getElementById('pm-desc').value.trim(),
     precio:document.getElementById('pm-precio').value.trim(),
@@ -6562,7 +5824,7 @@ async function saveProduct() {
     puntos:parseFloat(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
     comision:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);const cur=document.getElementById('pm-comision-currency').value;return amt>0?(cur==='MN'?`${amt} MN`:`$${amt} USD`):''})(),
-    photo:photoVal,
+    photo:document.getElementById('pm-foto').value.trim(),
     catId:catVal?parseInt(catVal):null,
   };
   if(editingProductId){
@@ -6572,9 +5834,7 @@ async function saveProduct() {
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
-    // BUGFIX: ver comentario en sendVale()/addGestor() — no mutar el array
-    // que devuelve getProductos().
-    saveProductos([...getProductos(), {id:newId,...prod}]);
+    const list=getProductos();list.push({id:newId,...prod});saveProductos(list);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
   }
@@ -6610,8 +5870,8 @@ function venderDirecto(id) {
   
   // Create vale record for stats
   const vale={
-    id:Date.now(),valeNum:getNextValeNum(),gestorId:0,ts:new Date().toISOString(),
-    cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',carnet:'',
+    id:Date.now(),valeNum:getNextValeNum(),gestorId:'admin',ts:new Date().toISOString(),
+    cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',
     mensajeria:'',articulo:`${p.name} x${qty}`,
     precioUSD:p.precio,precioMN:'',
     vuelto:'',total:'Venta Local',garantia:p.garantia||'',
@@ -6620,11 +5880,7 @@ function venderDirecto(id) {
     commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:new Date().toISOString(),
     stockDecremented:true
   };
-  // BUGFIX: ver el comentario detallado en sendVale() — getVales().push()
-  // mutaba _valesCache antes de que saveVales() pudiera diferenciar "antes"
-  // vs "ahora", y el write nunca se encolaba. Usar spread evita mutar la
-  // referencia que devuelve getVales().
-  const all=[...getVales(), vale];saveVales(all);
+  const all=getVales();all.push(vale);saveVales(all);
   // No direct db.ref().set() — saveVales already enqueues via the write queue.
   // Direct db.ref() calls bypassed the retry queue and could lose data on network failure.
   _logAudit('direct_sale', 'product:' + id + ' qty:' + qty);
@@ -6705,7 +5961,7 @@ function _renderMiniBarChart7d(gestorId) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const ds = localDay(d);
-    const count = getVales().filter(v => Number(v.gestorId) === Number(gestorId) && localDay(v.ts) === ds).length;
+    const count = getVales().filter(v => v.gestorId === gestorId && localDay(v.ts) === ds).length;
     days.push({ ds, count, label: d.toLocaleDateString('es-ES', { weekday:'short' }).slice(0,1).toUpperCase() });
   }
   const max = Math.max(1, ...days.map(d => d.count));
@@ -6740,7 +5996,7 @@ function _topProductsForGestor(vales, limit=3) {
 
 // Inactive gestor check — last vale older than threshold
 function _gestorInactivityDays(gestorId) {
-  const gv = getVales().filter(v => Number(v.gestorId) === Number(gestorId));
+  const gv = getVales().filter(v => v.gestorId === gestorId);
   if (!gv.length) return null; // never created a vale
   const last = gv.reduce((max, v) => v.ts > max ? v.ts : max, '');
   if (!last) return null;
@@ -6750,7 +6006,7 @@ function _gestorInactivityDays(gestorId) {
 
 // Render a single expandible gestor card for the Estadísticas panel
 function _renderStatsGestorCard(g, vales, from, to) {
-  const gv = vales.filter(v => Number(v.gestorId) === Number(g.id));
+  const gv = vales.filter(v => v.gestorId === g.id);
   const gc = gv.filter(v => v.status === 'confirmed').length;
   const gPendingPay = gv.filter(v => v.status === 'pending_payment').length;
   const pts = gv.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
@@ -7353,142 +6609,39 @@ function buildCatalogCardJS(p,cat,color,waPhone){
 }
 
 // ══════════════════════════════════════════
-//  FOTOS COMO ARCHIVO EN GITHUB (en vez de base64 embebido)
-// ══════════════════════════════════════════
-// Sube una foto ya comprimida (data URL base64, salida de compressImage) como
-// archivo nuevo a la carpeta photos/ del repo, reutilizando el mismo patrón
-// PUT de la API de contenidos de GitHub que ya usan syncToGitHub/
-// publishCatalogToGitHub. A diferencia de esas funciones, esto SIEMPRE crea
-// un archivo con nombre nuevo (timestamp + hash del contenido) — nunca
-// sobrescribe uno existente, así que no hace falta el GET previo por el sha.
-// Devuelve la ruta relativa ("photos/p-...webp") si se subió bien, o null si
-// no hay GitHub configurado o la subida falló — en ese caso el llamador debe
-// caer de vuelta a guardar el data URL base64 directo, como se hacía antes.
-async function uploadPhotoToGitHub(dataUrl, prefix) {
-  const cfg = getConfig();
-  if (!ghToken() || !cfg.ghRepo) return null;
-  const m = /^data:image\/([a-zA-Z0-9.+-]+);base64,(.*)$/.exec(dataUrl || '');
-  if (!m) return null;
-  const ext = m[1] === 'jpeg' ? 'jpg' : m[1];
-  const base64Content = m[2];
-  const parts = cfg.ghRepo.split('/').filter(Boolean);
-  if (parts.length < 2) return null;
-  const owner = parts[0], repo = parts.slice(1).join('/');
-  if ([owner, repo].some(s => /\.\.|[^a-zA-Z0-9._\-\/]/.test(s))) return null;
-  // Hash corto del contenido para el nombre — sigue la misma convención
-  // (prefix-timestamp-hash.ext) que los archivos ya subidos a mano en photos/.
-  let hash8 = Date.now().toString(16);
-  try {
-    const bytes = Uint8Array.from(atob(base64Content), c => c.charCodeAt(0));
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    hash8 = Array.from(new Uint8Array(digest)).slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join('');
-  } catch (e) { /* fallback al timestamp ya asignado arriba */ }
-  const filename = `photos/${prefix}-${Date.now()}-${hash8}.${ext}`;
-  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filename}`;
-  const headers = { Authorization: `token ${ghToken()}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
-  try {
-    const body = { message: `Foto ${prefix === 'g' ? 'gestor' : 'producto'} · ${new Date().toLocaleString('es-ES')}`, content: base64Content };
-    const res = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) });
-    if (res.ok) return filename;
-    console.error('uploadPhotoToGitHub error:', res.status, await res.text().catch(() => ''));
-    return null;
-  } catch (e) {
-    console.error('uploadPhotoToGitHub network error:', e);
-    return null;
-  }
-}
-
-// ══════════════════════════════════════════
 //  PUBLISH CATALOG TO GITHUB PAGES
 // ══════════════════════════════════════════
-// BUGFIX: publishCatalogToGitHub() usaba la API de "Contents" (PUT directo
-// de un archivo), que GitHub limita a 1 MB — un límite duro, no negociable.
-// Con ~35 productos con descripciones reales (el negocio escribe fichas
-// técnicas largas), el catálogo generado YA pesa ~1.05 MB en base64, por
-// encima del límite. GitHub rechazaba la publicación (típicamente 400/422
-// "too large") y el catálogo publicado se quedaba pegado en la última
-// versión que sí cupo — el dueño veía "se publicó" (o un error que no
-// asoció con el tamaño) pero la página en línea no reflejaba los productos
-// actuales. Cada producto nuevo que se agrega lo empeora, así que no es un
-// caso raro — es cuestión de tiempo.
-// Fix: usar la Git Data API (blobs + trees + commits) en vez de Contents.
-// Un blob soporta hasta 100 MB — sin techo real para este caso de uso.
 async function publishCatalogToGitHub(htmlContent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
-  // v37 FIX CRÍTICO: validar que el JS del catálogo generado parsea sin errores
-  // antes de publicarlo. ANTES, un regex roto en el HTML inline provocaba
-  // SyntaxError al cargar el catálogo → ningún producto se mostraba →
-  // "el catálogo sale bien al principio pero al rato deja de mostrar productos"
-  // (cuando expiraba el cache del navegador).
-  try {
-    const scriptMatch = htmlContent.match(/<script>([\s\S]*?)<\/script>/);
-    if (scriptMatch) {
-      // new Function lanza SyntaxError si el código no parsea
-      new Function(scriptMatch[1]);
-    }
-  } catch(e) {
-    console.error('[catalog] JS del catálogo no parsea — NO se publica:', e.message);
-    showToast('❌ El catálogo generado tiene un error de sintaxis. No se publicó. Revisa buildCatalogHTML.');
-    return null;
-  }
   const catalogPath='catalogo.html';
+  // Use utf8ToBase64 instead of deprecated btoa(unescape(encodeURIComponent(...)))
+  const content=utf8ToBase64(htmlContent);
   // Validate repo format (owner/repo) — reject path traversal
   const parts=cfg.ghRepo.split('/').filter(Boolean);
   if(parts.length < 2){showToast('Formato de repo inválido. Use: usuario/repositorio');return null;}
   const owner=parts[0];const repo=parts.slice(1).join('/');
   if([owner,repo].some(s => /\.\.|[^a-zA-Z0-9._\-\/]/.test(s))){showToast('Nombre de repo contiene caracteres inválidos');return null;}
+  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${catalogPath}`;
   const headers={Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
-  const api=`https://api.github.com/repos/${owner}/${repo}`;
-  try {
-    // 1. Rama por defecto + último commit de esa rama.
-    const repoRes=await fetch(api,{headers});
-    if(!repoRes.ok){
-      if(repoRes.status===401)showToast('❌ Token inválido o expirado. Genera uno nuevo en GitHub Settings → Developer settings → Personal access tokens');
-      else if(repoRes.status===404)showToast('❌ Repo no encontrado. Verifica el formato: usuario/nombre-repo');
-      else showToast(`Error al publicar (${repoRes.status}) obteniendo el repo`);
-      return null;
-    }
-    const repoInfo=await repoRes.json();
-    const branch=repoInfo.default_branch||'main';
-    const refRes=await fetch(`${api}/git/refs/heads/${encodeURIComponent(branch)}`,{headers});
-    if(!refRes.ok){showToast(`Error al publicar (${refRes.status}) leyendo la rama ${branch}`);return null;}
-    const refInfo=await refRes.json();
-    const latestCommitSha=refInfo.object.sha;
-    // 2. Árbol base del último commit.
-    const commitRes=await fetch(`${api}/git/commits/${latestCommitSha}`,{headers});
-    if(!commitRes.ok){showToast(`Error al publicar (${commitRes.status}) leyendo el commit base`);return null;}
-    const commitInfo=await commitRes.json();
-    const baseTreeSha=commitInfo.tree.sha;
-    // 3. Blob con el HTML completo — sin el límite de 1MB de la API de Contents.
-    const blobRes=await fetch(`${api}/git/blobs`,{method:'POST',headers,body:JSON.stringify({content:utf8ToBase64(htmlContent),encoding:'base64'})});
-    if(!blobRes.ok){
-      const err=await blobRes.json().catch(()=>({}));
-      showToast(`❌ Error subiendo el catálogo (${blobRes.status}): ${err.message||''}`);
-      console.error('GitHub blob error:',blobRes.status,err);
-      return null;
-    }
-    const blobInfo=await blobRes.json();
-    // 4. Árbol nuevo: mismo árbol base, solo reemplazando catalogo.html.
-    const treeRes=await fetch(`${api}/git/trees`,{method:'POST',headers,body:JSON.stringify({base_tree:baseTreeSha,tree:[{path:catalogPath,mode:'100644',type:'blob',sha:blobInfo.sha}]})});
-    if(!treeRes.ok){showToast(`Error al publicar (${treeRes.status}) creando el árbol`);return null;}
-    const treeInfo=await treeRes.json();
-    // 5. Commit nuevo apuntando al árbol nuevo.
-    const newCommitRes=await fetch(`${api}/git/commits`,{method:'POST',headers,body:JSON.stringify({message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,tree:treeInfo.sha,parents:[latestCommitSha]})});
-    if(!newCommitRes.ok){showToast(`Error al publicar (${newCommitRes.status}) creando el commit`);return null;}
-    const newCommitInfo=await newCommitRes.json();
-    // 6. Mover la rama al commit nuevo.
-    const updateRefRes=await fetch(`${api}/git/refs/heads/${encodeURIComponent(branch)}`,{method:'PATCH',headers,body:JSON.stringify({sha:newCommitInfo.sha})});
-    if(!updateRefRes.ok){
-      const err=await updateRefRes.json().catch(()=>({}));
-      if(updateRefRes.status===403)showToast('❌ Sin permisos. El token necesita permiso "repo" (full control)');
-      else showToast(`Error al publicar (${updateRefRes.status}): ${err.message||''}`);
-      return null;
-    }
-    return `https://${owner}.github.io/${repo}/${catalogPath}`;
-  } catch(e) {
-    console.error('publishCatalogToGitHub network error:',e);
-    showToast('Error de red publicando el catálogo');
+  // Get existing SHA if file exists
+  let sha;
+  try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
+  const body={message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,content};
+  if(sha)body.sha=sha;
+  const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+  if(res.ok){
+    // Construct GitHub Pages URL
+    const pagesUrl=`https://${owner}.github.io/${repo}/${catalogPath}`;
+    return pagesUrl;
+  } else {
+    const err=await res.json().catch(()=>({}));
+    const msg=err.message||'';
+    if(res.status===401)showToast('❌ Token inválido o expirado. Genera uno nuevo en GitHub Settings → Developer settings → Personal access tokens');
+    else if(res.status===404)showToast('❌ Repo no encontrado. Verifica el formato: usuario/nombre-repo');
+    else if(res.status===403)showToast('❌ Sin permisos. El token necesita permiso "repo" (full control)');
+    else showToast(`Error al publicar (${res.status}): ${msg}`);
+    console.error('GitHub publish error:',res.status,err);
     return null;
   }
 }
@@ -7528,17 +6681,7 @@ async function publishCatalogNow() {
   const url=await publishCatalogToGitHub(html);
   if(url){
     showToast('✅ Catálogo publicado exitosamente');
-    // BUGFIX: el link de catalogo.html no tenía ningún parámetro que cambie
-    // entre publicaciones — a diferencia de app.js/app.css (?v=N), así que
-    // el navegador (o el CDN de GitHub Pages) podía seguir sirviendo una
-    // copia vieja en caché durante varios minutos después de publicar,
-    // aunque el archivo real ya estuviera actualizado. Esto generaba
-    // confusión: "publiqué pero sigue sin cargar los productos" cuando en
-    // realidad SÍ se publicó bien, solo que el link mostraba la versión
-    // cacheada. Se agrega un ?t=timestamp único a ESTE link de verificación
-    // para forzar que el propio admin vea la versión recién publicada.
-    const verifyUrl = `${url}?t=${Date.now()}`;
-    setGhStatus(`✅ Publicado. Para verificar (evita caché): <a href="${verifyUrl}" target="_blank" style="color:var(--blue);word-break:break-all;">${verifyUrl}</a><br><span style="font-size:10px;color:var(--gray-400);">El link normal para compartir es: ${url}<br>GitHub Pages puede tardar 1-2 min en actualizarse — si acabas de publicar, espera un poco antes de verificar.</span>`);
+    setGhStatus(`✅ Publicado: <a href="${url}" target="_blank" style="color:var(--blue);word-break:break-all;">${url}</a><br><span style="font-size:10px;color:var(--gray-400);">GitHub Pages tarda ~1 min en actualizarse</span>`);
   } else {
     setGhStatus('❌ Error al publicar. Revisa el token y el repo.');
   }
@@ -7556,45 +6699,6 @@ function toggleComisionGestor(id) {
   renderComisiones();
 }
 function getValeCommissionParts(v) {
-  // v15 FIX: usar comisionGestor PRIMERO si existe. Si no, calcular desde productos.
-  // ANTES intentaba productos primero y comisionGestor como fallback, pero
-  // los vales viejos no tienen valeProductos (fueron creados sin picker).
-  // Ahora: si comisionGestor tiene un valor, usarlo directamente.
-  if (v.comisionGestor && String(v.comisionGestor).trim()) {
-    const comStr = String(v.comisionGestor).trim();
-    const segments = comStr.split('+').map(s => s.trim()).filter(Boolean);
-    let fbUSD = 0, fbMN = 0, fbOk = false;
-    segments.forEach(seg => {
-      const up = seg.toUpperCase();
-      const num = parsePrecioNum(seg);
-      if (up.includes('MN') || up.includes('CUP')) {
-        if (num > 0) { fbMN += num; fbOk = true; }
-      } else if (up.includes('USD') || up.includes('$')) {
-        if (num > 0) { fbUSD += num; fbOk = true; }
-      } else if (num > 0) {
-        fbUSD += num; fbOk = true;
-      }
-    });
-    if (fbOk) {
-      return {
-        parts: [{ label: 'Comisión', com: comStr, currency: fbMN > 0 && fbUSD === 0 ? 'MN' : 'USD' }],
-        totalUSD: fbUSD > 0 ? fbUSD : null,
-        totalMN: fbMN > 0 ? fbMN : null,
-        get total() {
-          const hasUSD = this.totalUSD !== null && this.totalUSD > 0;
-          const hasMN = this.totalMN !== null && this.totalMN > 0;
-          if (hasUSD && hasMN) return null;
-          if (hasUSD) return this.totalUSD;
-          if (hasMN) return this.totalMN;
-          return null;
-        },
-        get isMixed() { return (this.totalUSD !== null && this.totalUSD > 0) && (this.totalMN !== null && this.totalMN > 0); },
-        get currency() { return (this.totalMN !== null && this.totalMN > 0 && (!this.totalUSD || this.totalUSD === 0)) ? 'MN' : 'USD'; }
-      };
-    }
-  }
-
-  // Si no hay comisionGestor, calcular desde productos
   const items=v.valeProductos||[];
   const parts=[];
   let totalUSD=0,totalMN=0;let computable=true;
@@ -7643,36 +6747,6 @@ function getValeCommissionParts(v) {
       }
     }
   });
-  // v11 FIX CRÍTICO: si el cálculo por producto falló (sin comisión en
-  // productos, producto borrado, etc.) usar v.comisionGestor como fallback.
-  // El gestor llena este campo al enviar el vale, y viaja a Supabase correctamente.
-  // ANTES, getValeCommissionParts ignoraba completamente v.comisionGestor →
-  // si el producto no tenía comisión configurada, mostraba "Sin comisión" aunque
-  // el vale tuviera el campo comisionGestor con un valor válido.
-  if ((!computable || parts.length === 0) && v.comisionGestor) {
-    const comStr = String(v.comisionGestor).trim();
-    // Parsear comisionGestor: puede ser "$5.00 USD", "1500 MN", "$5 USD + 200 MN", etc.
-    const segments = comStr.split('+').map(s => s.trim()).filter(Boolean);
-    let fbUSD = 0, fbMN = 0, fbOk = false;
-    segments.forEach(seg => {
-      const up = seg.toUpperCase();
-      const num = parsePrecioNum(seg);
-      if (up.includes('MN') || up.includes('CUP')) {
-        if (num > 0) { fbMN += num; fbOk = true; }
-      } else if (up.includes('USD') || up.includes('$')) {
-        if (num > 0) { fbUSD += num; fbOk = true; }
-      } else if (num > 0) {
-        fbUSD += num; fbOk = true; // default USD
-      }
-    });
-    if (fbOk) {
-      totalUSD = fbUSD;
-      totalMN = fbMN;
-      computable = true;
-      parts.push({ label: 'Comisión (vale)', com: comStr, currency: fbMN > 0 && fbUSD === 0 ? 'MN' : 'USD' });
-    }
-  }
-
   return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
     // Backward compat: total + currency for single-currency vales.
     // IMPORTANTE: si hay comisión mixta USD+MN, devolver null en total — que el
@@ -7720,20 +6794,12 @@ function markAllCommissionsEnSobre(gestorId,e) {
   const ts=new Date().toISOString();
   // Una sola escritura de todo el array, no N patchVale (que eran N subidas a Firebase).
   // Ver AUDITORIA-AXONTECH.md MEDIO 21.
-  // BUGFIX: getVales() devuelve la MISMA referencia que _valesCache — mutar
-  // los vales EN EL LUGAR (v.commissionPaid=...) los cambiaba dentro de
-  // _valesCache antes de llamar a saveVales(), así que su diff interno
-  // comparaba "antes" contra "ahora" viendo el mismo objeto ya modificado
-  // → nunca detectaba el cambio → el marcado de comisiones nunca se subía
-  // a Firestore (aunque se viera bien localmente). Fix: construir objetos
-  // y array nuevos con .map(), sin tocar los que ya están en el caché.
+  const all=getVales();
   let changed=false;
-  const all=getVales().map(v=>{
-    if(Number(v.gestorId)===Number(gestorId)&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
-      changed=true;
-      return {...v, commissionPaid:false, commissionStatus:'en_sobre', commissionEnSobreTs:ts};
+  all.forEach(v=>{
+    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
+      v.commissionPaid=false;v.commissionStatus='en_sobre';v.commissionEnSobreTs=ts;changed=true;
     }
-    return v;
   });
   if(changed) saveVales(all);
   gestoresTabDirty=true;
@@ -7744,15 +6810,12 @@ function markAllCommissionsCobrado(gestorId,e) {
   if(e)e.stopPropagation();
   const ts=new Date().toISOString();
   // Una sola escritura de todo el array, no N patchVale.
-  // BUGFIX: ver el comentario detallado en markAllCommissionsEnSobre() —
-  // mismo problema, mismo fix (.map() en vez de mutar en el lugar).
+  const all=getVales();
   let changed=false;
-  const all=getVales().map(v=>{
-    if(Number(v.gestorId)===Number(gestorId)&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
-      changed=true;
-      return {...v, commissionPaid:true, commissionStatus:'cobrado', commissionPaidTs:ts};
+  all.forEach(v=>{
+    if(v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
+      v.commissionPaid=true;v.commissionStatus='cobrado';v.commissionPaidTs=ts;changed=true;
     }
-    return v;
   });
   if(changed) saveVales(all);
   gestoresTabDirty=true;
@@ -7770,22 +6833,13 @@ function unpayCommission(valeId,e) {
   renderComisiones();
 }
 // Helper: sum commissions from vales, returns {usd, mn, computed}
-// v16 FIX: si un vale no tiene comisión, no marca todo como "no computable".
-// Solo suma lo que se pueda, y marca computed=false solo si NINGÚN vale tiene comisión.
 function sumCommissions(vales) {
-  let usd=0,mn=0,computed=true,hasAny=false;
+  let usd=0,mn=0,computed=true;
   vales.forEach(v=>{
     const r=getValeCommissionParts(v);
-    if(r.totalUSD===null&&r.totalMN===null){
-      // Este vale no tiene comisión — no afecta al total
-    } else {
-      hasAny=true;
-      if(r.totalUSD!==null)usd+=r.totalUSD;
-      if(r.totalMN!==null)mn+=r.totalMN;
-    }
+    if(r.totalUSD===null&&r.totalMN===null){computed=false;}
+    else{if(r.totalUSD!==null)usd+=r.totalUSD;if(r.totalMN!==null)mn+=r.totalMN;}
   });
-  // Solo marcar como "no computable" si NINGÚN vale tiene comisión
-  if(!hasAny) computed=false;
   return{usd,mn,computed};
 }
 function fmtComisionBadge(usd,mn,computed) {
@@ -7921,7 +6975,7 @@ function renderGestorRanking() {
   if (!Array.isArray(summary)) summary = [];
 
   const ranked=gestores.map(g=>{
-    const s = summary.find(x => Number(x.id) === Number(g.id));
+    const s = summary.find(x => x.id === g.id);
     return {...g, pts: s ? s.pts : 0};
   }).sort((a,b)=>b.pts-a.pts);
   const medals=['🥇','🥈','🥉'];
@@ -8096,41 +7150,6 @@ function loadGhConfigUI() {
   if(meta)meta.value=cfg.metaPuntos||'';
   if(metaStatus&&cfg.metaPuntos)metaStatus.innerHTML=`<span style="color:var(--green);">✓ Meta actual: ${cfg.metaPuntos} pts</span>`;
 }
-// ── Modo mantenimiento ──
-// Usado para cortar tráfico de forma segura durante la migración a Firestore
-// (o cualquier otra ventana de mantenimiento futura): mientras está activo,
-// sendVale() rechaza nuevos vales con un aviso claro. Es un campo más de
-// 'config', así que se propaga a todos los dispositivos en tiempo real igual
-// que el resto de la configuración.
-function toggleMaintenanceMode() {
-  const cfg = getConfig();
-  const turningOn = !cfg.maintenanceMode;
-  const title = turningOn ? '🚧 Activar modo mantenimiento' : '✅ Desactivar modo mantenimiento';
-  const msg = turningOn
-    ? 'Los gestores NO podrán enviar vales nuevos hasta que lo desactives. Úsalo solo durante una migración o mantenimiento breve.'
-    : 'Los gestores podrán volver a enviar vales normalmente.';
-  showConfirmAction(title, msg, 'Sí, continuar', turningOn ? 'btn-orange' : 'btn-green', () => {
-    cfg.maintenanceMode = turningOn;
-    saveConfig(cfg);
-    _logAudit(turningOn ? 'maintenance_on' : 'maintenance_off');
-    showToast(turningOn ? 'Modo mantenimiento ACTIVADO 🚧' : 'Modo mantenimiento desactivado ✓');
-    loadMaintenanceModeUI();
-  });
-}
-function loadMaintenanceModeUI() {
-  const cfg = getConfig();
-  const btn = document.getElementById('maintenanceModeBtn');
-  const status = document.getElementById('maintenanceModeStatus');
-  if (btn) {
-    btn.textContent = cfg.maintenanceMode ? '✅ Desactivar mantenimiento' : '🚧 Activar mantenimiento';
-    btn.className = cfg.maintenanceMode ? 'btn btn-green btn-sm' : 'btn btn-orange btn-sm';
-  }
-  if (status) {
-    status.innerHTML = cfg.maintenanceMode
-      ? '<span style="color:var(--orange);font-weight:600;">🚧 Mantenimiento ACTIVO — los gestores no pueden enviar vales</span>'
-      : '<span style="color:var(--text-muted);">Sistema operando con normalidad</span>';
-  }
-}
 async function syncToGitHub(silent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
@@ -8259,55 +7278,19 @@ async function maybeAutoSync() {
   _autoSyncTimer = setTimeout(() => { syncToGitHub(true).catch(()=>{}); }, 60000);
 }
 
-// BUGFIX: "borrar todos los vales" (y "limpiar vales y notifs" más abajo)
-// borraban solo lo que el CACHÉ LOCAL del admin conocía — saveVales() arma
-// el borrado comparando contra _valesCache, la copia en memoria de ESTE
-// dispositivo. Si ese caché estaba incompleto respecto a lo que de verdad
-// hay en Firestore (posible mientras no se haya corrido "Migrar a
-// Firestore" una vez, o si el admin no tenía sincronizados todos los
-// vales), los vales que el caché local no conocía NUNCA se borraban en
-// Firestore — seguían ahí, y por eso los gestores (que consultan Firestore
-// directo, no el caché del admin) los seguían viendo. _fsDeleteVales()
-// resuelve esto leyendo la colección 'vales' DIRECTO de Firestore (la
-// misma fuente de verdad que ya usa nukeAndRebuild) y borrando ahí,
-// sin depender de qué tan completo esté el caché local del admin.
-async function _fsDeleteVales(predicate) {
-  // v31: ya sin SDK Firestore. Lee la colección 'vales' por REST de Supabase
-  // y borra por IDs con _sbRestDeleteBatch. Mismo efecto, sin depender del
-  // canal de streaming del SDK que se cuelga en Cuba.
-  const all = await _sbRestGetCollection('vales');
-  const ids = [];
-  all.forEach(v => { if (v && v.id != null && (!predicate || predicate(v))) ids.push(Number(v.id)); });
-  await _sbRestDeleteBatch('vales', ids);
-  return ids.length;
-}
 function factoryResetVales() {
-  showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', async () => {
-    // saveVales([]) ya calcula el diff contra el cache previo y encola un
-    // delete por cada vale existente (updates[key] = null) — cubre lo que
-    // el caché local del admin conocía, y actualiza la UI local al instante.
+  showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
     saveVales([]);
+    // Force Firebase delete via write queue
+    _enqueueFB('vales', null, 'remove');
+    // Clear ranking cache and summary so points reset to 0
     rankingCache=null;
     try { localStorage.removeItem('axon_ranking_summary'); } catch(e){}
+    _enqueueFB('ranking_summary', null, 'remove');
     gestoresTabDirty=true;statsTabDirty=true;
+    showToast('Todos los vales eliminados');
     selectedValeId=null;
     refreshUI();
-    showToast('Borrando todos los vales...');
-    // BUGFIX: antes se mostraba "eliminados" de inmediato, sin esperar a
-    // que el borrado remoto (encolado, async, puede fallar tras reintentos
-    // en una red mala) realmente terminara — el admin creía que ya estaba
-    // listo aunque en Firestore siguieran existiendo, y los gestores los
-    // seguían viendo. Ahora se espera la limpieza DIRECTA contra Firestore
-    // (la misma fuente de verdad que consultan los gestores) antes de
-    // avisar éxito, y si falla se avisa claro en vez de quedar en silencio.
-    try {
-      const extra = await _fsDeleteVales(null);
-      await _sbRestMetaDelete('ranking_summary').catch(()=>{});
-      showToast(`✓ Todos los vales eliminados${extra > 0 ? ` (confirmado en la nube)` : ''}`);
-    } catch(e) {
-      console.error('[factoryResetVales] error en limpieza directa:', e);
-      showToast('⚠️ Se guardó el borrado localmente pero falló al confirmar en la nube — revisa tu conexión y vuelve a intentar "Borrar todos los vales" para asegurar que a los gestores también se les borre.');
-    }
   });
 }
 
@@ -8327,15 +7310,14 @@ function changePassCfg() {
 // ══════════════════════════════════════════
 //  RESET GESTORES DATA — clear vales + notifs for fresh app start
 // ══════════════════════════════════════════
-async function clearGestoresData() {
+function clearGestoresData() {
   const vales = getVales();
   const notifs = getNotifs();
   const gestores = getGestores();
 
-  // v38 FIX: normalizar gestorIds a Set de strings para que Set.has() funcione
-  // sin importar si v.gestorId viene como string o número de Supabase.
-  const gestorIds = new Set(gestores.map(g => String(g.id)));
-  const valesToRemove = vales.filter(v => v && v.gestorId != null && gestorIds.has(String(v.gestorId)));
+  // Count what will be deleted
+  const gestorIds = new Set(gestores.map(g => g.id));
+  const valesToRemove = vales.filter(v => v.gestorId && gestorIds.has(v.gestorId));
   // All notifs are tied to gestor activity — remove them all (both global + personal)
   // since they exist to inform gestors about stock/vales/ranking.
   const notifsToRemove = notifs;
@@ -8354,33 +7336,11 @@ async function clearGestoresData() {
   if (!confirm('¿Última confirmación? Esta acción es irreversible.')) return;
 
   // 1) Keep only vales NOT tied to a known gestor (e.g. admin-generated vales without gestorId)
-  const remainingVales = vales.filter(v => !(v && v.gestorId != null && gestorIds.has(String(v.gestorId))));
+  const remainingVales = vales.filter(v => !(v.gestorId && gestorIds.has(v.gestorId)));
   saveVales(remainingVales);
 
-  // 2) Clear all notifs (encolado — ver red de seguridad más abajo)
+  // 2) Clear all notifs
   saveNotifs([]);
-
-  // BUGFIX: antes esto disparaba el borrado directo de vales en un IIFE
-  // "fire and forget" (sin esperarlo) y saveNotifs([]) no tenía NINGÚN
-  // respaldo si su escritura encolada fallaba tras los reintentos — en
-  // ambos casos el admin veía "✓ listo" sin que el borrado realmente
-  // hubiera terminado (o hubiera fallado del todo) en Firestore, que es la
-  // fuente que consultan los gestores. Ahora se ESPERA la limpieza directa
-  // de vales (misma fuente de verdad que nukeAndRebuild) y también se
-  // fuerza notifs directo contra Firestore, antes de avisar éxito — y si
-  // algo falla, se avisa claro en vez de quedar en silencio.
-  showToast('Borrando vales y notificaciones...');
-  let cleanupError = null;
-  try {
-    const extra = await _fsDeleteVales(v => v && v.gestorId != null && gestorIds.has(String(v.gestorId)));
-    if (extra > 0) console.log(`[clearGestoresData] ${extra} vale(s) adicionales borrados directo de Supabase`);
-    // v31: limpiar notifs directo en Supabase (era {items:[]} en Firestore;
-    // en Supabase el JSONB acepta arrays como raíz, así que mandamos [] directo).
-    await _sbRestMetaUpsert('notifs', []).catch(()=>{});
-  } catch(e) {
-    console.error('[clearGestoresData] error en limpieza directa:', e);
-    cleanupError = e;
-  }
 
   // 3) Clear per-gestor local tracking flags (viewed/cleared/personal)
   try {
@@ -8407,16 +7367,12 @@ async function clearGestoresData() {
     updateAdminBadge();
   } catch(e) { /* UI refs may not all be present on every page */ }
 
-  // 6) Status message — honesto sobre si la limpieza directa en Firestore
-  // (la que de verdad ven los gestores) terminó bien o falló.
+  // 6) Status message
   const s = document.getElementById('clearGestoresStatus');
-  if (cleanupError) {
-    if (s) s.innerHTML = `<span style="color:var(--red);">⚠️ Se borró localmente pero falló al confirmar en la nube — revisa tu conexión y vuelve a intentar.</span>`;
-    showToast('⚠️ Falló la limpieza en la nube — vuelve a intentar "Limpiar vales y notifs" para que a los gestores también se les borre');
-  } else {
-    if (s) s.innerHTML = `<span style="color:var(--green);">✓ Se eliminaron ${vCount} vales y ${nCount} notificaciones (confirmado en la nube). Listo para empezar.</span>`;
-    showToast(`✓ Datos limpiados: ${vCount} vales, ${nCount} notifs`);
+  if (s) {
+    s.innerHTML = `<span style="color:var(--green);">✓ Se eliminaron ${vCount} vales y ${nCount} notificaciones. Listo para empezar.</span>`;
   }
+  showToast(`🧹 Datos limpiados: ${vCount} vales, ${nCount} notifs`);
   maybeAutoSync();
 }
 
@@ -8435,7 +7391,7 @@ function getTop3Ranked() {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g.id)).reduce((sum,v)=>
+    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     return {...g,pts};
   }).sort((a,b)=>b.pts-a.pts);
@@ -8447,7 +7403,7 @@ function getGestorRank(gestorId) {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>Number(v.gestorId)===Number(g.id)).reduce((sum,v)=>
+    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     return {id:g.id,pts};
   }).sort((a,b)=>b.pts-a.pts);
@@ -8457,7 +7413,7 @@ function getGestorRank(gestorId) {
 
 // Get a specific gestor's total points
 function getGestorPoints(gestorId) {
-  const confirmedVales=getVales().filter(v=>Number(v.gestorId)===Number(gestorId)&&['confirmed','pending_payment'].includes(v.status));
+  const confirmedVales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
   return confirmedVales.reduce((sum,v)=>
     sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
 }
@@ -8694,7 +7650,7 @@ function checkGoalReached(gestorId, currentValeId) {
   const pts=getGestorPoints(gestorId);
   if(pts>=meta){
     // Celebrate only if THIS sale crossed the threshold (exclude current vale from prev total)
-    const vales=getVales().filter(v=>Number(v.gestorId)===Number(gestorId)&&['confirmed','pending_payment'].includes(v.status));
+    const vales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
     const prev=vales.filter(v=>v.id!==currentValeId).reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
     if(prev<meta){
       // EPIC GLOW PULSE — Full-screen celebration
@@ -8905,31 +7861,33 @@ async function nukeAndRebuild() {
     if(!res.ok) throw new Error("No se pudo leer data.json");
     const data = await res.json();
 
-    // Step 2: reemplazar por completo gestores/mensajeros/productos/categorias
-    // y borrar todos los vales/notifs/ranking_summary/estafa.
-    showToast("Inyectando base de datos limpia...");
-    // BUGFIX: antes esto solo hacía SET de cada entrada de data.json — un
-    // gestor/producto creado desde el admin DESPUÉS de la última vez que se
-    // regeneró data.json sobrevivía al "reseteo total" como zombie, porque
-    // nunca se borraba. RTDB original usaba un update() atómico de todo el
-    // subárbol (equivalente a un reemplazo real). _fsReplaceCollection()
-    // restaura ese comportamiento: borra en Firestore cualquier doc que NO
-    // esté en el data.json nuevo.
-    if(data.gestores)   localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-    if(data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-    if(data.productos)  localStorage.setItem('axon_productos', JSON.stringify(data.productos));
-    if(data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
-    if(data.gestores)   await _fsReplaceCollection('gestores', data.gestores);
-    if(data.mensajeros) await _fsReplaceCollection('mensajeros', data.mensajeros);
-    if(data.productos)  await _fsReplaceCollection('productos', data.productos);
-    if(data.categorias) await _fsReplaceCollection('categorias', data.categorias);
-
-    // v31: Borrar vales/notifs/ranking_summary/estafa directo en Supabase.
-    // NO tocar 'backups' — ahí acabamos de guardar el snapshot pre-nuke.
-    await _sbRestDeleteAll('vales').catch(()=>{});
-    await _sbRestMetaDelete('notifs').catch(()=>{});
-    await _sbRestMetaDelete('ranking_summary').catch(()=>{});
-    await _sbRestMetaDelete('estafa').catch(()=>{});
+    // Step 2: Use atomic multi-location update instead of remove + update.
+    // This sets all new nodes AND nulls out the old ones in a single operation,
+    // so the database is never left in an empty state if the second step fails.
+    showToast("Inyectando base de datos limpia (atómico)...");
+    const updates = {};
+    if(data.gestores) {
+       localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+       updates['gestores'] = data.gestores;
+    }
+    if(data.mensajeros) {
+       localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+       updates['mensajeros'] = data.mensajeros;
+    }
+    if(data.productos) {
+       localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+       updates['productos'] = data.productos;
+    }
+    if(data.categorias) {
+       localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+       updates['categorias'] = data.categorias;
+    }
+    // Clear vales, notifs, ranking_summary, estafa in the same atomic update.
+    // Do NOT clear 'backups' — that's where we just stored the pre-nuke snapshot.
+    updates['vales'] = null;
+    updates['notifs'] = null;
+    updates['ranking_summary'] = null;
+    updates['estafa'] = null;
 
     // Clear localStorage vales/notifs/estafa (but preserve backup, admin hash, audit log)
     ['axon_vales','axon_notifs','axon_ranking_summary','axon_estafa','axon_pending_writes','axon_failed_writes'].forEach(k => {
@@ -8945,6 +7903,8 @@ async function nukeAndRebuild() {
     _notifsCache=null;_notifsDirty=true;
     _estafaCache=null;_estafaDirty=true;
 
+    // Apply the atomic update to Firebase — single operation, no separate remove()
+    await db.ref('/').update(updates);
     _logAudit('nuke_rebuild', 'system');
 
     showToast("¡Listo! Recargando...");
@@ -8952,229 +7912,6 @@ async function nukeAndRebuild() {
   } catch(e) {
     showToast("Error: " + e.message + " — Backup disponible en localStorage");
     console.error('Nuke failed:', e);
-  }
-}
-
-// ══════════════════════════════════════════
-//  MIGRACIÓN DE DATOS: REALTIME DATABASE → FIRESTORE
-// ══════════════════════════════════════════
-// Herramienta de una sola vez para el corte de producción (Fase 3/4 de la
-// migración). Lee el árbol COMPLETO y fresco de RTDB (no la caché local),
-// lo escribe en Firestore con IDs deterministas (String(id)) — por lo tanto
-// es SEGURO re-ejecutarla: vuelve a sobrescribir con los mismos IDs, no
-// duplica nada. Al terminar verifica conteos por colección y hace un
-// spot-check de contenido en una muestra de vales antes de reportar éxito.
-// No borra ni modifica RTDB — es de solo lectura sobre `db`.
-function _rtdbNodeToArray(node) {
-  if (!node) return [];
-  return Array.isArray(node) ? node.filter(x => x != null) : Object.values(node).filter(x => x != null);
-}
-// BUGFIX: la versión anterior (_fsWriteCollection) solo hacía SET de cada
-// item — nunca borraba un doc que ya no estuviera en el array nuevo. RTDB
-// original usaba db.ref('/').update({...}) con paths completos, que SÍ
-// reemplaza el subárbol entero (cualquier gestor/producto ausente del
-// nuevo objeto desaparece). Tanto migrateToFirestore() como
-// nukeAndRebuild() dependen de este "reemplazo total", así que ahora
-// _fsReplaceCollection() primero lee lo que YA existe en Firestore y borra
-// lo que no esté en `arr` — mismo comportamiento que el reemplazo atómico
-// de RTDB, adaptado a los batches de Firestore. Devuelve la lista de ids
-// omitidos por ser demasiado grandes (>900KB, típicamente una foto vieja
-// en base64) para que el llamador pueda avisar al usuario.
-async function _fsReplaceCollection(name, arr) {
-  // v31: reemplazo total de una colección en Supabase. Lee los IDs
-  // existentes, borra los que ya no están, y upserta los nuevos.
-  const existing = await _sbRestGetCollection(name);
-  const existingIds = new Set(existing.filter(x => x && x.id != null).map(x => String(x.id)));
-  const keepIds = new Set(arr.filter(x => x && x.id != null).map(x => String(x.id)));
-  const skipped = [];
-  const upsertItems = [];
-  arr.forEach(item => {
-    if (!item || item.id == null) return;
-    let tooLarge = false;
-    try { tooLarge = JSON.stringify(item).length > 900000; } catch(e) {}
-    if (tooLarge) { skipped.push(String(item.id)); return; }
-    upsertItems.push({ id: Number(item.id), value: item });
-  });
-  // Borrar los IDs que existen en Supabase pero NO en el array nuevo
-  const deleteIds = [];
-  existingIds.forEach(id => { if (!keepIds.has(id)) deleteIds.push(Number(id)); });
-  if (upsertItems.length > 0) await _sbRestUpsertBatch(name, upsertItems);
-  if (deleteIds.length > 0) await _sbRestDeleteBatch(name, deleteIds);
-  return skipped;
-}
-
-// ══════════════════════════════════════════════════════════════════════
-//  MIGRACIÓN DE DATOS: FIRESTORE → SUPABASE (v31)
-// ══════════════════════════════════════════════════════════════════════
-// Esta función migra los datos existentes de Firestore a Supabase. Solo
-// se ejecuta una vez (manualmente desde el panel de admin). Si los datos
-// ya están en Supabase (después de correr esto una vez o si el proyecto
-// está vacío), no hace falta volver a correrla.
-//
-// IMPORTANTE: Esta función necesita que la app tenga acceso AMBOS a
-// Firestore (para leer) y a Supabase (para escribir). Como Firestore
-// está bloqueado desde Cuba sin VPN, esta migración debe correrse CON
-// VPN o desde fuera de Cuba. Una vez migrado, la app funciona solo
-// con Supabase y el VPN ya no es necesario.
-async function migrateToFirestore() {
-  // ── Renombrada conceptualmente a migrateFirestoreToSupabase ──
-  // Mantenemos el nombre migrateToFirestore() porque hay llamadas en
-  // admin.html que lo invocan por ese nombre.
-  const statusEl = document.getElementById('fsMigrateStatus');
-  const setStatus = html => { if (statusEl) statusEl.innerHTML = html; };
-  if (!confirm('Esto LEE todos los datos actuales de Firestore y los ESCRIBE en Supabase. Es seguro repetir (no duplica, sobrescribe con los mismos IDs). Firestore está bloqueado desde Cuba sin VPN, así que probablemente necesites VPN para correr esto. ¿Continuar?')) return;
-  setStatus('⏳ Leyendo datos de Firestore...');
-  try {
-    // v31: leer por REST de Firestore (sigue siendo alcanzable desde fuera
-    // de Cuba, así que con VPN funciona). Los helpers que usábamos antes
-    // eran _fsRestGetCollection (que todavía existe como función pero ya
-    // no usa Firestore). Como ya no tenemos firestoreDb, hacemos el fetch
-    // directo aquí.
-    const FS_BASE = 'https://firestore.googleapis.com/v1/projects/axontech/databases/(default)/documents';
-    const FS_KEY  = 'AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU';
-    const fsGetCollection = async (collName) => {
-      const out = [];
-      let token = null;
-      do {
-        const url = `${FS_BASE}/${collName}?pageSize=300&key=${FS_KEY}` + (token ? `&pageToken=${encodeURIComponent(token)}` : '');
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Firestore GET ${collName} ${res.status}`);
-        const j = await res.json();
-        (j.documents || []).forEach(d => {
-          // Desenvolver fields de Firestore al formato JS plano
-          const fields = d.fields || {};
-          const obj = {};
-          Object.keys(fields).forEach(k => {
-            const v = fields[k];
-            if ('nullValue' in v) obj[k] = null;
-            else if ('booleanValue' in v) obj[k] = v.booleanValue;
-            else if ('integerValue' in v) obj[k] = Number(v.integerValue);
-            else if ('doubleValue' in v) obj[k] = Number(v.doubleValue);
-            else if ('stringValue' in v) obj[k] = v.stringValue;
-            else if ('timestampValue' in v) obj[k] = v.timestampValue;
-            else if ('arrayValue' in v) obj[k] = (v.arrayValue.values || []).map(x => {
-              if ('stringValue' in x) return x.stringValue;
-              if ('integerValue' in x) return Number(x.integerValue);
-              if ('mapValue' in x) {
-                const m = {}; Object.keys(x.mapValue.fields || {}).forEach(k2 => {
-                  const v2 = x.mapValue.fields[k2];
-                  if ('stringValue' in v2) m[k2] = v2.stringValue;
-                  else if ('integerValue' in v2) m[k2] = Number(v2.integerValue);
-                  else if ('booleanValue' in v2) m[k2] = v2.booleanValue;
-                });
-                return m;
-              }
-              return null;
-            });
-            else if ('mapValue' in v) {
-              const m = {};
-              Object.keys(v.mapValue.fields || {}).forEach(k2 => {
-                const v2 = v.mapValue.fields[k2];
-                if ('stringValue' in v2) m[k2] = v2.stringValue;
-                else if ('integerValue' in v2) m[k2] = Number(v2.integerValue);
-                else if ('booleanValue' in v2) m[k2] = v2.booleanValue;
-                else if ('doubleValue' in v2) m[k2] = Number(v2.doubleValue);
-              });
-              obj[k] = m;
-            }
-          });
-          out.push(obj);
-        });
-        token = j.nextPageToken;
-      } while (token);
-      return out;
-    };
-    const fsGetMeta = async (name) => {
-      const res = await fetch(`${FS_BASE}/meta/${name}?key=${FS_KEY}`);
-      if (res.status === 404) return null;
-      if (!res.ok) throw new Error(`Firestore GET meta/${name} ${res.status}`);
-      const j = await res.json();
-      // Desenvolver items si es un array singleton
-      const fields = j.fields || {};
-      if (fields.items && fields.items.arrayValue) {
-        return (fields.items.arrayValue.values || []).map(x => {
-          if ('mapValue' in x) {
-            const m = {};
-            Object.keys(x.mapValue.fields || {}).forEach(k => {
-              const v = x.mapValue.fields[k];
-              if ('stringValue' in v) m[k] = v.stringValue;
-              else if ('integerValue' in v) m[k] = Number(v.integerValue);
-              else if ('booleanValue' in v) m[k] = v.booleanValue;
-            });
-            return m;
-          }
-          if ('stringValue' in x) return x.stringValue;
-          if ('integerValue' in x) return Number(x.integerValue);
-          return null;
-        });
-      }
-      // Si no es array, desenvolver como objeto plano
-      const obj = {};
-      Object.keys(fields).forEach(k => {
-        const v = fields[k];
-        if ('stringValue' in v) obj[k] = v.stringValue;
-        else if ('integerValue' in v) obj[k] = Number(v.integerValue);
-        else if ('booleanValue' in v) obj[k] = v.booleanValue;
-        else if ('doubleValue' in v) obj[k] = Number(v.doubleValue);
-      });
-      return obj;
-    };
-
-    setStatus('⏳ Leyendo colecciones de Firestore...');
-    const rGestores   = await fsGetCollection('gestores');
-    const rMensajeros = await fsGetCollection('mensajeros');
-    const rProductos  = await fsGetCollection('productos');
-    const rCategorias = await fsGetCollection('categorias');
-    const rVales      = await fsGetCollection('vales');
-    const rConfig     = await fsGetMeta('config') || {};
-    const rNotifs     = await fsGetMeta('notifs') || [];
-    const rEstafa     = await fsGetMeta('estafa') || [];
-    const rRanking    = await fsGetMeta('ranking_summary') || [];
-
-    setStatus(`⏳ Leído: ${rGestores.length} gestores, ${rMensajeros.length} mensajeros, ${rProductos.length} productos, ${rCategorias.length} categorías, ${rVales.length} vales.<br>Escribiendo en Supabase...`);
-
-    const skippedByCollection = {};
-    skippedByCollection.gestores   = await _fsReplaceCollection('gestores', rGestores);
-    skippedByCollection.mensajeros = await _fsReplaceCollection('mensajeros', rMensajeros);
-    skippedByCollection.productos  = await _fsReplaceCollection('productos', rProductos);
-    skippedByCollection.categorias = await _fsReplaceCollection('categorias', rCategorias);
-    skippedByCollection.vales      = await _fsReplaceCollection('vales', rVales);
-
-    await _sbRestMetaUpsert('config', rConfig);
-    await _sbRestMetaUpsert('notifs', rNotifs);
-    await _sbRestMetaUpsert('estafa', rEstafa);
-    await _sbRestMetaUpsert('ranking_summary', rRanking);
-
-    try { localStorage.setItem('axon_fs_migrated', '1'); } catch(e) {}
-
-    setStatus('⏳ Verificando conteos en Supabase...');
-    const [gArr, mArr, pArr, cArr, vArr] = await Promise.all([
-      _sbRestGetCollection('gestores'),
-      _sbRestGetCollection('mensajeros'),
-      _sbRestGetCollection('productos'),
-      _sbRestGetCollection('categorias'),
-      _sbRestGetCollection('vales'),
-    ]);
-    const mismatches = [];
-    const expected = (arr, skipped) => arr.length - (skipped ? skipped.length : 0);
-    if (gArr.length !== expected(rGestores, skippedByCollection.gestores)) mismatches.push(`gestores: esperado=${expected(rGestores, skippedByCollection.gestores)} Supabase=${gArr.length}`);
-    if (mArr.length !== expected(rMensajeros, skippedByCollection.mensajeros)) mismatches.push(`mensajeros: esperado=${expected(rMensajeros, skippedByCollection.mensajeros)} Supabase=${mArr.length}`);
-    if (pArr.length !== expected(rProductos, skippedByCollection.productos)) mismatches.push(`productos: esperado=${expected(rProductos, skippedByCollection.productos)} Supabase=${pArr.length}`);
-    if (cArr.length !== expected(rCategorias, skippedByCollection.categorias)) mismatches.push(`categorias: esperado=${expected(rCategorias, skippedByCollection.categorias)} Supabase=${cArr.length}`);
-    if (vArr.length !== expected(rVales, skippedByCollection.vales)) mismatches.push(`vales: esperado=${expected(rVales, skippedByCollection.vales)} Supabase=${vArr.length}`);
-
-    const problems = mismatches.slice();
-    if (problems.length === 0) {
-      setStatus(`✅ Migración a Supabase completa y verificada.<br>Gestores: ${gArr.length} · Mensajeros: ${mArr.length} · Productos: ${pArr.length} · Categorías: ${cArr.length} · Vales: ${vArr.length}`);
-      showToast('Migración a Supabase verificada ✓');
-    } else {
-      setStatus(`⚠️ Migración terminada CON DIFERENCIAS:<br>${problems.join('<br>')}`);
-      showToast('Migración con diferencias — revisar');
-    }
-  } catch(e) {
-    console.error('[migrateToFirestore/Supabase]', e);
-    setStatus('❌ Error durante la migración: ' + (e && e.message ? e.message : e));
-    showToast('Error en la migración: ' + (e && e.message ? e.message : e));
   }
 }
 
@@ -9229,8 +7966,8 @@ async function loadInitialData() {
        const localGestores = getGestores();
        if(localGestores.length > 0) {
           // Use write queue instead of direct db.ref().set() to enable retries
-          _enqueueFB('gestores', _buildCollectionUpdates(localGestores, null), 'update');
-          _enqueueFB('mensajeros', _buildCollectionUpdates(getMensajeros(), null), 'update');
+          _enqueueFB('gestores', localGestores, 'set');
+          _enqueueFB('mensajeros', getMensajeros(), 'set');
        }
     }
   }).catch(() => { /* red caída — la app igual arranca con lo que haya */ });
@@ -9402,10 +8139,7 @@ function sendAdminVale() {
   };
 
   // ── 1. Guardar el vale LOCALMENTE y encolar write a Firebase (síncrono, rápido) ──
-  // BUGFIX: ver el comentario detallado en sendVale() — getVales().push()
-  // mutaba _valesCache antes de que saveVales() pudiera diferenciar "antes"
-  // vs "ahora", y el write nunca se encolaba.
-  const all = [...getVales(), vale]; saveVales(all);
+  const all = getVales(); all.push(vale); saveVales(all);
   _logAudit('admin_vale_sent', 'vale:' + vale.id + ' gestor:' + gId);
 
   // ── 2. Feedback INMEDIATO al admin ──
