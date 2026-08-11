@@ -724,7 +724,7 @@
       "name": "KIT de 4 camaras Zosi (sin disco duro)",
       "catId": 80,
       "photo": "https://tiendamax.org/imagenes/img_1778384314795_ext.webp",
-      "stock": 3,
+      "stock": 2,
       "precio": "$230",
       "puntos": 2,
       "comision": "$20 USD",
@@ -1924,5 +1924,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-11T15:22:55.707Z"
+  "timestamp": "2026-08-11T15:23:50.185Z"
 }
