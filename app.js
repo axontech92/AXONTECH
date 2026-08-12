@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 20;
+const APP_VERSION = 21;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '7d28486ade8c9c47';
+let _LOCAL_BUILD_HASH = 'c209437e751d700d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -160,84 +160,154 @@ function base64ToUtf8(b64) {
   }
 }
 
-// ══════════════════════════════════════════
-//  FIREBASE SETUP & DATA LAYER
-// ══════════════════════════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU",
-  authDomain: "axontech.firebaseapp.com",
-  databaseURL: "https://axontech-default-rtdb.firebaseio.com",
-  projectId: "axontech",
-  storageBucket: "axontech.firebasestorage.app",
-  messagingSenderId: "780537360829",
-  appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
+// ════════════════════════════════════════
+//  SUPABASE DATA LAYER
+// ════════════════════════════════════════
+const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
+const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
+const _SB_REST      = SUPABASE_URL + '/rest/v1';
+const _SB_AUTH_HDRS = {
+  'apikey':       SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type':  'application/json',
+  'Prefer':        'resolution=merge-duplicates',
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
 let _syncCount = 0;
 const isSyncingFromFirebase = () => _syncCount > 0;
+const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary'];
 
-// ── Persistencia offline de Firebase ──
-// Habilita el cache local de Firebase RTDB: en la próxima carga, los listeners
-// sirven los datos cacheados INMEDIATAMENTE (sin round-trip al servidor) y
-// luego sincronizan en background. En 3G esto ahorra 2-5s en cada arranque.
-// Si la app ya está en modo standalone (PWA instalada) o el navegador soporta
-// IndexedDB (todos los modernos), esto es transparente.
-// Nota: solo se puede llamar UNA vez por app y debe ser antes de cualquier
-// referencia a db.ref(). Aquí se llama justo después de firebase.database().
-try {
-  db.enablePersistence({ synchronizeTabs: false }).catch(err => {
-    // Errores comunes que NO son problema:
-    // - 'failed: tab mutually exclusive' → otra pestaña ya tiene persistence.
-    // - 'failed: existing frame' → iframe en contexto sin persistence.
-    // Solo loguear en console, no molestar al usuario.
-    if (err && err.code !== 'implementation-dependent') {
-      console.warn('Firebase persistence no disponible:', err.code || err.message);
-    }
-  });
-} catch(e) {
-  // Algunos navegadores muy viejos no tienen enablePersistence.
-  console.warn('Firebase enablePersistence error:', e);
+async function _sbRestGetCollection(collName) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) { if (res.status === 404) return []; throw new Error(`Supabase GET ${collName} ${res.status}`); }
+  const rows = await res.json();
+  return (rows || []).map(r => r.data).filter(x => x != null);
 }
-
-// ── Ajustes de reconexión para conexiones lentas/inestables ──
-// Firebase SDK tiene auto-reconnect, pero los defaults están pensados para
-// conexiones estables. En 3G cubano, la conexión se cae cada pocos minutos
-// por cortes breves (2-10s). Ajustamos:
-// - maxReconnectDelay: bajar de 30s (default) a 8s. Si la red vuelve rápido,
-//   reconectamos antes.
-// - retryCountIntervals: intervals más cortos al inicio.
-//
-// v14: trackeamos _fbConnected explícitamente. Si NO estamos conectados,
-// _processFBQueue() NO intenta hacer el write (que tardaría 8s en timeout).
-// En su lugar, deja los items en la cola y los procesa cuando vuelva la
-// conexión. Esto evita el cuelgue "Subiendo..." en redes donde el WebSocket
-// de Firebase ni siquiera pudo establecerse.
-let _fbConnected = false;  // ¿Firebase WebSocket está realmente conectado?
-try {
-  const rtdb = db.ref('.info/connected');
-  let _wasConnected = false;
-  rtdb.on('value', snap => {
-    const connected = snap.val() === true;
-    _fbConnected = connected;
-    if (connected && !_wasConnected) {
-      _wasConnected = true;
-      // Al reconectar, forzar el procesamiento de la cola de writes pendientes.
-      // v15: también llamar _ensurePendingValesEnqueued por si hay vales
-      // huérfanos (synced:false) que NO están encolados (p.ej. tras descarte
-      // por 4 reintentos). Antes solo llamábamos _processFBQueue, lo que
-      // dejaba vales pendientes sin recover si la cola estaba vacía.
-      setTimeout(() => {
-        _ensurePendingValesEnqueued();
-        _processFBQueue();
-      }, 100);
-      _updateSyncIndicator();
-    } else if (!connected && _wasConnected) {
-      _wasConnected = false;
-      _updateSyncIndicator();
+async function _sbRestGetMeta(name) {
+  const url = `${_SB_REST}/meta?select=data&name=eq.${encodeURIComponent(name)}`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) { if (res.status === 404) return null; throw new Error(`Supabase GET meta/${name} ${res.status}`); }
+  const rows = await res.json();
+  if (!rows || rows.length === 0) return null;
+  return rows[0].data;
+}
+async function _sbRestUpsert(collName, id, value) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
+  const body = JSON.stringify([{ id: id, data: value }]);
+  const res = await fetch(url, { method: 'POST', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' }, body });
+  if (!res.ok) { const t = await res.text(); throw new Error(`Supabase UPSERT ${collName}/${id} ${res.status}: ${t.slice(0,150)}`); }
+}
+async function _sbRestUpsertBatch(collName, items) {
+  if (!items || items.length === 0) return [];
+  const savedIds = [];
+  const CHUNK = 500;
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const chunk = items.slice(i, i + CHUNK);
+    const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
+    const body = JSON.stringify(chunk.map(it => ({ id: it.id, data: it.value })));
+    const res = await fetch(url, { method: 'POST', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' }, body });
+    if (!res.ok) { const t = await res.text(); throw new Error(`Supabase UPSERT batch ${collName} ${res.status}: ${t.slice(0,150)}`); }
+    const rows = await res.json().catch(() => []);
+    if (Array.isArray(rows)) rows.forEach(r => { if (r && r.id != null) savedIds.push(Number(r.id)); });
+  }
+  return savedIds;
+}
+async function _sbRestDelete(collName, id) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=eq.${encodeURIComponent(id)}`;
+  const res = await fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS });
+  if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE ${collName}/${id} ${res.status}`);
+}
+async function _sbRestDeleteBatch(collName, ids) {
+  if (!ids || ids.length === 0) return;
+  const CHUNK = 500;
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const chunk = ids.slice(i, i + CHUNK);
+    const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=in.(${chunk.map(x => encodeURIComponent(String(x))).join(',')})`;
+    const res = await fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } });
+    if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE batch ${collName} ${res.status}`);
+  }
+}
+async function _sbRestMetaUpsert(name, value) {
+  const url = `${_SB_REST}/meta`;
+  const body = JSON.stringify([{ name: name, data: value }]);
+  const res = await fetch(url, { method: 'POST', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' }, body });
+  if (!res.ok) { const t = await res.text(); throw new Error(`Supabase META UPSERT ${name} ${res.status}: ${t.slice(0,150)}`); }
+}
+async function _sbRestMetaDelete(name) {
+  const url = `${_SB_REST}/meta?name=eq.${encodeURIComponent(name)}`;
+  const res = await fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS });
+  if (!res.ok && res.status !== 404) throw new Error(`Supabase META DELETE ${name} ${res.status}`);
+}
+function _fakeSnap(arr) {
+  const docs = (arr || []).map(o => ({ id: String(o && o.id != null ? o.id : ''), data: () => o, metadata: { hasPendingWrites: false } }));
+  return { docs, empty: docs.length === 0, size: docs.length, forEach: fn => docs.forEach(fn) };
+}
+let _restPollTimer = null;
+let _restPollInFlight = false;
+const _REST_POLL_MS = 5000;
+async function _doRestPoll() {
+  if (_restPollInFlight) return;
+  if (!navigator.onLine) return;
+  if (document.hidden) return;
+  _restPollInFlight = true;
+  try {
+    if (IS_ADMIN) {
+      const vales = await _sbRestGetCollection('vales');
+      if (typeof window._handleValesSnap === 'function') window._handleValesSnap(_fakeSnap(vales));
+    } else if (activeGestorId != null) {
+      const all = await _sbRestGetCollection('vales');
+      const gid = Number(activeGestorId);
+      const mine = all.filter(v => v && v.gestorId != null && Number(v.gestorId) === gid);
+      if (typeof window._handleMyValesSnap === 'function') window._handleMyValesSnap(_fakeSnap(mine));
     }
-  });
-} catch(e) { /* .info/connected listener opcional */ }
+    for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
+      try {
+        const arr = await _sbRestGetCollection(node);
+        if (arr.length > 0) {
+          _syncCount++;
+          try {
+            try { localStorage.setItem('axon_'+node, JSON.stringify(arr)); } catch(e) {}
+            if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
+            else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
+            else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
+            else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
+          } finally { _syncCount--; }
+        }
+      } catch(e) {}
+    }
+    for (const node of _SB_SINGLETON_ROWS) {
+      try {
+        const val = await _sbRestGetMeta(node);
+        if (val) {
+          _syncCount++;
+          try {
+            try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
+            if(node==='config'){_configCache=val;_configDirty=false;}
+            else if(node==='notifs'){_notifsCache=val;_notifsDirty=false;}
+            else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
+          } finally { _syncCount--; }
+        }
+      } catch(e) {}
+    }
+    refreshUI();
+  } catch(e) { console.warn('[rest-poll] error:', e && e.message); }
+  finally { _restPollInFlight = false; }
+}
+function _startRestPolling() {
+  if (_restPollTimer) return;
+  _doRestPoll();
+  _restPollTimer = setInterval(_doRestPoll, _REST_POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) _doRestPoll(); });
+  window.addEventListener('online', () => _doRestPoll());
+}
+let _fbConnected = navigator.onLine;
+window.addEventListener('online', () => {
+  if (_fbConnected) return;
+  _fbConnected = true;
+  setTimeout(() => { _ensurePendingValesEnqueued(); _processFBQueue(); }, 100);
+  _updateSyncIndicator();
+});
+window.addEventListener('offline', () => { _fbConnected = false; _updateSyncIndicator(); });
 
 // ══════════════════════════════════════════
 //  STATE

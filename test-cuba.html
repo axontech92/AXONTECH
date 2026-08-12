@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AXONTECH · Test Cuba</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:16px;line-height:1.5}
+h1{font-size:18px;margin-bottom:8px;color:#fff}
+button{width:100%;padding:15px;font-size:16px;font-weight:800;border:none;border-radius:12px;background:#0ea5e9;color:#fff;cursor:pointer;margin-bottom:14px}
+button:disabled{background:#475569}
+.t{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 14px;margin-bottom:9px}
+.tr{font-size:13px;font-weight:800;font-family:monospace;word-break:break-word}
+.ok{color:#4ade80}.bad{color:#f87171}.wait{color:#fbbf24}
+#copy{background:#334155;font-size:14px;padding:13px;display:none}
+</style>
+</head>
+<body>
+<h1>🔍 Test AXONTECH Cuba</h1>
+<button id="run" onclick="runAll()">▶ Empezar</button>
+<div id="tests"></div>
+<button id="copy" onclick="copyRes()">📋 Copiar</button>
+<script>
+var SB_URL='https://gdzsqwyedzrfituewdtt.supabase.co';
+var SB_KEY='sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
+var TESTS=[
+ {id:'sb1',n:'Supabase - gestores',run:function(){
+   return fetch(SB_URL+'/rest/v1/gestores?select=id&limit=1',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}})
+     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+     .then(function(d){return 'OK · '+d.length+' gestor(es)';});
+ }},
+ {id:'sb2',n:'Supabase - vales',run:function(){
+   return fetch(SB_URL+'/rest/v1/vales?select=id&limit=1',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}})
+     .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+     .then(function(d){return 'OK · '+d.length+' vale(s)';});
+ }},
+ {id:'sb3',n:'Supabase - raíz',run:function(){
+   return fetch(SB_URL+'/rest/v1/',{headers:{'apikey':SB_KEY}})
+     .then(function(r){if(r.status===401||r.status===200)return 'OK · status '+r.status;throw new Error('HTTP '+r.status);});
+ }},
+ {id:'gh',n:'GitHub API',run:function(){
+   return fetch('https://api.github.com/rate_limit').then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return 'OK';});
+ }},
+ {id:'dns',n:'DNS Supabase',run:function(){
+   return fetch('https://gdzsqwyedzrfituewdtt.supabase.co/auth/v1/health')
+     .then(function(r){if(r.ok)return r.json().then(function(j){return 'OK · '+j.name;});throw new Error('HTTP '+r.status);});
+ }},
+];
+var res={};
+function el(id){return document.getElementById(id);}
+function render(){
+  el('tests').innerHTML=TESTS.map(function(t){
+    var r=res[t.id]||{s:'wait',m:'— esperando —'};
+    var c=r.s==='ok'?'ok':(r.s==='bad'?'bad':'wait');
+    var ic=r.s==='ok'?'✅':(r.s==='bad'?'❌':'⏳');
+    return '<div class="t"><div style="font-size:12px;font-weight:700;margin-bottom:3px;">'+t.n+'</div><div class="tr '+c+'">'+ic+' '+r.m+'</div></div>';
+  }).join('');
+}
+function runAll(){
+  el('run').disabled=true;el('run').textContent='Probando…';
+  res={};render();
+  var i=0;
+  function next(){
+    if(i>=TESTS.length){done();return;}
+    var t=TESTS[i++];var t0=Date.now();
+    var to=new Promise(function(_,rej){setTimeout(function(){rej(new Error('sin respuesta en 15s'));},15000);});
+    Promise.race([t.run(),to]).then(function(m){
+      res[t.id]={s:'ok',m:m+' · '+(Date.now()-t0)+'ms'};
+    })['catch'](function(e){
+      res[t.id]={s:'bad',m:(e&&e.message?e.message:'falló')+' · '+(Date.now()-t0)+'ms'};
+    }).then(function(){render();next();});
+  }
+  render();next();
+}
+function done(){
+  el('run').disabled=false;el('run').textContent='▶ Repetir';
+  el('copy').style.display='block';
+  var okCount=0;TESTS.forEach(function(t){if(res[t.id]&&res[t.id].s==='ok')okCount++;});
+  var f=el('copy');
+  if(okCount===0){
+    f.textContent='❌ Supabase bloqueado desde Cuba. Hay que usar VPN o buscar alternativa.';
+  }else if(okCount>=3){
+    f.textContent='✅ Supabase funciona. El problema está en la app.';
+  }else{
+    f.textContent='⚠️ Algunos servicios fallan. Revisa arriba.';
+  }
+}
+function copyRes(){
+  var t='TEST CUBA '+new Date().toLocaleString('es-ES')+'\n';
+  TESTS.forEach(function(x){var r=res[x.id]||{s:'?',m:'-'};
+    t+=(r.s==='ok'?'OK  ':'FALLA ')+x.n+' -> '+r.m+'\n';});
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){alert('Copiado');},function(){alert(t);});else alert(t);
+}
+render();
+</script>
+</body>
+</html>

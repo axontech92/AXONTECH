@@ -1,9 +1,9 @@
 {
-  "version": 20,
-  "versionStr": "v20",
-  "hash": "7d28486ade8c9c47",
-  "hashFull": "7d28486ade8c9c4750ceb05c1da54725c1f79aa7c5b4bf09907521d5e4d16c60",
-  "releasedAt": "2026-08-12 13:30",
+  "version": 21,
+  "versionStr": "v21",
+  "hash": "c209437e751d700d",
+  "hashFull": "c209437e751d700d1e3bccf280725fc85c30010130bc7e489c29c9f63cc6099e",
+  "releasedAt": "2026-08-12 18:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Botones ⭐ favorito y 📋 copiar descripción ahora visibles en el catálogo del gestor (renderGestorCatalog), no solo en Stock del admin."
+    "FIX CRÍTICO: se había vuelto a meter código de Firebase (firebase.initializeApp, db.ref, enablePersistence) que crasheaba la app al arrancar porque los archivos firebase-*.js ya no existen. Reemplazado por el código de Supabase que SÍ funciona desde Cuba."
   ]
 }
