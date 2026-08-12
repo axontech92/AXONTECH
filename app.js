@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 21;
+const APP_VERSION = 22;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'c209437e751d700d';
+let _LOCAL_BUILD_HASH = 'a6bf4389c4511c13';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -161,8 +161,32 @@ function base64ToUtf8(b64) {
 }
 
 // ════════════════════════════════════════
-//  SUPABASE DATA LAYER
+//  FIREBASE + SUPABASE HYBRID DATA LAYER
 // ════════════════════════════════════════
+// Firebase RTDB para listeners en tiempo real (lectura).
+// Supabase REST para escrituras (más confiable desde Cuba).
+const firebaseConfig = {
+  apiKey: "AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU",
+  authDomain: "axontech.firebaseapp.com",
+  databaseURL: "https://axontech-default-rtdb.firebaseio.com",
+  projectId: "axontech",
+  storageBucket: "axontech.firebasestorage.app",
+  messagingSenderId: "780537360829",
+  appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+try {
+  db.enablePersistence({ synchronizeTabs: false }).catch(err => {
+    if (err && err.code !== 'implementation-dependent') {
+      console.warn('Firebase persistence no disponible:', err.code || err.message);
+    }
+  });
+} catch(e) {
+  console.warn('Firebase enablePersistence error:', e);
+}
+
 const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
 const _SB_REST      = SUPABASE_URL + '/rest/v1';
@@ -301,6 +325,25 @@ function _startRestPolling() {
   window.addEventListener('online', () => _doRestPoll());
 }
 let _fbConnected = navigator.onLine;
+try {
+  const rtdb = db.ref('.info/connected');
+  let _wasConnected = false;
+  rtdb.on('value', snap => {
+    const connected = snap.val() === true;
+    _fbConnected = connected;
+    if (connected && !_wasConnected) {
+      _wasConnected = true;
+      setTimeout(() => {
+        _ensurePendingValesEnqueued();
+        _processFBQueue();
+      }, 100);
+      _updateSyncIndicator();
+    } else if (!connected && _wasConnected) {
+      _wasConnected = false;
+      _updateSyncIndicator();
+    }
+  });
+} catch(e) { /* .info/connected listener opcional */ }
 window.addEventListener('online', () => {
   if (_fbConnected) return;
   _fbConnected = true;

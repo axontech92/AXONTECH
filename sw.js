@@ -1,18 +1,15 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '21';
-const CACHE = 'axontech-v21';
+const APP_VERSION  = '22';
+const CACHE = 'axontech-v22';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
+  './firebase-app-compat.js', './firebase-database-compat.js',
   './iconos/favicon-96.png', './iconos/icon-192.png', './iconos/icon-512.png',
   './iconos/icon-192-maskable.png', './iconos/icon-512-maskable.png', './iconos/icon-1024-maskable.png',
   './offline.html'
-  // v17: removido './data.json' (siempre 0 bytes, perdía 1 RTT en 3G al precachearlo).
-  // NOTA: catalogo.html (~1MB con fotos base64 inline) NO se precachea.
-  // Es una plantilla autocontenida para publicar en GitHub Pages, la app
-  // nunca la carga localmente. Si se cachea, añade 1MB al primer install.
 ];
 
 // ── Precarga perezosa de fotos ──

@@ -1,9 +1,9 @@
 {
-  "version": 21,
-  "versionStr": "v21",
-  "hash": "c209437e751d700d",
-  "hashFull": "c209437e751d700d1e3bccf280725fc85c30010130bc7e489c29c9f63cc6099e",
-  "releasedAt": "2026-08-12 18:00",
+  "version": 22,
+  "versionStr": "v22",
+  "hash": "a6bf4389c4511c13",
+  "hashFull": "a6bf4389c4511c13e15a0ad3b155f8d553ec5f88f7f9ef5d4a6c5c23398b2daa",
+  "releasedAt": "2026-08-12 19:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO: se había vuelto a meter código de Firebase (firebase.initializeApp, db.ref, enablePersistence) que crasheaba la app al arrancar porque los archivos firebase-*.js ya no existen. Reemplazado por el código de Supabase que SÍ funciona desde Cuba."
+    "FIX CRÍTICO: restaurado Firebase SDK (firebase-app-compat.js + firebase-database-compat.js) con init, enablePersistence y .info/connected. Los archivos se cargan LOCAL (no de gstatic.com). Firebase para listeners de lectura + Supabase REST para escrituras. Ambos coexisten."
   ]
 }
