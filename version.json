@@ -1,9 +1,9 @@
 {
-  "version": 23,
-  "versionStr": "v23",
-  "hash": "624ea392028fa523",
-  "hashFull": "624ea392028fa52324edb29bb2eeb0d254d18664cccaa4dbb4755c47205efe00",
-  "releasedAt": "2026-08-12 19:30",
+  "version": 24,
+  "versionStr": "v24",
+  "hash": "0242215c181da76b",
+  "hashFull": "0242215c181da76b3c7b57674ed3516992e7028796cbf92a927f99c6b08d13cb",
+  "releasedAt": "2026-08-12 20:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO: Firebase eliminado completamente. Creado db simulado (mock) que no conecta a firebaseio.com (bloqueado en Cuba). Los listeners db.ref().on() son no-ops, las escrituras van por Supabase REST, los datos vienen por polling cada 5s. No se cargan scripts de Firebase — solo app.js."
+    "FIX catálogo: publishCatalogToGitHub ahora usa Git Data API (blobs+trees+commits) que soporta hasta 100MB. ANTES usaba Contents API con límite de 1MB — el catálogo pesa 1.04MB y se truncaba al publicar."
   ]
 }

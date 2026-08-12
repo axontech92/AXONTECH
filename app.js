@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 23;
+const APP_VERSION = 24;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '624ea392028fa523';
+let _LOCAL_BUILD_HASH = '0242215c181da76b';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -6794,33 +6794,70 @@ async function publishCatalogToGitHub(htmlContent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
   const catalogPath='catalogo.html';
-  // Use utf8ToBase64 instead of deprecated btoa(unescape(encodeURIComponent(...)))
-  const content=utf8ToBase64(htmlContent);
-  // Validate repo format (owner/repo) — reject path traversal
   const parts=cfg.ghRepo.split('/').filter(Boolean);
   if(parts.length < 2){showToast('Formato de repo inválido. Use: usuario/repositorio');return null;}
   const owner=parts[0];const repo=parts.slice(1).join('/');
   if([owner,repo].some(s => /\.\.|[^a-zA-Z0-9._\-\/]/.test(s))){showToast('Nombre de repo contiene caracteres inválidos');return null;}
-  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${catalogPath}`;
   const headers={Authorization:`token ${ghToken()}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'};
-  // Get existing SHA if file exists
-  let sha;
-  try{const r=await fetch(url,{headers});if(r.ok){const j=await r.json();sha=j.sha;}}catch(e){}
-  const body={message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,content};
-  if(sha)body.sha=sha;
-  const res=await fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
-  if(res.ok){
-    // Construct GitHub Pages URL
+  const api=`https://api.github.com/repos/${owner}/${repo}`;
+  try {
+    // Usar Git Data API (soporta hasta 100MB) en vez de Contents API (limite 1MB)
+    // 1. Rama por defecto + último commit
+    const repoRes=await fetch(api,{headers});
+    if(!repoRes.ok){showToast(`Error (${repoRes.status}) obteniendo repo`);return null;}
+    const repoData=await repoRes.json();
+    const branch=repoData.default_branch||'main';
+    // 2. Obtener el SHA del último commit de la rama
+    const refRes=await fetch(`${api}/git/refs/heads/${branch}`,{headers});
+    if(!refRes.ok){showToast(`Error obteniendo ref de rama ${branch}`);return null;}
+    const refData=await refRes.json();
+    const lastCommitSha=refData.object.sha;
+    // 3. Crear blob con el contenido del catálogo
+    const blobRes=await fetch(`${api}/git/blobs`,{
+      method:'POST',headers,
+      body:JSON.stringify({content:utf8ToBase64(htmlContent),encoding:'base64'})
+    });
+    if(!blobRes.ok){showToast(`Error creando blob (${blobRes.status})`);return null;}
+    const blobData=await blobRes.json();
+    const blobSha=blobData.sha;
+    // 4. Obtener el tree actual para no perder archivos
+    const commitRes=await fetch(`${api}/git/commits/${lastCommitSha}`,{headers});
+    const commitData=await commitRes.json();
+    const baseTreeSha=commitData.tree.sha;
+    // 5. Crear nuevo tree con el catálogo actualizado
+    const treeRes=await fetch(`${api}/git/trees`,{
+      method:'POST',headers,
+      body:JSON.stringify({
+        base_tree:baseTreeSha,
+        tree:[{path:catalogPath,mode:'100644',type:'blob',sha:blobSha}]
+      })
+    });
+    if(!treeRes.ok){showToast(`Error creando tree (${treeRes.status})`);return null;}
+    const treeData=await treeRes.json();
+    const newTreeSha=treeData.sha;
+    // 6. Crear commit
+    const newCommitRes=await fetch(`${api}/git/commits`,{
+      method:'POST',headers,
+      body:JSON.stringify({
+        message:`Catalogo AXONTECH ${new Date().toLocaleString('es-ES')}`,
+        tree:newTreeSha,
+        parents:[lastCommitSha]
+      })
+    });
+    if(!newCommitRes.ok){showToast(`Error creando commit (${newCommitRes.status})`);return null;}
+    const newCommitData=await newCommitRes.json();
+    const newCommitSha=newCommitData.sha;
+    // 7. Actualizar la rama
+    const updateRefRes=await fetch(`${api}/git/refs/heads/${branch}`,{
+      method:'PATCH',headers,
+      body:JSON.stringify({sha:newCommitSha})
+    });
+    if(!updateRefRes.ok){showToast(`Error actualizando rama (${updateRefRes.status})`);return null;}
     const pagesUrl=`https://${owner}.github.io/${repo}/${catalogPath}`;
     return pagesUrl;
-  } else {
-    const err=await res.json().catch(()=>({}));
-    const msg=err.message||'';
-    if(res.status===401)showToast('❌ Token inválido o expirado. Genera uno nuevo en GitHub Settings → Developer settings → Personal access tokens');
-    else if(res.status===404)showToast('❌ Repo no encontrado. Verifica el formato: usuario/nombre-repo');
-    else if(res.status===403)showToast('❌ Sin permisos. El token necesita permiso "repo" (full control)');
-    else showToast(`Error al publicar (${res.status}): ${msg}`);
-    console.error('GitHub publish error:',res.status,err);
+  } catch(e) {
+    console.error('GitHub publish error:',e);
+    showToast('Error al publicar: '+e.message);
     return null;
   }
 }
