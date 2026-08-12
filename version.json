@@ -1,9 +1,9 @@
 {
-  "version": 26,
-  "versionStr": "v26",
-  "hash": "ff44966a1a63f4b9",
-  "hashFull": "ff44966a1a63f4b9de93b0ab5e35fd65cbf294d34045e78dc06ac3745ac6ca98",
-  "releasedAt": "2026-08-12 21:00",
+  "version": 27,
+  "versionStr": "v27",
+  "hash": "0b4d8d02b8c9da65",
+  "hashFull": "0b4d8d02b8c9da65feeebee0434f116d15c91cc9247ca22e89918bc7d786e4f6",
+  "releasedAt": "2026-08-12 22:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,8 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX catálogo: regex photos/ sin escapar en catalogo.html causaba SyntaxError → productos no se mostraban. Arreglado."
+    "FIX catálogo: regex reemplazada por variable PHOTO_RE — elimina problema de escaping.",
+    "FIX estafa: writes llegan a Supabase correctamente.",
+    "Catálogo local arreglado — republicar desde el admin."
   ]
 }
