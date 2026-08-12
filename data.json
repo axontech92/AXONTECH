@@ -1309,6 +1309,18 @@
       "precio": "$260",
       "puntos": 0,
       "stock": 2
+    },
+    {
+      "catId": 10,
+      "comision": "$10 USD",
+      "description": "El Ubiquiti NanoStation loco M5 (LocoM5) es un equipo inalámbrico para exteriores diseñado para enlaces de larga distancia y como CPE (cliente inalámbrico). Es muy utilizado para conectar casas, edificios o cámaras IP mediante enlaces de 5 GHz\n\n- Frecuencia: 5 GHz (5470–5825 MHz).\n- Tecnología: 802.11a/n con protocolo propietario airMAX TDMA.\n- Antena integrada: 13 dBi, doble polarización (2×2 MIMO).\n- Ancho de haz: aproximadamente 45°.\n- Potencia de transmisión: hasta 23 dBm.\n- Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n- Alimentación: PoE pasivo de 24 V.\n- Consumo eléctrico: máximo 5.5 W.\n- Procesador: Atheros MIPS 400 MHz.\n- Memoria: 32 MB RAM y 8 MB Flash.\n- Uso exterior: carcasa resistente a UV.\n- Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
+      "garantia": "",
+      "id": 1786509569058,
+      "name": "Nanostation loco m5",
+      "photo": "",
+      "precio": "$160",
+      "puntos": 1,
+      "stock": 20
     }
   ],
   "categorias": [
@@ -1545,5 +1557,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:38:00.028Z"
+  "timestamp": "2026-08-12T04:40:29.140Z"
 }
