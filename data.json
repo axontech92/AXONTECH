@@ -1273,6 +1273,18 @@
       "precio": "65",
       "puntos": 1,
       "stock": 4
+    },
+    {
+      "catId": 20,
+      "comision": "",
+      "description": "Ideal para combatir los apagones. Este inversor permitira mantener trabajando electrodomesticos como un refrigerador, ventiladores, televisores y luces de la casa\npor horas (dependiendo del respaldo de baterias), durante un corte de fluido electrico.\n--Este inversor brinda una salida sinusoidal pura de 110 V (corriente alterna) con 2000 watts continuos y 4000 watts maximos.\n-Se puede alimentar\nde una bateria de *12V*.\n-Posee dos salidas universales que sirven para conectores de corriente plano (el que se usa mayoritariamente en Cuba), europeo o chino\n-Un display digital que muestra los voltajes de entrada (DC) y salida (AC) en tiempo real.",
+      "garantia": "",
+      "id": 1786509014605,
+      "name": "Inversor Tataliken de 12V 4000W",
+      "photo": "",
+      "precio": "180",
+      "puntos": 1,
+      "stock": 6
     }
   ],
   "categorias": [
@@ -1509,5 +1521,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:29:49.343Z"
+  "timestamp": "2026-08-12T04:31:14.680Z"
 }
