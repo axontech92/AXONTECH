@@ -303,6 +303,14 @@
       "name": "Sheila",
       "password": "HPBTRSEQ",
       "phone": "53998989"
+    },
+    {
+      "color": "#1D4ED8",
+      "id": 1786539281210,
+      "initials": "C",
+      "name": "Cristian",
+      "password": "5LQ8Y59G",
+      "phone": "54359866"
     }
   ],
   "mensajeros": [
@@ -1424,6 +1432,70 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "×1 Tplink Archer AX1450 Doble Banda",
+      "carnet": "98121005468",
+      "cliente": "Carlos",
+      "comisionGestor": "$10.00 USD",
+      "direccion": "Recogida en tienda",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "id": 1786537127909,
+      "mensajeria": "Sin envío",
+      "precioMN": "",
+      "precioUSD": "$80 USD",
+      "status": "pending",
+      "telefono": "52701129",
+      "total": "$80 USD",
+      "ts": "2026-08-12T12:18:47.926Z",
+      "valeNum": 63,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 1,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 52701129\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/08/2026 08:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "",
+      "synced": true,
+      "isNew": false,
+      "seenByAdmin": true,
+      "seenTs": "2026-08-12T12:46:53.532Z"
+    },
+    {
+      "adminNotes": "",
+      "articulo": "×1 Router Wavlink AC1200 pequeño",
+      "carnet": "",
+      "cliente": "Carlos",
+      "comisionGestor": "$10.00 USD",
+      "direccion": "Recogida en tienda",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "id": 1786536428235,
+      "mensajeria": "Sin envío",
+      "precioMN": "",
+      "precioUSD": "$70 USD",
+      "status": "pending",
+      "telefono": "52701129",
+      "total": "$70 USD",
+      "ts": "2026-08-12T12:07:08.256Z",
+      "valeNum": 62,
+      "valeProductos": [
+        {
+          "id": 1785077980600,
+          "qty": 1,
+          "name": "Router Wavlink AC1200 pequeño"
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 52701129\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Wavlink AC1200 pequeño\n🔸Precio USD/ zelle: $70 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $70 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/08/2026 08:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "",
+      "synced": true,
+      "isNew": false,
+      "seenByAdmin": true,
+      "seenTs": "2026-08-12T12:47:02.078Z"
+    },
+    {
+      "adminNotes": "",
       "articulo": "×2 Adaptador poe UBIQUITI de 0.3A / ×2 NanoStation AC loco SIN POE",
       "carnet": "03010464407",
       "cliente": "Miguel",
@@ -1457,8 +1529,8 @@
       "synced": true,
       "isNew": false,
       "seenByAdmin": true,
-      "seenTs": "2026-08-12T05:17:01.508Z"
+      "seenTs": "2026-08-12T12:47:03.594Z"
     }
   ],
-  "timestamp": "2026-08-12T05:23:07.748Z"
+  "timestamp": "2026-08-12T12:56:47.029Z"
 }
