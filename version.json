@@ -1,9 +1,9 @@
 {
-  "version": 22,
-  "versionStr": "v22",
-  "hash": "a6bf4389c4511c13",
-  "hashFull": "a6bf4389c4511c13e15a0ad3b155f8d553ec5f88f7f9ef5d4a6c5c23398b2daa",
-  "releasedAt": "2026-08-12 19:00",
+  "version": 23,
+  "versionStr": "v23",
+  "hash": "624ea392028fa523",
+  "hashFull": "624ea392028fa52324edb29bb2eeb0d254d18664cccaa4dbb4755c47205efe00",
+  "releasedAt": "2026-08-12 19:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO: restaurado Firebase SDK (firebase-app-compat.js + firebase-database-compat.js) con init, enablePersistence y .info/connected. Los archivos se cargan LOCAL (no de gstatic.com). Firebase para listeners de lectura + Supabase REST para escrituras. Ambos coexisten."
+    "FIX CRÍTICO: Firebase eliminado completamente. Creado db simulado (mock) que no conecta a firebaseio.com (bloqueado en Cuba). Los listeners db.ref().on() son no-ops, las escrituras van por Supabase REST, los datos vienen por polling cada 5s. No se cargan scripts de Firebase — solo app.js."
   ]
 }

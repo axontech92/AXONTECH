@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 22;
+const APP_VERSION = 23;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a6bf4389c4511c13';
+let _LOCAL_BUILD_HASH = '624ea392028fa523';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -174,18 +174,32 @@ const firebaseConfig = {
   messagingSenderId: "780537360829",
   appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-try {
-  db.enablePersistence({ synchronizeTabs: false }).catch(err => {
-    if (err && err.code !== 'implementation-dependent') {
-      console.warn('Firebase persistence no disponible:', err.code || err.message);
-    }
-  });
-} catch(e) {
-  console.warn('Firebase enablePersistence error:', e);
-}
+// v23: Firebase bloqueado en Cuba. NO inicializar Firebase.
+// Crear un db simulado que no conecta a nada — todo va por Supabase REST.
+// Los db.ref().on() son no-ops, los db.ref().once() devuelven vacío.
+// Los writes van por _enqueueFB -> _supabaseOpFor -> Supabase REST.
+const db = {
+  ref: function(path) {
+    return {
+      on: function() { return function(){}; },
+      off: function() {},
+      once: function() { return Promise.resolve({ val: () => null, exists: () => false, forEach: () => {} }); },
+      set: function() { return Promise.resolve(); },
+      update: function() { return Promise.resolve(); },
+      remove: function() { return Promise.resolve(); },
+      transaction: function(fn) { return Promise.resolve({ committed: false, snapshot: { val: () => null } }); },
+      child: function() { return this; },
+      push: function() { return { key: Date.now().toString() }; },
+      limit: function() { return this; },
+      doc: function() { return this; },
+      collection: function() { return this; },
+    };
+  },
+  enablePersistence: function() { return Promise.resolve(); },
+  settings: function() {},
+  runTransaction: function() { return Promise.resolve(); },
+  batch: function() { return { set: function(){}, delete: function(){}, commit: function() { return Promise.resolve(); } }; },
+};
 
 const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
