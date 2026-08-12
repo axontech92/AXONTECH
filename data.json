@@ -1333,6 +1333,30 @@
       "precio": "$240",
       "puntos": 1,
       "stock": 3
+    },
+    {
+      "catId": 10,
+      "comision": "$10 USD",
+      "description": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
+      "garantia": "",
+      "id": 1786509734474,
+      "name": "Mikrotik SXT SA 5 ac",
+      "photo": "",
+      "precio": "220",
+      "puntos": 1,
+      "stock": 5
+    },
+    {
+      "catId": 10,
+      "comision": "$9.7 USD",
+      "description": "NanoStation M2 – Internacional\n- Version Internacional\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora\n- Ganancia 16 dBi,\n- Consumo de energía máximo 8W\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente",
+      "garantia": "",
+      "id": 1786509790425,
+      "name": "Nanostation m2",
+      "photo": "",
+      "precio": "$230",
+      "puntos": 1,
+      "stock": 17
     }
   ],
   "categorias": [
@@ -1569,5 +1593,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:41:44.648Z"
+  "timestamp": "2026-08-12T04:44:11.030Z"
 }
