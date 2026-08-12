@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 18;
+const APP_VERSION = 19;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '7bc8308626c52b0d';
+let _LOCAL_BUILD_HASH = 'd0a009ba1c31d98f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5463,6 +5463,44 @@ function removeCategoria(id) {
     showToast('Categoría eliminada');
   });
 }
+// v19: copiar SOLO la descripción del producto (no todo el texto del vale)
+function copyProductDesc(id) {
+  const p = productoOf(id);
+  if (!p || !p.description) { showToast('Sin descripción'); return; }
+  navigator.clipboard.writeText(p.description)
+    .then(() => showToast('Descripción copiada ✓'))
+    .catch(() => showToast('No se pudo copiar'));
+}
+
+// v19: Sistema de favoritos del gestor
+// Los favoritos se guardan en localStorage del dispositivo del gestor.
+// NO se sincronizan a Supabase — son personales de cada gestor.
+function getGestorFavorites() {
+  if (!activeGestorId) return [];
+  try {
+    const key = 'axon_favorites_' + activeGestorId;
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch(e) { return []; }
+}
+function toggleFavorite(productId) {
+  if (!activeGestorId) return;
+  const key = 'axon_favorites_' + activeGestorId;
+  let favs = getGestorFavorites();
+  const id = Number(productId);
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    showToast('Removido de favoritos');
+  } else {
+    favs.push(id);
+    showToast('⭐ Añadido a favoritos');
+  }
+  try { localStorage.setItem(key, JSON.stringify(favs)); } catch(e) {}
+  renderProductGrid();
+}
+function isFavorite(productId) {
+  return getGestorFavorites().includes(Number(productId));
+}
+
 function buildProdCard(p, cats, isAgotado) {
   const cat=cats.find(c=>c.id===p.catId);
   const stockOk=(p.stock||0)>0;
@@ -5503,7 +5541,9 @@ function buildProdCard(p, cats, isAgotado) {
     </div>
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
       <span style="font-size:11px;font-weight:700;color:${stockColor};">${stockLabel}</span>
-      <div style="display:flex;gap:4px;">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 7px;color:${isFavorite(p.id)?'#F59E0B':'var(--gray-400)'};" onclick="toggleFavorite(${p.id})" title="Favorito">${isFavorite(p.id)?'⭐':'☆'}</button>
+        ${p.description?`<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 7px;" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
         ${isAgotado
           ? `<button class="btn btn-green btn-sm" onclick="adjustStock(${p.id})" style="font-size:10px;padding:3px 7px;">📥 Reponer</button>`
           : `<button class="btn btn-ghost btn-sm" onclick="openEditProductModal(${p.id})" style="font-size:10px;padding:3px 7px;">✏️</button>
@@ -5519,6 +5559,15 @@ function buildProdCard(p, cats, isAgotado) {
 function renderProductGrid() {
   let prods=getProductos();
   if(stockCatFilter!==null)prods=prods.filter(p=>p.catId===stockCatFilter);
+  // v19: ordenar favoritos primero
+  if (!IS_ADMIN && activeGestorId) {
+    const favs = getGestorFavorites();
+    prods.sort((a, b) => {
+      const aFav = favs.includes(Number(a.id)) ? 0 : 1;
+      const bFav = favs.includes(Number(b.id)) ? 0 : 1;
+      return aFav - bFav;
+    });
+  }
   const cats=getCategorias();
   const c=document.getElementById('productGrid');
   if(!c) return;
