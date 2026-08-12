@@ -1,9 +1,9 @@
 {
-  "version": 24,
-  "versionStr": "v24",
-  "hash": "0242215c181da76b",
-  "hashFull": "0242215c181da76b3c7b57674ed3516992e7028796cbf92a927f99c6b08d13cb",
-  "releasedAt": "2026-08-12 20:00",
+  "version": 25,
+  "versionStr": "v25",
+  "hash": "f6bfc85e12bef6f1",
+  "hashFull": "f6bfc85e12bef6f1b4a80c68c0a080781e8102047e841fc650ff90bca780d02b",
+  "releasedAt": "2026-08-12 20:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX catálogo: publishCatalogToGitHub ahora usa Git Data API (blobs+trees+commits) que soporta hasta 100MB. ANTES usaba Contents API con límite de 1MB — el catálogo pesa 1.04MB y se truncaba al publicar."
+    "FIX CRÍTICO: los writes (estafa, gestores, productos, etc.) iban al db mock vacío en vez de Supabase. Añadido _supabaseOpFor que traduce las operaciones de la cola a llamadas REST de Supabase. Ahora los datos se guardan en la nube."
   ]
 }

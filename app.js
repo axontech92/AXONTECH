@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '0242215c181da76b';
+let _LOCAL_BUILD_HASH = 'f6bfc85e12bef6f1';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -642,8 +642,65 @@ function _processFBQueue() {
   if (callback === null && (method === 'set' || method === 'update')) {
     _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
   }
-  const ref = db.ref(path);
-  const op = method === 'remove' ? ref.remove() : method === 'update' ? ref.update(value) : ref.set(value);
+  // ── TRADUCIR A SUPABASE REST ──
+  // db.ref() es un mock que no conecta a nada. Aquí traducimos la operación
+  // a llamadas reales de Supabase REST.
+  const _FS_SINGLETON_DOCS = {
+    config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary'
+  };
+  function _supabaseOpFor(path, value, method) {
+    // Singleton → meta/{name}
+    if (_FS_SINGLETON_DOCS[path]) {
+      const name = _FS_SINGLETON_DOCS[path];
+      if (method === 'remove') return _sbRestMetaDelete(name);
+      return _sbRestMetaUpsert(name, value);
+    }
+    // Backups → tabla backups
+    if (path.startsWith('backups/')) {
+      const key = path.split('/').slice(1).join('/');
+      if (!key) return Promise.resolve();
+      if (method === 'remove') {
+        const url = `${_SB_REST}/backups?name=eq.${encodeURIComponent(key)}`;
+        return fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS }).then(r => { if(!r.ok&&r.status!==404) throw new Error(`DELETE backups/${key} ${r.status}`); });
+      }
+      return _sbRestMetaUpsert ? _sbRestMetaUpsert('backups', value) : Promise.resolve();
+    }
+    // Colecciones (gestores, mensajeros, productos, categorias, vales)
+    const collName = path.split('/')[0];
+    if (method === 'remove') {
+      const docId = path.includes('/') ? path.split('/').pop() : null;
+      if (!docId) return Promise.resolve();
+      return _sbRestDelete(collName, docId);
+    }
+    if (Array.isArray(value)) {
+      const items = [];
+      value.forEach(item => { if (item && item.id != null) items.push({ id: Number(item.id), value: item }); });
+      return _sbRestUpsertBatch(collName, items);
+    }
+    if (value && typeof value === 'object') {
+      const upsertItems = [];
+      const deleteIds = [];
+      Object.entries(value).forEach(([key, val]) => {
+        const docId = key.includes('/') ? key.split('/').pop() : key;
+        if (val === null) { if (!isNaN(Number(docId))) deleteIds.push(Number(docId)); return; }
+        const idNum = (val && typeof val === 'object' && val.id != null) ? Number(val.id) : Number(docId);
+        if (!isNaN(idNum)) upsertItems.push({ id: idNum, value: val });
+      });
+      const ops = [];
+      if (upsertItems.length > 0) ops.push(_sbRestUpsertBatch(collName, upsertItems));
+      if (deleteIds.length > 0) ops.push(_sbRestDeleteBatch(collName, deleteIds));
+      if (ops.length === 0) return Promise.resolve();
+      return Promise.all(ops).then(() => {});
+    }
+    return Promise.resolve();
+  }
+  let op;
+  try {
+    op = _supabaseOpFor(path, value, method);
+  } catch(syncErr) {
+    console.error('[supabase] error síncrono armando el write:', syncErr);
+    op = Promise.reject(syncErr);
+  }
   // Flag para que el .finally sepa si el catch ya reencoló el item (y por tanto
   // no debe liberar el candado ni arrancar un segundo consumidor).
   let requeued = false;
