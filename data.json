@@ -1321,6 +1321,18 @@
       "precio": "$160",
       "puntos": 1,
       "stock": 20
+    },
+    {
+      "catId": 10,
+      "comision": "$10 USD",
+      "description": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
+      "garantia": "",
+      "id": 1786509644554,
+      "name": "Mikrotik lhg 5ax",
+      "photo": "",
+      "precio": "$240",
+      "puntos": 1,
+      "stock": 3
     }
   ],
   "categorias": [
@@ -1557,5 +1569,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:40:29.140Z"
+  "timestamp": "2026-08-12T04:41:44.648Z"
 }
