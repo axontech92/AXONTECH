@@ -1357,6 +1357,18 @@
       "precio": "$230",
       "puntos": 1,
       "stock": 17
+    },
+    {
+      "catId": 10,
+      "comision": "$10 USD",
+      "description": "Mikrotik SXTsq 5 lite. Modelo: RB941-2nD.\n\n-Procesador: Qualcomm Atheros a 650 MHz.\n-Memoria RAM: 32 MB\n-Almacenamiento interno: 16 MB Flash.\n-Frecuencia inalámbrica: 5 GHz, compatible con 802.11 b/g/n.\n-Velocidad Wi-Fi: hasta 300 Mbps en condiciones óptimas.\n-Puertos Ethernet: 4 puertos Fast Ethernet (10/100 Mbps).\n-Sistema operativo: RouterOS con licencia nivel 4, lo que permite funciones avanzadas de enrutamiento, firewall.",
+      "garantia": "",
+      "id": 1786510034029,
+      "name": "Mikrotik SXTsq 5 lite",
+      "photo": "",
+      "precio": "",
+      "puntos": 1,
+      "stock": 25
     }
   ],
   "categorias": [
@@ -1400,6 +1412,40 @@
   "vales": [
     {
       "adminNotes": "",
+      "articulo": "×2 NanoStation AC loco SIN POE / ×2 Adaptador poe UBIQUITI de 0.3A",
+      "carnet": "03010464407",
+      "cliente": "Miguel",
+      "comisionGestor": "$20.00 USD + 3000 MN",
+      "direccion": "Infanta",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "id": 1786509989588,
+      "mensajeria": "Gratis",
+      "precioMN": "",
+      "precioUSD": "$320 USD",
+      "status": "pending",
+      "telefono": "59309819",
+      "total": "$320 USD",
+      "ts": "2026-08-12T04:46:29.612Z",
+      "valeNum": 60,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 2,
+          "name": "NanoStation AC loco SIN POE"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 2,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Miguel\n🔸Teléfono Cliente: 59309819\n🔸Dirección Cliente: Infanta\n🔸Mensajería/ costo: Gratis\n🔸 Artículos y cantidades:\n  ×2 NanoStation AC loco SIN POE\n  ×2 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/08/2026 00:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "vuelto": "",
+      "synced": true
+    },
+    {
+      "adminNotes": "",
       "articulo": "×1 Bateria LUBRIM de 75A",
       "carnet": "",
       "cliente": "Jejrj",
@@ -1411,7 +1457,7 @@
       "mensajeria": "",
       "precioMN": "",
       "precioUSD": "$85 USD",
-      "status": "pending_payment",
+      "status": "pending",
       "telefono": "6262626",
       "total": "$85 USD",
       "ts": "2026-08-09T13:24:09.710Z",
@@ -1425,12 +1471,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Jejrj\n🔸Teléfono Cliente: 6262626\n🔸Dirección Cliente: Jrjtjt\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/08/2026 09:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-08-12T04:16:44.708Z",
-      "confirmedTs": "2026-08-12T04:17:02.943Z",
-      "stockDecremented": true
+      "synced": true
     },
     {
       "adminNotes": "",
@@ -1459,10 +1500,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Keke\n🔸Teléfono Cliente: 6122\n🔸Dirección Cliente: Krkkrkr\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Antorcha para soldadura TIG:\n🔸Precio USD/ zelle: $75 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $75 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/08/2026 09:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-08-12T04:16:42.227Z"
+      "synced": true
     },
     {
       "adminNotes": "",
@@ -1491,10 +1529,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Nwneje\n🔸Teléfono Cliente: 946262\n🔸Dirección Cliente: Jejrjkt\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/08/2026 09:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-08-12T04:16:40.194Z"
+      "synced": true
     },
     {
       "adminNotes": "",
@@ -1523,10 +1558,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Jejrj\n🔸Teléfono Cliente: 3262632\n🔸Dirección Cliente: Jrktkt\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Antorcha para soldadura TIG:\n🔸Precio USD/ zelle: $75 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $75 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/08/2026 09:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-08-12T04:16:38.196Z"
+      "synced": true
     },
     {
       "adminNotes": "",
@@ -1555,10 +1587,7 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Ndnejj\n🔸Teléfono Cliente: 6565626\n🔸Dirección Cliente: Ekmrktk5\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Pistola de masaje recargable\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/08/2026 08:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-08-12T04:17:10.267Z"
+      "synced": true
     },
     {
       "adminNotes": "",
@@ -1587,11 +1616,8 @@
       ],
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mariluna\n\n🔸 Nombre Cliente: Deivis T.M\n🔸Teléfono Cliente: 58831892\n🔸Dirección Cliente: Calle Ruviera #65 entre Ortiz y Oscar Lunar\n🔸Mensajería/ costo: 2500 cup\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $80 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 08/08/2026 19:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "vuelto": "No",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-08-12T04:16:18.412Z"
+      "synced": true
     }
   ],
-  "timestamp": "2026-08-12T04:44:11.030Z"
+  "timestamp": "2026-08-12T04:48:14.103Z"
 }
