@@ -1297,6 +1297,18 @@
       "precio": "$250",
       "puntos": 1,
       "stock": 5
+    },
+    {
+      "catId": 10,
+      "comision": "$10 USD",
+      "description": "Mikrotik hap ax3: \n\n- Arquitectura: ARM de 64 bits\n- UPC: IPQ-6010\n- Número de núcleos de CPU: 4\n- Frecuencia nominal de la CPU: automático (864 – 1800) MHz\n- Modelo de chip de conmutación: IPQ-6010\n- Licencia de RouterOS: 6\n- Sistema operativo: RouterOS versión 7\n- Tamaño de RAM: 1 GB\n- Tamaño de almacenamiento: 128 MB\n- Tipo de almacenamiento: NAND\n- MTBF: Aproximadamente 200.000 horas a 25 °C\n- Temperatura ambiente probada: -40°C a 70°C\n- Aceleración de hardware IPsec: Sí",
+      "garantia": "",
+      "id": 1786509419466,
+      "name": "Mikrotik hap ax3",
+      "photo": "",
+      "precio": "$260",
+      "puntos": 0,
+      "stock": 2
     }
   ],
   "categorias": [
@@ -1533,5 +1545,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:36:03.975Z"
+  "timestamp": "2026-08-12T04:38:00.028Z"
 }
