@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 27;
+const APP_VERSION = 28;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -300,6 +300,12 @@ async function _doRestPoll() {
     }
     for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
       try {
+        // ── v28 BUGFIX: No sobreescribir datos locales si hay writes pendientes ──
+        // Si hay un write encolado para este nodo (p.ej. saveProductos acaba de
+        // guardar en localStorage pero el write a Supabase aún no procesó),
+        // el poll leería datos VIEJOS de Supabase y los sobreescribiría en
+        // localStorage, perdiendo el cambio local.
+        if (_fbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) continue;
         const arr = await _sbRestGetCollection(node);
         if (arr.length > 0) {
           _syncCount++;
@@ -315,6 +321,8 @@ async function _doRestPoll() {
     }
     for (const node of _SB_SINGLETON_ROWS) {
       try {
+        // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
+        if (_fbWriteQueue.some(q => q.path === node)) continue;
         const val = await _sbRestGetMeta(node);
         if (val) {
           _syncCount++;
@@ -1541,6 +1549,20 @@ function buildCatalogHTML() {
   const cats=getCategorias();
   const allProds=getProductos().filter(p=>(p.stock||0)>0);
   if(!allProds.length) return null;
+  // ── v28 BUGFIX: Asignar catId por nombre si el producto no lo tiene ──
+  // Algunos productos vienen de productos.json con campo 'categoria' (string)
+  // pero sin 'catId'. Necesitamos mapear el nombre de categoría al ID
+  // para que el catálogo agrupe correctamente los productos.
+  if(cats.length){
+    const catNameToId={};
+    cats.forEach(c=>{ catNameToId[(c.name||'').toUpperCase()] = c.id; });
+    allProds.forEach(p=>{
+      if(!p.catId && p.categoria){
+        const mapped = catNameToId[(p.categoria||'').toUpperCase()];
+        if(mapped) p.catId = mapped;
+      }
+    });
+  }
   const cfg=getConfig();
   const waPhone=cfg.catalogPhone||cfg.adminPhone||'';
   const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
@@ -8177,8 +8199,26 @@ async function nukeAndRebuild() {
     _notifsCache=null;_notifsDirty=true;
     _estafaCache=null;_estafaDirty=true;
 
-    // Apply the atomic update to Firebase — single operation, no separate remove()
-    await db.ref('/').update(updates);
+    // ── v28 BUGFIX: Aplicar el update a Supabase REST, no al mock Firebase ──
+    // ANTES: db.ref('/').update(updates) era un no-op porque db es un mock.
+    // Esto causaba que el nuke solo borrara localStorage pero NO Supabase,
+    // creando un desync permanente (datos viejos en Supabase que nunca se borran).
+    // Ahora usamos _enqueueFB que traduce correctamente a Supabase REST.
+    try {
+      // Borrar singleton rows (vales, notifs, ranking_summary, estafa)
+      if (updates['vales'] === null) await _sbRestMetaDelete('vales').catch(()=>{});
+      if (updates['notifs'] === null) await _sbRestMetaDelete('notifs').catch(()=>{});
+      if (updates['ranking_summary'] === null) await _sbRestMetaDelete('ranking_summary').catch(()=>{});
+      if (updates['estafa'] === null) await _sbRestMetaDelete('estafa').catch(()=>{});
+      // Escribir colecciones con datos nuevos
+      if (updates['gestores']) _enqueueFB('gestores', updates['gestores'], 'set');
+      if (updates['mensajeros']) _enqueueFB('mensajeros', updates['mensajeros'], 'set');
+      if (updates['productos']) _enqueueFB('productos', updates['productos'], 'set');
+      if (updates['categorias']) _enqueueFB('categorias', updates['categorias'], 'set');
+      if (updates['config']) _enqueueFB('config', updates['config'], 'set');
+    } catch(nukeErr) {
+      console.warn('[nuke] Supabase write error (non-fatal, local data is correct):', nukeErr);
+    }
     _logAudit('nuke_rebuild', 'system');
 
     showToast("¡Listo! Recargando...");
@@ -9216,6 +9256,12 @@ async function init() {
   // Polling cada 5 minutos
   setInterval(() => checkVersion(false), _VERSION_CHECK_INTERVAL);
   await loadInitialData();
+  // ── v28 BUGFIX: Iniciar polling de Supabase REST ──
+  // ANTES: _startRestPolling() se definía pero NUNCA se llamaba.
+  // Esto causaba que los datos guardados en Supabase (estafa, config, etc.)
+  // nunca se leyeran de vuelta. Si se borraba localStorage, los datos
+  // se perdían aunque existieran en Supabase.
+  _startRestPolling();
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
   // También re-encolar writes para vales que se quedaron huérfanos (synced:false)
