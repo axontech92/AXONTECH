@@ -683,7 +683,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778336859697.webp",
       "precio": "$20",
       "puntos": 1,
-      "stock": 7
+      "stock": 0
     },
     {
       "catId": 80,
@@ -731,7 +731,7 @@
       "photo": "https://tiendamax.org/imagenes/img_1778384314795_ext.webp",
       "precio": "$230",
       "puntos": 2,
-      "stock": 3
+      "stock": 2
     },
     {
       "catId": 30,
@@ -1509,5 +1509,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:19:35.664Z"
+  "timestamp": "2026-08-12T04:21:17.293Z"
 }
