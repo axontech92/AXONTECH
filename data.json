@@ -1285,6 +1285,18 @@
       "precio": "180",
       "puntos": 1,
       "stock": 6
+    },
+    {
+      "catId": 10,
+      "comision": "$10 USD",
+      "description": "Ubiquiti UniFi AC Mesh (UAP-AC-M): \n\n- Wi-Fi 5 (802.11ac)\n- Doble banda: 2.4 GHz + 5 GHz\n- 2×2 MIMO\n- Hasta aproximadamente 1.1 Gbps agregados entre ambas bandas.\n- 1 puerto Gigabit Ethernet\n- Alimentación PoE / PoE pasivo 24 V\n- Uso interior y exterior\nAntenas omnidireccionales para cobertura de 360°\n- Tiene 2 conectores RP-SMA, por lo que también puedes utilizar antenas externas.\n- Se administra mediante UniFi Network.",
+      "garantia": "",
+      "id": 1786509303890,
+      "name": "Ubiquiti Unifi AC Mesh",
+      "photo": "",
+      "precio": "$250",
+      "puntos": 1,
+      "stock": 5
     }
   ],
   "categorias": [
@@ -1521,5 +1533,5 @@
       "seenTs": "2026-08-12T04:16:18.412Z"
     }
   ],
-  "timestamp": "2026-08-12T04:31:14.680Z"
+  "timestamp": "2026-08-12T04:36:03.975Z"
 }
