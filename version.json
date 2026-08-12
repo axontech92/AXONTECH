@@ -1,9 +1,9 @@
 {
-  "version": 19,
-  "versionStr": "v19",
-  "hash": "d0a009ba1c31d98f",
-  "hashFull": "d0a009ba1c31d98feee3b976457df1fe00b40d428023bbace9863bc11faaff21",
-  "releasedAt": "2026-08-11 02:30",
+  "version": 20,
+  "versionStr": "v20",
+  "hash": "7d28486ade8c9c47",
+  "hashFull": "7d28486ade8c9c4750ceb05c1da54725c1f79aa7c5b4bf09907521d5e4d16c60",
+  "releasedAt": "2026-08-12 13:30",
   "files": [
     "app.js",
     "app.css",
@@ -12,8 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Botón copiar descripción (📋) en tarjetas de producto — copia SOLO la descripción, no todo el texto.",
-    "Sistema de favoritos: botón ⭐ en cada producto, guarda en localStorage del gestor, favoritos aparecen primero en la lista.",
-    "Catálogo: validado JS parsea OK, regex arreglada."
+    "Botones ⭐ favorito y 📋 copiar descripción ahora visibles en el catálogo del gestor (renderGestorCatalog), no solo en Stock del admin."
   ]
 }

@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 19;
+const APP_VERSION = 20;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd0a009ba1c31d98f';
+let _LOCAL_BUILD_HASH = '7d28486ade8c9c47';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -6503,14 +6503,17 @@ function renderGestorCatalog() {
   if(!prods.length){c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos</div></div>';return;}
   c.innerHTML=prods.map(p=>{
     const exp=expandedCatalogId===p.id;
-    return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;cursor:pointer;transition:border-color .15s;" onclick="toggleCatalogItem(${p.id})">
+    const fav = isFavorite(p.id);
+    return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;">
       <div style="display:flex;align-items:center;gap:10px;padding:8px;">
         ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.parentElement.querySelector('img').style.display='none'">`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
-        <div style="flex:1;min-width:0;">
+        <div style="flex:1;min-width:0;cursor:pointer;" onclick="toggleCatalogItem(${p.id})">
           <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}</div>
           ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${escapeHTML(p.precio)}</div>`:''}
         </div>
-        <div style="font-size:13px;color:var(--gray-400);flex-shrink:0;margin-left:4px;">${exp?'▲':'▼'}</div>
+        <button style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:${fav?'#F59E0B':'var(--gray-400)'};flex-shrink:0;" onclick="toggleFavorite(${p.id})" title="Favorito">${fav?'⭐':'☆'}</button>
+        ${p.description?`<button style="background:none;border:none;cursor:pointer;font-size:14px;padding:4px;color:var(--gray-400);flex-shrink:0;" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
+        <div style="font-size:13px;color:var(--gray-400);flex-shrink:0;cursor:pointer;margin-left:4px;" onclick="toggleCatalogItem(${p.id})">${exp?'▲':'▼'}</div>
       </div>
       ${exp?`<div style="padding:8px 12px 12px;border-top:1px solid var(--gray-200);background:var(--gray-50);">
         ${p.description?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;white-space:pre-line;line-height:1.5;">${escapeHTML(p.description)}</div>`:''}
