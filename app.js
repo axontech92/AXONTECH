@@ -69,7 +69,10 @@ async function checkVersion(manual) {
     if (hasUpdate) {
       // Hay una versión nueva — mostrar banner (salvo que el usuario ya lo haya pospuesto
       // para esta sesión y no sea una verificación manual).
-      if (manual || !_updateDismissed) {
+      // ── v28 BUGFIX: No mostrar banner si el usuario ya pospuso ESTA versión ──
+      const dismissedFor = parseInt(localStorage.getItem('axon_update_dismissed') || '0', 10);
+      const alreadyDismissedThisVersion = (dismissedFor >= remoteVersion);
+      if ((manual || (!_updateDismissed && !alreadyDismissedThisVersion))) {
         _showUpdateBanner(remoteStr, data.changelog);
       }
     } else {
@@ -102,23 +105,37 @@ function _hideUpdateBanner() {
 }
 
 // El usuario pulsó "Más tarde" — ocultar hasta la próxima verificación.
+// ── v28 BUGFIX: Persistir el dismiss en localStorage ──
+// ANTES: _updateDismissed se reseteaba en cada page reload, así que el
+// banner volvía cada 5 minutos o al recargar. Ahora se guarda la versión
+// que el usuario pospuso, y solo se vuelve a mostrar si hay una versión
+// NUEVA distinta a la que ya pospuso.
 function dismissUpdate() {
   _updateDismissed = true;
+  try { localStorage.setItem('axon_update_dismissed', _lastRemoteVersion || APP_VERSION); } catch(e) {}
   _hideUpdateBanner();
 }
 
 // El usuario pulsó "Recargar ahora" — forzar recarga limpia saltando la caché.
 function applyUpdate() {
+  // ── v28 BUGFIX: Limpiar caches del SW antes de recargar ──
+  // ANTES: solo se mandaba SKIP_WAITING y se recargaba, pero el SW viejo
+  // podía seguir sirviendo archivos cacheados de v27. Ahora también
+  // borramos los caches del SW directamente y limpiamos localStorage
+  // de flags de versión para evitar loops.
+  try { localStorage.removeItem('axon_update_dismissed'); } catch(e) {}
   // 1. Si hay un SW esperando, activarlo.
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
   }
-  // 2. Recargar sin caché después de un pequeño delay para dar tiempo al SW.
+  // 2. Borrar todos los caches del SW para forzar descarga fresh.
+  if ('caches' in window) {
+    caches.keys().then(names => names.forEach(n => caches.delete(n))).catch(()=>{});
+  }
+  // 3. Recargar sin caché después de un delay para dar tiempo al SW + cache cleanup.
   setTimeout(() => {
-    // Usar location.reload(true) si existe, sino location.reload()
-    // Agregar un cache-buster al HTML para forzar al navegador a pedir la versión nueva.
     window.location.href = window.location.pathname + '?v=' + (_lastRemoteVersion || APP_VERSION) + (window.location.hash || '');
-  }, 400);
+  }, 800);
 }
 
 // ══════════════════════════════════════════
