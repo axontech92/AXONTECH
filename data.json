@@ -2355,37 +2355,6 @@
       "synced": true
     },
     {
-      "id": 1786372724109,
-      "ts": "2026-08-10T14:38:44.116Z",
-      "isNew": false,
-      "total": "$10 USD",
-      "carnet": "",
-      "seenTs": "2026-08-10T19:57:53.814Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Luis Daniel Gonzalez",
-      "valeNum": 85,
-      "articulo": "×1 AUDÍFONOS ERGONÓMICOS",
-      "garantia": "",
-      "gestorId": 1786116024697,
-      "precioMN": "",
-      "telefono": "5355054647",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Luis Daniel Gonzalez\n🔸Teléfono Cliente: 5355054647\n🔸Dirección Cliente: Industria 340/ Colon y trocadero\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 AUDÍFONOS ERGONÓMICOS\n🔸Precio USD/ zelle: $10 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $10 USD\n\n*Garantía: \n*Fecha y hora de Venta: 10/8/2026, 10:38:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Industria 340/ Colon y trocadero",
-      "precioUSD": "$10 USD",
-      "mensajeria": "",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1780543090267,
-          "qty": 1,
-          "name": "AUDÍFONOS ERGONÓMICOS"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "synced": true
-    },
-    {
       "id": 1786322463730,
       "ts": "2026-08-10T00:41:03.734Z",
       "isNew": true,
@@ -2437,30 +2406,6 @@
         }
       ],
       "comisionGestor": "1500 MN",
-      "synced": true
-    },
-    {
-      "id": 1786289611682,
-      "ts": "2026-08-09T15:33:31.687Z",
-      "isNew": false,
-      "total": "$30 USD + 500 MN",
-      "carnet": "",
-      "seenTs": "2026-08-10T19:58:13.159Z",
-      "vuelto": "No",
-      "cliente": "Santiago",
-      "valeNum": 1,
-      "articulo": "Repetidor de señal wifi tp link",
-      "garantia": "",
-      "gestorId": 1781761257109,
-      "precioMN": "20550 mn",
-      "telefono": "58974328",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thaly\n\n🔸 Nombre Cliente: Santiago\n🔸Teléfono Cliente: 58974328\n🔸Dirección Cliente: Aguila 263 bajos / concordia y virtudes  Santiaguito  Al doblar del teatro america\n🔸Mensajería/ costo: 500 mn\n🔸 Artículos y cantidades:\nRepetidor de señal wifi tp link\n🔸Precio USD/ zelle: 30 usd\n🔸Precio MN: 20550 mn\n🔸 Vuelto: No\n🔸 Total a pagar: $30 USD + 500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/08/2026 11:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Aguila 263 bajos / concordia y virtudes  Santiaguito  Al doblar del teatro america",
-      "precioUSD": "30 usd",
-      "mensajeria": "500 mn",
-      "seenByAdmin": true,
-      "valeProductos": [],
-      "comisionGestor": "1500 mn",
       "synced": true
     },
     {
@@ -2589,5 +2534,5 @@
       "comisionGestor": "1500 MN"
     }
   ],
-  "timestamp": "2026-08-12T22:29:27.925Z"
+  "timestamp": "2026-08-12T22:38:09.925Z"
 }
