@@ -1,9 +1,9 @@
 {
-  "version": 28,
-  "versionStr": "v28",
-  "hash": "v28bugfix",
-  "hashFull": "v28bugfix-estafa-sync-catalog-catid-nuke-supabase",
-  "releasedAt": "2026-08-13 01:00",
+  "version": 30,
+  "versionStr": "v30",
+  "hash": "v30",
+  "hashFull": "v30-no-firebase-deps-vale-delete-supabase",
+  "releasedAt": "2026-08-13 04:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,10 +12,15 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRITICAL: _startRestPolling() nunca se llamaba — datos de Supabase (estafa, config, productos) nunca se leían de vuelta.",
-    "FIX CRITICAL: Nuke-and-rebuild usaba mock Firebase (no-op) — solo borraba localStorage, no Supabase.",
-    "FIX: Catálogo no asignaba catId a productos con campo 'categoria' pero sin 'catId'.",
-    "FIX: _doRestPoll ya no sobreescribe datos locales si hay writes pendientes en la cola.",
-    "Versión bump: v27 → v28."
+    "FIX CRITICAL: Eliminar vales ahora borra de Supabase (antes solo localStorage).",
+    "FIX CRITICAL: factoryResetVales() no borraba vales de Supabase — _supabaseOpFor remove sin docId era no-op.",
+    "FIX CRITICAL: _valesToFirebaseObj generaba formato viejo (agrupado por gestor) — ahora genera array plano (una fila por vale).",
+    "FIX: Reemplazado db.ref().transaction() (no-op mock) con _sbRestGetMeta/_sbRestMetaUpsert para reconciliar nextValeNum.",
+    "FIX: Reemplazado db.ref().once() (no-op mock) en 'Initialize empty Firebase' con verificación REST directa.",
+    "FIX: Eliminados Base Listeners y Admin vales listener (db.ref().on() no-ops) — REST polling ya sincroniza todo.",
+    "FIX: REST poll detecta cambios de status en vales y dispara notificaciones (assigned/delivered/confirmed).",
+    "FIX: _supabaseOpFor remove sin docId ahora hace DELETE all rows en la colección.",
+    "Código muerto eliminado: ~200 líneas de listeners Firebase que nunca se ejecutaban.",
+    "Versión bump: v29 → v30."
   ]
 }
