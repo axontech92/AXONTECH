@@ -429,7 +429,7 @@
       "name": "Inversor Tataliken de 24V 4000W",
       "catId": 20,
       "photo": "https://tiendamax.org/imagenes/img_1777924118004.webp",
-      "stock": 8,
+      "stock": 11,
       "precio": "$180",
       "puntos": 1,
       "comision": "$10 USD",
@@ -971,7 +971,7 @@
       "name": "AUDÍFONOS ERGONÓMICOS",
       "catId": 30,
       "photo": "https://tiendamax.org/imagenes/img_1780543081597.webp",
-      "stock": 3,
+      "stock": 0,
       "precio": "$10",
       "puntos": 0.5,
       "comision": "1500 MN",
@@ -1498,5 +1498,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-13T14:02:52.486Z"
+  "timestamp": "2026-08-13T14:11:28.494Z"
 }
