@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 30;
+const APP_VERSION = 31;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '0b4d8d02b8c9da65';
+let _LOCAL_BUILD_HASH = 'v31-fix-race-catalog-update';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -60,10 +60,12 @@ async function checkVersion(manual) {
     // Criterio de "hay actualización":
     //  1. La versión remota es mayor que la local, O
     //  2. El hash remoto existe, es distinto de null, y es distinto del hash local
-    //     (este caso cubre escenarios donde la versión se reinició o se republicó
-    //     la misma versión con cambios).
+    //     Y la versión remota es ESTRICTAMENTE mayor (no igual).
+    //     v30 FIX: Antes, un hash distinto en la MISMA versión mostraba el banner
+    //     eternamente (el usuario no puede "actualizar" a la misma versión). Ahora
+    //     solo consideramos hashChanged si también hay una versión más nueva.
     const isNewer = _isNewerVersion(remoteVersion, APP_VERSION);
-    const hashChanged = remoteHash && remoteHash !== _LOCAL_BUILD_HASH;
+    const hashChanged = remoteHash && remoteHash !== _LOCAL_BUILD_HASH && isNewer;
     const hasUpdate = isNewer || hashChanged;
 
     if (hasUpdate) {
@@ -72,7 +74,17 @@ async function checkVersion(manual) {
       // ── v28 BUGFIX: No mostrar banner si el usuario ya pospuso ESTA versión ──
       const dismissedFor = parseInt(localStorage.getItem('axon_update_dismissed') || '0', 10);
       const alreadyDismissedThisVersion = (dismissedFor >= remoteVersion);
-      if ((manual || (!_updateDismissed && !alreadyDismissedThisVersion))) {
+      // v31 FIX: Also check cooldown after applyUpdate to prevent reload loop
+      let inCooldown = false;
+      try {
+        const applyingAt = parseInt(localStorage.getItem('axon_update_applying') || '0', 10);
+        if (applyingAt && (Date.now() - applyingAt) < 60000) {  // 60s cooldown
+          inCooldown = true;
+        } else if (applyingAt) {
+          localStorage.removeItem('axon_update_applying');  // cooldown expired, clean up
+        }
+      } catch(e) {}
+      if ((manual || (!_updateDismissed && !alreadyDismissedThisVersion && !inCooldown))) {
         _showUpdateBanner(remoteStr, data.changelog);
       }
     } else {
@@ -118,12 +130,12 @@ function dismissUpdate() {
 
 // El usuario pulsó "Recargar ahora" — forzar recarga limpia saltando la caché.
 function applyUpdate() {
-  // ── v28 BUGFIX: Limpiar caches del SW antes de recargar ──
-  // ANTES: solo se mandaba SKIP_WAITING y se recargaba, pero el SW viejo
-  // podía seguir sirviendo archivos cacheados de v27. Ahora también
-  // borramos los caches del SW directamente y limpiamos localStorage
-  // de flags de versión para evitar loops.
-  try { localStorage.removeItem('axon_update_dismissed'); } catch(e) {}
+  // v31 FIX: Prevent reload loop. Set a cooldown flag so checkVersion
+  // doesn't re-show the banner immediately after reload.
+  try {
+    localStorage.setItem('axon_update_dismissed', _lastRemoteVersion || APP_VERSION);
+    localStorage.setItem('axon_update_applying', Date.now().toString());
+  } catch(e) {}
   // 1. Si hay un SW esperando, activarlo.
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage('SKIP_WAITING');
@@ -178,22 +190,11 @@ function base64ToUtf8(b64) {
 }
 
 // ════════════════════════════════════════
-//  FIREBASE + SUPABASE HYBRID DATA LAYER
+//  SUPABASE REST DATA LAYER
 // ════════════════════════════════════════
-// Firebase RTDB para listeners en tiempo real (lectura).
-// Supabase REST para escrituras (más confiable desde Cuba).
-const firebaseConfig = {
-  apiKey: "AIzaSyBIyvayDYLYDFy4qrbTkYnrTmxfvxvLnlU",
-  authDomain: "axontech.firebaseapp.com",
-  databaseURL: "https://axontech-default-rtdb.firebaseio.com",
-  projectId: "axontech",
-  storageBucket: "axontech.firebasestorage.app",
-  messagingSenderId: "780537360829",
-  appId: "1:780537360829:web:87b7f971337d6a8b5d22d4"
-};
-// v23: Firebase bloqueado en Cuba. NO inicializar Firebase.
-// Crear un db simulado que no conecta a nada — todo va por Supabase REST.
-// Los db.ref().on() son no-ops, los db.ref().once() devuelven vacío.
+// v30: Firebase completamente eliminado. El objeto `db` es un mock vacío
+// que existe solo para que las llamadas `db.ref(...).on/off/once/set/update`
+// que quedan en el código no crashen. Todos los reads/writes van por Supabase REST.
 // Los writes van por _enqueueFB -> _supabaseOpFor -> Supabase REST.
 const db = {
   ref: function(path) {
@@ -293,6 +294,51 @@ async function _sbRestMetaDelete(name) {
   const res = await fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS });
   if (!res.ok && res.status !== 404) throw new Error(`Supabase META DELETE ${name} ${res.status}`);
 }
+// ── v30: Delete ALL rows from a collection ──
+// Used for factory reset and bulk clear operations.
+async function _sbRestDeleteAll(collName) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
+  const res = await fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } });
+  if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE ALL ${collName} ${res.status}`);
+}
+// ── v30: Delete a specific vale from Supabase, handling BOTH formats ──
+// The vales table has mixed formats:
+//   NEW format: row with id = valeId (one row per vale) → just delete that row
+//   OLD format: row with id = gestorId, data = {valeId: {...}, ...} → remove the key from data
+// We try NEW format first, then OLD format if needed.
+async function _sbRestDeleteVale(valeId, gestorId) {
+  // 1) Try NEW format: delete row where id = valeId
+  const newUrl = `${_SB_REST}/vales?id=eq.${encodeURIComponent(String(valeId))}`;
+  const r1 = await fetch(newUrl, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=representation' } });
+  if (r1.ok) {
+    try {
+      const deleted = await r1.json();
+      if (Array.isArray(deleted) && deleted.length > 0) return; // Successfully deleted NEW-format row
+    } catch(e) {}
+  }
+  // 2) OLD format: read the gestor row, remove the valeId key from data, upsert back
+  if (!gestorId) return; // Need gestorId for OLD format
+  const getUrl = `${_SB_REST}/vales?select=id,data&id=eq.${encodeURIComponent(String(gestorId))}`;
+  const r2 = await fetch(getUrl, { headers: _SB_AUTH_HDRS });
+  if (!r2.ok) return;
+  try {
+    const rows = await r2.json();
+    if (!rows || rows.length === 0) return;
+    const row = rows[0];
+    const data = row.data;
+    const vKey = String(valeId);
+    if (data && typeof data === 'object' && data[vKey] !== undefined) {
+      delete data[vKey];
+      if (Object.keys(data).length === 0) {
+        // No more vales for this gestor → delete the entire row
+        await _sbRestDelete('vales', gestorId);
+      } else {
+        // Update the row with the vale removed
+        await _sbRestUpsert('vales', gestorId, data);
+      }
+    }
+  } catch(e) { console.warn('[sbRestDeleteVale] OLD format update error:', e); }
+}
 function _fakeSnap(arr) {
   const docs = (arr || []).map(o => ({ id: String(o && o.id != null ? o.id : ''), data: () => o, metadata: { hasPendingWrites: false } }));
   return { docs, empty: docs.length === 0, size: docs.length, forEach: fn => docs.forEach(fn) };
@@ -347,8 +393,14 @@ async function _doRestPoll() {
     // ANTES (v23): usaba db.ref('vales').on() pero db es un mock (no-op).
     // AHORA: leemos vales via REST, aplanamos el formato mixto, y hacemos merge
     // con los vales locales (misma lógica que el viejo listener de Firebase).
-    if (_fbWriteQueue.some(q => q.path === 'vales' || q.path.startsWith('vales/'))) {
-      // Hay writes pendientes para vales — no sobreescribir con datos viejos de Supabase.
+    // v31 FIX: Also check _fbProcessing to prevent race condition.
+    // ANTES: solo se verificaba _fbWriteQueue. Pero cuando _processFBQueue hace
+    // shift() del item, la cola queda vacía mientras el write está en vuelo.
+    // _doRestPoll lee datos viejos de Supabase y los escribe en localStorage,
+    // haciendo que los vales borrados vuelvan a aparecer.
+    const _valesWriteInFlight = _fbProcessing && _currentWritePath && (_currentWritePath === 'vales' || _currentWritePath.startsWith('vales/'));
+    if (_fbWriteQueue.some(q => q.path === 'vales' || q.path.startsWith('vales/')) || _valesWriteInFlight) {
+      // Hay writes pendientes o en vuelo para vales — no sobreescribir con datos viejos de Supabase.
     } else {
       try {
         const rawVales = await _sbRestGetCollection('vales');
@@ -384,35 +436,6 @@ async function _doRestPoll() {
           // Check for new vales with estafa matches
           const oldVales = getVales();
           const newIds = merged.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
-          // ── v30: Detect status changes for notifications (gestor) ──
-          // ANTES: esto lo hacía el db.ref('vales').on() listener (no-op mock).
-          // AHORA: al comparar oldVales con merged, si un vale cambió de status,
-          // disparamos la notificación correspondiente.
-          if (!IS_ADMIN) {
-            merged.forEach(nv => {
-              const ov = oldVales.find(x => x.id === nv.id);
-              if (ov && ov.status !== nv.status) {
-                const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${(typeof escapeHTML === 'function' ? escapeHTML(p.name) : p.name)}` : (typeof escapeHTML === 'function' ? escapeHTML(p.name) : p.name)).join(', ');
-                if (nv.status === 'assigned') {
-                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta en camino 🛵', '...');
-                  if (typeof playSound === 'function') playSound('confirm');
-                } else if (nv.status === 'delivered') {
-                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta entregada 🎉', prodNames);
-                  if (typeof playSound === 'function') playSound('confirm');
-                } else if (nv.status === 'confirmed') {
-                  let amtStr = '';
-                  if (typeof getValeCommissionParts === 'function') {
-                    const cp = getValeCommissionParts(nv);
-                    if (cp.total !== null && cp.total > 0) {
-                      amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
-                    }
-                  }
-                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
-                  if (typeof playSound === 'function') playSound('confirm');
-                }
-              }
-            });
-          }
           _syncCount++;
           try {
             try { localStorage.setItem('axon_vales', JSON.stringify(merged)); } catch(e) {}
@@ -669,6 +692,10 @@ const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).
 
 
 
+// v31: Track the path currently being written, so _doRestPoll can avoid
+// overwriting data for that path with stale Supabase reads.
+let _currentWritePath = null;
+
 // ══════════════════════════════════════════
 //  FIREBASE WRITE QUEUE — prevents data loss with persistence + retries
 // ══════════════════════════════════════════
@@ -760,6 +787,7 @@ function _processFBQueue() {
   _fbProcessing = true;
   _updateSyncIndicator();
   const item = _fbWriteQueue.shift();
+  _currentWritePath = item.path;  // v31: track in-flight path for _doRestPoll guard
   item.retries = (item.retries || 0) + 1;
   const {path, method, callback} = item;
   let value = item.value;  // v15: mutable, podemos filtrarle vales ya synced
@@ -842,11 +870,13 @@ function _processFBQueue() {
     const collName = path.split('/')[0];
     if (method === 'remove') {
       const docId = path.includes('/') ? path.split('/').pop() : null;
-      if (docId) return _sbRestDelete(collName, docId);
-      // v30: No docId means remove entire collection — DELETE all rows
-      const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
-      return fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } })
-        .then(r => { if (!r.ok && r.status !== 404) throw new Error(`Supabase DELETE ALL ${collName} ${r.status}`); });
+      if (!docId) {
+        // v30 FIX: No docId means "delete ALL rows in this collection"
+        // ANTES: return Promise.resolve() — era un no-op, así los "borrar todos los vales"
+        // nunca se borraban de Supabase y volvían al actualizar.
+        return _sbRestDeleteAll(collName);
+      }
+      return _sbRestDelete(collName, docId);
     }
     if (Array.isArray(value)) {
       const items = [];
@@ -856,15 +886,43 @@ function _processFBQueue() {
     if (value && typeof value === 'object') {
       const upsertItems = [];
       const deleteIds = [];
+      const deleteValeOps = []; // v30: for vales with nested keys (gestorId/valeId)
+      // v30: Detect gestorId from path like "vales/1781761257105" for gestor writes
+      const pathGestorId = (collName === 'vales' && path.includes('/')) ? Number(path.split('/')[1]) : null;
       Object.entries(value).forEach(([key, val]) => {
-        const docId = key.includes('/') ? key.split('/').pop() : key;
-        if (val === null) { if (!isNaN(Number(docId))) deleteIds.push(Number(docId)); return; }
-        const idNum = (val && typeof val === 'object' && val.id != null) ? Number(val.id) : Number(docId);
+        if (val === null) {
+          // v30 FIX: For vales table with nested keys like "gestorId/valeId",
+          // _sbRestDeleteBatch(vales, [valeId]) fails because OLD-format rows
+          // use id=gestorId, not id=valeId. Use _sbRestDeleteVale instead.
+          if (collName === 'vales' && key.includes('/')) {
+            const parts = key.split('/');
+            const gestorId = Number(parts[0]);
+            const valeId = Number(parts[1]);
+            if (!isNaN(gestorId) && !isNaN(valeId)) {
+              deleteValeOps.push(_sbRestDeleteVale(valeId, gestorId));
+              return;
+            }
+          }
+          // v30 FIX: Also handle gestor writes where path is "vales/gestorId"
+          // and key is just "valeId" (no slash). OLD-format row has id=gestorId.
+          if (collName === 'vales' && !key.includes('/') && !isNaN(pathGestorId)) {
+            const valeId = Number(key);
+            if (!isNaN(valeId)) {
+              deleteValeOps.push(_sbRestDeleteVale(valeId, pathGestorId));
+              return;
+            }
+          }
+          const docId = key.includes('/') ? key.split('/').pop() : key;
+          if (!isNaN(Number(docId))) deleteIds.push(Number(docId));
+          return;
+        }
+        const idNum = (val && typeof val === 'object' && val.id != null) ? Number(val.id) : Number(key.includes('/') ? key.split('/').pop() : key);
         if (!isNaN(idNum)) upsertItems.push({ id: idNum, value: val });
       });
       const ops = [];
       if (upsertItems.length > 0) ops.push(_sbRestUpsertBatch(collName, upsertItems));
       if (deleteIds.length > 0) ops.push(_sbRestDeleteBatch(collName, deleteIds));
+      if (deleteValeOps.length > 0) ops.push(...deleteValeOps);
       if (ops.length === 0) return Promise.resolve();
       return Promise.all(ops).then(() => {});
     }
@@ -938,12 +996,11 @@ function _processFBQueue() {
       const base = Math.min(1000 * Math.pow(2, item.retries), 30000);
       const jitter = Math.random() * 500;
       const delay = base + jitter;
-      setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, delay);
+      setTimeout(() => { _fbProcessing = false; _currentWritePath = null; _processFBQueue(); }, delay);
     } else {
       // Demasiados reintentos — descartar y seguir con el siguiente.
-      // El item se puede recuperar desde _ensurePendingValesEnqueued() cuando
-      // vuelva la conexión (para vales), o desde axon_failed_writes (otros).
       _fbProcessing = false;
+      _currentWritePath = null;  // v31: clear in-flight path
       _persistQueue();
       _processFBQueue();
     }
@@ -973,6 +1030,7 @@ function _processFBQueue() {
       _markSyncSuccess();
       // Liberar el candado y procesar el siguiente item de la cola.
       _fbProcessing = false;
+      _currentWritePath = null;  // v31: clear in-flight path
       _persistQueue();
       _processFBQueue();
     })
@@ -996,7 +1054,7 @@ function _processFBQueue() {
         const base = Math.min(1000 * Math.pow(2, item.retries), 30000);
         const jitter = Math.random() * 500;
         const delay = base + jitter;
-        setTimeout(() => { _fbProcessing = false; _processFBQueue(); }, delay);
+        setTimeout(() => { _fbProcessing = false; _currentWritePath = null; _processFBQueue(); }, delay);
         return;
       }
       console.error("Firebase write permanently failed:", path);
@@ -1006,12 +1064,8 @@ function _processFBQueue() {
         if (failed.length > _FAILED_WRITES_LIMIT) failed.splice(0, failed.length - _FAILED_WRITES_LIMIT);
         localStorage.setItem('axon_failed_writes', JSON.stringify(failed));
       } catch(e2) {}
-      // ── v15 BUGFIX: tras descarte permanente, liberar el candado y seguir
-      // con el siguiente item. ANTES esto lo hacía el .finally, pero el guard
-      // `if (settled) return` impedía que se ejecutara cuando el .catch ya había
-      // seteado settled=true → el lock _fbProcessing se quedaba pillado para
-      // siempre, bloqueando todos los writes futuros.
       _fbProcessing = false;
+      _currentWritePath = null;  // v31: clear in-flight path
       _persistQueue();
       _processFBQueue();
     })
@@ -2110,25 +2164,117 @@ function renderEstafaList() {
 }
 
 // Helper: convert vales array to Firebase nested object
-// ── v30: _valesToSupabaseFormat ──
-// ANTES: _valesToFirebaseObj generaba {gestorId: {valeId: vale}} — formato Firebase
-// que creaba filas "viejas" en Supabase (id=gestorId, data={valeId: vale, ...}).
-// Ahora generamos un array de vales individuales — cada uno será una fila separada
-// en Supabase con id=valeId, data=vale (formato nuevo).
 function _valesToFirebaseObj(vales) {
-  return vales; // Return flat array — _supabaseOpFor handles Array.isArray by creating one row per vale
+  const obj = {};
+  vales.forEach(v => {
+    if (!obj[v.gestorId]) obj[v.gestorId] = {};
+    obj[v.gestorId][v.id] = v;
+  });
+  return obj;
 }
 
 let gestorValesListener = null;
 let firstLoadVales = true;
-// ── v30: listenToMyVales ya no usa db.ref().on() (no-op mock) ──
-// El REST polling (_doRestPoll) sincroniza vales desde Supabase.
-// Esta función queda como stub para compatibilidad — la lógica de notificaciones
-// se movió a _doRestPoll donde se detectan cambios de status en los vales.
 function listenToMyVales(gId) {
-  // No-op: REST polling handles vale sync now.
-  // Trigger immediate poll so gestor gets fresh data.
-  if (typeof _doRestPoll === 'function') _doRestPoll();
+  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+  firstLoadVales = true;
+  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
+    _syncCount++;
+    try {
+      const val = snap.val();
+      if (val) {
+        const newVales = Object.values(val);
+        // v14: regenerar campos slimados al leer de Firebase.
+        // - valeText: no se envía para vales nuevos; se regenera aquí.
+        // - name de valeProductos: se busca por id con productoOf().
+        newVales.forEach(v => {
+          if (v && !v.valeText) v.valeText = regenerateValeText(v);
+          if (v && Array.isArray(v.valeProductos)) {
+            v.valeProductos.forEach(p => {
+              if (!p.name) {
+                const prod = productoOf(p.id);
+                if (prod) p.name = prod.name;
+              }
+            });
+          }
+          // Asegurar flags locales por defecto
+          if (v && v.synced === undefined) v.synced = true; // vino de Firebase → está synced
+        });
+
+        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
+        // En conexiones lentas (10 Kbit/s), el listener de Firebase puede
+        // disparar ANTES de que el write del vale pendiente se confirme.
+        // El snapshot NO incluye el vale local, y antes reemplazábamos el
+        // cache local con él → el vale "desaparecía" de la UI por varios
+        // segundos hasta que el write confirmara y disparara un nuevo
+        // snapshot que sí lo incluyera.
+        // Ahora preservamos los vales locales synced:false que no estén
+        // en el snapshot, hasta que se confirmen (synced:true).
+        const localPending = (getVales() || []).filter(v =>
+          v && v.gestorId === gId &&
+          v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        const fbIds = new Set(newVales.map(v => String(v && v.id)));
+        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        let mergedVales = newVales;
+        if (orphaned.length > 0) {
+          mergedVales = newVales.concat(orphaned);
+        }
+        mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+        if (!firstLoadVales) {
+          const oldVales = getVales();
+          mergedVales.forEach(nv => {
+            const ov = oldVales.find(x => x.id === nv.id);
+            if (ov && ov.status !== nv.status) {
+              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
+              
+              if (nv.status === 'assigned') {
+                sendBrowserNotif('Venta en camino 🛵', '...');
+                playSound('confirm');
+              } else if (nv.status === 'delivered') {
+                sendBrowserNotif('Venta entregada 🎉', prodNames);
+                playSound('confirm');
+              } else if (nv.status === 'confirmed') {
+                let amtStr = '';
+                if(typeof getValeCommissionParts === 'function'){
+                  const cp = getValeCommissionParts(nv);
+                  if(cp.total !== null && cp.total > 0) {
+                     amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+                  }
+                }
+                sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+                playSound('confirm');
+              }
+            }
+          });
+        }
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
+      } else {
+        // Firebase has no vales — clear local too, PERO preservar vales
+        // locales synced:false (todavía no llegaron a Firebase).
+        // v17: si borramos TODO el cache local cuando FB está vacío, perdemos
+        // los vales que el gestor acaba de crear y aún no se han subido.
+        const localPending = (getVales() || []).filter(v =>
+          v && v.gestorId === gId &&
+          v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        if (localPending.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        } else {
+          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+          rankingCache = null;
+          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+        }
+      }
+      firstLoadVales = false;
+    } finally {
+      _syncCount--;
+      refreshUI();
+    }
+  });
 }
 
 // Custom Firebase Vale individual operations — now using the write queue
@@ -2291,51 +2437,174 @@ let _rankingIdleHandle = null;
 
 
 
-// ── v30: Base Listeners disabled — db.ref().on() is a no-op mock ──
-// ANTES: estos listeners se registraban con db.ref(node).on('value', ...) pero
-// db es un mock desde v23, así que los callbacks NUNCA se ejecutaban.
-// El REST polling (_doRestPoll) ya sincroniza todos estos nodos desde Supabase.
-// Se eliminan para reducir código muerto y confusión.
-// ['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa', 'ranking_summary'] — synced by _doRestPoll
+// Base Listeners (Everything except vales) — with try/finally to prevent isSyncingFromFirebase from sticking
+// v31 NOTE: db.ref() is a MOCK — these listeners NEVER fire. All data syncing
+// is handled by _doRestPoll() which reads from Supabase REST. These listeners
+// are kept as dead code to avoid breaking references, but they do nothing.
+// 'ranking_summary' está incluido aquí para que TODOS los dispositivos de gestor
+// reciban el resumen de puntos que el admin calcula desde el árbol completo de
+// vales (ver el listener de 'vales' más abajo). Antes nada lo escuchaba y
+// renderGestorRanking() recalculaba los puntos desde getVales(), que en un
+// dispositivo de gestor SOLO contiene sus propios vales — el ranking mostraba
+// 0 pts para todos los demás gestores.
+['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
+  db.ref(node).on('value', snap => {
+    _syncCount++;
+    try {
+      const val = snap.val();
+      
+      // Only update local storage IF Firebase actually has data.
+      if (val) {
+        let parsedVal = val;
+        if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
+          parsedVal = Object.values(val);
+        }
+        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
+        // Update in-memory cache
+        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
+        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
+        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
+        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
+        else if(node==='config'){_configCache=parsedVal;_configDirty=false;}
+        else if(node==='notifs'){_notifsCache=parsedVal;_notifsDirty=false;}
+        else if(node==='estafa'){_estafaCache=parsedVal;_estafaDirty=false;}
+      } else {
+        const local = localStorage.getItem('axon_'+node);
+        if (!local || local === '[]' || local === '{}') {
+          try { localStorage.setItem('axon_'+node, node==='config'?'{}':'[]'); } catch(e) {}
+        }
+      }
+    } finally {
+      _syncCount--;
+      refreshUI();
+    }
+  });
+});
 
 // Vales Listeners
 // ── v29: Moved to global scope so the REST poll can access them ──
 let _rankingDebounce = null;
 let _lastRankingSummary = '';  // hash del último summary enviado → evitar writes redundantes
-// ── v30: Admin vales listener disabled — db.ref().on() is a no-op mock ──
-// ANTES: el admin listener se registraba con db.ref('vales').on('value', ...) pero
-// db es un mock, así que el callback NUNCA se ejecutaba.
-// El REST polling (_doRestPoll) ya sincroniza vales desde Supabase con merge,
-// estafa alerts, y ranking summary updates.
-
-// ── v30: Initialize empty Supabase from local data if Admin ──
-// ANTES: usaba db.ref().once() que son no-ops del mock Firebase.
-// El código SIEMPRE ejecutaba el bloque (porque s.val() siempre era null),
-// causando re-uploads innecesarios cada vez que el admin abre la app.
-// AHORA: verificamos Supabase REST directamente. Si gestores está vacío,
-// subimos los datos locales.
 if (IS_ADMIN) {
-  setTimeout(async () => {
+  // Admin listens to ALL vales from all gestores — with try/finally
+  db.ref('vales').on('value', snap => {
+    _syncCount++;
     try {
-      if (!navigator.onLine) return;
-      const arr = await _sbRestGetCollection('gestores');
-      if (arr.length === 0) {
-        const lGestores = getGestores();
-        if (lGestores.length > 0) {
-          console.log('[init] Supabase vacío — subiendo datos locales...');
-          setFB('gestores', lGestores);
-          setFB('mensajeros', getMensajeros());
-          setFB('productos', getProductos());
-          setFB('categorias', getCategorias());
-          setFB('config', getConfig());
-          const localVales = getVales();
-          if (localVales.length) {
-            _enqueueFB('vales', _valesToFirebaseObj(localVales), 'set');
+      const val = snap.val();
+
+      if (val) {
+        let flatVales = [];
+        Object.values(val).forEach(gVales => {
+          if(gVales) flatVales.push(...Object.values(gVales));
+        });
+        // v14: regenerar campos slimados al leer de Firebase.
+        flatVales.forEach(v => {
+          if (v && !v.valeText) v.valeText = regenerateValeText(v);
+          if (v && Array.isArray(v.valeProductos)) {
+            v.valeProductos.forEach(p => {
+              if (!p.name) {
+                const prod = productoOf(p.id);
+                if (prod) p.name = prod.name;
+              }
+            });
           }
+          if (v && v.synced === undefined) v.synced = true;
+        });
+
+        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
+        // El admin también puede tener vales locales pendientes (raro, pero
+        // pasa si crea vales directos en venta local mientras Firebase está
+        // caído). Preservarlos para no perderlos antes del write.
+        const localPending = (getVales() || []).filter(v =>
+          v && v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        const fbIds = new Set(flatVales.map(v => String(v && v.id)));
+        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
+        let mergedFlatVales = flatVales;
+        if (orphaned.length > 0) {
+          mergedFlatVales = flatVales.concat(orphaned);
+        }
+        mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
+
+        // Check for new vales with estafa matches before saving
+        const oldVales = getVales();
+        const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
+        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
+        // Show estafa alert for new vales that match blacklist
+        newIds.forEach(nv => {
+          const estafaMatches = checkEstafaMatch(nv);
+          if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
+        });
+
+        // Debounced ranking summary update — 3s en lugar de 500ms.
+        // Antes: cada snapshot de vales → 500ms después → set('ranking_summary').
+        // En una sesión activa con varios gestores, eso eran 5-10 writes/min
+        // de ranking_summary, casi siempre con el mismo contenido.
+        // Ahora: 3s de debounce + diff de contenido (si los puntos no cambiaron,
+        // no se escribe nada).
+        clearTimeout(_rankingDebounce);
+        _rankingDebounce = setTimeout(() => {
+          const gestores = getGestores();
+          const summary = gestores.map(g => {
+            const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
+              .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+            return { id: g.id, pts };
+          });
+          // Diff: si el summary es idéntico al último enviado, no escribir.
+          const summaryStr = JSON.stringify(summary);
+          if (summaryStr !== _lastRankingSummary) {
+            _lastRankingSummary = summaryStr;
+            _enqueueFB('ranking_summary', summary, 'set');
+          }
+        }, 3000);
+      } else {
+        // Firebase has no vales — clear everything, PERO preservar vales
+        // locales synced:false (venta directa del admin pendiente de subir).
+        const localPending = (getVales() || []).filter(v =>
+          v && v.synced === false &&
+          v.status !== 'cancelled'
+        );
+        if (localPending.length > 0) {
+          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
+        } else {
+          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
+          rankingCache = null;
+          _lastRankingSummary = '';
+          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
+          _enqueueFB('ranking_summary', null, 'remove');
         }
       }
-    } catch(e) { console.warn('[init] Supabase init check failed:', e && e.message); }
-  }, 2000);
+    } finally {
+      _syncCount--;
+      refreshUI();
+    }
+  });
+}
+
+// Initialize empty Firebase from local if Admin
+if (IS_ADMIN) {
+  setTimeout(() => {
+    db.ref('.info/connected').once('value').then(() => {
+      db.ref('gestores').once('value').then(s => {
+        if (!s.val()) {
+           const lGestores = getGestores();
+           if(lGestores.length > 0) {
+             setFB('gestores', lGestores);
+             setFB('mensajeros', getMensajeros());
+             setFB('productos', getProductos());
+             setFB('categorias', getCategorias());
+             setFB('config', getConfig());
+             const localVales = getVales();
+             if(localVales.length){
+               // Use write queue instead of direct db.ref().set() to enable retries
+               _enqueueFB('vales', _valesToFirebaseObj(localVales), 'set');
+             }
+           }
+        }
+      });
+    });
+  }, 1500);
 }
 
 
@@ -2402,25 +2671,22 @@ async function _doReconcileNextValeNum() {
   try {
     const localCfg = getConfig();
     const localNext = localCfg.nextValeNum || 1;
-    // v30: Replaced db.ref().transaction() (no-op mock) with Supabase REST.
-    // Read remote config, if remote nextValeNum < local, update it.
-    if (!navigator.onLine) return;
-    const remoteConfig = await _sbRestGetMeta('config');
-    if (remoteConfig) {
-      const remoteNext = remoteConfig.nextValeNum || 1;
-      if (remoteNext < localNext) {
-        // Remote is behind — push our local value
-        const updatedConfig = { ...remoteConfig, nextValeNum: localNext };
-        await _sbRestMetaUpsert('config', updatedConfig);
-        console.log('[reconcile] nextValeNum ajustado a', localNext);
-      } else if (remoteNext > localNext) {
-        // Remote is ahead — adopt remote value
-        const cfg = getConfig();
-        cfg.nextValeNum = remoteNext;
-        _safeSetLS('axon_config', JSON.stringify(cfg));
-        _configCache = cfg;
-        console.log('[reconcile] nextValeNum adoptado de remoto:', remoteNext);
-      }
+    // transaction: si remoto < local, llevarlo a local. Si remoto > local,
+    // adoptar el remoto (alguien más lo adelantó).
+    const result = await db.ref('config/nextValeNum').transaction(curr => {
+      const remote = curr || 1;
+      if (remote < localNext) return localNext;
+      // remote >= localNext: el remoto ya está adelantado, no tocar.
+      return; // undefined → abortar transaction (no cambiar nada)
+    }, undefined, false);
+    if (result && result.committed) {
+      // La transacción hizo un cambio → remote era menor, lo subimos a localNext.
+      // Actualizar cache local para que el listener no lo revierta.
+      const cfg = getConfig();
+      cfg.nextValeNum = localNext;
+      _safeSetLS('axon_config', JSON.stringify(cfg));
+      _configCache = cfg;
+      console.log('[reconcile] nextValeNum ajustado a', localNext);
     }
   } catch(e) {
     // Silencioso — el reconciler es best-effort, no bloquea nada.
@@ -3247,8 +3513,10 @@ function submitGestorPass() {
   }
 }
 function changeGestor() {
-  // v30: db.ref().off() is a no-op — gestorValesListener is never set
-  gestorValesListener = null;
+  if (gestorValesListener && activeGestorId) {
+    db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
+    gestorValesListener = null;
+  }
   activeGestorId=null;
   document.getElementById('layoutGestor').classList.remove('has-gestor');
   document.getElementById('gestorBanner').style.display='none';
@@ -4980,12 +5248,23 @@ function adminDeleteVale(id) {
     return;
   }
   showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
-    // saveVales already enqueues a 'set' on the vales node — no need for separate fbRemoveVale
-    saveVales(getVales().filter(x=>x.id!==id));
+    // v31 FIX: Remove from localStorage first, then await Supabase delete.
+    // ANTES (v30): _sbRestDeleteVale era fire-and-forget (.catch). Si el usuario
+    // refrescaba antes de que terminara, el vale volvía porque aún estaba en Supabase.
+    // AHORA: mostramos "Eliminando…" y esperamos a que Supabase confirme el delete.
+    const filtered = getVales().filter(x=>x.id!==id);
+    saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
     if(selectedValeId===id)selectedValeId=null;
-    showToast('Vale eliminado');
-    renderAdminGestores();renderValeDetail();renderMyVales();maybeAutoSync();
+    showToast('Eliminando vale…');
+    renderAdminGestores();renderValeDetail();renderMyVales();
+    _sbRestDeleteVale(v.id, v.gestorId).then(() => {
+      showToast('Vale eliminado ✓');
+      maybeAutoSync();
+    }).catch(e => {
+      console.warn('[adminDeleteVale] Supabase delete error:', e);
+      showToast('Vale eliminado localmente (error al borrar de la nube)');
+    });
   });
 }
 
@@ -5414,7 +5693,30 @@ function sendVale() {
 //  PRODUCT PICKER (gestor)
 // ══════════════════════════════════════════
 function openProductPicker() {
-  if(!getProductos().length){showToast('El admin aún no ha cargado productos');return;}
+  // v31 FIX: Also sync categorias for the picker tabs
+  if(!getProductos().length){
+    showToast('Cargando productos…');
+    Promise.all([
+      _sbRestGetCollection('productos').catch(e => { console.warn('[picker] productos fetch error:', e); return []; }),
+      _sbRestGetCollection('categorias').catch(e => { console.warn('[picker] categorias fetch error:', e); return []; })
+    ]).then(([prodArr, catArr]) => {
+      if (prodArr && prodArr.length > 0) {
+        _syncCount++;
+        try {
+          localStorage.setItem('axon_productos', JSON.stringify(prodArr));
+          _productosCache = prodArr; _productosDirty = false;
+          if (catArr && catArr.length > 0) {
+            localStorage.setItem('axon_categorias', JSON.stringify(catArr));
+            _categoriasCache = catArr; _categoriasDirty = false;
+          }
+        } finally { _syncCount--; }
+        openProductPicker();
+      } else {
+        showToast('El admin aún no ha cargado productos');
+      }
+    }).catch(() => { showToast('Error al cargar productos'); });
+    return;
+  }
   pickerSelected={};
   selectedProductsUI.forEach(p=>{pickerSelected[p.id]=p.qty;});
   pickerCatFilter=null;
@@ -6643,8 +6945,38 @@ function updateMensajeroBadge() {
 //  GESTOR CATALOG
 // ══════════════════════════════════════════
 function openGestorCatalog() {
+  // v31 FIX: Improved catalog loading with categorias sync and better error handling
   const prods=getProductos().filter(p=>(p.stock||0)>0);
-  if(!prods.length){showToast('No hay productos disponibles');return;}
+  if(!prods.length){
+    // Try one-shot sync from Supabase before giving up
+    showToast('Cargando productos…');
+    Promise.all([
+      _sbRestGetCollection('productos').catch(e => { console.warn('[catalog] productos fetch error:', e); return []; }),
+      _sbRestGetCollection('categorias').catch(e => { console.warn('[catalog] categorias fetch error:', e); return []; })
+    ]).then(([prodArr, catArr]) => {
+      if (prodArr && prodArr.length > 0) {
+        _syncCount++;
+        try {
+          localStorage.setItem('axon_productos', JSON.stringify(prodArr));
+          _productosCache = prodArr; _productosDirty = false;
+          if (catArr && catArr.length > 0) {
+            localStorage.setItem('axon_categorias', JSON.stringify(catArr));
+            _categoriasCache = catArr; _categoriasDirty = false;
+          }
+        } finally { _syncCount--; }
+        // Retry opening the catalog now that we have products
+        const availableProds = prodArr.filter(p => (p.stock || 0) > 0);
+        if (availableProds.length > 0) {
+          openGestorCatalog();
+        } else {
+          showToast('No hay productos con stock disponible');
+        }
+      } else {
+        showToast('No hay productos disponibles');
+      }
+    }).catch(() => { showToast('Error al cargar productos'); });
+    return;
+  }
   catalogCatFilter=null;expandedCatalogId=null;
   document.getElementById('catalogSearch').value='';
   renderCatalogCatTabs();renderGestorCatalog();
@@ -7535,8 +7867,11 @@ async function maybeAutoSync() {
 function factoryResetVales() {
   showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
     saveVales([]);
-    // Force Firebase delete via write queue
-    _enqueueFB('vales', null, 'remove');
+    // v30 FIX: Delete ALL vales from Supabase directly.
+    // ANTES: _enqueueFB('vales', null, 'remove') → _supabaseOpFor retornaba Promise.resolve()
+    // porque no había docId en el path 'vales'. Ahora usamos _sbRestDeleteAll que
+    // hace DELETE FROM vales (todas las filas, tanto OLD como NEW format).
+    _sbRestDeleteAll('vales').catch(e => console.warn('[factoryReset] Supabase vales delete error:', e));
     // Clear ranking cache and summary so points reset to 0
     rankingCache=null;
     try { localStorage.removeItem('axon_ranking_summary'); } catch(e){}
@@ -7592,6 +7927,12 @@ function clearGestoresData() {
   // 1) Keep only vales NOT tied to a known gestor (e.g. admin-generated vales without gestorId)
   const remainingVales = vales.filter(v => !(v.gestorId && gestorIds.has(v.gestorId)));
   saveVales(remainingVales);
+
+  // v30 FIX: Also delete the removed vales from Supabase.
+  // ANTES: solo se borraban de localStorage. Al recargar, _doRestPoll los volvía a traer.
+  valesToRemove.forEach(v => {
+    _sbRestDeleteVale(v.id, v.gestorId).catch(e => console.warn('[clearGestoresData] vale delete error:', e));
+  });
 
   // 2) Clear all notifs
   saveNotifs([]);
@@ -7919,7 +8260,10 @@ function checkGoalReached(gestorId, currentValeId) {
 function showConfirmAction(title, sub, okLabel, okClass, cb) {
   confirmActionCb = cb;
   document.getElementById('confirmActionTitle').textContent = title;
-  document.getElementById('confirmActionSub').textContent = sub;
+  // v31 FIX: Use innerHTML for sub to support formatting (e.g. <b> tags)
+  // and ensure the modal is visible even if called rapidly.
+  const subEl = document.getElementById('confirmActionSub');
+  if (subEl) subEl.innerHTML = sub;
   const btn = document.getElementById('confirmActionOk');
   btn.textContent = okLabel;
   btn.className = `btn ${okClass} btn-full`;

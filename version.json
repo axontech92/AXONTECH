@@ -1,9 +1,9 @@
 {
-  "version": 30,
-  "versionStr": "v30",
-  "hash": "v30",
-  "hashFull": "v30-no-firebase-deps-vale-delete-supabase",
-  "releasedAt": "2026-08-13 04:00",
+  "version": 31,
+  "versionStr": "v31",
+  "hash": "v31-fix-race-catalog-update",
+  "hashFull": "v31-fix-race-catalog-update",
+  "releasedAt": "2026-08-13 12:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,15 +12,12 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRITICAL: Eliminar vales ahora borra de Supabase (antes solo localStorage).",
-    "FIX CRITICAL: factoryResetVales() no borraba vales de Supabase — _supabaseOpFor remove sin docId era no-op.",
-    "FIX CRITICAL: _valesToFirebaseObj generaba formato viejo (agrupado por gestor) — ahora genera array plano (una fila por vale).",
-    "FIX: Reemplazado db.ref().transaction() (no-op mock) con _sbRestGetMeta/_sbRestMetaUpsert para reconciliar nextValeNum.",
-    "FIX: Reemplazado db.ref().once() (no-op mock) en 'Initialize empty Firebase' con verificación REST directa.",
-    "FIX: Eliminados Base Listeners y Admin vales listener (db.ref().on() no-ops) — REST polling ya sincroniza todo.",
-    "FIX: REST poll detecta cambios de status en vales y dispara notificaciones (assigned/delivered/confirmed).",
-    "FIX: _supabaseOpFor remove sin docId ahora hace DELETE all rows en la colección.",
-    "Código muerto eliminado: ~200 líneas de listeners Firebase que nunca se ejecutaban.",
-    "Versión bump: v29 → v30."
+    "FIX CRITICAL: Race condition al borrar vales — _doRestPoll ya no sobreescribe vales borrados mientras el write está en vuelo.",
+    "FIX CRITICAL: adminDeleteVale ahora espera a que Supabase confirme el delete antes de mostrar éxito.",
+    "FIX: Catálogo y picker de productos sincronizan productos Y categorias desde Supabase, con mejor manejo de errores.",
+    "FIX: Banner de actualización ya no se queda pegado en loop de reload tras applyUpdate (cooldown de 60s).",
+    "FIX: showConfirmAction usa innerHTML para sub (soporta formato).",
+    "Audit: db.ref() listeners documentados como dead code (mock). Sin dependencias de Firebase SDK.",
+    "Versión bump: v30 → v31."
   ]
 }
