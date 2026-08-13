@@ -1,0 +1,529 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>AXONTECH - Catalogo</title>
+<link rel="icon" href="https://axontech92.github.io/AXONTECH/iconos/favicon-96.png">
+<meta property="og:title" content="AXONTECH - Catalogo de Productos">
+<meta property="og:description" content="Explora nuestros productos disponibles">
+<meta property="og:type" content="website">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--primary:#006d8a;--primary-dk:#004d60;--accent:#00b4d8;--bg:#f0f4f8;--card:#fff;--text:#1a1a2e;--muted:#64748b;--radius:16px;--shadow:0 4px 20px rgba(0,0,0,.08);}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.hero{background:linear-gradient(135deg,var(--primary-dk) 0%,var(--primary) 50%,var(--accent) 100%);padding:48px 20px 36px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 60%);animation:heroGlow 8s ease-in-out infinite alternate;}
+@keyframes heroGlow{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.hero-logo{font-size:48px;font-weight:900;color:#fff;letter-spacing:10px;text-shadow:0 2px 20px rgba(0,0,0,.3);position:relative;z-index:1;}
+.hero-sub{font-size:14px;letter-spacing:5px;color:rgba(255,255,255,.8);font-weight:300;margin-top:4px;position:relative;z-index:1;}
+.hero-line{width:50px;height:3px;background:rgba(255,255,255,.4);margin:14px auto;border-radius:2px;position:relative;z-index:1;}
+.hero-info{font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1px;position:relative;z-index:1;}
+.hero-count{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 18px;font-size:12px;color:rgba(255,255,255,.9);margin-top:12px;font-weight:600;position:relative;z-index:1;}
+.hero-actions{display:flex;gap:10px;justify-content:center;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap;}
+.hero-pdf-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.hero-pdf-btn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5);transform:scale(1.03);}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,0,0,.06);padding:10px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .2s;}
+.nav-btn:hover{border-color:var(--primary);color:var(--primary);}
+.nav-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(0,109,138,.25);}
+.container{max-width:1200px;margin:0 auto;padding:16px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;display:flex;flex-direction:column;}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.card-img{height:220px;background:linear-gradient(145deg,#f8fafc,#eef2f7);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.card:hover .card-img img{transform:scale(1.05);}
+.card-img .no-img{font-size:64px;opacity:.25;}
+.card-cat{position:absolute;top:12px;left:12px;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.card-body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column;}
+.card-name{font-weight:800;font-size:16px;color:var(--text);margin-bottom:6px;line-height:1.3;min-height:42px;}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.55;margin-bottom:12px;height:58px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s ease;}
+.card-desc.expanded{max-height:500px;}
+.card-desc-fade{position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#fff);pointer-events:none;transition:opacity .3s;}
+.card-desc.expanded+.card-desc-fade,.card-desc.expanded~.card-desc-fade{opacity:0;}
+.card-price{font-weight:900;font-size:22px;color:var(--primary);margin-bottom:12px;letter-spacing:.3px;min-height:30px;}
+.card-badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:26px;}
+.badge{padding:4px 10px;border-radius:8px;font-size:10px;font-weight:700;letter-spacing:.3px;}
+.badge-garantia{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-decoration:none;letter-spacing:.3px;margin-top:auto;}
+.wa-btn:hover{transform:scale(1.02);box-shadow:0 4px 14px rgba(37,211,102,.35);}
+.wa-btn:active{transform:scale(.98);}
+.wa-icon{font-size:18px;}
+.footer{text-align:center;padding:32px 20px;margin-top:40px;border-top:1px solid #e2e8f0;background:#fff;}
+.footer-brand{font-size:14px;font-weight:900;color:var(--primary);letter-spacing:4px;margin-bottom:6px;}
+.footer-addr{font-size:11px;color:var(--muted);line-height:1.6;}
+.footer-gen{font-size:9px;color:#cbd5e1;margin-top:8px;}
+.float-wa{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 16px rgba(37,211,102,.4);cursor:pointer;z-index:999;transition:transform .2s;text-decoration:none;border:none;}
+.float-wa:hover{transform:scale(1.1);}
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5;}
+.pmodal-bg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity .25s;pointer-events:none;}
+.pmodal-bg.show{opacity:1;pointer-events:auto;}
+.pmodal{background:var(--card);border-radius:var(--radius);max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(20px);transition:transform .25s;}
+.pmodal-bg.show .pmodal{transform:translateY(0);}
+.pmodal-img{width:100%;height:260px;object-fit:cover;display:block;}
+.pmodal-noimg{width:100%;height:180px;display:flex;align-items:center;justify-content:center;font-size:64px;opacity:.2;background:linear-gradient(145deg,#f8fafc,#eef2f7);}
+.pmodal-cat{display:inline-block;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.pmodal-body{padding:20px 22px 24px;}
+.pmodal-name{font-weight:800;font-size:20px;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.pmodal-desc{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:14px;}
+.pmodal-price{font-weight:900;font-size:24px;color:var(--primary);margin-bottom:10px;}
+.pmodal-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;margin-bottom:16px;}
+.pmodal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .2s;}
+.pmodal-close:hover{background:rgba(0,0,0,.7);}
+
+/* Loading spinner */
+.loader-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;gap:16px;}
+.loader{width:44px;height:44px;border:4px solid #e2e8f0;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:13px;color:var(--muted);font-weight:600;}
+
+/* Error state */
+.error-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;}
+.error-icon{font-size:48px;opacity:.5;}
+.error-msg{font-size:14px;color:#dc2626;font-weight:600;text-align:center;max-width:400px;}
+.error-retry{padding:10px 24px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px;}
+.error-retry:hover{background:var(--primary-dk);transform:scale(1.03);}
+
+/* Print-specific styles */
+#printArea{display:none;}
+
+@media print{
+  /* Hide everything except the print area */
+  body > *:not(#printArea){display:none !important;}
+  #printArea{display:block !important;}
+  /* Print layout */
+  #printArea{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#1a1a2e;padding:20px;}
+  .print-header{text-align:center;margin-bottom:24px;border-bottom:2px solid #006d8a;padding-bottom:16px;}
+  .print-header h1{font-size:28px;font-weight:900;color:#006d8a;letter-spacing:6px;margin:0;}
+  .print-header p{font-size:11px;color:#64748b;margin-top:4px;}
+  .print-cat{margin-bottom:20px;page-break-inside:avoid;}
+  .print-cat-title{font-size:16px;font-weight:800;padding:6px 12px;border-radius:6px;color:#fff;margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase;}
+  .print-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:8px;}
+  .print-table th{text-align:left;padding:6px 8px;background:#f0f4f8;font-weight:700;border-bottom:2px solid #006d8a;color:#1a1a2e;}
+  .print-table td{padding:5px 8px;border-bottom:1px solid #e2e8f0;vertical-align:top;}
+  .print-table td:last-child{text-align:right;font-weight:700;white-space:nowrap;}
+  .print-table td:nth-child(3){color:#64748b;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .print-footer{text-align:center;margin-top:24px;font-size:9px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;}
+}
+
+@media(max-width:640px){
+  .hero{padding:36px 16px 28px;}
+  .hero-logo{font-size:36px;letter-spacing:6px;}
+  .hero-sub{font-size:11px;letter-spacing:3px;}
+  .grid{grid-template-columns:1fr;gap:16px;}
+  .card-img{height:200px;}
+  .container{padding:12px;}
+}
+@media(min-width:641px) and (max-width:1024px){
+  .grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head><body>
+
+<div class="hero">
+  <div class="hero-logo">AXONTECH</div>
+  <div class="hero-sub">CATALOGO DE PRODUCTOS</div>
+  <div class="hero-line"></div>
+  <div class="hero-info" id="heroDate"></div>
+  <div class="hero-count" id="heroCount">Cargando...</div>
+  <div class="hero-actions">
+    <button class="hero-pdf-btn" onclick="printCatalog()" id="pdfBtn" disabled>&#128196; Descargar PDF</button>
+  </div>
+</div>
+
+<div class="nav" id="catNav"></div>
+
+<div class="container">
+  <div id="loadingArea">
+    <div class="loader-wrap">
+      <div class="loader"></div>
+      <div class="loader-text">Cargando cat&aacute;logo...</div>
+    </div>
+  </div>
+  <div id="errorArea" style="display:none;">
+    <div class="error-wrap">
+      <div class="error-icon">&#9888;</div>
+      <div class="error-msg" id="errorMsg">Error al cargar el cat&aacute;logo</div>
+      <button class="error-retry" onclick="fetchData()">&#128260; Reintentar</button>
+    </div>
+  </div>
+  <div class="grid" id="productGrid"></div>
+</div>
+
+<div class="pmodal-bg" id="pmodalBg" onclick="if(event.target===this)closeProduct()">
+  <div class="pmodal" style="position:relative;">
+    <button class="pmodal-close" onclick="closeProduct()">&times;</button>
+    <div id="pmodalContent"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-brand">AXONTECH</div>
+  <div class="footer-addr">Amistad #311 % San Rafael y San Jose, Centro Habana</div>
+  <div class="footer-gen" id="footerGen"></div>
+</div>
+
+<a class="float-wa" href="https://wa.me/5350410387?text=Hola%2C%20vi%20el%20catalogo%20de%20AXONTECH%20y%20me%20interesa..." target="_blank" title="Chat por WhatsApp">&#128172;</a>
+
+<!-- Hidden print area for PDF generation -->
+<div id="printArea"></div>
+
+<script>
+/* =============================================
+   AXONTECH Dynamic Catalog
+   Fetches products & categories from Supabase
+   ============================================= */
+
+var SUPABASE_URL = 'https://gdzsqwyedzrfituewdtt.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
+var WA_NUMBER = '5350410387'; // v42: +53 (Cuba) — antes faltaba el prefijo de país y la llamada no llegaba
+var CACHE_KEY_PRODUCTS = 'axontech_products';
+var CACHE_KEY_CATEGORIES = 'axontech_categories';
+var CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+
+var products = [];
+var catNames = [];
+var activeCat = null;
+var isLoading = false;
+
+/* --- Utility: HTML escaping --- */
+function escapeHTML(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+/* --- Utility: Format date in Spanish --- */
+function formatDateES() {
+  var months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var d = new Date();
+  return d.getDate() + ' de ' + months[d.getMonth()] + ' de ' + d.getFullYear();
+}
+
+/* --- Utility: Build WhatsApp link for a product --- */
+function buildWaLink(name, price) {
+  var text = 'Hola, me interesa el producto: ' + name + ' - ' + price + '. Esta disponible?';
+  return 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text);
+}
+
+/* --- Utility: Get default category color --- */
+function defaultCatColor(catId) {
+  var colors = {10:'#006d8a',20:'#7c3aed',30:'#dc2626',40:'#059669',50:'#d97706',80:'#2563eb',90:'#be185d',100:'#475569',130:'#006d8a'};
+  return colors[catId] || '#64748b';
+}
+
+/* --- Set date displays --- */
+function setDates() {
+  var dateStr = formatDateES();
+  document.getElementById('heroDate').textContent = dateStr;
+  document.getElementById('footerGen').textContent = 'Catalogo actualizado: ' + dateStr;
+}
+
+/* --- Show loading / error states --- */
+function showLoading() {
+  document.getElementById('loadingArea').style.display = '';
+  document.getElementById('errorArea').style.display = 'none';
+  document.getElementById('productGrid').innerHTML = '';
+}
+
+function hideLoading() {
+  document.getElementById('loadingArea').style.display = 'none';
+}
+
+function showError(msg) {
+  hideLoading();
+  document.getElementById('errorArea').style.display = '';
+  document.getElementById('errorMsg').textContent = msg || 'Error al cargar el cat\u00e1logo. Verifica tu conexi\u00f3n.';
+  document.getElementById('productGrid').innerHTML = '';
+}
+
+/* --- LocalStorage cache (stale-while-revalidate) --- */
+function getCache(key) {
+  try {
+    var raw = localStorage.getItem(key);
+    if (!raw) return null;
+    var cached = JSON.parse(raw);
+    if (!cached || !cached.ts) return null;
+    return cached;
+  } catch(e) {
+    return null;
+  }
+}
+
+function setCache(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: data }));
+  } catch(e) { /* storage full or unavailable - ignore */ }
+}
+
+function isCacheStale(cached) {
+  if (!cached) return true;
+  return (Date.now() - cached.ts) > CACHE_TTL;
+}
+
+/* --- Fetch from Supabase REST API --- */
+function apiFetch(table) {
+  var url = SUPABASE_URL + '/rest/v1/' + table + '?select=data&order=id.asc';
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    }
+  }).then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+    return res.json();
+  }).then(function(rows) {
+    // rows = [{data: {...}}, {data: {...}}, ...]
+    // v33 FIX: filter null data rows (same as app.js _sbRestGetCollection)
+    return rows.map(function(r) { return r.data; }).filter(function(x) { return x != null; });
+  });
+}
+
+/* --- Main data fetch with stale-while-revalidate --- */
+function fetchData() {
+  if (isLoading) return;
+  isLoading = true;
+  showLoading();
+
+  // Try to use cached data for immediate display
+  var cachedProducts = getCache(CACHE_KEY_PRODUCTS);
+  var cachedCategories = getCache(CACHE_KEY_CATEGORIES);
+
+  var hasStaleData = false;
+  if (cachedProducts && cachedCategories) {
+    applyData(cachedProducts.data, cachedCategories.data);
+    hasStaleData = true;
+    // If cache is fresh enough, skip network
+    if (!isCacheStale(cachedProducts) && !isCacheStale(cachedCategories)) {
+      isLoading = false;
+      hideLoading();
+      return;
+    }
+  }
+
+  // Fetch fresh data from Supabase
+  Promise.all([apiFetch('productos'), apiFetch('categorias')])
+    .then(function(results) {
+      var rawProducts = results[0];
+      var rawCategories = results[1];
+
+      // Update cache
+      setCache(CACHE_KEY_PRODUCTS, rawProducts);
+      setCache(CACHE_KEY_CATEGORIES, rawCategories);
+
+      // Apply data
+      applyData(rawProducts, rawCategories);
+      hideLoading();
+      isLoading = false;
+    })
+    .catch(function(err) {
+      console.error('Fetch error:', err);
+      // If we already showed stale data, just log the error
+      if (hasStaleData) {
+        hideLoading();
+        isLoading = false;
+        return;
+      }
+      // Otherwise show error
+      showError('No se pudo cargar el cat\u00e1logo. ' + (err.message || 'Verifica tu conexi\u00f3n.'));
+      isLoading = false;
+    });
+}
+
+/* --- Apply fetched data to the UI --- */
+function applyData(rawProducts, rawCategories) {
+  // Build categories map
+  var catMap = {};
+  catNames = (rawCategories || []).map(function(c) {
+    catMap[c.id] = c;
+    return { id: c.id, name: c.name, color: c.color || defaultCatColor(c.id) };
+  });
+
+  // Filter products with stock > 0 and enrich with category info + waLink
+  products = (rawProducts || []).filter(function(p) {
+    return p.stock && p.stock > 0;
+  }).map(function(p) {
+    var cat = catMap[p.catId] || null;
+    return {
+      id: p.id,
+      catId: p.catId,
+      name: p.name || '',
+      desc: p.description || '',
+      price: p.precio || '',
+      photo: p.photo || '',
+      garantia: p.garantia || '',
+      catName: cat ? cat.name : '',
+      catColor: cat ? cat.color : defaultCatColor(p.catId),
+      waLink: buildWaLink(p.name, p.precio),
+      puntos: p.puntos || 0,
+      comision: p.comision || 0
+    };
+  });
+
+  // Update hero count
+  document.getElementById('heroCount').textContent = products.length + ' productos disponibles';
+
+  // Enable PDF button
+  document.getElementById('pdfBtn').disabled = false;
+
+  // Render
+  renderNav();
+  renderGrid();
+  buildPrintArea();
+}
+
+/* --- Render category navigation --- */
+function renderNav() {
+  var n = document.getElementById('catNav');
+  var h = '<button class="nav-btn active" onclick="filterCat(null,this)">Todos</button>';
+  catNames.forEach(function(c) {
+    var count = products.filter(function(p) { return p.catId === c.id; }).length;
+    if (count) h += '<button class="nav-btn" onclick="filterCat(' + c.id + ',this)">' + escapeHTML(c.name) + ' (' + count + ')</button>';
+  });
+  n.innerHTML = h;
+}
+
+/* --- Filter by category --- */
+function filterCat(id, btn) {
+  activeCat = id;
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderGrid();
+}
+
+/* --- Render product grid --- */
+function renderGrid() {
+  var g = document.getElementById('productGrid');
+  var filtered = activeCat !== null ? products.filter(function(p) { return p.catId === activeCat; }) : products;
+  if (!filtered.length) {
+    g.innerHTML = '<div class="empty"><div class="empty-icon">&#128230;</div><div>No hay productos en esta categor\u00eda</div></div>';
+    return;
+  }
+  g.innerHTML = filtered.map(function(p) {
+    var s = '<div class="card" onclick="openProduct(' + p.id + ')" style="cursor:pointer;">';
+    s += '<div class="card-img">';
+    if (p.photo && /^(https?:|data:image)/i.test(p.photo)) {
+      s += '<img src="' + escapeHTML(p.photo) + '" data-img="1" loading="lazy">';
+    }
+    s += '<div class="no-img" style="' + (p.photo ? 'display:none' : '') + '">&#128230;</div>';
+    if (p.catName) {
+      s += '<div class="card-cat" style="background:' + escapeHTML(p.catColor) + '">' + escapeHTML(p.catName) + '</div>';
+    }
+    s += '</div><div class="card-body">';
+    s += '<div class="card-name">' + escapeHTML(p.name) + '</div>';
+    s += '<div class="card-desc">' + escapeHTML(p.desc || '') + '<div class="card-desc-fade"></div></div>';
+    s += '<div class="card-price">' + escapeHTML(p.price || '') + '</div>';
+    s += '<div class="card-badges">';
+    if (p.garantia) {
+      s += '<span class="badge badge-garantia">Garantia: ' + escapeHTML(p.garantia) + '</span>';
+    }
+    s += '</div>';
+    if (p.waLink) {
+      s += '<a class="wa-btn" href="' + escapeHTML(p.waLink) + '" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';
+    } else {
+      s += '<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>';
+    }
+    s += '</div></div>';
+    return s;
+  }).join('');
+}
+
+/* --- Product modal --- */
+function openProduct(id) {
+  var p = products.find(function(x) { return x.id === id; });
+  if (!p) return;
+  var c = document.getElementById('pmodalContent');
+  var h = '';
+  if (p.photo && /^(https?:|data:image)/i.test(p.photo)) {
+    h += '<img class="pmodal-img" src="' + escapeHTML(p.photo) + '" data-img="1"><div class="pmodal-noimg" style="display:none">&#128230;</div>';
+  } else {
+    h += '<div class="pmodal-noimg">&#128230;</div>';
+  }
+  h += '<div class="pmodal-body">';
+  if (p.catName) {
+    h += '<div class="pmodal-cat" style="background:' + escapeHTML(p.catColor) + '">' + escapeHTML(p.catName) + '</div>';
+  }
+  h += '<div class="pmodal-name">' + escapeHTML(p.name) + '</div>';
+  if (p.desc) {
+    h += '<div class="pmodal-desc">' + escapeHTML(p.desc) + '</div>';
+  }
+  if (p.price) {
+    h += '<div class="pmodal-price">' + escapeHTML(p.price) + '</div>';
+  }
+  if (p.garantia) {
+    h += '<div class="pmodal-badge">Garantia: ' + escapeHTML(p.garantia) + '</div>';
+  }
+  if (p.waLink) {
+    h += '<a class="wa-btn" href="' + escapeHTML(p.waLink) + '" target="_blank"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';
+  }
+  h += '</div>';
+  c.innerHTML = h;
+  document.getElementById('pmodalBg').classList.add('show');
+}
+
+function closeProduct() {
+  document.getElementById('pmodalBg').classList.remove('show');
+}
+
+/* --- Build hidden print area for PDF --- */
+function buildPrintArea() {
+  var area = document.getElementById('printArea');
+  var dateStr = formatDateES();
+  var h = '<div class="print-header">';
+  h += '<h1>AXONTECH</h1>';
+  h += '<p>CAT&Aacute;LOGO DE PRODUCTOS &mdash; ' + escapeHTML(dateStr) + '</p>';
+  h += '</div>';
+
+  // Group by category — v33: include product images
+  catNames.forEach(function(cat) {
+    var catProducts = products.filter(function(p) { return p.catId === cat.id; });
+    if (!catProducts.length) return;
+
+    h += '<div class="print-cat">';
+    h += '<div class="print-cat-title" style="background:' + escapeHTML(cat.color) + '">' + escapeHTML(cat.name) + '</div>';
+    catProducts.forEach(function(p, i) {
+      var hasPhoto = p.photo && /^(https?:|data:image)/i.test(p.photo);
+      h += '<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #e2e8f0;page-break-inside:avoid;">';
+      if (hasPhoto) {
+        h += '<img src="' + escapeHTML(p.photo) + '" style="width:60px;height:60px;object-fit:cover;border-radius:4px;flex-shrink:0;border:1px solid #e2e8f0;" onerror="this.style.display=\'none\'">';
+      } else {
+        h += '<div style="width:60px;height:60px;border-radius:4px;flex-shrink:0;background:#f0f4f8;display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid #e2e8f0;">&#128230;</div>';
+      }
+      h += '<div style="flex:1;min-width:0;">';
+      h += '<div style="font-weight:700;font-size:11px;color:#1a1a2e;">' + (i+1) + '. ' + escapeHTML(p.name) + '</div>';
+      if (p.price) h += '<div style="font-weight:800;font-size:12px;color:#006d8a;">' + escapeHTML(p.price) + '</div>';
+      if (p.garantia) h += '<div style="font-size:9px;color:#64748b;">Garant&iacute;a: ' + escapeHTML(p.garantia) + '</div>';
+      h += '</div></div>';
+    });
+    h += '</div>';
+  });
+
+  h += '<div class="print-footer">AXONTECH &mdash; Amistad #311 % San Rafael y San Jose, Centro Habana &mdash; ' + escapeHTML(dateStr) + '</div>';
+
+  area.innerHTML = h;
+}
+
+/* --- Print catalog as PDF --- */
+function printCatalog() {
+  if (!products.length) return;
+  // Ensure print area is built
+  buildPrintArea();
+  // Trigger browser print dialog (user can save as PDF)
+  window.print();
+}
+
+/* --- Image error fallback --- */
+document.addEventListener('error', function(e) {
+  var t = e.target;
+  if (t.tagName === 'IMG' && t.dataset.img) {
+    t.style.display = 'none';
+    if (t.nextElementSibling) t.nextElementSibling.style.display = 'flex';
+  }
+}, true);
+
+/* --- Init --- */
+setDates();
+fetchData();
+</script>
+</body></html>
