@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 31;
+const APP_VERSION = 32;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v31-fix-race-catalog-update';
+let _LOCAL_BUILD_HASH = 'v32-fix-vale-delete-catalog-pdf';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -74,17 +74,25 @@ async function checkVersion(manual) {
       // ── v28 BUGFIX: No mostrar banner si el usuario ya pospuso ESTA versión ──
       const dismissedFor = parseInt(localStorage.getItem('axon_update_dismissed') || '0', 10);
       const alreadyDismissedThisVersion = (dismissedFor >= remoteVersion);
-      // v31 FIX: Also check cooldown after applyUpdate to prevent reload loop
+      // v32 FIX: More aggressive cooldown to prevent stuck update banner
       let inCooldown = false;
       try {
         const applyingAt = parseInt(localStorage.getItem('axon_update_applying') || '0', 10);
-        if (applyingAt && (Date.now() - applyingAt) < 60000) {  // 60s cooldown
+        if (applyingAt && (Date.now() - applyingAt) < 300000) {  // 5min cooldown (v32: was 60s)
           inCooldown = true;
         } else if (applyingAt) {
           localStorage.removeItem('axon_update_applying');  // cooldown expired, clean up
         }
       } catch(e) {}
-      if ((manual || (!_updateDismissed && !alreadyDismissedThisVersion && !inCooldown))) {
+      // v32: Also check dismissed timestamp — don't re-show within 30 minutes
+      let recentlyDismissed = false;
+      try {
+        const dismissedTs = parseInt(localStorage.getItem('axon_update_dismissed_ts') || '0', 10);
+        if (dismissedTs && (Date.now() - dismissedTs) < 1800000) { // 30 min
+          recentlyDismissed = true;
+        }
+      } catch(e) {}
+      if ((manual || (!_updateDismissed && !alreadyDismissedThisVersion && !inCooldown && !recentlyDismissed))) {
         _showUpdateBanner(remoteStr, data.changelog);
       }
     } else {
@@ -124,7 +132,11 @@ function _hideUpdateBanner() {
 // NUEVA distinta a la que ya pospuso.
 function dismissUpdate() {
   _updateDismissed = true;
-  try { localStorage.setItem('axon_update_dismissed', _lastRemoteVersion || APP_VERSION); } catch(e) {}
+  try {
+    localStorage.setItem('axon_update_dismissed', _lastRemoteVersion || APP_VERSION);
+    // v32: Also set a timestamp so we don't re-show for at least 30 minutes
+    localStorage.setItem('axon_update_dismissed_ts', Date.now().toString());
+  } catch(e) {}
   _hideUpdateBanner();
 }
 
@@ -301,6 +313,13 @@ async function _sbRestDeleteAll(collName) {
   const res = await fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } });
   if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE ALL ${collName} ${res.status}`);
 }
+// ── v32: Track in-flight direct Supabase vale deletions ──
+// When adminDeleteVale or cancelVale calls _sbRestDeleteVale directly,
+// _doRestPoll needs to know so it doesn't overwrite localStorage with
+// stale Supabase data (where the vale still exists because the delete
+// hasn't completed yet).
+const _valesDirectDeleting = new Set();
+
 // ── v30: Delete a specific vale from Supabase, handling BOTH formats ──
 // The vales table has mixed formats:
 //   NEW format: row with id = valeId (one row per vale) → just delete that row
@@ -399,8 +418,9 @@ async function _doRestPoll() {
     // _doRestPoll lee datos viejos de Supabase y los escribe en localStorage,
     // haciendo que los vales borrados vuelvan a aparecer.
     const _valesWriteInFlight = _fbProcessing && _currentWritePath && (_currentWritePath === 'vales' || _currentWritePath.startsWith('vales/'));
-    if (_fbWriteQueue.some(q => q.path === 'vales' || q.path.startsWith('vales/')) || _valesWriteInFlight) {
-      // Hay writes pendientes o en vuelo para vales — no sobreescribir con datos viejos de Supabase.
+    // v32: Also skip if there are in-flight direct deletions (adminDeleteVale/cancelVale)
+    if (_fbWriteQueue.some(q => q.path === 'vales' || q.path.startsWith('vales/')) || _valesWriteInFlight || _valesDirectDeleting.size > 0) {
+      // Hay writes pendientes, en vuelo, o deletes directos para vales — no sobreescribir con datos viejos de Supabase.
     } else {
       try {
         const rawVales = await _sbRestGetCollection('vales');
@@ -580,6 +600,7 @@ let pickerCatFilter   = null;
 let catalogCatFilter  = null;
 let expandedCatalogId = null;
 let adminCatalogCatFilter = null;
+let _adminCatalogSyncing = false;
 let selectedProductsUI= [];
 let currentValeProductos = [];
 let pendingGestorId      = null;
@@ -5225,43 +5246,66 @@ function cancelVale(id) {
   const v=getVales().find(x=>x.id===id);
   if(!v||v.status!=='pending'){showToast('No se puede cancelar este vale');return;}
   showConfirmAction('¿Cancelar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Sí, cancelar','btn-red',()=>{
-    // Marcar como 'cancelled' en vez de borrar. Así:
-    //  - El gestor puede ver en su historial que se canceló (no desaparece sin explicación)
-    //  - Las estadísticas de conversión son correctas (cancelled cuenta en el denominador)
-    //  - El admin puede auditar cancelaciones
-    // Ver AUDITORIA-AXONTECH.md MEDIO 18.
-    patchVale(id,{status:'cancelled',cancelledTs:new Date().toISOString()});
+    // v32 FIX: Actually DELETE the vale from Supabase instead of just marking
+    // as 'cancelled'. Cancelled vales were reappearing on refresh because
+    // they still existed in Supabase. Now we remove completely.
+    _valesDirectDeleting.add(String(id));
+    const filtered = getVales().filter(x=>x.id!==id);
+    saveVales(filtered);
     _logAudit('vale_cancelled', 'vale:' + id);
     if(selectedValeId===id)selectedValeId=null;
-    showToast('Vale cancelado');
-    renderAdminGestores();renderValeDetail();renderMyVales();maybeAutoSync();
+    showToast('Cancelando vale…');
+    renderAdminGestores();renderValeDetail();renderMyVales();
+    _sbRestDeleteVale(v.id, v.gestorId).then(() => {
+      _valesDirectDeleting.delete(String(id));
+      showToast('Vale cancelado ✓');
+      maybeAutoSync();
+    }).catch(e => {
+      _valesDirectDeleting.delete(String(id));
+      console.warn('[cancelVale] Supabase delete error:', e);
+      showToast('Vale cancelado localmente (error al borrar de la nube)');
+    });
   });
 }
 
 function adminDeleteVale(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  // Un vale en 'pending_payment' o con stockDecremented ya tiene el stock descontado.
-  // Borrarlo directo dejaría el inventario descuadrado permanentemente. Hay que
-  // revertirlo primero para devolver el stock. Ver AUDITORIA-AXONTECH.md ALTO 9.
-  if(v.status==='confirmed'||v.status==='pending_payment'||v.stockDecremented){
-    showToast('Revierte la venta primero (para devolver el stock)');
-    return;
-  }
+  // v32 FIX: Allow deleting ANY vale, including confirmed/pending_payment.
+  // ANTES: se bloqueaba la eliminación de vales confirmed/pending_payment
+  // exigando al usuario revertir primero. Pero el usuario necesita poder
+  // borrar vales de gestores que ya están confirmed. Ahora revertimos
+  // el stock automáticamente antes de eliminar.
+  const needsStockRevert = v.status==='confirmed'||v.status==='pending_payment'||v.stockDecremented;
+  const confirmMsg = needsStockRevert
+    ? `¿Eliminar este vale?<br><br><b>⚠️ Se revertirá el stock automáticamente</b> porque la venta ya fue confirmada.`
+    : `¿Eliminar este vale?`;
   showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
-    // v31 FIX: Remove from localStorage first, then await Supabase delete.
-    // ANTES (v30): _sbRestDeleteVale era fire-and-forget (.catch). Si el usuario
-    // refrescaba antes de que terminara, el vale volvía porque aún estaba en Supabase.
-    // AHORA: mostramos "Eliminando…" y esperamos a que Supabase confirme el delete.
+    // v32: Auto-revert stock if the vale was confirmed/pending_payment
+    if (needsStockRevert && v.stockDecremented) {
+      (v.valeProductos||[]).forEach(({id:pid,qty})=>{
+        const prod=productoOf(pid);if(!prod)return;
+        const restored=Math.max(0,(prod.stock||0)+qty);
+        patchProducto(pid,{stock:restored});
+      });
+    }
+    // v32 FIX: Track this deletion so _doRestPoll doesn't overwrite localStorage
+    // with stale Supabase data while the delete is in flight.
+    _valesDirectDeleting.add(String(id));
     const filtered = getVales().filter(x=>x.id!==id);
     saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
+    // Use BOTH the write queue (via saveVales) AND direct delete for reliability.
+    // The direct delete ensures immediate Supabase removal even if the write
+    // queue is busy. _valesDirectDeleting prevents poll race condition.
     _sbRestDeleteVale(v.id, v.gestorId).then(() => {
+      _valesDirectDeleting.delete(String(id));
       showToast('Vale eliminado ✓');
       maybeAutoSync();
     }).catch(e => {
+      _valesDirectDeleting.delete(String(id));
       console.warn('[adminDeleteVale] Supabase delete error:', e);
       showToast('Vale eliminado localmente (error al borrar de la nube)');
     });
@@ -7026,6 +7070,84 @@ function renderGestorCatalog() {
 }
 
 // ══════════════════════════════════════════
+//  v32: CATALOG PDF GENERATION
+// ══════════════════════════════════════════
+function generateCatalogPDF() {
+  const cats = getCategorias();
+  const prods = getProductos().filter(p => (p.stock || 0) > 0);
+  if (!prods.length) { showToast('No hay productos para generar PDF'); return; }
+
+  // Build printable HTML
+  const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  let html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>AXONTECH - Catálogo ${dateStr}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', -apple-system, system-ui, sans-serif; color: #1a1a2e; line-height: 1.4; padding: 20px; }
+  h1 { text-align: center; font-size: 24px; color: #006d8a; margin-bottom: 4px; letter-spacing: 3px; }
+  .subtitle { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 20px; letter-spacing: 2px; }
+  .date { text-align: center; font-size: 10px; color: #94a3b8; margin-bottom: 24px; }
+  .cat-section { margin-bottom: 20px; page-break-inside: avoid; }
+  .cat-name { font-size: 16px; font-weight: 800; color: #006d8a; border-bottom: 2px solid #006d8a; padding-bottom: 4px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 8px; }
+  th { background: #f0f4f8; text-align: left; padding: 6px 8px; font-weight: 700; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+  td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  .prod-name { font-weight: 700; color: #1a1a2e; }
+  .prod-price { font-weight: 800; color: #006d8a; white-space: nowrap; }
+  .prod-stock { text-align: center; }
+  .prod-garantia { color: #64748b; font-size: 10px; }
+  .footer { text-align: center; font-size: 9px; color: #94a3b8; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+  @media print { body { padding: 10px; } .cat-section { page-break-inside: avoid; } }
+</style></head><body>
+<h1>AXONTECH</h1>
+<div class="subtitle">CATÁLOGO DE PRODUCTOS</div>
+<div class="date">${dateStr}</div>`;
+
+  // Group by category
+  const catMap = {};
+  cats.forEach(c => { catMap[c.id] = c; });
+  const grouped = {};
+  prods.forEach(p => {
+    const catName = (catMap[p.catId] || {}).name || 'Sin categoría';
+    if (!grouped[catName]) grouped[catName] = [];
+    grouped[catName].push(p);
+  });
+
+  for (const [catName, catProds] of Object.entries(grouped)) {
+    html += `<div class="cat-section"><div class="cat-name">${escapeHTML(catName)}</div>
+<table><tr><th style="width:45%;">Producto</th><th style="width:15%;">Precio</th><th style="width:10%;">Stock</th><th style="width:30%;">Garantía</th></tr>`;
+    catProds.forEach(p => {
+      html += `<tr>
+<td class="prod-name">${escapeHTML(p.name)}</td>
+<td class="prod-price">${escapeHTML(p.precio || '—')}</td>
+<td class="prod-stock">${p.stock || 0}</td>
+<td class="prod-garantia">${escapeHTML(p.garantia || '—')}</td>
+</tr>`;
+    });
+    html += `</table></div>`;
+  }
+
+  html += `<div class="footer">AXONTECH · Amistad #311 % San Rafael y San Jose, Centro Habana · ${dateStr}</div>
+</body></html>`;
+
+  // Open in new window for printing
+  const w = window.open('', '_blank', 'width=800,height=600');
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 500);
+  } else {
+    // Fallback: download as HTML
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `AXONTECH-catalogo-${new Date().toISOString().slice(0,10)}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
+// ══════════════════════════════════════════
 //  ADMIN CATALOG (shared products, no out-of-stock, auto-updates from stock)
 // ══════════════════════════════════════════
 function renderAdminCatalogCats() {
@@ -7044,6 +7166,29 @@ function renderAdminCatalog() {
   const searchEl=document.getElementById('catalogAdminSearch');
   const search=searchEl?searchEl.value.toLowerCase():'';
   let prods=getProductos().filter(p=>(p.stock||0)>0);
+  // v32: If no products, try force-syncing from Supabase
+  if(!prods.length && !_adminCatalogSyncing) {
+    _adminCatalogSyncing = true;
+    Promise.all([
+      _sbRestGetCollection('productos').catch(e => []),
+      _sbRestGetCollection('categorias').catch(e => [])
+    ]).then(([prodArr, catArr]) => {
+      if (prodArr && prodArr.length > 0) {
+        _syncCount++;
+        try {
+          localStorage.setItem('axon_productos', JSON.stringify(prodArr));
+          _productosCache = prodArr; _productosDirty = false;
+          if (catArr && catArr.length > 0) {
+            localStorage.setItem('axon_categorias', JSON.stringify(catArr));
+            _categoriasCache = catArr; _categoriasDirty = false;
+          }
+        } finally { _syncCount--; }
+        renderAdminCatalogCats();
+        renderAdminCatalog();
+      }
+      _adminCatalogSyncing = false;
+    }).catch(() => { _adminCatalogSyncing = false; });
+  }
   if(adminCatalogCatFilter!==null)prods=prods.filter(p=>p.catId===adminCatalogCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   const c=document.getElementById('catalogAdminGrid');
@@ -7866,18 +8011,28 @@ async function maybeAutoSync() {
 
 function factoryResetVales() {
   showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
+    // v32: Track ALL current vale IDs as being deleted
+    const currentVales = getVales();
+    currentVales.forEach(v => _valesDirectDeleting.add(String(v.id)));
     saveVales([]);
     // v30 FIX: Delete ALL vales from Supabase directly.
     // ANTES: _enqueueFB('vales', null, 'remove') → _supabaseOpFor retornaba Promise.resolve()
     // porque no había docId en el path 'vales'. Ahora usamos _sbRestDeleteAll que
     // hace DELETE FROM vales (todas las filas, tanto OLD como NEW format).
-    _sbRestDeleteAll('vales').catch(e => console.warn('[factoryReset] Supabase vales delete error:', e));
+    _sbRestDeleteAll('vales').then(() => {
+      _valesDirectDeleting.clear();
+      showToast('Todos los vales eliminados ✓');
+    }).catch(e => {
+      _valesDirectDeleting.clear();
+      console.warn('[factoryReset] Supabase vales delete error:', e);
+      showToast('Vales eliminados localmente (error al borrar de la nube)');
+    });
     // Clear ranking cache and summary so points reset to 0
     rankingCache=null;
     try { localStorage.removeItem('axon_ranking_summary'); } catch(e){}
     _enqueueFB('ranking_summary', null, 'remove');
     gestoresTabDirty=true;statsTabDirty=true;
-    showToast('Todos los vales eliminados');
+    showToast('Borrando todos los vales…');
     selectedValeId=null;
     refreshUI();
   });

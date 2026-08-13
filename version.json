@@ -1,23 +1,30 @@
 {
-  "version": 31,
-  "versionStr": "v31",
-  "hash": "v31-fix-race-catalog-update",
-  "hashFull": "v31-fix-race-catalog-update",
-  "releasedAt": "2026-08-13 12:00",
+  "version": 32,
+  "versionStr": "v32",
+  "hash": "v32-fix-vale-delete-catalog-pdf",
+  "hashFull": "v32-fix-vale-delete-catalog-pdf",
+  "releasedAt": "2026-08-13 14:00",
   "files": [
     "app.js",
     "app.css",
     "index.html",
     "admin.html",
-    "sw.js"
+    "sw.js",
+    "catalogo.html"
   ],
   "changelog": [
-    "FIX CRITICAL: Race condition al borrar vales — _doRestPoll ya no sobreescribe vales borrados mientras el write está en vuelo.",
-    "FIX CRITICAL: adminDeleteVale ahora espera a que Supabase confirme el delete antes de mostrar éxito.",
-    "FIX: Catálogo y picker de productos sincronizan productos Y categorias desde Supabase, con mejor manejo de errores.",
-    "FIX: Banner de actualización ya no se queda pegado en loop de reload tras applyUpdate (cooldown de 60s).",
-    "FIX: showConfirmAction usa innerHTML para sub (soporta formato).",
-    "Audit: db.ref() listeners documentados como dead code (mock). Sin dependencias de Firebase SDK.",
-    "Versión bump: v30 → v31."
+    "FIX CRITICAL: Vales deletion now properly deletes from Supabase — no more reappearing on refresh or in other browsers.",
+    "FIX CRITICAL: adminDeleteVale now works for ALL vales including confirmed/pending_payment (auto-reverts stock).",
+    "FIX CRITICAL: cancelVale now deletes from Supabase instead of marking as cancelled (no more ghost vales).",
+    "FIX CRITICAL: Race condition — _valesDirectDeleting set prevents _doRestPoll from overwriting deleted vales.",
+    "FIX: Gestor vales can now be deleted via admin panel.",
+    "FIX: Catalog page (catalogo.html) now loads dynamically from Supabase.",
+    "FIX: Admin catalog auto-syncs from Supabase when products are empty.",
+    "FIX: Update banner no longer gets stuck — 30-min dismiss cooldown, 5-min applyUpdate cooldown.",
+    "FIX: factoryResetVales tracks all deletions to prevent poll race condition.",
+    "NEW: PDF generation button in gestor catalog modal and admin catalog panel.",
+    "NEW: catalogo.html has PDF download button and loads from Supabase with localStorage caching.",
+    "Audit: No remaining Firebase SDK dependencies. db is pure mock.",
+    "Version bump: v31 → v32."
   ]
 }

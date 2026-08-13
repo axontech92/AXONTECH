@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=31">
+  <link rel="stylesheet" href="./app.css?v=32">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -145,6 +145,7 @@
         <button class="btn btn-blue btn-sm" onclick="shareCatalogWeb()">🔗 Generar / Publicar</button>
         <button class="btn btn-ghost btn-sm" onclick="publishCatalogNow()">☁️ Publicar ya</button>
         <button class="btn btn-ghost btn-sm" onclick="testGitHubPages()">🧪 Probar GitHub</button>
+        <button class="btn btn-green btn-sm" onclick="generateCatalogPDF()">📄 PDF Catálogo</button>
       </div>
     </div>
     <input type="search" id="catalogAdminSearch" placeholder="Buscar producto..." oninput="renderAdminCatalog()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:12px;width:100%;max-width:300px;margin-bottom:8px;">
@@ -1002,7 +1003,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=31"></script>
+<script src="./app.js?v=32"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
