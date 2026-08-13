@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 34;
+const APP_VERSION = 35;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v34-fix-delete-all-catalog';
+let _LOCAL_BUILD_HASH = 'v35-fix-catalog-photos-agotados';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -453,6 +453,25 @@ function _fakeSnap(arr) {
   const docs = (arr || []).map(o => ({ id: String(o && o.id != null ? o.id : ''), data: () => o, metadata: { hasPendingWrites: false } }));
   return { docs, empty: docs.length === 0, size: docs.length, forEach: fn => docs.forEach(fn) };
 }
+// ── v35: Resolve product photo URL ──
+// Product photos have 3 formats:
+//   1. Full URL: https://tiendamax.org/imagenes/... → use as-is
+//   2. Relative path: photos/p-XXX.webp → prepend origin to make absolute
+//   3. Data URI: data:image/... → use as-is
+// Without this, relative "photos/" URLs fail because the browser can't resolve them
+// from the PWA context (service worker, cached page, etc.)
+function _resolvePhotoUrl(photo) {
+  if (!photo) return '';
+  // Data URI or full URL — use as-is
+  if (/^(https?:|data:|blob:)/i.test(photo)) return photo;
+  // Relative path starting with photos/ — make absolute
+  if (photo.startsWith('photos/') || photo.startsWith('/photos/')) {
+    const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+    return base + (photo.startsWith('/') ? photo.slice(1) : photo);
+  }
+  // Other: try as-is
+  return photo;
+}
 // ── v29: Flatten vales from Supabase mixed format ──
 // The `vales` table in Supabase has TWO formats:
 //   OLD: rows where id=gestorId, data={valeId: valeObj, ...}  (grouped by gestor)
@@ -694,6 +713,8 @@ let pickerCatFilter   = null;
 let catalogCatFilter  = null;
 let expandedCatalogId = null;
 let adminCatalogCatFilter = null;
+let _showAgotados = false;       // v35: Toggle to show out-of-stock products (default: hidden)
+let _adminShowAgotados = false;  // v35: Same for admin catalog
 let _adminCatalogSyncing = false;
 let selectedProductsUI= [];
 let currentValeProductos = [];
@@ -6150,7 +6171,7 @@ function buildProdCard(p, cats, isAgotado) {
   return `<div class="prod-card${cardCls}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
     <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;${fullyReserved?'opacity:.5;':''}">
       ${p.photo
-        ?`<img src="${escapeAttr(p.photo)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=font-size:22px>📦</span>'">`
+        ?`<img src="${escapeAttr(_resolvePhotoUrl(p.photo))}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=font-size:22px>📦</span>'">`
         :`<span style="font-size:22px;">📦</span>`}
     </div>
     <div style="flex:1;min-width:0;">
@@ -6262,7 +6283,7 @@ function openEditProductModal(id) {
   document.getElementById('pm-foto').value=p.photo||'';
   document.getElementById('pm-foto-file').value='';
   populateCatSelect(p.catId);
-  document.getElementById('pm-fotoPreview').innerHTML=p.photo?`<img src="${escapeAttr(p.photo)}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`:'';
+  document.getElementById('pm-fotoPreview').innerHTML=p.photo?`<img src="${escapeAttr(_resolvePhotoUrl(p.photo))}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`:'';
   document.getElementById('productModal').classList.add('show');
 }
 // Compress + convert image to WebP (with JPEG fallback for very old browsers).
@@ -7134,7 +7155,7 @@ function openGestorCatalog() {
     }).catch(() => { showToast('Error al cargar productos'); });
     return;
   }
-  catalogCatFilter=null;expandedCatalogId=null;
+  catalogCatFilter=null;expandedCatalogId=null;_showAgotados=false;
   document.getElementById('catalogSearch').value='';
   renderCatalogCatTabs();renderGestorCatalog();
   document.getElementById('gestorCatalogModal').classList.add('show');
@@ -7149,31 +7170,45 @@ function renderCatalogCatTabs() {
 function setCatalogCat(id){catalogCatFilter=id;renderCatalogCatTabs();renderGestorCatalog();}
 function renderGestorCatalog() {
   const search=document.getElementById('catalogSearch').value.toLowerCase();
-  // v34 FIX: Show ALL products, not just stock>0. Stock is shown as a badge.
+  // v35 FIX: By default, hide out-of-stock products. Toggle _showAgotados to show all.
   // Also fix catId mapping for products that use 'categoria' (string) instead of 'catId' (number).
+  // Also fix photo URLs: resolve relative "photos/" paths to absolute URLs.
   const cats = getCategorias();
   const catNameToId = {};
   cats.forEach(c => { catNameToId[c.name] = c.id; });
-  let prods=getProductos().map(p => {
+  let allProds = getProductos().map(p => {
     // v34: Fix missing catId by mapping from categoria string
     if (!p.catId && p.categoria && catNameToId[p.categoria]) {
       p.catId = catNameToId[p.categoria];
     }
     return p;
   });
+  // v35: Filter out agotados by default
+  let prods = _showAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
   if(catalogCatFilter!==null)prods=prods.filter(p=>p.catId===catalogCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search));
   const c=document.getElementById('gestorCatalogList');
   if(!c) return;
-  if(!prods.length){c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos</div></div>';return;}
-  c.innerHTML=prods.map(p=>{
+  // v35: Count agotados for toggle label
+  const agotadosCount = allProds.filter(p => (p.stock || 0) <= 0).length;
+  const disponiblesCount = allProds.filter(p => (p.stock || 0) > 0).length;
+  if(!prods.length){
+    c.innerHTML=`<div class="es"><div class="es-icon">📦</div><div class="es-text">${_showAgotados?'Sin productos':'Sin productos disponibles'}${agotadosCount>0&&!_showAgotados?` <span style="color:var(--blue);cursor:pointer;text-decoration:underline;" onclick="_showAgotados=true;renderGestorCatalog()">(${agotadosCount} agotados)</span>`:''}</div></div>`;
+    return;
+  }
+  c.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:11px;">
+    <span style="color:var(--text-muted);">${prods.length} producto${prods.length!==1?'s':''}</span>
+    ${agotadosCount>0?`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:var(--text-muted);"><input type="checkbox" ${_showAgotados?'checked':''} onchange="_showAgotados=this.checked;renderGestorCatalog()" style="margin:0;"> Agotados (${agotadosCount})</label>`:''}
+  </div>` + prods.map(p=>{
     const exp=expandedCatalogId===p.id;
     const fav = isFavorite(p.id);
-    return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;">
+    const photoUrl = _resolvePhotoUrl(p.photo);
+    const isAgotado = (p.stock || 0) <= 0;
+    return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;${isAgotado?'opacity:0.65;':''}">
       <div style="display:flex;align-items:center;gap:10px;padding:8px;">
-        ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:none;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
+        ${photoUrl?`<img src="${escapeAttr(photoUrl)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:none;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
         <div style="flex:1;min-width:0;cursor:pointer;" onclick="toggleCatalogItem(${p.id})">
-          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}${isAgotado?' <span style="font-weight:600;font-size:10px;color:var(--red);background:rgba(239,68,68,.1);padding:1px 5px;border-radius:6px;">AGOTADO</span>':''}</div>
           ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${escapeHTML(p.precio)}</div>`:''}
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:${fav?'#F59E0B':'var(--gray-400)'};flex-shrink:0;" onclick="toggleFavorite(${p.id})" title="Favorito">${fav?'⭐':'☆'}</button>
@@ -7183,7 +7218,7 @@ function renderGestorCatalog() {
       ${exp?`<div style="padding:8px 12px 12px;border-top:1px solid var(--gray-200);background:var(--gray-50);">
         ${p.description?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;white-space:pre-line;line-height:1.5;">${escapeHTML(p.description)}</div>`:''}
         <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:11px;">
-          <span style="background:${(p.stock||0)>0?'var(--blue-lt)':'rgba(239,68,68,.1)'};color:${(p.stock||0)>0?'var(--blue)':'var(--red)'};padding:3px 9px;border-radius:10px;font-weight:700;">📦 ${(p.stock||0)>0?'Disponibles: '+p.stock:'Agotado'}</span>
+          <span style="background:${!isAgotado?'var(--blue-lt)':'rgba(239,68,68,.1)'};color:${!isAgotado?'var(--blue)':'var(--red)'};padding:3px 9px;border-radius:10px;font-weight:700;">📦 ${!isAgotado?'Disponibles: '+p.stock:'Agotado'}</span>
           ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:3px 9px;border-radius:10px;">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
           ${p.comision?`<span style="background:#f0fdf4;color:var(--green);padding:3px 9px;border-radius:10px;font-weight:600;">Comisión: ${escapeHTML(p.comision)}</span>`:''}
           ${p.puntos?`<span style="background:var(--blue-lt);color:var(--blue);padding:3px 9px;border-radius:10px;">⭐ ${p.puntos} pts</span>`:''}
@@ -7199,7 +7234,7 @@ function renderGestorCatalog() {
 function generateCatalogPDF() {
   const cats = getCategorias();
   const prods = getProductos().filter(p => (p.stock || 0) > 0);
-  if (!prods.length) { showToast('No hay productos para generar PDF'); return; }
+  if (!prods.length) { showToast('No hay productos disponibles para generar PDF'); return; }
 
   // Build printable HTML with product images
   const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -7241,9 +7276,10 @@ function generateCatalogPDF() {
   for (const [catName, catProds] of Object.entries(grouped)) {
     html += `<div class="cat-section"><div class="cat-name">${escapeHTML(catName)}</div>`;
     catProds.forEach(p => {
-      const hasPhoto = p.photo && /^(https?:|data:image)/i.test(p.photo);
+      const photoUrl = _resolvePhotoUrl(p.photo);
+      const hasPhoto = photoUrl && /^(https?:|data:image|blob:)/i.test(photoUrl);
       html += `<div class="prod-card">
-${hasPhoto ? `<img class="prod-img" src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="prod-noimg" style="display:none">📦</div>` : `<div class="prod-noimg">📦</div>`}
+${hasPhoto ? `<img class="prod-img" src="${escapeAttr(photoUrl)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="prod-noimg" style="display:none">📦</div>` : `<div class="prod-noimg">📦</div>`}
 <div class="prod-info">
   <div class="prod-name">${escapeHTML(p.name)}</div>
   <div class="prod-price">${escapeHTML(p.precio || '—')}</div>
@@ -7293,8 +7329,9 @@ ${hasPhoto ? `<img class="prod-img" src="${escapeAttr(p.photo)}" onerror="this.s
 // ══════════════════════════════════════════
 function renderAdminCatalogCats() {
   const cats=getCategorias();
-  // v34: Show ALL products in admin catalog (including out-of-stock for management)
-  const prods=getProductos();
+  // v35: Show available products by default, with toggle for agotados
+  const allProds=getProductos();
+  const prods=_adminShowAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
   const tabEl=document.getElementById('catalogAdminCatTabs');
   if(!tabEl)return;
   tabEl.innerHTML=`<button class="pcat-tab ${adminCatalogCatFilter===null?'active':''}" onclick="setAdminCatalogCat(null)" style="flex-shrink:0;">Todos (${prods.length})</button>`+
@@ -7307,17 +7344,18 @@ function setAdminCatalogCat(id){adminCatalogCatFilter=id;renderAdminCatalogCats(
 function renderAdminCatalog() {
   const searchEl=document.getElementById('catalogAdminSearch');
   const search=searchEl?searchEl.value.toLowerCase():'';
-  // v34: Show ALL products in admin catalog (including out-of-stock for management)
-  // Also fix catId mapping for products missing catId
+  // v35: Filter agotados by default, fix catId mapping, fix photo URLs
   const cats = getCategorias();
   const catNameToId = {};
   cats.forEach(c => { catNameToId[c.name] = c.id; });
-  let prods=getProductos().map(p => {
+  let allProds=getProductos().map(p => {
     if (!p.catId && p.categoria && catNameToId[p.categoria]) p.catId = catNameToId[p.categoria];
     return p;
   });
+  // v35: Filter out agotados by default
+  let prods = _adminShowAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
   // v32: If no products, try force-syncing from Supabase
-  if(!prods.length && !_adminCatalogSyncing) {
+  if(!allProds.length && !_adminCatalogSyncing) {
     _adminCatalogSyncing = true;
     Promise.all([
       _sbRestGetCollection('productos').catch(e => []),
@@ -7343,15 +7381,23 @@ function renderAdminCatalog() {
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   const c=document.getElementById('catalogAdminGrid');
   if(!c)return;
-  if(!prods.length){c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos disponibles</div></div>';return;}
-  c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">`+
+  // v35: Count agotados for toggle
+  const agotadosCount = allProds.filter(p => (p.stock || 0) <= 0).length;
+  if(!prods.length){c.innerHTML=`<div class="es"><div class="es-icon">📦</div><div class="es-text">${_adminShowAgotados?'Sin productos':'Sin productos disponibles'}${agotadosCount>0&&!_adminShowAgotados?` <span style="color:var(--blue);cursor:pointer;text-decoration:underline;" onclick="_adminShowAgotados=true;renderAdminCatalog()">(${agotadosCount} agotados)</span>`:''}</div></div>`;return;}
+  c.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:11px;">
+    <span style="color:var(--text-muted);">${prods.length} producto${prods.length!==1?'s':''}</span>
+    ${agotadosCount>0?`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:var(--text-muted);"><input type="checkbox" ${_adminShowAgotados?'checked':''} onchange="_adminShowAgotados=this.checked;renderAdminCatalogCats();renderAdminCatalog()" style="margin:0;"> Agotados (${agotadosCount})</label>`:''}
+  </div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">`+
     prods.map(p=>{
       const cat=getCategorias().find(c=>c.id===p.catId);
-      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .2s,transform .15s;" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+      const photoUrl = _resolvePhotoUrl(p.photo);
+      const isAgotado = (p.stock || 0) <= 0;
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:box-shadow .2s,transform .15s;${isAgotado?'opacity:0.7;':''}" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
         <div style="height:140px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
-          ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
-          <div style="${p.photo?'display:none;':''}width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;">📦</div>
+          ${photoUrl?`<img src="${escapeAttr(photoUrl)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''}
+          <div style="${photoUrl?'display:none;':''}width:100%;height:100%;align-items:center;justify-content:center;font-size:48px;">📦</div>
           ${cat?`<span style="position:absolute;top:8px;left:8px;background:var(--blue);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">${escapeHTML(cat.name)}</span>`:''}
+          ${isAgotado?`<span style="position:absolute;top:8px;right:8px;background:var(--red);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">AGOTADO</span>`:''}
         </div>
         <div style="padding:12px;">
           <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">${escapeHTML(p.name)}</div>
@@ -7444,7 +7490,8 @@ function buildCatalogCardJS(p,cat,color,waPhone){
   const pDesc=p.description||p.descripcion||'';
   let pPrice=p.precio||'';
   if(!pPrice && p.precioActual) pPrice = typeof p.precioActual==='number' ? '$'+p.precioActual+' USD' : p.precioActual;
-  const pPhoto=p.photo||p.imagen||(p.imagenes&&p.imagenes.length?p.imagenes[0]:'')||'';
+  const pPhotoRaw=p.photo||p.imagen||(p.imagenes&&p.imagenes.length?p.imagenes[0]:'')||'';
+  const pPhoto=_resolvePhotoUrl(pPhotoRaw);
   const pGarantia=p.garantia||'';
   const esc=s=>JSON.stringify(s).replace(/<\//g,'<\\/');
   const waMsg=`Hola, me interesa el producto: ${pName}${pPrice?' - '+pPrice:''}. Esta disponible?`;
@@ -8580,7 +8627,19 @@ function showConfirmAction(title, sub, okLabel, okClass, cb) {
   const btn = document.getElementById('confirmActionOk');
   btn.textContent = okLabel;
   btn.className = `btn ${okClass} btn-full`;
-  btn.onclick = () => { const cb = confirmActionCb; closeConfirmAction(); cb && cb(); };
+  btn.disabled = false;  // v35: ensure button is enabled when shown
+  // v35 FIX: Prevent double-click and add disabled state during async operation
+  btn.onclick = () => {
+    if (btn.disabled) return;  // Already processing
+    btn.disabled = true;
+    btn.textContent = 'Procesando…';
+    const cb = confirmActionCb;
+    closeConfirmAction();
+    // Re-enable after callback completes (for next invocation)
+    try { cb && cb(); } catch(e) { console.error('confirmAction cb error:', e); }
+    // Safety: re-enable after 3s even if cb hangs
+    setTimeout(() => { btn.disabled = false; btn.textContent = okLabel; }, 3000);
+  };
   document.getElementById('confirmActionModal').classList.add('show');
 }
 function closeConfirmAction() {

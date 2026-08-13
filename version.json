@@ -1,8 +1,8 @@
 {
-  "version": 34,
-  "versionStr": "v34",
-  "hash": "v34-fix-delete-all-catalog",
-  "hashFull": "v34-fix-delete-all-catalog",
+  "version": 35,
+  "versionStr": "v35",
+  "hash": "v35-fix-catalog-photos-agotados",
+  "hashFull": "v35-fix-catalog-photos-agotados",
   "releasedAt": "2026-08-13",
   "files": [
     "app.js",
@@ -13,16 +13,11 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX CRITICAL: _sbRestDeleteAll now uses WHERE clause (id=gt.0) — Supabase requires WHERE for DELETE, was returning 400 error before!",
-    "FIX CRITICAL: _doRestPoll now ALWAYS updates vales from Supabase even when empty — no more zombie vales after deletion.",
-    "FIX CRITICAL: Service Worker no longer auto-sends SKIP_WAITING on updatefound — prevents stuck update/reload loop.",
-    "FIX CRITICAL: SW install uses Promise.all instead of allSettled — prevents broken SW with partial cache.",
-    "FIX: SW activate now sequences claim() before notifying clients — prevents reload into old SW.",
-    "FIX: Catalog shows ALL products (not just stock>0) — stock shown as badge with Agotado state.",
-    "FIX: catId mapping for products missing catId but having categoria string — products no longer vanish on category click.",
-    "FIX: Product image onerror handler properly shows fallback icon instead of broken image.",
-    "FIX: Admin catalog shows all products including out-of-stock for management.",
-    "FIX: controllerchange/SW_UPDATED only trigger reload when user initiated update.",
-    "Version bump: v33 → v34."
+    "FIX: Catalog now hides out-of-stock products by default — toggle checkbox to show agotados.",
+    "FIX: Product photos with relative 'photos/' paths now resolve to absolute URLs — images load correctly.",
+    "FIX: All photo references in catalog (gestor, admin, PDF, stock grid, edit) use _resolvePhotoUrl.",
+    "FIX: Confirm modal button now has disabled state — prevents double-click and 'stuck' popup.",
+    "FIX: Agotado products show AGOTADO badge and reduced opacity when toggle is on.",
+    "Version bump: v34 → v35."
   ]
 }
