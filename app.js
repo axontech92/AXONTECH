@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 45;
+const APP_VERSION = 46;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '611bbbc72e47b1f2';
+let _LOCAL_BUILD_HASH = '49c2c44e9959787b';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1850,22 +1850,23 @@ function _ensurePendingValesEnqueued() {
   if (_fbProcessing && _fbInFlightPending['vales']) return; // admin path (raro en gestor, pero por seguridad)
   // Re-encolar un write con TODOS los vales pendientes de este gestor.
   // v15: usar slimVale-equivalente para no mandar synced/isNew a Firebase.
+  // v46 FIX: usar SOLO los campos que pertenecen al gestor (whitelist).
+  // ANTES: este re-encolado enviaba status/mensajeroId/confirmedTs/adminNotes
+  // desde la copia LOCAL del gestor — si esa copia estaba desactualizada
+  // (p.ej. el admin confirmó la venta mientras el gestor estaba offline),
+  // reescribía 'pending' por encima del 'confirmed' del admin en Supabase.
+  const GESTOR_REENQUEUE_FIELDS = [
+    'id','valeNum','gestorId','ts','cliente','telefono','direccion',
+    'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
+    'total','garantia','comisionGestor','recogidaTienda','ubicacion'
+  ];
   const updates = {};
   mine.forEach(v => {
-    const slim = {
-      id: v.id, valeNum: v.valeNum, gestorId: v.gestorId, ts: v.ts,
-      cliente: v.cliente, telefono: v.telefono, direccion: v.direccion,
-      carnet: v.carnet, mensajeria: v.mensajeria, articulo: v.articulo,
-      precioUSD: v.precioUSD, precioMN: v.precioMN, vuelto: v.vuelto,
-      total: v.total, garantia: v.garantia, comisionGestor: v.comisionGestor,
-      valeProductos: (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
-      status: v.status, mensajeroId: v.mensajeroId, confirmedTs: v.confirmedTs,
-      adminNotes: v.adminNotes,
-    };
+    const slim = {};
+    GESTOR_REENQUEUE_FIELDS.forEach(f => { if (v[f] !== undefined) slim[f] = v[f]; });
+    slim.valeProductos = (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
     if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
-    if (v.deliveredTs) slim.deliveredTs = v.deliveredTs;
-    if (v.commissionStatus) slim.commissionStatus = v.commissionStatus;
-    if (v.commissionPaid) slim.commissionPaid = v.commissionPaid;
+    if (v.deliveredTs) slim.deliveredTs = v.deliveredTs; // mensajero puede marcar entrega
     updates[v.id] = slim;
   });
   _enqueueFB(myPath, updates, 'update');
