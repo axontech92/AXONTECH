@@ -429,7 +429,7 @@
       "name": "Inversor Tataliken de 24V 4000W",
       "catId": 20,
       "photo": "https://tiendamax.org/imagenes/img_1777924118004.webp",
-      "stock": 11,
+      "stock": 8,
       "precio": "$180",
       "puntos": 1,
       "comision": "$10 USD",
@@ -1498,5 +1498,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-13T14:00:51.970Z"
+  "timestamp": "2026-08-13T14:02:52.486Z"
 }
