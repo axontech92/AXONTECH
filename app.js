@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 51;
+const APP_VERSION = 52;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '8930396a007c5e30';
+let _LOCAL_BUILD_HASH = 'd1180f6e32f9dd75';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -833,6 +833,13 @@ async function _doRestPoll() {
               const mergedNotifs = _mergeNotifArrays(_notifsCache, val);
               _notifsCache = mergedNotifs; _notifsDirty = false;
               try { localStorage.setItem('axon_notifs', JSON.stringify(mergedNotifs)); } catch(e) {}
+              // v51 FIX: forzar render de notifs después de recibir nuevas.
+              // ANTES: dependía de refreshUI() → _refreshLightUI() → renderGestorNotifs(),
+              // pero si el hash de vales no cambiaba (solo llegaron notifs nuevas),
+              // a veces no se renderizaba. Ahora lo forzamos directamente.
+              if (typeof renderGestorNotifs === 'function') {
+                try { renderGestorNotifs(); } catch(e) {}
+              }
             }
             else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
           } finally { _syncCount--; }
@@ -3225,6 +3232,8 @@ function addNotif(type, productName, productId, extra, gestorId) {
   const notifs = getNotifs();
   notifs.unshift({ id:Date.now(), type, productName, productId, ts:new Date().toISOString(), read:false, extra:extra||'', gestorId:gestorId||null });
   if (notifs.length > 50) notifs.splice(50);
+  // v51 DEBUG: log para verificar que las notifs se generan correctamente
+  console.log('[addNotif]', { type, gestorId, activeGestorId, productName, extra, totalNotifs: notifs.length });
   saveNotifs(notifs);
   renderGestorNotifs();
 }
@@ -3365,6 +3374,13 @@ function renderGestorNotifs() {
     if (n.id <= personalClearedId) return false;
     return true;
   });
+  // v51 DEBUG: log para verificar el filtro de notifs personales
+  if (!IS_ADMIN && activeGestorId) {
+    const _debugTotal = notifs.filter(n => ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type)).length;
+    if (_debugTotal > 0) {
+      console.log('[renderGestorNotifs]', { activeGestorId, totalPersonalType: _debugTotal, afterFilter: personalNotifs.length, personalClearedId });
+    }
+  }
 
   const sec = document.getElementById('gestorNotifsSection');
   const personalSec = document.getElementById('gestorPersonalNotifsSection');
@@ -4712,8 +4728,10 @@ function buildInboxCard(v) {
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
     cancelled:{label:'Cancelado',cls:'sp-cancelled'}
   };
-  const s=sMap[v.status]||{label:v.status,cls:''};
-  const isNew=v.isNew&&v.status==='pending';
+  // v51 FIX: normalizar status para evitar 'undefined' si el vale llegó sin status
+  const _vStatus = v.status || 'pending';
+  const s=sMap[_vStatus]||{label:_vStatus,cls:''};
+  const isNew=v.isNew&&_vStatus==='pending';
   const sel=v.id===selectedValeId;
   const estafaMatch=checkEstafaMatch(v);
   const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
@@ -4779,7 +4797,9 @@ function renderValeDetail() {
     pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
     cancelled:{label:'Cancelado',cls:'sp-cancelled',icon:'🚫'},
   };
-  const s=sMap[v.status]||{label:v.status,cls:'',icon:'•'};
+  // v51 FIX: normalizar status
+  const _vStatus = v.status || 'pending';
+  const s=sMap[_vStatus]||{label:_vStatus,cls:'',icon:'•'};
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
   let actHTML='';
   // Product link status — show picker if no products linked
@@ -5780,7 +5800,8 @@ function renderMyVales() {
     if(pendingPayVales.length){
       histHTML+=`<div style="font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;padding:6px 4px 4px;">⏳ Pendiente de cobro (${pendingPayVales.length})</div>`;
       histHTML+=pendingPayVales.map(v=>{
-        const s=sMap[v.status]||{label:v.status,color:'var(--yellow)',icon:'⏳'};
+        const _vStatus = v.status || 'pending_payment';
+        const s=sMap[_vStatus]||{label:_vStatus,color:'var(--yellow)',icon:'⏳'};
         return `<div class="mv-card st-pending_payment" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; border-left: 3px solid var(--yellow);">
           <div class="mv-head">
             <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
@@ -5795,7 +5816,8 @@ function renderMyVales() {
     if(historyVales.length){
       histHTML+=`<div style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;padding:6px 4px 4px;${pendingPayVales.length?'margin-top:10px;':''}">✅ Ventas confirmadas (${historyVales.length})</div>`;
       histHTML+=historyVales.map(v=>{
-        const s=sMap[v.status]||{label:v.status,color:'var(--green)',icon:'✅'};
+        const _vStatus = v.status || 'confirmed';
+        const s=sMap[_vStatus]||{label:_vStatus,color:'var(--green)',icon:'✅'};
         return `<div class="mv-card st-${v.status}" onclick="openGestorValeModal(${v.id})" style="cursor:pointer; opacity:0.85; border-left: 3px solid var(--gray-300);">
           <div class="mv-head">
             <span class="mv-time" style="color:var(--gray-600);"><b style="color:var(--gray-800);">${valeNumStr(v)}</b> · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</span>
@@ -5892,7 +5914,9 @@ function openGestorValeModal(id) {
     delivered:{label:'Entregado',color:'#7C3AED',icon:'📦'},
     confirmed:{label:'Venta confirmada ✅',color:'var(--green)',icon:'✅'}
   };
-  const s = sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+  // v51 FIX: normalizar status
+  const _vStatus = v.status || 'pending';
+  const s = sMap[_vStatus]||{label:_vStatus,color:'var(--gray-400)',icon:'•'};
   const content = `
     <div style="font-size:16px;font-weight:800;color:var(--blue-dk);margin-bottom:12px;">${valeNumStr(v)} ${escapeHTML(v.cliente)}</div>
     <div style="margin-bottom:6px;"><b>📱 Teléfono:</b> ${escapeHTML(v.telefono||'—')}</div>
@@ -7440,7 +7464,7 @@ function exportHistorialCSV() {
       m.name || '—',
       (v.articulo || '').replace(/"/g, '""'),
       (v.total || '').replace(/"/g, '""'),
-      sMap[v.status] || v.status,
+      sMap[v.status] || v.status || 'pending',
       v.commissionPaid ? 'Cobrado' : (v.commissionStatus === 'en_sobre' ? 'En sobre' : (v.commissionStatus === 'cobrado' ? 'Cobrado' : 'Pendiente'))
     ]);
   });
@@ -9315,7 +9339,9 @@ function renderHistorial() {
     html+=`<div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;padding:10px 0 5px;border-top:1px solid var(--border);margin-top:8px;">${day} <span style="background:var(--gray-100);border-radius:10px;padding:1px 7px;font-size:10px;">${groups[date].length}</span></div>`;
     groups[date].forEach(v=>{
       const g=gestorOf(v.gestorId);
-      const s=sMap[v.status]||{label:v.status,cls:''};
+      // v51 FIX: normalizar status
+      const _vStatus = v.status || 'pending';
+      const s=sMap[_vStatus]||{label:_vStatus,cls:''};
       const estafaMatch=checkEstafaMatch(v);
       const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
       const estafaTag=estafaMatch.length?'<span style="background:var(--red);color:white;border-radius:6px;padding:1px 5px;font-size:8px;font-weight:700;margin-left:3px;">🚫</span>':'';
