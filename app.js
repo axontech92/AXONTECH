@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 50;
+const APP_VERSION = 51;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '4ce9a70a903cc23e';
+let _LOCAL_BUILD_HASH = '8930396a007c5e30';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -581,6 +581,11 @@ async function _doRestPoll() {
                 }
               });
             }
+            // v50 FIX: si el vale llegó sin status (vales viejos guardados antes
+            // del fix de slimValeGestor), asignar 'pending' por defecto. Sin esto,
+            // el filtro .includes(v.status) en renderMyVales lo descartaba y el
+            // vale desaparecía de la pantalla del gestor.
+            if (v && !v.status) v.status = 'pending';
             if (v && v.synced === undefined) v.synced = true;
           });
           // ── v37 SMART MERGE: local-wins for recently changed vales ──
@@ -2025,9 +2030,25 @@ const saveVales = v => {
     if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
       slim.valeText = x.valeText;
     }
-    // NO incluir status, mensajeroId, confirmedTs, adminNotes — son del admin.
+    // NO incluir mensajeroId, confirmedTs, adminNotes — son del admin.
     // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
     if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
+    // v50 FIX: para vales NUEVOS (status='pending' que no existe en Supabase
+    // todavía), SÍ incluimos el status inicial. Sin esto, el vale llegaba a
+    // Supabase sin status → al hacer poll, el filtro .includes(v.status) lo
+    // descartaba → el vale DESAPARECÍA de la pantalla del gestor y del admin,
+    // y al volver aparecía como "• undefined".
+    // Para vales EXISTENTES (prev ya tenía status), NO lo enviamos para no
+    // pisar cambios del admin (por ejemplo si el admin ya lo confirmó).
+    const _prev = prevMap.get(`${x.gestorId}/${x.id}`);
+    if (!_prev) {
+      // Vale nuevo — incluir status inicial ('pending')
+      slim.status = x.status || 'pending';
+      slim.mensajeroId = null;
+      slim.confirmedTs = null;
+      slim.isNew = true;
+      slim.adminNotes = '';
+    }
     return slim;
   }
   const curKeys = new Set();
@@ -5718,11 +5739,15 @@ function renderMyVales() {
     c.innerHTML='<div class="es"><div class="es-icon">🧾</div><div class="es-text">Sin vales activos</div></div>';
   } else {
     c.innerHTML=activeVales.map(v=>{
-      let s=sMap[v.status]||{label:v.status,color:'var(--gray-400)',icon:'•'};
+      // v50 FIX: fallback robusto. ANTES, si v.status era undefined o no estaba
+      // en sMap, mostraba "• undefined". Ahora mostramos "• Estado desconocido"
+      // y forzamos status='pending' para que al menos el vale se vea.
+      const _status = v.status || 'pending';
+      let s=sMap[_status]||{label:'Estado: '+escapeHTML(_status),color:'var(--gray-400)',icon:'•'};
       // Si el vale aún no se ha confirmado en Supabase, mostrar "Subiendo..." como label principal
       if(v.synced === false) s=pendingSyncing;
       // Show "Visto por admin" status when the admin has already opened this pending vale
-      else if(v.status==='pending' && v.seenByAdmin) s=pendingSeen;
+      else if(_status==='pending' && v.seenByAdmin) s=pendingSeen;
       const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
       const canCancel=true; // v33: Allow deleting ANY vale from gestor side, not just pending
       return `<div class="mv-card st-${v.status}">
