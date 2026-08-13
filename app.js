@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 44;
+const APP_VERSION = 45;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '8131e897850bbe5d';
+let _LOCAL_BUILD_HASH = '611bbbc72e47b1f2';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1126,14 +1126,14 @@ function _processFBQueue() {
   const {path, method, callback} = item;
   let value = item.value;  // v15: mutable, podemos filtrarle vales ya synced
 
-  // ── v15 BUGFIX: filtrar vales ya synced del payload ANTES de enviar ──
-  // Si este item fue reencolado tras un timeout (que en realidad SÍ subió los
-  // datos a Firebase pero no recibimos el ack a tiempo), los vales que contiene
-  // pueden ya estar marcados como synced:true en localStorage. Volver a mandarlos
-  // es desperdicio de ancho de banda en redes lentas y causa la sensación de
-  // "vuelve a sincronizar todos". Aquí filtramos esos vales antes del write.
-  // Solo aplica a writes de vales (path 'vales' o 'vales/{gestorId}'), method 'update'.
-  if (method === 'update' && value && typeof value === 'object' &&
+  // ── v15/v45 BUGFIX: filtrar vales ya synced del payload de REINTENTOS ──
+  // v45: este filtro ahora SOLO aplica a items reencolados (item.retries > 1,
+  // es decir, que ya fueron intentados y dieron timeout). ANTES se aplicaba a
+  // TODOS los writes de vales, y como el poll marca synced=true en todo vale
+  // sincronizado (v34+), los updates del admin (status, seenByAdmin, mensajeroId…)
+  // se descartaban en su PRIMER intento y nunca llegaban a Supabase: el vale
+  // quedaba 'pending' para el gestor pese a haberse confirmado la venta.
+  if (method === 'update' && item.retries > 1 && value && typeof value === 'object' &&
       (path === 'vales' || path.startsWith('vales/'))) {
     const syncedIds = new Set(
       getVales()
