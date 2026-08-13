@@ -1485,6 +1485,96 @@
       "name": "Gym"
     }
   ],
-  "vales": [],
-  "timestamp": "2026-08-13T04:36:22.328Z"
+  "vales": [
+    {
+      "id": 1786589698208,
+      "ts": "2026-08-13T02:54:58.211Z",
+      "total": "$360 USD + 3300 MN",
+      "carnet": "69032910311",
+      "status": "pending",
+      "synced": true,
+      "vuelto": "40",
+      "cliente": "Iris Migdalia Osorio salazar",
+      "valeNum": 67,
+      "articulo": "×1 Router Tenda AX12 pro AX3000 / ×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "53441933",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Iris Migdalia Osorio salazar\n🔸Teléfono Cliente: 53441933\n🔸Dirección Cliente: Avenida Las Palmas No192 e/Central y Lindero. Arroyo Naranjo, Reparto retiro. Por el calvario.\n🔸Mensajería/ costo: 3300\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $360 USD\n🔸Precio MN: \n🔸 Vuelto: 40\n🔸 Total a pagar: $360 USD + 3300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 12/08/2026 22:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Avenida Las Palmas No192 e/Central y Lindero. Arroyo Naranjo, Reparto retiro. Por el calvario.",
+      "precioUSD": "$360 USD",
+      "adminNotes": "",
+      "mensajeria": "3300",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "valeProductos": [
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
+        },
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$20.00 USD"
+    },
+    {
+      "id": 1786588716392,
+      "ts": "2026-08-13T02:38:36.396Z",
+      "total": "$360 USD + 3300 MN",
+      "carnet": "69032910311",
+      "status": "pending",
+      "synced": true,
+      "vuelto": "40",
+      "cliente": "Iris Migdalia Osorio salazar",
+      "valeNum": 67,
+      "articulo": "×1 Router Tenda AX12 pro AX3000 / ×1 Nanostation m5",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5353441933",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Iris Migdalia Osorio salazar\n🔸Teléfono Cliente: 5353441933\n🔸Dirección Cliente: Avenida Las Palmas No192 e/Central y Lindero. Arroyo Naranjo, Reparto retiro. Por el calvario.\n🔸Mensajería/ costo: 3300\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n  ×1 Nanostation m5\n🔸Precio USD/ zelle: $360 USD\n🔸Precio MN: \n🔸 Vuelto: 40\n🔸 Total a pagar: $360 USD + 3300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 12/08/2026 22:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Avenida Las Palmas No192 e/Central y Lindero. Arroyo Naranjo, Reparto retiro. Por el calvario.",
+      "precioUSD": "$360 USD",
+      "adminNotes": "",
+      "mensajeria": "3300",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "valeProductos": [
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
+        },
+        {
+          "id": 1786510211408,
+          "qty": 1,
+          "name": "Nanostation m5"
+        }
+      ],
+      "comisionGestor": "$20.00 USD"
+    },
+    {
+      "id": 1786536428235,
+      "ts": "2026-08-12T12:07:08.256Z",
+      "total": "$70",
+      "status": "pending",
+      "synced": true,
+      "cliente": "Carlos",
+      "valeNum": 62,
+      "articulo": "Test2",
+      "gestorId": 1784477060209,
+      "telefono": "527",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 527\n🔸Dirección Cliente: Test\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\nTest2\n🔸Precio USD/ zelle: $70\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $70\n\n*Garantía: \n*Fecha y hora de Venta: 12/8/2026, 8:07:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Test",
+      "precioUSD": "$70",
+      "valeProductos": [],
+      "comisionGestor": ""
+    }
+  ],
+  "timestamp": "2026-08-13T04:40:43.257Z"
 }
