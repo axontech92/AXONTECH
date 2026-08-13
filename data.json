@@ -1497,6 +1497,119 @@
       "name": "Gym"
     }
   ],
-  "vales": [],
-  "timestamp": "2026-08-13T14:11:28.494Z"
+  "vales": [
+    {
+      "id": 1786635811796,
+      "ts": "2026-08-13T15:43:31.823Z",
+      "total": "$150 USD",
+      "carnet": "68032618669",
+      "status": "pending",
+      "synced": true,
+      "vuelto": "",
+      "cliente": "Livan",
+      "valeNum": 2,
+      "articulo": "×1 Mikrotik SXTsq 5 lite",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "53576475",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Livan\n🔸Teléfono Cliente: 53576475\n🔸Dirección Cliente: Baracoa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Mikrotik SXTsq 5 lite\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/08/2026 11:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Baracoa",
+      "precioUSD": "$150 USD",
+      "adminNotes": "",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "valeProductos": [
+        {
+          "id": 1786510034029,
+          "qty": 1,
+          "name": "Mikrotik SXTsq 5 lite"
+        }
+      ],
+      "comisionGestor": "$10.00 USD"
+    },
+    {
+      "id": 1786635811796,
+      "ts": "2026-08-13T15:43:31.823Z",
+      "total": "$150 USD",
+      "carnet": "68032618669",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Livan",
+      "valeNum": 2,
+      "articulo": "×1 Mikrotik SXTsq 5 lite",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "53576475",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Livan\n🔸Teléfono Cliente: 53576475\n🔸Dirección Cliente: Baracoa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Mikrotik SXTsq 5 lite\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/08/2026 11:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Baracoa",
+      "precioUSD": "$150 USD",
+      "adminNotes": "",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "valeProductos": [
+        {
+          "id": 1786510034029,
+          "qty": 1,
+          "name": "Mikrotik SXTsq 5 lite"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "synced": true
+    },
+    {
+      "id": 1786634320441,
+      "ts": "2026-08-13T15:18:40.447Z",
+      "total": "$130 USD",
+      "carnet": "68032618669",
+      "status": "pending",
+      "synced": true,
+      "vuelto": "",
+      "cliente": "Livan Bacalao Vasquez",
+      "valeNum": 1,
+      "articulo": "×1 Router Tenda AX12 pro AX3000",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "53576475",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Livan Bacalao Vasquez\n🔸Teléfono Cliente: 53576475\n🔸Dirección Cliente: playa baracoa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/08/2026 11:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "playa baracoa",
+      "precioUSD": "$130 USD",
+      "adminNotes": "",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "valeProductos": [],
+      "comisionGestor": "$10.00 USD"
+    },
+    {
+      "id": 1786634320441,
+      "ts": "2026-08-13T15:18:40.447Z",
+      "total": "$130 USD",
+      "carnet": "68032618669",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Livan Bacalao Vasquez",
+      "valeNum": 1,
+      "articulo": "×1 Router Tenda AX12 pro AX3000",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "53576475",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Livan Bacalao Vasquez\n🔸Teléfono Cliente: 53576475\n🔸Dirección Cliente: playa baracoa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/08/2026 11:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "playa baracoa",
+      "precioUSD": "$130 USD",
+      "adminNotes": "",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "valeProductos": [],
+      "comisionGestor": "$10.00 USD",
+      "synced": true
+    }
+  ],
+  "timestamp": "2026-08-13T16:14:12.757Z"
 }
