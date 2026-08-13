@@ -803,7 +803,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "https://tiendamax.org/imagenes/img_1778384646214_ext.webp",
-      "stock": 47,
+      "stock": 0,
       "precio": "$20",
       "puntos": 0.5,
       "comision": "1500 MN",
@@ -1498,5 +1498,5 @@
     }
   ],
   "vales": [],
-  "timestamp": "2026-08-13T13:17:07.970Z"
+  "timestamp": "2026-08-13T13:18:41.969Z"
 }
