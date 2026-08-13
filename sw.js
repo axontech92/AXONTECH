@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '33';
-const CACHE = 'axontech-v33';
+const APP_VERSION  = '34';
+const CACHE = 'axontech-v34';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
@@ -20,11 +20,21 @@ const STATIC = [
 const PHOTO_PATH_PREFIX = '/photos/';
 
 self.addEventListener('install', e => {
-  self.skipWaiting();
+  // v34: Do NOT call skipWaiting() here automatically.
+  // ANTES: skipWaiting() causaba que el nuevo SW se activara inmediatamente
+  // incluso con cache incompleto, llevando a "se queda pegado".
+  // Ahora: el nuevo SW espera hasta que el usuario pulse "Recargar ahora",
+  // lo cual envía SKIP_WAITING vía applyUpdate().
   e.waitUntil(
     caches.open(CACHE).then(c => {
-      // Intenta guardar los archivos, pero si uno falla, no cancela la instalación
-      return Promise.allSettled(STATIC.map(url => fetch(url).then(r => c.put(url, r))));
+      // v34 FIX: Use Promise.all instead of Promise.allSettled.
+      // ANTES: allSettled permitía instalar el SW con cache incompleto
+      // si algún asset fallaba. Ahora, si un asset falla, la instalación
+      // falla y el SW viejo sigue controlando → app estable.
+      return Promise.all(STATIC.map(url => fetch(url).then(r => {
+        if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`);
+        return c.put(url, r);
+      })));
     })
   );
 });
@@ -35,7 +45,12 @@ self.addEventListener('activate', e => {
       // Borra TODAS las cachés anteriores (v89, v90, v91, v92, v93, etc.)
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     ).then(() => {
-      // Notificar a todas las pestañas abiertas que hay una versión nueva
+      // v34 FIX: Sequence properly: claim clients FIRST, then notify.
+      // ANTES: claim() y matchAll() se ejecutaban en paralelo, causando
+      // que algunos clientes recibieran SW_UPDATED antes de que el nuevo SW
+      // los controlara, llevando a recargas en el SW viejo.
+      return self.clients.claim();
+    }).then(() => {
       return self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     }).then(clients => {
       clients.forEach(client => {
@@ -43,7 +58,6 @@ self.addEventListener('activate', e => {
       });
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', e => {

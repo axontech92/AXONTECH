@@ -1,9 +1,9 @@
 {
-  "version": 33,
-  "versionStr": "v33",
-  "hash": "v33-fix-delete-catalog-images",
-  "hashFull": "v33-fix-delete-catalog-images",
-  "releasedAt": "2026-08-13 15:30",
+  "version": 34,
+  "versionStr": "v34",
+  "hash": "v34-fix-delete-all-catalog",
+  "hashFull": "v34-fix-delete-all-catalog",
+  "releasedAt": "2026-08-13",
   "files": [
     "app.js",
     "app.css",
@@ -13,18 +13,16 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX CRITICAL: _sbRestDeleteVale now throws on failure instead of silently returning — no more fake-success deletions.",
-    "FIX CRITICAL: _sbRestDeleteVale verifies the delete actually worked by re-reading Supabase, with up to 2 retries.",
-    "FIX CRITICAL: When gestorId is missing, _sbRestDeleteVale scans all rows to find the vale instead of giving up.",
-    "FIX CRITICAL: adminDeleteVale and cancelVale now use shared _doValeSupabaseDelete with 3 retries and exponential backoff.",
-    "FIX CRITICAL: If all retries fail, the deletion is re-enqueued so it gets retried when connection returns.",
-    "FIX CRITICAL: Gestor vales can now be deleted regardless of status (not just pending).",
-    "FIX: _doRestPoll now always updates localStorage from Supabase (even when empty) — no more zombie products.",
-    "FIX: _doRestPoll now logs sync errors for productos/categorias instead of silently swallowing them.",
-    "FIX: catalogo.html apiFetch now filters null data rows (prevents TypeError).",
-    "NEW: PDF generation includes product images with fallback for missing images.",
-    "NEW: catalogo.html PDF includes product images.",
-    "NEW: Gestor delete button shows 'Eliminar' (not 'Cancelar') for all vales.",
-    "Version bump: v32 → v33."
+    "FIX CRITICAL: _sbRestDeleteAll now uses WHERE clause (id=gt.0) — Supabase requires WHERE for DELETE, was returning 400 error before!",
+    "FIX CRITICAL: _doRestPoll now ALWAYS updates vales from Supabase even when empty — no more zombie vales after deletion.",
+    "FIX CRITICAL: Service Worker no longer auto-sends SKIP_WAITING on updatefound — prevents stuck update/reload loop.",
+    "FIX CRITICAL: SW install uses Promise.all instead of allSettled — prevents broken SW with partial cache.",
+    "FIX: SW activate now sequences claim() before notifying clients — prevents reload into old SW.",
+    "FIX: Catalog shows ALL products (not just stock>0) — stock shown as badge with Agotado state.",
+    "FIX: catId mapping for products missing catId but having categoria string — products no longer vanish on category click.",
+    "FIX: Product image onerror handler properly shows fallback icon instead of broken image.",
+    "FIX: Admin catalog shows all products including out-of-stock for management.",
+    "FIX: controllerchange/SW_UPDATED only trigger reload when user initiated update.",
+    "Version bump: v33 → v34."
   ]
 }

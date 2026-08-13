@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 33;
+const APP_VERSION = 34;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v33-fix-delete-catalog-images';
+let _LOCAL_BUILD_HASH = 'v34-fix-delete-all-catalog';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -306,12 +306,31 @@ async function _sbRestMetaDelete(name) {
   const res = await fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS });
   if (!res.ok && res.status !== 404) throw new Error(`Supabase META DELETE ${name} ${res.status}`);
 }
-// ── v30: Delete ALL rows from a collection ──
+// ── v34: Delete ALL rows from a collection ──
 // Used for factory reset and bulk clear operations.
+// v34 FIX: Supabase REST API REQUIRES a WHERE clause for DELETE.
+// ANTES: DELETE /rest/v1/vales (sin WHERE) → 400 "DELETE requires a WHERE clause"
+// AHORA: DELETE /rest/v1/vales?id=gt.0 (WHERE id > 0, matches all numeric PK rows)
+// For non-numeric PKs, use id=not.is.null which also matches all rows.
 async function _sbRestDeleteAll(collName) {
-  const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
-  const res = await fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } });
-  if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE ALL ${collName} ${res.status}`);
+  // Try numeric PK first (works for our tables where id is bigint)
+  let url = `${_SB_REST}/${encodeURIComponent(collName)}?id=gt.0`;
+  let res = await fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } });
+  if (res.ok) {
+    console.log(`[sbRestDeleteAll] ✓ Deleted all rows from ${collName} (id>0)`);
+    return;
+  }
+  // Fallback: try id=not.is.null (for text PKs or other types)
+  url = `${_SB_REST}/${encodeURIComponent(collName)}?id=not.is.null`;
+  res = await fetch(url, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' } });
+  if (res.ok) {
+    console.log(`[sbRestDeleteAll] ✓ Deleted all rows from ${collName} (id not null)`);
+    return;
+  }
+  if (res.status === 404) return; // table empty or doesn't exist
+  const errText = await res.text().catch(() => '');
+  console.error(`[sbRestDeleteAll] ✗ Failed: ${res.status} ${errText}`);
+  throw new Error(`Supabase DELETE ALL ${collName} ${res.status}: ${errText.slice(0,150)}`);
 }
 // ── v32: Track in-flight direct Supabase vale deletions ──
 // When adminDeleteVale or cancelVale calls _sbRestDeleteVale directly,
@@ -497,7 +516,10 @@ async function _doRestPoll() {
       try {
         const rawVales = await _sbRestGetCollection('vales');
         const flatVales = _flattenValesFromSB(rawVales);
-        if (flatVales.length > 0) {
+        // v34 FIX: ALWAYS update localStorage from Supabase, even if flatVales is empty.
+        // ANTES: solo se actualizaba si flatVales.length > 0. Si se borraban TODOS los
+        // vales de Supabase, localStorage mantenía los vales "zombie" y reaparecían.
+        {
           // Regenerar campos slimados (valeText, name de valeProductos)
           flatVales.forEach(v => {
             if (v && !v.valeText) v.valeText = (typeof regenerateValeText === 'function') ? regenerateValeText(v) : '';
@@ -5340,7 +5362,7 @@ function cancelVale(id) {
     _doValeSupabaseDelete(v, id);
   });
 }
-// v33: Shared Supabase delete function with retry logic
+// v34: Shared Supabase delete function with retry logic + extended guard
 function _doValeSupabaseDelete(v, id) {
   const maxRetries = 3;
   let attempt = 0;
@@ -5348,11 +5370,17 @@ function _doValeSupabaseDelete(v, id) {
     attempt++;
     console.log(`[doValeDelete] Attempt ${attempt}/${maxRetries} for vale ${id}`);
     _sbRestDeleteVale(v.id, v.gestorId).then(() => {
-      _valesDirectDeleting.delete(String(id));
+      // v34: Keep guard active for 5 more seconds to prevent _doRestPoll
+      // from re-adding the vale from a stale Supabase read.
+      // ANTES: se borraba _valesDirectDeleting inmediatamente, y si _doRestPoll
+      // corría en los próximos 2s antes del poll forzado, podía re-add el vale.
+      setTimeout(() => {
+        _valesDirectDeleting.delete(String(id));
+      }, 5000);
       showToast('Vale eliminado ✓');
       maybeAutoSync();
-      // v33: Force a poll to sync fresh state after confirmed delete
-      setTimeout(() => { if(typeof _doRestPoll === 'function') _doRestPoll(); }, 2000);
+      // v34: Force immediate poll to sync fresh state from Supabase
+      if(typeof _doRestPoll === 'function') _doRestPoll();
     }).catch(e => {
       console.error(`[doValeDelete] Attempt ${attempt} failed:`, e);
       if (attempt < maxRetries) {
@@ -7077,8 +7105,10 @@ function updateMensajeroBadge() {
 //  GESTOR CATALOG
 // ══════════════════════════════════════════
 function openGestorCatalog() {
-  // v31 FIX: Improved catalog loading with categorias sync and better error handling
-  const prods=getProductos().filter(p=>(p.stock||0)>0);
+  // v34 FIX: Show ALL products in catalog (not just stock>0).
+  // The gestor needs to see the full catalog to sell products.
+  // Stock info is displayed as a badge on each product.
+  const prods=getProductos();
   if(!prods.length){
     // Try one-shot sync from Supabase before giving up
     showToast('Cargando productos…');
@@ -7097,12 +7127,7 @@ function openGestorCatalog() {
           }
         } finally { _syncCount--; }
         // Retry opening the catalog now that we have products
-        const availableProds = prodArr.filter(p => (p.stock || 0) > 0);
-        if (availableProds.length > 0) {
-          openGestorCatalog();
-        } else {
-          showToast('No hay productos con stock disponible');
-        }
+        openGestorCatalog();
       } else {
         showToast('No hay productos disponibles');
       }
@@ -7124,7 +7149,18 @@ function renderCatalogCatTabs() {
 function setCatalogCat(id){catalogCatFilter=id;renderCatalogCatTabs();renderGestorCatalog();}
 function renderGestorCatalog() {
   const search=document.getElementById('catalogSearch').value.toLowerCase();
-  let prods=getProductos().filter(p=>(p.stock||0)>0);
+  // v34 FIX: Show ALL products, not just stock>0. Stock is shown as a badge.
+  // Also fix catId mapping for products that use 'categoria' (string) instead of 'catId' (number).
+  const cats = getCategorias();
+  const catNameToId = {};
+  cats.forEach(c => { catNameToId[c.name] = c.id; });
+  let prods=getProductos().map(p => {
+    // v34: Fix missing catId by mapping from categoria string
+    if (!p.catId && p.categoria && catNameToId[p.categoria]) {
+      p.catId = catNameToId[p.categoria];
+    }
+    return p;
+  });
   if(catalogCatFilter!==null)prods=prods.filter(p=>p.catId===catalogCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search));
   const c=document.getElementById('gestorCatalogList');
@@ -7135,7 +7171,7 @@ function renderGestorCatalog() {
     const fav = isFavorite(p.id);
     return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;">
       <div style="display:flex;align-items:center;gap:10px;padding:8px;">
-        ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.parentElement.querySelector('img').style.display='none'">`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
+        ${p.photo?`<img src="${escapeAttr(p.photo)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:none;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
         <div style="flex:1;min-width:0;cursor:pointer;" onclick="toggleCatalogItem(${p.id})">
           <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}</div>
           ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${escapeHTML(p.precio)}</div>`:''}
@@ -7147,7 +7183,7 @@ function renderGestorCatalog() {
       ${exp?`<div style="padding:8px 12px 12px;border-top:1px solid var(--gray-200);background:var(--gray-50);">
         ${p.description?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;white-space:pre-line;line-height:1.5;">${escapeHTML(p.description)}</div>`:''}
         <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:11px;">
-          <span style="background:var(--blue-lt);color:var(--blue);padding:3px 9px;border-radius:10px;font-weight:700;">📦 Disponibles: ${p.stock}</span>
+          <span style="background:${(p.stock||0)>0?'var(--blue-lt)':'rgba(239,68,68,.1)'};color:${(p.stock||0)>0?'var(--blue)':'var(--red)'};padding:3px 9px;border-radius:10px;font-weight:700;">📦 ${(p.stock||0)>0?'Disponibles: '+p.stock:'Agotado'}</span>
           ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:3px 9px;border-radius:10px;">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
           ${p.comision?`<span style="background:#f0fdf4;color:var(--green);padding:3px 9px;border-radius:10px;font-weight:600;">Comisión: ${escapeHTML(p.comision)}</span>`:''}
           ${p.puntos?`<span style="background:var(--blue-lt);color:var(--blue);padding:3px 9px;border-radius:10px;">⭐ ${p.puntos} pts</span>`:''}
@@ -7257,7 +7293,8 @@ ${hasPhoto ? `<img class="prod-img" src="${escapeAttr(p.photo)}" onerror="this.s
 // ══════════════════════════════════════════
 function renderAdminCatalogCats() {
   const cats=getCategorias();
-  const prods=getProductos().filter(p=>(p.stock||0)>0);
+  // v34: Show ALL products in admin catalog (including out-of-stock for management)
+  const prods=getProductos();
   const tabEl=document.getElementById('catalogAdminCatTabs');
   if(!tabEl)return;
   tabEl.innerHTML=`<button class="pcat-tab ${adminCatalogCatFilter===null?'active':''}" onclick="setAdminCatalogCat(null)" style="flex-shrink:0;">Todos (${prods.length})</button>`+
@@ -7270,7 +7307,15 @@ function setAdminCatalogCat(id){adminCatalogCatFilter=id;renderAdminCatalogCats(
 function renderAdminCatalog() {
   const searchEl=document.getElementById('catalogAdminSearch');
   const search=searchEl?searchEl.value.toLowerCase():'';
-  let prods=getProductos().filter(p=>(p.stock||0)>0);
+  // v34: Show ALL products in admin catalog (including out-of-stock for management)
+  // Also fix catId mapping for products missing catId
+  const cats = getCategorias();
+  const catNameToId = {};
+  cats.forEach(c => { catNameToId[c.name] = c.id; });
+  let prods=getProductos().map(p => {
+    if (!p.catId && p.categoria && catNameToId[p.categoria]) p.catId = catNameToId[p.categoria];
+    return p;
+  });
   // v32: If no products, try force-syncing from Supabase
   if(!prods.length && !_adminCatalogSyncing) {
     _adminCatalogSyncing = true;
@@ -8120,17 +8165,19 @@ function factoryResetVales() {
     const currentVales = getVales();
     currentVales.forEach(v => _valesDirectDeleting.add(String(v.id)));
     saveVales([]);
-    // v30 FIX: Delete ALL vales from Supabase directly.
-    // ANTES: _enqueueFB('vales', null, 'remove') → _supabaseOpFor retornaba Promise.resolve()
-    // porque no había docId en el path 'vales'. Ahora usamos _sbRestDeleteAll que
-    // hace DELETE FROM vales (todas las filas, tanto OLD como NEW format).
+    // v34 FIX: Delete ALL vales from Supabase directly using WHERE clause.
+    // ANTES: _sbRestDeleteAll('vales') enviaba DELETE sin WHERE → 400 error.
+    // AHORA: usa id=gt.0 como WHERE clause (ver _sbRestDeleteAll).
     _sbRestDeleteAll('vales').then(() => {
-      _valesDirectDeleting.clear();
+      // v34: Keep guard active for 5s to prevent _doRestPoll re-adding
+      setTimeout(() => _valesDirectDeleting.clear(), 5000);
       showToast('Todos los vales eliminados ✓');
+      // Force immediate poll to sync empty state
+      if(typeof _doRestPoll === 'function') _doRestPoll();
     }).catch(e => {
       _valesDirectDeleting.clear();
-      console.warn('[factoryReset] Supabase vales delete error:', e);
-      showToast('Vales eliminados localmente (error al borrar de la nube)');
+      console.error('[factoryReset] Supabase vales delete error:', e);
+      showToast('⚠️ Error al borrar de la nube — reintentar');
     });
     // Clear ranking cache and summary so points reset to 0
     rankingCache=null;
@@ -8188,10 +8235,16 @@ function clearGestoresData() {
   const remainingVales = vales.filter(v => !(v.gestorId && gestorIds.has(v.gestorId)));
   saveVales(remainingVales);
 
-  // v30 FIX: Also delete the removed vales from Supabase.
+  // v34 FIX: Also delete the removed vales from Supabase with proper guards.
   // ANTES: solo se borraban de localStorage. Al recargar, _doRestPoll los volvía a traer.
   valesToRemove.forEach(v => {
-    _sbRestDeleteVale(v.id, v.gestorId).catch(e => console.warn('[clearGestoresData] vale delete error:', e));
+    _valesDirectDeleting.add(String(v.id));
+    _sbRestDeleteVale(v.id, v.gestorId).then(() => {
+      setTimeout(() => _valesDirectDeleting.delete(String(v.id)), 5000);
+    }).catch(e => {
+      _valesDirectDeleting.delete(String(v.id));
+      console.warn('[clearGestoresData] vale delete error:', e);
+    });
   });
 
   // 2) Clear all notifs
@@ -9849,11 +9902,13 @@ async function init() {
         if (!newSW) return;
         newSW.addEventListener('statechange', () => {
           if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version ready — auto-activar el nuevo SW y recargar.
-            // Antes mostrábamos un toast pidiendo al usuario recargar, pero
-            // eso causaba que siguieran viendo versiones viejas. Ahora forzamos
-            // la activación inmediata.
-            newSW.postMessage('SKIP_WAITING');
+            // v34 FIX: Do NOT auto-send SKIP_WAITING here.
+            // ANTES: se enviaba SKIP_WAITING automáticamente al detectar un nuevo SW,
+            // lo que causaba recargas inesperadas y "se queda pegado" cuando el SW
+            // se instala con cache incompleto. Ahora solo se activa el nuevo SW
+            // cuando el usuario pulsa "Recargar ahora" en el banner de actualización.
+            // checkVersion() se encarga de mostrar el banner si hay versión nueva.
+            console.log('[SW] New version installed — will activate on user action via update banner');
           }
         });
       });
@@ -9863,15 +9918,22 @@ async function init() {
       }, 60000);
     }).catch(() => {});
     // When the new SW takes control (after skipWaiting), reload once
+    // v34: Only reload if user initiated the update (via applyUpdate)
     let _reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!_reloaded) { _reloaded = true; window.location.reload(); }
+      // v34 FIX: Only auto-reload if the user explicitly applied the update
+      if (!_reloaded && localStorage.getItem('axon_update_applying')) {
+        _reloaded = true;
+        window.location.reload();
+      }
     });
     // Escuchar mensaje SW_UPDATED del SW (se envía en activate)
     navigator.serviceWorker.addEventListener('message', (ev) => {
       if (ev.data && ev.data.type === 'SW_UPDATED') {
-        // Recargar para cargar la nueva versión de los assets
-        setTimeout(() => window.location.reload(), 500);
+        // v34 FIX: Only reload if user initiated the update
+        if (localStorage.getItem('axon_update_applying')) {
+          setTimeout(() => window.location.reload(), 500);
+        }
       }
       // ── v15: Background Sync request del SW ──
       // El SW nos pide que procesemos la cola de writes pendientes.
