@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 46;
+const APP_VERSION = 47;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '49c2c44e9959787b';
+let _LOCAL_BUILD_HASH = '89ebe1e6bac9ce43';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -3224,10 +3224,12 @@ function clearGestorNotifs() {
   if (notifs.length > 0) {
     localStorage.setItem('axon_cleared_id_' + gId, notifs[0].id);
   }
-  // Also clear personal notifs for current gestor
-  if(activeGestorId) {
-    localStorage.setItem('axon_cleared_personal_' + activeGestorId, '1');
-  }
+  // v47 FIX: NO tocar las notifs personales al limpiar las globales.
+  // ANTES (v46-): se seteaba 'axon_cleared_personal_<gId>'='1' aquí también,
+  // lo cual hacía que limpiar el modal de novedades globales borrara PARA
+  // SIEMPRE las notifs personales del gestor.
+  // Ahora las personales solo se limpian con clearPersonalNotifs() y usando
+  // el esquema basado en id (axon_cleared_personal_id_<gId>).
   renderGestorNotifs();
   closeNotifsModal();
 }
@@ -3265,7 +3267,22 @@ function clearSingleNotif(notifId) {
 }
 function clearPersonalNotifs(gestorId) {
   if(!gestorId) return;
-  localStorage.setItem('axon_cleared_personal_' + gestorId, '1');
+  // v47 FIX: Guardar el ID (Date.now()) de la notif personal más reciente
+  // en vez de un flag binario '1'. Así las notifs NUEVAS (con id mayor al
+  // guardado) siguen apareciendo, y solo se ocultan las que ya existían.
+  // ANTES (v46-): se guardaba '1' y NUNCA se reseteaba → el gestor nunca
+  // volvía a ver notifs personales aunque llegaran nuevas después de limpiar.
+  const _notifs = getNotifs();
+  const _mine = _notifs.filter(n =>
+    ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type) &&
+    n.gestorId === gestorId
+  );
+  if (_mine.length > 0) {
+    // getNotifs() viene ordenado desc por ts → _mine[0] es la más reciente
+    localStorage.setItem('axon_cleared_personal_id_' + gestorId, String(_mine[0].id));
+  }
+  // Limpiar el flag binario viejo (v46-) por si estaba seteado de antes
+  localStorage.removeItem('axon_cleared_personal_' + gestorId);
   renderGestorNotifs();
   showToast('Alertas personales limpiadas ✓');
 }
@@ -3285,10 +3302,45 @@ function renderGestorNotifs() {
   // Global Notifs
   const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type));
   
-  // Personal Notifs — check if cleared for this gestor
-  const personalCleared = activeGestorId ? localStorage.getItem('axon_cleared_personal_' + activeGestorId) : null;
+  // Personal Notifs — v47 FIX: ya no usamos un flag binario 'personalCleared'.
+  // Ahora usamos 'axon_cleared_personal_id_<gId>' = ID de la notif más reciente
+  // al momento de limpiar. Las notifs con id > ese valor son NUEVAS y se ven.
+  // ANTES (v46-): 'axon_cleared_personal_<gId>'='1' era binario y NUNCA se
+  // reseteaba → después de limpiar una vez, el gestor nunca más veía notifs
+  // personales nuevas (bug reportado: "los gestores nunca ven las notificaciones
+  // de los estados del vale").
+  const personalClearedId = activeGestorId
+    ? parseInt(localStorage.getItem('axon_cleared_personal_id_' + activeGestorId) || '0', 10)
+    : 0;
+  // Migración: si existe el flag viejo (v46-), lo respetamos temporalmente
+  // como "limpiar todo lo anterior" → lo quitamos para que las nuevas sí se vean.
+  const personalClearedLegacy = activeGestorId
+    ? localStorage.getItem('axon_cleared_personal_' + activeGestorId)
+    : null;
+  if (personalClearedLegacy === '1' && personalClearedId === 0) {
+    // Primera carga tras update v47: marcar como limpiadas todas las actuales,
+    // pero permitir que las FUTURAS se vean. Usamos el id mayor encontrado.
+    const _legacyMine = notifs.filter(n =>
+      ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type) &&
+      n.gestorId === activeGestorId
+    );
+    if (_legacyMine.length > 0) {
+      const _legacyMaxId = _legacyMine.reduce((mx, n) => n.id > mx ? n.id : mx, 0);
+      localStorage.setItem('axon_cleared_personal_id_' + activeGestorId, String(_legacyMaxId));
+      // Solo borrar el flag viejo después de migrar — así no perdemos el estado
+      // si el gestor recarga antes de que getNotifs devuelva datos.
+      localStorage.removeItem('axon_cleared_personal_' + activeGestorId);
+    }
+  }
   const personalNotifs = notifs.filter(n => {
-    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
+    if (!['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type)) return false;
+    if (!activeGestorId) return false;
+    // v47 FIX: comparación robusta Number===Number (gestorId puede venir como
+    // string desde Supabase JSON en algunos casos edge).
+    if (Number(n.gestorId) !== Number(activeGestorId)) return false;
+    // v47: ocultar las notifs que ya estaban presentes cuando el gestor limpió
+    if (n.id <= personalClearedId) return false;
+    return true;
   });
 
   const sec = document.getElementById('gestorNotifsSection');
@@ -3368,9 +3420,9 @@ function renderGestorNotifs() {
   if(personalSec) {
     if(!personalNotifs.length || !activeGestorId) {
       personalSec.style.display='none';
-    } else if(personalCleared) {
-      personalSec.style.display='none';
     } else {
+      // v47: ya no existe el flag binario personalCleared — el filtro por id
+      // (personalClearedId) en personalNotifs se encarga de ocultar las viejas.
       personalSec.style.display='block';
       document.getElementById('gestorPersonalNotifsList').innerHTML = 
         `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -5104,8 +5156,11 @@ function mensajeroEntrega(id) {
   // Descuenta stock usando el helper _descontarStock (DRY — Ver AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
   _logAudit('vale_delivered', 'vale:' + id);
-  // Notifica al gestor que su venta fue entregada y queda pendiente de cobro
-  addNotif('vale_assigned',v.cliente||'Cliente',null,'Entregado · Pendiente de cobro',v.gestorId);
+  // v47 FIX: notif correcta para 'entregado · pendiente de cobro'.
+  // ANTES (v46-): se usaba 'vale_assigned' que muestra "Tu venta está con el
+  // mensajero" — confuso porque el mensajero YA entregó. Ahora usamos
+  // 'vale_pending' que muestra "Vale en proceso de cobro".
+  addNotif('vale_pending', v.cliente||'Cliente', null, 'Entregado · Pendiente de cobro', v.gestorId);
   patchVale(id,{status:'pending_payment',deliveredTs:new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5250,8 +5305,15 @@ function markAsPaid(id, skipConfirm) {
   // medio, aplicar 'confirmed' aquí dejaría un vale "confirmado" sin stock descontado.
   const v=getVales().find(x=>x.id===id);
   if(!v || v.status!=='pending_payment'){showToast('Este vale ya no está pendiente de cobro');return;}
+  // v47 FIX: añadir notif al gestor de que su venta fue cobrada.
+  // ANTES (v46-): markAsPaid era el ÚNICO path de confirmación que NO llamaba
+  // addNotif — el gestor solo se enteraba si su app estaba abierta y el poll
+  // detectaba el cambio de status. Ahora garantizamos la notif desde el admin.
+  addNotif('vale_confirmed', v.cliente||'Cliente', null, `Total: ${v.total||''}`, v.gestorId);
+  _logAudit('vale_confirmed', 'vale:' + id);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
+  playSound('confirm');
   renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();renderPendingCobroSection();renderMensajeroVales();renderMensajeroSelector();updateMensajeroBadge();
   renderGestorRanking();

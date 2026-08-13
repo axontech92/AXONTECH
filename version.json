@@ -1,9 +1,9 @@
 {
-  "version": 46,
-  "versionStr": "v46",
-  "hash": "49c2c44e9959787b",
-  "hashFull": "49c2c44e9959787b",
-  "releasedAt": "2026-08-13 18:07",
+  "version": 47,
+  "versionStr": "v47",
+  "hash": "89ebe1e6bac9ce43",
+  "hashFull": "89ebe1e6bac9ce43",
+  "releasedAt": "2026-08-13 22:37",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Actualización automática · build 49c2c44e"
+    "Actualización automática · build 89ebe1e6"
   ]
 }
