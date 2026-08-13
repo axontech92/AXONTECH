@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 49;
+const APP_VERSION = 50;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'c43ff3780077076b';
+let _LOCAL_BUILD_HASH = '4ce9a70a903cc23e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5571,15 +5571,16 @@ function _computeGestorStatsForRange(gestorId, from, to) {
     }, sum), 0);
   // v41: Show potential points if no earned points yet (better UX for new gestores)
   const pts = ptsEarned > 0 ? ptsEarned : ptsPotential;
-  // v41 FIX: Commission includes ALL active vales, not just confirmed.
-  // For pending vales, commission is "estimated" (potential earnings).
-  // For confirmed vales, commission is "earned".
-  const comValesAll = vales.filter(v => allActiveStatuses.includes(v.status));
+  // v50 FIX: Commission SOLO se calcula sobre vales confirmed/pending_payment.
+  // ANTES (v41): si no había comisión "earned", se caía a comAll que incluía
+  // vales pending/assigned/delivered → el gestor veía comisión por vales que
+  // el admin todavía no había confirmado. Eso era confuso: "envié un vale y
+  // ya me cuenta la comisión como si fuera venta confirmada".
+  // Ahora: si no hay vales confirmed/pending_payment, comBadge = null (no se
+  // muestra la tarjeta de comisión). El gestor ve su comisión real solo cuando
+  // el admin confirma la venta.
   const comValesEarned = vales.filter(v => earnedStatuses.includes(v.status));
-  const comAll = sumCommissions(comValesAll);
-  const comEarned = sumCommissions(comValesEarned);
-  // Use earned commission if > 0, otherwise show potential
-  const com = comEarned.usd > 0 || comEarned.mn > 0 ? comEarned : comAll;
+  const com = sumCommissions(comValesEarned);
   const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
   // Conversion: confirmed / (total - cancelled - pending still pending)
   // More useful: closed sales (confirmed + pending_payment) / total attempted
