@@ -1,8 +1,8 @@
 {
-  "version": 38,
-  "versionStr": "v38",
-  "hash": "v38-fix-status-revert",
-  "hashFull": "v38-fix-status-revert",
+  "version": 39,
+  "versionStr": "v39",
+  "hash": "v39",
+  "hashFull": "v39",
   "releasedAt": "2026-08-14",
   "files": [
     "app.js",
@@ -20,6 +20,7 @@
     "FIX: Confirmed sales no longer revert to pending on sync.",
     "FIX: Deduplicate by vale ID in ALL merge points — no more duplicate vales.",
     "FIX: Cleaned up 3 stale OLD-format rows from Supabase vales table.",
-    "Version bump: v37 → v38."
+    "Version bump: v37 → v38.",
+    "Version bump: v38 → v39."
   ]
 }

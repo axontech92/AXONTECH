@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 38;
+const APP_VERSION = 39;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v38-fix-status-revert';
+let _LOCAL_BUILD_HASH = 'v39';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -666,6 +666,62 @@ async function _doRestPoll() {
           // Check for new vales with estafa matches
           const oldVales = getVales();
           const newIds = merged.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
+
+          // ── v38: Detect status changes and fire notifications ──
+          // ANTES: this logic only existed inside listenToMyVales() which uses
+          // db.ref().on() — a MOCK that NEVER fires. So the gestor never got
+          // notifications when the admin changed a vale's status (assigned, delivered,
+          // confirmed, seenByAdmin). Now we detect changes right here in _doRestPoll().
+          if (!IS_ADMIN) {
+            merged.forEach(nv => {
+              const ov = oldVales.find(x => x.id === nv.id);
+              if (!ov) return; // new vale, not a status change
+
+              // Status change notification
+              if (ov.status !== nv.status) {
+                const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name||'')}` : escapeHTML(p.name||'')).join(', ');
+
+                if (nv.status === 'assigned') {
+                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta en camino 🛵', prodNames || '...');
+                  if (typeof playSound === 'function') playSound('confirm');
+                } else if (nv.status === 'delivered') {
+                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta entregada 🎉', prodNames);
+                  if (typeof playSound === 'function') playSound('confirm');
+                } else if (nv.status === 'confirmed') {
+                  let amtStr = '';
+                  if (typeof getValeCommissionParts === 'function') {
+                    const cp = getValeCommissionParts(nv);
+                    if (cp.total !== null && cp.total > 0) {
+                      amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
+                    }
+                  }
+                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
+                  if (typeof playSound === 'function') playSound('confirm');
+                } else if (nv.status === 'pending_payment') {
+                  if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Pendiente de cobro ⏳', prodNames);
+                  if (typeof playSound === 'function') playSound('confirm');
+                }
+              }
+
+              // seenByAdmin change notification (admin opened the pending vale)
+              if (ov.status === 'pending' && nv.status === 'pending' && !ov.seenByAdmin && nv.seenByAdmin) {
+                if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Visto por admin 👁️', 'Tu vale fue visto');
+                if (typeof playSound === 'function') playSound('confirm');
+              }
+            });
+          }
+
+          // Admin-side: detect new pending vales from gestores
+          if (IS_ADMIN) {
+            merged.forEach(nv => {
+              const ov = oldVales.find(x => x.id === nv.id);
+              if (!ov && nv.status === 'pending') {
+                // New vale from a gestor — already handled by addNotif in sendVale,
+                // but play sound in case the admin is watching
+                if (typeof playSound === 'function') playSound('newVale');
+              }
+            });
+          }
           _syncCount++;
           try {
             try { localStorage.setItem('axon_vales', JSON.stringify(merged)); } catch(e) {}
@@ -1878,6 +1934,8 @@ const saveVales = v => {
     }
     // No incluir synced (flag local), isNew (flag temporal), deliveredTs (solo si existe)
     if (x.deliveredTs) slim.deliveredTs = x.deliveredTs;
+    if (x.seenByAdmin) slim.seenByAdmin = true;  // v38: sync seenByAdmin to Supabase
+    if (x.seenTs) slim.seenTs = x.seenTs;        // v38: sync seenTs to Supabase
     if (x.commissionStatus) slim.commissionStatus = x.commissionStatus;
     if (x.commissionPaid) slim.commissionPaid = x.commissionPaid;
     return slim;
