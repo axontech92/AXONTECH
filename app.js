@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 39;
+const APP_VERSION = 41;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -597,20 +597,38 @@ async function _doRestPoll() {
           localVales.forEach(v => { if (v && v.id != null) localMap.set(v.id, v); });
 
           // Helper: get the effective modification timestamp of a vale.
-          // confirmedTs > deliveredTs > ts — the most recent admin action wins.
+          // v39: confirmedTs > assignedTs > deliveredTs > ts — the most recent admin action wins.
           function _valeModTs(v) {
             if (!v) return 0;
             if (v.confirmedTs) return new Date(v.confirmedTs).getTime();
+            if (v.assignedTs) return new Date(v.assignedTs).getTime();
             if (v.deliveredTs) return new Date(v.deliveredTs).getTime();
             return new Date(v.ts || 0).getTime();
           }
 
-          // Helper: is a local vale "more advanced" than the Supabase version?
-          // This covers the case where admin confirmed/assigned locally but
-          // Supabase still has the old status.
+          // v39: TIME-BASED local-wins window.
+          // PROBLEM: the old _localIsMoreAdvanced used STATUS_RANK alone, so a stale
+          // local vale with status='confirmed' from a previous session would win over
+          // a newer Supabase vale with status='assigned' from another device, because
+          // confirmed rank 4 > assigned rank 1. This broke cross-device sync.
+          //
+          // FIX: local only wins if:
+          //   a) The vale was patched locally within the last 60 seconds (write may
+          //      not have reached Supabase yet), AND
+          //   b) Local status rank is higher OR same rank with newer timestamp.
+          // After 60 seconds, Supabase is ALWAYS the source of truth for status.
+          const _LOCAL_WINS_WINDOW_MS = 60000; // 60 seconds
           const STATUS_RANK = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4, cancelled: -1 };
-          function _localIsMoreAdvanced(localV, sbV) {
+          function _localIsMoreAdvanced(localV, sbV, valeId) {
             if (!localV || !sbV) return false;
+            // v39: Only allow local-wins if this vale was recently patched locally
+            const patchTs = _valeLocalPatchTs.get(String(valeId));
+            if (!patchTs || (Date.now() - patchTs) > _LOCAL_WINS_WINDOW_MS) {
+              // Not recently changed locally → Supabase is source of truth
+              // BUT: if local has fields that Supabase doesn't (e.g. synced===false
+              // for a new vale), still keep local version.
+              return false;
+            }
             const localRank = STATUS_RANK[localV.status] ?? 0;
             const sbRank = STATUS_RANK[sbV.status] ?? 0;
             // If local status is more advanced (e.g. confirmed vs pending), local wins
@@ -625,17 +643,25 @@ async function _doRestPoll() {
 
           // Build merged: start with Supabase, then apply local-wins where appropriate
           const mergedMap = new Map();
-          // Add all Supabase vales first
+          // Add all Supabase vales first — Supabase is the base (cross-device truth)
           for (const [id, v] of sbMap) mergedMap.set(id, v);
           // Apply local-wins: for vales that exist locally AND in Supabase
           for (const [id, lv] of localMap) {
             const sv = sbMap.get(id);
             if (sv) {
-              // Vale exists in both — check if local is more advanced
-              if (_localIsMoreAdvanced(lv, sv)) {
-                mergedMap.set(id, lv); // local wins
+              // Vale exists in both — check if local is more advanced (with time window)
+              if (_localIsMoreAdvanced(lv, sv, id)) {
+                mergedMap.set(id, lv); // local wins (recently changed locally)
+              } else {
+                // v39: Supabase wins — but MERGE non-status fields from local that
+                // Supabase might not have (e.g. synced flag, isNew flag).
+                // This prevents losing the synced===false status for pending writes.
+                const merged = { ...sv }; // start with Supabase (source of truth for status)
+                if (lv.synced === false) merged.synced = false; // preserve pending sync flag
+                if (lv.isNew && !sv.isNew) merged.isNew = true; // preserve new flag
+                if (lv.hiddenFromHistory && !sv.hiddenFromHistory) merged.hiddenFromHistory = true;
+                mergedMap.set(id, merged);
               }
-              // else: Supabase version stays (it's the same or more advanced)
             } else {
               // Vale only exists locally
               if (lv.synced === false && lv.status !== 'cancelled') {
@@ -753,6 +779,14 @@ async function _doRestPoll() {
           }
         }
       } catch(e) { console.warn('[rest-poll] vales sync error:', e && e.message); }
+    }
+    // v39: Log sync status for debugging cross-device sync issues
+    if (typeof _lastSyncLog === 'undefined') var _lastSyncLog = 0;
+    if (Date.now() - _lastSyncLog > 30000) { // log every 30s max
+      _lastSyncLog = Date.now();
+      const vCount = getVales().length;
+      const qLen = _fbWriteQueue.length;
+      console.log(`[sync] vales:${vCount} queue:${qLen} connected:${_fbConnected} online:${navigator.onLine}`);
     }
     for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
       try {
@@ -1857,7 +1891,7 @@ function _safeSetLS(key, value) {
 const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
 const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; if (!isSyncingFromFirebase()) setFB('gestores', v); _logAudit('gestores_update'); };
 
-const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; } return _valesCache; };
+const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; /* v41: deduplicate on read */ if(Array.isArray(_valesCache)&&_valesCache.length>1){const s=new Set();_valesCache=_valesCache.filter(v=>{if(!v||v.id==null)return false;const k=String(v.id);if(s.has(k))return false;s.add(k);return true;});} } return _valesCache; };
 // Vales are synced via saveVales → _enqueueFB('vales', updates, 'update') through the write queue.
 // Individual fbUpdateVale was removed from patchVale to prevent race conditions.
 // fbAddVale/fbRemoveVale are NO LONGER called by sendVale/cancelVale/adminDeleteVale
@@ -1879,6 +1913,19 @@ const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCac
 // se detectan comparando contra la copia anterior (`prevVales`) y se envían como
 // `null` explícito para esas rutas puntuales.
 const saveVales = v => {
+  // v41: Deduplicate vales by ID — prevents duplicate entries in the UI.
+  // This can happen if a vale is saved twice before the merge runs,
+  // or if the REST poll returns stale data alongside local data.
+  if (Array.isArray(v) && v.length > 1) {
+    const seen = new Set();
+    v = v.filter(vale => {
+      if (!vale || vale.id == null) return false;
+      const key = String(vale.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
   const prevVales = _valesCache; // snapshot antes de este guardado, para detectar borrados reales
   _safeSetLS('axon_vales', JSON.stringify(v));
   _valesCache = v; _valesDirty = false;
@@ -1918,6 +1965,7 @@ const saveVales = v => {
       valeProductos: (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
       status: x.status,
       mensajeroId: x.mensajeroId,
+      assignedTs: x.assignedTs,   // v39: sync assignment timestamp
       confirmedTs: x.confirmedTs,
       adminNotes: x.adminNotes,
       recogidaTienda: !!x.recogidaTienda,
@@ -2018,8 +2066,47 @@ const saveVales = v => {
 const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
 const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; if (!isSyncingFromFirebase()) setFB('mensajeros', v); };
 
-const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
-const saveProductos = v  => { _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; _productosMap = null; if (!isSyncingFromFirebase()) setFB('productos', v); triggerAutoPublishCatalog(); };
+// v41: Normalize product fields — some products come from productos.json with Spanish
+// field names (nombre, descripcion, imagen, precioActual) while the code uses English
+// (name, description, photo, precio). This function ensures BOTH exist on every product.
+function _normalizeProducto(p) {
+  if (!p || typeof p !== 'object') return p;
+  // name ← nombre (if name missing)
+  if (!p.name && p.nombre) p.name = p.nombre;
+  if (!p.nombre && p.name) p.nombre = p.name;
+  // description ← descripcion
+  if (!p.description && p.descripcion) p.description = p.descripcion;
+  if (!p.descripcion && p.description) p.descripcion = p.description;
+  // photo ← imagen
+  if (!p.photo && p.imagen) p.photo = p.imagen;
+  if (!p.imagen && p.photo) p.imagen = p.photo;
+  // precio ← precioActual (precioActual is often a number, precio is string like "$270 USD")
+  if (!p.precio && p.precioActual != null) {
+    p.precio = typeof p.precioActual === 'number' ? `$${p.precioActual} USD` : String(p.precioActual);
+  }
+  if (p.precioActual == null && p.precio) {
+    p.precioActual = typeof p.precio === 'string' ? parseFloat(p.precio.replace(/[^0-9.]/g, '')) || 0 : p.precio;
+  }
+  // puntos default to 1 if missing (every sale earns at least 1 point)
+  if (p.puntos == null || p.puntos === 0) p.puntos = 1;
+  // comisionMoneda default
+  if (p.comision && !p.comisionMoneda) {
+    const c = String(p.comision).toUpperCase();
+    if (c.includes('MN') || c.includes('CUP')) p.comisionMoneda = 'MN';
+    else p.comisionMoneda = 'USD';
+  }
+  return p;
+}
+const getProductos  = () => {
+  if (_productosDirty || !_productosCache) {
+    try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; }
+    // v41: Normalize all products on read
+    if (Array.isArray(_productosCache)) _productosCache.forEach(_normalizeProducto);
+    _productosDirty = false;
+  }
+  return _productosCache;
+};
+const saveProductos = v  => { if(Array.isArray(v)) v.forEach(_normalizeProducto); _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; _productosMap = null; if (!isSyncingFromFirebase()) setFB('productos', v); triggerAutoPublishCatalog(); };
 
 const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
 const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromFirebase()) setFB('categorias', v); };
@@ -2938,14 +3025,29 @@ if (IS_ADMIN) {
 
 
 
+// v39: Track when each vale was last patched LOCALLY (ms timestamp).
+// Used by _doRestPoll merge to only apply "local-wins" for recently changed vales
+// (within 60s), so that stale local data from a previous session doesn't
+// override newer Supabase changes from another device.
+const _valeLocalPatchTs = new Map();
+
 function patchVale(id, changes) {
   const all = getVales(); const i = all.findIndex(v=>v.id===id);
   if (i!==-1){
+    // v39: Track assignment timestamp for proper _valeModTs comparison
+    if (changes.status === 'assigned' && !changes.assignedTs) {
+      changes.assignedTs = new Date().toISOString();
+    }
     all[i]={...all[i],...changes};
+    // v39: Mark this vale as locally patched (for time-based local-wins in merge)
+    _valeLocalPatchTs.set(String(id), Date.now());
     // saveVales already writes to Firebase via _enqueueFB — no need for redundant fbUpdateVale
     // Previously, both saveVales (full 'set') and fbUpdateVale (partial 'update') were called,
     // causing race conditions where Firebase could overwrite local changes with stale data.
     saveVales(all);
+    // v39: Force a delayed poll to confirm the write reached Supabase
+    // and pull any updates from other devices.
+    setTimeout(() => { if (typeof _doRestPoll === 'function') _doRestPoll(); }, 3000);
   }
 }
 // Genera el siguiente número de vale.
@@ -5249,22 +5351,41 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   const pendingPay = vales.filter(v => v.status === 'pending_payment').length;
   const pending = vales.filter(v => v.status === 'pending').length;
   const cancelled = vales.filter(v => v.status === 'cancelled').length;
-  const pts = vales
-    .filter(v => ['confirmed','pending_payment'].includes(v.status))
+  // v41 FIX: PUNTOS now includes ALL non-cancelled vales (pending + assigned + delivered + pending_payment + confirmed).
+  // ANTES: solo contaba puntos de confirmed/pending_payment → mostraba PUNTOS: 0
+  // cuando el gestor tenía vales pending con puntos.
+  // Ahora: puntos "ganados" (confirmed/pending_payment) y puntos "potenciales" (todos).
+  const earnedStatuses = ['confirmed','pending_payment'];
+  const allActiveStatuses = ['pending','assigned','delivered','pending_payment','confirmed'];
+  const ptsEarned = vales
+    .filter(v => earnedStatuses.includes(v.status))
     .reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
       const pr = productoOf(p.id);
       return s + (pr ? (pr.puntos||0) * p.qty : 0);
     }, sum), 0);
-  // Commission for confirmed + pending_payment
-  const comVales = vales.filter(v => ['confirmed','pending_payment'].includes(v.status));
-  const com = sumCommissions(comVales);
-  // Ticket promedio (only for confirmed/pending_payment with computable commission)
+  const ptsPotential = vales
+    .filter(v => allActiveStatuses.includes(v.status))
+    .reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
+      const pr = productoOf(p.id);
+      return s + (pr ? (pr.puntos||0) * p.qty : 0);
+    }, sum), 0);
+  // v41: Show potential points if no earned points yet (better UX for new gestores)
+  const pts = ptsEarned > 0 ? ptsEarned : ptsPotential;
+  // v41 FIX: Commission includes ALL active vales, not just confirmed.
+  // For pending vales, commission is "estimated" (potential earnings).
+  // For confirmed vales, commission is "earned".
+  const comValesAll = vales.filter(v => allActiveStatuses.includes(v.status));
+  const comValesEarned = vales.filter(v => earnedStatuses.includes(v.status));
+  const comAll = sumCommissions(comValesAll);
+  const comEarned = sumCommissions(comValesEarned);
+  // Use earned commission if > 0, otherwise show potential
+  const com = comEarned.usd > 0 || comEarned.mn > 0 ? comEarned : comAll;
   const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
   // Conversion: confirmed / (total - cancelled - pending still pending)
   // More useful: closed sales (confirmed + pending_payment) / total attempted
   const closed = confirmed + pendingPay;
   const conversion = total > 0 ? Math.round((closed / total) * 100) : 0;
-  return { total, confirmed, pendingPay, pending, cancelled, pts, com, comBadge, conversion, closed };
+  return { total, confirmed, pendingPay, pending, cancelled, pts, ptsEarned, ptsPotential, com, comBadge, conversion, closed };
 }
 
 // Comparison arrow HTML — previous vs current value
@@ -5322,34 +5443,40 @@ function renderGestorDashboard() {
     </div>
   `).join('');
 
-  // Commission summary line
-  let comLine = '';
+  // v39: Hero commission card — green gradient, like original design
+  let comHero = '';
   if (cur.comBadge) {
-    comLine = `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;gap:6px;">
-      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión estimada (${range.label.toLowerCase()})</span>
-      <span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${escapeHTML(cur.comBadge)}</span>
+    comHero = `<div style="margin-top:12px;padding:16px 18px;background:linear-gradient(135deg,#10b981,#059669);border-radius:14px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.5px;">Comisión estimada</div>
+        <div style="font-size:22px;font-weight:800;color:white;margin-top:4px;">💵 ${escapeHTML(cur.comBadge)}</div>
+      </div>
+      <div style="font-size:28px;opacity:.7;">💰</div>
     </div>`;
   } else if (cur.closed > 0) {
-    comLine = `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;flex-wrap:wrap;gap:6px;">
-      <span style="font-size:12px;font-weight:600;color:var(--text);">💰 Comisión estimada (${range.label.toLowerCase()})</span>
-      <span style="font-size:12px;color:var(--gray-400);">No computable</span>
+    comHero = `<div style="margin-top:12px;padding:16px 18px;background:linear-gradient(135deg,#10b981,#059669);border-radius:14px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.5px;">Comisión estimada</div>
+        <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.7);margin-top:4px;">No computable</div>
+      </div>
+      <div style="font-size:28px;opacity:.5;">💰</div>
     </div>`;
   }
 
-  // Meta progress bar
+  // v39: Meta progress bar — dark card style like original
   const metaHTML = `
-    <div style="margin-top:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
-        <span style="font-size:11px;font-weight:600;color:var(--text);">🎯 Meta de puntos</span>
-        <span style="font-size:11px;color:var(--gray-400);">${cur.pts} / ${meta} pts · ${pctMeta}%</span>
+    <div style="margin-top:10px;padding:10px 14px;background:var(--surface2);border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+        <span style="font-size:12px;font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
+        <span style="font-size:12px;font-weight:700;color:var(--cyan,#06b6d4);">${cur.pts} / ${meta} pts</span>
       </div>
       <div style="background:var(--gray-100);border-radius:20px;height:8px;overflow:hidden;">
-        <div style="width:${pctMeta}%;height:100%;background:linear-gradient(90deg, var(--blue), var(--green));border-radius:20px;transition:width .6s;"></div>
+        <div style="width:${pctMeta}%;height:100%;background:#06b6d4;border-radius:20px;transition:width .6s;"></div>
       </div>
     </div>
   `;
 
-  dash.innerHTML = statsHTML + comLine + metaHTML;
+  dash.innerHTML = statsHTML + comHero + metaHTML;
 }
 
 function renderMyVales() {
@@ -5472,34 +5599,40 @@ function renderGestorComisiones() {
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){section.style.display='none';return;}
   section.style.display='block';
   let html='';
-  // Pendientes section — mostrar solo "Pendiente" con el total, sin detalles
+  // v39: Card style with icon containers matching original design
+  // Pendientes — orange left border, hourglass icon box, "se acumulan" subtitle
   if(pendientes.length){
     const s=sumCommissions(pendientes);
     const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
-    html+=`<div class="card" style="border-left:3px solid var(--orange);margin-bottom:8px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:13px;font-weight:700;color:var(--orange);">⏳ Pendiente</span>
-        ${badge?`<span style="font-size:14px;font-weight:800;color:var(--green);">💵 ${badge}</span>`:`<span style="font-size:12px;font-weight:700;color:var(--orange);">${pendientes.length} comisión${pendientes.length!==1?'es':''}</span>`}
+    html+=`<div class="card" style="border-left:4px solid #f59e0b;margin-bottom:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">
+      <div style="background:var(--surface2);border-radius:10px;padding:8px 10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⏳</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#f59e0b;">Pendiente</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${pendientes.length} comisión${pendientes.length!==1?'es':''} · se acumulan</div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Se acumulan cada día hasta que se pasen al sobre</div>
+      ${badge?`<div style="font-size:14px;font-weight:800;color:var(--green);flex-shrink:0;">💵 ${badge}</div>`:''}
     </div>`;
   }
-  // En sobre — NO mostrar montos, solo indicar que están en sobre (no seguir sumando)
+  // En sobre — yellow left border, envelope icon box
   if(enSobre.length){
-    html+=`<div class="card" style="border-left:3px solid var(--yellow);margin-bottom:8px;opacity:.8;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;font-weight:700;color:var(--yellow);">✉️ En sobre</span>
-        <span style="font-size:11px;color:var(--text-muted);">${enSobre.length} comisión${enSobre.length!==1?'es':''}</span>
+    const s=sumCommissions(enSobre);
+    const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
+    html+=`<div class="card" style="border-left:4px solid #eab308;margin-bottom:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;opacity:.85;">
+      <div style="background:var(--surface2);border-radius:10px;padding:8px 10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✉️</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#eab308;">En sobre</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${enSobre.length} comisión${enSobre.length!==1?'es':''} · pendiente de entrega</div>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Pendiente de entrega</div>
+      ${badge?`<div style="font-size:13px;font-weight:800;color:#eab308;flex-shrink:0;">✉️ ${badge}</div>`:''}
     </div>`;
   }
-  // Cobrados — solo conteo sin montos
+  // Cobrados — green left border, checkmark icon box, "completado" subtitle
   if(cobrados.length){
-    html+=`<div class="card" style="border-left:3px solid var(--green);opacity:.6;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;font-weight:700;color:var(--green);">💰 Cobrados</span>
-        <span style="font-size:11px;color:var(--text-muted);">${cobrados.length}</span>
+    html+=`<div class="card" style="border-left:4px solid #10b981;padding:12px 14px;display:flex;align-items:center;gap:12px;opacity:.85;">
+      <div style="background:var(--surface2);border-radius:10px;padding:8px 10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✅</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#10b981;">Cobrados</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${cobrados.length} comisión${cobrados.length!==1?'es':''} · completado</div>
       </div>
     </div>`;
   }
@@ -5983,6 +6116,7 @@ function sendVale() {
     synced:false, // se marcará true cuando Firebase confirme el write
   };
   const all=getVales();all.push(vale);saveVales(all);
+  _valeLocalPatchTs.set(String(vale.id), Date.now()); // v39: track local patch
   _logAudit('vale_sent', 'vale:' + vale.id + ' gestor:' + activeGestorId);
 
   // ── v15: Registrar Background Sync para que el SW reintente si la página
@@ -6076,6 +6210,8 @@ function openProductPicker() {
       if (prodArr && prodArr.length > 0) {
         _syncCount++;
         try {
+          // v41: Normalize products from Supabase
+          prodArr.forEach(_normalizeProducto);
           localStorage.setItem('axon_productos', JSON.stringify(prodArr));
           _productosCache = prodArr; _productosDirty = false;
           if (catArr && catArr.length > 0) {
@@ -9054,7 +9190,7 @@ async function nukeAndRebuild() {
        updates['mensajeros'] = data.mensajeros;
     }
     if(data.productos) {
-       localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+       { data.productos.forEach(_normalizeProducto); localStorage.setItem('axon_productos', JSON.stringify(data.productos)); }
        updates['productos'] = data.productos;
     }
     if(data.categorias) {
@@ -9148,7 +9284,7 @@ async function loadInitialData() {
     try {
       if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
       if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-      if (data.productos) localStorage.setItem('axon_productos', JSON.stringify(data.productos));
+      if (data.productos) { data.productos.forEach(_normalizeProducto); localStorage.setItem('axon_productos', JSON.stringify(data.productos)); }
       if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
       // Marcar caches como dirty para que el próximo getGestores() relea localStorage.
       _gestoresDirty = true;
