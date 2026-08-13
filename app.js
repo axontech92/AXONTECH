@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 32;
+const APP_VERSION = 33;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v32-fix-vale-delete-catalog-pdf';
+let _LOCAL_BUILD_HASH = 'v33-fix-delete-catalog-images';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -320,43 +320,115 @@ async function _sbRestDeleteAll(collName) {
 // hasn't completed yet).
 const _valesDirectDeleting = new Set();
 
-// ── v30: Delete a specific vale from Supabase, handling BOTH formats ──
+// ── v33: Delete a specific vale from Supabase, handling BOTH formats ──
 // The vales table has mixed formats:
 //   NEW format: row with id = valeId (one row per vale) → just delete that row
 //   OLD format: row with id = gestorId, data = {valeId: {...}, ...} → remove the key from data
 // We try NEW format first, then OLD format if needed.
-async function _sbRestDeleteVale(valeId, gestorId) {
+// v33 FIX: No more silent returns — all failure paths now throw or log clearly.
+// v33 FIX: Added verification step to confirm the delete actually worked.
+// v33 FIX: Added retry logic for transient network errors.
+async function _sbRestDeleteVale(valeId, gestorId, _retryCount) {
+  if (_retryCount === undefined) _retryCount = 0;
+  console.log(`[sbRestDeleteVale] Deleting vale ${valeId} (gestorId=${gestorId}), attempt ${_retryCount + 1}`);
   // 1) Try NEW format: delete row where id = valeId
   const newUrl = `${_SB_REST}/vales?id=eq.${encodeURIComponent(String(valeId))}`;
   const r1 = await fetch(newUrl, { method: 'DELETE', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=representation' } });
   if (r1.ok) {
     try {
       const deleted = await r1.json();
-      if (Array.isArray(deleted) && deleted.length > 0) return; // Successfully deleted NEW-format row
-    } catch(e) {}
+      if (Array.isArray(deleted) && deleted.length > 0) {
+        console.log(`[sbRestDeleteVale] ✓ NEW format: deleted row id=${valeId}`);
+        return; // Successfully deleted NEW-format row
+      }
+    } catch(e) {
+      console.warn('[sbRestDeleteVale] NEW format: response parse error:', e);
+    }
+  } else {
+    console.warn(`[sbRestDeleteVale] NEW format: DELETE returned ${r1.status}`);
   }
   // 2) OLD format: read the gestor row, remove the valeId key from data, upsert back
-  if (!gestorId) return; // Need gestorId for OLD format
+  if (!gestorId) {
+    // v33: Try to find the vale by scanning ALL gestor rows if gestorId is missing
+    console.warn(`[sbRestDeleteVale] No gestorId provided — scanning all rows for vale ${valeId}`);
+    try {
+      const allUrl = `${_SB_REST}/vales?select=id,data&order=id.asc`;
+      const rAll = await fetch(allUrl, { headers: _SB_AUTH_HDRS });
+      if (rAll.ok) {
+        const allRows = await rAll.json();
+        for (const row of (allRows || [])) {
+          if (row.data && typeof row.data === 'object' && row.data[String(valeId)] !== undefined) {
+            const foundGestorId = row.id;
+            console.log(`[sbRestDeleteVale] Found vale ${valeId} in gestor row ${foundGestorId}`);
+            // Recurse with the found gestorId
+            return _sbRestDeleteVale(valeId, foundGestorId, _retryCount);
+          }
+        }
+      }
+    } catch(e) {
+      console.warn('[sbRestDeleteVale] Scan-all error:', e);
+    }
+    const errMsg = `Cannot delete vale ${valeId}: no gestorId and vale not found in any row`;
+    console.error(`[sbRestDeleteVale] ✗ ${errMsg}`);
+    throw new Error(errMsg);
+  }
   const getUrl = `${_SB_REST}/vales?select=id,data&id=eq.${encodeURIComponent(String(gestorId))}`;
   const r2 = await fetch(getUrl, { headers: _SB_AUTH_HDRS });
-  if (!r2.ok) return;
+  if (!r2.ok) {
+    const errMsg = `OLD format: GET gestor row failed (${r2.status}) for gestorId=${gestorId}`;
+    console.error(`[sbRestDeleteVale] ✗ ${errMsg}`);
+    throw new Error(errMsg);
+  }
   try {
     const rows = await r2.json();
-    if (!rows || rows.length === 0) return;
+    if (!rows || rows.length === 0) {
+      // v33: The gestor row doesn't exist — vale may have already been deleted
+      console.log(`[sbRestDeleteVale] Gestor row ${gestorId} not found — vale already deleted`);
+      return; // Not an error — the vale is gone
+    }
     const row = rows[0];
     const data = row.data;
     const vKey = String(valeId);
-    if (data && typeof data === 'object' && data[vKey] !== undefined) {
-      delete data[vKey];
-      if (Object.keys(data).length === 0) {
-        // No more vales for this gestor → delete the entire row
-        await _sbRestDelete('vales', gestorId);
-      } else {
-        // Update the row with the vale removed
-        await _sbRestUpsert('vales', gestorId, data);
-      }
+    if (!data || typeof data !== 'object' || data[vKey] === undefined) {
+      // v33: Vale key not found in the gestor row — might already be deleted
+      console.log(`[sbRestDeleteVale] Vale key ${vKey} not in gestor row ${gestorId} — already removed`);
+      return; // Not an error — the vale is gone from this row
     }
-  } catch(e) { console.warn('[sbRestDeleteVale] OLD format update error:', e); }
+    delete data[vKey];
+    if (Object.keys(data).length === 0) {
+      // No more vales for this gestor → delete the entire row
+      await _sbRestDelete('vales', gestorId);
+      console.log(`[sbRestDeleteVale] ✓ OLD format: deleted entire row id=${gestorId} (was last vale)`);
+    } else {
+      // Update the row with the vale removed
+      await _sbRestUpsert('vales', gestorId, data);
+      console.log(`[sbRestDeleteVale] ✓ OLD format: removed vale ${vKey} from row id=${gestorId}, ${Object.keys(data).length} vales remain`);
+    }
+    // v33: VERIFICATION — re-read Supabase to confirm the vale is actually gone
+    try {
+      const vUrl = `${_SB_REST}/vales?select=id,data&id=eq.${encodeURIComponent(String(gestorId))}`;
+      const vRes = await fetch(vUrl, { headers: _SB_AUTH_HDRS });
+      if (vRes.ok) {
+        const vRows = await vRes.json();
+        if (vRows && vRows.length > 0 && vRows[0].data && vRows[0].data[vKey] !== undefined) {
+          // VALE STILL EXISTS — the delete/upsert didn't work!
+          console.error(`[sbRestDeleteVale] ✗✗ VERIFICATION FAILED: vale ${vKey} still in gestor row ${gestorId}!`);
+          if (_retryCount < 2) {
+            console.log(`[sbRestDeleteVale] Retrying deletion (attempt ${_retryCount + 2})...`);
+            return _sbRestDeleteVale(valeId, gestorId, _retryCount + 1);
+          }
+          throw new Error(`Verification failed: vale ${vKey} still exists after delete`);
+        }
+        console.log(`[sbRestDeleteVale] ✓ Verification: vale ${vKey} confirmed deleted from Supabase`);
+      }
+    } catch(verifyErr) {
+      console.warn('[sbRestDeleteVale] Verification check error:', verifyErr);
+      // Don't throw — the delete likely worked, we just couldn't verify
+    }
+  } catch(e) {
+    console.error('[sbRestDeleteVale] OLD format error:', e);
+    throw e; // v33: Re-throw so callers know the delete failed
+  }
 }
 function _fakeSnap(arr) {
   const docs = (arr || []).map(o => ({ id: String(o && o.id != null ? o.id : ''), data: () => o, metadata: { hasPendingWrites: false } }));
@@ -493,17 +565,17 @@ async function _doRestPoll() {
         // ── v28 BUGFIX: No sobreescribir datos locales si hay writes pendientes ──
         if (_fbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) continue;
         const arr = await _sbRestGetCollection(node);
-        if (arr.length > 0) {
-          _syncCount++;
-          try {
-            try { localStorage.setItem('axon_'+node, JSON.stringify(arr)); } catch(e) {}
-            if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
-            else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
-            else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
-            else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
-          } finally { _syncCount--; }
-        }
-      } catch(e) {}
+        // v33 FIX: Always update localStorage even if Supabase returns empty
+        // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
+        _syncCount++;
+        try {
+          try { localStorage.setItem('axon_'+node, JSON.stringify(arr)); } catch(e) {}
+          if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
+          else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
+          else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
+          else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
+        } finally { _syncCount--; }
+      } catch(e) { console.warn(`[rest-poll] ${node} sync error:`, e && e.message); }
     }
     for (const node of _SB_SINGLETON_ROWS) {
       try {
@@ -5089,13 +5161,13 @@ function renderMyVales() {
       // Show "Visto por admin" status when the admin has already opened this pending vale
       else if(v.status==='pending' && v.seenByAdmin) s=pendingSeen;
       const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
-      const canCancel=v.status==='pending';
+      const canCancel=true; // v33: Allow deleting ANY vale from gestor side, not just pending
       return `<div class="mv-card st-${v.status}">
         <div class="mv-head">
           <span class="mv-time">${valeNumStr(v)?`<b style="color:var(--blue);">${valeNumStr(v)}</b> `:``}${timeStr(v.ts)}</span>
           <div style="display:flex;align-items:center;gap:6px;">
             ${pts>0?`<span style="font-size:10px;color:var(--blue);font-weight:700;">⭐ ${pts} pts</span>`:``}
-            ${canCancel?`<button type="button" onclick="cancelVale(${v.id})" style="background:rgba(239,68,68,.12);border:none;color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Cancelar vale">✕ Cancelar</button>`:``}
+            ${canCancel?`<button type="button" onclick="cancelVale(${v.id})" style="background:rgba(239,68,68,.12);border:none;color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;" title="Eliminar vale">🗑️ Eliminar</button>`:``}
           </div>
         </div>
         <div class="mv-info">${escapeHTML(v.cliente||'—')} · ${escapeHTML(v.articulo||'—')}</div>
@@ -5244,43 +5316,69 @@ function openGestorValeModal(id) {
 
 function cancelVale(id) {
   const v=getVales().find(x=>x.id===id);
-  if(!v||v.status!=='pending'){showToast('No se puede cancelar este vale');return;}
-  showConfirmAction('¿Cancelar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Sí, cancelar','btn-red',()=>{
-    // v32 FIX: Actually DELETE the vale from Supabase instead of just marking
+  if(!v){showToast('Vale no encontrado');return;}
+  // v33: Allow cancelling/deleting ANY vale, not just pending
+  showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
+    // v33 FIX: Actually DELETE the vale from Supabase instead of just marking
     // as 'cancelled'. Cancelled vales were reappearing on refresh because
     // they still existed in Supabase. Now we remove completely.
     _valesDirectDeleting.add(String(id));
+    // v33: Auto-revert stock if the vale was confirmed/pending_payment
+    if ((v.status==='confirmed'||v.status==='pending_payment') && v.stockDecremented) {
+      (v.valeProductos||[]).forEach(({id:pid,qty})=>{
+        const prod=productoOf(pid);if(!prod)return;
+        const restored=Math.max(0,(prod.stock||0)+qty);
+        patchProducto(pid,{stock:restored});
+      });
+    }
     const filtered = getVales().filter(x=>x.id!==id);
     saveVales(filtered);
-    _logAudit('vale_cancelled', 'vale:' + id);
+    _logAudit('vale_deleted', 'vale:' + id);
     if(selectedValeId===id)selectedValeId=null;
-    showToast('Cancelando vale…');
+    showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
+    _doValeSupabaseDelete(v, id);
+  });
+}
+// v33: Shared Supabase delete function with retry logic
+function _doValeSupabaseDelete(v, id) {
+  const maxRetries = 3;
+  let attempt = 0;
+  function tryDelete() {
+    attempt++;
+    console.log(`[doValeDelete] Attempt ${attempt}/${maxRetries} for vale ${id}`);
     _sbRestDeleteVale(v.id, v.gestorId).then(() => {
       _valesDirectDeleting.delete(String(id));
-      showToast('Vale cancelado ✓');
+      showToast('Vale eliminado ✓');
       maybeAutoSync();
+      // v33: Force a poll to sync fresh state after confirmed delete
+      setTimeout(() => { if(typeof _doRestPoll === 'function') _doRestPoll(); }, 2000);
     }).catch(e => {
-      _valesDirectDeleting.delete(String(id));
-      console.warn('[cancelVale] Supabase delete error:', e);
-      showToast('Vale cancelado localmente (error al borrar de la nube)');
+      console.error(`[doValeDelete] Attempt ${attempt} failed:`, e);
+      if (attempt < maxRetries) {
+        showToast(`Reintentando eliminación (${attempt}/${maxRetries})…`);
+        setTimeout(tryDelete, 2000 * attempt); // exponential backoff
+      } else {
+        _valesDirectDeleting.delete(String(id));
+        console.error('[doValeDelete] All retries exhausted:', e);
+        showToast('⚠️ No se pudo borrar de la nube — se reintentará al reconectar');
+        // v33: Re-enqueue the deletion so it gets retried when connection returns
+        _enqueueFB(`vales/${v.gestorId}/${v.id}`, null, 'remove');
+      }
     });
-  });
+  }
+  tryDelete();
 }
 
 function adminDeleteVale(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  // v32 FIX: Allow deleting ANY vale, including confirmed/pending_payment.
-  // ANTES: se bloqueaba la eliminación de vales confirmed/pending_payment
-  // exigando al usuario revertir primero. Pero el usuario necesita poder
-  // borrar vales de gestores que ya están confirmed. Ahora revertimos
-  // el stock automáticamente antes de eliminar.
+  // v33 FIX: Allow deleting ANY vale, including confirmed/pending_payment.
   const needsStockRevert = v.status==='confirmed'||v.status==='pending_payment'||v.stockDecremented;
   const confirmMsg = needsStockRevert
     ? `¿Eliminar este vale?<br><br><b>⚠️ Se revertirá el stock automáticamente</b> porque la venta ya fue confirmada.`
     : `¿Eliminar este vale?`;
   showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
-    // v32: Auto-revert stock if the vale was confirmed/pending_payment
+    // v33: Auto-revert stock if the vale was confirmed/pending_payment
     if (needsStockRevert && v.stockDecremented) {
       (v.valeProductos||[]).forEach(({id:pid,qty})=>{
         const prod=productoOf(pid);if(!prod)return;
@@ -5288,7 +5386,7 @@ function adminDeleteVale(id) {
         patchProducto(pid,{stock:restored});
       });
     }
-    // v32 FIX: Track this deletion so _doRestPoll doesn't overwrite localStorage
+    // v33 FIX: Track this deletion so _doRestPoll doesn't overwrite localStorage
     // with stale Supabase data while the delete is in flight.
     _valesDirectDeleting.add(String(id));
     const filtered = getVales().filter(x=>x.id!==id);
@@ -5297,18 +5395,8 @@ function adminDeleteVale(id) {
     if(selectedValeId===id)selectedValeId=null;
     showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
-    // Use BOTH the write queue (via saveVales) AND direct delete for reliability.
-    // The direct delete ensures immediate Supabase removal even if the write
-    // queue is busy. _valesDirectDeleting prevents poll race condition.
-    _sbRestDeleteVale(v.id, v.gestorId).then(() => {
-      _valesDirectDeleting.delete(String(id));
-      showToast('Vale eliminado ✓');
-      maybeAutoSync();
-    }).catch(e => {
-      _valesDirectDeleting.delete(String(id));
-      console.warn('[adminDeleteVale] Supabase delete error:', e);
-      showToast('Vale eliminado localmente (error al borrar de la nube)');
-    });
+    // v33: Use shared delete function with retry and verification
+    _doValeSupabaseDelete(v, id);
   });
 }
 
@@ -7070,14 +7158,14 @@ function renderGestorCatalog() {
 }
 
 // ══════════════════════════════════════════
-//  v32: CATALOG PDF GENERATION
+//  v33: CATALOG PDF GENERATION (with product images)
 // ══════════════════════════════════════════
 function generateCatalogPDF() {
   const cats = getCategorias();
   const prods = getProductos().filter(p => (p.stock || 0) > 0);
   if (!prods.length) { showToast('No hay productos para generar PDF'); return; }
 
-  // Build printable HTML
+  // Build printable HTML with product images
   const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
   let html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>AXONTECH - Catálogo ${dateStr}</title>
 <style>
@@ -7086,17 +7174,19 @@ function generateCatalogPDF() {
   h1 { text-align: center; font-size: 24px; color: #006d8a; margin-bottom: 4px; letter-spacing: 3px; }
   .subtitle { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 20px; letter-spacing: 2px; }
   .date { text-align: center; font-size: 10px; color: #94a3b8; margin-bottom: 24px; }
-  .cat-section { margin-bottom: 20px; page-break-inside: avoid; }
+  .cat-section { margin-bottom: 24px; }
   .cat-name { font-size: 16px; font-weight: 800; color: #006d8a; border-bottom: 2px solid #006d8a; padding-bottom: 4px; margin-bottom: 10px; }
-  table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 8px; }
-  th { background: #f0f4f8; text-align: left; padding: 6px 8px; font-weight: 700; color: #64748b; border-bottom: 1px solid #e2e8f0; }
-  td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
-  .prod-name { font-weight: 700; color: #1a1a2e; }
-  .prod-price { font-weight: 800; color: #006d8a; white-space: nowrap; }
-  .prod-stock { text-align: center; }
-  .prod-garantia { color: #64748b; font-size: 10px; }
+  .prod-card { display: flex; gap: 12px; padding: 8px; border-bottom: 1px solid #f1f5f9; page-break-inside: avoid; }
+  .prod-img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; flex-shrink: 0; border: 1px solid #e2e8f0; }
+  .prod-noimg { width: 80px; height: 80px; border-radius: 6px; flex-shrink: 0; background: #f0f4f8; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 1px solid #e2e8f0; }
+  .prod-info { flex: 1; min-width: 0; }
+  .prod-name { font-weight: 700; font-size: 12px; color: #1a1a2e; margin-bottom: 2px; }
+  .prod-price { font-weight: 800; font-size: 13px; color: #006d8a; margin-bottom: 2px; }
+  .prod-stock { font-size: 10px; color: #64748b; }
+  .prod-garantia { font-size: 10px; color: #64748b; }
+  .prod-desc { font-size: 10px; color: #94a3b8; margin-top: 2px; max-height: 28px; overflow: hidden; }
   .footer { text-align: center; font-size: 9px; color: #94a3b8; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-  @media print { body { padding: 10px; } .cat-section { page-break-inside: avoid; } }
+  @media print { body { padding: 10px; } .prod-card { page-break-inside: avoid; } .cat-section { page-break-after: auto; } }
 </style></head><body>
 <h1>AXONTECH</h1>
 <div class="subtitle">CATÁLOGO DE PRODUCTOS</div>
@@ -7113,28 +7203,43 @@ function generateCatalogPDF() {
   });
 
   for (const [catName, catProds] of Object.entries(grouped)) {
-    html += `<div class="cat-section"><div class="cat-name">${escapeHTML(catName)}</div>
-<table><tr><th style="width:45%;">Producto</th><th style="width:15%;">Precio</th><th style="width:10%;">Stock</th><th style="width:30%;">Garantía</th></tr>`;
+    html += `<div class="cat-section"><div class="cat-name">${escapeHTML(catName)}</div>`;
     catProds.forEach(p => {
-      html += `<tr>
-<td class="prod-name">${escapeHTML(p.name)}</td>
-<td class="prod-price">${escapeHTML(p.precio || '—')}</td>
-<td class="prod-stock">${p.stock || 0}</td>
-<td class="prod-garantia">${escapeHTML(p.garantia || '—')}</td>
-</tr>`;
+      const hasPhoto = p.photo && /^(https?:|data:image)/i.test(p.photo);
+      html += `<div class="prod-card">
+${hasPhoto ? `<img class="prod-img" src="${escapeAttr(p.photo)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="prod-noimg" style="display:none">📦</div>` : `<div class="prod-noimg">📦</div>`}
+<div class="prod-info">
+  <div class="prod-name">${escapeHTML(p.name)}</div>
+  <div class="prod-price">${escapeHTML(p.precio || '—')}</div>
+  <div class="prod-stock">Stock: ${p.stock || 0}${p.garantia ? ' · Garantía: ' + escapeHTML(p.garantia) : ''}</div>
+  ${p.description ? `<div class="prod-desc">${escapeHTML(p.description.substring(0, 80))}${p.description.length > 80 ? '…' : ''}</div>` : ''}
+</div>
+</div>`;
     });
-    html += `</table></div>`;
+    html += `</div>`;
   }
 
   html += `<div class="footer">AXONTECH · Amistad #311 % San Rafael y San Jose, Centro Habana · ${dateStr}</div>
 </body></html>`;
 
-  // Open in new window for printing
+  // Open in new window for printing (user can save as PDF)
   const w = window.open('', '_blank', 'width=800,height=600');
   if (w) {
     w.document.write(html);
     w.document.close();
-    setTimeout(() => w.print(), 500);
+    // Wait for images to load before printing
+    setTimeout(() => {
+      const imgs = w.document.querySelectorAll('img');
+      let loaded = 0;
+      const total = imgs.length;
+      if (total === 0) { w.print(); return; }
+      imgs.forEach(img => {
+        if (img.complete) { loaded++; if (loaded >= total) w.print(); }
+        else { img.onload = () => { loaded++; if (loaded >= total) w.print(); }; img.onerror = () => { loaded++; if (loaded >= total) w.print(); }; }
+      });
+      // Fallback: print after 5s even if some images didn't load
+      setTimeout(() => w.print(), 5000);
+    }, 300);
   } else {
     // Fallback: download as HTML
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
