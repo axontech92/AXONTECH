@@ -1,8 +1,8 @@
 {
-  "version": 35,
-  "versionStr": "v35",
-  "hash": "v35-fix-catalog-photos-agotados",
-  "hashFull": "v35-fix-catalog-photos-agotados",
+  "version": 36,
+  "versionStr": "v36",
+  "hash": "v36-bugfix-review",
+  "hashFull": "v36-bugfix-review",
   "releasedAt": "2026-08-13",
   "files": [
     "app.js",
@@ -13,11 +13,17 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: Catalog now hides out-of-stock products by default — toggle checkbox to show agotados.",
-    "FIX: Product photos with relative 'photos/' paths now resolve to absolute URLs — images load correctly.",
-    "FIX: All photo references in catalog (gestor, admin, PDF, stock grid, edit) use _resolvePhotoUrl.",
-    "FIX: Confirm modal button now has disabled state — prevents double-click and 'stuck' popup.",
-    "FIX: Agotado products show AGOTADO badge and reduced opacity when toggle is on.",
-    "Version bump: v34 → v35."
+    "FIX: _productosMap invalidated after saveProductos — productoOf() returns fresh data.",
+    "FIX: Product objects no longer mutated in-place — shallow clone in renderGestorCatalog, renderAdminCatalog, buildCatalogHTML.",
+    "FIX: PDF print dialog no longer fires twice — added 'printed' flag guard.",
+    "FIX: _isSendingAdminVale reset in finally block — prevents permanent block on admin vale send.",
+    "FIX: Estafa modal close uses this.closest() instead of overly broad .modal-bg[style] selector.",
+    "FIX: Initials generation handles double/trailing spaces — split(/\\s+/).filter(Boolean).",
+    "FIX: Rank notification array index clamped with Math.max(0, ...) — prevents negative index.",
+    "FIX: callback === null changed to callback == null — handles undefined from restored queue items.",
+    "FIX: parseFloat || '' replaced with isNaN check — $0 commission no longer cleared.",
+    "FIX: Phone normalization regex changed from [567] to [57] — invalid prefix 6 no longer gets +53.",
+    "FIX: init() promise rejection caught — prevents unhandled promise rejection.",
+    "Version bump: v35 → v36."
   ]
 }

@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 35;
+const APP_VERSION = 36;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v35-fix-catalog-photos-agotados';
+let _LOCAL_BUILD_HASH = 'v36-bugfix-review';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -976,7 +976,7 @@ function _processFBQueue() {
   // Si durante el procesamiento de este write llegan más saveVales al mismo
   // path, se acumularán en _fbInFlightPending[path]. Al terminar, los
   // flushearemos como un nuevo write.
-  if (callback === null && (method === 'set' || method === 'update')) {
+  if (callback == null && (method === 'set' || method === 'update')) {
     _fbInFlightPending[path] = { value: method === 'update' ? {} : null, method };
   }
   // ── TRADUCIR A SUPABASE REST ──
@@ -1864,7 +1864,7 @@ const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try {
 const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; if (!isSyncingFromFirebase()) setFB('mensajeros', v); };
 
 const getProductos  = () => { if (_productosDirty || !_productosCache) { try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; } _productosDirty = false; } return _productosCache; };
-const saveProductos = v  => { _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; if (!isSyncingFromFirebase()) setFB('productos', v); triggerAutoPublishCatalog(); };
+const saveProductos = v  => { _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; _productosMap = null; if (!isSyncingFromFirebase()) setFB('productos', v); triggerAutoPublishCatalog(); };
 
 const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
 const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromFirebase()) setFB('categorias', v); };
@@ -1911,14 +1911,16 @@ function buildCatalogHTML() {
   // Algunos productos vienen de productos.json con campo 'categoria' (string)
   // pero sin 'catId'. Necesitamos mapear el nombre de categoría al ID
   // para que el catálogo agrupe correctamente los productos.
+  // v36: Shallow clone to avoid mutating cached product objects
   if(cats.length){
     const catNameToId={};
     cats.forEach(c=>{ catNameToId[(c.name||'').toUpperCase()] = c.id; });
-    allProds.forEach(p=>{
+    allProds=allProds.map(p=>{
       if(!p.catId && p.categoria){
         const mapped = catNameToId[(p.categoria||'').toUpperCase()];
-        if(mapped) p.catId = mapped;
+        if(mapped) return {...p, catId: mapped};
       }
+      return p;
     });
   }
   const cfg=getConfig();
@@ -2196,7 +2198,7 @@ function showEstafaAlert(vale, matches) {
   // Build estafa entries HTML
   let entriesHtml = matches.map(m => {
     const e = m.entry;
-    return `<div style="background:var(--surface2);border:1px solid var(--red);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;" onclick="document.querySelectorAll('.modal-bg[style]').forEach(el=>el.remove());adminTab('estafa');">
+    return `<div style="background:var(--surface2);border:1px solid var(--red);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;" onclick="var _m=this.closest('.modal-bg');if(_m)_m.remove();adminTab('estafa');">
       <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:4px;">🚫 ${escapeHTML(e.nombre || 'Sin nombre')}</div>
       <div style="font-size:11px;color:var(--text);display:flex;flex-wrap:wrap;gap:8px;">
         ${e.telefono?'<span>📱 '+escapeHTML(e.telefono)+'</span>':''}
@@ -3161,7 +3163,7 @@ function adminTab(tab) {
   });
   if(tab==='vales'){renderAdminGestores();renderMensajeros();renderConfirmados();renderPendienteCobro();}
   if(tab==='stock'){renderStockCategorias();renderProductGrid();}
-  if(tab==='catalog'){renderAdminCatalogCats();renderAdminCatalog();}
+  if(tab==='catalog'){_adminShowAgotados=false;adminCatalogCatFilter=null;renderAdminCatalogCats();renderAdminCatalog();}
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
   if(tab==='mensajeros'){renderMensajeroSelector();renderPendingCobroSection();renderMensajeroVales();}
@@ -4062,7 +4064,7 @@ function saveEditGestor() {
   const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
   if(list.some(g=>g.id!==id&&g.name.toLowerCase()===newName.toLowerCase())){showToast('Ese nombre ya existe');return;}
   list[i].name=newName;
-  list[i].initials=newName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  list[i].initials=newName.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   list[i].phone=(document.getElementById('editGestorPhoneInput')?.value||'').trim();
   // ── Aplicar cambios de foto pendientes (subir/quitar) ──
   if (window._editGestorPhotoPending) {
@@ -4129,7 +4131,7 @@ function addGestor() {
   const inp=document.getElementById('newGestorInput');
   const name=inp.value.trim();if(!name)return;
   const phone=(document.getElementById('newGestorPhoneInput')?.value||'').trim();
-  const initials=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const initials=name.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const list=getGestores();
   if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
@@ -4860,7 +4862,7 @@ function _normalizePhone(raw) {
   if (n.startsWith('00')) n = n.slice(2);
   // Si es un número cubano sin prefijo (5XXXXXXXX, 7XXXXXXXX, 20XXXXXXX, etc.)
   // y no empieza con 53, anteponer 53.
-  if (!n.startsWith('53') && /^[567]\d{7}$/.test(n)) {
+  if (!n.startsWith('53') && /^[57]\d{7}$/.test(n)) {
     n = '53' + n;
   }
   return n;
@@ -6277,7 +6279,7 @@ function openEditProductModal(id) {
   // Parse comision into amount + currency fields
   {const com=p.comision||'';
    const isMN=com.toUpperCase().includes('MN');
-   const num=parseFloat(com.replace(/[^0-9.]/g,''))||'';
+   const numParsed=parseFloat(com.replace(/[^0-9.]/g,'')); const num=isNaN(numParsed)?'':numParsed;
    document.getElementById('pm-comision-amount').value=num;
    document.getElementById('pm-comision-currency').value=isMN?'MN':'USD';}
   document.getElementById('pm-foto').value=p.photo||'';
@@ -7176,12 +7178,13 @@ function renderGestorCatalog() {
   const cats = getCategorias();
   const catNameToId = {};
   cats.forEach(c => { catNameToId[c.name] = c.id; });
+  // v36: Shallow clone to avoid mutating cached product objects
   let allProds = getProductos().map(p => {
-    // v34: Fix missing catId by mapping from categoria string
-    if (!p.catId && p.categoria && catNameToId[p.categoria]) {
-      p.catId = catNameToId[p.categoria];
+    const cp = {...p};
+    if (!cp.catId && cp.categoria && catNameToId[cp.categoria]) {
+      cp.catId = catNameToId[cp.categoria];
     }
-    return p;
+    return cp;
   });
   // v35: Filter out agotados by default
   let prods = _showAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
@@ -7236,28 +7239,32 @@ function generateCatalogPDF() {
   const prods = getProductos().filter(p => (p.stock || 0) > 0);
   if (!prods.length) { showToast('No hay productos disponibles para generar PDF'); return; }
 
-  // Build printable HTML with product images
+  // v35: Build rich printable HTML with product photos, prices, and full descriptions
   const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
   let html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>AXONTECH - Catálogo ${dateStr}</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', -apple-system, system-ui, sans-serif; color: #1a1a2e; line-height: 1.4; padding: 20px; }
-  h1 { text-align: center; font-size: 24px; color: #006d8a; margin-bottom: 4px; letter-spacing: 3px; }
-  .subtitle { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 20px; letter-spacing: 2px; }
-  .date { text-align: center; font-size: 10px; color: #94a3b8; margin-bottom: 24px; }
-  .cat-section { margin-bottom: 24px; }
-  .cat-name { font-size: 16px; font-weight: 800; color: #006d8a; border-bottom: 2px solid #006d8a; padding-bottom: 4px; margin-bottom: 10px; }
-  .prod-card { display: flex; gap: 12px; padding: 8px; border-bottom: 1px solid #f1f5f9; page-break-inside: avoid; }
-  .prod-img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; flex-shrink: 0; border: 1px solid #e2e8f0; }
-  .prod-noimg { width: 80px; height: 80px; border-radius: 6px; flex-shrink: 0; background: #f0f4f8; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 1px solid #e2e8f0; }
+  body { font-family: 'Segoe UI', -apple-system, system-ui, sans-serif; color: #1a1a2e; line-height: 1.5; padding: 20px; }
+  h1 { text-align: center; font-size: 28px; color: #006d8a; margin-bottom: 4px; letter-spacing: 4px; }
+  .subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 6px; letter-spacing: 2px; }
+  .date { text-align: center; font-size: 10px; color: #94a3b8; margin-bottom: 28px; }
+  .cat-section { margin-bottom: 28px; }
+  .cat-name { font-size: 18px; font-weight: 800; color: #006d8a; border-bottom: 2px solid #006d8a; padding-bottom: 6px; margin-bottom: 14px; }
+  .prod-card { display: flex; gap: 14px; padding: 12px 8px; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid; align-items: flex-start; }
+  .prod-img-wrap { width: 100px; height: 100px; flex-shrink: 0; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; background: #f0f4f8; display: flex; align-items: center; justify-content: center; }
+  .prod-img { width: 100%; height: 100%; object-fit: cover; }
+  .prod-noimg { font-size: 36px; color: #cbd5e1; }
   .prod-info { flex: 1; min-width: 0; }
-  .prod-name { font-weight: 700; font-size: 12px; color: #1a1a2e; margin-bottom: 2px; }
-  .prod-price { font-weight: 800; font-size: 13px; color: #006d8a; margin-bottom: 2px; }
-  .prod-stock { font-size: 10px; color: #64748b; }
-  .prod-garantia { font-size: 10px; color: #64748b; }
-  .prod-desc { font-size: 10px; color: #94a3b8; margin-top: 2px; max-height: 28px; overflow: hidden; }
-  .footer { text-align: center; font-size: 9px; color: #94a3b8; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-  @media print { body { padding: 10px; } .prod-card { page-break-inside: avoid; } .cat-section { page-break-after: auto; } }
+  .prod-name { font-weight: 800; font-size: 14px; color: #1a1a2e; margin-bottom: 4px; line-height: 1.3; }
+  .prod-price { font-weight: 900; font-size: 16px; color: #006d8a; margin-bottom: 6px; letter-spacing: 0.3px; }
+  .prod-desc { font-size: 11px; color: #475569; line-height: 1.6; margin-bottom: 6px; white-space: pre-line; }
+  .prod-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+  .badge { padding: 2px 8px; border-radius: 6px; font-size: 9px; font-weight: 700; }
+  .badge-stock { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .badge-garantia { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+  .badge-puntos { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  .footer { text-align: center; font-size: 9px; color: #94a3b8; margin-top: 36px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  @media print { body { padding: 12px; } .prod-card { page-break-inside: avoid; } .cat-section { page-break-after: auto; } }
 </style></head><body>
 <h1>AXONTECH</h1>
 <div class="subtitle">CATÁLOGO DE PRODUCTOS</div>
@@ -7278,13 +7285,20 @@ function generateCatalogPDF() {
     catProds.forEach(p => {
       const photoUrl = _resolvePhotoUrl(p.photo);
       const hasPhoto = photoUrl && /^(https?:|data:image|blob:)/i.test(photoUrl);
+      const desc = p.description || '';
       html += `<div class="prod-card">
-${hasPhoto ? `<img class="prod-img" src="${escapeAttr(photoUrl)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="prod-noimg" style="display:none">📦</div>` : `<div class="prod-noimg">📦</div>`}
+<div class="prod-img-wrap">
+${hasPhoto ? `<img class="prod-img" src="${escapeAttr(photoUrl)}" onerror="this.parentElement.innerHTML='<span class=prod-noimg>📦</span>'">` : `<span class="prod-noimg">📦</span>`}
+</div>
 <div class="prod-info">
   <div class="prod-name">${escapeHTML(p.name)}</div>
-  <div class="prod-price">${escapeHTML(p.precio || '—')}</div>
-  <div class="prod-stock">Stock: ${p.stock || 0}${p.garantia ? ' · Garantía: ' + escapeHTML(p.garantia) : ''}</div>
-  ${p.description ? `<div class="prod-desc">${escapeHTML(p.description.substring(0, 80))}${p.description.length > 80 ? '…' : ''}</div>` : ''}
+  ${p.precio ? `<div class="prod-price">${escapeHTML(p.precio)}</div>` : ''}
+  ${desc ? `<div class="prod-desc">${escapeHTML(desc)}</div>` : ''}
+  <div class="prod-badges">
+    <span class="badge badge-stock">Stock: ${p.stock || 0}</span>
+    ${p.garantia ? `<span class="badge badge-garantia">Garantía: ${escapeHTML(p.garantia)}</span>` : ''}
+    ${p.puntos ? `<span class="badge badge-puntos">${p.puntos} pts</span>` : ''}
+  </div>
 </div>
 </div>`;
     });
@@ -7300,17 +7314,20 @@ ${hasPhoto ? `<img class="prod-img" src="${escapeAttr(photoUrl)}" onerror="this.
     w.document.write(html);
     w.document.close();
     // Wait for images to load before printing
+    // v36: Use 'printed' flag to prevent double print dialog
     setTimeout(() => {
       const imgs = w.document.querySelectorAll('img');
       let loaded = 0;
+      let printed = false;
       const total = imgs.length;
-      if (total === 0) { w.print(); return; }
+      const doPrint = () => { if (!printed) { printed = true; w.print(); } };
+      if (total === 0) { doPrint(); return; }
       imgs.forEach(img => {
-        if (img.complete) { loaded++; if (loaded >= total) w.print(); }
-        else { img.onload = () => { loaded++; if (loaded >= total) w.print(); }; img.onerror = () => { loaded++; if (loaded >= total) w.print(); }; }
+        if (img.complete) { loaded++; if (loaded >= total) doPrint(); }
+        else { img.onload = () => { loaded++; if (loaded >= total) doPrint(); }; img.onerror = () => { loaded++; if (loaded >= total) doPrint(); }; }
       });
       // Fallback: print after 5s even if some images didn't load
-      setTimeout(() => w.print(), 5000);
+      setTimeout(doPrint, 5000);
     }, 300);
   } else {
     // Fallback: download as HTML
@@ -7348,9 +7365,11 @@ function renderAdminCatalog() {
   const cats = getCategorias();
   const catNameToId = {};
   cats.forEach(c => { catNameToId[c.name] = c.id; });
+  // v36: Shallow clone to avoid mutating cached product objects
   let allProds=getProductos().map(p => {
-    if (!p.catId && p.categoria && catNameToId[p.categoria]) p.catId = catNameToId[p.categoria];
-    return p;
+    const cp = {...p};
+    if (!cp.catId && cp.categoria && catNameToId[cp.categoria]) cp.catId = catNameToId[cp.categoria];
+    return cp;
   });
   // v35: Filter out agotados by default
   let prods = _adminShowAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
@@ -7383,7 +7402,7 @@ function renderAdminCatalog() {
   if(!c)return;
   // v35: Count agotados for toggle
   const agotadosCount = allProds.filter(p => (p.stock || 0) <= 0).length;
-  if(!prods.length){c.innerHTML=`<div class="es"><div class="es-icon">📦</div><div class="es-text">${_adminShowAgotados?'Sin productos':'Sin productos disponibles'}${agotadosCount>0&&!_adminShowAgotados?` <span style="color:var(--blue);cursor:pointer;text-decoration:underline;" onclick="_adminShowAgotados=true;renderAdminCatalog()">(${agotadosCount} agotados)</span>`:''}</div></div>`;return;}
+  if(!prods.length){c.innerHTML=`<div class="es"><div class="es-icon">📦</div><div class="es-text">${_adminShowAgotados?'Sin productos':'Sin productos disponibles'}${agotadosCount>0&&!_adminShowAgotados?` <span style="color:var(--blue);cursor:pointer;text-decoration:underline;" onclick="_adminShowAgotados=true;renderAdminCatalogCats();renderAdminCatalog()">(${agotadosCount} agotados)</span>`:''}</div></div>`;return;}
   c.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:11px;">
     <span style="color:var(--text-muted);">${prods.length} producto${prods.length!==1?'s':''}</span>
     ${agotadosCount>0?`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;color:var(--text-muted);"><input type="checkbox" ${_adminShowAgotados?'checked':''} onchange="_adminShowAgotados=this.checked;renderAdminCatalogCats();renderAdminCatalog()" style="margin:0;"> Agotados (${agotadosCount})</label>`:''}
@@ -8002,7 +8021,7 @@ function importData(input) {
       _logAudit('data_imported', 'file:' + file.name);
       // Reload UI
       activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
-      expandedCatalogId=null;activeComisionGestorId=null;adminCatalogCatFilter=null;
+      expandedCatalogId=null;activeComisionGestorId=null;adminCatalogCatFilter=null;_adminShowAgotados=false;
       rankingCache=null;gestoresTabDirty=true;statsTabDirty=true;
       renderGestores();renderGestorRanking();renderGestorNotifs();
       renderAdminGestores();renderValeDetail();
@@ -8415,7 +8434,7 @@ function playCelebrationSound(){
 // Show personal ranking notification to a specific gestor
 function showGestorRankNotif(gestorId, place, pts) {
   const g=gestorOf(gestorId);if(!g)return;
-  const pi=Math.min(place,3)-1;
+  const pi=Math.max(0,Math.min(place||1,3)-1);
   // Remove existing rank notif
   const old=document.querySelector('.rank-notif');if(old)old.remove();
   const el=document.createElement('div');
@@ -9109,6 +9128,7 @@ function sendAdminVale() {
   const REQUIRED_AV = ['av-gestor','av-cliente','av-telefono','av-direccion','av-articulo','av-total'];
   if (REQUIRED_AV.some(id => !avVal(id))) { showToast('Completa los campos obligatorios (*)'); return; }
   _isSendingAdminVale = true;
+  try {
   const btn = document.getElementById('av-sendBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Generando...'; }
   const gId = parseInt(avVal('av-gestor'));
@@ -9134,7 +9154,7 @@ function sendAdminVale() {
   playSound('vale');
   showToast(`Vale ${valeNumStr(vale)} generado para ${g ? g.name : 'gestor'} ✓`);
   closeAdminValeModal();
-  _isSendingAdminVale = false;
+  } finally { _isSendingAdminVale = false; }
 
   // ── 3. Diferir los renders pesados ──
   setTimeout(() => {
@@ -10053,4 +10073,4 @@ function initAdminPage() {
     setTimeout(window.__axonHideSplash, 200);
   }
 }
-init();
+init().catch(e => console.error('[AXONTECH] init() failed:', e));
