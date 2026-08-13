@@ -1,8 +1,8 @@
 {
-  "version": 36,
-  "versionStr": "v36",
-  "hash": "v36-bugfix-review",
-  "hashFull": "v36-bugfix-review",
+  "version": 37,
+  "versionStr": "v37",
+  "hash": "v37-fix-vales-duplication",
+  "hashFull": "v37-fix-vales-duplication",
   "releasedAt": "2026-08-13",
   "files": [
     "app.js",
@@ -13,17 +13,22 @@
     "catalogo.html"
   ],
   "changelog": [
+    "FIX: Vales duplicados — _flattenValesFromSB ahora deduplica por vale ID (seenIds Set).",
+    "FIX: _doRestPoll merge deduplica vales por ID antes de guardar en localStorage.",
+    "FIX: listenToMyVales merge también deduplica por ID.",
+    "FIX: Admin init ya no escribe vales en formato anidado viejo — usa formato flat (una fila por vale).",
+    "FIX: Supabase limpiado — filas viejas con formato anidado eliminadas.",
     "FIX: _productosMap invalidated after saveProductos — productoOf() returns fresh data.",
-    "FIX: Product objects no longer mutated in-place — shallow clone in renderGestorCatalog, renderAdminCatalog, buildCatalogHTML.",
+    "FIX: Product objects no longer mutated in-place — shallow clone in render functions.",
     "FIX: PDF print dialog no longer fires twice — added 'printed' flag guard.",
-    "FIX: _isSendingAdminVale reset in finally block — prevents permanent block on admin vale send.",
-    "FIX: Estafa modal close uses this.closest() instead of overly broad .modal-bg[style] selector.",
-    "FIX: Initials generation handles double/trailing spaces — split(/\\s+/).filter(Boolean).",
-    "FIX: Rank notification array index clamped with Math.max(0, ...) — prevents negative index.",
-    "FIX: callback === null changed to callback == null — handles undefined from restored queue items.",
-    "FIX: parseFloat || '' replaced with isNaN check — $0 commission no longer cleared.",
-    "FIX: Phone normalization regex changed from [567] to [57] — invalid prefix 6 no longer gets +53.",
-    "FIX: init() promise rejection caught — prevents unhandled promise rejection.",
-    "Version bump: v35 → v36."
+    "FIX: _isSendingAdminVale reset in finally block.",
+    "FIX: Estafa modal close uses this.closest() instead of broad selector.",
+    "FIX: Initials generation handles double/trailing spaces.",
+    "FIX: Rank notification array index clamped with Math.max(0, ...).",
+    "FIX: callback == null for restored queue items.",
+    "FIX: parseFloat commission — $0 no longer cleared.",
+    "FIX: Phone normalization regex — only [57] prefix (Cuban mobile/landline).",
+    "FIX: init() promise rejection caught.",
+    "Version bump: v35 → v37."
   ]
 }

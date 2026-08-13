@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 36;
+const APP_VERSION = 37;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v36-bugfix-review';
+let _LOCAL_BUILD_HASH = 'v37-fix-vales-duplication';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -481,6 +481,7 @@ function _resolvePhotoUrl(photo) {
 // This function flattens everything into a single array of individual vale objects.
 function _flattenValesFromSB(rawItems) {
   const flat = [];
+  const seenIds = new Set(); // v37: deduplicate — same vale may exist in both old (nested) and new (flat) format
   for (const item of (rawItems || [])) {
     if (!item || typeof item !== 'object') continue;
     // NEW format: data is a single vale with an 'id' field that is a number
@@ -488,7 +489,7 @@ function _flattenValesFromSB(rawItems) {
     if (item.id != null && item.ts != null && typeof item.id === 'number' && item.id > 1000000000000) {
       // This looks like a flat vale object directly
       if (item.gestorId != null || item.status != null || item.cliente != null) {
-        flat.push(item);
+        if (!seenIds.has(item.id)) { seenIds.add(item.id); flat.push(item); }
         continue;
       }
     }
@@ -496,13 +497,13 @@ function _flattenValesFromSB(rawItems) {
     // Each key is a numeric string, each value is a vale object.
     const vals = Object.values(item);
     if (vals.length > 0 && vals[0] && typeof vals[0] === 'object' && vals[0].id != null && vals[0].ts != null) {
-      flat.push(...vals);
+      for (const v of vals) { if (v && !seenIds.has(v.id)) { seenIds.add(v.id); flat.push(v); } }
       continue;
     }
     // Fallback: if it has numeric keys at top level, treat as old-format nested
     const keys = Object.keys(item);
     if (keys.length > 0 && !isNaN(Number(keys[0])) && Number(keys[0]) > 1000000000000) {
-      flat.push(...Object.values(item));
+      for (const v of Object.values(item)) { if (v && !seenIds.has(v.id)) { seenIds.add(v.id); flat.push(v); } }
     }
   }
   return flat;
@@ -560,6 +561,17 @@ async function _doRestPoll() {
           const orphaned = localPending.filter(v => !sbIds.has(String(v.id)));
           let merged = flatVales;
           if (orphaned.length > 0) merged = flatVales.concat(orphaned);
+          // v37: Deduplicate by vale ID — prevent same vale appearing twice
+          {
+            const seen = new Set();
+            merged = merged.filter(v => {
+              if (!v || v.id == null) return false;
+              const key = String(v.id);
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+          }
           // Filtrar por gestor si estamos en modo gestor
           if (!IS_ADMIN && activeGestorId != null) {
             const gid = Number(activeGestorId);
@@ -2359,6 +2371,17 @@ function listenToMyVales(gId) {
         if (orphaned.length > 0) {
           mergedVales = newVales.concat(orphaned);
         }
+        // v37: Deduplicate by vale ID
+        {
+          const seen = new Set();
+          mergedVales = mergedVales.filter(v => {
+            if (!v || v.id == null) return false;
+            const key = String(v.id);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        }
         mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
 
         if (!firstLoadVales) {
@@ -2735,8 +2758,13 @@ if (IS_ADMIN) {
              setFB('config', getConfig());
              const localVales = getVales();
              if(localVales.length){
-               // Use write queue instead of direct db.ref().set() to enable retries
-               _enqueueFB('vales', _valesToFirebaseObj(localVales), 'set');
+               // v37: Write vales in NEW flat format (one row per vale, id=valeId)
+               // ANTES: _enqueueFB('vales', _valesToFirebaseObj(localVales), 'set')
+               // which wrote in OLD nested format (id=gestorId, data={valeId: valeObj})
+               // causing duplicates when _flattenValesFromSB found both formats.
+               const flatUpdates = {};
+               localVales.forEach(v => { if (v && v.id != null) flatUpdates[v.id] = v; });
+               _enqueueFB('vales', flatUpdates, 'update');
              }
            }
         }
