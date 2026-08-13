@@ -16,6 +16,18 @@
 --  - No borra datos existentes si los hay.
 --  - Las políticas RLS permiten read/write público con la anon key
 --    (igual que las reglas de Firestore originales).
+--
+-- ⚠️  SEGURIDAD (v42):
+--  - La app es 100% estática (GitHub Pages) y NO usa Supabase Auth, por lo
+--    que RLS no puede distinguir al admin de un atacante: cualquier persona
+--    con la publishable key (visible en app.js/catalogo.html) puede leer,
+--    escribir y borrar TODAS las tablas.
+--  - MITIGACIÓN APLICADA: las contraseñas de gestores ya NO viajan en texto
+--    plano (v42: hasheadas con PBKDF2-SHA256, 100k iteraciones). La key de
+--    Supabase NO es un secreto: se considera pública por diseño.
+--  - Para endurecimiento real (recomendado a futuro): mover la lógica de
+--    escritura a Supabase Edge Functions autenticadas con JWT del admin, y
+--    restringir RLS a funciones SECURITY DEFINER con la service_role.
 
 -- ─── PostgreSQL extensions ─────────────────────────────────────────────
 create extension if not exists "pgcrypto";

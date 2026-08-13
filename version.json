@@ -1,23 +1,17 @@
 {
-  "version": 41,
-  "versionStr": "v41",
-  "hash": "v41-fix-normalize-productos-stats-commission-dedup",
-  "hashFull": "v41-fix-normalize-productos-stats-commission-dedup",
-  "releasedAt": "2026-08-14",
+  "version": 44,
+  "versionStr": "v44",
+  "hash": "8131e897850bbe5d",
+  "hashFull": "8131e897850bbe5d",
+  "releasedAt": "2026-08-13 17:43",
   "files": [
     "app.js",
     "app.css",
     "index.html",
     "admin.html",
-    "sw.js",
-    "catalogo.html"
+    "sw.js"
   ],
   "changelog": [
-    "CRITICAL FIX: Product field normalization — _normalizeProducto() ensures both Spanish (nombre, precioActual, descripcion, imagen) and English (name, precio, description, photo) fields exist on every product. Fixes 'undefined' product names, missing prices, and $0.00 commission caused by field name mismatch between productos.json and app.js.",
-    "CRITICAL FIX: Dashboard stats (PUNTOS, CONFIRMADOS, COMISIÓN) no longer show zero for pending vales. PUNTOS now shows potential points when no sales are confirmed yet. Commission estimation includes all active vales, not just confirmed ones.",
-    "FIX: Vale deduplication on read AND write — getVales() and saveVales() both deduplicate by vale ID. Prevents duplicate entries in the admin inbox and gestor dashboard.",
-    "FIX: Products default to 1 punto if missing — prevents PUNTOS: 0 when products lack the puntos field.",
-    "FIX: comisionMoneda defaults to 'USD' for numeric commissions without currency suffix.",
-    "Version bump: v39 → v41."
+    "Actualización automática · build 8131e897"
   ]
 }

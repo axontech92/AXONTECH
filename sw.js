@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '41';
-const CACHE = 'axontech-v41';
+const APP_VERSION  = '44';
+const CACHE = 'axontech-v44';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
@@ -187,7 +187,7 @@ self.addEventListener('message', e => {
   // (Safari iOS).
   if (e.data && e.data.type === 'TRIGGER_SYNC') {
     // Notificar a TODAS las pestañas abiertas para que re-procesen su cola.
-    // El SW no tiene acceso al estado de Firebase de la página, pero la
+    // El SW no tiene acceso al estado de sync de la página, pero la
     // página sí. Le pedimos que lo intente.
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
       clients.forEach(client => {
@@ -209,7 +209,7 @@ self.addEventListener('sync', e => {
     e.waitUntil(
       // Pedir a las pestañas abiertas que procesen su cola. Si no hay
       // pestañas abiertas, no podemos hacer nada (no tenemos acceso al
-      // estado de Firebase). Background Sync se disparará de nuevo cuando
+      // estado de sync). Background Sync se disparará de nuevo cuando
       // el usuario abra la app.
       self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
         if (clients.length === 0) {

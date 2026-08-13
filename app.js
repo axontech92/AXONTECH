@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 41;
+const APP_VERSION = 44;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v39';
+let _LOCAL_BUILD_HASH = '8131e897850bbe5d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -710,9 +710,11 @@ async function _doRestPoll() {
                 if (nv.status === 'assigned') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta en camino 🛵', prodNames || '...');
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_assigned', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
                 } else if (nv.status === 'delivered') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta entregada 🎉', prodNames);
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_delivered', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
                 } else if (nv.status === 'confirmed') {
                   let amtStr = '';
                   if (typeof getValeCommissionParts === 'function') {
@@ -723,9 +725,11 @@ async function _doRestPoll() {
                   }
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_confirmed', prodNames || '', null, 'Vale #' + valeNumStr(nv) + amtStr, nv.gestorId);
                 } else if (nv.status === 'pending_payment') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Pendiente de cobro ⏳', prodNames);
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_pending', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
                 }
               }
 
@@ -733,6 +737,7 @@ async function _doRestPoll() {
               if (ov.status === 'pending' && nv.status === 'pending' && !ov.seenByAdmin && nv.seenByAdmin) {
                 if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Visto por admin 👁️', 'Tu vale fue visto');
                 if (typeof playSound === 'function') playSound('confirm');
+                if (typeof addNotif === 'function') addNotif('vale_seen', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
               }
             });
           }
@@ -815,7 +820,13 @@ async function _doRestPoll() {
           try {
             try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
             if(node==='config'){_configCache=val;_configDirty=false;}
-            else if(node==='notifs'){_notifsCache=val;_notifsDirty=false;}
+            else if(node==='notifs'){
+              // v43: merge local + remoto en vez de reemplazo ciego (evita pérdida
+              // de notificaciones cuando varios dispositivos escriben el singleton)
+              const mergedNotifs = _mergeNotifArrays(_notifsCache, val);
+              _notifsCache = mergedNotifs; _notifsDirty = false;
+              try { localStorage.setItem('axon_notifs', JSON.stringify(mergedNotifs)); } catch(e) {}
+            }
             else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
           } finally { _syncCount--; }
         }
@@ -3219,10 +3230,33 @@ function clearGestorNotifs() {
   renderGestorNotifs();
   closeNotifsModal();
 }
+function _notifDeletedKeys() {
+  try { return JSON.parse(localStorage.getItem('axon_notifs_deleted') || '[]'); } catch(e) { return []; }
+}
+function _markNotifDeleted(id) {
+  const keys = _notifDeletedKeys().filter(k => k !== String(id));
+  keys.push(String(id));
+  if (keys.length > 100) keys.splice(0, keys.length - 100);
+  localStorage.setItem('axon_notifs_deleted', JSON.stringify(keys));
+}
+// v43: unión por id de los arrays local y remoto, sin duplicados y sin
+// resucitar notificaciones eliminadas (tombstones). Cap de 50.
+function _mergeNotifArrays(localArr, remoteArr) {
+  const deleted = new Set(_notifDeletedKeys());
+  const map = new Map();
+  for (const n of (Array.isArray(localArr) ? localArr : [])) {
+    if (n && n.id != null && !deleted.has(String(n.id))) map.set(String(n.id), n);
+  }
+  for (const n of (Array.isArray(remoteArr) ? remoteArr : [])) {
+    if (n && n.id != null && !deleted.has(String(n.id))) map.set(String(n.id), n);
+  }
+  return Array.from(map.values()).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 50);
+}
 function clearSingleNotif(notifId) {
   const notifs = getNotifs();
   const idx = notifs.findIndex(n => n.id === notifId);
   if(idx !== -1) {
+    _markNotifDeleted(notifId);
     notifs.splice(idx, 1);
     saveNotifs(notifs);
   }
@@ -3248,23 +3282,23 @@ function renderGestorNotifs() {
   const visibleNotifs = clearedIdx !== -1 ? notifs.slice(0, clearedIdx) : notifs;
 
   // Global Notifs
-  const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned', 'vale_seen', 'ranking_top3'].includes(n.type));
+  const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type));
   
   // Personal Notifs — check if cleared for this gestor
   const personalCleared = activeGestorId ? localStorage.getItem('axon_cleared_personal_' + activeGestorId) : null;
   const personalNotifs = notifs.filter(n => {
-    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'ranking_top3'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
+    return ['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type) && activeGestorId && n.gestorId === activeGestorId;
   });
 
   const sec = document.getElementById('gestorNotifsSection');
   const personalSec = document.getElementById('gestorPersonalNotifsSection');
   
-  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',vale_seen:'👁️',ranking_top3:'🏆'};
+  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',vale_seen:'👁️',vale_delivered:'📦',vale_pending:'💰',ranking_top3:'🏆'};
   
   const renderItem = (n, isPersonal) => {
     const icon=icons[n.type]||'📢';
     const age=timeAgo(n.ts);
-    const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','vale_seen','ranking_top3'].includes(n.type)?'ok':'';
+    const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type)?'ok':'';
     
     // Unread logic
     const nIdx = notifs.findIndex(x => x.id === n.id);
@@ -3286,6 +3320,10 @@ function renderGestorNotifs() {
       msg=`👁️ <b>El admin vio tu vale</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='vale_confirmed'){
       msg=`<b>¡Venta completada! ✅</b> · ${safeName}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
+    } else if(n.type==='vale_delivered'){
+      msg=`📦 <b>¡Tu venta fue entregada!</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
+    } else if(n.type==='vale_pending'){
+      msg=`💰 <b>Vale en proceso de cobro</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='out_of_stock'){
       msg=`<b>Agotado:</b> ${safeName}`;
     } else if(n.type==='low_stock'){
@@ -3315,7 +3353,7 @@ function renderGestorNotifs() {
     const unread = globalNotifs.filter(n => {
        const idx = notifs.findIndex(x => x.id === n.id);
        return viewedIdx === -1 || idx < viewedIdx;
-    }).length;
+    }).length + (personalNotifs.length && activeGestorId && !personalCleared ? personalNotifs.length : 0);
     const badge = document.getElementById('notifUnreadBadge');
     if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
     
@@ -3606,6 +3644,66 @@ function _timingSafeEqual(a, b) {
   for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return r === 0;
 }
+// ── v42: Gestor passwords HASHEADAS (PBKDF2) — ya no se guardan en texto plano.
+// Formato: 'pbkdf2$100000$<salt b64>$<hex>' · fallback legacy: 'sha256:<hex>'
+// El admin NO puede ver la clave una vez hasheada — usa "↺ Resetear" para
+// generar una nueva (gestiones en resetGestorPass/addGestor).
+async function _hashGestorPass(input) {
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(input), 'PBKDF2', false, ['deriveBits']
+    );
+    const hashBuf = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial, 256
+    );
+    let bin = '';
+    salt.forEach(b => bin += String.fromCharCode(b));
+    const hashArr = Array.from(new Uint8Array(hashBuf));
+    return 'pbkdf2$100000$' + btoa(bin) + '$' + hashArr.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch(e) {
+    const data = new TextEncoder().encode(input + '_axontech_salt_2024');
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return 'sha256:' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+}
+async function _gestorPassMatches(input, stored) {
+  const val = String(input || '').trim().toUpperCase();
+  const sys = String(stored || '').trim();
+  if (!sys) return false;
+  if (sys.startsWith('pbkdf2$')) {
+    try {
+      const parts = sys.split('$');
+      const iterations = parseInt(parts[1], 10) || 100000;
+      const bin = atob(parts[2] || '');
+      const salt = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) salt[i] = bin.charCodeAt(i);
+      const keyMaterial = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(val), 'PBKDF2', false, ['deriveBits']
+      );
+      const hashBuf = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+        keyMaterial, 256
+      );
+      const hashArr = Array.from(new Uint8Array(hashBuf));
+      const hex = hashArr.map(b => b.toString(16).padStart(2, '0')).join('');
+      return _timingSafeEqual(hex, parts[3] || '');
+    } catch(e) { return false; }
+  }
+  if (sys.startsWith('sha256:')) {
+    try {
+      const data = new TextEncoder().encode(val + '_axontech_salt_2024');
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return _timingSafeEqual('sha256:' + hex, sys);
+    } catch(e) { return false; }
+  }
+  // Legacy: texto plano (backward compat, se migra al hacer login)
+  return _timingSafeEqual(val, sys.toUpperCase());
+}
 function changePass() {
   const np = document.getElementById('newPassInput').value.trim();
   if (!np||np.length<4){showToast('Mínimo 4 caracteres');return;}
@@ -3679,30 +3777,37 @@ function selectGestor(id) {
   if(g.password){
     // ¿Hay contraseña guardada para este gestor en este dispositivo?
     const saved = _getSavedGestorPass(id);
-    if (saved !== null && _timingSafeEqual(saved.trim().toUpperCase(), (g.password||'').trim().toUpperCase())) {
-      // Autologuear: la contraseña guardada sigue siendo válida
-      doSelectGestor(id);
+    if (saved !== null) {
+      _gestorPassMatches(saved, g.password).then(ok => {
+        if (ok) {
+          // Autologuear: la contraseña guardada sigue siendo válida
+          doSelectGestor(id);
+          return;
+        }
+        _proceedGestorPassPrompt(id, g);
+      });
       return;
     }
-    // Si había contraseña guardada pero ya no coincide (el admin la cambió),
-    // limpiarla para que no reintente eternamente.
-    if (saved !== null) {
-      _clearSavedGestorPass(id);
-    }
-    pendingGestorId=id;
-    document.getElementById('gestorPassInput').value='';
-    document.getElementById('gestorPassError').style.display='none';
-    document.getElementById('gestorPassModalSub').textContent=`${g.name} — ingresa tu contraseña`;
-    // Pre-marcar el checkbox si ya hay contraseña guardada para otros gestores
-    // (no para este en particular porque acabamos de borrarla) → dejarlo desmarcado
-    // por seguridad para que el usuario decida explícitamente.
-    const rememberChk = document.getElementById('gestorPassRemember');
-    if (rememberChk) rememberChk.checked = false;
-    document.getElementById('gestorPassModal').classList.add('show');
-    setTimeout(()=>document.getElementById('gestorPassInput').focus(),100);
+    _proceedGestorPassPrompt(id, g);
   } else {
     doSelectGestor(id);
   }
+}
+function _proceedGestorPassPrompt(id, g) {
+  // Si había contraseña guardada pero ya no coincide (el admin la cambió),
+  // limpiarla para que no reintente eternamente.
+  if (_getSavedGestorPass(id) !== null) _clearSavedGestorPass(id);
+  pendingGestorId=id;
+  document.getElementById('gestorPassInput').value='';
+  document.getElementById('gestorPassError').style.display='none';
+  document.getElementById('gestorPassModalSub').textContent=`${g.name} — ingresa tu contraseña`;
+  // Pre-marcar el checkbox si ya hay contraseña guardada para otros gestores
+  // (no para este en particular porque acabamos de borrarla) → dejarlo desmarcado
+  // por seguridad para que el usuario decida explícitamente.
+  const rememberChk = document.getElementById('gestorPassRemember');
+  if (rememberChk) rememberChk.checked = false;
+  document.getElementById('gestorPassModal').classList.add('show');
+  setTimeout(()=>document.getElementById('gestorPassInput').focus(),100);
 }
 function doSelectGestor(id) {
   listenToMyVales(id);
@@ -3916,31 +4021,45 @@ function closeGestorPassModal(){
   pendingGestorId=null;
 }
 function submitGestorPass() {
-  const val=document.getElementById('gestorPassInput').value.trim().toUpperCase();
+  const rawVal=document.getElementById('gestorPassInput').value.trim();
+  const val=rawVal.toUpperCase();
   const g=gestorOf(pendingGestorId);if(!g)return;
-  // Hash both sides for comparison — no plaintext comparison.
-  // Note: gestor passwords are still stored as plaintext in data.json/Firebase
-  // (see BUG-005 in the code review). For now, we compare input.toUpperCase()
-  // against the stored password.toUpperCase() to preserve backward compat.
-  // TODO: migrate gestor passwords to hashed storage in a future release.
-  const sysPass = (g.password || '').trim().toUpperCase();
-  if(_timingSafeEqual(val, sysPass)){
-    const id=pendingGestorId;   // save before closeGestorPassModal sets it to null
-    // ¿Marcar "Recordar contraseña en este dispositivo"?
-    const rememberChk = document.getElementById('gestorPassRemember');
-    if (rememberChk && rememberChk.checked) {
-      // Guardar el valor ORIGINAL (sin upper) para que el usuario pueda verlo
-      // si algún día lo recupera. Lo compararemos siempre con .toUpperCase().
-      const rawVal = document.getElementById('gestorPassInput').value.trim();
-      _setSavedGestorPass(id, rawVal);
-      showToast('🔒 Contraseña guardada en este dispositivo');
+  // v42: las claves ahora se guardan hasheadas (PBKDF2); se acepta legacy en
+  // texto plano sólo para compatibilidad y se migra automáticamente al login.
+  const sysPass=(g.password||'').trim();
+  const btn = document.getElementById('gestorPassSubmit'); if(btn){ btn.disabled=true; btn.textContent='Verificando…'; }
+  _gestorPassMatches(val, sysPass).then(ok => {
+    if(btn){ btn.disabled=false; btn.textContent='Entrar'; }
+    if(ok){
+      // v42: migrar clave legacy (texto plano) -> hash al primer login
+      if (!sysPass.startsWith('pbkdf2$') && !sysPass.startsWith('sha256:')) {
+        _hashGestorPass(val).then(hash => {
+          try {
+            const list=getGestores();
+            const i=list.findIndex(x=>x.id===g.id);
+            if(i!==-1){ list[i].password=hash; saveGestores(list); }
+          } catch(e){ console.warn('Migración de clave gestor falló:', e); }
+        }).catch(()=>{});
+      }
+      const id=pendingGestorId;   // save before closeGestorPassModal sets it to null
+      // ¿Marcar "Recordar contraseña en este dispositivo"?
+      const rememberChk = document.getElementById('gestorPassRemember');
+      if (rememberChk && rememberChk.checked) {
+        // Guardar el valor ORIGINAL (sin upper) para que el usuario pueda verlo
+        // si algún día lo recupera. Lo compararemos siempre con .toUpperCase().
+        _setSavedGestorPass(id, rawVal);
+        showToast('🔒 Contraseña guardada en este dispositivo');
+      }
+      closeGestorPassModal();
+      doSelectGestor(id);
+    } else {
+      document.getElementById('gestorPassError').style.display='block';
+      document.getElementById('gestorPassInput').select();
     }
-    closeGestorPassModal();
-    doSelectGestor(id);
-  } else {
+  }).catch(() => {
+    if(btn){ btn.disabled=false; btn.textContent='Entrar'; }
     document.getElementById('gestorPassError').style.display='block';
-    document.getElementById('gestorPassInput').select();
-  }
+  });
 }
 function changeGestor() {
   if (gestorValesListener && activeGestorId) {
@@ -4256,7 +4375,7 @@ function renderAdminGestoresList() {
       </div>
 
       <div class="gp-card-actions">
-        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1.5px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Click para mostrar/ocultar">🔑 ${escapeHTML(g.password||'—').replace(/./g, '•')}</span>
+        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Click para ver clave (solo claves legacy no encriptadas)">${(g.password||'').startsWith('pbkdf2$')||(g.password||'').startsWith('sha256:') ? '🔒 Encriptada' : '🔑 ' + escapeHTML(g.password||'—').replace(/./g, '•')}</span>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
         <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
@@ -4376,18 +4495,29 @@ function saveEditGestor() {
 
 function resetGestorPass(id) {
   const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
-  const np=genPassword().trim().toUpperCase();list[i].password=np;saveGestores(list);
-  _logAudit('gestor_pass_reset', 'gestor:' + id);
-  gestoresTabDirty=true;
-  renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
+  const np=genPassword().trim().toUpperCase();
+  _hashGestorPass(np).then(hash => {
+    list[i].password=hash;saveGestores(list);
+    _logAudit('gestor_pass_reset', 'gestor:' + id);
+    gestoresTabDirty=true;
+    renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
+  }).catch(() => { showToast('No se pudo encriptar la clave, reintenta'); });
 }
 // toggleGestorPass / copyGestorPass now look up the password by gestor id
 // instead of receiving it via the onclick attribute. This eliminates the
 // XSS risk of interpolating the password into an HTML attribute (BUG-009).
+// v42: las claves almacenadas ya están hasheadas — no se pueden revelar;
+// el admin usa "↺ Resetear" para generar una nueva.
 function toggleGestorPass(id) {
   const g=gestorOf(id);if(!g)return;
   const pass=g.password||'';
   const el=document.getElementById('gpw-'+id);if(!el)return;
+  const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
+  if (hashed) {
+    el.textContent='🔒 Encriptada';
+    showToast('Clave encriptada — usa "↺ Resetear" para generar una nueva');
+    return;
+  }
   if(el.dataset.shown==='1'){
     el.textContent='🔑 '+pass.replace(/./g,'•');
     el.dataset.shown='0';
@@ -4399,6 +4529,8 @@ function toggleGestorPass(id) {
 function copyGestorPass(id) {
   const g=gestorOf(id);if(!g)return;
   const pass=g.password||'';
+  const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
+  if (hashed) { showToast('Clave encriptada — usa "↺ Resetear" para generar una nueva'); return; }
   navigator.clipboard.writeText(pass).then(()=>showToast('Contraseña copiada ✓')).catch(()=>showToast('No se pudo copiar'));
 }
 
@@ -4427,14 +4559,17 @@ function addGestor() {
   const list=getGestores();
   if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
-  const password=genPassword();
-  list.push({id:Date.now(),name,initials,color,password,phone});
-  saveGestores(list);inp.value='';
-  const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
-  gestoresTabDirty=true;rankingCache=null;
-  renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
-  maybeAutoSync();
-  showToast(`Gestor agregado ✓ · Clave: ${password}`);
+  const password=genPassword().trim().toUpperCase();
+  _hashGestorPass(password).then(hash => {
+    list.push({id:Date.now(),name,initials,color,password:hash,phone});
+    saveGestores(list);
+    const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
+    gestoresTabDirty=true;rankingCache=null;
+    renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
+    maybeAutoSync();
+    showToast(`Gestor agregado ✓ · Clave: ${password}`);
+  }).catch(() => { showToast('No se pudo encriptar la clave, reintenta'); });
+  inp.value='';
 }
 // ══════════════════════════════════════════
 //  ADMIN GESTORES FILTER (inbox)
