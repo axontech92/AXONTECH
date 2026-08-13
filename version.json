@@ -1,9 +1,9 @@
 {
-  "version": 37,
-  "versionStr": "v37",
-  "hash": "v37-fix-vales-duplication",
-  "hashFull": "v37-fix-vales-duplication",
-  "releasedAt": "2026-08-13",
+  "version": 38,
+  "versionStr": "v38",
+  "hash": "v38-fix-status-revert",
+  "hashFull": "v38-fix-status-revert",
+  "releasedAt": "2026-08-14",
   "files": [
     "app.js",
     "app.css",
@@ -13,22 +13,13 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: Vales duplicados — _flattenValesFromSB ahora deduplica por vale ID (seenIds Set).",
-    "FIX: _doRestPoll merge deduplica vales por ID antes de guardar en localStorage.",
-    "FIX: listenToMyVales merge también deduplica por ID.",
-    "FIX: Admin init ya no escribe vales en formato anidado viejo — usa formato flat (una fila por vale).",
-    "FIX: Supabase limpiado — filas viejas con formato anidado eliminadas.",
-    "FIX: _productosMap invalidated after saveProductos — productoOf() returns fresh data.",
-    "FIX: Product objects no longer mutated in-place — shallow clone in render functions.",
-    "FIX: PDF print dialog no longer fires twice — added 'printed' flag guard.",
-    "FIX: _isSendingAdminVale reset in finally block.",
-    "FIX: Estafa modal close uses this.closest() instead of broad selector.",
-    "FIX: Initials generation handles double/trailing spaces.",
-    "FIX: Rank notification array index clamped with Math.max(0, ...).",
-    "FIX: callback == null for restored queue items.",
-    "FIX: parseFloat commission — $0 no longer cleared.",
-    "FIX: Phone normalization regex — only [57] prefix (Cuban mobile/landline).",
-    "FIX: init() promise rejection caught.",
-    "Version bump: v35 → v37."
+    "CRITICAL FIX: _flattenValesFromSB two-pass — NEW format (flat rows) ALWAYS wins over OLD format (nested rows). Prevents stale status from old rows overwriting confirmed/assigned status.",
+    "CRITICAL FIX: _doRestPoll smart merge — local-wins for recently changed vales. If local vale has higher STATUS_RANK (confirmed>pending) or newer confirmedTs, local version kept.",
+    "CRITICAL FIX: Same smart merge in gestor and admin Firebase listeners.",
+    "FIX: Status notifications now fire correctly — gestor sees 'Venta confirmada' instead of stuck 'admin pendiente'.",
+    "FIX: Confirmed sales no longer revert to pending on sync.",
+    "FIX: Deduplicate by vale ID in ALL merge points — no more duplicate vales.",
+    "FIX: Cleaned up 3 stale OLD-format rows from Supabase vales table.",
+    "Version bump: v37 → v38."
   ]
 }

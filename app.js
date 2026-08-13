@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 37;
+const APP_VERSION = 38;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'v37-fix-vales-duplication';
+let _LOCAL_BUILD_HASH = 'v38-fix-status-revert';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -472,40 +472,68 @@ function _resolvePhotoUrl(photo) {
   // Other: try as-is
   return photo;
 }
-// ── v29: Flatten vales from Supabase mixed format ──
+// ── v29→v37: Flatten vales from Supabase mixed format ──
 // The `vales` table in Supabase has TWO formats:
 //   OLD: rows where id=gestorId, data={valeId: valeObj, ...}  (grouped by gestor)
 //   NEW: rows where id=valeId, data={id, ts, ...}             (one row per vale)
 // _sbRestGetCollection('vales') returns rows.map(r => r.data), which gives us
 // a mix of nested objects (old) and flat vale objects (new).
-// This function flattens everything into a single array of individual vale objects.
+//
+// v37 CRITICAL FIX: Two-pass approach — NEW format ALWAYS wins over OLD.
+// ANTES (v36): first-come-first-served dedup. OLD format rows have smaller `id`
+// (gestorId ~ 1-100) so they sort first. When both formats exist for the same
+// vale, OLD format was kept (with stale status like 'pending') and NEW format
+// (with updated status like 'confirmed') was dropped. This caused:
+//   - Status always showing 'admin pendiente' even after confirmation
+//   - Confirmed sales reverting to pending on next poll
+//   - Notifications never firing (status change was overwritten before render)
+// AHORA: Pass 1 collects NEW format vales (from upserts = latest data).
+// Pass 2 adds OLD format vales ONLY if their ID isn't in NEW format yet.
+// Result: NEW format always takes priority, old stale data is ignored.
 function _flattenValesFromSB(rawItems) {
-  const flat = [];
-  const seenIds = new Set(); // v37: deduplicate — same vale may exist in both old (nested) and new (flat) format
+  const newFormatMap = new Map(); // id → vale (NEW format, highest priority)
+  const oldFormatMap = new Map(); // id → vale (OLD format, fallback only)
+
+  // Helper: extract vale objects from an OLD-format nested item
+  function _extractOldFormatVales(item) {
+    const vales = [];
+    const vals = Object.values(item);
+    if (vals.length > 0 && vals[0] && typeof vals[0] === 'object' && vals[0].id != null && vals[0].ts != null) {
+      for (const v of vals) { if (v && v.id != null) vales.push(v); }
+      return vales;
+    }
+    // Fallback: numeric keys at top level
+    const keys = Object.keys(item);
+    if (keys.length > 0 && !isNaN(Number(keys[0])) && Number(keys[0]) > 1000000000000) {
+      for (const v of Object.values(item)) { if (v && v.id != null) vales.push(v); }
+    }
+    return vales;
+  }
+
   for (const item of (rawItems || [])) {
     if (!item || typeof item !== 'object') continue;
-    // NEW format: data is a single vale with an 'id' field that is a number
-    // and has gestorId/ts/status (typical vale fields).
+    // NEW format check: item is a flat vale with id as timestamp
     if (item.id != null && item.ts != null && typeof item.id === 'number' && item.id > 1000000000000) {
-      // This looks like a flat vale object directly
       if (item.gestorId != null || item.status != null || item.cliente != null) {
-        if (!seenIds.has(item.id)) { seenIds.add(item.id); flat.push(item); }
+        // NEW format always wins — put in newFormatMap
+        newFormatMap.set(item.id, item);
         continue;
       }
     }
-    // OLD format: data is {valeId: valeObj, valeId2: valeObj2, ...}
-    // Each key is a numeric string, each value is a vale object.
-    const vals = Object.values(item);
-    if (vals.length > 0 && vals[0] && typeof vals[0] === 'object' && vals[0].id != null && vals[0].ts != null) {
-      for (const v of vals) { if (v && !seenIds.has(v.id)) { seenIds.add(v.id); flat.push(v); } }
-      continue;
-    }
-    // Fallback: if it has numeric keys at top level, treat as old-format nested
-    const keys = Object.keys(item);
-    if (keys.length > 0 && !isNaN(Number(keys[0])) && Number(keys[0]) > 1000000000000) {
-      for (const v of Object.values(item)) { if (v && !seenIds.has(v.id)) { seenIds.add(v.id); flat.push(v); } }
+    // OLD format: extract individual vales from nested structure
+    const oldVales = _extractOldFormatVales(item);
+    for (const v of oldVales) {
+      // Only add if not already in NEW format for this ID
+      if (!newFormatMap.has(v.id)) {
+        oldFormatMap.set(v.id, v);
+      }
     }
   }
+
+  // Merge: NEW format vales first (they have priority), then OLD format fallbacks
+  const flat = [];
+  for (const v of newFormatMap.values()) flat.push(v);
+  for (const v of oldFormatMap.values()) flat.push(v);
   return flat;
 }
 let _restPollTimer = null;
@@ -553,15 +581,72 @@ async function _doRestPoll() {
             }
             if (v && v.synced === undefined) v.synced = true;
           });
-          // Merge: preservar vales locales synced:false que no estén en Supabase
-          const localPending = (getVales() || []).filter(v =>
-            v && v.synced === false && v.status !== 'cancelled'
-          );
-          const sbIds = new Set(flatVales.map(v => String(v && v.id)));
-          const orphaned = localPending.filter(v => !sbIds.has(String(v.id)));
-          let merged = flatVales;
-          if (orphaned.length > 0) merged = flatVales.concat(orphaned);
-          // v37: Deduplicate by vale ID — prevent same vale appearing twice
+          // ── v37 SMART MERGE: local-wins for recently changed vales ──
+          // ANTES (v36): Supabase was the base, local orphaned (synced:false) appended.
+          // Problem: if admin confirmed a sale locally but the write hasn't reached
+          // Supabase yet (or Supabase returns slightly stale data), the poll would
+          // overwrite the local 'confirmed' status with Supabase's 'pending'.
+          //
+          // AHORA: For each vale that exists in BOTH local and Supabase, we compare
+          // modification timestamps. If the local version was modified more recently
+          // (e.g. has a confirmedTs that Supabase doesn't have, or has a newer status
+          // change), the local version wins. Otherwise Supabase wins (it may have
+          // updates from another device).
+          const localVales = getVales() || [];
+          const localMap = new Map();
+          localVales.forEach(v => { if (v && v.id != null) localMap.set(v.id, v); });
+
+          // Helper: get the effective modification timestamp of a vale.
+          // confirmedTs > deliveredTs > ts — the most recent admin action wins.
+          function _valeModTs(v) {
+            if (!v) return 0;
+            if (v.confirmedTs) return new Date(v.confirmedTs).getTime();
+            if (v.deliveredTs) return new Date(v.deliveredTs).getTime();
+            return new Date(v.ts || 0).getTime();
+          }
+
+          // Helper: is a local vale "more advanced" than the Supabase version?
+          // This covers the case where admin confirmed/assigned locally but
+          // Supabase still has the old status.
+          const STATUS_RANK = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4, cancelled: -1 };
+          function _localIsMoreAdvanced(localV, sbV) {
+            if (!localV || !sbV) return false;
+            const localRank = STATUS_RANK[localV.status] ?? 0;
+            const sbRank = STATUS_RANK[sbV.status] ?? 0;
+            // If local status is more advanced (e.g. confirmed vs pending), local wins
+            if (localRank > sbRank) return true;
+            // If same rank but local has a newer modification timestamp, local wins
+            if (localRank === sbRank && _valeModTs(localV) > _valeModTs(sbV)) return true;
+            return false;
+          }
+
+          const sbMap = new Map();
+          flatVales.forEach(v => { if (v && v.id != null) sbMap.set(v.id, v); });
+
+          // Build merged: start with Supabase, then apply local-wins where appropriate
+          const mergedMap = new Map();
+          // Add all Supabase vales first
+          for (const [id, v] of sbMap) mergedMap.set(id, v);
+          // Apply local-wins: for vales that exist locally AND in Supabase
+          for (const [id, lv] of localMap) {
+            const sv = sbMap.get(id);
+            if (sv) {
+              // Vale exists in both — check if local is more advanced
+              if (_localIsMoreAdvanced(lv, sv)) {
+                mergedMap.set(id, lv); // local wins
+              }
+              // else: Supabase version stays (it's the same or more advanced)
+            } else {
+              // Vale only exists locally
+              if (lv.synced === false && lv.status !== 'cancelled') {
+                // Orphaned local vale (not yet synced to Supabase) — keep it
+                mergedMap.set(id, lv);
+              }
+            }
+          }
+
+          let merged = Array.from(mergedMap.values());
+          // Deduplicate by vale ID (safety net)
           {
             const seen = new Set();
             merged = merged.filter(v => {
@@ -2351,27 +2436,28 @@ function listenToMyVales(gId) {
           if (v && v.synced === undefined) v.synced = true; // vino de Firebase → está synced
         });
 
-        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
-        // En conexiones lentas (10 Kbit/s), el listener de Firebase puede
-        // disparar ANTES de que el write del vale pendiente se confirme.
-        // El snapshot NO incluye el vale local, y antes reemplazábamos el
-        // cache local con él → el vale "desaparecía" de la UI por varios
-        // segundos hasta que el write confirmara y disparara un nuevo
-        // snapshot que sí lo incluyera.
-        // Ahora preservamos los vales locales synced:false que no estén
-        // en el snapshot, hasta que se confirmen (synced:true).
-        const localPending = (getVales() || []).filter(v =>
-          v && v.gestorId === gId &&
-          v.synced === false &&
-          v.status !== 'cancelled'
-        );
-        const fbIds = new Set(newVales.map(v => String(v && v.id)));
-        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
-        let mergedVales = newVales;
-        if (orphaned.length > 0) {
-          mergedVales = newVales.concat(orphaned);
+        // ── v37 SMART MERGE: local-wins for recently changed vales ──
+        // (Same logic as _doRestPoll merge — see detailed comments there)
+        const _localVales = getVales() || [];
+        const _localMap = new Map();
+        _localVales.forEach(v => { if (v && v.id != null) _localMap.set(v.id, v); });
+        const _STATUS_RANK = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4, cancelled: -1 };
+        function _vlmt(v) { if (!v) return 0; if (v.confirmedTs) return new Date(v.confirmedTs).getTime(); if (v.deliveredTs) return new Date(v.deliveredTs).getTime(); return new Date(v.ts || 0).getTime(); }
+        const _fbMap = new Map();
+        newVales.forEach(v => { if (v && v.id != null) _fbMap.set(v.id, v); });
+        const _mergedMap = new Map();
+        for (const [id, v] of _fbMap) _mergedMap.set(id, v);
+        for (const [id, lv] of _localMap) {
+          const sv = _fbMap.get(id);
+          if (sv) {
+            const lr = _STATUS_RANK[lv.status] ?? 0, sr = _STATUS_RANK[sv.status] ?? 0;
+            if (lr > sr || (lr === sr && _vlmt(lv) > _vlmt(sv))) _mergedMap.set(id, lv);
+          } else if (lv.synced === false && lv.status !== 'cancelled') {
+            _mergedMap.set(id, lv);
+          }
         }
-        // v37: Deduplicate by vale ID
+        let mergedVales = Array.from(_mergedMap.values());
+        // Deduplicate by vale ID (safety net)
         {
           const seen = new Set();
           mergedVales = mergedVales.filter(v => {
@@ -2672,19 +2758,37 @@ if (IS_ADMIN) {
           if (v && v.synced === undefined) v.synced = true;
         });
 
-        // ── v17 BUGFIX: MERGE de vales locales synced:false ──
-        // El admin también puede tener vales locales pendientes (raro, pero
-        // pasa si crea vales directos en venta local mientras Firebase está
-        // caído). Preservarlos para no perderlos antes del write.
-        const localPending = (getVales() || []).filter(v =>
-          v && v.synced === false &&
-          v.status !== 'cancelled'
-        );
-        const fbIds = new Set(flatVales.map(v => String(v && v.id)));
-        const orphaned = localPending.filter(v => !fbIds.has(String(v.id)));
-        let mergedFlatVales = flatVales;
-        if (orphaned.length > 0) {
-          mergedFlatVales = flatVales.concat(orphaned);
+        // ── v37 SMART MERGE: local-wins for recently changed vales ──
+        // (Same logic as _doRestPoll merge — see detailed comments there)
+        const _localVales = getVales() || [];
+        const _localMap = new Map();
+        _localVales.forEach(v => { if (v && v.id != null) _localMap.set(v.id, v); });
+        const _STATUS_RANK = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4, cancelled: -1 };
+        function _vlmt(v) { if (!v) return 0; if (v.confirmedTs) return new Date(v.confirmedTs).getTime(); if (v.deliveredTs) return new Date(v.deliveredTs).getTime(); return new Date(v.ts || 0).getTime(); }
+        const _fbMap = new Map();
+        flatVales.forEach(v => { if (v && v.id != null) _fbMap.set(v.id, v); });
+        const _mergedMap = new Map();
+        for (const [id, v] of _fbMap) _mergedMap.set(id, v);
+        for (const [id, lv] of _localMap) {
+          const sv = _fbMap.get(id);
+          if (sv) {
+            const lr = _STATUS_RANK[lv.status] ?? 0, sr = _STATUS_RANK[sv.status] ?? 0;
+            if (lr > sr || (lr === sr && _vlmt(lv) > _vlmt(sv))) _mergedMap.set(id, lv);
+          } else if (lv.synced === false && lv.status !== 'cancelled') {
+            _mergedMap.set(id, lv);
+          }
+        }
+        let mergedFlatVales = Array.from(_mergedMap.values());
+        // Deduplicate by vale ID (safety net)
+        {
+          const seen = new Set();
+          mergedFlatVales = mergedFlatVales.filter(v => {
+            if (!v || v.id == null) return false;
+            const key = String(v.id);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
         }
         mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
 
