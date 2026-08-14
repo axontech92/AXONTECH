@@ -1,9 +1,9 @@
 {
-  "version": 54,
-  "versionStr": "v54",
-  "hash": "540b5a0eddeb19ab",
-  "hashFull": "540b5a0eddeb19ab",
-  "releasedAt": "2026-08-14 04:30",
+  "version": 55,
+  "versionStr": "v55",
+  "hash": "v55_fix_render_pending",
+  "hashFull": "v55_fix_render_pending",
+  "releasedAt": "2026-08-15 00:00",
   "files": [
     "app.js",
     "app.css",
@@ -12,10 +12,10 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO: los vales ya NO se quedan eternamente en 'pendiente' — el admin confirma y el gestor lo ve",
-    "FIX: las notificaciones (venta confirmada, asignada, etc.) ahora SÍ llegan al gestor",
-    "FIX: usa RPC server-side (upsert_vale_from_gestor) para preservar campos del admin al escribir desde el gestor",
-    "FIX: removido filtro que descartaba los updates del admin en reintentos de red",
-    "REQUIERE: ejecutar migration_v54.sql en Supabase (SQL Editor) para crear la función RPC"
+    "FIX CRÍTICO v55: el gestor ahora SÍ ve los vales como 'confirmado'/'asignado' cuando el admin los cambia",
+    "FIX: el poll del gestor ya NO se bloquea cuando hay writes encolados (writes stuck no bloquean lecturas)",
+    "FIX: el hash de vales ahora incluye TODOS los vales (sin cutoff) y campos del admin (confirmedTs, assignedTs, mensajeroId, seenByAdmin)",
+    "FIX: forzar re-render completo cuando se detecta cualquier cambio de status en el poll",
+    "v54 incluido: RPC upsert_vale_from_gestor + fallback JS read-merge-write preservan campos del admin"
   ]
 }

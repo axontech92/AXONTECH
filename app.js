@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 54;
+const APP_VERSION = 55;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '540_fix_vales_pending';
+let _LOCAL_BUILD_HASH = 'v55_fix_render';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -644,6 +644,13 @@ async function _doRestPoll() {
   if (!navigator.onLine) return;
   if (document.hidden) return;
   _restPollInFlight = true;
+  // v55: Snapshot de vales ANTES del poll, para detectar cambios de status
+  // y forzar re-render si los hay.
+  const _prePollValesMap = new Map();
+  try {
+    const _pre = getVales();
+    _pre.forEach(v => { if (v && v.id != null) _prePollValesMap.set(String(v.id), v); });
+  } catch(e) {}
   try {
     // ── v29: Sync vales from Supabase REST ──
     // ANTES (v28): usaba _handleValesSnap/_handleMyValesSnap que NUNCA se definían,
@@ -657,9 +664,18 @@ async function _doRestPoll() {
     // _doRestPoll lee datos viejos de Supabase y los escribe en localStorage,
     // haciendo que los vales borrados vuelvan a aparecer.
     const _valesWriteInFlight = _sbProcessing && _currentWritePath && (_currentWritePath === 'vales' || _currentWritePath.startsWith('vales/'));
-    // v32: Also skip if there are in-flight direct deletions (adminDeleteVale/cancelVale)
-    if (_sbWriteQueue.some(q => q.path === 'vales' || q.path.startsWith('vales/')) || _valesWriteInFlight || _valesDirectDeleting.size > 0) {
-      // Hay writes pendientes, en vuelo, o deletes directos para vales — no sobreescribir con datos viejos de Supabase.
+    // v55 FIX: Allow the poll to proceed even if there are writes queued/in-flight.
+    // ANTES (v32-v54): si había writes encolados o en vuelo para 'vales', se saltaba
+    // el poll entero. En redes lentas, un write stuck (timeout + retry) bloqueaba
+    // TODOS los polls → el gestor nunca veía los cambios del admin (confirmaciones,
+    // asignaciones) → los vales se quedaban eternamente en 'pending' en la UI
+    // del gestor aunque en Supabase estuvieran correctos.
+    // AHORA (v55): solo bloquear si hay deletes directos en progreso
+    // (_valesDirectDeleting). El merge logic (Supabase-wins-for-status) maneja
+    // conflictos de writes normales. Para zombie vales (borrados locales cuyo
+    // delete write no ha llegado a Supabase), el siguiente poll los limpiará.
+    if (_valesDirectDeleting.size > 0) {
+      // Hay deletes directos en progreso — no sobreescribir con datos viejos.
     } else {
       try {
         const rawVales = await _sbRestGetCollection('vales');
@@ -944,6 +960,41 @@ async function _doRestPoll() {
         }
       } catch(e) {}
     }
+    // v55 FIX: Forzar re-render si cualquier vale cambió de status respecto al
+    // snapshot local anterior. ANTES, el hash de vales solo incluía id+status+ts
+    // y tenía un cutoff de 500 chars. Si el gestor tenía muchos vales, los más
+    // viejos no entraban en el hash → su cambio de status no se detectaba →
+    // refreshUI() saltaba el render → el gestor veía vales eternamente en
+    // 'pending' aunque Supabase tuviera 'confirmed'.
+    // AHORA: comparamos el status de cada vale ANTES y DESPUÉS del merge. Si
+    // cualquier status cambió, reseteamos _lastValesHash para forzar el render.
+    try {
+      const _afterVales = getVales();
+      const _afterMap = new Map();
+      _afterVales.forEach(v => { if (v && v.id != null) _afterMap.set(String(v.id), v); });
+      let _statusChanged = false;
+      for (const [id, lv] of _prePollValesMap) {
+        const nv = _afterMap.get(id);
+        if (nv && lv.status !== nv.status) {
+          _statusChanged = true;
+          console.log(`[v55] Status changed: V-${String(lv.valeNum||'?').padStart(3,'0')} ${lv.status} → ${nv.status} — forcing render`);
+          break;
+        }
+      }
+      // También detectar vales nuevos que llegaron del admin (no estaban en local)
+      if (!_statusChanged) {
+        for (const [id, nv] of _afterMap) {
+          if (!_prePollValesMap.has(id)) {
+            _statusChanged = true;
+            console.log(`[v55] New vale from admin/other device: id=${id} — forcing render`);
+            break;
+          }
+        }
+      }
+      if (_statusChanged) {
+        _lastValesHash = ''; // forzar render completo
+      }
+    } catch(e) { /* best-effort */ }
     refreshUI();
   } catch(e) { console.warn('[rest-poll] error:', e && e.message); }
   finally { _restPollInFlight = false; }
@@ -2898,13 +2949,19 @@ try {
 let _lastValesHash = '';
 function _computeValesHash(vales) {
   if (!Array.isArray(vales) || !vales.length) return '';
-  // Hash barato: combinar id+status+ts del último vale modificado.
-  // Suficiente para detectar si un nuevo snapshot realmente cambió algo.
+  // v55 FIX: Hash de TODOS los vales (sin cutoff de 500 chars) e incluir campos
+  // del admin (confirmedTs, assignedTs, mensajeroId, seenByAdmin) para detectar
+  // ANY cambio que deba disparar un re-render.
+  // ANTES: solo hasheaba id+status+ts de los primeros ~10 vales (cutoff 500 chars).
+  // Si el gestor tenía más de 10 vales, los más viejos no se hasheaban → si el
+  // admin confirmaba un vale viejo, el hash no cambiaba → refreshUI() saltaba el
+  // render → el gestor nunca veía la confirmación.
   let h = '';
   for (let i = 0; i < vales.length; i++) {
     const v = vales[i];
-    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') + '|';
-    if (h.length > 500) break; // suficiente muestra
+    h += (v.id || 0) + ':' + (v.status || '') + ':' + (v.ts || '') + ':'
+       + (v.confirmedTs || '') + ':' + (v.assignedTs || '') + ':'
+       + (v.mensajeroId || '') + ':' + (v.seenByAdmin ? '1' : '0') + '|';
   }
   return h;
 }
