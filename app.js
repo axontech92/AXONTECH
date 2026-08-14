@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 53;
+const APP_VERSION = 54;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '530b5a0eddeb19ab';
+let _LOCAL_BUILD_HASH = '540_fix_vales_pending';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -286,6 +286,104 @@ async function _sbRestDelete(collName, id) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?id=eq.${encodeURIComponent(id)}`;
   const res = await fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS });
   if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE ${collName}/${id} ${res.status}`);
+}
+
+// ════════════════════════════════════════
+//  v54: RPC upsert_vale_from_gestor
+// ════════════════════════════════════════
+//  PROBLEMA: Cuando el gestor hace saveVales(), el UPSERT a Supabase
+//  REEMPLAZA toda la columna `data` JSONB. Esto borraba los campos que
+//  el admin había puesto (status='confirmed', confirmedTs, etc.).
+//  El "fix v53" trataba de incluirlos desde la caché local del gestor,
+//  pero esa caché está stale → el gestor escribía status='pending' sobre
+//  el status='confirmed' del admin.
+//
+//  SOLUCIÓN: RPC server-side que hace JSONB merge preservando campos
+//  administrativos. El gestor manda SOLO sus campos; el RPC hace:
+//    merged = existing_data || p_data, pero force-preserva campos del admin
+//  desde existing_data.
+//
+//  Requiere migración SQL (migration_v54.sql). Si la función no existe
+//  (404), hacemos fallback al comportamiento viejo (v53 slim).
+let _sbGestorRpcAvailable = null; // null=unknown, true=disponible, false=no disponible
+
+async function _detectGestorRpc() {
+  if (_sbGestorRpcAvailable !== null) return _sbGestorRpcAvailable;
+  try {
+    // Probe con p_id=0 (no existe) → debe responder 200/204 si la función existe
+    const res = await fetch(`${_SB_REST}/rpc/upsert_vale_from_gestor`, {
+      method: 'POST',
+      headers: _SB_AUTH_HDRS,
+      body: JSON.stringify({ p_id: 0, p_data: {} })
+    });
+    _sbGestorRpcAvailable = (res.status !== 404);
+    console.log(`[sb] upsert_vale_from_gestor RPC: ${_sbGestorRpcAvailable ? 'disponible' : 'NO disponible (fallback a v53 slim)'}`);
+  } catch (e) {
+    _sbGestorRpcAvailable = false;
+    console.warn('[sb] Error detectando RPC upsert_vale_from_gestor:', e.message);
+  }
+  return _sbGestorRpcAvailable;
+}
+
+// Llama al RPC upsert_vale_from_gestor para un vale individual.
+// items: [{id, value}, ...]  — value es el slim del vale (sin campos del admin)
+async function _sbRestUpsertValeFromGestorBatch(items) {
+  if (!items || items.length === 0) return;
+  // El RPC procesa un vale por llamada. Hacemos las llamadas en paralelo
+  // (con un límite de concurrencia para no saturar conexiones lentas).
+  const CONCURRENCY = 4;
+  for (let i = 0; i < items.length; i += CONCURRENCY) {
+    const chunk = items.slice(i, i + CONCURRENCY);
+    await Promise.all(chunk.map(async it => {
+      const res = await fetch(`${_SB_REST}/rpc/upsert_vale_from_gestor`, {
+        method: 'POST',
+        headers: _SB_AUTH_HDRS,
+        body: JSON.stringify({ p_id: Number(it.id), p_data: it.value })
+      });
+      if (!res.ok && res.status !== 404) {
+        const t = await res.text().catch(() => '');
+        throw new Error(`RPC upsert_vale_from_gestor(${it.id}) ${res.status}: ${t.slice(0,150)}`);
+      }
+      if (res.status === 404) {
+        // La función desapareció (¿migración reversada?) → marcar como no disponible
+        _sbGestorRpcAvailable = false;
+        throw new Error('RPC upsert_vale_from_gestor desapareció (404)');
+      }
+    }));
+  }
+}
+
+// ── v54: Fallback puro-JS (sin SQL) — read-merge-write ──
+// Si el RPC NO está disponible, hacemos un GET del vale actual desde Supabase,
+// mergeamos los campos del gestor por encima, y luego hacemos el UPSERT normal.
+// Esto preserva los campos del admin (status, confirmedTs, etc.) con sus valores
+// FRESH de Supabase, evitando el bug de v53 donde escribíamos valores stale.
+//
+// Tiene una pequeña race window (entre el GET y el POST), pero es mucho mejor
+// que el comportamiento v53 que SIEMPRE pisaba los cambios del admin.
+async function _sbRestUpsertValeFromGestorFallbackBatch(items) {
+  if (!items || items.length === 0) return;
+  // 1) GET de los vales actuales desde Supabase (un solo request batch)
+  const ids = items.map(it => it.id);
+  const getUrl = `${_SB_REST}/vales?select=id,data&id=in.(${ids.map(x => encodeURIComponent(String(x))).join(',')})`;
+  const getRes = await fetch(getUrl, { headers: _SB_AUTH_HDRS });
+  if (!getRes.ok && getRes.status !== 404) {
+    const t = await getRes.text().catch(() => '');
+    throw new Error(`Fallback GET vales ${getRes.status}: ${t.slice(0,150)}`);
+  }
+  const existingRows = (getRes.status === 404) ? [] : await getRes.json().catch(() => []);
+  const existingMap = new Map();
+  for (const r of existingRows) {
+    if (r && r.id != null) existingMap.set(String(r.id), r.data || {});
+  }
+  // 2) Merge: existing + gestor slim (gestor wins para sus campos)
+  const mergedItems = items.map(it => {
+    const existing = existingMap.get(String(it.id)) || {};
+    const merged = { ...existing, ...it.value };
+    return { id: it.id, value: merged };
+  });
+  // 3) UPSERT normal con los valores mergeados
+  return _sbRestUpsertBatch('vales', mergedItems);
 }
 async function _sbRestDeleteBatch(collName, ids) {
   if (!ids || ids.length === 0) return;
@@ -1154,49 +1252,20 @@ function _processSBQueue() {
   const {path, method, callback} = item;
   let value = item.value;  // v15: mutable, podemos filtrarle vales ya synced
 
-  // ── v15/v45 BUGFIX: filtrar vales ya synced del payload de REINTENTOS ──
-  // v45: este filtro ahora SOLO aplica a items reencolados (item.retries > 1,
-  // es decir, que ya fueron intentados y dieron timeout). ANTES se aplicaba a
-  // TODOS los writes de vales, y como el poll marca synced=true en todo vale
-  // sincronizado (v34+), los updates del admin (status, seenByAdmin, mensajeroId…)
-  // se descartaban en su PRIMER intento y nunca llegaban a Supabase: el vale
-  // quedaba 'pending' para el gestor pese a haberse confirmado la venta.
-  if (method === 'update' && item.retries > 1 && value && typeof value === 'object' &&
-      (path === 'vales' || path.startsWith('vales/'))) {
-    const syncedIds = new Set(
-      getVales()
-        .filter(v => v.synced === true)
-        .map(v => String(v.id))
-    );
-    if (syncedIds.size > 0) {
-      const filtered = {};
-      let dropped = 0;
-      Object.entries(value).forEach(([k, v]) => {
-        if (v === null) { filtered[k] = null; return; }  // borrados siempre se mandan
-        // Para path 'vales' (admin), key es 'gestorId/valeId'; para 'vales/X', key es 'valeId'.
-        const keyVid = path === 'vales' ? (k.includes('/') ? k.split('/')[1] : k) : k;
-        const objVid = (v && typeof v === 'object' && v.id != null) ? String(v.id) : keyVid;
-        if (syncedIds.has(objVid)) { dropped++; return; }
-        filtered[k] = v;
-      });
-      if (dropped > 0) {
-        console.log(`[sync] Filtering ${dropped} already-synced vale(s) from retry of ${path}`);
-        value = filtered;
-        item.value = filtered;  // mutar el item para que la persistencia también refleje el filtrado
-        if (Object.keys(filtered).length === 0) {
-          // Nada que escribir — todos los vales del item ya están synced.
-          // Descartar el item y procesar el siguiente sin tocar Supabase.
-          console.log(`[sync] All vales in retry item already synced — skipping write`);
-          _sbProcessing = false;
-          _persistQueue();
-          // Procesar in-flight buffer por si llegaron cambios mientras tanto
-          // (no debería porque no inicializamos el buffer todavía).
-          _processSBQueue();
-          return;
-        }
-      }
-    }
-  }
+  // ── v54 BUGFIX: REMOVER el filtro de vales synced en reintentos ──
+  // ANTES (v15/v45): en los reintentos de writes a 'vales', se filtraban los
+  // vales con synced===true. La idea era evitar re-sincronizar vales que ya
+  // estaban en Supabase. PERO synced===true solo significa "este vale se
+  // escribió a Supabase en ALGÚN momento", NO significa "este update en
+  // particular es innecesario". El admin cambia status de 'pending' a
+  // 'confirmed' → el vale SIGUE teniendo synced=true → el retry FILTRA el
+  // update → la confirmación del admin se PIERDE para siempre en Supabase.
+  // Esto causaba que los vales se quedaran eternamente en 'pending' en
+  // Supabase aunque el admin los hubiera confirmado localmente.
+  // AHORA (v54): no filtramos. El retry manda el update completo. Si hay
+  // duplicación (el write anterior sí llegó pero el ack se perdió), el
+  // upsert es idempotente (mismos datos → mismo resultado).
+  // (Bloque eliminado intencionalmente — ver git history de v53 para contexto.)
 
   // ── Inicializar buffer in-flight para este path ──
   // Si durante el procesamiento de este write llegan más saveVales al mismo
@@ -1282,7 +1351,31 @@ function _processSBQueue() {
         if (!isNaN(idNum)) upsertItems.push({ id: idNum, value: val });
       });
       const ops = [];
-      if (upsertItems.length > 0) ops.push(_sbRestUpsertBatch(collName, upsertItems));
+      // v54: Si es un write del GESTOR (path = 'vales/{gestorId}'), usar
+      // merge server-side (RPC) o read-merge-write (fallback JS) para
+      // preservar los campos del admin. NUNCA usar _sbRestUpsertBatch
+      // directo para gestor writes — eso pisaba los cambios del admin.
+      const isGestorValesWrite = (collName === 'vales' && pathGestorId !== null);
+      if (upsertItems.length > 0) {
+        if (isGestorValesWrite) {
+          // Detectar RPC si aún no sabemos, y luego elegir path
+          ops.push(Promise.resolve(_sbGestorRpcAvailable).then(avail => {
+            if (avail === null) return _detectGestorRpc();
+            return avail;
+          }).then(available => {
+            if (available) {
+              // RPC disponible → merge server-side (óptimo)
+              return _sbRestUpsertValeFromGestorBatch(upsertItems);
+            } else {
+              // RPC no disponible → read-merge-write en JS (fallback)
+              return _sbRestUpsertValeFromGestorFallbackBatch(upsertItems);
+            }
+          }));
+        } else {
+          // Admin write o escritura de otra colección → upsert normal
+          ops.push(_sbRestUpsertBatch(collName, upsertItems));
+        }
+      }
       if (deleteIds.length > 0) ops.push(_sbRestDeleteBatch(collName, deleteIds));
       if (deleteValeOps.length > 0) ops.push(...deleteValeOps);
       if (ops.length === 0) return Promise.resolve();
@@ -1906,12 +1999,9 @@ function _ensurePendingValesEnqueued() {
     slim.valeProductos = (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
     if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
     if (v.deliveredTs) slim.deliveredTs = v.deliveredTs; // mensajero puede marcar entrega
-    // v53: preservar campos del admin
-    REENQUEUE_ADMIN_PRESERVE.forEach(f => {
-      if (v[f] !== undefined && v[f] !== null && v[f] !== '') {
-        slim[f] = v[f];
-      }
-    });
+    // v54: NUNCA incluir campos del admin en el re-encolado del gestor.
+    // Tanto el RPC como el fallback JS (read-merge-write) los preservan.
+    // (Bloque v53 que incluía REENQUEUE_ADMIN_PRESERVE fue removido en v54.)
     // Para vales que aún no se han syncado, asegurar status inicial
     if (!slim.status) slim.status = v.status || 'pending';
     updates[v.id] = slim;
@@ -2093,15 +2183,11 @@ const saveVales = v => {
       slim.valeText = x.valeText;
     }
     if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
-    // v53 FIX: preservar campos del admin desde la caché local.
-    // Si el campo existe en el vale local, lo escribimos de vuelta para
-    // que el upsert no lo borre. Si NO existe (vale nuevo), lo dejamos
-    // con los valores iniciales de abajo.
-    ADMIN_PRESERVE_FIELDS.forEach(f => {
-      if (x[f] !== undefined && x[f] !== null && x[f] !== '') {
-        slim[f] = x[f];
-      }
-    });
+    // v54: NUNCA incluir campos del admin en el slim del gestor.
+    // Tanto el RPC (server-side merge) como el fallback JS (read-merge-write)
+    // preservan los campos del admin. Si los incluyéramos aquí, estaríamos
+    // pisándolos con valores stale de la caché local del gestor.
+    // (El bloque v53 que incluía ADMIN_PRESERVE_FIELDS fue removido en v54.)
     const _prev = prevMap.get(`${x.gestorId}/${x.id}`);
     if (!_prev) {
       // Vale nuevo — incluir status inicial ('pending') y campos del admin vacíos
@@ -10598,6 +10684,14 @@ async function init() {
   // nunca se leyeran de vuelta. Si se borraba localStorage, los datos
   // se perdían aunque existieran en Supabase.
   _startRestPolling();
+  // v54: detectar temprano si el RPC upsert_vale_from_gestor está disponible.
+  // Esto determina si usamos el merge server-side (correcto) o el fallback v53
+  // (slim con campos del admin stale). La detección es async pero no bloquea
+  // el arranque — el primer write del gestor esperará al resultado si aún no
+  // se ha resuelto.
+  if (!IS_ADMIN) {
+    _detectGestorRpc().catch(() => {});
+  }
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
   // También re-encolar writes para vales que se quedaron huérfanos (synced:false)
