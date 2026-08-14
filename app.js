@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 52;
+const APP_VERSION = 53;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd1180f6e32f9dd75';
+let _LOCAL_BUILD_HASH = '530b5a0eddeb19ab';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -854,8 +854,22 @@ function _startRestPolling() {
   if (_restPollTimer) return;
   _doRestPoll();
   _restPollTimer = setInterval(_doRestPoll, _REST_POLL_MS);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) _doRestPoll(); });
-  window.addEventListener('online', () => _doRestPoll());
+  // v53 FIX: cuando la página se vuelve visible, forzar un poll Y resetear
+  // el hash de vales para que refreshUI() SIEMPRE re-renderice la vista del
+  // gestor (Mis Vales, notifs, etc.). ANTES, si el gestor salía de la app y
+  // volvía, el poll corría pero si el hash no cambiaba (p.ej. el admin
+  // confirmó pero el gestor ya tenía el status actualizado en caché vieja),
+  // el render se saltaba y el gestor veía datos stale.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      _lastValesHash = '';
+      _doRestPoll();
+    }
+  });
+  window.addEventListener('online', () => {
+    _lastValesHash = '';
+    _doRestPoll();
+  });
 }
 // ── v29 BUGFIX: _sbConnected initialization ──
 // ANTES: _sbConnected = navigator.onLine, pero el listener de db.ref('.info/connected')
@@ -1869,10 +1883,21 @@ function _ensurePendingValesEnqueued() {
   // desde la copia LOCAL del gestor — si esa copia estaba desactualizada
   // (p.ej. el admin confirmó la venta mientras el gestor estaba offline),
   // reescribía 'pending' por encima del 'confirmed' del admin en Supabase.
+  // v53 FIX: igual que slimValeGestor, ahora PRESERVAMOS los campos del admin
+  // desde la caché local. La razón es la misma: si no los incluimos, el upsert
+  // de Supabase REEMPLAZA toda la columna `data` y se borran los campos que
+  // el admin ya había puesto (status, seenByAdmin, etc.). Como estos vales
+  // tienen synced=false, su caché local puede estar desactualizada, pero es
+  // mejor escribir el valor viejo que borrar el campo entero.
   const GESTOR_REENQUEUE_FIELDS = [
     'id','valeNum','gestorId','ts','cliente','telefono','direccion',
     'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
     'total','garantia','comisionGestor','recogidaTienda','ubicacion'
+  ];
+  const REENQUEUE_ADMIN_PRESERVE = [
+    'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
+    'seenByAdmin','seenTs','commissionStatus','commissionPaid',
+    'stockDecremented','hiddenFromHistory','hiddenTs'
   ];
   const updates = {};
   mine.forEach(v => {
@@ -1881,6 +1906,14 @@ function _ensurePendingValesEnqueued() {
     slim.valeProductos = (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
     if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
     if (v.deliveredTs) slim.deliveredTs = v.deliveredTs; // mensajero puede marcar entrega
+    // v53: preservar campos del admin
+    REENQUEUE_ADMIN_PRESERVE.forEach(f => {
+      if (v[f] !== undefined && v[f] !== null && v[f] !== '') {
+        slim[f] = v[f];
+      }
+    });
+    // Para vales que aún no se han syncado, asegurar status inicial
+    if (!slim.status) slim.status = v.status || 'pending';
     updates[v.id] = slim;
   });
   _enqueueSB(myPath, updates, 'update');
@@ -2028,6 +2061,28 @@ const saveVales = v => {
     'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
     'total','garantia','comisionGestor','recogidaTienda','ubicacion'
   ];
+  // v53 FIX: campos controlados por el admin que el gestor DEBE preservar
+  // al escribir. ANTES (v17-v52) el gestor NO escribía estos campos → el
+  // upsert de Supabase REEMPLAZABA toda la columna `data` → se borraban
+  // status, seenByAdmin, confirmedTs, etc. que el admin había puesto.
+  // Resultado: el vale del gestor se quedaba SIEMPRE en 'pending' aunque
+  // el admin lo hubiera confirmado, porque el siguiente write del gestor
+  // (p.ej. al editar OTRO vale) limpiaba el status de TODOS sus vales.
+  // AHORA: el gestor escribe el VALOR ACTUAL de estos campos desde su
+  // caché local (que se actualiza cada 5s vía _doRestPoll). Como la caché
+  // trae el último estado de Supabase, escribirlos de vuelta es un no-op
+  // para los vales que el gestor no tocó. El único riesgo es una ventana
+  // pequeña (5s): si el admin cambia el status JUSTO después del último
+  // poll del gestor y el gestor guarda antes del siguiente poll, el cambio
+  // del admin se pisa con el valor viejo del gestor. El siguiente poll
+  // corrige la caché local, pero el cambio del admin ya se perdió en
+  // Supabase. Es un trade-off aceptable vs. el bug anterior (que siempre
+  // se perdía el status).
+  const ADMIN_PRESERVE_FIELDS = [
+    'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
+    'seenByAdmin','seenTs','commissionStatus','commissionPaid',
+    'stockDecremented','hiddenFromHistory','hiddenTs'
+  ];
   function slimValeGestor(x) {
     const slim = {};
     GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
@@ -2037,24 +2092,24 @@ const saveVales = v => {
     if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
       slim.valeText = x.valeText;
     }
-    // NO incluir mensajeroId, confirmedTs, adminNotes — son del admin.
-    // Tampoco commissionStatus/commissionPaid — los gestores no deben escribirlos.
     if (x.deliveredTs) slim.deliveredTs = x.deliveredTs; // mensajero puede marcar entrega
-    // v50 FIX: para vales NUEVOS (status='pending' que no existe en Supabase
-    // todavía), SÍ incluimos el status inicial. Sin esto, el vale llegaba a
-    // Supabase sin status → al hacer poll, el filtro .includes(v.status) lo
-    // descartaba → el vale DESAPARECÍA de la pantalla del gestor y del admin,
-    // y al volver aparecía como "• undefined".
-    // Para vales EXISTENTES (prev ya tenía status), NO lo enviamos para no
-    // pisar cambios del admin (por ejemplo si el admin ya lo confirmó).
+    // v53 FIX: preservar campos del admin desde la caché local.
+    // Si el campo existe en el vale local, lo escribimos de vuelta para
+    // que el upsert no lo borre. Si NO existe (vale nuevo), lo dejamos
+    // con los valores iniciales de abajo.
+    ADMIN_PRESERVE_FIELDS.forEach(f => {
+      if (x[f] !== undefined && x[f] !== null && x[f] !== '') {
+        slim[f] = x[f];
+      }
+    });
     const _prev = prevMap.get(`${x.gestorId}/${x.id}`);
     if (!_prev) {
-      // Vale nuevo — incluir status inicial ('pending')
-      slim.status = x.status || 'pending';
-      slim.mensajeroId = null;
-      slim.confirmedTs = null;
+      // Vale nuevo — incluir status inicial ('pending') y campos del admin vacíos
+      if (!slim.status) slim.status = x.status || 'pending';
+      if (slim.mensajeroId === undefined) slim.mensajeroId = null;
+      if (slim.confirmedTs === undefined) slim.confirmedTs = null;
       slim.isNew = true;
-      slim.adminNotes = '';
+      if (slim.adminNotes === undefined) slim.adminNotes = '';
     }
     return slim;
   }
@@ -9303,6 +9358,15 @@ function renderHistorial() {
     gestorEl.value=curGFilter;
   }
   let vales=[...getVales()].reverse();
+  // v53 FIX: el historial del admin SOLO debe mostrar vales ya procesados
+  // (confirmed, pending_payment, cancelled, delivered, assigned). ANTES se
+  // mostraban también los 'pending' → el usuario veía vales recién llegados
+  // en el historial "sin haberse completado la venta", lo cual era confuso.
+  // Los vales 'pending' se siguen viendo en la pestaña "Vales" (bandeja activa).
+  vales=vales.filter(v=>{
+    const s=v.status||'pending';
+    return s==='confirmed'||s==='pending_payment'||s==='cancelled'||s==='delivered'||s==='assigned';
+  });
   const from=fromEl?fromEl.value:'';
   const to=toEl?toEl.value:'';
   const search=searchEl?searchEl.value.trim().toLowerCase():'';
@@ -9320,7 +9384,7 @@ function renderHistorial() {
       return phone.includes(searchClean)||cliente.includes(search)||valeNum.includes(search)||art.includes(search)||(valeNumStr(v).toLowerCase().includes(search));
     });
   }
-  if(!vales.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">'+(search?'Sin resultados para "'+escapeHTML(search)+'"':'Sin vales en el periodo seleccionado')+'</div></div>';return;}
+  if(!vales.length){c.innerHTML='<div class="es"><div class="es-icon">📭</div><div class="es-text">'+(search?'Sin resultados para "'+escapeHTML(search)+'"':'Sin vales procesados en el periodo seleccionado · los vales pendientes se ven en la pestaña "Vales"')+'</div></div>';return;}
   // Group by date
   const groups={};
   vales.forEach(v=>{

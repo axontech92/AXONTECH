@@ -1,9 +1,9 @@
 {
-  "version": 52,
-  "versionStr": "v52",
-  "hash": "d1180f6e32f9dd75",
-  "hashFull": "d1180f6e32f9dd75",
-  "releasedAt": "2026-08-13 23:09",
+  "version": 53,
+  "versionStr": "v53",
+  "hash": "530b5a0eddeb19ab",
+  "hashFull": "530b5a0eddeb19ab",
+  "releasedAt": "2026-08-14 03:44",
   "files": [
     "app.js",
     "app.css",
@@ -12,6 +12,9 @@
     "sw.js"
   ],
   "changelog": [
-    "Actualización automática · build d1180f6e"
+    "Fix: vales pendientes ya no aparecen en el historial del admin — solo se muestran vales procesados",
+    "Fix: el gestor ahora ve el estado real del vale (visto, asignado, entregado, confirmado) — antes se quedaba siempre en 'pendiente'",
+    "Fix: preservar campos del admin (status, seenByAdmin, confirmedTs) al escribir vales desde el gestor",
+    "Fix: forzar refresh de la vista del gestor al volver a la app"
   ]
 }
