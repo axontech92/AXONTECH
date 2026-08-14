@@ -824,18 +824,35 @@ async function _doRestPoll() {
               const ov = oldVales.find(x => x.id === nv.id);
               if (!ov) return; // new vale, not a status change
 
-              // Status change notification
-              if (ov.status !== nv.status) {
-                const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name||'')}` : escapeHTML(p.name||'')).join(', ');
+              // v52 FIX: prodNames se calculaba dentro del bloque `if (ov.status
+              // !== nv.status)` pero también se usaba más abajo en el bloque de
+              // seenByAdmin, fuera de ese scope (const es de bloque). Eso lanzaba
+              // "ReferenceError: prodNames is not defined" cada vez que el admin
+              // marcaba un vale como visto, lo cual abortaba este forEach ANTES de
+              // que se guardara el merge en _valesCache/localStorage (líneas más
+              // abajo) — dejando el caché de vales del gestor permanentemente
+              // desincronizado (el próximo poll comparaba contra el mismo ov
+              // desactualizado y volvía a crashear). Efecto: ninguna notificación
+              // de estado (asignado/entregado/cobrado/visto) volvía a llegar a ese
+              // gestor hasta recargar la app. Ahora se calcula una sola vez, sin
+              // condicionar al bloque de status.
+              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name||'')}` : escapeHTML(p.name||'')).join(', ');
 
+              // Status change notification (aviso local: sonido + push del navegador).
+              // v52 FIX: ya NO se llama addNotif() aquí — cada acción que cambia el
+              // status (asignar mensajero, entregar, cobrar) ya llama addNotif()
+              // directamente desde el dispositivo que la ejecuta (ver copyAndAssign,
+              // mensajeroEntrega, mensajeroPagado(Directo), confirmSale, markAsPaid),
+              // y esa notif ya llega sincronizada por Supabase. Llamarlo también aquí
+              // duplicaba cada notificación (dos entradas con id distinto para el
+              // mismo evento, porque _mergeNotifArrays dedup por id).
+              if (ov.status !== nv.status) {
                 if (nv.status === 'assigned') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta en camino 🛵', prodNames || '...');
                   if (typeof playSound === 'function') playSound('confirm');
-                  if (typeof addNotif === 'function') addNotif('vale_assigned', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
                 } else if (nv.status === 'delivered') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta entregada 🎉', prodNames);
                   if (typeof playSound === 'function') playSound('confirm');
-                  if (typeof addNotif === 'function') addNotif('vale_delivered', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
                 } else if (nv.status === 'confirmed') {
                   let amtStr = '';
                   if (typeof getValeCommissionParts === 'function') {
@@ -846,11 +863,9 @@ async function _doRestPoll() {
                   }
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
                   if (typeof playSound === 'function') playSound('confirm');
-                  if (typeof addNotif === 'function') addNotif('vale_confirmed', prodNames || '', null, 'Vale #' + valeNumStr(nv) + amtStr, nv.gestorId);
                 } else if (nv.status === 'pending_payment') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Pendiente de cobro ⏳', prodNames);
                   if (typeof playSound === 'function') playSound('confirm');
-                  if (typeof addNotif === 'function') addNotif('vale_pending', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
                 }
               }
 
@@ -858,7 +873,6 @@ async function _doRestPoll() {
               if (ov.status === 'pending' && nv.status === 'pending' && !ov.seenByAdmin && nv.seenByAdmin) {
                 if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Visto por admin 👁️', 'Tu vale fue visto');
                 if (typeof playSound === 'function') playSound('confirm');
-                if (typeof addNotif === 'function') addNotif('vale_seen', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId);
               }
             });
           }
@@ -4637,8 +4651,11 @@ function renderAdminGestoresList() {
       .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
     const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
-    // Comisiones de este gestor
-    const comVales=vales.filter(v=>['confirmed','pending_payment'].includes(v.status));
+    // Comisiones de este gestor.
+    // v52 FIX: incluía vales en 'pending_payment' (entregado pero AÚN sin cobrar)
+    // como si ya generaran comisión pendiente. La comisión debe contarse solo al
+    // completar la venta (status 'confirmed' = cobrada), no antes.
+    const comVales=vales.filter(v=>v.status==='confirmed');
     const pendientes=comVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
     const enSobre=comVales.filter(v=>v.commissionStatus==='en_sobre');
     const cobrados=comVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
@@ -5810,15 +5827,12 @@ function _computeGestorStatsForRange(gestorId, from, to) {
     }, sum), 0);
   // v41: Show potential points if no earned points yet (better UX for new gestores)
   const pts = ptsEarned > 0 ? ptsEarned : ptsPotential;
-  // v50 FIX: Commission SOLO se calcula sobre vales confirmed/pending_payment.
-  // ANTES (v41): si no había comisión "earned", se caía a comAll que incluía
-  // vales pending/assigned/delivered → el gestor veía comisión por vales que
-  // el admin todavía no había confirmado. Eso era confuso: "envié un vale y
-  // ya me cuenta la comisión como si fuera venta confirmada".
-  // Ahora: si no hay vales confirmed/pending_payment, comBadge = null (no se
-  // muestra la tarjeta de comisión). El gestor ve su comisión real solo cuando
-  // el admin confirma la venta.
-  const comValesEarned = vales.filter(v => earnedStatuses.includes(v.status));
+  // v52 FIX: la comisión se cuenta solo al completar la venta (status
+  // 'confirmed' = cobrada). v50 la calculaba sobre confirmed+pending_payment,
+  // así que un vale apenas entregado (aún sin cobrar) ya sumaba comisión —
+  // justo el bug que v50 decía estar arreglando, solo que a medias: seguía
+  // incluyendo pending_payment en vez de limitarse a confirmed.
+  const comValesEarned = vales.filter(v => v.status === 'confirmed');
   const com = sumCommissions(comValesEarned);
   const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
   // Conversion: confirmed / (total - cancelled - pending still pending)
@@ -6036,8 +6050,10 @@ function renderGestorComisiones() {
   const section=document.getElementById('gestorComisionSection');
   const list=document.getElementById('gestorComisionList');
   if(!section||!list||!activeGestorId){if(section)section.style.display='none';return;}
-  // Get confirmed/pending_payment vales for this gestor
-  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&['confirmed','pending_payment'].includes(v.status));
+  // v52 FIX: la comisión se cuenta solo al completar la venta (status
+  // 'confirmed' = cobrada). 'pending_payment' es entregado pero AÚN sin cobrar,
+  // así que no debe generar comisión todavía.
+  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');
   // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
   const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
   const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
@@ -7551,10 +7567,14 @@ function _renderStatsGestorCard(g, vales, from, to) {
     if (ticketAvgMN > 0) ticketParts.push(`${Math.round(ticketAvgMN)} MN`);
     const ticketStr = ticketParts.length ? ticketParts.join(' + ') : '—';
 
-    // Commission summary
-    const pendCom = closedVales.filter(v => !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
-    const enSobre = closedVales.filter(v => v.commissionStatus === 'en_sobre');
-    const cobrados = closedVales.filter(v => v.commissionPaid || v.commissionStatus === 'cobrado');
+    // Commission summary.
+    // v52 FIX: usaba closedVales (incluye 'pending_payment', o sea entregado
+    // pero AÚN sin cobrar) para contar comisiones. La comisión debe contarse
+    // solo al completar la venta (status 'confirmed' = cobrada).
+    const confirmedVales = gv.filter(v => v.status === 'confirmed');
+    const pendCom = confirmedVales.filter(v => !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
+    const enSobre = confirmedVales.filter(v => v.commissionStatus === 'en_sobre');
+    const cobrados = confirmedVales.filter(v => v.commissionPaid || v.commissionStatus === 'cobrado');
     const comParts = [];
     if (pendCom.length) comParts.push(`<span style="color:var(--orange);font-weight:600;">${pendCom.length} pend.</span>`);
     if (enSobre.length) comParts.push(`<span style="color:var(--yellow);font-weight:600;">✉️ ${enSobre.length} en sobre</span>`);
@@ -8518,7 +8538,8 @@ function markAllCommissionsEnSobre(gestorId,e) {
   const all=getVales();
   let changed=false;
   all.forEach(v=>{
-    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&['confirmed','pending_payment'].includes(v.status)){
+    // v52 FIX: solo vales 'confirmed' (venta completada/cobrada) generan comisión.
+    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&v.status==='confirmed'){
       v.commissionPaid=false;v.commissionStatus='en_sobre';v.commissionEnSobreTs=ts;changed=true;
     }
   });
@@ -8534,7 +8555,8 @@ function markAllCommissionsCobrado(gestorId,e) {
   const all=getVales();
   let changed=false;
   all.forEach(v=>{
-    if(v.gestorId===gestorId&&!v.commissionPaid&&['confirmed','pending_payment'].includes(v.status)){
+    // v52 FIX: solo vales 'confirmed' (venta completada/cobrada) generan comisión.
+    if(v.gestorId===gestorId&&!v.commissionPaid&&v.status==='confirmed'){
       v.commissionPaid=true;v.commissionStatus='cobrado';v.commissionPaidTs=ts;changed=true;
     }
   });
