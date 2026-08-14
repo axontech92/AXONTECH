@@ -836,23 +836,33 @@ async function _doRestPoll() {
               // de estado (asignado/entregado/cobrado/visto) volvía a llegar a ese
               // gestor hasta recargar la app. Ahora se calcula una sola vez, sin
               // condicionar al bloque de status.
-              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name||'')}` : escapeHTML(p.name||'')).join(', ');
+              // v52 FIX: sin escapeHTML aquí. Este texto se guarda como DATO en la
+              // notificación y quien lo pinta (renderItem) ya lo escapa, así que
+              // escaparlo también aquí lo hacía dos veces: un producto llamado
+              // 'Controlador solar 120A Y&H' se le mostraba al gestor como
+              // 'Y&amp;amp;H'. El escapado va en la capa que pinta, no en el dato.
+              // Ojo: prodNames se usa además en sendBrowserNotif, que muestra
+              // texto plano — otra razón para no meterle entidades HTML.
+              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${p.name||''}` : (p.name||'')).join(', ');
 
-              // Status change notification (aviso local: sonido + push del navegador).
-              // v52 FIX: ya NO se llama addNotif() aquí — cada acción que cambia el
-              // status (asignar mensajero, entregar, cobrar) ya llama addNotif()
-              // directamente desde el dispositivo que la ejecuta (ver copyAndAssign,
-              // mensajeroEntrega, mensajeroPagado(Directo), confirmSale, markAsPaid),
-              // y esa notif ya llega sincronizada por Supabase. Llamarlo también aquí
-              // duplicaba cada notificación (dos entradas con id distinto para el
-              // mismo evento, porque _mergeNotifArrays dedup por id).
+              // Status change notification.
+              // El propio dispositivo del gestor genera aquí la notif además de
+              // la que crea el admin al ejecutar la acción. Esa redundancia es
+              // deliberada: 'notifs' es una fila SINGLETON en Supabase que cada
+              // dispositivo reescribe entera, así que el aviso del admin se puede
+              // perder si otro dispositivo guarda su copia antes de recibirlo.
+              // Detectar el cambio sobre los vales (que sí se sincronizan fila a
+              // fila) es la vía fiable. La clave `evt` hace que ambas notifs se
+              // colapsen en una sola en _mergeNotifArrays, sin duplicados.
               if (ov.status !== nv.status) {
                 if (nv.status === 'assigned') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta en camino 🛵', prodNames || '...');
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_assigned', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId, 'vale_assigned:' + nv.id);
                 } else if (nv.status === 'delivered') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta entregada 🎉', prodNames);
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_delivered', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId, 'vale_delivered:' + nv.id);
                 } else if (nv.status === 'confirmed') {
                   let amtStr = '';
                   if (typeof getValeCommissionParts === 'function') {
@@ -863,9 +873,11 @@ async function _doRestPoll() {
                   }
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_confirmed', prodNames || '', null, 'Vale #' + valeNumStr(nv) + amtStr, nv.gestorId, 'vale_confirmed:' + nv.id);
                 } else if (nv.status === 'pending_payment') {
                   if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Pendiente de cobro ⏳', prodNames);
                   if (typeof playSound === 'function') playSound('confirm');
+                  if (typeof addNotif === 'function') addNotif('vale_pending', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId, 'vale_pending:' + nv.id);
                 }
               }
 
@@ -873,6 +885,7 @@ async function _doRestPoll() {
               if (ov.status === 'pending' && nv.status === 'pending' && !ov.seenByAdmin && nv.seenByAdmin) {
                 if (typeof sendBrowserNotif === 'function') sendBrowserNotif('Visto por admin 👁️', 'Tu vale fue visto');
                 if (typeof playSound === 'function') playSound('confirm');
+                if (typeof addNotif === 'function') addNotif('vale_seen', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId, 'vale_seen:' + nv.id);
               }
             });
           }
@@ -3440,13 +3453,64 @@ function _descontarStock(v) {
   return stockChanged;
 }
 
-function addNotif(type, productName, productId, extra, gestorId) {
+// v52: tipos de aviso que son PERSONALES de un gestor (su vale, su ranking).
+// El resto (stock, productos nuevos) son avisos globales de la tienda.
+const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'];
+const _esNotifPersonal = n => !!n && NOTIF_PERSONAL_TYPES.includes(n.type);
+
+// v52 FIX: el recorte a 50 avisos era ciego y el array de notifs es GLOBAL:
+// lo comparten todos los gestores y además lleva los avisos de stock/productos.
+// Con el negocio en marcha (ventas de otros gestores, movimientos de stock) el
+// aviso personal de un gestor —"tu venta fue cobrada"— quedaba fuera del corte
+// y desaparecía antes de que ese gestor abriera la app. Es el mismo fallo que
+// el del orden roto, por otra vía.
+// AHORA el recorte reserva cuota: hasta 35 avisos personales y 15 globales, y
+// si una categoría no llena su cuota la otra aprovecha el hueco. El total sigue
+// acotado a 50 para no inflar la fila singleton de Supabase.
+const NOTIF_CAP = 50, NOTIF_CAP_PERSONAL = 35;
+function _trimNotifs(arr) {
+  const list = (Array.isArray(arr) ? arr : []).filter(Boolean);
+  if (list.length <= NOTIF_CAP) return list;
+  const personales = list.filter(_esNotifPersonal);
+  const globales   = list.filter(n => !_esNotifPersonal(n));
+  // Cada categoría cede al otro el espacio que no usa.
+  const nPersonal = Math.min(personales.length, Math.max(NOTIF_CAP_PERSONAL, NOTIF_CAP - globales.length));
+  const nGlobal   = Math.min(globales.length, NOTIF_CAP - nPersonal);
+  const keep = new Set([...personales.slice(0, nPersonal), ...globales.slice(0, nGlobal)]);
+  return list.filter(n => keep.has(n)); // conserva el orden original del array
+}
+
+// v52 FIX: ids únicos y monótonos para las notificaciones.
+// ANTES: addNotif usaba `id: Date.now()`. Varias notifs creadas en el MISMO
+// milisegundo (caso real: confirmSale → _descontarStock emite un 'sale_product'
+// por producto y justo después se emite el 'vale_confirmed' del gestor) recibían
+// el MISMO id. Como _mergeNotifArrays deduplica con un Map por id, al primer
+// merge con Supabase sobrevivía UNA sola de ellas — y la que ganaba era la
+// última escrita en el Map, normalmente un 'sale_product'. Resultado: la notif
+// 'vale_confirmed' del gestor desaparecía. Ese era el motivo real de que "al
+// cobrar" el gestor nunca viera nada.
+// El id debe seguir siendo numérico y creciente porque renderGestorNotifs lo
+// compara con `n.id <= personalClearedId` y con los parseInt de
+// axon_viewed_id_/axon_cleared_id_ para saber qué ya fue visto/limpiado.
+let _lastNotifId = 0;
+function _nextNotifId() {
+  const now = Date.now();
+  _lastNotifId = now > _lastNotifId ? now : _lastNotifId + 1;
+  return _lastNotifId;
+}
+
+// v52: `evt` es una clave estable del EVENTO (ej. 'vale_confirmed:2001').
+// Sirve para que la notif que crea el admin y la que crea el propio dispositivo
+// del gestor al detectar el cambio de estado se reconozcan como el MISMO aviso
+// y se colapsen en uno solo, en vez de duplicarse o perderse.
+function addNotif(type, productName, productId, extra, gestorId, evt) {
   const notifs = getNotifs();
-  notifs.unshift({ id:Date.now(), type, productName, productId, ts:new Date().toISOString(), read:false, extra:extra||'', gestorId:gestorId||null });
-  if (notifs.length > 50) notifs.splice(50);
-  // v51 DEBUG: log para verificar que las notifs se generan correctamente
-  console.log('[addNotif]', { type, gestorId, activeGestorId, productName, extra, totalNotifs: notifs.length });
-  saveNotifs(notifs);
+  const n = { id:_nextNotifId(), type, productName, productId, ts:new Date().toISOString(), read:false, extra:extra||'', gestorId:gestorId||null };
+  if (evt) n.evt = evt;
+  // Si este evento ya existe localmente, no lo duplicamos.
+  if (evt && notifs.some(x => x && x.evt === evt)) return;
+  notifs.unshift(n);
+  saveNotifs(_trimNotifs(notifs));
   renderGestorNotifs();
 }
 
@@ -3488,6 +3552,20 @@ function _markNotifDeleted(id) {
 }
 // v43: unión por id de los arrays local y remoto, sin duplicados y sin
 // resucitar notificaciones eliminadas (tombstones). Cap de 50.
+//
+// v52 FIX (dos bugs que hacían desaparecer notificaciones):
+//  1. El sort restaba `ts`, que son STRINGS ISO ('2026-08-14T...'), no números.
+//     Restar dos strings da NaN, así que el comparador devolvía NaN siempre y el
+//     array quedaba SIN ordenar. Como después se corta con .slice(0,50) y las
+//     locales viejas van primero en el Map, cuando el gestor ya tenía 50 notifs
+//     acumuladas TODA notificación nueva del admin caía fuera del corte y se
+//     perdía en silencio. Ahora se ordena por fecha real (desc) antes de cortar,
+//     así el cap de 50 descarta lo más viejo y nunca lo más nuevo.
+//  2. Se deduplica también por `evt` (clave de evento), para que el aviso que
+//     genera el admin y el que genera el propio dispositivo del gestor al
+//     detectar el cambio de estado se colapsen en UNO, en vez de aparecer
+//     duplicados. Se conserva el de id menor (el original) para que el id sea
+//     estable entre dispositivos y no rompa la lógica de "ya visto/limpiado".
 function _mergeNotifArrays(localArr, remoteArr) {
   const deleted = new Set(_notifDeletedKeys());
   const map = new Map();
@@ -3497,7 +3575,38 @@ function _mergeNotifArrays(localArr, remoteArr) {
   for (const n of (Array.isArray(remoteArr) ? remoteArr : [])) {
     if (n && n.id != null && !deleted.has(String(n.id))) map.set(String(n.id), n);
   }
-  return Array.from(map.values()).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 50);
+  // Colapsar por evento: mismo evt → se queda el de id menor.
+  const byEvt = new Map();
+  for (const n of map.values()) {
+    if (!n.evt) continue;
+    const prev = byEvt.get(n.evt);
+    if (!prev || Number(n.id) < Number(prev.id)) byEvt.set(n.evt, n);
+  }
+  const out = [];
+  for (const n of map.values()) {
+    if (n.evt && byEvt.get(n.evt) !== n) continue; // duplicado del mismo evento
+    out.push(n);
+  }
+  const _t = v => { const ms = Date.parse(v && v.ts); return isNaN(ms) ? 0 : ms; };
+  // Ordenar por fecha real (desc) y recortar respetando la cuota de avisos
+  // personales, para que la actividad global no desaloje el aviso de un gestor.
+  return _trimNotifs(out.sort((a, b) => _t(b) - _t(a)));
+}
+// v52: borra los avisos de ciclo de vida (visto/asignado/entregado/cobrado) de
+// un vale concreto. Se usa al revertir una venta, para que el estado que ve el
+// gestor sea coherente y un nuevo cambio de estado vuelva a notificar.
+function _clearValeEventNotifs(valeId) {
+  const suffix = ':' + valeId;
+  const notifs = getNotifs();
+  const kept = notifs.filter(n => {
+    const isThisVale = n && typeof n.evt === 'string' && n.evt.endsWith(suffix);
+    if (isThisVale) _markNotifDeleted(n.id); // tombstone: no revive en el próximo merge
+    return !isThisVale;
+  });
+  if (kept.length !== notifs.length) {
+    saveNotifs(kept);
+    renderGestorNotifs();
+  }
 }
 function clearSingleNotif(notifId) {
   const notifs = getNotifs();
@@ -3518,7 +3627,7 @@ function clearPersonalNotifs(gestorId) {
   // volvía a ver notifs personales aunque llegaran nuevas después de limpiar.
   const _notifs = getNotifs();
   const _mine = _notifs.filter(n =>
-    ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type) &&
+    NOTIF_PERSONAL_TYPES.includes(n.type) &&
     n.gestorId === gestorId
   );
   if (_mine.length > 0) {
@@ -3544,7 +3653,7 @@ function renderGestorNotifs() {
   const visibleNotifs = clearedIdx !== -1 ? notifs.slice(0, clearedIdx) : notifs;
 
   // Global Notifs
-  const globalNotifs = visibleNotifs.filter(n => !['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type));
+  const globalNotifs = visibleNotifs.filter(n => !NOTIF_PERSONAL_TYPES.includes(n.type));
   
   // Personal Notifs — v47 FIX: ya no usamos un flag binario 'personalCleared'.
   // Ahora usamos 'axon_cleared_personal_id_<gId>' = ID de la notif más reciente
@@ -3565,7 +3674,7 @@ function renderGestorNotifs() {
     // Primera carga tras update v47: marcar como limpiadas todas las actuales,
     // pero permitir que las FUTURAS se vean. Usamos el id mayor encontrado.
     const _legacyMine = notifs.filter(n =>
-      ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type) &&
+      NOTIF_PERSONAL_TYPES.includes(n.type) &&
       n.gestorId === activeGestorId
     );
     if (_legacyMine.length > 0) {
@@ -3577,7 +3686,7 @@ function renderGestorNotifs() {
     }
   }
   const personalNotifs = notifs.filter(n => {
-    if (!['vale_confirmed', 'vale_assigned', 'vale_seen', 'vale_delivered', 'vale_pending', 'ranking_top3'].includes(n.type)) return false;
+    if (!NOTIF_PERSONAL_TYPES.includes(n.type)) return false;
     if (!activeGestorId) return false;
     // v47 FIX: comparación robusta Number===Number (gestorId puede venir como
     // string desde Supabase JSON en algunos casos edge).
@@ -3588,7 +3697,7 @@ function renderGestorNotifs() {
   });
   // v51 DEBUG: log para verificar el filtro de notifs personales
   if (!IS_ADMIN && activeGestorId) {
-    const _debugTotal = notifs.filter(n => ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type)).length;
+    const _debugTotal = notifs.filter(n => NOTIF_PERSONAL_TYPES.includes(n.type)).length;
     if (_debugTotal > 0) {
       console.log('[renderGestorNotifs]', { activeGestorId, totalPersonalType: _debugTotal, afterFilter: personalNotifs.length, personalClearedId });
     }
@@ -4889,9 +4998,16 @@ function renderAdminGestores() {
 
   let html = '';
   
-  // Only show gestores that have AT LEAST ONE pending vale (excluye confirmed, delivered y cancelled)
+  // Solo gestores con AL MENOS UN vale activo (excluye confirmed y cancelled).
+  // v52 FIX: antes también excluía 'delivered', pero ese NO es un estado final:
+  // renderValeDetail ofrece para él "Confirmar venta + Entregado / Pendiente de
+  // cobro". Al ocultarlo, un vale en 'delivered' quedaba huérfano — invisible en
+  // el panel y por tanto imposible de cerrar. Es el mismo fallo ya corregido en
+  // revertConfirmSale (AUDITORIA-AXONTECH.md ALTO 8) que aquí seguía vivo.
+  // Ningún flujo actual produce 'delivered', pero sí aparece en datos antiguos
+  // y en los datos de demostración.
   const gestoresConPendientes = gestores.filter(g => {
-     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled');
+     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled');
   });
 
   if(gestoresConPendientes.length === 0) {
@@ -4900,8 +5016,8 @@ function renderAdminGestores() {
   }
 
   gestoresConPendientes.forEach(g => {
-    // Only fetch active (not confirmed/delivered/cancelled)
-    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'delivered' && v.status !== 'cancelled').reverse();
+    // Solo vales activos (no confirmed/cancelled) — 'delivered' incluido, ver arriba.
+    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled').reverse();
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -4968,15 +5084,18 @@ function buildInboxCard(v) {
 
 function selectVale(id) {
   const v = getVales().find(x => x.id === id);
-  // Fire "seen" notif to the gestor ONCE: only on the first open of a brand-new
-  // vale that was submitted by a gestor (not auto-generated by admin).
-  const wasNew = !!(v && v.isNew);
+  // Fire "seen" notif to the gestor ONCE: on the first open of a vale that was
+  // submitted by a gestor (not auto-generated by admin).
   const fromGestor = !!(v && v.gestorId && v.adminNotes !== 'Generado por Admin');
   const alreadySeen = !!(v && v.seenByAdmin);
   selectedValeId = id;
   patchVale(id, { isNew: false, seenByAdmin: true, seenTs: new Date().toISOString() });
-  if (wasNew && fromGestor && !alreadySeen) {
-    addNotif('vale_seen', v.cliente || 'Cliente', null, valeNumStr(v) || '', v.gestorId);
+  if (fromGestor && !alreadySeen) {
+    // v52 FIX: antes exigía además `wasNew` (v.isNew). Si el flag isNew se había
+    // perdido en una sincronización, el admin abría el vale, se marcaba
+    // seenByAdmin... y NO se creaba la notif "visto por admin". Basta con que sea
+    // un vale de gestor que aún no estaba visto.
+    addNotif('vale_seen', v.cliente || 'Cliente', null, valeNumStr(v) || '', v.gestorId, 'vale_seen:' + id);
   }
   updateAdminBadge();renderAdminGestores();renderValeDetail();
 }
@@ -5384,7 +5503,7 @@ function copyAndAssign() {
   navigator.clipboard.writeText(text).catch(()=>{});
   const vAsign=getVales().find(x=>x.id===shareTargetId);
   patchVale(shareTargetId,{status:'assigned',mensajeroId:mId});
-  if(vAsign) addNotif('vale_assigned',vAsign.cliente||'Tu cliente',null,m?m.name:'',vAsign.gestorId);
+  if(vAsign) addNotif('vale_assigned',vAsign.cliente||'Tu cliente',null,m?m.name:'',vAsign.gestorId,'vale_assigned:'+shareTargetId);
   closeShareModal();selectedValeId=shareTargetId;
   renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();
@@ -5418,7 +5537,7 @@ function mensajeroEntrega(id) {
   // ANTES (v46-): se usaba 'vale_assigned' que muestra "Tu venta está con el
   // mensajero" — confuso porque el mensajero YA entregó. Ahora usamos
   // 'vale_pending' que muestra "Vale en proceso de cobro".
-  addNotif('vale_pending', v.cliente||'Cliente', null, 'Entregado · Pendiente de cobro', v.gestorId);
+  addNotif('vale_pending', v.cliente||'Cliente', null, 'Entregado · Pendiente de cobro', v.gestorId, 'vale_pending:'+id);
   patchVale(id,{status:'pending_payment',deliveredTs:new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5442,7 +5561,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
     showToast('Esta venta ya tiene stock descontado');
     // Just transition to confirmed without touching stock
     patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
-    addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+    addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
     gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
     playSound('confirm');
     renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5458,7 +5577,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
   }
   // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
-  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -5486,7 +5605,7 @@ function mensajeroPagado(id, skipConfirm) {
   if(v.status === 'confirmed') { showToast('Esta venta ya fue confirmada'); return; }
   if(v.status === 'pending_payment' || v.stockDecremented) {
     // Stock already decremented — just confirm the sale
-    addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+    addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
     _logAudit('vale_confirmed', 'vale:' + id);
     patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
     gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -5504,7 +5623,7 @@ function mensajeroPagado(id, skipConfirm) {
   }
   // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
-  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -5534,9 +5653,20 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     showToast('Esta venta ya fue confirmada');
     return;
   }
-  // Descuento de stock garantizado (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
-  _descontarStock(v);
-  if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId);
+  // Descuento de stock garantizado (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28).
+  // v52 FIX: se comprueba stockDecremented antes de descontar. ANTES la única
+  // guarda era el status (confirmed/pending_payment), así que un vale que ya
+  // tenía el stock descontado pero estaba en otro estado —caso real: un vale
+  // 'delivered' heredado— lo descontaba OTRA VEZ al confirmarlo desde el panel,
+  // perdiendo inventario real. Los otros tres flujos de cobro
+  // (mensajeroPagado, mensajeroPagadoDirecto, mensajeroEntrega) ya comprobaban
+  // esta bandera; confirmSale era el único que no.
+  if(!v.stockDecremented) _descontarStock(v);
+  // v52: si el admin marca "Entregado (por cobrar)" también se avisa al gestor.
+  // ANTES solo se notificaba cuando paymentStatus era 'confirmed'; con
+  // 'pending_payment' el gestor no recibía nada desde este flujo.
+  if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
+  else if(paymentStatus === 'pending_payment') addNotif('vale_pending',v.cliente||'Cliente',null,'Entregado · Pendiente de cobro',v.gestorId,'vale_pending:'+id);
   _logAudit('vale_confirm_' + paymentStatus, 'vale:' + id);
   patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -5567,7 +5697,7 @@ function markAsPaid(id, skipConfirm) {
   // ANTES (v46-): markAsPaid era el ÚNICO path de confirmación que NO llamaba
   // addNotif — el gestor solo se enteraba si su app estaba abierta y el poll
   // detectaba el cambio de status. Ahora garantizamos la notif desde el admin.
-  addNotif('vale_confirmed', v.cliente||'Cliente', null, `Total: ${v.total||''}`, v.gestorId);
+  addNotif('vale_confirmed', v.cliente||'Cliente', null, `Total: ${v.total||''}`, v.gestorId, 'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -6155,8 +6285,14 @@ function cancelVale(id) {
     // as 'cancelled'. Cancelled vales were reappearing on refresh because
     // they still existed in Supabase. Now we remove completely.
     _valesDirectDeleting.add(String(id));
-    // v33: Auto-revert stock if the vale was confirmed/pending_payment
-    if ((v.status==='confirmed'||v.status==='pending_payment') && v.stockDecremented) {
+    // Devolver el stock al inventario si este vale lo había descontado.
+    // v52 FIX: la condición exigía además que el estado fuese confirmed o
+    // pending_payment. Un vale con el stock ya descontado en cualquier otro
+    // estado (p.ej. 'delivered' heredado) se borraba SIN devolver el stock —
+    // inventario perdido en silencio, y este botón está disponible para el
+    // gestor sobre cualquiera de sus vales. La bandera stockDecremented es por
+    // sí sola la fuente de verdad, igual que ya hacía adminDeleteVale.
+    if (v.stockDecremented) {
       (v.valeProductos||[]).forEach(({id:pid,qty})=>{
         const prod=productoOf(pid);if(!prod)return;
         const restored=Math.max(0,(prod.stock||0)+qty);
@@ -6166,6 +6302,9 @@ function cancelVale(id) {
     const filtered = getVales().filter(x=>x.id!==id);
     saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
+    // v52: quitar los avisos de estado de un vale que ya no existe, para que el
+    // gestor no siga viendo "venta cobrada" de algo eliminado.
+    _clearValeEventNotifs(id);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
@@ -6230,6 +6369,9 @@ function adminDeleteVale(id) {
     const filtered = getVales().filter(x=>x.id!==id);
     saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
+    // v52: quitar los avisos de estado de un vale que ya no existe, para que el
+    // gestor no siga viendo "venta cobrada" de algo eliminado.
+    _clearValeEventNotifs(id);
     if(selectedValeId===id)selectedValeId=null;
     showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
@@ -9493,6 +9635,10 @@ function revertConfirmSale(id, skipConfirm) {
   const prevStatus = v.mensajeroId ? 'assigned' : 'pending';
   patchVale(id,{status:prevStatus,confirmedTs:null,commissionPaid:false,commissionStatus:null,commissionPaidTs:null,commissionEnSobreTs:null,stockDecremented:false});
   _logAudit('vale_reverted', 'vale:' + id + ' → ' + prevStatus);
+  // v52: al revertir se borran los avisos de estado de ESTE vale. Así el gestor
+  // deja de ver "venta cobrada" de algo que ya no lo está, y si el admin vuelve
+  // a confirmarlo se genera un aviso nuevo (la clave `evt` ya no está ocupada).
+  _clearValeEventNotifs(id);
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();
   renderConfirmados();renderPendienteCobro();
