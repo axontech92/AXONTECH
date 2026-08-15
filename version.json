@@ -1,9 +1,9 @@
 {
-  "version": 58,
-  "versionStr": "v58",
-  "hash": "df0785a9802aa974",
-  "hashFull": "df0785a9802aa974",
-  "releasedAt": "2026-08-15 01:41",
+  "version": 59,
+  "versionStr": "v59",
+  "hash": "f1a63ed61ee8ec67",
+  "hashFull": "f1a63ed61ee8ec67",
+  "releasedAt": "2026-08-15 01:48",
   "files": [
     "app.js",
     "app.css",
@@ -12,7 +12,8 @@
     "sw.js"
   ],
   "changelog": [
-    "DIAGNÓSTICO: los avisos del admin llegan al gestor pero el estado de sus vales sigue congelado. Esta versión hace visible el fallo de sincronización de vales, que hasta ahora se silenciaba sin dejar rastro",
-    "Los errores al sincronizar vales ya no pasan desapercibidos: se muestran en la consola en vez de ocultarse"
+    "FIX CRÍTICO: los cambios de estado del admin (confirmar, asignar, cobrar) NO se estaban guardando en la nube. Se veían bien en la pantalla del admin y un minuto después se revertían solos a 'sin confirmar'",
+    "FIX: por ese mismo motivo el gestor nunca recibía el estado real de sus vales. Los avisos sí le llegaban, porque van por otro camino, y por eso parecía que el fallo estaba en los avisos",
+    "Los vales que se hubieran quedado con el estado viejo en la nube se corrigen solos al abrir la app"
   ]
 }

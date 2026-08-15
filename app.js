@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 58;
+const APP_VERSION = 59;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'df0785a9802aa974';
+let _LOCAL_BUILD_HASH = 'f1a63ed61ee8ec67';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2128,6 +2128,16 @@ const setSB = (path, v) => {
 // ═══ In-memory cache layer ═══
 let _gestoresCache = null, _gestoresDirty = true;
 let _valesCache = null, _valesDirty = true;
+// v58: último slim de cada vale TAL Y COMO SE ENVIÓ a Supabase, serializado y
+// por clave `gestorId/valeId`. saveVales lo usa para decidir qué ha cambiado
+// de verdad. Tiene que ser texto y no referencias a los objetos del caché:
+// patchVale y compañía mutan los vales DENTRO del array de _valesCache, así que
+// comparar contra ese array era comparar el vale consigo mismo y el diff salía
+// siempre vacío (ver el FIX detallado en saveVales).
+// Arranca vacío en cada carga, así que el primer guardado de la sesión reenvía
+// los vales una vez. Es idempotente —el upsert deja el mismo resultado— y de
+// paso repara en Supabase los que se hubieran quedado con el estado viejo.
+const _valesPrevSlimJson = new Map();
 let _mensajerosCache = null, _mensajerosDirty = true;
 let _productosCache = null, _productosDirty = true;
 let _categoriasCache = null, _categoriasDirty = true;
@@ -2315,19 +2325,39 @@ const saveVales = v => {
     v.forEach(x => {
       const key = `${x.gestorId}/${x.id}`;
       curKeys.add(key);
-      const prev = prevMap.get(key);
-      // Solo encolar si es nuevo o cambió (comparación por JSON stringify del slim)
+      // v58 FIX: el diff se comparaba contra prevMap, construido desde
+      // _valesCache. Pero patchVale (que es como el admin confirma, asigna y
+      // cobra) hace `const all = getVales(); all[i] = {...all[i], ...changes};
+      // saveVales(all)`, y getVales() devuelve _valesCache POR REFERENCIA. Así
+      // que para cuando saveVales comparaba, "el estado anterior" ya traía el
+      // cambio aplicado: slim y prevSlim eran idénticos, updates quedaba vacío
+      // y el `return` de más abajo cortaba la escritura. El cambio de estado
+      // del admin NUNCA se subía a Supabase.
+      // Efecto, que es justo lo que se veía: el admin confirmaba, lo veía
+      // confirmado en su pantalla (localStorage sí se actualiza) y ~60 s
+      // después el poll leía 'pending' de Supabase y se lo revertía, al
+      // expirar la ventana de local-wins. Y el gestor no recibía nada, porque
+      // no había nada que recibir. Los avisos sí le llegaban porque van por
+      // otro camino (saveNotifs → setSB directo, sin diff), y esa asimetría
+      // era la que despistaba.
+      // AHORA se compara contra un snapshot SERIALIZADO del último slim
+      // enviado. Al ser texto y no referencias, es inmune a que alguien mute
+      // los vales del caché por debajo.
       const slim = slimVale(x);
-      const prevSlim = prev ? slimVale(prev) : null;
-      if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
+      const slimStr = JSON.stringify(slim);
+      if (_valesPrevSlimJson.get(key) !== slimStr) {
         updates[key] = slim;
+        _valesPrevSlimJson.set(key, slimStr);
       }
     });
-    // Borrados reales: vales que estaban en prevVales pero ya no están en v
+    // Borrados reales: vales que estaban en prevVales pero ya no están en v.
+    // Esto sí funciona con prevVales: al borrar se construye un array NUEVO
+    // (getVales().filter(...)), sin mutar el anterior, así que la ausencia se
+    // detecta bien. El bug del diff solo afectaba a las MODIFICACIONES.
     if (Array.isArray(prevVales)) {
       prevVales.forEach(x => {
         const key = `${x.gestorId}/${x.id}`;
-        if (!curKeys.has(key)) updates[key] = null;
+        if (!curKeys.has(key)) { updates[key] = null; _valesPrevSlimJson.delete(key); }
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
@@ -2337,18 +2367,30 @@ const saveVales = v => {
     // porque tocaría los vales de los demás gestores.
     const mine = v.filter(x => x.gestorId === activeGestorId);
     mine.forEach(x => {
-      const prev = prevMap.get(`${x.gestorId}/${x.id}`);
       // v17: usar slimValeGestor — solo campos del gestor, nunca status/mensajeroId/etc.
+      // v58 FIX: mismo problema de referencia compartida que en la rama del
+      // admin — se comparaba contra prevMap, que puede traer el vale ya mutado,
+      // y la edición del gestor se quedaba sin subir. Aquí el daño era menor
+      // (el slim del gestor no lleva status, así que no pisaba nada del admin),
+      // pero perdía igualmente cambios de datos del cliente.
+      // Ojo: slimValeGestor sigue usando prevMap para saber si el vale es NUEVO,
+      // y eso es correcto — prevVales contiene todos los vales existentes, estén
+      // mutados o no, así que "no está en prevMap" solo pasa con vales nuevos de
+      // verdad. Es importante no tocarlo: si un vale existente se tomara por
+      // nuevo, el gestor le mandaría status:'pending' y confirmedTs:null, y sí
+      // pisaría la confirmación del admin.
+      const key = `${x.gestorId}/${x.id}`;
       const slim = slimValeGestor(x);
-      const prevSlim = prev ? slimValeGestor(prev) : null;
-      if (!prevSlim || JSON.stringify(prevSlim) !== JSON.stringify(slim)) {
+      const slimStr = JSON.stringify(slim);
+      if (_valesPrevSlimJson.get(key) !== slimStr) {
         updates[x.id] = slim;
+        _valesPrevSlimJson.set(key, slimStr);
       }
     });
     if (Array.isArray(prevVales)) {
       const kept = new Set(mine.map(x => x.id));
       prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
-        if (!kept.has(x.id)) updates[x.id] = null;
+        if (!kept.has(x.id)) { updates[x.id] = null; _valesPrevSlimJson.delete(`${x.gestorId}/${x.id}`); }
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
