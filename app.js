@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 57;
+const APP_VERSION = 58;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '6e97cf2780d97aff';
+let _LOCAL_BUILD_HASH = 'df0785a9802aa974';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -680,6 +680,23 @@ async function _doRestPoll() {
       try {
         const rawVales = await _sbRestGetCollection('vales');
         const flatVales = _flattenValesFromSB(rawVales);
+        // v58 DIAG: los avisos del admin llegan al gestor pero los estados de los
+        // vales no. Ambos viajan en este mismo poll: los vales aquí, las notifs
+        // más abajo (fila 'notifs' de meta). Que lleguen unas y no otros implica
+        // que el poll corre y que es este bloque el que no surte efecto. Esta
+        // línea dice en cuál de los tres puntos se rompe:
+        //   · no aparece nada          → el GET de vales falla (ver [AXON-DIAG] FALLO)
+        //   · aparece con status viejo → Supabase no tiene el cambio del admin
+        //   · aparece con status nuevo → el fallo está en el merge/guardado de abajo
+        if (!IS_ADMIN) {
+          try {
+            const _g = Number(activeGestorId);
+            const _mios = flatVales.filter(v => v && Number(v.gestorId) === _g);
+            console.log('[AXON-DIAG] filas:' + (rawVales||[]).length + ' aplanados:' + flatVales.length +
+              ' mios:' + _mios.length + ' | ' +
+              _mios.map(v => (v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : v.id) + '=' + (v.status||'SIN-STATUS') + (v.seenByAdmin ? '+visto' : '')).join(' '));
+          } catch(_e) {}
+        }
         // v34 FIX: ALWAYS update localStorage from Supabase, even if flatVales is empty.
         // ANTES: solo se actualizaba si flatVales.length > 0. Si se borraban TODOS los
         // vales de Supabase, localStorage mantenía los vales "zombie" y reaparecían.
@@ -939,7 +956,15 @@ async function _doRestPoll() {
             }, 3000);
           }
         }
-      } catch(e) { console.warn('[rest-poll] vales sync error:', e && e.message); }
+      } catch(e) {
+        // v58: este catch envuelve TODO el bloque de vales (lectura, merge, avisos
+        // y guardado). Con console.warn el fallo pasaba desapercibido y el poll
+        // seguía hasta las notifs, así que el gestor recibía los avisos del admin
+        // mientras sus vales se quedaban congelados en el estado viejo — sin ni un
+        // error a la vista. Ahora se ve, y queda guardado para poder consultarlo.
+        try { window.__axonValesError = { cuando: new Date().toISOString(), error: (e && (e.stack || e.message)) || String(e) }; } catch(_e) {}
+        console.error('[AXON-DIAG] FALLO al sincronizar vales — los estados NO se actualizarán:', e);
+      }
     }
     // v39: Log sync status for debugging cross-device sync issues
     if (typeof _lastSyncLog === 'undefined') var _lastSyncLog = 0;

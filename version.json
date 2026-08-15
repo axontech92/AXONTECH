@@ -1,9 +1,9 @@
 {
-  "version": 57,
-  "versionStr": "v57",
-  "hash": "6e97cf2780d97aff",
-  "hashFull": "6e97cf2780d97aff",
-  "releasedAt": "2026-08-15 01:27",
+  "version": 58,
+  "versionStr": "v58",
+  "hash": "df0785a9802aa974",
+  "hashFull": "df0785a9802aa974",
+  "releasedAt": "2026-08-15 01:41",
   "files": [
     "app.js",
     "app.css",
@@ -12,8 +12,7 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO: el gestor ya recibe los avisos de estado de sus vales. La pantalla de avisos fallaba con un error de programación justo cuando había un aviso que mostrar, así que no se pintaba ninguno",
-    "FIX: ese mismo error impedía además guardar el estado de los vales del gestor, que se quedaban en 'pendiente' en pantalla aunque el admin ya los hubiera confirmado",
-    "FIX: si un aviso concreto falla, ya no arrastra al resto ni impide guardar los vales"
+    "DIAGNÓSTICO: los avisos del admin llegan al gestor pero el estado de sus vales sigue congelado. Esta versión hace visible el fallo de sincronización de vales, que hasta ahora se silenciaba sin dejar rastro",
+    "Los errores al sincronizar vales ya no pasan desapercibidos: se muestran en la consola en vez de ocultarse"
   ]
 }
