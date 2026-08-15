@@ -1,10 +1,10 @@
 {
-  "version": 78,
-  "versionStr": "v2.4",
-  "build": 78,
-  "hash": "5813fb67c48b2b3f",
-  "hashFull": "5813fb67c48b2b3f",
-  "releasedAt": "2026-08-15 21:30",
+  "version": 79,
+  "versionStr": "v2.5",
+  "build": 79,
+  "hash": "c1ae8b1a188af64e",
+  "hashFull": "c1ae8b1a188af64e",
+  "releasedAt": "2026-08-15 21:36",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "El artículo y los precios ya no se pueden escribir a mano: salen siempre del catálogo al elegir los productos",
-    "Los textos de ayuda lo dicen: Los productos aparecerán aquí al elegirlos arriba y Del catálogo, en vez de invitar a escribir",
-    "Para hacer un vale hay que pasar por Seleccionar del catálogo, así el vale nunca dice un producto o un precio distintos de los fichados"
+    "FIX: el ticket de recogida ya muestra el precio con la rebaja del gestor aplicada. Antes ponía el precio completo del producto",
+    "El ticket muestra ahora Precio, Rebaja y Total a pagar, para que el cliente vea el descuento",
+    "Corregido lo mismo en el texto que se comparte con el mensajero: cobraba el precio de lista",
+    "Todos los sitios que muestran el total usan ya el mismo cálculo, para que no vuelva a quedarse uno sin actualizar"
   ]
 }

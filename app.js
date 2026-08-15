@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 78;
+const APP_VERSION = 79;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 78;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.4';
+let _PUBLIC_VERSION_STR = 'v2.5';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '5813fb67c48b2b3f';
+let _LOCAL_BUILD_HASH = 'c1ae8b1a188af64e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5398,7 +5398,16 @@ function buildShareText(v,m) {
     `🔸Promotor: ${g?g.name:'—'}`,`🛵Mensajero: ${m?m.name:'—'}`,'',
     `🔸 Nombre Cliente: ${v.cliente||''}`,`🔸Teléfono Cliente: ${v.telefono||''}`,
     `🔸Dirección Cliente: ${v.direccion||''}`,`🔸Mensajería/ costo: ${v.mensajeria||''}`,
-    `🔸 Artículo y cantidad: ${v.articulo||''}`,`🔸 Total a pagar: ${v.total||''}`, '',
+    `🔸 Artículo y cantidad: ${v.articulo||''}`,
+    // v79: el mensajero cobra lo que dice este texto, así que tiene que llevar
+    // la rebaja del gestor. Antes iba el precio de lista y cobraba de más.
+    ...(function(){
+      const _r = (typeof _rebajaVale === 'function') ? _rebajaVale(v) : null;
+      if (!_r) return [`🔸 Total a pagar: ${v.total||''}`];
+      return [`🔸 Precio: ${v.total||''}`,
+              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Total a pagar: ${_r.aCobrarTxt || ((v.total||'') + ' menos ' + _r.rebajaTxt)}`];
+    })(), '',
     `*Fecha: ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}`,'',
     '🧭Amistad #311 % San Rafael y San José, Centro Habana.'].join('\n');
 }
@@ -6518,20 +6527,15 @@ function buildValeText() {
     `🔸Precio MN: ${fVal('vf-precioMN')}`,
     `🔸 Vuelto: ${fVal('vf-vuelto')}`,
     ...(function(){
-      // v76: si el gestor rebajó de su comisión, el texto del vale tiene que
-      // decir cuánto se cobra DE VERDAD. Antes salía el precio de lista y el
-      // admin cobraba de más.
-      const _c = Math.max(0, parseFloat(document.getElementById('vf-comisionCedida')?.value || 0) || 0);
+      // v79: usa la misma función que el ticket y el resto, en vez de repetir
+      // la cuenta aquí. Cuando estaba duplicada, el ticket de recogida se quedó
+      // sin actualizar y seguía enseñando el precio de lista.
+      const _r = _rebajaFormulario();
       const _tot = fVal('vf-total');
-      if (!_c) return [`🔸 Total a pagar: ${_tot}`];
-      const _mon = (document.getElementById('vf-comisionCedidaMoneda')||{}).value === 'MN' ? 'MN' : 'USD';
-      const _fmt = n => _mon === 'MN' ? (Math.round(n) + ' MN') : ('$' + n.toFixed(2) + ' USD');
-      const _num = parsePrecioNum(_tot);
-      const _totEsMN = /\bMN\b|\bCUP\b/i.test(_tot);
-      const _lineas = [`🔸 Precio: ${_tot}`, `🔸 Rebaja del gestor: −${_fmt(_c)}`];
-      if (_num > 0 && ((_mon === 'MN') === _totEsMN)) _lineas.push(`🔸 Total a pagar: ${_fmt(Math.max(0, _num - _c))}`);
-      else _lineas.push(`🔸 Total a pagar: ${_tot} menos ${_fmt(_c)}`);
-      return _lineas;
+      if (!_r) return [`🔸 Total a pagar: ${_tot}`];
+      return [`🔸 Precio: ${_tot}`,
+              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Total a pagar: ${_r.aCobrarTxt || (_tot + ' menos ' + _r.rebajaTxt)}`];
     })(), '',
     `*Garantía: ${fVal('vf-garantia')}`,
     `*Fecha y hora de Venta: ${fVal('vf-fecha')||nowDateTime()}`, '',
@@ -6588,12 +6592,46 @@ function regenerateValeText(v) {
 // Si es true, al cerrar el modal (botón Cerrar, clic fuera, o Escape) se limpia el formulario.
 let _ticketAfterSend = false;
 
+// v79: misma cuenta que _rebajaVale pero leyendo del formulario en curso, para
+// el ticket de recogida y el texto del vale, que se generan antes de guardar.
+// Estaba calculado a mano dentro de buildValeText, y por eso el ticket de
+// recogida seguía enseñando el precio de lista: nadie se acordó de repetir la
+// cuenta allí. Con una sola función, cualquier sitio que muestre el total la usa.
+function _rebajaFormulario() {
+  const el = document.getElementById('vf-comisionCedida');
+  const cedida = Math.max(0, parseFloat((el && el.value) || 0) || 0);
+  if (!cedida) return null;
+  const selMon = document.getElementById('vf-comisionCedidaMoneda');
+  return _rebajaVale({
+    comisionCedida: cedida,
+    comisionCedidaMoneda: (selMon && selMon.value === 'MN') ? 'MN' : 'USD',
+    comisionCedidaMotivo: fVal('vf-cesionMotivo'),
+    total: fVal('vf-total')
+  });
+}
+// Total que hay que cobrar de verdad, ya con la rebaja aplicada. Si las monedas
+// no cuadran devuelve el total tal cual y la rebaja se indica aparte.
+function _totalACobrarFormulario() {
+  const r = _rebajaFormulario();
+  const tot = fVal('vf-total');
+  if (!r) return tot;
+  return r.aCobrarTxt || tot;
+}
+
 function openTicketModal(afterSend) {
   const g = gestorOf(activeGestorId);
   document.getElementById('tk-gestor').textContent = g ? g.name : '';
   document.getElementById('tk-cliente').textContent = fVal('vf-cliente') || 'Sin nombre';
   document.getElementById('tk-articulo').textContent = fVal('vf-articulo') || 'Sin artículo';
-  document.getElementById('tk-total').textContent = fVal('vf-total') || '—';
+  document.getElementById('tk-total').textContent = _totalACobrarFormulario() || '—';  // v79: con la rebaja aplicada
+  // v79: la fila de rebaja solo aparece cuando la hay.
+  const _rt = _rebajaFormulario();
+  const _rowReb = document.getElementById('tk-rebajaRow');
+  if (_rowReb) {
+    _rowReb.style.display = _rt ? 'flex' : 'none';
+    const _celda = document.getElementById('tk-rebaja');
+    if (_celda && _rt) _celda.textContent = '− ' + _rt.rebajaTxt;
+  }
 
   // Mostrar banner verde SOLO si el modal se abre después de enviar un vale.
   const banner = document.getElementById('ticketSuccessBanner');
@@ -6704,7 +6742,7 @@ function copyTicketText() {
 👤 *Cliente:* ${fVal('vf-cliente') || 'Sin nombre'}
 📦 *Artículos:*
 ${prodLines}
-💰 *Total a pagar:* ${fVal('vf-total') || '—'}
+${(()=>{const _r=_rebajaFormulario();if(!_r)return '';return `💵 *Precio:* ${fVal('vf-total')}\n🤝 *Rebaja:* −${_r.rebajaTxt}\n`;})()}💰 *Total a pagar:* ${_totalACobrarFormulario() || '—'}
 -----------------------------------
 📍 *Dirección de Tienda:*
 Amistad #311 % San Rafael y San José, Centro Habana.
@@ -8314,7 +8352,14 @@ function buildDemoVale(v) {
     `🔸 Nombre Cliente: ${v.cliente}`,`🔸Teléfono Cliente: ${v.telefono}`,
     `🔸Dirección Cliente: ${v.direccion}`,`🔸Mensajería/ costo: ${v.mensajeria}`,
     `🔸 Artículo y cantidad: ${v.articulo}`,`🔸Precio USD/ zelle: ${v.precioUSD}`,
-    `🔸Precio MN: ${v.precioMN}`,`🔸 Vuelto: ${v.vuelto}`,`🔸 Total a pagar: ${v.total}`,'',
+    `🔸Precio MN: ${v.precioMN}`,`🔸 Vuelto: ${v.vuelto}`,
+    ...(function(){   // v79: mismo criterio que el resto
+      const _r = (typeof _rebajaVale === 'function') ? _rebajaVale(v) : null;
+      if (!_r) return [`🔸 Total a pagar: ${v.total}`];
+      return [`🔸 Precio: ${v.total}`,
+              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Total a pagar: ${_r.aCobrarTxt || (v.total + ' menos ' + _r.rebajaTxt)}`];
+    })(),'',
     `*Garantía: ${v.garantia}`,`*Fecha y hora de Venta: ${new Date(v.ts).toLocaleString('es-ES')}`,'',
     '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
     '🚨ATENCIÓN🚨','•   Horarios de atención: 9:00am - 7:00pm.'].join('\n');
