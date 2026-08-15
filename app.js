@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 69;
+const APP_VERSION = 70;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 69;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.5';
+let _PUBLIC_VERSION_STR = 'v1.6';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '2269a253db8aa1a6';
+let _LOCAL_BUILD_HASH = 'a00806045c5fe710';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7047,9 +7047,9 @@ function buildProdCard(p, cats, isAgotado) {
         <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 7px;color:${isFavorite(p.id)?'#F59E0B':'var(--gray-400)'};" onclick="toggleFavorite(${p.id})" title="Favorito">${isFavorite(p.id)?'⭐':'☆'}</button>
         ${p.description?`<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 7px;" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
         ${isAgotado
-          ? `<button class="btn btn-green btn-sm" onclick="adjustStock(${p.id})" style="font-size:10px;padding:3px 7px;">📥 Reponer</button>`
+          ? `<button class="btn btn-green btn-sm" onclick="openStockModal(${p.id})" style="font-size:10px;padding:3px 7px;">📥 Reponer</button>`
           : `<button class="btn btn-ghost btn-sm" onclick="openEditProductModal(${p.id})" style="font-size:10px;padding:3px 7px;">✏️</button>
-             <button class="btn btn-ghost btn-sm" onclick="adjustStock(${p.id})" style="font-size:10px;padding:3px 7px;">📥</button>
+             <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id})" style="font-size:10px;padding:3px 7px;">📥</button>
              <button class="btn btn-ghost btn-sm" onclick="adjustReserved(${p.id})" style="font-size:10px;padding:3px 7px;color:#b45309;" title="Reservar / liberar unidades">🔐</button>`
         }
         <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:10px;padding:3px 7px;" onclick="removeProducto(${p.id})">🗑️</button>
@@ -7445,19 +7445,94 @@ function venderDirecto(id) {
     try { renderProductGrid(); } catch(e) { console.error('venderDirecto deferred render:', e); }
   }, 0);
 }
-function adjustStock(id) {
-  const p=productoOf(id);if(!p)return;
-  const n=prompt(`Stock actual: ${p.stock||0}
-Nuevo stock:`,p.stock||0);
-  if(n===null)return;const num=parseInt(n);
-  if(isNaN(num)||num<0){showToast('Número inválido');return;}
-  const oldStock=p.stock||0;
-  patchProducto(id,{stock:num});
-  if(oldStock===0&&num>0) addNotif('restocked',p.name,id,`stock: ${num}`);
-  else if(num===0&&oldStock>0) addNotif('out_of_stock',p.name,id,'stock agotado');
-  else if(num>0&&num<=LOW_STOCK_THRESHOLD&&oldStock>LOW_STOCK_THRESHOLD) addNotif('low_stock',p.name,id,`quedan ${num}`);
+// ── v70: ajuste de stock con modal propio ───────────────────────────────────
+// Antes esto era un prompt() del navegador que pedía el valor ABSOLUTO: con 5
+// unidades en almacén y una entrada de 10, había que escribir 15 calculándolo de
+// cabeza. Un error de cuenta ahí descuadra el inventario real y no se nota hasta
+// que un vale falla por falta de stock.
+// El modal muestra los tres números que importan (almacén, reservado y lo que
+// realmente se puede vender), permite sumar y restar, y avisa de lo que va a
+// pasar antes de guardar.
+let _stockModalId = null;
+function openStockModal(id) {
+  const p = productoOf(id); if (!p) return;
+  _stockModalId = id;
+  const stock = parseInt(p.stock || 0, 10);
+  document.getElementById('stockModalName').textContent = p.name || 'Producto';
+  document.getElementById('stockModalInput').value = stock;
+  closeProductModalIfOpen();
+  document.getElementById('stockModal').classList.add('show');
+  stockModalRefresca();
+}
+function closeProductModalIfOpen() {
+  // El ajuste puede lanzarse desde la ficha del producto; si está abierta se
+  // cierra para no apilar dos modales.
+  const pm = document.getElementById('productModal');
+  if (pm && pm.classList.contains('show')) pm.classList.remove('show');
+}
+function closeStockModal() {
+  const m = document.getElementById('stockModal');
+  if (m) m.classList.remove('show');
+  _stockModalId = null;
+}
+function stockModalSuma(delta) {
+  const inp = document.getElementById('stockModalInput'); if (!inp) return;
+  const v = Math.max(0, (parseInt(inp.value, 10) || 0) + delta);
+  inp.value = v;
+  stockModalRefresca();
+}
+function stockModalPonACero() {
+  const inp = document.getElementById('stockModalInput'); if (!inp) return;
+  inp.value = 0; stockModalRefresca();
+}
+// Recalcula los tres contadores y explica en una línea qué va a pasar al guardar.
+function stockModalRefresca() {
+  const p = productoOf(_stockModalId); if (!p) return;
+  const nuevo = Math.max(0, parseInt(document.getElementById('stockModalInput').value, 10) || 0);
+  const reservado = parseInt(p.reserved || 0, 10);
+  const disponible = Math.max(0, nuevo - reservado);
+  document.getElementById('stockModalFisico').textContent = nuevo;
+  document.getElementById('stockModalReservado').textContent = reservado;
+  document.getElementById('stockModalDisponible').textContent = disponible;
+  const antes = parseInt(p.stock || 0, 10);
+  const dif = nuevo - antes;
+  const res = document.getElementById('stockModalResumen');
+  if (!res) return;
+  if (dif === 0) { res.textContent = 'Sin cambios (ahora hay ' + antes + ')'; res.style.color = 'var(--text-muted)'; }
+  else if (dif > 0) { res.textContent = 'Entran ' + dif + ' · de ' + antes + ' a ' + nuevo; res.style.color = 'var(--green)'; }
+  else { res.textContent = 'Salen ' + Math.abs(dif) + ' · de ' + antes + ' a ' + nuevo; res.style.color = 'var(--orange)'; }
+  // Aviso si quedan unidades comprometidas por encima de lo que habrá en almacén.
+  if (reservado > nuevo) {
+    res.textContent += ' ⚠️ hay ' + reservado + ' reservadas';
+    res.style.color = 'var(--red)';
+  }
+}
+function guardarStockModal() {
+  const id = _stockModalId;
+  const p = productoOf(id); if (!p) { closeStockModal(); return; }
+  const nuevo = Math.max(0, parseInt(document.getElementById('stockModalInput').value, 10) || 0);
+  const antes = parseInt(p.stock || 0, 10);
+  if (nuevo === antes) { closeStockModal(); showToast('Sin cambios'); return; }
+  _aplicarCambioStock(id, p, antes, nuevo);
+  closeStockModal();
+  showToast(nuevo > antes ? ('Entraron ' + (nuevo - antes) + ' ✓') : ('Stock ajustado a ' + nuevo + ' ✓'));
+}
+// Guardado + avisos. Se comparte con adjustStock() para no tener la regla de
+// cuándo avisar escrita dos veces: ya pasó con otras vistas y acabó divergiendo.
+function _aplicarCambioStock(id, p, oldStock, newStock) {
+  patchProducto(id, {stock: newStock});
+  if (oldStock === 0 && newStock > 0) addNotif('restocked', p.name, id, 'stock: ' + newStock);
+  else if (newStock === 0 && oldStock > 0) addNotif('out_of_stock', p.name, id, 'stock agotado');
+  else if (newStock > 0 && newStock <= LOW_STOCK_THRESHOLD && oldStock > LOW_STOCK_THRESHOLD) addNotif('low_stock', p.name, id, 'quedan ' + newStock);
   maybeAutoSync();
-  renderProductGrid();showToast('Stock actualizado ✓');
+  renderProductGrid();
+  if (typeof renderStockCategorias === 'function') renderStockCategorias();
+}
+
+function adjustStock(id) {
+  // v70: se mantiene como puerta de entrada alternativa (por si alguna vista la
+  // llama), pero ahora abre el modal en vez del prompt() del navegador.
+  openStockModal(id);
 }
 
 // Ajustar cantidad RESERVADA de un producto.

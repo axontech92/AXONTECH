@@ -1,10 +1,10 @@
 {
-  "version": 69,
-  "versionStr": "v1.5",
-  "build": 69,
-  "hash": "2269a253db8aa1a6",
-  "hashFull": "2269a253db8aa1a6",
-  "releasedAt": "2026-08-15 06:30",
+  "version": 70,
+  "versionStr": "v1.6",
+  "build": 70,
+  "hash": "a00806045c5fe710",
+  "hashFull": "a00806045c5fe710",
+  "releasedAt": "2026-08-15 06:37",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "El formulario de vale es más corto: carnet, garantía, comisión y fecha pasan a un bloque plegable Más detalles. Los campos de precio siguen a la vista porque calculan el total",
-    "El carnet abre el teclado numérico en el móvil, ya no el de letras",
-    "En pantallas estrechas, las tarjetas de Mis números se colocan en dos filas de dos en vez de cuatro apretadas"
+    "ADMIN: ajustar el stock ya no usa el cuadro gris del navegador. Ahora hay una ventana propia con botones +5, +10, +25 y un menos/más para corregir de uno en uno",
+    "ADMIN: al ajustar stock se ven los tres números que importan: lo que hay en almacén, lo reservado y lo que realmente se puede vender",
+    "ADMIN: antes de guardar se indica el movimiento (entran 10, de 8 a 18) y avisa si quedan unidades reservadas por encima del almacén"
   ]
 }
