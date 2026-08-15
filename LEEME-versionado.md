@@ -2,16 +2,45 @@
 
 ## Cómo publicar cambios
 
-Cuando modifiques **cualquier archivo** del proyecto (app.js, app.css, index.html, admin.html, sw.js), solo tienes que hacer 2 cosas:
+**Sube los archivos y ya está.** Desde v67 la versión se genera sola.
+
+GitHub ejecuta `build.py` por ti cada vez que subes uno de los archivos que el
+service worker cachea (`app.js`, `app.css`, `index.html`, `admin.html`, `sw.js`
+o `catalogo.html`), da igual cómo lo subas: por la web de GitHub, por git o
+desde el móvil. Unos 30 segundos después aparece un commit `build: vX.Y` con la
+versión ya actualizada, y los usuarios ven el aviso de "Nueva versión
+disponible".
+
+Está en `.github/workflows/auto-version.yml`. Para ver si funcionó: pestaña
+**Actions** del repositorio en GitHub.
+
+### Por qué esto importa tanto
+
+Antes había que acordarse de ejecutar `python3 build.py` a mano antes de subir.
+Si se olvidaba, el archivo nuevo llegaba al servidor pero **la clave de caché no
+cambiaba**, así que el service worker seguía sirviendo la copia vieja desde el
+teléfono: el cambio no lo veía nadie. Eso tuvo la app rota durante semanas, con
+las correcciones publicadas pero sin llegar a ejecutarse.
+
+### Ejecutarlo a mano (opcional)
+
+Sigue funcionando, por si quieres ver el número antes de subir:
 
 ```bash
-# 1. Generar la nueva versión (calcula el hash y sube la versión automáticamente)
 python3 build.py
-
-# 2. Subir TODA la carpeta AXONTECH-main/ al servidor
 ```
 
-Eso es todo. No necesitas editar números de versión manualmente en ningún lado.
+Es inofensivo hacerlo aunque el workflow vaya a ejecutarlo también: si no hay
+cambios reales, no toca nada.
+
+### Si añades un archivo nuevo que cachee el service worker
+
+Tiene que estar en **dos** sitios o no se versionará:
+1. `CRITICAL_FILES` en `build.py`
+2. La lista `paths` de `.github/workflows/auto-version.yml`
+
+(Le pasó a `catalogo.html`: lo cacheaba `sw.js` pero no estaba en la lista, así
+que sus arreglos no llegaban a los teléfonos.)
 
 ## ¿Cómo funciona?
 
