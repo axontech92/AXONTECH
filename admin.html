@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=81">
+  <link rel="stylesheet" href="./app.css?v=82">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.7</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.8</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -511,6 +511,56 @@
     <div class="modal-btns" style="margin-top:14px;">
       <button type="button" class="btn btn-ghost btn-full" onclick="closeReservaModal()">Cancelar</button>
       <button type="button" class="btn btn-blue btn-full" onclick="guardarReservaModal()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Rebaja del admin (v82) ──
+     La rebaja del gestor sale de su comisión; esta sale del margen del negocio
+     y no toca lo que cobra el gestor. Las dos bajan lo que paga el cliente. -->
+<div class="modal-bg" id="rebajaAdminModal">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-title">🏷️ Rebajar este vale</div>
+    <div class="modal-sub" id="rebajaAdminSub">Vale</div>
+
+    <div style="background:var(--surface2);border-radius:10px;padding:10px 12px;margin:12px 0;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="color:var(--text-muted);">Precio del vale</span>
+        <span id="rebajaAdminPrecio" style="font-weight:700;">—</span>
+      </div>
+      <div id="rebajaAdminGestorRow" style="display:none;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="color:var(--text-muted);">Ya rebajó el gestor</span>
+        <span id="rebajaAdminGestor" style="color:var(--orange);font-weight:700;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px solid var(--border);padding-top:6px;margin-top:6px;">
+        <span style="font-weight:800;">Quedaría en</span>
+        <span id="rebajaAdminResultado" style="font-weight:800;color:var(--green);">—</span>
+      </div>
+    </div>
+
+    <div class="lbl" style="margin:0 0 6px;">Rebaja del negocio</div>
+    <div style="display:flex;gap:6px;">
+      <input type="number" inputmode="decimal" id="rebajaAdminInput" min="0" step="0.5" placeholder="0"
+             oninput="rebajaAdminRefresca()"
+             style="flex:1;text-align:center;font-size:20px;font-weight:800;background:var(--surface);border:2px solid var(--blue);border-radius:10px;padding:9px 6px;color:var(--text);">
+      <select id="rebajaAdminMoneda" onchange="rebajaAdminRefresca()" style="width:88px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 8px;font-size:13px;color:var(--text);">
+        <option value="USD">USD</option>
+        <option value="MN">MN</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:5px;margin-top:8px;">
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;" onclick="rebajaAdminSuma(5)">+5</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;" onclick="rebajaAdminSuma(10)">+10</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;color:var(--red);" onclick="rebajaAdminQuitar()">Quitar</button>
+    </div>
+
+    <div class="lbl" style="margin:14px 0 6px;">Motivo</div>
+    <input type="text" id="rebajaAdminMotivo" placeholder="Ej: producto con defecto, venta al por mayor" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px;color:var(--text);">
+    <div style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.35;">Esta rebaja sale del margen del negocio. La comisión del gestor no cambia.</div>
+
+    <div class="modal-btns" style="margin-top:14px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeRebajaAdminModal()">Cancelar</button>
+      <button type="button" class="btn btn-blue btn-full" onclick="guardarRebajaAdmin()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1121,7 +1171,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=81"></script>
+<script src="./app.js?v=82"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

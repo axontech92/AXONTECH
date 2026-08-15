@@ -1,10 +1,10 @@
 {
-  "version": 81,
-  "versionStr": "v2.7",
-  "build": 81,
-  "hash": "df403c59855d5c34",
-  "hashFull": "df403c59855d5c34",
-  "releasedAt": "2026-08-15 21:48",
+  "version": 82,
+  "versionStr": "v2.8",
+  "build": 82,
+  "hash": "a9e93ad37419159d",
+  "hashFull": "a9e93ad37419159d",
+  "releasedAt": "2026-08-15 22:00",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "La comisión de un vale queda fijada al crearlo. Si mañana cambias el precio o la comisión de un producto, los vales anteriores ya NO cambian",
-    "Antes se recalculaba cada vez desde el catálogo: un gestor podía ver que la comisión de una venta ya cobrada no coincidía con lo que cobró",
-    "Si el admin cambia los productos de un vale, la comisión se vuelve a fijar con los nuevos",
-    "Los vales anteriores a esta versión siguen calculándose del catálogo: no se puede saber a posteriori qué comisión tenían el día que se hicieron"
+    "NUEVO (admin): puedes rebajar un vale desde su detalle, con motivo obligatorio. Esa rebaja sale del margen del negocio y NO toca la comisión del gestor",
+    "Si el gestor ya había rebajado de su comisión, se ve cuánto rebajó él antes de que tú añadas la tuya, y en cuánto queda el vale",
+    "El detalle del vale muestra las dos rebajas por separado: la del gestor (de su comisión) y la del negocio (tu margen)",
+    "El ticket, el texto del vale y lo que recibe el mensajero llevan ya las dos rebajas sumadas"
   ]
 }

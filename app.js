@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 81;
+const APP_VERSION = 82;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 81;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.7';
+let _PUBLIC_VERSION_STR = 'v2.8';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'df403c59855d5c34';
+let _LOCAL_BUILD_HASH = 'a9e93ad37419159d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2300,6 +2300,12 @@ const saveVales = v => {
     // o el vale volvería a recalcularse desde el catálogo actual.
     if (x.comFijadaUSD != null) slim.comFijadaUSD = x.comFijadaUSD;
     if (x.comFijadaMN  != null) slim.comFijadaMN  = x.comFijadaMN;
+    // v82: rebaja aplicada por el admin. Va en el slim del admin porque es él
+    // quien la decide; el gestor no la toca.
+    if (x.rebajaAdmin != null) slim.rebajaAdmin = x.rebajaAdmin;
+    if (x.rebajaAdminMoneda) slim.rebajaAdminMoneda = x.rebajaAdminMoneda;
+    if (x.rebajaAdminMotivo) slim.rebajaAdminMotivo = x.rebajaAdminMotivo;
+    if (x.rebajaAdminTs) slim.rebajaAdminTs = x.rebajaAdminTs;
     return slim;
   }
   // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
@@ -5006,25 +5012,137 @@ function openShareModal(valeId) {
 // aCobrar en null: mejor enseñar el dato y que lo reste una persona que restar
 // mal dos monedas distintas.
 function _rebajaVale(v) {
-  const cedida = Math.max(0, parseFloat((v && v.comisionCedida) || 0) || 0);
-  if (!cedida) return null;
-  const moneda = ((v.comisionCedidaMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD';
-  const fmt = n => moneda === 'MN' ? (Math.round(n) + ' MN') : ('$' + n.toFixed(2) + ' USD');
+  if (!v) return null;
   const totalTxt = ((v.total || '') + '').trim();
-  const num = (typeof parsePrecioNum === 'function') ? parsePrecioNum(totalTxt) : 0;
+  const numTotal = (typeof parsePrecioNum === 'function') ? parsePrecioNum(totalTxt) : 0;
   const totalEsMN = /\bMN\b|\bCUP\b/i.test(totalTxt);
-  const mismaMoneda = (moneda === 'MN') === totalEsMN;
+  const fmtEn = (n, mon) => mon === 'MN' ? (Math.round(n) + ' MN') : ('$' + n.toFixed(2) + ' USD');
+
+  // v82: dos rebajas distintas y con origen distinto, que conviene no mezclar:
+  //  · la del GESTOR sale de su comisión — él cobra menos (fase 1, v75)
+  //  · la del ADMIN sale del margen del negocio — la comisión del gestor no se toca
+  // Las dos bajan lo que paga el cliente, así que para el total se suman; para
+  // todo lo demás se llevan por separado.
+  const partes = [];
+  const cedida = Math.max(0, parseFloat(v.comisionCedida || 0) || 0);
+  if (cedida > 0) partes.push({
+    quien: 'gestor',
+    importe: cedida,
+    moneda: ((v.comisionCedidaMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD',
+    motivo: v.comisionCedidaMotivo || ''
+  });
+  const reba = Math.max(0, parseFloat(v.rebajaAdmin || 0) || 0);
+  if (reba > 0) partes.push({
+    quien: 'admin',
+    importe: reba,
+    moneda: ((v.rebajaAdminMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD',
+    motivo: v.rebajaAdminMotivo || ''
+  });
+  if (!partes.length) return null;
+
+  partes.forEach(pt => { pt.txt = fmtEn(pt.importe, pt.moneda); });
+  const gestor = partes.find(pt => pt.quien === 'gestor') || null;
+  const admin  = partes.find(pt => pt.quien === 'admin')  || null;
+
+  // Solo se pueden restar del total las rebajas en su misma moneda. Las demás se
+  // enseñan aparte para que las reste una persona: restar mal dos monedas sería
+  // peor que no restar.
+  const monedaTotal = totalEsMN ? 'MN' : 'USD';
+  const restables = partes.filter(pt => pt.moneda === monedaTotal);
+  const sueltas   = partes.filter(pt => pt.moneda !== monedaTotal);
+  const sumaRestable = restables.reduce((a, pt) => a + pt.importe, 0);
+
   const res = {
-    cedida, moneda, totalTxt,
-    rebajaTxt: fmt(cedida),
-    motivo: v.comisionCedidaMotivo || '',
+    partes, gestor, admin, sueltas,
+    totalTxt,
+    moneda: monedaTotal,
+    // Compatibilidad: el resto del código usa rebajaTxt como "lo que se rebaja
+    // en total" y aCobrarTxt como "lo que hay que cobrar".
+    rebajaTxt: fmtEn(partes.reduce((a, pt) => a + (pt.moneda === monedaTotal ? pt.importe : 0), 0) || partes[0].importe, monedaTotal),
+    motivo: partes.map(pt => pt.motivo).filter(Boolean).join(' · '),
+    cedida,
     aCobrar: null, aCobrarTxt: null
   };
-  if (num > 0 && mismaMoneda) {
-    res.aCobrar = Math.max(0, num - cedida);
-    res.aCobrarTxt = fmt(res.aCobrar);
+  if (numTotal > 0 && sumaRestable > 0) {
+    res.aCobrar = Math.max(0, numTotal - sumaRestable);
+    res.aCobrarTxt = fmtEn(res.aCobrar, monedaTotal);
   }
   return res;
+}
+
+// ── v82: rebaja aplicada por el admin (fase 2) ──────────────────────────────
+// A diferencia de la del gestor, esta sale del margen del negocio: la comisión
+// del gestor no se toca. Las dos bajan lo que paga el cliente y se suman para el
+// total, pero se registran por separado para saber de dónde salió cada euro.
+let _rebajaAdminValeId = null;
+function openRebajaAdminModal(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  _rebajaAdminValeId = id;
+  document.getElementById('rebajaAdminSub').textContent =
+    (valeNumStr(v) ? valeNumStr(v) + ' · ' : '') + (v.cliente || 'Vale');
+  document.getElementById('rebajaAdminInput').value = Math.max(0, parseFloat(v.rebajaAdmin || 0) || 0) || '';
+  document.getElementById('rebajaAdminMoneda').value = ((v.rebajaAdminMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD';
+  document.getElementById('rebajaAdminMotivo').value = v.rebajaAdminMotivo || '';
+  document.getElementById('rebajaAdminModal').classList.add('show');
+  rebajaAdminRefresca();
+}
+function closeRebajaAdminModal() {
+  const m = document.getElementById('rebajaAdminModal');
+  if (m) m.classList.remove('show');
+  _rebajaAdminValeId = null;
+}
+function rebajaAdminSuma(delta) {
+  const inp = document.getElementById('rebajaAdminInput'); if (!inp) return;
+  inp.value = Math.max(0, (parseFloat(inp.value) || 0) + delta);
+  rebajaAdminRefresca();
+}
+function rebajaAdminQuitar() {
+  const inp = document.getElementById('rebajaAdminInput'); if (!inp) return;
+  inp.value = '';
+  rebajaAdminRefresca();
+}
+// Enseña en vivo en cuánto quedaría el vale, contando también lo que ya rebajó
+// el gestor: sin ese dato el admin no sabe cuánto margen le queda por dar.
+function rebajaAdminRefresca() {
+  const v = getVales().find(x => x.id === _rebajaAdminValeId); if (!v) return;
+  const val = Math.max(0, parseFloat(document.getElementById('rebajaAdminInput').value) || 0);
+  const mon = document.getElementById('rebajaAdminMoneda').value === 'MN' ? 'MN' : 'USD';
+  const simulado = {...v, rebajaAdmin: val, rebajaAdminMoneda: mon};
+  const r = _rebajaVale(simulado);
+  document.getElementById('rebajaAdminPrecio').textContent = (v.total || '—');
+  const filaG = document.getElementById('rebajaAdminGestorRow');
+  if (filaG) {
+    const g = r && r.gestor;
+    filaG.style.display = g ? 'flex' : 'none';
+    if (g) document.getElementById('rebajaAdminGestor').textContent = '− ' + g.txt;
+  }
+  const out = document.getElementById('rebajaAdminResultado');
+  if (out) {
+    if (r && r.aCobrarTxt) { out.textContent = r.aCobrarTxt; out.style.color = 'var(--green)'; }
+    else if (r) { out.textContent = 'restar a mano'; out.style.color = 'var(--orange)'; }
+    else { out.textContent = (v.total || '—'); out.style.color = 'var(--text)'; }
+  }
+}
+function guardarRebajaAdmin() {
+  const id = _rebajaAdminValeId;
+  const v = getVales().find(x => x.id === id); if (!v) { closeRebajaAdminModal(); return; }
+  const val = Math.max(0, parseFloat(document.getElementById('rebajaAdminInput').value) || 0);
+  const mon = document.getElementById('rebajaAdminMoneda').value === 'MN' ? 'MN' : 'USD';
+  const motivo = (document.getElementById('rebajaAdminMotivo').value || '').trim();
+  // El motivo se exige solo cuando hay rebaja: sin él, dentro de un mes nadie
+  // sabrá por qué se dejó ese producto más barato.
+  if (val > 0 && !motivo) { showToast('Escribe el motivo de la rebaja'); return; }
+  patchVale(id, {
+    rebajaAdmin: val,
+    rebajaAdminMoneda: mon,
+    rebajaAdminMotivo: val > 0 ? motivo : '',
+    rebajaAdminTs: val > 0 ? new Date().toISOString() : null
+  });
+  _logAudit('vale_rebaja_admin', 'vale:' + id + ' ' + val + ' ' + mon);
+  closeRebajaAdminModal();
+  renderValeDetail(); renderAdminGestores();
+  maybeAutoSync();
+  showToast(val > 0 ? 'Rebaja aplicada ✓' : 'Rebaja quitada ✓');
 }
 
 function renderValeDetail() {
@@ -5133,15 +5251,20 @@ function renderValeDetail() {
       </table>
       ${(()=>{const _r=_rebajaVale(v);if(!_r)return '';return `
         <div style="margin-top:10px;padding:12px 13px;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.35);border-radius:11px;">
-          <div style="font-size:10px;color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">🤝 El gestor rebajó de su comisión</div>
+          <div style="font-size:10px;color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">🏷️ Este vale lleva rebaja</div>
           <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
             <span style="color:var(--text-muted);">Precio del vale</span>
             <span style="${_r.aCobrarTxt?'text-decoration:line-through;opacity:.6;':'font-weight:700;'}">${escapeHTML(_r.totalTxt||'—')}</span>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-            <span style="color:var(--text-muted);">Rebaja del gestor</span>
-            <span style="color:var(--orange);font-weight:700;">− ${escapeHTML(_r.rebajaTxt)}</span>
-          </div>
+          ${_r.gestor?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+            <span style="color:var(--text-muted);">🤝 Del gestor <span style="font-size:9px;opacity:.8;">(de su comisión)</span></span>
+            <span style="color:var(--orange);font-weight:700;">− ${escapeHTML(_r.gestor.txt)}</span>
+          </div>`:''}
+          ${_r.admin?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+            <span style="color:var(--text-muted);">🏷️ Del negocio <span style="font-size:9px;opacity:.8;">(tu margen)</span></span>
+            <span style="color:var(--blue);font-weight:700;">− ${escapeHTML(_r.admin.txt)}</span>
+          </div>`:''}
+          <div style="margin-bottom:6px;"></div>
           ${_r.aCobrarTxt
             ? `<div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(245,158,11,.3);padding-top:7px;">
                  <span style="font-size:12px;font-weight:800;">COBRAR AL CLIENTE</span>
@@ -5149,7 +5272,9 @@ function renderValeDetail() {
                </div>`
             : `<div style="border-top:1px solid rgba(245,158,11,.3);padding-top:7px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ Resta la rebaja a mano: el total del vale está en otra moneda.</div>`}
           ${_r.motivo?`<div style="margin-top:7px;font-size:11px;color:var(--text-muted);">Motivo: ${escapeHTML(_r.motivo)}</div>`:''}
+          <button class="btn btn-ghost btn-sm btn-full" style="margin-top:9px;font-size:11px;" onclick="openRebajaAdminModal(${v.id})">🏷️ Cambiar la rebaja del negocio</button>
         </div>`;})()}
+      ${!_rebajaVale(v)?`<button class="btn btn-ghost btn-full btn-sm" style="margin-top:9px;color:var(--blue);" onclick="openRebajaAdminModal(${v.id})">🏷️ Rebajar este vale</button>`:''}
       ${v.recogidaTienda?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;display:flex;align-items:center;gap:6px;">
         <span style="font-size:14px;">🏪</span>
         <span style="font-size:12px;font-weight:700;color:var(--blue);">Recogida en tienda</span>
@@ -5423,7 +5548,7 @@ function buildShareText(v,m) {
       const _r = (typeof _rebajaVale === 'function') ? _rebajaVale(v) : null;
       if (!_r) return [`🔸 Total a pagar: ${v.total||''}`];
       return [`🔸 Precio: ${v.total||''}`,
-              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Rebaja: −${_r.rebajaTxt}`,
               `🔸 Total a pagar: ${_r.aCobrarTxt || ((v.total||'') + ' menos ' + _r.rebajaTxt)}`];
     })(), '',
     `*Fecha: ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}`,'',
@@ -6565,7 +6690,7 @@ function buildValeText() {
       const _tot = fVal('vf-total');
       if (!_r) return [`🔸 Total a pagar: ${_tot}`];
       return [`🔸 Precio: ${_tot}`,
-              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Rebaja: −${_r.rebajaTxt}`,
               `🔸 Total a pagar: ${_r.aCobrarTxt || (_tot + ' menos ' + _r.rebajaTxt)}`];
     })(), '',
     `*Garantía: ${fVal('vf-garantia')}`,
@@ -6607,7 +6732,7 @@ function regenerateValeText(v) {
       const _r = (typeof _rebajaVale === 'function') ? _rebajaVale(v) : null;
       if (!_r) return [`🔸 Total a pagar: ${v.total||''}`];
       return [`🔸 Precio: ${v.total||''}`,
-              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Rebaja: −${_r.rebajaTxt}`,
               `🔸 Total a pagar: ${_r.aCobrarTxt || ((v.total||'') + ' menos ' + _r.rebajaTxt)}`];
     })(), '',
     `*Garantía: ${v.garantia||''}`,
@@ -8398,7 +8523,7 @@ function buildDemoVale(v) {
       const _r = (typeof _rebajaVale === 'function') ? _rebajaVale(v) : null;
       if (!_r) return [`🔸 Total a pagar: ${v.total}`];
       return [`🔸 Precio: ${v.total}`,
-              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Rebaja: −${_r.rebajaTxt}`,
               `🔸 Total a pagar: ${_r.aCobrarTxt || (v.total + ' menos ' + _r.rebajaTxt)}`];
     })(),'',
     `*Garantía: ${v.garantia}`,`*Fecha y hora de Venta: ${new Date(v.ts).toLocaleString('es-ES')}`,'',
