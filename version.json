@@ -1,10 +1,10 @@
 {
-  "version": 64,
-  "versionStr": "v1.0",
-  "build": 64,
-  "hash": "b26d466b4ccfba4d",
-  "hashFull": "b26d466b4ccfba4d",
-  "releasedAt": "2026-08-15 05:14",
+  "version": 65,
+  "versionStr": "v1.1",
+  "build": 65,
+  "hash": "fde5edba6cec8b06",
+  "hashFull": "fde5edba6cec8b06",
+  "releasedAt": "2026-08-15 05:34",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,10 @@
     "catalogo.html"
   ],
   "changelog": [
-    "La app pasa a mostrar la versión como v1.0, v1.1, v1.2… en vez del número de publicación, que ya iba por 62",
-    "Por dentro el contador sigue subiendo sin saltos: es lo que usa la app para detectar que hay una versión nueva, y reiniciarlo habría dejado los teléfonos sin recibir actualizaciones",
-    "Al tocar el badge de versión se muestra también el número de compilación, para dar soporte"
+    "Limpieza interna grande: se eliminan 400 líneas de código que no se ejecutaba nunca y que despistaba al buscar fallos",
+    "FIX: el admin resubía TODOS sus datos locales a la nube cada vez que abría la app, pudiendo pisar cambios hechos desde otro dispositivo. Ahora solo lo hace si la nube está realmente vacía",
+    "FIX: si el teléfono se queda sin espacio al guardar vales o avisos, ahora se avisa en vez de perderlos en silencio",
+    "Los estados de los vales del gestor se calculan en un solo sitio, para que no vuelvan a descuadrarse entre pantallas",
+    "Se refuerza la causa del fallo que impedía subir los cambios de estado a la nube"
   ]
 }

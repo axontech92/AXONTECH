@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 64;
+const APP_VERSION = 65;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 64;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.0';
+let _PUBLIC_VERSION_STR = 'v1.1';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'b26d466b4ccfba4d';
+let _LOCAL_BUILD_HASH = 'fde5edba6cec8b06';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -217,34 +217,14 @@ function base64ToUtf8(b64) {
 // ════════════════════════════════════════
 //  SUPABASE REST DATA LAYER
 // ════════════════════════════════════════
-// v30+: El objeto `db` es un MOCK VACÍO que existe solo por compatibilidad
-// histórica (algunas llamadas db.ref(...).on/off/once siguen en el código
-// pero son no-ops). Todos los reads/writes van por Supabase REST:
-//   writes  → _enqueueSB → _supabaseOpFor → Supabase REST API
-//   reads   → _doRestPoll() cada 5s (Supabase REST)
-// El objeto `db` NO conecta a ningún servicio real.
-const db = {
-  ref: function(path) {
-    return {
-      on: function() { return function(){}; },
-      off: function() {},
-      once: function() { return Promise.resolve({ val: () => null, exists: () => false, forEach: () => {} }); },
-      set: function() { return Promise.resolve(); },
-      update: function() { return Promise.resolve(); },
-      remove: function() { return Promise.resolve(); },
-      transaction: function(fn) { return Promise.resolve({ committed: false, snapshot: { val: () => null } }); },
-      child: function() { return this; },
-      push: function() { return { key: Date.now().toString() }; },
-      limit: function() { return this; },
-      doc: function() { return this; },
-      collection: function() { return this; },
-    };
-  },
-  enablePersistence: function() { return Promise.resolve(); },
-  settings: function() {},
-  runTransaction: function() { return Promise.resolve(); },
-  batch: function() { return { set: function(){}, delete: function(){}, commit: function() { return Promise.resolve(); } }; },
-};
+// v65: el objeto `db` (mock vacío de la era Firebase) se ha eliminado junto con
+// las últimas llamadas que lo usaban. Sus métodos eran no-ops silenciosos: .on()
+// jamás invocaba el callback, .once() resolvía siempre con val()===null y
+// .transaction() con committed:false. No era solo código inerte: hacía que el
+// código de alrededor pareciera funcionar y mintiera sobre lo que hacía.
+// Todo va por Supabase REST: escrituras → _enqueueSB → _supabaseOpFor; lecturas
+// → _doRestPoll() cada 5 s. Si algún día hace falta escuchar cambios en tiempo
+// real, se usa Supabase Realtime — no se resucita este mock.
 
 const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
@@ -573,6 +553,12 @@ function _fakeSnap(arr) {
 //   3. Data URI: data:image/... → use as-is
 // Without this, relative "photos/" URLs fail because the browser can't resolve them
 // from the PWA context (service worker, cached page, etc.)
+// v65 — OJO: existe una gemela, photoUrl() en catalogo.html. Esa página es
+// autónoma a propósito (no carga app.js), así que la lógica está escrita dos
+// veces. Ya costó un fallo: el catálogo se quedó sin la parte que resuelve las
+// rutas relativas y no mostró ninguna foto de producto durante versiones (v62).
+// Si tocas una, revisa la otra. La de catalogo.html absolutiza cualquier ruta
+// relativa; esta solo las que empiezan por photos/ y el resto las deja tal cual.
 function _resolvePhotoUrl(photo) {
   if (!photo) return '';
   // Data URI or full URL — use as-is
@@ -941,7 +927,7 @@ async function _doRestPoll() {
           }
           _syncCount++;
           try {
-            try { localStorage.setItem('axon_vales', JSON.stringify(merged)); } catch(e) {}
+            _safeSetLS('axon_vales', JSON.stringify(merged)); // v65: era un catch vacío — si el guardado fallaba (p.ej. sin espacio), los vales se perdían sin que nadie se enterara
             _valesCache = merged; _valesDirty = false;
           } finally { _syncCount--; }
           // Show estafa alert for new vales that match blacklist
@@ -996,7 +982,7 @@ async function _doRestPoll() {
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
         _syncCount++;
         try {
-          try { localStorage.setItem('axon_'+node, JSON.stringify(arr)); } catch(e) {}
+          _safeSetLS('axon_'+node, JSON.stringify(arr)); // v65: idem — fallo de guardado visible
           if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
           else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
           else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
@@ -1012,14 +998,14 @@ async function _doRestPoll() {
         if (val) {
           _syncCount++;
           try {
-            try { localStorage.setItem('axon_'+node, JSON.stringify(val)); } catch(e) {}
+            _safeSetLS('axon_'+node, JSON.stringify(val)); // v65: idem — fallo de guardado visible
             if(node==='config'){_configCache=val;_configDirty=false;}
             else if(node==='notifs'){
               // v43: merge local + remoto en vez de reemplazo ciego (evita pérdida
               // de notificaciones cuando varios dispositivos escriben el singleton)
               const mergedNotifs = _mergeNotifArrays(_notifsCache, val);
               _notifsCache = mergedNotifs; _notifsDirty = false;
-              try { localStorage.setItem('axon_notifs', JSON.stringify(mergedNotifs)); } catch(e) {}
+              _safeSetLS('axon_notifs', JSON.stringify(mergedNotifs)); // v65: idem — fallo de guardado visible
               // v51 FIX: forzar render de notifs después de recibir nuevas.
               // ANTES: dependía de refreshUI() → _refreshLightUI() → renderGestorNotifs(),
               // pero si el hash de vales no cambiaba (solo llegaron notifs nuevas),
@@ -1103,25 +1089,11 @@ function _startRestPolling() {
 // disparamos _processSBQueue() inmediatamente.
 let _sbConnected = navigator.onLine;
 let _sbConnectedBooted = false;
-try {
-  const rtdb = db.ref('.info/connected');
-  let _wasConnected = false;
-  rtdb.on('value', snap => {
-    const connected = snap.val() === true;
-    _sbConnected = connected;
-    if (connected && !_wasConnected) {
-      _wasConnected = true;
-      setTimeout(() => {
-        _ensurePendingValesEnqueued();
-        _processSBQueue();
-      }, 100);
-      _updateSyncIndicator();
-    } else if (!connected && _wasConnected) {
-      _wasConnected = false;
-      _updateSyncIndicator();
-    }
-  });
-} catch(e) { /* .info/connected listener opcional */ }
+// v65: aquí había un listener db.ref('.info/connected').on(…) que pretendía
+// mantener _sbConnected. Nunca disparó —el .on() del stub no invoca el callback—,
+// así que su asignación de _sbConnected no llegó a ejecutarse jamás. Quien
+// mantiene ese flag de verdad es la inicialización con navigator.onLine de aquí
+// arriba, más los listeners de 'online'/'offline' de aquí abajo, que sí existen.
 // ── v29: Boot _sbConnected if online at startup ──
 // Since db is a mock, the .info/connected listener never fires.
 // We need to kick-start the write queue ourselves.
@@ -2902,121 +2874,16 @@ function _valesToSupabaseObj(vales) {
   return obj;
 }
 
-let gestorValesListener = null;
-let firstLoadVales = true;
-function listenToMyVales(gId) {
-  if (gestorValesListener) db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
-  firstLoadVales = true;
-  gestorValesListener = db.ref(`vales/${gId}`).on('value', snap => {
-    _syncCount++;
-    try {
-      const val = snap.val();
-      if (val) {
-        const newVales = Object.values(val);
-        // v14: regenerar campos slimados al leer de Supabase.
-        // - valeText: no se envía para vales nuevos; se regenera aquí.
-        // - name de valeProductos: se busca por id con productoOf().
-        newVales.forEach(v => {
-          if (v && !v.valeText) v.valeText = regenerateValeText(v);
-          if (v && Array.isArray(v.valeProductos)) {
-            v.valeProductos.forEach(p => {
-              if (!p.name) {
-                const prod = productoOf(p.id);
-                if (prod) p.name = prod.name;
-              }
-            });
-          }
-          // Asegurar flags locales por defecto
-          if (v && v.synced === undefined) v.synced = true; // vino de Supabase → está synced
-        });
-
-        // ── v37 SMART MERGE: local-wins for recently changed vales ──
-        // (Same logic as _doRestPoll merge — see detailed comments there)
-        const _localVales = getVales() || [];
-        const _localMap = new Map();
-        _localVales.forEach(v => { if (v && v.id != null) _localMap.set(v.id, v); });
-        const _STATUS_RANK = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4, cancelled: -1 };
-        function _vlmt(v) { if (!v) return 0; if (v.confirmedTs) return new Date(v.confirmedTs).getTime(); if (v.deliveredTs) return new Date(v.deliveredTs).getTime(); return new Date(v.ts || 0).getTime(); }
-        const _sbMap = new Map();
-        newVales.forEach(v => { if (v && v.id != null) _sbMap.set(v.id, v); });
-        const _mergedMap = new Map();
-        for (const [id, v] of _sbMap) _mergedMap.set(id, v);
-        for (const [id, lv] of _localMap) {
-          const sv = _sbMap.get(id);
-          if (sv) {
-            const lr = _STATUS_RANK[lv.status] ?? 0, sr = _STATUS_RANK[sv.status] ?? 0;
-            if (lr > sr || (lr === sr && _vlmt(lv) > _vlmt(sv))) _mergedMap.set(id, lv);
-          } else if (lv.synced === false && lv.status !== 'cancelled') {
-            _mergedMap.set(id, lv);
-          }
-        }
-        let mergedVales = Array.from(_mergedMap.values());
-        // Deduplicate by vale ID (safety net)
-        {
-          const seen = new Set();
-          mergedVales = mergedVales.filter(v => {
-            if (!v || v.id == null) return false;
-            const key = String(v.id);
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-        }
-        mergedVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-
-        if (!firstLoadVales) {
-          const oldVales = getVales();
-          mergedVales.forEach(nv => {
-            const ov = oldVales.find(x => x.id === nv.id);
-            if (ov && ov.status !== nv.status) {
-              const prodNames = (nv.valeProductos||[]).map(p => p.qty > 1 ? `${p.qty}x ${escapeHTML(p.name)}` : escapeHTML(p.name)).join(', ');
-              
-              if (nv.status === 'assigned') {
-                sendBrowserNotif('Venta en camino 🛵', '...');
-                playSound('confirm');
-              } else if (nv.status === 'delivered') {
-                sendBrowserNotif('Venta entregada 🎉', prodNames);
-                playSound('confirm');
-              } else if (nv.status === 'confirmed') {
-                let amtStr = '';
-                if(typeof getValeCommissionParts === 'function'){
-                  const cp = getValeCommissionParts(nv);
-                  if(cp.total !== null && cp.total > 0) {
-                     amtStr = cp.currency === 'MN' ? ` por ${Math.round(cp.total)} MN` : ` por ${cp.total.toFixed(2)} USD`;
-                  }
-                }
-                sendBrowserNotif('Venta cobrada 💰', `${prodNames}${amtStr}`);
-                playSound('confirm');
-              }
-            }
-          });
-        }
-        try { localStorage.setItem('axon_vales', JSON.stringify(mergedVales)); _valesCache = mergedVales; _valesDirty = false; } catch(e) {}
-      } else {
-        // Supabase has no vales — clear local too, PERO preservar vales
-        // locales synced:false (todavía no llegaron a Supabase).
-        // v17: si borramos TODO el cache local cuando FB está vacío, perdemos
-        // los vales que el gestor acaba de crear y aún no se han subido.
-        const localPending = (getVales() || []).filter(v =>
-          v && v.gestorId === gId &&
-          v.synced === false &&
-          v.status !== 'cancelled'
-        );
-        if (localPending.length > 0) {
-          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
-        } else {
-          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
-          rankingCache = null;
-          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
-        }
-      }
-      firstLoadVales = false;
-    } finally {
-      _syncCount--;
-      refreshUI();
-    }
-  });
-}
+// ── v65: listenToMyVales() eliminada (código muerto) ─────────────────────────
+// Eran ~115 líneas colgadas de db.ref(`vales/{gId}`).on('value', …). `db` es un
+// stub local: su .on() devuelve una función vacía y NUNCA invoca el callback, así
+// que nada de aquel bloque llegó a ejecutarse jamás — ni el merge de vales, ni la
+// detección de cambios de estado, ni las notificaciones que decía enviar.
+// Peor que inútil: era engañoso. Al buscar por qué el gestor no recibía los avisos
+// se leía esta función, que parecía justo la responsable, y se perdía el tiempo
+// ahí en vez de en _doRestPoll(), que es quien hace el trabajo de verdad (cada 5 s
+// por REST). Ya provocó al menos un fallo documentado en el propio código (v28:
+// «usaba _handleValesSnap/_handleMyValesSnap que NUNCA se definían»).
 
 // Custom Supabase Vale individual operations — now using the write queue
 // NOTE: fbAddVale and fbRemoveVale are DEPRECATED — saveVales already enqueues a
@@ -3184,196 +3051,61 @@ let _rankingIdleHandle = null;
 
 
 
-// Base Listeners (Everything except vales) — with try/finally to prevent isSyncingFromSupabase from sticking
-// v31 NOTE: db.ref() is a MOCK — these listeners NEVER fire. All data syncing
-// is handled by _doRestPoll() which reads from Supabase REST. These listeners
-// are kept as dead code to avoid breaking references, but they do nothing.
-// 'ranking_summary' está incluido aquí para que TODOS los dispositivos de gestor
-// reciban el resumen de puntos que el admin calcula desde el árbol completo de
-// vales (ver el listener de 'vales' más abajo). Antes nada lo escuchaba y
-// renderGestorRanking() recalculaba los puntos desde getVales(), que en un
-// dispositivo de gestor SOLO contiene sus propios vales — el ranking mostraba
-// 0 pts para todos los demás gestores.
-['gestores', 'mensajeros', 'productos', 'categorias', 'config', 'notifs', 'estafa', 'ranking_summary'].forEach(node => {
-  db.ref(node).on('value', snap => {
-    _syncCount++;
-    try {
-      const val = snap.val();
-      
-      // Only update local storage IF Supabase actually has data.
-      if (val) {
-        let parsedVal = val;
-        if (node !== 'config' && typeof val === 'object' && !Array.isArray(val)) {
-          parsedVal = Object.values(val);
-        }
-        try { localStorage.setItem('axon_'+node, JSON.stringify(parsedVal)); } catch(e) {}
-        // Update in-memory cache
-        if(node==='gestores'){_gestoresCache=parsedVal;_gestoresDirty=false;}
-        else if(node==='mensajeros'){_mensajerosCache=parsedVal;_mensajerosDirty=false;}
-        else if(node==='productos'){_productosCache=parsedVal;_productosDirty=false;}
-        else if(node==='categorias'){_categoriasCache=parsedVal;_categoriasDirty=false;}
-        else if(node==='config'){_configCache=parsedVal;_configDirty=false;}
-        else if(node==='notifs'){_notifsCache=parsedVal;_notifsDirty=false;}
-        else if(node==='estafa'){_estafaCache=parsedVal;_estafaDirty=false;}
-      } else {
-        const local = localStorage.getItem('axon_'+node);
-        if (!local || local === '[]' || local === '{}') {
-          try { localStorage.setItem('axon_'+node, node==='config'?'{}':'[]'); } catch(e) {}
-        }
-      }
-    } finally {
-      _syncCount--;
-      refreshUI();
-    }
-  });
-});
+// ── v65: listeners de nodos eliminados (código muerto) ──────────────────────
+// Eran 8 suscripciones db.ref(node).on('value', …) —gestores, mensajeros,
+// productos, categorías, config, notifs, estafa y ranking_summary— que el propio
+// código ya reconocía como inertes: «db.ref() is a MOCK — these listeners NEVER
+// fire […] kept as dead code to avoid breaking references». No había tales
+// referencias que romper, así que se van. Todo eso lo sincroniza _doRestPoll().
 
 // Vales Listeners
 // ── v29: Moved to global scope so the REST poll can access them ──
 let _rankingDebounce = null;
 let _lastRankingSummary = '';  // hash del último summary enviado → evitar writes redundantes
-if (IS_ADMIN) {
-  // Admin listens to ALL vales from all gestores — with try/finally
-  db.ref('vales').on('value', snap => {
-    _syncCount++;
-    try {
-      const val = snap.val();
-
-      if (val) {
-        let flatVales = [];
-        Object.values(val).forEach(gVales => {
-          if(gVales) flatVales.push(...Object.values(gVales));
-        });
-        // v14: regenerar campos slimados al leer de Supabase.
-        flatVales.forEach(v => {
-          if (v && !v.valeText) v.valeText = regenerateValeText(v);
-          if (v && Array.isArray(v.valeProductos)) {
-            v.valeProductos.forEach(p => {
-              if (!p.name) {
-                const prod = productoOf(p.id);
-                if (prod) p.name = prod.name;
-              }
-            });
-          }
-          if (v && v.synced === undefined) v.synced = true;
-        });
-
-        // ── v37 SMART MERGE: local-wins for recently changed vales ──
-        // (Same logic as _doRestPoll merge — see detailed comments there)
-        const _localVales = getVales() || [];
-        const _localMap = new Map();
-        _localVales.forEach(v => { if (v && v.id != null) _localMap.set(v.id, v); });
-        const _STATUS_RANK = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4, cancelled: -1 };
-        function _vlmt(v) { if (!v) return 0; if (v.confirmedTs) return new Date(v.confirmedTs).getTime(); if (v.deliveredTs) return new Date(v.deliveredTs).getTime(); return new Date(v.ts || 0).getTime(); }
-        const _sbMap = new Map();
-        flatVales.forEach(v => { if (v && v.id != null) _sbMap.set(v.id, v); });
-        const _mergedMap = new Map();
-        for (const [id, v] of _sbMap) _mergedMap.set(id, v);
-        for (const [id, lv] of _localMap) {
-          const sv = _sbMap.get(id);
-          if (sv) {
-            const lr = _STATUS_RANK[lv.status] ?? 0, sr = _STATUS_RANK[sv.status] ?? 0;
-            if (lr > sr || (lr === sr && _vlmt(lv) > _vlmt(sv))) _mergedMap.set(id, lv);
-          } else if (lv.synced === false && lv.status !== 'cancelled') {
-            _mergedMap.set(id, lv);
-          }
-        }
-        let mergedFlatVales = Array.from(_mergedMap.values());
-        // Deduplicate by vale ID (safety net)
-        {
-          const seen = new Set();
-          mergedFlatVales = mergedFlatVales.filter(v => {
-            if (!v || v.id == null) return false;
-            const key = String(v.id);
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-        }
-        mergedFlatVales.sort((a,b) => new Date(b.ts) - new Date(a.ts));
-
-        // Check for new vales with estafa matches before saving
-        const oldVales = getVales();
-        const newIds = mergedFlatVales.filter(nv => nv.isNew && !oldVales.find(ov => ov.id === nv.id));
-        try { localStorage.setItem('axon_vales', JSON.stringify(mergedFlatVales)); _valesCache = mergedFlatVales; _valesDirty = false; } catch(e) {}
-        // Show estafa alert for new vales that match blacklist
-        newIds.forEach(nv => {
-          const estafaMatches = checkEstafaMatch(nv);
-          if(estafaMatches.length) setTimeout(() => showEstafaAlert(nv, estafaMatches), 300);
-        });
-
-        // Debounced ranking summary update — 3s en lugar de 500ms.
-        // Antes: cada snapshot de vales → 500ms después → set('ranking_summary').
-        // En una sesión activa con varios gestores, eso eran 5-10 writes/min
-        // de ranking_summary, casi siempre con el mismo contenido.
-        // Ahora: 3s de debounce + diff de contenido (si los puntos no cambiaron,
-        // no se escribe nada).
-        clearTimeout(_rankingDebounce);
-        _rankingDebounce = setTimeout(() => {
-          const gestores = getGestores();
-          const summary = gestores.map(g => {
-            const pts = mergedFlatVales.filter(v=>v.gestorId===g.id&&['confirmed','pending_payment'].includes(v.status))
-              .reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-            return { id: g.id, pts };
-          });
-          // Diff: si el summary es idéntico al último enviado, no escribir.
-          const summaryStr = JSON.stringify(summary);
-          if (summaryStr !== _lastRankingSummary) {
-            _lastRankingSummary = summaryStr;
-            _enqueueSB('ranking_summary', summary, 'set');
-          }
-        }, 3000);
-      } else {
-        // Supabase has no vales — clear everything, PERO preservar vales
-        // locales synced:false (venta directa del admin pendiente de subir).
-        const localPending = (getVales() || []).filter(v =>
-          v && v.synced === false &&
-          v.status !== 'cancelled'
-        );
-        if (localPending.length > 0) {
-          try { localStorage.setItem('axon_vales', JSON.stringify(localPending)); _valesCache = localPending; _valesDirty = false; } catch(e) {}
-        } else {
-          try { localStorage.setItem('axon_vales', '[]'); _valesCache = []; _valesDirty = false; } catch(e) {}
-          rankingCache = null;
-          _lastRankingSummary = '';
-          try { localStorage.removeItem('axon_ranking_summary'); } catch(e) {}
-          _enqueueSB('ranking_summary', null, 'remove');
-        }
-      }
-    } finally {
-      _syncCount--;
-      refreshUI();
-    }
-  });
-}
+// v65: aquí vivía el listener db.ref('vales').on('value', …) del admin, 114
+// líneas que nunca se ejecutaron. Lo que hace de verdad ese trabajo —leer los
+// vales, mezclarlos y refrescar la UI— es _doRestPoll().
 
 // Initialize empty Supabase from local if Admin
+// Siembra inicial: si la nube está VACÍA, subir los datos locales del admin.
+//
+// v65 FIX: este bloque parecía código muerto como el resto de db.ref, pero no lo
+// era, y hacía lo contrario de lo que dice su nombre. El stub .once() devuelve
+// Promise.resolve({ val: () => null }), así que el .then() SÍ se ejecutaba y
+// `!s.val()` era SIEMPRE cierto: el admin se creía la nube vacía en cada arranque
+// y, 1,5 s después de abrir, resubía gestores, mensajeros, productos, categorías,
+// config y TODOS los vales desde su copia local. Es decir, machacaba lo que
+// hubiera en Supabase —incluidos cambios recién hechos desde otro dispositivo—
+// con lo que tuviera guardado, que es exactamente la clase de escritura ciega que
+// ha provocado los fallos de sincronización de esta app.
+// Ahora la comprobación es de verdad, leyendo por REST. Y si la lectura falla no
+// se siembra nada: ante la duda, mejor no escribir que escribir de más.
 if (IS_ADMIN) {
-  setTimeout(() => {
-    db.ref('.info/connected').once('value').then(() => {
-      db.ref('gestores').once('value').then(s => {
-        if (!s.val()) {
-           const lGestores = getGestores();
-           if(lGestores.length > 0) {
-             setSB('gestores', lGestores);
-             setSB('mensajeros', getMensajeros());
-             setSB('productos', getProductos());
-             setSB('categorias', getCategorias());
-             setSB('config', getConfig());
-             const localVales = getVales();
-             if(localVales.length){
-               // v37: Write vales in NEW flat format (one row per vale, id=valeId)
-               // ANTES: _enqueueSB('vales', _valesToSupabaseObj(localVales), 'set')
-               // which wrote in OLD nested format (id=gestorId, data={valeId: valeObj})
-               // causing duplicates when _flattenValesFromSB found both formats.
-               const flatUpdates = {};
-               localVales.forEach(v => { if (v && v.id != null) flatUpdates[v.id] = v; });
-               _enqueueSB('vales', flatUpdates, 'update');
-             }
-           }
-        }
-      });
-    });
+  setTimeout(async () => {
+    try {
+      const remoteGestores = await _sbRestGetCollection('gestores');
+      if (remoteGestores && remoteGestores.length > 0) return; // la nube ya tiene datos
+      const lGestores = getGestores();
+      if (!lGestores.length) return;
+      console.log('[seed] Supabase vacío — subiendo los datos locales por primera vez');
+      setSB('gestores', lGestores);
+      setSB('mensajeros', getMensajeros());
+      setSB('productos', getProductos());
+      setSB('categorias', getCategorias());
+      setSB('config', getConfig());
+      const localVales = getVales();
+      if (localVales.length) {
+        // v37: Write vales in NEW flat format (one row per vale, id=valeId)
+        // ANTES: _enqueueSB('vales', _valesToSupabaseObj(localVales), 'set')
+        // which wrote in OLD nested format (id=gestorId, data={valeId: valeObj})
+        // causing duplicates when _flattenValesFromSB found both formats.
+        const flatUpdates = {};
+        localVales.forEach(v => { if (v && v.id != null) flatUpdates[v.id] = v; });
+        _enqueueSB('vales', flatUpdates, 'update');
+      }
+    } catch(e) {
+      console.warn('[seed] no se pudo comprobar si la nube está vacía, no se siembra nada:', e && e.message);
+    }
   }, 1500);
 }
 
@@ -3387,7 +3119,13 @@ if (IS_ADMIN) {
 const _valeLocalPatchTs = new Map();
 
 function patchVale(id, changes) {
-  const all = getVales(); const i = all.findIndex(v=>v.id===id);
+  // v65: .slice() — copia del array antes de tocarlo. getVales() devuelve el
+  // caché VIVO (_valesCache), así que mutarlo aquí dejaba a saveVales() sin
+  // estado anterior con el que comparar: comparaba el vale consigo mismo, el
+  // diff salía vacío y el cambio del admin no se subía a Supabase (el fallo de
+  // v59). Aquel se arregló con un snapshot serializado; esto ataca la causa, y
+  // entre las dos cosas el bug no puede volver por esta vía.
+  const all = getVales().slice(); const i = all.findIndex(v=>v.id===id);
   if (i!==-1){
     // v39: Track assignment timestamp for proper _valeModTs comparison
     if (changes.status === 'assigned' && !changes.assignedTs) {
@@ -3427,64 +3165,29 @@ function getNextValeNum() {
   _safeSetLS('axon_config', JSON.stringify(updated));
   _configCache = updated; _configDirty = false;
   if (!isSyncingFromSupabase()) _enqueueSB('config', {nextValeNum: n + 1}, 'update');
-  // v17: disparar el reconciler atómico en background (no bloquea al caller).
-  // Se ejecuta solo si hay conexión y no hay ya un reconcile en curso.
-  _scheduleReconcileNextValeNum();
+  // v65: aquí se llamaba a _scheduleReconcileNextValeNum(), eliminado por no
+  // funcionar (ver la nota justo debajo de esta función).
   return n;
 }
 
-// ── v17: Reconciler atómico de nextValeNum ──
-// Garantiza que el contador remoto de Supabase nunca sea menor que el local.
-// Si dos gestores reservaron el mismo número en sus copias locales, el
-// reconciler usa transaction() para forzar que el remoto sea el máximo.
-// Esto no "desduplica" los vales ya enviados (conservan su número), pero
-// asegura que los SIGUIENTES vales no colisionen.
-let _reconcileNextValeNumInFlight = false;
-let _reconcileNextValeNumScheduled = false;
-function _scheduleReconcileNextValeNum() {
-  if (_reconcileNextValeNumInFlight || _reconcileNextValeNumScheduled) return;
-  if (!_sbConnected) return; // no tiene sentido sin conexión
-  _reconcileNextValeNumScheduled = true;
-  // Pequeño delay para coalesar múltiples llamadas en una sola transacción.
-  setTimeout(_doReconcileNextValeNum, 800);
-}
-async function _doReconcileNextValeNum() {
-  _reconcileNextValeNumScheduled = false;
-  if (_reconcileNextValeNumInFlight) return;
-  if (!_sbConnected) return;
-  _reconcileNextValeNumInFlight = true;
-  try {
-    const localCfg = getConfig();
-    const localNext = localCfg.nextValeNum || 1;
-    // transaction: si remoto < local, llevarlo a local. Si remoto > local,
-    // adoptar el remoto (alguien más lo adelantó).
-    const result = await db.ref('config/nextValeNum').transaction(curr => {
-      const remote = curr || 1;
-      if (remote < localNext) return localNext;
-      // remote >= localNext: el remoto ya está adelantado, no tocar.
-      return; // undefined → abortar transaction (no cambiar nada)
-    }, undefined, false);
-    if (result && result.committed) {
-      // La transacción hizo un cambio → remote era menor, lo subimos a localNext.
-      // Actualizar cache local para que el listener no lo revierta.
-      const cfg = getConfig();
-      cfg.nextValeNum = localNext;
-      _safeSetLS('axon_config', JSON.stringify(cfg));
-      _configCache = cfg;
-      console.log('[reconcile] nextValeNum ajustado a', localNext);
-    }
-  } catch(e) {
-    // Silencioso — el reconciler es best-effort, no bloquea nada.
-    console.warn('[reconcile] error:', e && e.message);
-  } finally {
-    _reconcileNextValeNumInFlight = false;
-  }
-}
+// ── v65: reconciliador de nextValeNum eliminado (no funcionaba) ─────────────
+// Se apoyaba en db.ref('config/nextValeNum').transaction(...), y el stub `db`
+// resuelve transaction() con { committed: false } SIEMPRE. El bloque que ajustaba
+// el contador estaba dentro de `if (result && result.committed)`, así que no se
+// ejecutó nunca: la función se programaba, esperaba 800 ms y no hacía nada.
+// OJO — esto NO arregla lo que decía arreglar, solo deja de fingirlo: si dos
+// gestores sin conexión reservan el mismo número de vale, seguirán colisionando,
+// igual que hasta ahora. Para resolverlo de verdad hace falta reservar el número
+// en el servidor (una función RPC en Supabase que devuelva el siguiente valor de
+// forma atómica), no un contador en cada teléfono.
 function valeNumStr(v) {
   return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
 }
 function patchProducto(id, changes) {
-  const all = getProductos(); const i = all.findIndex(p=>p.id===id);
+  // v65: .slice() por coherencia con patchVale. Hoy saveProductos() sube el
+  // array entero y no hace diff, así que aquí no había fallo; pero si mañana se
+  // le añade un diff, el stock heredaría exactamente el bug de v59.
+  const all = getProductos().slice(); const i = all.findIndex(p=>p.id===id);
   if (i!==-1){all[i]={...all[i],...changes};saveProductos(all);}
 }
 
@@ -4332,7 +4035,8 @@ function _proceedGestorPassPrompt(id, g) {
   setTimeout(()=>document.getElementById('gestorPassInput').focus(),100);
 }
 function doSelectGestor(id) {
-  listenToMyVales(id);
+  // v65: aquí se llamaba a listenToMyVales(id), eliminada por ser código muerto.
+  // Los vales del gestor los sincroniza _doRestPoll() cada 5 s vía REST.
   activeGestorId=id;const g=gestorOf(id);
 
   // ─── AVATAR con foto (si existe) ───
@@ -4584,10 +4288,7 @@ function submitGestorPass() {
   });
 }
 function changeGestor() {
-  if (gestorValesListener && activeGestorId) {
-    db.ref(`vales/${activeGestorId}`).off('value', gestorValesListener);
-    gestorValesListener = null;
-  }
+  // v65: aquí se soltaba el listener de listenToMyVales, eliminada por muerta.
   activeGestorId=null;
   document.getElementById('layoutGestor').classList.remove('has-gestor');
   document.getElementById('gestorBanner').style.display='none';
@@ -6194,6 +5895,17 @@ function renderGestorDashboard() {
   dash.innerHTML = statsHTML + comHero + metaHTML;
 }
 
+// ── v65: criterio único de "vale confirmado y visible para el gestor" ────────
+// Estaba escrito por separado en cuatro sitios (historial, comisiones, botón de
+// ocultar e "ocultar historial") y ya divergió una vez: la vista de comisiones se
+// había dejado el !hiddenFromHistory, así que al ocultar el historial la comisión
+// del vale seguía ahí, sin ningún vale a la vista y sin forma de quitarla (v61).
+// Con un solo sitio, no puede volver a pasar: si mañana cambia el criterio de qué
+// vale cuenta, cambia para todas las vistas a la vez.
+const esValeConfirmadoVisible = v => !!v && v.status === 'confirmed' && !v.hiddenFromHistory;
+const valesConfirmadosDeGestor = gestorId =>
+  getVales().filter(v => v && v.gestorId === gestorId && esValeConfirmadoVisible(v));
+
 function renderMyVales() {
   const c = document.getElementById('gestorMyVales');
   const hList = document.getElementById('gestorHistorialList');
@@ -6205,7 +5917,7 @@ function renderMyVales() {
   const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
   // History now separates confirmed sales from pending_payment (awaiting collection) — both "completed" deliveries
   // but pending_payment represents an outstanding balance the gestor should track.
-  const historyVales = mine.filter(v => v.status === 'confirmed' && !v.hiddenFromHistory);
+  const historyVales = mine.filter(esValeConfirmadoVisible);
   const pendingPayVales = mine.filter(v => v.status === 'pending_payment' && !v.hiddenFromHistory);
   const historyCount = historyVales.length + pendingPayVales.length;
 
@@ -6323,7 +6035,7 @@ function renderGestorComisiones() {
   // Ahora ambas vistas usan el mismo criterio. Ojo: esto solo afecta a lo que ve
   // el gestor. La comisión sigue intacta en el panel del admin, que es quien
   // paga — igual que avisa el propio texto del botón ("los datos NO se borran").
-  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);
+  const mine=valesConfirmadosDeGestor(activeGestorId);
   // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
   const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
   const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
@@ -6378,10 +6090,10 @@ function toggleGestorHistorial(){
   const clearBtn=document.getElementById('gestorHistClearBtn');
   if(hList) hList.style.display=_gestorHistOpen?'block':'none';
   if(arrow) arrow.textContent=_gestorHistOpen?'▲':'▼';
-  if(clearBtn&&_gestorHistOpen){const hv=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);clearBtn.style.display=hv.length?'block':'none';}
+  if(clearBtn&&_gestorHistOpen){const hv=valesConfirmadosDeGestor(activeGestorId);clearBtn.style.display=hv.length?'block':'none';}
 }
 function clearGestorHistory(){
-  const confirmed=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);
+  const confirmed=valesConfirmadosDeGestor(activeGestorId);
   if(!confirmed.length){showToast('No hay historial para ocultar');return;}
   showConfirmAction('¿Ocultar historial?',`Se ocultarán ${confirmed.length} vales completados de tu vista. <b>Los datos NO se borran</b> — el admin sigue viéndolos en estadísticas e historial. Esta acción es reversible desde el panel admin.`,'Ocultar','btn-red',()=>{
     // Mark vales as hidden for this gestor — do NOT delete
@@ -10240,7 +9952,8 @@ function sendAdminVale() {
   };
 
   // ── 1. Guardar el vale LOCALMENTE y encolar write a Supabase (síncrono, rápido) ──
-  const all = getVales(); all.push(vale); saveVales(all);
+  // v65: .slice() por lo mismo que en patchVale — no mutar el caché vivo.
+  const all = getVales().slice(); all.push(vale); saveVales(all);
   _logAudit('admin_vale_sent', 'vale:' + vale.id + ' gestor:' + gId);
 
   // ── 2. Feedback INMEDIATO al admin ──

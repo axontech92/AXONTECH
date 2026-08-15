@@ -198,7 +198,8 @@ function escapeHTML(s) {
    ('photos/img_1777924118004.webp'), así que la inmensa mayoría de los productos
    nunca mostraba su foto: se iban al icono 📦 aunque el archivo estuviera ahí.
    Es la misma lógica que _resolvePhotoUrl() de app.js, que el catálogo no tiene
-   porque es una página suelta y no carga app.js.
+   porque es una página suelta y no carga app.js. OJO: son gemelas y hay que
+   mantenerlas a la par — si tocas una, revisa la otra.
    Se pasa a URL absoluta a propósito: la página se sirve con service worker y
    una ruta relativa no siempre resuelve bien desde una página cacheada.
    Devuelve '' si no hay foto utilizable, para que quien llame muestre el
