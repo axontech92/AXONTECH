@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 66;
+const APP_VERSION = 67;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 66;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.2';
+let _PUBLIC_VERSION_STR = 'v1.3';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '1566372c7b377c10';
+let _LOCAL_BUILD_HASH = 'a91bf26458fe30ca';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -726,23 +726,10 @@ async function _doRestPoll() {
         }
         if (rawVales === null) rawVales = await _sbRestGetCollection('vales');
         const flatVales = _flattenValesFromSB(rawVales);
-        // v58 DIAG: los avisos del admin llegan al gestor pero los estados de los
-        // vales no. Ambos viajan en este mismo poll: los vales aquí, las notifs
-        // más abajo (fila 'notifs' de meta). Que lleguen unas y no otros implica
-        // que el poll corre y que es este bloque el que no surte efecto. Esta
-        // línea dice en cuál de los tres puntos se rompe:
-        //   · no aparece nada          → el GET de vales falla (ver [AXON-DIAG] FALLO)
-        //   · aparece con status viejo → Supabase no tiene el cambio del admin
-        //   · aparece con status nuevo → el fallo está en el merge/guardado de abajo
-        if (!IS_ADMIN) {
-          try {
-            const _g = Number(activeGestorId);
-            const _mios = flatVales.filter(v => v && Number(v.gestorId) === _g);
-            console.log('[AXON-DIAG] filas:' + (rawVales||[]).length + ' aplanados:' + flatVales.length +
-              ' mios:' + _mios.length + ' | ' +
-              _mios.map(v => (v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : v.id) + '=' + (v.status||'SIN-STATUS') + (v.seenByAdmin ? '+visto' : '')).join(' '));
-          } catch(_e) {}
-        }
+        // v67: aquí iba el log [AXON-DIAG] por cada pasada del poll, que sirvió
+        // para localizar por qué los estados no llegaban al gestor. Ya cumplió y
+        // se retira para no ensuciar la consola cada 5 s. El aviso del catch de
+        // más abajo SÍ se queda: ese solo habla cuando algo falla de verdad.
         // v34 FIX: ALWAYS update localStorage from Supabase, even if flatVales is empty.
         // ANTES: solo se actualizaba si flatVales.length > 0. Si se borraban TODOS los
         // vales de Supabase, localStorage mantenía los vales "zombie" y reaparecían.
@@ -5403,8 +5390,8 @@ function mensajeroEntrega(id) {
   // ANTES (v46-): se usaba 'vale_assigned' que muestra "Tu venta está con el
   // mensajero" — confuso porque el mensajero YA entregó. Ahora usamos
   // 'vale_pending' que muestra "Vale en proceso de cobro".
-  addNotif('vale_pending', v.cliente||'Cliente', null, 'Entregado · Pendiente de cobro', v.gestorId, 'vale_pending:'+id);
   patchVale(id,{status:'pending_payment',deliveredTs:new Date().toISOString(),stockDecremented:true});
+  addNotif('vale_pending', v.cliente||'Cliente', null, 'Entregado · Pendiente de cobro', v.gestorId, 'vale_pending:'+id);
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   renderAdminGestores();renderValeDetail();renderMyVales();
   renderPendienteCobro();renderMensajeroVales();renderPendingCobroSection();
@@ -5443,9 +5430,9 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
   }
   // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
+  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:new Date().toISOString(),stockDecremented:true});
   addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
-  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   playSound('confirm');
   renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5471,9 +5458,9 @@ function mensajeroPagado(id, skipConfirm) {
   if(v.status === 'confirmed') { showToast('Esta venta ya fue confirmada'); return; }
   if(v.status === 'pending_payment' || v.stockDecremented) {
     // Stock already decremented — just confirm the sale
+    patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
     addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
     _logAudit('vale_confirmed', 'vale:' + id);
-    patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
     gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
     playSound('confirm');
     renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5489,9 +5476,9 @@ function mensajeroPagado(id, skipConfirm) {
   }
   // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
+  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString(),stockDecremented:true});
   addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
-  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   playSound('confirm');
   renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5531,10 +5518,10 @@ function confirmSale(id, paymentStatus, skipConfirm) {
   // v52: si el admin marca "Entregado (por cobrar)" también se avisa al gestor.
   // ANTES solo se notificaba cuando paymentStatus era 'confirmed'; con
   // 'pending_payment' el gestor no recibía nada desde este flujo.
+  patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString(),stockDecremented:true});
   if(paymentStatus === 'confirmed') addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   else if(paymentStatus === 'pending_payment') addNotif('vale_pending',v.cliente||'Cliente',null,'Entregado · Pendiente de cobro',v.gestorId,'vale_pending:'+id);
   _logAudit('vale_confirm_' + paymentStatus, 'vale:' + id);
-  patchVale(id,{status:paymentStatus,confirmedTs:new Date().toISOString(),stockDecremented:true});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   playSound('confirm');
   renderAdminGestores();renderValeDetail();renderMyVales();
@@ -5563,9 +5550,9 @@ function markAsPaid(id, skipConfirm) {
   // ANTES (v46-): markAsPaid era el ÚNICO path de confirmación que NO llamaba
   // addNotif — el gestor solo se enteraba si su app estaba abierta y el poll
   // detectaba el cambio de status. Ahora garantizamos la notif desde el admin.
+  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
   addNotif('vale_confirmed', v.cliente||'Cliente', null, `Total: ${v.total||''}`, v.gestorId, 'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
-  patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
   playSound('confirm');
   renderAdminGestores();renderValeDetail();renderMyVales();

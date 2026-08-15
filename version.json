@@ -1,10 +1,10 @@
 {
-  "version": 66,
-  "versionStr": "v1.2",
-  "build": 66,
-  "hash": "1566372c7b377c10",
-  "hashFull": "1566372c7b377c10",
-  "releasedAt": "2026-08-15 05:50",
+  "version": 67,
+  "versionStr": "v1.3",
+  "build": 67,
+  "hash": "a91bf26458fe30ca",
+  "hashFull": "a91bf26458fe30ca",
+  "releasedAt": "2026-08-15 06:16",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,7 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Se reduce mucho el consumo de datos contra la nube: se había agotado la cuota mensual gratuita de Supabase por descargar la base de datos entera cada 5 segundos en cada teléfono",
-    "Cada gestor descarga ahora SOLO sus vales, en vez de los de todos los gestores",
-    "Los productos, categorías y gestores pasan a refrescarse cada 5 minutos en vez de cada 5 segundos: no cambian casi nunca",
-    "Los avisos y los estados de los vales siguen llegando en 5 segundos, igual que antes"
+    "El estado del vale y su aviso ahora llegan juntos al gestor: antes el aviso se adelantaba unos segundos al cambio en la tarjeta",
+    "Se retira el mensaje de diagnóstico que quedaba de la revisión anterior"
   ]
 }
