@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 67;
+const APP_VERSION = 68;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 67;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.3';
+let _PUBLIC_VERSION_STR = 'v1.4';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a91bf26458fe30ca';
+let _LOCAL_BUILD_HASH = '5743f3649d87cb4f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -10276,6 +10276,23 @@ let _installDiagnosticInfo = {
   https: location.protocol === 'https:' || location.hostname === 'localhost'
 };
 const PWA_DISMISS_KEY = 'axon_pwa_install_dismissed';
+// v68: recuerdo de que la app YA está instalada en este dispositivo.
+// _isStandaloneMode() solo es cierto cuando se ha abierto DESDE EL ICONO. Si el
+// usuario abre la misma dirección desde el navegador teniéndola ya instalada,
+// devuelve false y le salía el cartel de "instala la app" que ya tiene. Y al
+// instalarse, el handler de 'appinstalled' encima borraba el "no molestar", con
+// lo que el cartel volvía enseguida.
+// Se marca en dos momentos: al instalar, y la primera vez que se abre desde el
+// icono (que demuestra que está instalada). A partir de ahí no se vuelve a
+// ofrecer. Si alguien la desinstala, el botón de instalar del encabezado sigue
+// estando: mejor no molestar de más que insistir con algo que ya se tiene.
+const PWA_INSTALLED_KEY = 'axon_pwa_instalada';
+function _marcarPWAInstalada() {
+  try { localStorage.setItem(PWA_INSTALLED_KEY, '1'); } catch(e) {}
+}
+function _pwaYaInstalada() {
+  try { return localStorage.getItem(PWA_INSTALLED_KEY) === '1'; } catch(e) { return false; }
+}
 const PWA_DISMISS_DAYS = 7;
 const PWA_BANNER_WAIT_MS = 3500;
 const PWA_PROMPT_GRACE_MS = 8000;
@@ -10694,6 +10711,9 @@ function setupPWAInstallPrompt() {
   } catch(e) {}
 
   // 1) Si ya está instalado → ocultar botón del header
+  // v68: abrirse desde el icono demuestra que está instalada; se anota para no
+  // ofrecerla más adelante si el usuario entra por el navegador.
+  if (_isStandaloneMode()) _marcarPWAInstalada();
   if (_isStandaloneMode()) {
     const hdrBtn = document.getElementById('btnPWAInstallHeader');
     if (hdrBtn) hdrBtn.style.display = 'none';
@@ -10751,7 +10771,10 @@ function setupPWAInstallPrompt() {
   window.addEventListener('appinstalled', () => {
     const b = document.getElementById('pwaInstallBanner');
     if (b) b.classList.remove('show');
-    try { localStorage.removeItem(PWA_DISMISS_KEY); } catch(e) {}
+    // v68: recordarlo. Antes se hacía removeItem(PWA_DISMISS_KEY), justo lo
+    // contrario: borraba el "no molestar" y el cartel reaparecía en cuanto se
+    // abría la web desde el navegador, ofreciendo instalar algo ya instalado.
+    _marcarPWAInstalada();
     showToast('✅ AXONTECH instalada');
     const hdrBtn2 = document.getElementById('btnPWAInstallHeader');
     if (hdrBtn2) hdrBtn2.style.display = 'none';
@@ -10764,7 +10787,7 @@ function setupPWAInstallPrompt() {
   //      con botón "Compartir para agregar a inicio" (Web Share API).
   //    - Desktop: no mostramos banner (solo modal desde el botón del header).
   setTimeout(() => {
-    if (_isStandaloneMode()) return;
+    if (_isStandaloneMode() || _pwaYaInstalada()) return;  // v68
     if (!showBanner) return;
     if (_isDesktop()) return;
     if (_deferredInstallPrompt || _needsManualInstall() || _isWebView()) {
@@ -10774,7 +10797,7 @@ function setupPWAInstallPrompt() {
     // Android con navegador que SÍ debería disparar beforeinstallprompt:
     // esperar gracia y mostrar banner con botón de compartir como fallback.
     setTimeout(() => {
-      if (_isStandaloneMode() || _isInstallDismissed()) return;
+      if (_isStandaloneMode() || _pwaYaInstalada() || _isInstallDismissed()) return;  // v68
       _showPWAInstallBanner();
     }, PWA_PROMPT_GRACE_MS);
   }, PWA_BANNER_WAIT_MS);

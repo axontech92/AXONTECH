@@ -1,10 +1,10 @@
 {
-  "version": 67,
-  "versionStr": "v1.3",
-  "build": 67,
-  "hash": "a91bf26458fe30ca",
-  "hashFull": "a91bf26458fe30ca",
-  "releasedAt": "2026-08-15 06:16",
+  "version": 68,
+  "versionStr": "v1.4",
+  "build": 68,
+  "hash": "5743f3649d87cb4f",
+  "hashFull": "5743f3649d87cb4f",
+  "releasedAt": "2026-08-15 06:26",
   "files": [
     "app.js",
     "app.css",
@@ -14,7 +14,6 @@
     "catalogo.html"
   ],
   "changelog": [
-    "El estado del vale y su aviso ahora llegan juntos al gestor: antes el aviso se adelantaba unos segundos al cambio en la tarjeta",
-    "Se retira el mensaje de diagnóstico que quedaba de la revisión anterior"
+    "FIX: la app ya no ofrece instalarse cuando ya está instalada. Ahora recuerda que se instaló, aunque abras la web desde el navegador en vez de desde el icono"
   ]
 }
