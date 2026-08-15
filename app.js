@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 76;
+const APP_VERSION = 77;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 76;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.2';
+let _PUBLIC_VERSION_STR = 'v2.3';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '3733ff30f312946f';
+let _LOCAL_BUILD_HASH = 'ea5b8cb2ef20b3cc';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4096,7 +4096,10 @@ function _proceedGestorPassPrompt(id, g) {
 function doSelectGestor(id) {
   // v65: aquí se llamaba a listenToMyVales(id), eliminada por ser código muerto.
   // Los vales del gestor los sincroniza _doRestPoll() cada 5 s vía REST.
-  activeGestorId=id;const g=gestorOf(id);
+  activeGestorId=id;
+  // v77: dejar los campos automáticos bloqueados desde el primer momento, sin
+  // esperar a que el gestor toque algo.
+  setTimeout(() => { if (typeof _aplicarCamposAuto === 'function') _aplicarCamposAuto(); }, 0);const g=gestorOf(id);
 
   // ─── AVATAR con foto (si existe) ───
   const bannerAvatar=document.getElementById('bannerAvatar');
@@ -6345,6 +6348,36 @@ function _comisionDelValeEnCurso() {
   const falso = { valeProductos: (typeof currentValeProductos !== 'undefined' && currentValeProductos) ? currentValeProductos : [] };
   try { return getValeCommissionParts(falso); } catch(e) { return {totalUSD:null, totalMN:null}; }
 }
+// ── v77: bloqueo de los campos que rellena la app ───────────────────────────
+// Un campo que se autocompleta y además se deja escribir es una trampa: el
+// gestor toca el precio después de elegir productos del catálogo, deja de
+// cuadrar con lo que suma la app, y el error no se ve hasta que el admin cobra.
+// Se bloquean solo los que la app sabe calcular:
+//   · comisión → siempre; es informativa, la de verdad sale de los productos
+//   · precios  → solo si hay productos del catálogo; si el artículo se escribió
+//                a mano, no hay de dónde calcularlos y tiene que poder ponerlos
+//   · dirección y mensajería → mientras "recogida en tienda" esté marcada
+// Artículo, garantía y total se quedan editables a propósito: el formulario
+// invita a escribirlos a mano y a veces hay que ajustarlos.
+function _bloquearCampo(id, bloquear, titulo) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.readOnly = !!bloquear;
+  el.classList.toggle('vf-auto-lock', !!bloquear);
+  if (bloquear) el.title = titulo || 'Lo calcula la app a partir de los productos';
+  else el.removeAttribute('title');
+}
+function _aplicarCamposAuto() {
+  const hayCatalogo = (typeof currentValeProductos !== 'undefined' && currentValeProductos && currentValeProductos.length > 0);
+  _bloquearCampo('vf-comisionGestor', true, 'Se calcula con la comisión de cada producto');
+  _bloquearCampo('vf-precioUSD', hayCatalogo, 'Suma de los productos elegidos. Quita los productos para escribirlo a mano.');
+  _bloquearCampo('vf-precioMN',  hayCatalogo, 'Suma de los productos elegidos. Quita los productos para escribirlo a mano.');
+  const chk = document.getElementById('vf-recogidaTienda');
+  const enTienda = !!(chk && chk.checked);
+  _bloquearCampo('vf-direccion',  enTienda, 'Recogida en tienda: no hay envío a domicilio');
+  _bloquearCampo('vf-mensajeria', enTienda, 'Recogida en tienda: no hay envío a domicilio');
+}
+
 function onCesionComisionInput() {
   const inp = document.getElementById('vf-comisionCedida');
   const sel = document.getElementById('vf-comisionCedidaMoneda');
@@ -6701,6 +6734,7 @@ function onRecogidaTiendaChange() {
   const men = document.getElementById('vf-mensajeria');
   const ubi = document.getElementById('vf-ubicacion');
   const ubiRow = document.getElementById('vf-ubicacionRow');
+  _aplicarCamposAuto();  // v77: bloquea dirección y mensajería si es recogida
   if (isStore) {
     if (dir) { dir.value = 'Recogida en tienda'; dir.style.background = 'var(--surface2)'; dir.style.color = 'var(--text-muted)'; }
     if (men) { men.value = 'Sin envío'; men.style.background = 'var(--surface2)'; men.style.color = 'var(--text-muted)'; }
@@ -6723,6 +6757,7 @@ function resetForm() {
   const chk=document.getElementById('vf-recogidaTienda');if(chk)chk.checked=false;
   // v69: al limpiar, el bloque "Más detalles" vuelve a quedar plegado.
   if (typeof toggleVfExtras === 'function') toggleVfExtras(false);
+  if (typeof _aplicarCamposAuto === 'function') _aplicarCamposAuto();  // v77
   onRecogidaTiendaChange();
   currentValeProductos=[];selectedProductsUI=[];
   renderSelectedProductsUI();
@@ -7024,9 +7059,13 @@ function confirmPickerSelection() {
     const g=items.map(({id})=>productoOf(id)?.garantia).find(Boolean);
     if(g)document.getElementById('vf-garantia').value=g;
   }
-  closeProductPicker();onFormInput();
+  closeProductPicker();_aplicarCamposAuto();onFormInput();
 }
 function renderSelectedProductsUI() {
+  // v77: se llama siempre que cambia la selección de productos (al elegir, al
+  // quitar y al limpiar), así que es el punto fiable para recalcular qué campos
+  // van bloqueados. Si se quitan todos, los precios se vuelven a poder escribir.
+  if (typeof _aplicarCamposAuto === 'function') _aplicarCamposAuto();
   const c=document.getElementById('selectedProductsList');
   if(!c) return;
   if(!selectedProductsUI.length){c.style.display='none';return;}

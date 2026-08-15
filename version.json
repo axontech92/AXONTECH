@@ -1,10 +1,10 @@
 {
-  "version": 76,
-  "versionStr": "v2.2",
-  "build": 76,
-  "hash": "3733ff30f312946f",
-  "hashFull": "3733ff30f312946f",
-  "releasedAt": "2026-08-15 21:20",
+  "version": 77,
+  "versionStr": "v2.3",
+  "build": 77,
+  "hash": "ea5b8cb2ef20b3cc",
+  "hashFull": "ea5b8cb2ef20b3cc",
+  "releasedAt": "2026-08-15 21:24",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: la rebaja del gestor ahora baja lo que paga el cliente. Antes el admin seguía viendo el precio de lista y podía cobrar de más",
-    "ADMIN: en el detalle del vale aparece un recuadro con el precio, la rebaja, el motivo y COBRAR AL CLIENTE bien visible",
-    "El texto del vale ya muestra Precio, Rebaja del gestor y Total a pagar, en vez de solo el precio oficial",
-    "Al gestor se le indica cuánto pagará el cliente mientras escribe la rebaja"
+    "Los campos que rellena la app sola ya no se pueden escribir, para evitar que se descuadren sin querer: la comisión, y los precios cuando los productos salen del catálogo",
+    "Con Recogida en tienda marcada, la dirección y la mensajería quedan bloqueadas",
+    "Los campos bloqueados se ven distintos (borde discontinuo y fondo gris) y al mantenerlos pulsados explican por qué",
+    "Si quitas los productos del catálogo, los precios se vuelven a poder escribir a mano. El artículo, la garantía y el total siguen siendo editables"
   ]
 }

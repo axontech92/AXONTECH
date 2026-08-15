@@ -1533,3 +1533,16 @@ body.dark .pwa-help-note{color:#94a3b8;}
   font-weight:700;
   padding:8px 12px;
 }
+
+/* v77: campos que rellena la app sola.
+   Se bloquean para que no se puedan pisar sin querer —el caso típico es tocar
+   el precio después de elegir productos del catálogo y que deje de cuadrar con
+   lo que suma la app— y se pintan distintos para que se vea que no es un fallo
+   del teclado, sino que ese dato lo calcula la aplicación. */
+.vf-auto-lock{
+  background:var(--surface2) !important;
+  color:var(--text-muted) !important;
+  cursor:not-allowed;
+  border-style:dashed !important;
+}
+.vf-auto-lock:focus{outline:none;box-shadow:none;}
