@@ -1,10 +1,10 @@
 {
-  "version": 71,
-  "versionStr": "v1.7",
-  "build": 71,
-  "hash": "387f139174dee18b",
-  "hashFull": "387f139174dee18b",
-  "releasedAt": "2026-08-15 06:43",
+  "version": 72,
+  "versionStr": "v1.8",
+  "build": 72,
+  "hash": "98bf7a87b672cd8a",
+  "hashFull": "98bf7a87b672cd8a",
+  "releasedAt": "2026-08-15 06:47",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ADMIN: los botones de las tarjetas de producto son mucho más grandes. Eran de 24 px y había que apuntar con el dedo, con el de borrar justo al lado del de ajustar stock",
-    "ADMIN: reservar unidades tiene ahora su propia ventana, igual que el stock: menos/más, +5, reservar todo y liberar todas",
-    "ADMIN: ya no se puede reservar más unidades de las que hay en almacén, y avisa cuando al reservar no queda nada disponible para vender"
+    "ADMIN: la ficha de producto deja de usar el selector de archivos gris del navegador. Ahora hay un botón propio de Elegir/Cambiar foto",
+    "ADMIN: la foto se ve como miniatura cuadrada en vez de una banda estirada que deformaba la imagen",
+    "ADMIN: se puede quitar la foto de un producto. Antes, una vez puesta, solo se podía sustituir por otra",
+    "ADMIN: bajo el campo Stock se avisa de cuántas unidades hay reservadas en vales, y en rojo si el número que escribes no alcanza"
   ]
 }

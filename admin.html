@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=71">
+  <link rel="stylesheet" href="./app.css?v=72">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v1.7</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v1.8</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -689,7 +689,12 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
         <div>
           <div class="vf-label"><span>Stock</span></div>
-          <input type="number" id="pm-stock" placeholder="0" min="0">
+          <input type="number" id="pm-stock" inputmode="numeric" placeholder="0" min="0" oninput="_notaStockProducto()">
+          <!-- v72: aviso de unidades reservadas. Desde aquí se puede escribir un
+               stock por debajo de lo ya comprometido en vales y dejar el
+               disponible descuadrado sin enterarse: este campo, a diferencia de
+               la ventana de stock, no enseña las reservas. -->
+          <div id="pm-stockNota" style="font-size:10px;margin-top:4px;line-height:1.3;"></div>
         </div>
         <div>
           <div class="vf-label"><span>Puntos (⭐)</span></div>
@@ -719,9 +724,23 @@
       <div class="vf-row" style="margin-top:8px;">
         <div class="vf-inner">
           <div class="vf-label"><span>Foto del producto</span></div>
-          <input type="file" id="pm-foto-file" accept="image/*" onchange="handleProductPhoto(this)" style="font-size:11px;padding:5px;">
+          <!-- v72: el selector de archivos nativo ("Seleccionar archivo · Ningún
+               archivo seleccionado") se oculta y se dispara desde un botón propio.
+               El nativo cambia de texto e idioma según el navegador y desentona
+               con el resto. La vista previa pasa de una banda de 100% x 80 px
+               —que deformaba la foto— a una miniatura cuadrada, y se añade el
+               botón de quitar, que antes no existía: una vez puesta una foto no
+               había forma de dejar el producto sin ella. -->
+          <input type="file" id="pm-foto-file" accept="image/*" onchange="handleProductPhoto(this)" style="display:none;">
           <input type="hidden" id="pm-foto">
-          <div id="pm-fotoPreview" style="margin-top:6px;"></div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div id="pm-fotoPreview" style="flex-shrink:0;"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
+              <button type="button" class="btn btn-ghost btn-sm" style="font-size:12px;padding:9px 10px;" onclick="document.getElementById('pm-foto-file').click()">📷 <span id="pm-fotoBtnTexto">Elegir foto</span></button>
+              <button type="button" class="btn btn-ghost btn-sm" id="pm-fotoQuitar" style="font-size:11px;padding:7px 10px;color:var(--red);display:none;" onclick="quitarFotoProducto()">🗑️ Quitar foto</button>
+              <div style="font-size:10px;color:var(--text-muted);line-height:1.35;">Se reduce sola antes de guardarse, para no ocupar datos de más.</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1102,7 +1121,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=71"></script>
+<script src="./app.js?v=72"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 71;
+const APP_VERSION = 72;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 71;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.7';
+let _PUBLIC_VERSION_STR = 'v1.8';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '387f139174dee18b';
+let _LOCAL_BUILD_HASH = '98bf7a87b672cd8a';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7114,9 +7114,61 @@ function openAddProductModal() {
   document.getElementById('pm-comision-currency').value='USD';
   document.getElementById('pm-stock').value='0';document.getElementById('pm-puntos').value='0';
   document.getElementById('pm-foto-file').value='';
-  document.getElementById('pm-fotoPreview').innerHTML='';
+  _pintarFotoProducto('');
   populateCatSelect(null);document.getElementById('productModal').classList.add('show');
 }
+// v72: pinta la miniatura de la foto del producto y ajusta los botones.
+// Estaba escrito en tres sitios distintos (al abrir en blanco, al editar y al
+// elegir una foto nueva), cada uno con su propio HTML — el mismo patrón de
+// duplicación que ya hizo divergir otras vistas de esta app.
+// La miniatura es cuadrada: antes era width:100% y height:80px, así que una foto
+// vertical salía aplastada y ocupaba todo el ancho del formulario.
+// v72: avisa, bajo el campo Stock de la ficha del producto, de cuántas unidades
+// hay comprometidas en vales. Desde esa ficha se puede escribir un stock por
+// debajo de lo reservado y dejar el disponible descuadrado sin enterarse, porque
+// ahí no se ven las reservas (sí en la ventana de stock).
+function _notaStockProducto() {
+  const nota = document.getElementById('pm-stockNota');
+  if (!nota) return;
+  const p = editingProductId ? productoOf(editingProductId) : null;
+  const reservado = p ? parseInt(p.reserved || 0, 10) : 0;
+  if (!reservado) { nota.textContent = ''; return; }
+  const escrito = Math.max(0, parseInt(document.getElementById('pm-stock').value, 10) || 0);
+  if (escrito < reservado) {
+    nota.textContent = '⚠️ Hay ' + reservado + ' unidades reservadas en vales: con ' + escrito + ' no alcanzan.';
+    nota.style.color = 'var(--red)';
+  } else {
+    nota.textContent = reservado + ' reservadas · quedarían ' + (escrito - reservado) + ' para vender';
+    nota.style.color = 'var(--text-muted)';
+  }
+}
+
+function _pintarFotoProducto(url) {
+  const cont = document.getElementById('pm-fotoPreview');
+  const btnQuitar = document.getElementById('pm-fotoQuitar');
+  const btnTexto = document.getElementById('pm-fotoBtnTexto');
+  if (!cont) return;
+  if (url) {
+    cont.innerHTML = '<img src="' + escapeAttr(url) + '" style="width:84px;height:84px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;">';
+    if (btnQuitar) btnQuitar.style.display = '';
+    if (btnTexto) btnTexto.textContent = 'Cambiar foto';
+  } else {
+    cont.innerHTML = '<div style="width:84px;height:84px;border-radius:10px;border:1px dashed var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:26px;opacity:.45;">📦</div>';
+    if (btnQuitar) btnQuitar.style.display = 'none';
+    if (btnTexto) btnTexto.textContent = 'Elegir foto';
+  }
+}
+// Deja el producto sin foto. Antes no había manera: una vez puesta, solo se
+// podía sustituir por otra.
+function quitarFotoProducto() {
+  const h = document.getElementById('pm-foto');
+  const f = document.getElementById('pm-foto-file');
+  if (h) h.value = '';
+  if (f) f.value = '';
+  _pintarFotoProducto('');
+  showToast('Foto quitada — recuerda guardar');
+}
+
 function openEditProductModal(id) {
   const p=productoOf(id);if(!p)return;
   editingProductId=id;
@@ -7137,7 +7189,8 @@ function openEditProductModal(id) {
   document.getElementById('pm-foto').value=p.photo||'';
   document.getElementById('pm-foto-file').value='';
   populateCatSelect(p.catId);
-  document.getElementById('pm-fotoPreview').innerHTML=p.photo?`<img src="${escapeAttr(_resolvePhotoUrl(p.photo))}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'">`:'';
+  _pintarFotoProducto(p.photo ? _resolvePhotoUrl(p.photo) : '');
+  _notaStockProducto();
   document.getElementById('productModal').classList.add('show');
 }
 // Compress + convert image to WebP (with JPEG fallback for very old browsers).
@@ -7356,7 +7409,7 @@ function handleProductPhoto(input) {
       const compressedSize = compressed.length;
       const savings = Math.round((1 - compressedSize / originalSize) * 100);
       document.getElementById('pm-foto').value=compressed;
-      document.getElementById('pm-fotoPreview').innerHTML=`<img src="${compressed}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;">`;
+      _pintarFotoProducto(compressed);
       const formatLabel = compressed.startsWith('data:image/webp') ? 'WebP' : 'JPEG';
       showToast(`✅ ${formatLabel} · ${savings}% más pequeño`, );
     });
