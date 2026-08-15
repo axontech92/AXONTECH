@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 65;
+const APP_VERSION = 66;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 65;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.1';
+let _PUBLIC_VERSION_STR = 'v1.2';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'fde5edba6cec8b06';
+let _LOCAL_BUILD_HASH = '1566372c7b377c10';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -245,6 +245,38 @@ async function _sbRestGetCollection(collName) {
   if (!res.ok) { if (res.status === 404) return []; throw new Error(`Supabase GET ${collName} ${res.status}`); }
   const rows = await res.json();
   return (rows || []).map(r => r.data).filter(x => x != null);
+}
+// ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
+// Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
+// —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
+// que no era suyo. Con eso se fueron los 5 GB de tráfico del plan gratuito.
+// Se piden dos cosas, porque en la tabla conviven dos formatos (ver
+// _flattenValesFromSB):
+//   · formato NEW: una fila por vale, con gestorId dentro del JSON `data`.
+//   · formato OLD: una fila por gestor, con id = gestorId y todos sus vales dentro.
+// Si algo falla —filtro no soportado, error de red— se devuelve null y quien
+// llama se baja la tabla entera como hasta ahora. Ahorrar tráfico nunca debe
+// costar que un gestor deje de ver sus vales.
+async function _sbRestGetValesDeGestor(gestorId) {
+  const gid = Number(gestorId);
+  if (!gid || isNaN(gid)) return null;
+  try {
+    const urlNew = `${_SB_REST}/vales?select=data&data->>gestorId=eq.${encodeURIComponent(String(gid))}`;
+    const urlOld = `${_SB_REST}/vales?select=data&id=eq.${encodeURIComponent(String(gid))}`;
+    const [rNew, rOld] = await Promise.all([
+      fetch(urlNew, { headers: _SB_AUTH_HDRS }),
+      fetch(urlOld, { headers: _SB_AUTH_HDRS }),
+    ]);
+    if (!rNew.ok && rNew.status !== 404) throw new Error(`GET vales(gestor) ${rNew.status}`);
+    if (!rOld.ok && rOld.status !== 404) throw new Error(`GET vales(old) ${rOld.status}`);
+    const filas = [];
+    if (rNew.ok) filas.push(...((await rNew.json()) || []));
+    if (rOld.ok) filas.push(...((await rOld.json()) || []));
+    return filas.map(r => r.data).filter(x => x != null);
+  } catch(e) {
+    console.warn('[rest-poll] no se pudo filtrar por gestor, se descargará todo:', e && e.message);
+    return null;
+  }
 }
 async function _sbRestGetMeta(name) {
   const url = `${_SB_REST}/meta?select=data&name=eq.${encodeURIComponent(name)}`;
@@ -638,11 +670,19 @@ function _flattenValesFromSB(rawItems) {
 let _restPollTimer = null;
 let _restPollInFlight = false;
 const _REST_POLL_MS = 5000;
+// v66: ritmo lento para los datos que casi nunca cambian (productos, categorías,
+// gestores, mensajeros, config, estafa, ranking_summary). Ver el motivo donde se
+// usa: descargarlos cada 5 s era la mayor parte del tráfico contra Supabase.
+const _POLL_LENTO_MS = 300000; // 5 minutos
+let _ultimoPollLento = 0;      // 0 = la primera pasada los trae igualmente
 async function _doRestPoll() {
   if (_restPollInFlight) return;
   if (!navigator.onLine) return;
   if (document.hidden) return;
   _restPollInFlight = true;
+  // v66: ¿toca en esta pasada refrescar lo que cambia poco? (cada 5 min)
+  const _toqueNodosLentos = (Date.now() - _ultimoPollLento) >= _POLL_LENTO_MS;
+  if (_toqueNodosLentos) _ultimoPollLento = Date.now();
   // v55: Snapshot de vales ANTES del poll, para detectar cambios de status
   // y forzar re-render si los hay.
   const _prePollValesMap = new Map();
@@ -677,7 +717,14 @@ async function _doRestPoll() {
       // Hay deletes directos en progreso — no sobreescribir con datos viejos.
     } else {
       try {
-        const rawVales = await _sbRestGetCollection('vales');
+        // v66: el gestor pide solo lo suyo; el admin necesita verlo todo.
+        // Si el filtrado falla, _sbRestGetValesDeGestor devuelve null y se cae a
+        // la descarga completa de siempre.
+        let rawVales = null;
+        if (!IS_ADMIN && activeGestorId != null) {
+          rawVales = await _sbRestGetValesDeGestor(activeGestorId);
+        }
+        if (rawVales === null) rawVales = await _sbRestGetCollection('vales');
         const flatVales = _flattenValesFromSB(rawVales);
         // v58 DIAG: los avisos del admin llegan al gestor pero los estados de los
         // vales no. Ambos viajan en este mismo poll: los vales aquí, las notifs
@@ -973,7 +1020,13 @@ async function _doRestPoll() {
       const qLen = _sbWriteQueue.length;
       console.log(`[sync] vales:${vCount} queue:${qLen} connected:${_sbConnected} online:${navigator.onLine}`);
     }
-    for (const node of ['gestores', 'mensajeros', 'productos', 'categorias']) {
+    // v66: estos cuatro nodos se descargaban ENTEROS cada 5 s como los vales, y
+    // apenas cambian: productos solo son ~78 KB de los ~280 KB de cada pasada.
+    // A 720 pasadas por hora eso era la mayor parte del tráfico de salida de
+    // Supabase, que agotó los 5 GB del plan gratuito. Ahora van cada 5 minutos.
+    // No se nota en la app: un producto nuevo o un gestor nuevo tarda como mucho
+    // 5 minutos en aparecer, y eso no lo mira nadie al segundo.
+    for (const node of (_toqueNodosLentos ? ['gestores', 'mensajeros', 'productos', 'categorias'] : [])) {
       try {
         // ── v28 BUGFIX: No sobreescribir datos locales si hay writes pendientes ──
         if (_sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) continue;
@@ -990,7 +1043,10 @@ async function _doRestPoll() {
         } finally { _syncCount--; }
       } catch(e) { console.warn(`[rest-poll] ${node} sync error:`, e && e.message); }
     }
-    for (const node of _SB_SINGLETON_ROWS) {
+    // v66: 'notifs' sigue en cada pasada —es por donde llegan los avisos del admin
+    // al gestor y ahí la inmediatez sí importa—. config, estafa y ranking_summary
+    // pasan al ritmo lento por el mismo motivo que los nodos de arriba.
+    for (const node of (_toqueNodosLentos ? _SB_SINGLETON_ROWS : ['notifs'])) {
       try {
         // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
         if (_sbWriteQueue.some(q => q.path === node)) continue;
