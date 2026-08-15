@@ -1,10 +1,10 @@
 {
-  "version": 79,
-  "versionStr": "v2.5",
-  "build": 79,
-  "hash": "c1ae8b1a188af64e",
-  "hashFull": "c1ae8b1a188af64e",
-  "releasedAt": "2026-08-15 21:36",
+  "version": 80,
+  "versionStr": "v2.6",
+  "build": 80,
+  "hash": "6322bb9c03a2a0d9",
+  "hashFull": "6322bb9c03a2a0d9",
+  "releasedAt": "2026-08-15 21:40",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: el ticket de recogida ya muestra el precio con la rebaja del gestor aplicada. Antes ponía el precio completo del producto",
-    "El ticket muestra ahora Precio, Rebaja y Total a pagar, para que el cliente vea el descuento",
-    "Corregido lo mismo en el texto que se comparte con el mensajero: cobraba el precio de lista",
-    "Todos los sitios que muestran el total usan ya el mismo cálculo, para que no vuelva a quedarse uno sin actualizar"
+    "FIX: los puntos del gestor contaban vales sin confirmar. Salía 1 punto teniendo 0 vales confirmados",
+    "Ahora el número grande son solo los puntos ganados, y los que están por confirmar salen debajo como +N en camino",
+    "Antes el número cambiaba de significado: sin ventas confirmadas mostraba los posibles y al confirmar la primera podía bajar"
   ]
 }

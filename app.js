@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 79;
+const APP_VERSION = 80;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 79;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.5';
+let _PUBLIC_VERSION_STR = 'v2.6';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'c1ae8b1a188af64e';
+let _LOCAL_BUILD_HASH = '6322bb9c03a2a0d9';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5886,8 +5886,17 @@ function _computeGestorStatsForRange(gestorId, from, to) {
       const pr = productoOf(p.id);
       return s + (pr ? (pr.puntos||0) * p.qty : 0);
     }, sum), 0);
-  // v41: Show potential points if no earned points yet (better UX for new gestores)
-  const pts = ptsEarned > 0 ? ptsEarned : ptsPotential;
+  // v80 FIX: aquí se hacía `ptsEarned > 0 ? ptsEarned : ptsPotential`, con la
+  // idea (v41) de que un gestor nuevo no viera un cero desangelado. Pero eso
+  // hacía que el número CAMBIARA DE SIGNIFICADO según el caso: sin ventas
+  // confirmadas enseñaba los puntos posibles —"1 punto" con cero vales
+  // confirmados, que es lo que se reportó— y en cuanto confirmabas una pasaba a
+  // enseñar solo los ganados, con lo que el contador podía BAJAR justo después
+  // de una venta buena.
+  // Ahora siempre son los ganados. Los posibles no se pierden: se enseñan
+  // aparte, etiquetados como lo que son, así que la motivación que buscaba v41
+  // sigue estando sin mentir en la cifra principal.
+  const pts = ptsEarned;
   // v52 FIX: la comisión se cuenta solo al completar la venta (status
   // 'confirmed' = cobrada). v50 la calculaba sobre confirmed+pending_payment,
   // así que un vale apenas entregado (aún sin cobrar) ya sumaba comisión —
@@ -5946,7 +5955,10 @@ function renderGestorDashboard() {
   const stats = [
     { label:'Vales', val:cur.total, color:'var(--blue)', cmp: prev ? _cmpArrow(cur.total, prev.total) : '' },
     { label:'Confirmados', val:cur.confirmed + cur.pendingPay, color:'var(--green)', cmp: prev ? _cmpArrow(cur.confirmed + cur.pendingPay, prev.confirmed + prev.pendingPay) : '' },
-    { label:'Puntos ⭐', val:cur.pts, color:'#F59E0B', cmp: prev ? _cmpArrow(cur.pts, prev.pts) : '' },
+    // v80: los puntos aún no ganados se enseñan debajo, en pequeño y dichos por
+    // su nombre, en vez de sumarlos al número grande como si ya fueran suyos.
+    { label:'Puntos ⭐', val:cur.pts, color:'#F59E0B', cmp: prev ? _cmpArrow(cur.pts, prev.pts) : '',
+      extra: (cur.ptsPotential > cur.ptsEarned) ? ('+' + (cur.ptsPotential - cur.ptsEarned) + ' en camino') : '' },
     { label:'Conversión', val:cur.conversion + '%', color:'var(--orange)', cmp: prev ? _cmpArrow(cur.conversion, prev.conversion) : '' },
   ];
 
@@ -5955,6 +5967,7 @@ function renderGestorDashboard() {
       <div class="stat-num" style="color:${s.color};font-size:20px;">${s.val}</div>
       <div class="stat-lbl" style="font-size:10px;">${s.label}</div>
       ${s.cmp ? `<div style="margin-top:2px;">${s.cmp}</div>` : ''}
+      ${s.extra ? `<div style="margin-top:2px;font-size:9px;color:var(--text-muted);font-weight:600;">${s.extra}</div>` : ''}
     </div>
   `).join('');
 
