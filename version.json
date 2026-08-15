@@ -1,10 +1,10 @@
 {
-  "version": 73,
-  "versionStr": "v1.9",
-  "build": 73,
-  "hash": "9dd628ccdd281c9e",
-  "hashFull": "9dd628ccdd281c9e",
-  "releasedAt": "2026-08-15 20:53",
+  "version": 74,
+  "versionStr": "v2.0",
+  "build": 74,
+  "hash": "b92439a4d7e1af0d",
+  "hashFull": "b92439a4d7e1af0d",
+  "releasedAt": "2026-08-15 20:58",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX IMPORTANTE: al revertir un vale los productos NO volvían al stock. La marca que indica si un vale descontó inventario no se guardaba en la nube, así que se perdía en cuanto el vale se sincronizaba",
-    "FIX: los vales antiguos, que nunca llegaron a tener esa marca, ahora también devuelven sus unidades al revertirlos o borrarlos",
-    "Revertir, cancelar y eliminar un vale usan ya la misma regla para devolver stock"
+    "ADMIN: arreglado el apartado Stock en el móvil. Los botones grandes de la versión anterior no dejaban sitio al texto: el nombre se partía en cuatro líneas y el precio, la comisión y los puntos se apilaban uno debajo de otro",
+    "ADMIN: cada producto pasa a dos filas — arriba la foto y los datos, abajo el stock y los botones — que es como ya se veía en pantalla ancha",
+    "ADMIN: la foto del producto se ve algo más grande y el nombre también"
   ]
 }

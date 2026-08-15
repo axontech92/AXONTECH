@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 73;
+const APP_VERSION = 74;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 73;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.9';
+let _PUBLIC_VERSION_STR = 'v2.0';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '9dd628ccdd281c9e';
+let _LOCAL_BUILD_HASH = 'b92439a4d7e1af0d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7017,27 +7017,35 @@ function buildProdCard(p, cats, isAgotado) {
   const reservedBadge = reserved > 0
     ? `<span class="reserved-badge ${fullyReserved?'reserved-full':''}">🔐 RESERVADO ${reserved}/${p.stock||0}</span>`
     : '';
-  return `<div class="prod-card${cardCls}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
-    <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;${fullyReserved?'opacity:.5;':''}">
-      ${p.photo
+  // v74: la tarjeta era una sola fila de tres columnas (foto · texto · botones).
+  // Al agrandar los botones en v71 para poder tocarlos, esa tercera columna pasó
+  // a ocupar unos 276 px y en un móvil no dejaba sitio al texto: el nombre se
+  // partía en cuatro líneas y el precio, la comisión y los puntos se apilaban en
+  // vertical, uno debajo de otro. Ahora son dos filas —arriba la información,
+  // abajo el stock y las acciones—, que es como ya se veía en pantalla ancha.
+  return `<div class="prod-card${cardCls}" style="display:flex;flex-direction:column;padding:11px 12px;">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <div style="width:56px;height:56px;border-radius:9px;overflow:hidden;background:var(--gray-100);display:flex;align-items:center;justify-content:center;flex-shrink:0;${fullyReserved?'opacity:.5;':''}">
+        ${p.photo
         ?`<img src="${escapeAttr(_resolvePhotoUrl(p.photo))}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=font-size:22px>📦</span>'">`
         :`<span style="font-size:22px;">📦</span>`}
-    </div>
-    <div style="flex:1;min-width:0;">
-      <div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;">
-        <span class="prod-name" style="margin:0;font-size:13px;">${escapeHTML(p.name)}</span>
-        ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${escapeHTML(cat.name)}</span>`:''}
-        ${reservedBadge}
       </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap;">
-        ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${escapeHTML(p.precio)}</span>`:''}
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
+          <span class="prod-name" style="margin:0;font-size:14px;">${escapeHTML(p.name)}</span>
+          ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${escapeHTML(cat.name)}</span>`:''}
+          ${reservedBadge}
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;margin-top:3px;flex-wrap:wrap;">
+          ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${escapeHTML(p.precio)}</span>`:''}
         ${p.comision?`<span style="font-size:10px;color:var(--green);font-weight:600;">💰 ${escapeHTML(p.comision)}</span>`:''}
         ${p.puntos?`<span style="font-size:10px;color:var(--blue);font-weight:600;">⭐ ${p.puntos} pts</span>`:''}
         ${p.garantia?`<span style="font-size:10px;color:var(--gray-400);">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
+        </div>
       </div>
     </div>
-    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-      <span style="font-size:11px;font-weight:700;color:${stockColor};">${stockLabel}</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px solid var(--border);">
+      <span style="font-size:12px;font-weight:700;color:${stockColor};">${stockLabel}</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
         <button class="btn btn-ghost btn-sm btn-icono" style="color:${isFavorite(p.id)?'#F59E0B':'var(--gray-400)'};" onclick="toggleFavorite(${p.id})" title="Favorito">${isFavorite(p.id)?'⭐':'☆'}</button>
         ${p.description?`<button class="btn btn-ghost btn-sm btn-icono" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
