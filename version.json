@@ -1,9 +1,10 @@
 {
-  "version": 62,
-  "versionStr": "v62",
-  "hash": "42a3fad3771d9efa",
-  "hashFull": "42a3fad3771d9efa",
-  "releasedAt": "2026-08-15 05:03",
+  "version": 64,
+  "versionStr": "v1.0",
+  "build": 64,
+  "hash": "b26d466b4ccfba4d",
+  "hashFull": "b26d466b4ccfba4d",
+  "releasedAt": "2026-08-15 05:14",
   "files": [
     "app.js",
     "app.css",
@@ -13,7 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: el catálogo ya muestra las fotos de los productos. Solo aceptaba direcciones de internet, así que descartaba las fotos guardadas en la propia app (76 de 87 productos) y mostraba el icono gris aunque la imagen estuviera ahí",
-    "FIX: catalogo.html ya cuenta para el control de versiones. Al no estar en la lista, sus cambios no renovaban la caché y el teléfono seguía abriendo la copia antigua"
+    "La app pasa a mostrar la versión como v1.0, v1.1, v1.2… en vez del número de publicación, que ya iba por 62",
+    "Por dentro el contador sigue subiendo sin saltos: es lo que usa la app para detectar que hay una versión nueva, y reiniciarlo habría dejado los teléfonos sin recibir actualizaciones",
+    "Al tocar el badge de versión se muestra también el número de compilación, para dar soporte"
   ]
 }

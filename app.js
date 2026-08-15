@@ -9,8 +9,19 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 62;
-const VERSION_STR = 'v' + APP_VERSION;
+const APP_VERSION = 64;
+// v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
+// APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
+// saltos: checkVersion() decide que hay actualización con `remoto > local`, así
+// que si se reiniciara a 1 ningún teléfono con un número mayor volvería a ver
+// el aviso de nueva versión —y el service worker no se activa solo, espera a
+// que el usuario pulse "Recargar ahora" en ese mismo aviso—, con lo que se
+// quedarían clavados para siempre.
+// _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
+// … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
+// interno para que el badge nunca aparezca vacío.
+let _PUBLIC_VERSION_STR = 'v1.0';
+const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
 let _updateDismissed = false;       // el usuario pospuso la actualización
@@ -34,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '42a3fad3771d9efa';
+let _LOCAL_BUILD_HASH = 'b26d466b4ccfba4d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -97,7 +108,9 @@ async function checkVersion(manual) {
       }
     } else {
       // Estamos al día
-      if (manual) showToast('Ya tienes la última versión (' + VERSION_STR + ') ✓');
+      // Se añade el nº de compilación: el badge enseña la etiqueta pública, y
+      // para dar soporte hace falta saber a qué publicación corresponde.
+      if (manual) showToast('Ya tienes la última versión (' + VERSION_STR + ' · build ' + APP_VERSION + ') ✓');
       _hideUpdateBanner();
     }
   } catch (e) {
