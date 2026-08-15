@@ -1,10 +1,10 @@
 {
-  "version": 80,
-  "versionStr": "v2.6",
-  "build": 80,
-  "hash": "6322bb9c03a2a0d9",
-  "hashFull": "6322bb9c03a2a0d9",
-  "releasedAt": "2026-08-15 21:40",
+  "version": 81,
+  "versionStr": "v2.7",
+  "build": 81,
+  "hash": "df403c59855d5c34",
+  "hashFull": "df403c59855d5c34",
+  "releasedAt": "2026-08-15 21:48",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: los puntos del gestor contaban vales sin confirmar. Salía 1 punto teniendo 0 vales confirmados",
-    "Ahora el número grande son solo los puntos ganados, y los que están por confirmar salen debajo como +N en camino",
-    "Antes el número cambiaba de significado: sin ventas confirmadas mostraba los posibles y al confirmar la primera podía bajar"
+    "La comisión de un vale queda fijada al crearlo. Si mañana cambias el precio o la comisión de un producto, los vales anteriores ya NO cambian",
+    "Antes se recalculaba cada vez desde el catálogo: un gestor podía ver que la comisión de una venta ya cobrada no coincidía con lo que cobró",
+    "Si el admin cambia los productos de un vale, la comisión se vuelve a fijar con los nuevos",
+    "Los vales anteriores a esta versión siguen calculándose del catálogo: no se puede saber a posteriori qué comisión tenían el día que se hicieron"
   ]
 }

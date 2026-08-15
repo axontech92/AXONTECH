@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 80;
+const APP_VERSION = 81;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 80;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.6';
+let _PUBLIC_VERSION_STR = 'v2.7';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '6322bb9c03a2a0d9';
+let _LOCAL_BUILD_HASH = 'df403c59855d5c34';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2296,6 +2296,10 @@ const saveVales = v => {
     if (x.comisionCedida) slim.comisionCedida = x.comisionCedida;
     if (x.comisionCedidaMoneda) slim.comisionCedidaMoneda = x.comisionCedidaMoneda;
     if (x.comisionCedidaMotivo) slim.comisionCedidaMotivo = x.comisionCedidaMotivo;
+    // v81: si el admin escribe el vale, la comisión congelada no puede perderse
+    // o el vale volvería a recalcularse desde el catálogo actual.
+    if (x.comFijadaUSD != null) slim.comFijadaUSD = x.comFijadaUSD;
+    if (x.comFijadaMN  != null) slim.comFijadaMN  = x.comFijadaMN;
     return slim;
   }
   // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
@@ -2314,7 +2318,9 @@ const saveVales = v => {
     // v75: la cesión de comisión la decide el gestor al hacer el vale, así que
     // viaja con sus campos. Si faltara aquí, pasaría lo de la marca de stock en
     // v73: se guarda en el móvil, sube sin ella y el poll la borra al volver.
-    'comisionCedida','comisionCedidaMoneda','comisionCedidaMotivo'
+    'comisionCedida','comisionCedidaMoneda','comisionCedidaMotivo',
+    // v81: la comisión congelada se fija al crear el vale, así que viaja con el gestor
+    'comFijadaUSD','comFijadaMN'
   ];
   // v53 FIX: campos controlados por el admin que el gestor DEBE preservar
   // al escribir. ANTES (v17-v52) el gestor NO escribía estos campos → el
@@ -5379,6 +5385,18 @@ function saveEditVale() {
     return;
   }
   changes.valeProductos=editValeProductos;
+  // v81: si cambian los productos, la comisión congelada se vuelve a fijar con
+  // los nuevos. Si no, el vale seguiría valiendo lo que valían los productos
+  // que ya no tiene.
+  if (productsChanged) {
+    try {
+      const _r = getValeCommissionParts({valeProductos: editValeProductos || []});
+      if (_r.totalUSD !== null || _r.totalMN !== null) {
+        changes.comFijadaUSD = _r.totalUSD || 0;
+        changes.comFijadaMN  = _r.totalMN  || 0;
+      }
+    } catch(e) { console.warn('[vale] no se pudo recongelar la comisión:', e && e.message); }
+  }
   patchVale(id,changes);
   closeEditValeModal();
   renderAdminGestores();renderValeDetail();
@@ -6854,6 +6872,16 @@ function sendVale() {
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
+    // v81: comisión que da este vale HOY, congelada. Si mañana cambia el catálogo,
+    // este vale sigue valiendo lo que valía. Se calcula sobre un objeto suelto
+    // para que no se lea a sí mismo.
+    ...(function(){
+      try {
+        const _r = getValeCommissionParts({valeProductos: currentValeProductos || []});
+        if (_r.totalUSD === null && _r.totalMN === null) return {};   // no computable: mejor no congelar nada
+        return { comFijadaUSD: _r.totalUSD || 0, comFijadaMN: _r.totalMN || 0 };
+      } catch(e) { return {}; }
+    })(),
     // v75: cesión de comisión (importe, moneda y motivo)
     comisionCedida: Math.max(0, parseFloat(fVal('vf-comisionCedida')) || 0),
     comisionCedidaMoneda: (document.getElementById('vf-comisionCedidaMoneda')||{}).value === 'MN' ? 'MN' : 'USD',
@@ -8967,6 +8995,23 @@ function getValeCommissionParts(v) {
       }
     }
   });
+  // ── v81: comisión congelada al crear el vale ────────────────────────────────
+  // Hasta aquí la comisión se recalcula desde el catálogo CADA VEZ que se mira
+  // un vale. Eso significaba que cambiar el precio o la comisión de un producto
+  // reescribía las comisiones de todos los vales anteriores, incluidos los ya
+  // pagados: un gestor podía ver que lo que cobró el mes pasado ya no coincide.
+  // Al crear el vale se guarda cuánta comisión daba en ese momento, y si está
+  // guardada, manda. Se aplica antes de la cesión para que lo cedido se reste
+  // del importe congelado, no del recalculado.
+  // Los vales anteriores a esto no la llevan y siguen calculándose del catálogo:
+  // no se puede saber a posteriori qué comisión tenían el día que se hicieron.
+  if (v && (v.comFijadaUSD != null || v.comFijadaMN != null)) {
+    totalUSD = Math.max(0, parseFloat(v.comFijadaUSD || 0) || 0);
+    totalMN  = Math.max(0, parseFloat(v.comFijadaMN  || 0) || 0);
+    computable = true;
+    if (!parts.length) parts.push({label:'Comisión del vale', com:'fijada al crearlo', currency:'USD'});
+  }
+
   // ── v75: comisión cedida por el gestor ──────────────────────────────────────
   // El gestor puede renunciar a parte de su comisión al hacer el vale (cliente
   // frecuente, cierre de venta, producto con un defecto leve…). Ese dinero no va
