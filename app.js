@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 74;
+const APP_VERSION = 75;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 74;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.0';
+let _PUBLIC_VERSION_STR = 'v2.1';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'b92439a4d7e1af0d';
+let _LOCAL_BUILD_HASH = '08f1a21fa6337357';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2291,6 +2291,11 @@ const saveVales = v => {
     // se quedaba descontado para siempre. Se envía siempre —también en false—
     // porque "ya se devolvió" es un dato tan necesario como "está descontado".
     slim.stockDecremented = !!x.stockDecremented;
+    // v75: la cesión de comisión del gestor no puede perderse cuando escribe el
+    // admin, o el vale volvería a mostrar la comisión entera.
+    if (x.comisionCedida) slim.comisionCedida = x.comisionCedida;
+    if (x.comisionCedidaMoneda) slim.comisionCedidaMoneda = x.comisionCedidaMoneda;
+    if (x.comisionCedidaMotivo) slim.comisionCedidaMotivo = x.comisionCedidaMotivo;
     return slim;
   }
   // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
@@ -2305,7 +2310,11 @@ const saveVales = v => {
   const GESTOR_WRITABLE_FIELDS = [
     'id','valeNum','gestorId','ts','cliente','telefono','direccion',
     'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
-    'total','garantia','comisionGestor','recogidaTienda','ubicacion'
+    'total','garantia','comisionGestor','recogidaTienda','ubicacion',
+    // v75: la cesión de comisión la decide el gestor al hacer el vale, así que
+    // viaja con sus campos. Si faltara aquí, pasaría lo de la marca de stock en
+    // v73: se guarda en el móvil, sube sin ella y el poll la borra al volver.
+    'comisionCedida','comisionCedidaMoneda','comisionCedidaMotivo'
   ];
   // v53 FIX: campos controlados por el admin que el gestor DEBE preservar
   // al escribir. ANTES (v17-v52) el gestor NO escribía estos campos → el
@@ -6277,6 +6286,45 @@ function adminDeleteVale(id) {
 // Los campos de dentro (carnet, garantía, comisión, fecha) casi nunca se tocan y
 // alargaban la pantalla del gestor, que crea vales varias veces al día. No se
 // plegaron los de precio: alimentan el cálculo automático del total.
+// ── v75: cesión de comisión del gestor ──────────────────────────────────────
+// Calcula cuánta comisión daría este vale con los productos elegidos, para
+// enseñar el tope ("tu comisión aquí es de $10") y no dejar ceder más de eso.
+// Sin ese tope, un número mal tecleado dejaría la comisión en cero sin que el
+// gestor lo entienda.
+function _comisionDelValeEnCurso() {
+  const falso = { valeProductos: (typeof currentValeProductos !== 'undefined' && currentValeProductos) ? currentValeProductos : [] };
+  try { return getValeCommissionParts(falso); } catch(e) { return {totalUSD:null, totalMN:null}; }
+}
+function onCesionComisionInput() {
+  const inp = document.getElementById('vf-comisionCedida');
+  const sel = document.getElementById('vf-comisionCedidaMoneda');
+  const nota = document.getElementById('vf-cesionNota');
+  const motivo = document.getElementById('vf-cesionMotivo');
+  if (!inp || !nota) return;
+  const moneda = (sel && sel.value === 'MN') ? 'MN' : 'USD';
+  const r = _comisionDelValeEnCurso();
+  const tope = moneda === 'MN' ? (r.totalMN || 0) : (r.totalUSD || 0);
+  let val = Math.max(0, parseFloat(inp.value) || 0);
+  if (tope > 0 && val > tope) { val = tope; inp.value = val; }   // no se puede ceder más de lo que se gana
+  // El motivo solo aparece cuando de verdad se cede algo: pedirlo siempre sería
+  // un campo más que estorba en el 95% de los vales.
+  if (motivo) motivo.style.display = val > 0 ? '' : 'none';
+  const fmt = n => moneda === 'MN' ? (Math.round(n) + ' MN') : ('$' + n.toFixed(2) + ' USD');
+  if (!tope) {
+    nota.textContent = val > 0
+      ? 'Elige primero los productos para saber cuánta comisión tiene este vale.'
+      : 'Aquí puedes renunciar a parte de tu comisión en este vale.';
+    nota.style.color = 'var(--text-muted)';
+  } else if (val <= 0) {
+    nota.textContent = 'Tu comisión en este vale es de ' + fmt(tope) + '.';
+    nota.style.color = 'var(--text-muted)';
+  } else {
+    nota.textContent = 'De ' + fmt(tope) + ' cobrarías ' + fmt(Math.max(0, tope - val)) + '. Lo cedido no se cobra.';
+    nota.style.color = 'var(--orange)';
+  }
+  if (typeof onFormInput === 'function') onFormInput();
+}
+
 function toggleVfExtras(forzar) {
   const box = document.getElementById('vfExtras');
   const arrow = document.getElementById('vfExtrasArrow');
@@ -6586,7 +6634,8 @@ function onRecogidaTiendaChange() {
 
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-carnet','vf-mensajeria','vf-articulo',
-   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor','vf-ubicacion'].forEach(id=>{
+   'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor','vf-ubicacion',
+   'vf-comisionCedida','vf-cesionMotivo'].forEach(id=>{
      const el=document.getElementById(id);if(el)el.value='';
    });
   const chk=document.getElementById('vf-recogidaTienda');if(chk)chk.checked=false;
@@ -6630,6 +6679,10 @@ function sendVale() {
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
+    // v75: cesión de comisión (importe, moneda y motivo)
+    comisionCedida: Math.max(0, parseFloat(fVal('vf-comisionCedida')) || 0),
+    comisionCedidaMoneda: (document.getElementById('vf-comisionCedidaMoneda')||{}).value === 'MN' ? 'MN' : 'USD',
+    comisionCedidaMotivo: fVal('vf-cesionMotivo'),
     recogidaTienda:!!document.getElementById('vf-recogidaTienda')?.checked,
     ubicacion:fVal('vf-ubicacion'),
     valeProductos:currentValeProductos,valeText:buildValeText(),
@@ -8728,6 +8781,29 @@ function getValeCommissionParts(v) {
       }
     }
   });
+  // ── v75: comisión cedida por el gestor ──────────────────────────────────────
+  // El gestor puede renunciar a parte de su comisión al hacer el vale (cliente
+  // frecuente, cierre de venta, producto con un defecto leve…). Ese dinero no va
+  // a ningún sitio: simplemente deja de cobrarse.
+  // Se descuenta AQUÍ, y no en cada pantalla, porque las trece vistas que
+  // enseñan comisiones —la del gestor, el panel de gestores del admin, el
+  // ranking, los totales por periodo— pasan todas por esta función. Restándolo
+  // en un solo punto, todas muestran ya la cifra rebajada y no pueden discrepar
+  // entre ellas.
+  const _cedida = Math.max(0, parseFloat(v.comisionCedida || 0) || 0);
+  if (_cedida > 0 && computable && parts.length) {
+    const _monedaCedida = (v.comisionCedidaMoneda || 'USD').toUpperCase() === 'MN' ? 'MN' : 'USD';
+    // Nunca por debajo de cero: ceder más de lo que se gana no tiene sentido, y
+    // el formulario ya lo topa, pero el dato puede venir de otro dispositivo.
+    if (_monedaCedida === 'MN') totalMN = Math.max(0, totalMN - _cedida);
+    else totalUSD = Math.max(0, totalUSD - _cedida);
+    parts.push({
+      label: 'Cedido por el gestor',
+      com: _monedaCedida === 'MN' ? ('−' + Math.round(_cedida) + ' MN') : ('−$' + _cedida.toFixed(2) + ' USD'),
+      currency: _monedaCedida,
+      cedido: true
+    });
+  }
   return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
     // Backward compat: total + currency for single-currency vales.
     // IMPORTANTE: si hay comisión mixta USD+MN, devolver null en total — que el
@@ -8859,7 +8935,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
             <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
             <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
-              ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(16,185,129,.12);color:var(--green);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
+              ${r.parts.length?r.parts.map(p=>`<span style="background:${p.cedido?'rgba(245,158,11,.14)':'rgba(16,185,129,.12)'};color:${p.cedido?'var(--orange)':'var(--green)'};border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
             ${vBadge?`<div style="margin-top:4px;font-size:12px;font-weight:800;color:var(--green);">= ${vBadge}</div>`:''}
           </div>

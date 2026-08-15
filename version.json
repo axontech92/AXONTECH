@@ -1,10 +1,10 @@
 {
-  "version": 74,
-  "versionStr": "v2.0",
-  "build": 74,
-  "hash": "b92439a4d7e1af0d",
-  "hashFull": "b92439a4d7e1af0d",
-  "releasedAt": "2026-08-15 20:58",
+  "version": 75,
+  "versionStr": "v2.1",
+  "build": 75,
+  "hash": "08f1a21fa6337357",
+  "hashFull": "08f1a21fa6337357",
+  "releasedAt": "2026-08-15 21:08",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ADMIN: arreglado el apartado Stock en el móvil. Los botones grandes de la versión anterior no dejaban sitio al texto: el nombre se partía en cuatro líneas y el precio, la comisión y los puntos se apilaban uno debajo de otro",
-    "ADMIN: cada producto pasa a dos filas — arriba la foto y los datos, abajo el stock y los botones — que es como ya se veía en pantalla ancha",
-    "ADMIN: la foto del producto se ve algo más grande y el nombre también"
+    "NUEVO: el gestor puede rebajar parte de su comisión al hacer un vale (cliente frecuente, cierre de venta...), indicando el motivo",
+    "No puede ceder más de lo que gana en ese vale, y se le muestra cuánto cobraría al final",
+    "La rebaja no toca el precio que paga el cliente ni el stock: solo se deja de cobrar esa parte de comisión",
+    "ADMIN: las comisiones del apartado de gestores llegan ya con la rebaja aplicada, y lo cedido se marca en naranja en el desglose"
   ]
 }

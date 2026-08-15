@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=74">
+  <link rel="stylesheet" href="./app.css?v=75">
   <style>
     /* Splash screen inline — no depende de app.css.
        Se muestra INMEDIATAMENTE al cargar el HTML, antes de que app.js termine.
@@ -58,7 +58,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.0</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.1</span>
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
@@ -285,6 +285,26 @@
         <div class="vf-inner">
           <div class="vf-label"><span>Comisión del gestor <span style="color:var(--green);font-size:9px;">● Auto</span></span></div>
           <input type="text" id="vf-comisionGestor" placeholder="Se calcula del catálogo" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <!-- v75: el gestor puede renunciar a parte de su comisión en este vale
+           (cliente frecuente, cierre de venta, producto con un defecto leve…).
+           Ese dinero no se le acredita a nadie: deja de cobrarse y punto. No
+           toca el precio que paga el cliente ni el stock. -->
+      <div class="vf-row">
+        <span class="vf-emoji">🤝</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Rebajo de mi comisión <span style="color:var(--text-muted);font-weight:500;font-size:9px;">opcional</span></span></div>
+          <div style="display:flex;gap:6px;">
+            <input type="number" inputmode="decimal" id="vf-comisionCedida" min="0" step="0.5" placeholder="0" oninput="onCesionComisionInput()" style="flex:1;">
+            <select id="vf-comisionCedidaMoneda" onchange="onCesionComisionInput()" style="width:88px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 8px;font-size:13px;color:var(--text);">
+              <option value="USD">USD</option>
+              <option value="MN">MN</option>
+            </select>
+          </div>
+          <div id="vf-cesionNota" style="font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.35;"></div>
+          <input type="text" id="vf-cesionMotivo" placeholder="Motivo (ej: cliente frecuente)" oninput="onFormInput()" style="margin-top:6px;display:none;">
         </div>
       </div>
 
@@ -731,7 +751,7 @@
 </div>
 
 
-<script src="./app.js?v=74"></script>
+<script src="./app.js?v=75"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
