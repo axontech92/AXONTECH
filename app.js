@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 70;
+const APP_VERSION = 71;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 70;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.6';
+let _PUBLIC_VERSION_STR = 'v1.7';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a00806045c5fe710';
+let _LOCAL_BUILD_HASH = '387f139174dee18b';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7043,16 +7043,16 @@ function buildProdCard(p, cats, isAgotado) {
     </div>
     <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
       <span style="font-size:11px;font-weight:700;color:${stockColor};">${stockLabel}</span>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
-        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 7px;color:${isFavorite(p.id)?'#F59E0B':'var(--gray-400)'};" onclick="toggleFavorite(${p.id})" title="Favorito">${isFavorite(p.id)?'⭐':'☆'}</button>
-        ${p.description?`<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 7px;" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn btn-ghost btn-sm btn-icono" style="color:${isFavorite(p.id)?'#F59E0B':'var(--gray-400)'};" onclick="toggleFavorite(${p.id})" title="Favorito">${isFavorite(p.id)?'⭐':'☆'}</button>
+        ${p.description?`<button class="btn btn-ghost btn-sm btn-icono" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
         ${isAgotado
-          ? `<button class="btn btn-green btn-sm" onclick="openStockModal(${p.id})" style="font-size:10px;padding:3px 7px;">📥 Reponer</button>`
-          : `<button class="btn btn-ghost btn-sm" onclick="openEditProductModal(${p.id})" style="font-size:10px;padding:3px 7px;">✏️</button>
-             <button class="btn btn-ghost btn-sm" onclick="openStockModal(${p.id})" style="font-size:10px;padding:3px 7px;">📥</button>
-             <button class="btn btn-ghost btn-sm" onclick="adjustReserved(${p.id})" style="font-size:10px;padding:3px 7px;color:#b45309;" title="Reservar / liberar unidades">🔐</button>`
+          ? `<button class="btn btn-green btn-sm btn-icono con-texto" onclick="openStockModal(${p.id})">📥 Reponer</button>`
+          : `<button class="btn btn-ghost btn-sm btn-icono" onclick="openEditProductModal(${p.id})" title="Editar producto">✏️</button>
+             <button class="btn btn-ghost btn-sm btn-icono" onclick="openStockModal(${p.id})" title="Ajustar stock">📥</button>
+             <button class="btn btn-ghost btn-sm btn-icono" onclick="openReservaModal(${p.id})" style="color:#b45309;" title="Reservar / liberar unidades">🔐</button>`
         }
-        <button class="btn btn-ghost btn-sm" style="color:var(--red);font-size:10px;padding:3px 7px;" onclick="removeProducto(${p.id})">🗑️</button>
+        <button class="btn btn-ghost btn-sm btn-icono" style="color:var(--red);" onclick="removeProducto(${p.id})" title="Eliminar producto">🗑️</button>
       </div>
     </div>
   </div>`;
@@ -7541,33 +7541,80 @@ function adjustStock(id) {
 // - Si reserved < stock  → el producto sigue disponible pero con stock
 //   reducido en la cantidad reservada.
 // - Si reserved = 0      → no hay reserva (estado normal).
-function adjustReserved(id) {
-  const p=productoOf(id);if(!p)return;
-  const current=p.reserved||0;
-  const stock=p.stock||0;
-  const avail=_availableStock(p);
-  const n=prompt(
-    `🔐 Reservar unidades de: ${p.name}\n\n` +
-    `Stock físico: ${stock}\n` +
-    `Reservado ahora: ${current}\n` +
-    `Disponible real: ${avail}\n\n` +
-    `¿Cuántas unidades quieres reservar?\n` +
-    `(Escribe 0 para liberar todas las reservas)`,
-    String(current)
-  );
-  if(n===null)return;
-  const num=parseInt(n);
-  if(isNaN(num)||num<0){showToast('Número inválido');return;}
-  if(num>stock){
-    showToast(`No puedes reservar ${num} (solo hay ${stock} en stock)`);
-    return;
-  }
-  patchProducto(id,{reserved:num});
+// ── v71: reservas con ventana propia ────────────────────────────────────────
+// Mismo caso que el stock: era un prompt() del navegador con cinco líneas de
+// texto explicando stock físico, reservado y disponible. En el móvil ese cuadro
+// se lee fatal y no deja ver los números mientras escribes.
+// Reservar = comprometer unidades para un cliente sin sacarlas del almacén. Lo
+// que no se puede es reservar más de lo que hay, y eso ahora se impide en vez de
+// avisarlo después.
+let _reservaModalId = null;
+function openReservaModal(id) {
+  const p = productoOf(id); if (!p) return;
+  _reservaModalId = id;
+  document.getElementById('reservaModalName').textContent = p.name || 'Producto';
+  document.getElementById('reservaModalInput').value = parseInt(p.reserved || 0, 10);
+  document.getElementById('reservaModal').classList.add('show');
+  reservaModalRefresca();
+}
+function closeReservaModal() {
+  const m = document.getElementById('reservaModal');
+  if (m) m.classList.remove('show');
+  _reservaModalId = null;
+}
+function reservaModalSuma(delta) {
+  const p = productoOf(_reservaModalId); if (!p) return;
+  const inp = document.getElementById('reservaModalInput'); if (!inp) return;
+  const stock = parseInt(p.stock || 0, 10);
+  // Tope en el stock físico: reservar más de lo que hay no significa nada.
+  inp.value = Math.min(stock, Math.max(0, (parseInt(inp.value, 10) || 0) + delta));
+  reservaModalRefresca();
+}
+function reservaModalTodo() {
+  const p = productoOf(_reservaModalId); if (!p) return;
+  document.getElementById('reservaModalInput').value = parseInt(p.stock || 0, 10);
+  reservaModalRefresca();
+}
+function reservaModalLiberar() {
+  document.getElementById('reservaModalInput').value = 0;
+  reservaModalRefresca();
+}
+function reservaModalRefresca() {
+  const p = productoOf(_reservaModalId); if (!p) return;
+  const stock = parseInt(p.stock || 0, 10);
+  let nuevo = Math.max(0, parseInt(document.getElementById('reservaModalInput').value, 10) || 0);
+  if (nuevo > stock) { nuevo = stock; document.getElementById('reservaModalInput').value = stock; }
+  document.getElementById('reservaModalFisico').textContent = stock;
+  document.getElementById('reservaModalReservado').textContent = nuevo;
+  document.getElementById('reservaModalDisponible').textContent = Math.max(0, stock - nuevo);
+  const antes = parseInt(p.reserved || 0, 10);
+  const res = document.getElementById('reservaModalResumen');
+  if (!res) return;
+  const dif = nuevo - antes;
+  if (dif === 0) { res.textContent = 'Sin cambios (hay ' + antes + ' reservadas)'; res.style.color = 'var(--text-muted)'; }
+  else if (dif > 0) { res.textContent = 'Se reservan ' + dif + ' más · quedan ' + Math.max(0, stock - nuevo) + ' para vender'; res.style.color = '#b45309'; }
+  else { res.textContent = 'Se liberan ' + Math.abs(dif) + ' · quedan ' + Math.max(0, stock - nuevo) + ' para vender'; res.style.color = 'var(--green)'; }
+  if (nuevo === stock && stock > 0) { res.textContent += ' ⚠️ no queda nada disponible'; res.style.color = 'var(--red)'; }
+}
+function guardarReservaModal() {
+  const id = _reservaModalId;
+  const p = productoOf(id); if (!p) { closeReservaModal(); return; }
+  const stock = parseInt(p.stock || 0, 10);
+  const nuevo = Math.min(stock, Math.max(0, parseInt(document.getElementById('reservaModalInput').value, 10) || 0));
+  const antes = parseInt(p.reserved || 0, 10);
+  if (nuevo === antes) { closeReservaModal(); showToast('Sin cambios'); return; }
+  patchProducto(id, {reserved: nuevo});
   maybeAutoSync();
   renderProductGrid();
-  if(num===0) showToast('Reservas liberadas ✓');
-  else if(num>=stock) showToast(`🔒 ${p.name} totalmente reservado (${num}/${stock})`);
-  else showToast(`🔐 ${num} unidades reservadas · ${stock-num} disponibles`);
+  if (typeof renderStockCategorias === 'function') renderStockCategorias();
+  closeReservaModal();
+  showToast(nuevo > antes ? ('Reservadas ' + nuevo + ' ✓') : (nuevo === 0 ? 'Reservas liberadas ✓' : ('Reservadas ' + nuevo + ' ✓')));
+}
+
+function adjustReserved(id) {
+  // v71: se conserva como puerta de entrada, pero abre la ventana en vez del
+  // prompt() del navegador.
+  openReservaModal(id);
 }
 
 // ══════════════════════════════════════════

@@ -1507,3 +1507,29 @@ body.dark .pwa-help-note{color:#94a3b8;}
 @media (min-width:430px){
   #gestorHistDashboard{grid-template-columns:repeat(4,1fr);}
 }
+
+/* v71: botones de acción de las tarjetas de producto del admin.
+   Estaban con font-size:10px y padding:3px 7px puestos a mano en cada uno, lo
+   que dejaba un área de toque de unos 24x20 px — menos de la mitad de los 44 px
+   que recomiendan Apple y Google para el dedo. En el móvil había que apuntar, y
+   dos de esos botones son borrar producto y ajustar inventario: fallar el toque
+   ahí sale caro.
+   Se agrupan aquí para que todos midan lo mismo y no vuelvan a divergir. */
+.btn-icono{
+  font-size:15px;
+  line-height:1;
+  min-width:40px;
+  min-height:38px;
+  padding:8px 10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+/* Variante con texto al lado del icono (p. ej. "📥 Reponer"), que necesita
+   respirar un poco más a los lados pero mantiene la misma altura. */
+.btn-icono.con-texto{
+  font-size:12px;
+  font-weight:700;
+  padding:8px 12px;
+}

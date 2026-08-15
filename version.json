@@ -1,10 +1,10 @@
 {
-  "version": 70,
-  "versionStr": "v1.6",
-  "build": 70,
-  "hash": "a00806045c5fe710",
-  "hashFull": "a00806045c5fe710",
-  "releasedAt": "2026-08-15 06:37",
+  "version": 71,
+  "versionStr": "v1.7",
+  "build": 71,
+  "hash": "387f139174dee18b",
+  "hashFull": "387f139174dee18b",
+  "releasedAt": "2026-08-15 06:43",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ADMIN: ajustar el stock ya no usa el cuadro gris del navegador. Ahora hay una ventana propia con botones +5, +10, +25 y un menos/más para corregir de uno en uno",
-    "ADMIN: al ajustar stock se ven los tres números que importan: lo que hay en almacén, lo reservado y lo que realmente se puede vender",
-    "ADMIN: antes de guardar se indica el movimiento (entran 10, de 8 a 18) y avisa si quedan unidades reservadas por encima del almacén"
+    "ADMIN: los botones de las tarjetas de producto son mucho más grandes. Eran de 24 px y había que apuntar con el dedo, con el de borrar justo al lado del de ajustar stock",
+    "ADMIN: reservar unidades tiene ahora su propia ventana, igual que el stock: menos/más, +5, reservar todo y liberar todas",
+    "ADMIN: ya no se puede reservar más unidades de las que hay en almacén, y avisa cuando al reservar no queda nada disponible para vender"
   ]
 }

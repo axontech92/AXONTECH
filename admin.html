@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=70">
+  <link rel="stylesheet" href="./app.css?v=71">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v1.6</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v1.7</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -464,6 +464,53 @@
     <div class="modal-btns" style="margin-top:14px;">
       <button type="button" class="btn btn-ghost btn-full" onclick="closeStockModal()">Cancelar</button>
       <button type="button" class="btn btn-green btn-full" onclick="guardarStockModal()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Reservas (v71) ──
+     Mismo trato que el de stock: antes era un prompt() del navegador con cinco
+     líneas de texto explicando los números, que en el móvil se leía fatal. -->
+<div class="modal-bg" id="reservaModal">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-title">🔐 Reservar unidades</div>
+    <div class="modal-sub" id="reservaModalName">Producto</div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0 4px;">
+      <div style="text-align:center;background:var(--surface2);border-radius:9px;padding:8px 4px;">
+        <div style="font-size:18px;font-weight:800;color:var(--text);" id="reservaModalFisico">0</div>
+        <div style="font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">En almacén</div>
+      </div>
+      <div style="text-align:center;background:var(--surface2);border-radius:9px;padding:8px 4px;">
+        <div style="font-size:18px;font-weight:800;color:var(--orange);" id="reservaModalReservado">0</div>
+        <div style="font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Reservado</div>
+      </div>
+      <div style="text-align:center;background:var(--surface2);border-radius:9px;padding:8px 4px;">
+        <div style="font-size:18px;font-weight:800;color:var(--green);" id="reservaModalDisponible">0</div>
+        <div style="font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Se puede vender</div>
+      </div>
+    </div>
+
+    <div class="lbl" style="margin:14px 0 6px;">Unidades reservadas</div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="reservaModalSuma(-1)">−</button>
+      <input type="number" inputmode="numeric" id="reservaModalInput" value="0" min="0"
+             oninput="reservaModalRefresca()"
+             style="flex:1;text-align:center;font-size:22px;font-weight:800;background:var(--surface);border:2px solid #b45309;border-radius:10px;padding:9px 6px;color:var(--text);">
+      <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="reservaModalSuma(1)">+</button>
+    </div>
+
+    <div style="display:flex;gap:5px;margin-top:8px;">
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;" onclick="reservaModalSuma(5)">+5</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;" onclick="reservaModalTodo()">Reservar todo</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;color:var(--green);" onclick="reservaModalLiberar()">Liberar todas</button>
+    </div>
+
+    <div id="reservaModalResumen" style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center;min-height:16px;"></div>
+
+    <div class="modal-btns" style="margin-top:14px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeReservaModal()">Cancelar</button>
+      <button type="button" class="btn btn-blue btn-full" onclick="guardarReservaModal()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1055,7 +1102,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=70"></script>
+<script src="./app.js?v=71"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
