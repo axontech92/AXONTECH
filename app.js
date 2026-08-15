@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 56;
+const APP_VERSION = 57;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '913fdb0af195c1c1';
+let _LOCAL_BUILD_HASH = '6e97cf2780d97aff';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -821,6 +821,13 @@ async function _doRestPoll() {
           // confirmed, seenByAdmin). Now we detect changes right here in _doRestPoll().
           if (!IS_ADMIN) {
             merged.forEach(nv => {
+              // v56: blindaje. Dos veces ya (prodNames en v52, personalCleared en
+              // v56) un error al construir un aviso ha tumbado este forEach ANTES
+              // del setItem('axon_vales') de más abajo, dejando los vales del
+              // gestor sin guardar y repitiendo el fallo en cada poll. Avisar es
+              // secundario; guardar el estado de los vales no. Si un vale falla,
+              // se registra y se sigue con el resto.
+              try {
               const ov = oldVales.find(x => x.id === nv.id);
               if (!ov) return; // new vale, not a status change
 
@@ -887,6 +894,7 @@ async function _doRestPoll() {
                 if (typeof playSound === 'function') playSound('confirm');
                 if (typeof addNotif === 'function') addNotif('vale_seen', prodNames || '', null, 'Vale #' + valeNumStr(nv), nv.gestorId, 'vale_seen:' + nv.id);
               }
+              } catch(e) { console.warn('[rest-poll] aviso de estado falló para el vale', nv && nv.id, e && e.message); }
             });
           }
 
@@ -3766,7 +3774,28 @@ function renderGestorNotifs() {
     const unread = globalNotifs.filter(n => {
        const idx = notifs.findIndex(x => x.id === n.id);
        return viewedIdx === -1 || idx < viewedIdx;
-    }).length + (personalNotifs.length && activeGestorId && !personalCleared ? personalNotifs.length : 0);
+    // v56 FIX: aquí se leía `!personalCleared`, una variable que NO EXISTE desde
+    // v47 (era el flag binario que se eliminó; las que sí existen se llaman
+    // personalClearedId y personalClearedLegacy). Leer una variable no declarada
+    // lanza ReferenceError, y el `&&` solo llegaba a evaluarla cuando
+    // personalNotifs.length era > 0 — es decir, JUSTO cuando el gestor tenía un
+    // aviso que mostrar. Con 0 avisos cortocircuitaba y no fallaba, por eso el
+    // fallo era invisible hasta que llegaba el primero.
+    // Efecto en cadena, que es el fallo que se llevaba persiguiendo desde v47:
+    //   1. renderGestorNotifs() abortaba AQUÍ, antes del bloque que pinta la
+    //      sección de avisos personales → el gestor no veía NINGÚN aviso.
+    //   2. addNotif() termina llamando a renderGestorNotifs(), así que el throw
+    //      subía por _doRestPoll → abortaba el forEach de detección de estados
+    //      ANTES del localStorage.setItem('axon_vales', ...) → el caché de vales
+    //      del gestor no se guardaba y sus vales se quedaban en 'pending' en
+    //      pantalla aunque en Supabase estuvieran confirmados.
+    //   3. Al no guardarse, el poll siguiente volvía a detectar el mismo cambio
+    //      y a lanzar el mismo error: un bucle cada 5 s del que no se salía.
+    // Es el MISMO patrón que el ReferenceError de prodNames documentado arriba
+    // (v52): ese se corrigió, pero este quedó aguas abajo con idéntico efecto.
+    // El término sobraba además: personalNotifs ya viene filtrado por
+    // personalClearedId, así que las limpiadas no se cuentan.
+    }).length + (personalNotifs.length && activeGestorId ? personalNotifs.length : 0);
     const badge = document.getElementById('notifUnreadBadge');
     if(badge){badge.textContent=unread;badge.style.display=unread?'inline-block':'none';}
     
