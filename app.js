@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 77;
+const APP_VERSION = 78;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 77;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.3';
+let _PUBLIC_VERSION_STR = 'v2.4';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'ea5b8cb2ef20b3cc';
+let _LOCAL_BUILD_HASH = '5813fb67c48b2b3f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -6368,10 +6368,17 @@ function _bloquearCampo(id, bloquear, titulo) {
   else el.removeAttribute('title');
 }
 function _aplicarCamposAuto() {
-  const hayCatalogo = (typeof currentValeProductos !== 'undefined' && currentValeProductos && currentValeProductos.length > 0);
+  // v78: artículo y precios se bloquean SIEMPRE, no solo cuando ya hay productos
+  // elegidos. Todo lo que se vende está en el catálogo, y tanto el artículo como
+  // su precio salen de ahí: dejar escribir era una vía abierta a que el vale
+  // dijera un producto o un importe distintos de los que la app tiene fichados.
+  // Efecto buscado: para hacer un vale hay que pasar por "Seleccionar del
+  // catálogo". El artículo es obligatorio, así que sin elegir productos el vale
+  // no se envía.
+  _bloquearCampo('vf-articulo', true, 'Los productos se añaden desde "Seleccionar del catálogo"');
   _bloquearCampo('vf-comisionGestor', true, 'Se calcula con la comisión de cada producto');
-  _bloquearCampo('vf-precioUSD', hayCatalogo, 'Suma de los productos elegidos. Quita los productos para escribirlo a mano.');
-  _bloquearCampo('vf-precioMN',  hayCatalogo, 'Suma de los productos elegidos. Quita los productos para escribirlo a mano.');
+  _bloquearCampo('vf-precioUSD', true, 'Sale del precio de catálogo de los productos elegidos');
+  _bloquearCampo('vf-precioMN',  true, 'Sale del precio de catálogo de los productos elegidos');
   const chk = document.getElementById('vf-recogidaTienda');
   const enTienda = !!(chk && chk.checked);
   _bloquearCampo('vf-direccion',  enTienda, 'Recogida en tienda: no hay envío a domicilio');

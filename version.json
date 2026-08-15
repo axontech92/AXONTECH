@@ -1,10 +1,10 @@
 {
-  "version": 77,
-  "versionStr": "v2.3",
-  "build": 77,
-  "hash": "ea5b8cb2ef20b3cc",
-  "hashFull": "ea5b8cb2ef20b3cc",
-  "releasedAt": "2026-08-15 21:24",
+  "version": 78,
+  "versionStr": "v2.4",
+  "build": 78,
+  "hash": "5813fb67c48b2b3f",
+  "hashFull": "5813fb67c48b2b3f",
+  "releasedAt": "2026-08-15 21:30",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Los campos que rellena la app sola ya no se pueden escribir, para evitar que se descuadren sin querer: la comisión, y los precios cuando los productos salen del catálogo",
-    "Con Recogida en tienda marcada, la dirección y la mensajería quedan bloqueadas",
-    "Los campos bloqueados se ven distintos (borde discontinuo y fondo gris) y al mantenerlos pulsados explican por qué",
-    "Si quitas los productos del catálogo, los precios se vuelven a poder escribir a mano. El artículo, la garantía y el total siguen siendo editables"
+    "El artículo y los precios ya no se pueden escribir a mano: salen siempre del catálogo al elegir los productos",
+    "Los textos de ayuda lo dicen: Los productos aparecerán aquí al elegirlos arriba y Del catálogo, en vez de invitar a escribir",
+    "Para hacer un vale hay que pasar por Seleccionar del catálogo, así el vale nunca dice un producto o un precio distintos de los fichados"
   ]
 }

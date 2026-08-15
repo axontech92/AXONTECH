@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=77">
+  <link rel="stylesheet" href="./app.css?v=78">
   <style>
     /* Splash screen inline — no depende de app.css.
        Se muestra INMEDIATAMENTE al cargar el HTML, antes de que app.js termine.
@@ -58,7 +58,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.3</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.4</span>
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
@@ -217,7 +217,7 @@
             <span class="catalog-cta-arrow">›</span>
           </button>
           <div id="selectedProductsList" style="display:none;"></div>
-          <textarea id="vf-articulo" rows="2" placeholder="O escribe manualmente el artículo aquí..." oninput="onFormInput()"></textarea>
+          <textarea id="vf-articulo" rows="2" placeholder="Los productos aparecerán aquí al elegirlos arriba" oninput="onFormInput()"></textarea>
         </div>
       </div>
 
@@ -225,7 +225,7 @@
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Precio USD / Zelle</span></div>
-          <input type="text" id="vf-precioUSD" placeholder="Ej: $45 USD" oninput="onFormInput()">
+          <input type="text" id="vf-precioUSD" placeholder="Del catálogo" oninput="onFormInput()">
         </div>
       </div>
 
@@ -233,7 +233,7 @@
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Precio MN</span></div>
-          <input type="text" id="vf-precioMN" placeholder="Ej: 4500 MN" oninput="onFormInput()">
+          <input type="text" id="vf-precioMN" placeholder="Del catálogo" oninput="onFormInput()">
         </div>
       </div>
 
@@ -751,7 +751,7 @@
 </div>
 
 
-<script src="./app.js?v=77"></script>
+<script src="./app.js?v=78"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
