@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 75;
+const APP_VERSION = 76;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 75;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.1';
+let _PUBLIC_VERSION_STR = 'v2.2';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '08f1a21fa6337357';
+let _LOCAL_BUILD_HASH = '3733ff30f312946f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4987,6 +4987,37 @@ function openShareModal(valeId) {
   document.getElementById('shareModal').classList.add('show');
 }
 
+// ── v76: la rebaja del gestor baja lo que paga el cliente ───────────────────
+// En v75 se implementó como "el gestor cobra menos pero el cliente paga igual",
+// siguiendo la maqueta. En la práctica el negocio funciona al revés: el gestor
+// cede $10 de su comisión PARA QUE el cliente pague $10 menos. Si el admin no lo
+// ve, cobra el precio de lista y el cliente paga de más.
+// Devuelve null si no hay rebaja. Si la moneda de la rebaja no coincide con la
+// del total (o el total no se puede leer), devuelve el importe pero deja
+// aCobrar en null: mejor enseñar el dato y que lo reste una persona que restar
+// mal dos monedas distintas.
+function _rebajaVale(v) {
+  const cedida = Math.max(0, parseFloat((v && v.comisionCedida) || 0) || 0);
+  if (!cedida) return null;
+  const moneda = ((v.comisionCedidaMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD';
+  const fmt = n => moneda === 'MN' ? (Math.round(n) + ' MN') : ('$' + n.toFixed(2) + ' USD');
+  const totalTxt = ((v.total || '') + '').trim();
+  const num = (typeof parsePrecioNum === 'function') ? parsePrecioNum(totalTxt) : 0;
+  const totalEsMN = /\bMN\b|\bCUP\b/i.test(totalTxt);
+  const mismaMoneda = (moneda === 'MN') === totalEsMN;
+  const res = {
+    cedida, moneda, totalTxt,
+    rebajaTxt: fmt(cedida),
+    motivo: v.comisionCedidaMotivo || '',
+    aCobrar: null, aCobrarTxt: null
+  };
+  if (num > 0 && mismaMoneda) {
+    res.aCobrar = Math.max(0, num - cedida);
+    res.aCobrarTxt = fmt(res.aCobrar);
+  }
+  return res;
+}
+
 function renderValeDetail() {
   const v=getVales().find(x=>x.id===selectedValeId);
   const c=document.getElementById('valeDetail');
@@ -5085,12 +5116,31 @@ function renderValeDetail() {
       </div>
       <table style="width:100%;font-size:12px;border-collapse:collapse;">
         ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',v.total],['Garantía',v.garantia],['💰 Comisión gestor',v.comisionGestor]]
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['💰 Comisión gestor',v.comisionGestor]]
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
             <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:100px;">${k}</td>
             <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
       </table>
+      ${(()=>{const _r=_rebajaVale(v);if(!_r)return '';return `
+        <div style="margin-top:10px;padding:12px 13px;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.35);border-radius:11px;">
+          <div style="font-size:10px;color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">🤝 El gestor rebajó de su comisión</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+            <span style="color:var(--text-muted);">Precio del vale</span>
+            <span style="${_r.aCobrarTxt?'text-decoration:line-through;opacity:.6;':'font-weight:700;'}">${escapeHTML(_r.totalTxt||'—')}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+            <span style="color:var(--text-muted);">Rebaja del gestor</span>
+            <span style="color:var(--orange);font-weight:700;">− ${escapeHTML(_r.rebajaTxt)}</span>
+          </div>
+          ${_r.aCobrarTxt
+            ? `<div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(245,158,11,.3);padding-top:7px;">
+                 <span style="font-size:12px;font-weight:800;">COBRAR AL CLIENTE</span>
+                 <span style="font-size:17px;font-weight:800;color:var(--green);">${escapeHTML(_r.aCobrarTxt)}</span>
+               </div>`
+            : `<div style="border-top:1px solid rgba(245,158,11,.3);padding-top:7px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ Resta la rebaja a mano: el total del vale está en otra moneda.</div>`}
+          ${_r.motivo?`<div style="margin-top:7px;font-size:11px;color:var(--text-muted);">Motivo: ${escapeHTML(_r.motivo)}</div>`:''}
+        </div>`;})()}
       ${v.recogidaTienda?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;display:flex;align-items:center;gap:6px;">
         <span style="font-size:14px;">🏪</span>
         <span style="font-size:12px;font-weight:700;color:var(--blue);">Recogida en tienda</span>
@@ -6319,7 +6369,16 @@ function onCesionComisionInput() {
     nota.textContent = 'Tu comisión en este vale es de ' + fmt(tope) + '.';
     nota.style.color = 'var(--text-muted)';
   } else {
-    nota.textContent = 'De ' + fmt(tope) + ' cobrarías ' + fmt(Math.max(0, tope - val)) + '. Lo cedido no se cobra.';
+    // v76: lo que más importa al gestor no es su comisión, sino qué le dice al
+    // cliente. Se muestran las dos cosas.
+    const _tot = document.getElementById('vf-total');
+    const _numTot = _tot ? parsePrecioNum(_tot.value || '') : 0;
+    const _totEsMN = _tot ? /\bMN\b|\bCUP\b/i.test(_tot.value || '') : false;
+    let _txt = 'De ' + fmt(tope) + ' cobrarías ' + fmt(Math.max(0, tope - val)) + '.';
+    if (_numTot > 0 && ((moneda === 'MN') === _totEsMN)) {
+      _txt += ' El cliente paga ' + fmt(Math.max(0, _numTot - val)) + ' en vez de ' + fmt(_numTot) + '.';
+    }
+    nota.textContent = _txt;
     nota.style.color = 'var(--orange)';
   }
   if (typeof onFormInput === 'function') onFormInput();
@@ -6418,7 +6477,22 @@ function buildValeText() {
     `🔸Precio USD/ zelle: ${fVal('vf-precioUSD')}`,
     `🔸Precio MN: ${fVal('vf-precioMN')}`,
     `🔸 Vuelto: ${fVal('vf-vuelto')}`,
-    `🔸 Total a pagar: ${fVal('vf-total')}`, '',
+    ...(function(){
+      // v76: si el gestor rebajó de su comisión, el texto del vale tiene que
+      // decir cuánto se cobra DE VERDAD. Antes salía el precio de lista y el
+      // admin cobraba de más.
+      const _c = Math.max(0, parseFloat(document.getElementById('vf-comisionCedida')?.value || 0) || 0);
+      const _tot = fVal('vf-total');
+      if (!_c) return [`🔸 Total a pagar: ${_tot}`];
+      const _mon = (document.getElementById('vf-comisionCedidaMoneda')||{}).value === 'MN' ? 'MN' : 'USD';
+      const _fmt = n => _mon === 'MN' ? (Math.round(n) + ' MN') : ('$' + n.toFixed(2) + ' USD');
+      const _num = parsePrecioNum(_tot);
+      const _totEsMN = /\bMN\b|\bCUP\b/i.test(_tot);
+      const _lineas = [`🔸 Precio: ${_tot}`, `🔸 Rebaja del gestor: −${_fmt(_c)}`];
+      if (_num > 0 && ((_mon === 'MN') === _totEsMN)) _lineas.push(`🔸 Total a pagar: ${_fmt(Math.max(0, _num - _c))}`);
+      else _lineas.push(`🔸 Total a pagar: ${_tot} menos ${_fmt(_c)}`);
+      return _lineas;
+    })(), '',
     `*Garantía: ${fVal('vf-garantia')}`,
     `*Fecha y hora de Venta: ${fVal('vf-fecha')||nowDateTime()}`, '',
     '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
@@ -6452,7 +6526,15 @@ function regenerateValeText(v) {
     `🔸Precio USD/ zelle: ${v.precioUSD||''}`,
     `🔸Precio MN: ${v.precioMN||''}`,
     `🔸 Vuelto: ${v.vuelto||''}`,
-    `🔸 Total a pagar: ${v.total||''}`, '',
+    ...(function(){
+      // v76: mismo criterio que buildValeText — el texto debe decir lo que se
+      // cobra de verdad, no el precio de lista.
+      const _r = (typeof _rebajaVale === 'function') ? _rebajaVale(v) : null;
+      if (!_r) return [`🔸 Total a pagar: ${v.total||''}`];
+      return [`🔸 Precio: ${v.total||''}`,
+              `🔸 Rebaja del gestor: −${_r.rebajaTxt}`,
+              `🔸 Total a pagar: ${_r.aCobrarTxt || ((v.total||'') + ' menos ' + _r.rebajaTxt)}`];
+    })(), '',
     `*Garantía: ${v.garantia||''}`,
     `*Fecha y hora de Venta: ${ts}`, '',
     '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',

@@ -1,10 +1,10 @@
 {
-  "version": 75,
-  "versionStr": "v2.1",
-  "build": 75,
-  "hash": "08f1a21fa6337357",
-  "hashFull": "08f1a21fa6337357",
-  "releasedAt": "2026-08-15 21:08",
+  "version": 76,
+  "versionStr": "v2.2",
+  "build": 76,
+  "hash": "3733ff30f312946f",
+  "hashFull": "3733ff30f312946f",
+  "releasedAt": "2026-08-15 21:20",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "NUEVO: el gestor puede rebajar parte de su comisión al hacer un vale (cliente frecuente, cierre de venta...), indicando el motivo",
-    "No puede ceder más de lo que gana en ese vale, y se le muestra cuánto cobraría al final",
-    "La rebaja no toca el precio que paga el cliente ni el stock: solo se deja de cobrar esa parte de comisión",
-    "ADMIN: las comisiones del apartado de gestores llegan ya con la rebaja aplicada, y lo cedido se marca en naranja en el desglose"
+    "FIX: la rebaja del gestor ahora baja lo que paga el cliente. Antes el admin seguía viendo el precio de lista y podía cobrar de más",
+    "ADMIN: en el detalle del vale aparece un recuadro con el precio, la rebaja, el motivo y COBRAR AL CLIENTE bien visible",
+    "El texto del vale ya muestra Precio, Rebaja del gestor y Total a pagar, en vez de solo el precio oficial",
+    "Al gestor se le indica cuánto pagará el cliente mientras escribe la rebaja"
   ]
 }
