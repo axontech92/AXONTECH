@@ -1,9 +1,9 @@
 {
-  "version": 55,
-  "versionStr": "v55",
-  "hash": "v55_fix_render_pending",
-  "hashFull": "v55_fix_render_pending",
-  "releasedAt": "2026-08-15 00:00",
+  "version": 56,
+  "versionStr": "v56",
+  "hash": "913fdb0af195c1c1",
+  "hashFull": "913fdb0af195c1c1",
+  "releasedAt": "2026-08-15 00:50",
   "files": [
     "app.js",
     "app.css",
@@ -12,10 +12,9 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO v55: el gestor ahora SÍ ve los vales como 'confirmado'/'asignado' cuando el admin los cambia",
-    "FIX: el poll del gestor ya NO se bloquea cuando hay writes encolados (writes stuck no bloquean lecturas)",
-    "FIX: el hash de vales ahora incluye TODOS los vales (sin cutoff) y campos del admin (confirmedTs, assignedTs, mensajeroId, seenByAdmin)",
-    "FIX: forzar re-render completo cuando se detecta cualquier cambio de status en el poll",
-    "v54 incluido: RPC upsert_vale_from_gestor + fallback JS read-merge-write preservan campos del admin"
+    "FIX: el gestor vuelve a recibir los avisos cuando el admin cambia el estado de sus vales (confirmado, asignado, en camino, entregado, cobrado)",
+    "FIX: las comisiones solo se suman al completar/cobrar la venta, no antes",
+    "FIX: varios fallos de stock al crear, editar y cancelar vales",
+    "NOTA: estas correcciones ya estaban en el código desde v52 pero no llegaban a los teléfonos porque no se había regenerado la versión; el service worker seguía sirviendo el app.js viejo desde la caché"
   ]
 }
