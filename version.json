@@ -1,9 +1,9 @@
 {
-  "version": 60,
-  "versionStr": "v60",
-  "hash": "bf1936c2c9a28bf0",
-  "hashFull": "bf1936c2c9a28bf0",
-  "releasedAt": "2026-08-15 02:18",
+  "version": 61,
+  "versionStr": "v61",
+  "hash": "7feebef7282e8091",
+  "hashFull": "7feebef7282e8091",
+  "releasedAt": "2026-08-15 02:25",
   "files": [
     "app.js",
     "app.css",
@@ -12,8 +12,6 @@
     "sw.js"
   ],
   "changelog": [
-    "DISEÑO: la tarjeta de comisión del gestor vuelve a verse a lo ancho. Estaba metida en una celda de la rejilla de estadísticas y salía aplastada a un cuarto de ancho, con el importe partido en dos líneas",
-    "DISEÑO: la barra de la meta de puntos también ocupa el ancho completo y ahora indica cuántos puntos faltan",
-    "La comisión indica de cuántas ventas cobradas sale, para que el importe se entienda"
+    "FIX: la comisión pendiente se quedaba 'pegada' en MIS COMISIONES. Al usar 'Ocultar historial' el vale desaparecía del historial pero su comisión seguía ahí, sin ningún vale a la vista y sin forma de quitarla. Ahora ocultar el historial oculta también su comisión (el admin la sigue viendo)"
   ]
 }

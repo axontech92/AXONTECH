@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 60;
+const APP_VERSION = 61;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'bf1936c2c9a28bf0';
+let _LOCAL_BUILD_HASH = '7feebef7282e8091';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -6301,7 +6301,16 @@ function renderGestorComisiones() {
   // v52 FIX: la comisión se cuenta solo al completar la venta (status
   // 'confirmed' = cobrada). 'pending_payment' es entregado pero AÚN sin cobrar,
   // así que no debe generar comisión todavía.
-  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed');
+  // v61 FIX: faltaba excluir los vales ocultos, y por eso la comisión se quedaba
+  // "pegada". El botón 🙈 Ocultar historial marca los vales confirmados con
+  // hiddenFromHistory:true; renderMyVales sí lo respeta y los quita del
+  // historial, pero aquí no se miraba, así que la comisión de un vale que ya no
+  // se ve por ninguna parte seguía en MIS COMISIONES sin forma de quitarla: los
+  // vales activos ya estaban borrados y el vale que la generaba estaba oculto.
+  // Ahora ambas vistas usan el mismo criterio. Ojo: esto solo afecta a lo que ve
+  // el gestor. La comisión sigue intacta en el panel del admin, que es quien
+  // paga — igual que avisa el propio texto del botón ("los datos NO se borran").
+  const mine=getVales().filter(v=>v.gestorId===activeGestorId&&v.status==='confirmed'&&!v.hiddenFromHistory);
   // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
   const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
   const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
