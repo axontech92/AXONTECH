@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 72;
+const APP_VERSION = 73;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 72;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.8';
+let _PUBLIC_VERSION_STR = 'v1.9';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '98bf7a87b672cd8a';
+let _LOCAL_BUILD_HASH = '9dd628ccdd281c9e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2284,6 +2284,13 @@ const saveVales = v => {
     if (x.seenTs) slim.seenTs = x.seenTs;        // v38: sync seenTs to Supabase
     if (x.commissionStatus) slim.commissionStatus = x.commissionStatus;
     if (x.commissionPaid) slim.commissionPaid = x.commissionPaid;
+    // v73: stockDecremented NO se subía, y es la bandera que decide si al
+    // revertir o borrar un vale hay que devolver las unidades al almacén. El
+    // admin la ponía en local, el vale subía sin ella y el poll siguiente traía
+    // de vuelta la versión sin bandera y pisaba la local: al revertir, el stock
+    // se quedaba descontado para siempre. Se envía siempre —también en false—
+    // porque "ya se devolvió" es un dato tan necesario como "está descontado".
+    slim.stockDecremented = !!x.stockDecremented;
     return slim;
   }
   // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
@@ -6187,13 +6194,7 @@ function cancelVale(id) {
     // inventario perdido en silencio, y este botón está disponible para el
     // gestor sobre cualquiera de sus vales. La bandera stockDecremented es por
     // sí sola la fuente de verdad, igual que ya hacía adminDeleteVale.
-    if (v.stockDecremented) {
-      (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-        const prod=productoOf(pid);if(!prod)return;
-        const restored=Math.max(0,(prod.stock||0)+qty);
-        patchProducto(pid,{stock:restored});
-      });
-    }
+    _devolverStockDeVale(v);  // v73: misma regla que al revertir
     const filtered = getVales().filter(x=>x.id!==id);
     saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
@@ -6245,19 +6246,13 @@ function _doValeSupabaseDelete(v, id) {
 function adminDeleteVale(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   // v33 FIX: Allow deleting ANY vale, including confirmed/pending_payment.
-  const needsStockRevert = v.status==='confirmed'||v.status==='pending_payment'||v.stockDecremented;
+  const needsStockRevert = _valeDescontoStock(v);  // v73: misma regla que la devolución real, para que el aviso no mienta
   const confirmMsg = needsStockRevert
     ? `¿Eliminar este vale?<br><br><b>⚠️ Se revertirá el stock automáticamente</b> porque la venta ya fue confirmada.`
     : `¿Eliminar este vale?`;
   showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
     // v33: Auto-revert stock if the vale was confirmed/pending_payment
-    if (needsStockRevert && v.stockDecremented) {
-      (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-        const prod=productoOf(pid);if(!prod)return;
-        const restored=Math.max(0,(prod.stock||0)+qty);
-        patchProducto(pid,{stock:restored});
-      });
-    }
+    _devolverStockDeVale(v);  // v73: misma regla que al revertir
     // v33 FIX: Track this deletion so _doRestPoll doesn't overwrite localStorage
     // with stale Supabase data while the delete is in flight.
     _valesDirectDeleting.add(String(id));
@@ -9702,6 +9697,30 @@ function closeConfirmAction() {
 // ══════════════════════════════════════════
 //  REVERT CONFIRMED SALE
 // ══════════════════════════════════════════
+// ── v73: ¿este vale descontó stock del almacén? ─────────────────────────────
+// Se comprobaba con `if (v.stockDecremented)` a secas en tres sitios, y valía
+// undefined en todos los vales guardados antes de que la bandera empezara a
+// sincronizarse (ver slimVale). Con undefined no se devolvía nada, que es el
+// fallo visible: reviertes un vale y los productos no vuelven al stock.
+// true = descontó · false = ya se devolvió, no tocar · undefined = vale antiguo,
+// se deduce del estado, porque solo 'confirmed' y 'pending_payment' descuentan.
+function _valeDescontoStock(v) {
+  if (!v) return false;
+  if (v.stockDecremented === true) return true;
+  if (v.stockDecremented === false) return false;
+  return v.status === 'confirmed' || v.status === 'pending_payment';
+}
+// Devuelve las unidades al almacén. Un solo sitio, para que las tres vías
+// (revertir, cancelar y eliminar) no puedan volver a divergir.
+function _devolverStockDeVale(v) {
+  if (!_valeDescontoStock(v)) return false;
+  (v.valeProductos || []).forEach(({id:pid, qty}) => {
+    const prod = productoOf(pid); if (!prod) return;
+    patchProducto(pid, {stock: Math.max(0, (prod.stock || 0) + (qty || 0))});
+  });
+  return true;
+}
+
 function revertConfirmSale(id, skipConfirm) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   // Allow reverting both 'confirmed' and 'pending_payment' states
@@ -9714,13 +9733,7 @@ function revertConfirmSale(id, skipConfirm) {
   // Idempotency: only restore stock if it was previously decremented.
   // The stockDecremented flag prevents double-restoration when the user
   // double-clicks the revert button before patchVale updates the state.
-  if(v.stockDecremented){
-    (v.valeProductos||[]).forEach(({id:pid,qty})=>{
-      const prod=productoOf(pid);if(!prod)return;
-      const restored=Math.max(0,(prod.stock||0)+qty);
-      patchProducto(pid,{stock:restored});
-    });
-  }
+  _devolverStockDeVale(v);
   // Revert to appropriate previous state:
   // - Si tenía mensajero asignado, vuelve a 'assigned' (estado visible en el panel admin)
   // - Si no, vuelve a 'pending' (estado original)
