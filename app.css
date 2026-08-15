@@ -1490,3 +1490,20 @@ body.dark .pwa-help-note{color:#94a3b8;}
 /* Avatar preview en el modal Editar Gestor — wrapper para que el overflow:hidden
    del .g-avatar no recorte nada raro (no hay botones overlay aquí) */
 #editGestorAvatar{overflow:hidden;}
+
+/* v69: rejilla de "Mis números" del gestor.
+   Estaba como estilo en línea en index.html con 4 columnas fijas, y un estilo en
+   línea no admite media queries: en pantallas estrechas las cuatro tarjetas se
+   apretaban tanto que "Conversión" y su porcentaje se salían de la caja. Aquí
+   puede adaptarse: 2x2 en móviles estrechos, 4 en fila a partir de 430 px.
+   El hero de comisión y la meta llevan grid-column:1/-1, así que siguen
+   ocupando la fila completa con cualquiera de los dos anchos. */
+#gestorHistDashboard{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:6px;
+  margin-bottom:8px;
+}
+@media (min-width:430px){
+  #gestorHistDashboard{grid-template-columns:repeat(4,1fr);}
+}

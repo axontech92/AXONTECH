@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 68;
+const APP_VERSION = 69;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 68;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v1.4';
+let _PUBLIC_VERSION_STR = 'v1.5';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '5743f3649d87cb4f';
+let _LOCAL_BUILD_HASH = '2269a253db8aa1a6';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -6278,6 +6278,29 @@ function adminDeleteVale(id) {
 // ══════════════════════════════════════════
 //  VALE FORM
 // ══════════════════════════════════════════
+// v69: abre y cierra el bloque "Más detalles" del formulario de vale.
+// Los campos de dentro (carnet, garantía, comisión, fecha) casi nunca se tocan y
+// alargaban la pantalla del gestor, que crea vales varias veces al día. No se
+// plegaron los de precio: alimentan el cálculo automático del total.
+function toggleVfExtras(forzar) {
+  const box = document.getElementById('vfExtras');
+  const arrow = document.getElementById('vfExtrasArrow');
+  if (!box) return;
+  const abrir = (typeof forzar === 'boolean') ? forzar : (box.style.display === 'none');
+  box.style.display = abrir ? 'block' : 'none';
+  if (arrow) arrow.textContent = abrir ? '▲' : '▼';
+}
+// Si el vale que se está editando ya trae algo en esos campos, se abre solo:
+// esconder un dato que el gestor escribió sería peor que el formulario largo.
+function _abrirVfExtrasSiTieneDatos() {
+  const ids = ['vf-carnet','vf-garantia','vf-comisionGestor'];
+  const hayAlgo = ids.some(id => {
+    const el = document.getElementById(id);
+    return el && el.value && el.value.trim() !== '';
+  });
+  if (hayAlgo) toggleVfExtras(true);
+}
+
 const REQUIRED=['vf-cliente','vf-telefono','vf-direccion','vf-articulo','vf-total'];
 const fVal = id => (document.getElementById(id)?.value||'').trim();
 
@@ -6572,6 +6595,8 @@ function resetForm() {
      const el=document.getElementById(id);if(el)el.value='';
    });
   const chk=document.getElementById('vf-recogidaTienda');if(chk)chk.checked=false;
+  // v69: al limpiar, el bloque "Más detalles" vuelve a quedar plegado.
+  if (typeof toggleVfExtras === 'function') toggleVfExtras(false);
   onRecogidaTiendaChange();
   currentValeProductos=[];selectedProductsUI=[];
   renderSelectedProductsUI();

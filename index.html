@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=68">
+  <link rel="stylesheet" href="./app.css?v=69">
   <style>
     /* Splash screen inline — no depende de app.css.
        Se muestra INMEDIATAMENTE al cargar el HTML, antes de que app.js termine.
@@ -58,7 +58,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v1.4</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v1.5</span>
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
@@ -193,13 +193,6 @@
         </div>
       </div>
 
-      <div class="vf-row">
-        <span class="vf-emoji">🪪</span>
-        <div class="vf-inner">
-          <div class="vf-label"><span>Carnet de identidad</span></div>
-          <input type="text" id="vf-carnet" placeholder="Opcional — Carnet del cliente" oninput="onFormInput()">
-        </div>
-      </div>
 
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
@@ -262,6 +255,23 @@
 
       <hr class="vf-sep">
 
+      <!-- v69: campos que casi nunca se tocan, plegados para acortar el formulario.
+           De 17 campos en pantalla a 13. NO se pliegan los de precio (mensajería,
+           precio USD/MN, vuelto) porque alimentan el cálculo automático del total,
+           ni los cinco obligatorios (cliente, teléfono, dirección, artículo, total).
+           Se abre solo al editar un vale que ya traiga alguno relleno. -->
+      <div onclick="toggleVfExtras()" id="vfExtrasToggle" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:9px 12px;margin:4px 0 2px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;user-select:none;">
+        <span style="font-size:12px;font-weight:700;color:var(--text-muted);">➕ Más detalles <span style="font-weight:500;">· carnet, garantía, comisión</span></span>
+        <span id="vfExtrasArrow" style="color:var(--gray-400);font-size:12px;">▼</span>
+      </div>
+      <div id="vfExtras" style="display:none;">
+      <div class="vf-row">
+        <span class="vf-emoji">🪪</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Carnet de identidad</span></div>
+          <input type="text" inputmode="numeric" id="vf-carnet" placeholder="Opcional — Carnet del cliente" oninput="onFormInput()">
+        </div>
+      </div>
       <div class="vf-row">
         <span class="vf-emoji">★</span>
         <div class="vf-inner">
@@ -284,6 +294,7 @@
           <div class="vf-label"><span>Fecha y hora de Venta <span style="color:var(--blue);font-size:9px;">● Auto</span></span></div>
           <input type="text" id="vf-fecha" readonly>
         </div>
+      </div>
       </div>
 
       <hr class="vf-sep">
@@ -319,7 +330,7 @@
         <div id="gestorMyValesSection" style="display:none;padding-top:4px;">
       <!-- NEW: Resumen dashboard with period chips -->
       <div class="lbl" style="margin-top:14px;">📊 Mi Resumen</div>
-      <div id="gestorHistDashboard" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;"></div>
+      <div id="gestorHistDashboard"></div>
       <div id="gestorHistPeriodFilter" style="display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap;">
         <button class="btn btn-blue btn-sm" data-period="month" onclick="setGestorHistPeriod('month')">Este mes</button>
         <button class="btn btn-ghost btn-sm" data-period="last" onclick="setGestorHistPeriod('last')">Mes pasado</button>
@@ -720,7 +731,7 @@
 </div>
 
 
-<script src="./app.js?v=68"></script>
+<script src="./app.js?v=69"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

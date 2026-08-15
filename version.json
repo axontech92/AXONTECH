@@ -1,10 +1,10 @@
 {
-  "version": 68,
-  "versionStr": "v1.4",
-  "build": 68,
-  "hash": "5743f3649d87cb4f",
-  "hashFull": "5743f3649d87cb4f",
-  "releasedAt": "2026-08-15 06:26",
+  "version": 69,
+  "versionStr": "v1.5",
+  "build": 69,
+  "hash": "2269a253db8aa1a6",
+  "hashFull": "2269a253db8aa1a6",
+  "releasedAt": "2026-08-15 06:30",
   "files": [
     "app.js",
     "app.css",
@@ -14,6 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: la app ya no ofrece instalarse cuando ya está instalada. Ahora recuerda que se instaló, aunque abras la web desde el navegador en vez de desde el icono"
+    "El formulario de vale es más corto: carnet, garantía, comisión y fecha pasan a un bloque plegable Más detalles. Los campos de precio siguen a la vista porque calculan el total",
+    "El carnet abre el teclado numérico en el móvil, ya no el de letras",
+    "En pantallas estrechas, las tarjetas de Mis números se colocan en dos filas de dos en vez de cuatro apretadas"
   ]
 }
