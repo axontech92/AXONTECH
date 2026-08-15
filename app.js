@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 59;
+const APP_VERSION = 60;
 const VERSION_STR = 'v' + APP_VERSION;
 
 // Estado del chequeo de versión
@@ -34,7 +34,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'f1a63ed61ee8ec67';
+let _LOCAL_BUILD_HASH = 'bf1936c2c9a28bf0';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -6124,35 +6124,57 @@ function renderGestorDashboard() {
   `).join('');
 
   // v39: Hero commission card — green gradient, like original design
+  // v60 FIX: el contenedor #gestorHistDashboard es un grid de 4 columnas, pensado
+  // para las 4 stat-cards. El hero y la meta se metían como hijos sueltos, así que
+  // caían cada uno en UNA celda —un cuarto del ancho— y salían aplastados y en
+  // paralelo. El hero es un flex con el importe a un lado y el icono al otro: a
+  // 1/4 de ancho se amontona y pierde el sentido. `grid-column:1/-1` los devuelve
+  // a la franja completa, que es como estaban diseñados.
+  // El separador ya lo pone el gap:6px del grid, así que el margin-top extra
+  // sobraba y descuadraba el ritmo vertical.
+  const _heroBase = 'grid-column:1/-1;margin-top:6px;padding:16px 18px;border-radius:14px;'
+    + 'background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 2px 10px rgba(16,185,129,.28);'
+    + 'display:flex;align-items:center;justify-content:space-between;gap:12px;';
+  const _heroLbl = 'font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.5px;';
   let comHero = '';
   if (cur.comBadge) {
-    comHero = `<div style="margin-top:12px;padding:16px 18px;background:linear-gradient(135deg,#10b981,#059669);border-radius:14px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.5px;">Comisión estimada</div>
-        <div style="font-size:22px;font-weight:800;color:white;margin-top:4px;">💵 ${escapeHTML(cur.comBadge)}</div>
+    // Cuántas ventas hay detrás del importe: un número suelto no dice nada, y es
+    // la primera pregunta del gestor al verlo.
+    const _n = cur.confirmed;
+    const _sub = _n > 0 ? `de ${_n} venta${_n !== 1 ? 's' : ''} cobrada${_n !== 1 ? 's' : ''}` : '';
+    comHero = `<div style="${_heroBase}">
+      <div style="min-width:0;">
+        <div style="${_heroLbl}">Comisión estimada</div>
+        <div style="font-size:26px;font-weight:800;color:white;margin-top:3px;line-height:1.1;word-break:break-word;">${escapeHTML(cur.comBadge)}</div>
+        ${_sub ? `<div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:3px;">${_sub}</div>` : ''}
       </div>
-      <div style="font-size:28px;opacity:.7;">💰</div>
+      <div style="font-size:30px;opacity:.75;flex-shrink:0;">💰</div>
     </div>`;
   } else if (cur.closed > 0) {
-    comHero = `<div style="margin-top:12px;padding:16px 18px;background:linear-gradient(135deg,#10b981,#059669);border-radius:14px;display:flex;align-items:center;justify-content:space-between;">
-      <div>
-        <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.5px;">Comisión estimada</div>
-        <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.7);margin-top:4px;">No computable</div>
+    comHero = `<div style="${_heroBase}">
+      <div style="min-width:0;">
+        <div style="${_heroLbl}">Comisión estimada</div>
+        <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.75);margin-top:4px;">No computable</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;">los productos no tienen comisión definida</div>
       </div>
-      <div style="font-size:28px;opacity:.5;">💰</div>
+      <div style="font-size:30px;opacity:.5;flex-shrink:0;">💰</div>
     </div>`;
   }
 
   // v39: Meta progress bar — dark card style like original
+  // v60: a ancho completo por el mismo motivo que el hero (ver arriba). Con la
+  // barra metida en un cuarto de columna no se leía el progreso, que es justo
+  // para lo que sirve.
   const metaHTML = `
-    <div style="margin-top:10px;padding:10px 14px;background:var(--surface2);border-radius:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+    <div style="grid-column:1/-1;margin-top:6px;padding:11px 14px;background:var(--surface2);border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;flex-wrap:wrap;gap:4px;">
         <span style="font-size:12px;font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
         <span style="font-size:12px;font-weight:700;color:var(--cyan,#06b6d4);">${cur.pts} / ${meta} pts</span>
       </div>
       <div style="background:var(--gray-100);border-radius:20px;height:8px;overflow:hidden;">
         <div style="width:${pctMeta}%;height:100%;background:#06b6d4;border-radius:20px;transition:width .6s;"></div>
       </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${pctMeta >= 100 ? '¡Meta alcanzada! 🎉' : `Te faltan ${meta - cur.pts} pts para la meta`}</div>
     </div>
   `;
 

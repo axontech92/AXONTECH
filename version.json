@@ -1,9 +1,9 @@
 {
-  "version": 59,
-  "versionStr": "v59",
-  "hash": "f1a63ed61ee8ec67",
-  "hashFull": "f1a63ed61ee8ec67",
-  "releasedAt": "2026-08-15 01:48",
+  "version": 60,
+  "versionStr": "v60",
+  "hash": "bf1936c2c9a28bf0",
+  "hashFull": "bf1936c2c9a28bf0",
+  "releasedAt": "2026-08-15 02:18",
   "files": [
     "app.js",
     "app.css",
@@ -12,8 +12,8 @@
     "sw.js"
   ],
   "changelog": [
-    "FIX CRÍTICO: los cambios de estado del admin (confirmar, asignar, cobrar) NO se estaban guardando en la nube. Se veían bien en la pantalla del admin y un minuto después se revertían solos a 'sin confirmar'",
-    "FIX: por ese mismo motivo el gestor nunca recibía el estado real de sus vales. Los avisos sí le llegaban, porque van por otro camino, y por eso parecía que el fallo estaba en los avisos",
-    "Los vales que se hubieran quedado con el estado viejo en la nube se corrigen solos al abrir la app"
+    "DISEÑO: la tarjeta de comisión del gestor vuelve a verse a lo ancho. Estaba metida en una celda de la rejilla de estadísticas y salía aplastada a un cuarto de ancho, con el importe partido en dos líneas",
+    "DISEÑO: la barra de la meta de puntos también ocupa el ancho completo y ahora indica cuántos puntos faltan",
+    "La comisión indica de cuántas ventas cobradas sale, para que el importe se entienda"
   ]
 }
