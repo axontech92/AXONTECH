@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 82;
+const APP_VERSION = 83;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 82;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.8';
+let _PUBLIC_VERSION_STR = 'v2.9';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a9e93ad37419159d';
+let _LOCAL_BUILD_HASH = '319426b3e94f97a3';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4631,8 +4631,22 @@ function _updateGestoresCountBadge() {
 // pestaña. Ahora las comisiones son una tercera fila plegable DENTRO de la
 // misma tarjeta (reutiliza renderComisionBody, que no cambió).
 function renderAdminGestoresList() {
-  // Orden alfabético (copia, no muta el array original)
-  const list = sortGestoresAlpha(getGestores());
+  // v83: orden por comisión pendiente, de mayor a menor. Este panel se usa para
+  // ver a quién hay que pagar, así que lo útil es que los que más tienen
+  // acumulado salgan primero, no que salgan por orden alfabético.
+  // Se compara en USD y, a igualdad, en MN. Los que no deben nada quedan al
+  // final ordenados por nombre, para que la lista no baile entre recargas.
+  const list = sortGestoresAlpha(getGestores()).slice().sort((a, b) => {
+    const pend = g => {
+      const vs = getVales().filter(v => v.gestorId === g.id && v.status === 'confirmed'
+        && !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
+      try { return sumCommissions(vs); } catch(e) { return {usd:0, mn:0}; }
+    };
+    const A = pend(a), B = pend(b);
+    if ((B.usd || 0) !== (A.usd || 0)) return (B.usd || 0) - (A.usd || 0);
+    if ((B.mn || 0) !== (A.mn || 0)) return (B.mn || 0) - (A.mn || 0);
+    return 0;   // sortGestoresAlpha ya los dejó por nombre; Array.sort es estable
+  });
   const c=document.getElementById('adminGestoresPanel-list');
   _updateGestoresCountBadge();
   if(!c) return;
@@ -5011,6 +5025,36 @@ function openShareModal(valeId) {
 // del total (o el total no se puede leer), devuelve el importe pero deja
 // aCobrar en null: mejor enseñar el dato y que lo reste una persona que restar
 // mal dos monedas distintas.
+// ── v83: lee un importe que puede llevar las dos monedas ────────────────────
+// Los totales reales vienen a menudo mezclados: "$230 USD + 2500 MN". Antes se
+// miraba si el texto contenía "MN" y se trataba TODO como MN, así que una rebaja
+// en USD no coincidía con "la moneda del total" y el vale se quedaba en "restar
+// a mano" en vez de calcularse. Ahora se separan las dos partes y cada rebaja se
+// descuenta de la suya.
+// Sin sufijo se asume USD, que es como está escrito el resto de la app.
+function _partesMonetarias(txt) {
+  const s = String(txt || '');
+  let usd = 0, mn = 0;
+  // Cada tramo es un número con su moneda opcional detrás: "230 USD", "2500 MN", "700".
+  const re = /([0-9][0-9.,]*)\s*(USD|CUP|MN)?/gi;
+  let m;
+  while ((m = re.exec(s)) !== null) {
+    const num = parseFloat((m[1] || '').replace(/,/g, ''));
+    if (isNaN(num) || num === 0) continue;
+    const mon = (m[2] || '').toUpperCase();
+    if (mon === 'MN' || mon === 'CUP') mn += num;
+    else usd += num;
+  }
+  return { usd, mn };
+}
+// Escribe un importe en el mismo formato que usa la app.
+function _fmtMonto(usd, mn) {
+  const p = [];
+  if (usd > 0) p.push('$' + (Math.round(usd * 100) / 100).toFixed(2).replace(/\.00$/, '') + ' USD');
+  if (mn > 0) p.push(Math.round(mn) + ' MN');
+  return p.length ? p.join(' + ') : '0';
+}
+
 function _rebajaVale(v) {
   if (!v) return null;
   const totalTxt = ((v.total || '') + '').trim();
@@ -5044,28 +5088,35 @@ function _rebajaVale(v) {
   const gestor = partes.find(pt => pt.quien === 'gestor') || null;
   const admin  = partes.find(pt => pt.quien === 'admin')  || null;
 
-  // Solo se pueden restar del total las rebajas en su misma moneda. Las demás se
-  // enseñan aparte para que las reste una persona: restar mal dos monedas sería
-  // peor que no restar.
-  const monedaTotal = totalEsMN ? 'MN' : 'USD';
-  const restables = partes.filter(pt => pt.moneda === monedaTotal);
-  const sueltas   = partes.filter(pt => pt.moneda !== monedaTotal);
-  const sumaRestable = restables.reduce((a, pt) => a + pt.importe, 0);
+  // v83: cada rebaja se descuenta de SU moneda. Los totales suelen venir mixtos
+  // ("$230 USD + 2500 MN": el producto en USD y la mensajería en MN), así que
+  // rebajar $20 tiene que bajar el producto y dejar la mensajería intacta.
+  // Antes se miraba si el texto contenía "MN" y se trataba todo como MN, con lo
+  // que una rebaja en USD no cuadraba con "la moneda del total" y el vale se
+  // quedaba en "restar a mano".
+  const tot = _partesMonetarias(totalTxt);
+  const rebUSD = partes.reduce((a, pt) => a + (pt.moneda === 'USD' ? pt.importe : 0), 0);
+  const rebMN  = partes.reduce((a, pt) => a + (pt.moneda === 'MN'  ? pt.importe : 0), 0);
+  // Una rebaja sin nada de esa moneda en el total no se puede aplicar: se avisa
+  // en vez de restarla de la otra.
+  const sueltas = partes.filter(pt =>
+    (pt.moneda === 'USD' && tot.usd <= 0) || (pt.moneda === 'MN' && tot.mn <= 0));
 
   const res = {
     partes, gestor, admin, sueltas,
     totalTxt,
-    moneda: monedaTotal,
-    // Compatibilidad: el resto del código usa rebajaTxt como "lo que se rebaja
-    // en total" y aCobrarTxt como "lo que hay que cobrar".
-    rebajaTxt: fmtEn(partes.reduce((a, pt) => a + (pt.moneda === monedaTotal ? pt.importe : 0), 0) || partes[0].importe, monedaTotal),
+    // Compatibilidad con el resto del código: rebajaTxt es lo que se rebaja en
+    // total y aCobrarTxt lo que hay que cobrar.
+    rebajaTxt: _fmtMonto(rebUSD, rebMN),
     motivo: partes.map(pt => pt.motivo).filter(Boolean).join(' · '),
     cedida,
     aCobrar: null, aCobrarTxt: null
   };
-  if (numTotal > 0 && sumaRestable > 0) {
-    res.aCobrar = Math.max(0, numTotal - sumaRestable);
-    res.aCobrarTxt = fmtEn(res.aCobrar, monedaTotal);
+  const quedaUSD = Math.max(0, tot.usd - (tot.usd > 0 ? rebUSD : 0));
+  const quedaMN  = Math.max(0, tot.mn  - (tot.mn  > 0 ? rebMN  : 0));
+  if ((tot.usd > 0 || tot.mn > 0) && !sueltas.length) {
+    res.aCobrar = quedaUSD;
+    res.aCobrarTxt = _fmtMonto(quedaUSD, quedaMN);
   }
   return res;
 }
