@@ -1,17 +1,19 @@
 {
-  "version": 61,
-  "versionStr": "v61",
-  "hash": "7feebef7282e8091",
-  "hashFull": "7feebef7282e8091",
-  "releasedAt": "2026-08-15 02:25",
+  "version": 62,
+  "versionStr": "v62",
+  "hash": "42a3fad3771d9efa",
+  "hashFull": "42a3fad3771d9efa",
+  "releasedAt": "2026-08-15 05:03",
   "files": [
     "app.js",
     "app.css",
     "index.html",
     "admin.html",
-    "sw.js"
+    "sw.js",
+    "catalogo.html"
   ],
   "changelog": [
-    "FIX: la comisión pendiente se quedaba 'pegada' en MIS COMISIONES. Al usar 'Ocultar historial' el vale desaparecía del historial pero su comisión seguía ahí, sin ningún vale a la vista y sin forma de quitarla. Ahora ocultar el historial oculta también su comisión (el admin la sigue viendo)"
+    "FIX: el catálogo ya muestra las fotos de los productos. Solo aceptaba direcciones de internet, así que descartaba las fotos guardadas en la propia app (76 de 87 productos) y mostraba el icono gris aunque la imagen estuviera ahí",
+    "FIX: catalogo.html ya cuenta para el control de versiones. Al no estar en la lista, sus cambios no renovaban la caché y el teléfono seguía abriendo la copia antigua"
   ]
 }

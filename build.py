@@ -38,7 +38,13 @@ from pathlib import Path
 ROOT = Path(__file__).parent.resolve()
 
 # Archivos críticos cuyo cambio dispara una nueva versión
-CRITICAL_FILES = ['app.js', 'app.css', 'index.html', 'admin.html', 'sw.js']
+# catalogo.html se añadió en v62: sw.js lo cachea igual que index.html y
+# admin.html (está en su lista STATIC), pero no estaba aquí. Al no contar para
+# el hash, tocarlo no subía la versión, la clave de caché no cambiaba y el
+# service worker seguía sirviendo la copia vieja: cualquier arreglo del catálogo
+# se quedaba sin llegar a los teléfonos. Si un archivo lo cachea el SW, tiene
+# que estar en esta lista.
+CRITICAL_FILES = ['app.js', 'app.css', 'index.html', 'admin.html', 'sw.js', 'catalogo.html']
 
 # Archivo que guarda la versión y el hash
 VERSION_FILE = ROOT / 'version.json'
