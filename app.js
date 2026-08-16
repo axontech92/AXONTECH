@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 83;
+const APP_VERSION = 84;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 83;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v2.9';
+let _PUBLIC_VERSION_STR = 'v3.0';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '319426b3e94f97a3';
+let _LOCAL_BUILD_HASH = '408608b5dfd4473e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1286,6 +1286,13 @@ function timeAgo(dateString) {
   return diffDays+'d';
 }
 const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
+// v84: lo que cuenta el círculo rojo del encabezado. Antes usaba pendingCount(),
+// que cuenta TODOS los vales en estado 'pendiente' aunque el admin ya los
+// hubiera abierto: el número no bajaba nunca hasta confirmar o borrar el vale,
+// así que dejaba de avisar de nada y solo molestaba.
+// Ahora cuenta los que aún no se han visto. selectVale() marca seenByAdmin al
+// abrir un vale, así que el número baja solo a medida que se revisan.
+const sinVerCount = () => getVales().filter(v => v.status === 'pending' && !v.seenByAdmin).length;
 const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
 const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
 
@@ -3802,7 +3809,7 @@ function adminTab(tab) {
 //  BADGE
 // ══════════════════════════════════════════
 function updateAdminBadge() {
-  const n=pendingCount();
+  const n=sinVerCount();  // v84: solo los que el admin aún no ha abierto
   const b=document.getElementById('adminBadge');
   const ib=document.getElementById('inboxCountBadge');
   if(n>0){if(b){b.textContent=n;b.classList.add('show');}if(ib){ib.textContent=n;ib.style.display='inline-block';}}
@@ -5196,9 +5203,17 @@ function guardarRebajaAdmin() {
   showToast(val > 0 ? 'Rebaja aplicada ✓' : 'Rebaja quitada ✓');
 }
 
-function renderValeDetail() {
+// v84: dónde se está pintando el detalle. Normalmente el panel de la pestaña
+// Vales, pero cuando se abre desde el historial es el modal. Se guarda en una
+// variable porque los botones de acción del propio detalle (confirmar, revertir,
+// asignar…) vuelven a llamar a renderValeDetail() sin argumentos: si no se
+// recordara el destino, repintarían el panel de detrás y el modal se quedaría
+// con los datos viejos.
+let _valeDetailDestino = 'valeDetail';
+function renderValeDetail(destinoId) {
+  if (destinoId) _valeDetailDestino = destinoId;
   const v=getVales().find(x=>x.id===selectedValeId);
-  const c=document.getElementById('valeDetail');
+  const c=document.getElementById(_valeDetailDestino) || document.getElementById('valeDetail');
   if(!c) return;
   if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
   const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
@@ -7497,9 +7512,52 @@ function buildProdCard(p, cats, isAgotado) {
   </div>`;
 }
 
+// ── v84: buscador del apartado Stock ────────────────────────────────────────
+// Con casi cien productos, encontrar uno para reponerlo obligaba a recorrer la
+// lista entera o a acertar con la categoría. Busca por nombre y también por
+// descripción, que es donde suele estar el modelo o la marca.
+// Mientras se busca, el filtro por categoría se ignora a propósito: si escribes
+// "router" y no aparece porque tenías puesta otra categoría, el buscador parece
+// roto.
+let _stockBusqueda = '';
+function onBuscarStock() {
+  const inp = document.getElementById('stockBuscador');
+  _stockBusqueda = ((inp && inp.value) || '').trim().toLowerCase();
+  const btn = document.getElementById('stockBuscadorLimpiar');
+  if (btn) btn.style.display = _stockBusqueda ? 'block' : 'none';
+  renderProductGrid();
+}
+function limpiarBuscadorStock() {
+  const inp = document.getElementById('stockBuscador');
+  if (inp) inp.value = '';
+  _stockBusqueda = '';
+  const btn = document.getElementById('stockBuscadorLimpiar');
+  if (btn) btn.style.display = 'none';
+  renderProductGrid();
+  if (inp) inp.focus();
+}
+function _coincideBusquedaStock(p) {
+  if (!_stockBusqueda) return true;
+  const txt = ((p.name || '') + ' ' + (p.description || '')).toLowerCase();
+  // Todas las palabras deben aparecer, en cualquier orden: "router mikrotik"
+  // encuentra "Mikrotik hAP ax3 router".
+  return _stockBusqueda.split(/\s+/).filter(Boolean).every(w => txt.includes(w));
+}
+
 function renderProductGrid() {
   let prods=getProductos();
-  if(stockCatFilter!==null)prods=prods.filter(p=>p.catId===stockCatFilter);
+  // v84: al buscar se ignora la categoría elegida — ver el motivo arriba.
+  if (_stockBusqueda) prods = prods.filter(_coincideBusquedaStock);
+  else if(stockCatFilter!==null)prods=prods.filter(p=>p.catId===stockCatFilter);
+  {
+    const _info = document.getElementById('stockBuscadorInfo');
+    if (_info) {
+      _info.style.display = _stockBusqueda ? 'block' : 'none';
+      if (_stockBusqueda) _info.textContent = prods.length
+        ? (prods.length + (prods.length === 1 ? ' producto encontrado' : ' productos encontrados') + ' · se buscó en todas las categorías')
+        : 'Ningún producto coincide con “' + _stockBusqueda + '”';
+    }
+  }
   // v19: ordenar favoritos primero
   if (!IS_ADMIN && activeGestorId) {
     const favs = getGestorFavorites();
@@ -8998,6 +9056,34 @@ function buildCatalogCardJS(p,cat,color,waPhone){
 // ══════════════════════════════════════════
 //  PUBLISH CATALOG TO GITHUB PAGES
 // ══════════════════════════════════════════
+// ── v84: compartir el catálogo por WhatsApp ─────────────────────────────────
+// Hasta ahora el enlace solo aparecía después de pulsar "Generar / Publicar", así
+// que para pasárselo a un cliente había que publicar otra vez aunque el catálogo
+// ya estuviera en línea. La dirección es fija —depende del repo configurado—, así
+// que se puede construir sin tocar GitHub.
+function _urlCatalogo() {
+  const cfg = getConfig();
+  const partes = ((cfg && cfg.ghRepo) || '').split('/').filter(Boolean);
+  if (partes.length < 2) return null;
+  const owner = partes[0], repo = partes.slice(1).join('/');
+  return 'https://' + owner + '.github.io/' + repo + '/catalogo.html';
+}
+function compartirCatalogoWhatsApp() {
+  const url = _urlCatalogo();
+  if (!url) { showToast('Configura primero el repositorio en ⚙️ Config'); return; }
+  const texto = '🛍️ *Catálogo AXONTECH*\n\nMira aquí los productos disponibles y sus precios:\n' + url;
+  // wa.me sin número: WhatsApp pregunta a quién enviárselo, que es lo que se
+  // quiere — el enlace se manda a clientes distintos cada vez.
+  window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank');
+}
+function copiarLinkCatalogo() {
+  const url = _urlCatalogo();
+  if (!url) { showToast('Configura primero el repositorio en ⚙️ Config'); return; }
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('Enlace copiado ✓'))
+    .catch(() => showToast('No se pudo copiar: ' + url));
+}
+
 async function publishCatalogToGitHub(htmlContent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo){showToast('Configura GitHub primero en ⚙️ Config');return null;}
@@ -10337,9 +10423,21 @@ function renderHistorial() {
   c.innerHTML=html;
 }
 function selectValeFromHistorial(id) {
+  // v84: se abre aquí mismo en vez de saltar a la pestaña Vales, que obligaba a
+  // volver atrás para seguir repasando el historial.
   selectedValeId=id;
-  adminTab('vales');
-  setTimeout(()=>{renderValeDetail();},50);
+  const m = document.getElementById('valeHistorialModal');
+  if (!m) { adminTab('vales'); setTimeout(()=>{renderValeDetail();},50); return; }
+  m.classList.add('show');
+  renderValeDetail('valeHistorialDetalle');
+}
+function closeValeHistorialModal() {
+  const m = document.getElementById('valeHistorialModal');
+  if (m) m.classList.remove('show');
+  // Devolver el destino al panel de siempre, o la pestaña Vales dejaría de
+  // refrescarse al confirmar o revertir desde ella.
+  _valeDetailDestino = 'valeDetail';
+  if (typeof renderHistorial === 'function') renderHistorial();
 }
 
 // ══════════════════════════════════════════

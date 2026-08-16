@@ -1,10 +1,10 @@
 {
-  "version": 83,
-  "versionStr": "v2.9",
-  "build": 83,
-  "hash": "319426b3e94f97a3",
-  "hashFull": "319426b3e94f97a3",
-  "releasedAt": "2026-08-15 22:12",
+  "version": 84,
+  "versionStr": "v3.0",
+  "build": 84,
+  "hash": "408608b5dfd4473e",
+  "hashFull": "408608b5dfd4473e",
+  "releasedAt": "2026-08-16 14:26",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "FIX: las rebajas ya funcionan con precios mixtos ($230 USD + 2500 MN). Antes decía restar a mano porque no sabía separar las dos monedas",
-    "Al rebajar en USD ya no se toca la mensajería cobrada en MN: cada rebaja se descuenta de su moneda",
-    "ADMIN: los gestores se ordenan por comisión pendiente, de mayor a menor, para ver primero a quién hay que pagar",
-    "Si rebajas en una moneda que el vale no tiene, se avisa en vez de restarla de la otra"
+    "ADMIN: buscador en el apartado Stock. Busca por nombre y descripción, y mientras buscas ignora la categoría seleccionada para que no parezca que no encuentra nada",
+    "ADMIN: el círculo rojo con el número ya baja según vas abriendo los vales. Antes contaba todos los pendientes aunque los hubieras visto",
+    "ADMIN: en el historial, tocar un vale lo abre en una ventana ahí mismo, sin saltar a la sección de Vales ni tener que volver atrás",
+    "ADMIN: botón para enviar el catálogo por WhatsApp y otro para copiar el enlace, sin tener que publicar otra vez"
   ]
 }

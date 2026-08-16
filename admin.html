@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=83">
+  <link rel="stylesheet" href="./app.css?v=84">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v2.9</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.0</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -127,6 +127,17 @@
       </div>
     </div>
 
+    <!-- v84: buscador de productos. Con casi cien productos, encontrar uno para
+         reponerlo obligaba a recorrer la lista entera o a acertar la categoría. -->
+    <div style="position:relative;margin-bottom:10px;">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5;pointer-events:none;">🔎</span>
+      <input type="text" id="stockBuscador" placeholder="Buscar producto por nombre…" oninput="onBuscarStock()"
+             style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 34px;font-size:13px;color:var(--text);">
+      <button type="button" id="stockBuscadorLimpiar" onclick="limpiarBuscadorStock()" title="Limpiar"
+              style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray-400);font-size:16px;cursor:pointer;padding:4px 8px;">×</button>
+    </div>
+    <div id="stockBuscadorInfo" style="display:none;font-size:11px;color:var(--text-muted);margin:-4px 0 8px;"></div>
+
     <div id="categoriasList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
 
     <div id="catManagerPanel" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
@@ -142,6 +153,9 @@
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
       <div class="lbl" style="margin-top:0;">🛍️ Catálogo público</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <!-- v84: compartir sin tener que publicar de nuevo. El enlace es fijo. -->
+        <button class="btn btn-green btn-sm" onclick="compartirCatalogoWhatsApp()">📲 Enviar por WhatsApp</button>
+        <button class="btn btn-ghost btn-sm" onclick="copiarLinkCatalogo()" title="Copiar el enlace del catálogo">🔗 Copiar enlace</button>
         <button class="btn btn-blue btn-sm" onclick="shareCatalogWeb()">🔗 Generar / Publicar</button>
         <button class="btn btn-ghost btn-sm" onclick="publishCatalogNow()">☁️ Publicar ya</button>
         <button class="btn btn-ghost btn-sm" onclick="testGitHubPages()">🧪 Probar GitHub</button>
@@ -561,6 +575,23 @@
     <div class="modal-btns" style="margin-top:14px;">
       <button type="button" class="btn btn-ghost btn-full" onclick="closeRebajaAdminModal()">Cancelar</button>
       <button type="button" class="btn btn-blue btn-full" onclick="guardarRebajaAdmin()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Vale desde el historial (v84) ──
+     Antes, tocar un vale en el historial saltaba a la pestaña Vales y había que
+     volver atrás para seguir mirando el historial. Ahora se abre aquí mismo.
+     El contenido lo pinta renderValeDetail(), el mismo que la pestaña Vales, así
+     que los botones de acción funcionan igual y no hay una segunda versión del
+     detalle que mantener. -->
+<div class="modal-bg" id="valeHistorialModal">
+  <div class="modal" style="max-width:460px;width:94%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
+    <div style="flex:1;overflow-y:auto;padding:18px 18px 4px;">
+      <div id="valeHistorialDetalle"></div>
+    </div>
+    <div style="flex-shrink:0;padding:12px 18px 18px;border-top:1px solid var(--border);">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeValeHistorialModal()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -1171,7 +1202,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=83"></script>
+<script src="./app.js?v=84"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
