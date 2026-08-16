@@ -1,8 +1,8 @@
 // ── Versiones de la app y del SW (deben coincidir en cada release) ──
 // Sistema de versiones reiniciado a v3 — el banner superior muestra esta versión
 // y la app verifica automáticamente contra version.json si hay una versión mayor.
-const APP_VERSION  = '89';
-const CACHE = 'axontech-v89';
+const APP_VERSION  = '90';
+const CACHE = 'axontech-v90';
 const STATIC = [
   './', './index.html', './admin.html', './app.css', './app.js',
   './manifest.json', './productos.json', './version.json', './categorias.json',
@@ -11,6 +11,9 @@ const STATIC = [
   './iconos/icon-192-maskable.png', './iconos/icon-512-maskable.png', './iconos/icon-1024-maskable.png',
   './offline.html'
 ];
+// tasa.json queda FUERA de esta lista a propósito: cambia varias veces al día y
+// precargarlo aquí serviría siempre la copia de cuando se instaló la versión.
+// La app lo pide con ?t=<hora>, que se salta la caché.
 
 // ── Precarga perezosa de fotos ──
 // Las fotos NO se bajan en install() (podrían ser 850KB). En su lugar,

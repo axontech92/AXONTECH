@@ -1,0 +1,51 @@
+name: Tasa del dólar
+
+# Baja la tasa informal del USD y la deja en tasa.json, que la app lee de su
+# propia dirección. El rodeo por aquí no es capricho: el navegador del teléfono
+# no puede leer el contenido de otra web salvo que esa web lo autorice (CORS), y
+# las webs de tasas no lo autorizan. Este trabajo corre en un servidor de
+# GitHub, donde esa restricción no existe.
+on:
+  schedule:
+    # Cada 3 horas. El minuto 17 a propósito: en punto es cuando más trabajos
+    # programados se acumulan en GitHub y más se retrasan.
+    - cron: '17 */3 * * *'
+  workflow_dispatch:        # botón manual en la pestaña Actions
+
+permissions:
+  contents: write
+
+# Que dos ejecuciones no se pisen escribiendo el mismo archivo.
+concurrency:
+  group: tasa-usd
+  cancel-in-progress: false
+
+jobs:
+  tasa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Buscar la tasa
+        env:
+          # Opcional: si algún día se pide clave a elToque, se guarda en
+          # Settings → Secrets → Actions con este nombre. Sin ella el script se
+          # salta la API oficial y prueba los espejos públicos.
+          ELTOQUE_API_KEY: ${{ secrets.ELTOQUE_API_KEY }}
+          TASA_URL_EXTRA: ${{ vars.TASA_URL_EXTRA }}
+        run: python3 tasa_usd.py
+
+      - name: Publicar si cambió
+        run: |
+          if [ -z "$(git status --porcelain tasa.json)" ]; then
+            echo "La tasa no cambió (o no se pudo leer) — no se sube nada."
+            exit 0
+          fi
+          VALOR=$(python3 -c "import json;print(json.load(open('tasa.json'))['valor'])")
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tasa.json
+          git commit -m "tasa: ${VALOR} CUP por USD"
+          git push
+          echo "Publicada la tasa ${VALOR}."

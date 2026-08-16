@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=89">
+  <link rel="stylesheet" href="./app.css?v=90">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.5</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.6</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -329,6 +329,13 @@
     <div class="lbl">💵 Tasa del dólar (elToque)</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
       <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <label style="font-size:12px;font-weight:600;">Sumar a la tasa:</label>
+          <input type="number" id="cfg-tasa-margen" placeholder="Ej: 10" style="width:110px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
+          <button class="btn btn-blue btn-sm" onclick="saveTasaMargenCfg()">Aplicar</button>
+          <span id="tasaMargenStatus" style="font-size:11px;"></span>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);margin:0;">Si elToque marca 665 y pones 10, todos los gestores ven 675. Puede ser negativo.</p>
         <input type="password" id="cfg-tasa-key" placeholder="Clave de la API de elToque (opcional)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;" autocomplete="off">
         <input type="text" id="cfg-tasa-url" placeholder="Otra dirección que devuelva la tasa en JSON (opcional)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -1245,7 +1252,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=89"></script>
+<script src="./app.js?v=90"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

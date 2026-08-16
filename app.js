@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 89;
+const APP_VERSION = 90;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 89;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.5';
+let _PUBLIC_VERSION_STR = 'v3.6';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '3abb9630e6ff1e8a';
+let _LOCAL_BUILD_HASH = 'af87e1b78b8e425a';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -9821,6 +9821,27 @@ function loadGhConfigUI() {
   const tUrl=document.getElementById('cfg-tasa-url');
   if(tKey)tKey.value=tasaApiKey();
   if(tUrl)tUrl.value=cfg.tasaUrl||'';
+  const tMar=document.getElementById('cfg-tasa-margen');
+  if(tMar)tMar.value=tasaMargen()||'';
+  _pintarEstadoMargen();
+}
+function _pintarEstadoMargen() {
+  const st=document.getElementById('tasaMargenStatus');
+  if(!st) return;
+  const t=tasaUSD(), m=tasaMargen();
+  if(!t){ st.innerHTML='<span style="color:var(--gray-400);">Aún sin tasa</span>'; return; }
+  st.innerHTML=m
+    ? `<span style="color:var(--green);">${t.valor} ${m>0?'+':'−'} ${Math.abs(m)} = <b>${tasaUSDFinal()}</b></span>`
+    : `<span style="color:var(--gray-400);">Se ve tal cual: ${t.valor}</span>`;
+}
+// El margen se puede tocar desde dos sitios (Config y el modal del chip), pero
+// la regla —validar y guardar— vive en guardarTasaMargen() y nada más. Aquí solo
+// se le pasa el número del campo de Config.
+function saveTasaMargenCfg() {
+  const inp=document.getElementById('cfg-tasa-margen');
+  // Campo vacío = sin ajuste, no "usa lo que hubiera".
+  guardarTasaMargen(inp && inp.value !== '' ? inp.value : 0);
+  _pintarEstadoMargen();
 }
 // v89: guarda de dónde sacar la tasa y prueba en el momento, para no dejar al
 // admin sin saber si lo que acaba de pegar sirve o no.
@@ -11884,6 +11905,29 @@ function tasaUSD() {
   return local || compartida || null;
 }
 
+const _tasaValida = n => (typeof n === 'number' && isFinite(n) && n >= TASA_MIN && n <= TASA_MAX) ? n : null;
+
+// v90: el admin puede sumarle unos CUP a la tasa real. Si elToque marca 665 y el
+// margen es +10, todo el mundo ve 675 — que es a lo que de verdad se vende.
+// El margen se guarda en el config sincronizado, así que se pone una vez y todos
+// los teléfonos calculan el mismo número, sin depender de que el admin tenga la
+// app abierta cuando cambie la tasa.
+function tasaMargen() {
+  const cfg = getConfig() || {};
+  const n = parseFloat(cfg.tasaMargen);
+  return isFinite(n) ? n : 0;
+}
+// El número que se enseña. La tasa base se guarda SIEMPRE limpia, tal cual vino
+// de la fuente, y el margen se suma al mostrarla: si se guardara ya sumado,
+// cambiar el margen obligaría a rehacer la cuenta sobre un número ya tocado y
+// al segundo cambio nadie sabría cuál era el original.
+function tasaUSDFinal() {
+  const t = tasaUSD();
+  if (!t) return null;
+  const v = Math.round((t.valor + tasaMargen()) * 100) / 100;
+  return v > 0 ? v : null;
+}
+
 function _tasaFechaTxt(ts) {
   if (!ts) return 'sin fecha';
   const d = new Date(ts), min = Math.round((Date.now() - ts) / 60000);
@@ -11897,19 +11941,20 @@ function renderTasaBadge() {
   if (!b) return;
   const val = document.getElementById('tasaUSDValor');
   const t = tasaUSD();
+  const fin = tasaUSDFinal();
   b.style.display = 'inline-flex';
-  if (!t) {
+  if (!t || fin === null) {
     if (val) val.textContent = '—';
     b.title = 'Tasa del dólar · toca para actualizarla o escribirla a mano';
     b.style.borderColor = 'rgba(255,255,255,.15)';
     return;
   }
-  if (val) val.textContent = String(t.valor);
+  if (val) val.textContent = String(fin);
   const vieja = (Date.now() - (t.ts || 0)) > TASA_VIEJA_MS;
   // Naranja = el dato tiene más de un día. No se esconde: un valor viejo con su
   // fecha es más útil que un guion, siempre que se vea que es viejo.
   b.style.borderColor = vieja ? 'rgba(245,158,11,.65)' : 'rgba(255,255,255,.15)';
-  b.title = `1 USD = ${t.valor} CUP · ${_tasaFechaTxt(t.ts)} · ${t.fuente}${vieja ? ' · dato de más de un día' : ''}`;
+  b.title = `1 USD = ${fin} CUP · ${_tasaFechaTxt(t.ts)} · ${t.fuente}${vieja ? ' · dato de más de un día' : ''}`;
 }
 
 // Guarda el valor y, si es el admin, lo comparte con todos por el config que ya
@@ -11977,6 +12022,16 @@ function _tasaFuentes() {
   const cfg = getConfig() || {};
   const hoy = new Date().toISOString().slice(0, 10);
   const lista = [];
+  // 0) tasa.json, en el propio servidor de la app. Lo deja ahí GitHub Actions
+  //    cada pocas horas (.github/workflows/tasa-usd.yml). Es la vía buena: al
+  //    ser la misma dirección de la app no hay permiso de CORS que pedir, no
+  //    hace falta clave y funciona desde cualquier teléfono. Las de abajo son
+  //    la reserva por si el trabajo programado deja de ejecutarse.
+  //    El ?t= es para saltarse la caché del service worker, igual que version.json.
+  lista.push({
+    url: './tasa.json?t=' + Date.now(), opts: {}, nombre: 'elToque',
+    leer: j => j && j.valor, fuenteDe: j => (j && j.fuente) || 'elToque'
+  });
   // 1) La que ponga el admin en Config, por si el día de mañana hay que cambiar
   //    de sitio sin tocar el código.
   if (cfg.tasaUrl) lista.push({ url: cfg.tasaUrl, opts: {}, nombre: 'propia' });
@@ -12012,8 +12067,17 @@ async function actualizarTasaUSD(manual) {
         try { r = await fetch(f.url, { ...f.opts, signal: ctrl.signal, cache: 'no-store' }); }
         finally { clearTimeout(to); }
         if (!r || !r.ok) continue;
-        const valor = _extraerTasaUSD(await r.json());
-        if (valor) { const o = _aplicarTasa(valor, f.nombre); if (manual) showToast(`Tasa actualizada: ${o.valor} CUP 💵`); return o; }
+        const j = await r.json();
+        // Las fuentes con formato propio (tasa.json) traen su lector; para el
+        // resto se busca el número a ciegas. En los dos casos pasa por el mismo
+        // control de rango: un valor absurdo no llega al chip.
+        const bruto = (f.leer ? f.leer(j) : null);
+        const valor = _tasaValida(bruto) || _extraerTasaUSD(j);
+        if (valor) {
+          const o = _aplicarTasa(valor, (f.fuenteDe ? f.fuenteDe(j) : f.nombre));
+          if (manual) showToast(`Tasa actualizada: ${tasaUSDFinal()} CUP 💵`);
+          return o;
+        }
       } catch(e) { /* fuente caída o bloqueada — se prueba la siguiente */ }
     }
     if (manual) showToast('No se pudo leer la tasa · ponla a mano');
@@ -12043,28 +12107,56 @@ function renderTasaModal() {
   const c = document.getElementById('tasaModalBody');
   if (!c) return;
   const t = tasaUSD();
+  const fin = tasaUSDFinal();
+  const margen = tasaMargen();
   const esAdmin = (typeof IS_ADMIN !== 'undefined' && IS_ADMIN);
   const vieja = t && (Date.now() - (t.ts || 0)) > TASA_VIEJA_MS;
+  // El desglose (tasa real + margen) solo lo ve el admin: al gestor le sirve el
+  // número al que vende, y meterle dos cifras solo invita a equivocarse.
+  const desglose = (esAdmin && t && margen) ? `
+      <div style="font-size:11px;color:var(--gray-400);margin-top:6px;border-top:1px dashed var(--border);padding-top:6px;">
+        elToque: <b>${escapeHTML(String(t.valor))}</b> · tu ajuste: <b style="color:${margen > 0 ? 'var(--green)' : 'var(--orange)'};">${margen > 0 ? '+' : ''}${escapeHTML(String(margen))}</b>
+      </div>` : '';
   c.innerHTML = `
     <div class="modal-title">💵 Tasa del dólar</div>
     <div class="modal-sub">Mercado informal · elToque</div>
     <div style="text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;">
-      <div style="font-size:30px;font-weight:800;color:var(--blue);line-height:1.1;">${t ? escapeHTML(String(t.valor)) : '—'}</div>
+      <div style="font-size:30px;font-weight:800;color:var(--blue);line-height:1.1;">${fin !== null ? escapeHTML(String(fin)) : '—'}</div>
       <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">CUP por 1 USD</div>
       <div style="font-size:11px;color:${vieja ? 'var(--orange)' : 'var(--gray-400)'};margin-top:6px;font-weight:${vieja ? '700' : '400'};">
         ${t ? `${escapeHTML(_tasaFechaTxt(t.ts))} · ${escapeHTML(t.fuente || '')}` : 'Todavía sin dato'}
         ${vieja ? '<br>⚠️ Tiene más de un día' : ''}
       </div>
+      ${desglose}
     </div>
     <button class="btn btn-blue btn-full" onclick="actualizarTasaUSD(true)" ${_tasaBuscando ? 'disabled' : ''}>${_tasaBuscando ? '⏳ Buscando…' : '🔄 Actualizar ahora'}</button>
     ${esAdmin ? `
-    <div class="lbl" style="margin:12px 0 4px;">Ponerla a mano</div>
+    <div class="lbl" style="margin:12px 0 4px;">Sumar a la tasa (lo que ven los gestores)</div>
+    <div style="display:flex;gap:6px;">
+      <input type="number" inputmode="decimal" id="tasaMargenInput" value="${escapeHTML(String(margen))}" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px;color:var(--text);">
+      <button class="btn btn-blue" onclick="guardarTasaMargen()">Aplicar</button>
+    </div>
+    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Ejemplo: si elToque marca 665 y pones 10, todos verán 675.</div>
+    <div class="lbl" style="margin:12px 0 4px;">Poner la tasa a mano</div>
     <div style="display:flex;gap:6px;">
       <input type="number" inputmode="decimal" id="tasaManualInput" placeholder="${t ? escapeHTML(String(t.valor)) : 'Ej: 440'}" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px;color:var(--text);">
       <button class="btn btn-green" onclick="guardarTasaManual()">Guardar</button>
     </div>
-    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Lo que guardes aquí lo ven todos los gestores.</div>` : ''}
+    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Escribe aquí la tasa <b>sin</b> el ajuste — el ajuste se le suma después.</div>` : ''}
     <button class="btn btn-ghost btn-full" style="margin-top:12px;" onclick="closeTasaModal()">Cerrar</button>`;
+}
+// `valor` viene del campo de Config; sin argumento se lee el del modal.
+function guardarTasaMargen(valor) {
+  const inp = document.getElementById('tasaMargenInput');
+  const bruto = (valor === undefined || valor === null || valor === '') ? (inp && inp.value || '0') : valor;
+  const n = parseFloat(String(bruto).replace(',', '.'));
+  if (!isFinite(n)) { showToast('Pon un número (puede ser negativo)'); return; }
+  const t = tasaUSD();
+  if (t && (t.valor + n) <= 0) { showToast('Con ese ajuste la tasa quedaría en cero o menos'); return; }
+  const cfg = getConfig() || {};
+  saveConfig({ ...cfg, tasaMargen: n });
+  renderTasaBadge(); renderTasaModal();
+  showToast(n ? `Los gestores verán ${tasaUSDFinal()} CUP ✓` : 'Ajuste quitado ✓');
 }
 function guardarTasaManual() {
   const inp = document.getElementById('tasaManualInput');
@@ -12072,7 +12164,7 @@ function guardarTasaManual() {
   if (!isFinite(n) || n < TASA_MIN || n > TASA_MAX) { showToast(`Pon un número entre ${TASA_MIN} y ${TASA_MAX}`); return; }
   _aplicarTasa(n, 'a mano');
   renderTasaModal();
-  showToast('Tasa guardada ✓');
+  showToast(tasaMargen() ? `Guardada · los gestores verán ${tasaUSDFinal()} ✓` : 'Tasa guardada ✓');
 }
 
 function initGestorPage() {

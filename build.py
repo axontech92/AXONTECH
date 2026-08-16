@@ -45,6 +45,9 @@ ROOT = Path(__file__).parent.resolve()
 # se quedaba sin llegar a los teléfonos. Si un archivo lo cachea el SW, tiene
 # que estar en esta lista.
 CRITICAL_FILES = ['app.js', 'app.css', 'index.html', 'admin.html', 'sw.js', 'catalogo.html']
+# Ojo: tasa.json NO va aquí. Lo reescribe un trabajo programado varias veces al
+# día y meterlo en la lista publicaría una versión nueva cada vez, obligando a
+# todos los teléfonos a rebajar la app entera por un número que cambió.
 
 # Archivo que guarda la versión y el hash
 VERSION_FILE = ROOT / 'version.json'
