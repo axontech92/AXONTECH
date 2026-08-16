@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=84">
+  <link rel="stylesheet" href="./app.css?v=85">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.0</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.1</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -604,7 +604,11 @@
     <select id="mensajeroSelect" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;margin-bottom:10px;"></select>
     <div class="lbl" style="margin:6px 0;">Vista previa del mensaje:</div>
     <pre id="shareValePreview" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;white-space:pre-wrap;font-family:'Courier New',monospace;max-height:240px;overflow-y:auto;margin-bottom:10px;"></pre>
-    <div class="modal-btns">
+    <!-- v85: "Asignar" a secas. Los otros dos botones asignan y además copian el
+         texto o abren WhatsApp, que estorba cuando al mensajero ya se le avisó
+         por otra vía y solo falta dejarlo registrado. -->
+    <button class="btn btn-green btn-full" style="margin-top:10px;font-size:14px;padding:12px;" onclick="asignarMensajeroSinMas()">✅ Asignar y listo</button>
+    <div class="modal-btns" style="margin-top:8px;">
       <button class="btn btn-ghost btn-full" onclick="closeShareModal()">Cancelar</button>
       <button class="btn btn-wa btn-full" onclick="shareViaWA()">💬 WhatsApp</button>
       <button class="btn btn-blue btn-full" onclick="copyAndAssign()">📋 Copiar y asignar</button>
@@ -1202,7 +1206,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=84"></script>
+<script src="./app.js?v=85"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

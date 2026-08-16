@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 84;
+const APP_VERSION = 85;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 84;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.0';
+let _PUBLIC_VERSION_STR = 'v3.1';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '408608b5dfd4473e';
+let _LOCAL_BUILD_HASH = 'd96739bd46cf65ad';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4932,7 +4932,17 @@ function renderAdminGestores() {
            <span>${escapeHTML(g.name)}</span>
          </div>
          <div style="display:flex;align-items:center;gap:12px;">
-           ${pendingVales.length > 0 ? `<span style="background:var(--red);color:white;border-radius:12px;padding:3px 9px;font-size:11px;">${pendingVales.length}</span>` : ''}
+           ${(() => {
+             // v85: el número rojo contaba TODOS los vales activos del gestor,
+             // vistos o no, así que no bajaba nunca y no servía para saber si
+             // había entrado algo nuevo. Ahora el rojo son los que faltan por
+             // mirar; si no queda ninguno, se enseña el total en gris — sigue
+             // haciendo falta ver cuántos hay en curso, pero sin alarma.
+             const _sinVer = pendingVales.filter(x => x.status === 'pending' && !x.seenByAdmin).length;
+             if (_sinVer > 0) return `<span style="background:var(--red);color:white;border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;">${_sinVer} nuevo${_sinVer > 1 ? 's' : ''}</span>`;
+             if (pendingVales.length > 0) return `<span style="background:var(--surface3);color:var(--text-muted);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:600;">${pendingVales.length} en curso</span>`;
+             return '';
+           })()}
            <span style="color:var(--gray-400);font-size:12px;">${isOpen ? '▲' : '▼'}</span>
          </div>
       </div>`;
@@ -5635,6 +5645,26 @@ function shareViaWA() {
   }
 }
 function closeShareModal(){document.getElementById('shareModal').classList.remove('show');shareTargetId=null;}
+// v85: asignar y punto. copyAndAssign() copia el texto, asigna y además abre
+// WhatsApp: útil cuando hay que mandarle el vale al mensajero, un estorbo cuando
+// ya se le ha dicho por otra vía y solo falta dejarlo registrado.
+function asignarMensajeroSinMas() {
+  if (!shareTargetId) return;
+  const mId = parseInt(document.getElementById('mensajeroSelect').value);
+  if (!mId || isNaN(mId)) { showToast('Elige un mensajero'); return; }
+  const m = mensajeroOf(mId);
+  const vAsign = getVales().find(x => x.id === shareTargetId);
+  patchVale(shareTargetId, {status:'assigned', mensajeroId:mId});
+  if (vAsign) addNotif('vale_assigned', vAsign.cliente||'Tu cliente', null, m?m.name:'', vAsign.gestorId, 'vale_assigned:'+shareTargetId);
+  closeShareModal();
+  selectedValeId = shareTargetId;
+  renderAdminGestores(); renderValeDetail(); renderMyVales();
+  renderConfirmados(); renderPendienteCobro();
+  updateMensajeroBadge();
+  maybeAutoSync();
+  showToast('Asignado a ' + (m ? m.name : 'mensajero') + ' ✓');
+}
+
 function copyAndAssign() {
   if(!shareTargetId)return;
   const mId=parseInt(document.getElementById('mensajeroSelect').value);
@@ -9062,6 +9092,15 @@ function buildCatalogCardJS(p,cat,color,waPhone){
 // ya estuviera en línea. La dirección es fija —depende del repo configurado—, así
 // que se puede construir sin tocar GitHub.
 function _urlCatalogo() {
+  // v85: se deduce de dónde está corriendo la app. Si estás usando el panel en
+  // https://…/AXONTECH/admin.html, el catálogo es …/AXONTECH/catalogo.html —
+  // compartir un enlace no tiene por qué exigir configurar GitHub, que era lo
+  // que pasaba antes.
+  try {
+    const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+    if (/^https?:/i.test(base)) return base + 'catalogo.html';
+  } catch(e) {}
+  // Solo si la app se abrió desde un archivo local (file://) hace falta el repo.
   const cfg = getConfig();
   const partes = ((cfg && cfg.ghRepo) || '').split('/').filter(Boolean);
   if (partes.length < 2) return null;
@@ -9070,7 +9109,7 @@ function _urlCatalogo() {
 }
 function compartirCatalogoWhatsApp() {
   const url = _urlCatalogo();
-  if (!url) { showToast('Configura primero el repositorio en ⚙️ Config'); return; }
+  if (!url) { showToast('No se pudo formar el enlace: abre el panel desde su dirección web'); return; }
   const texto = '🛍️ *Catálogo AXONTECH*\n\nMira aquí los productos disponibles y sus precios:\n' + url;
   // wa.me sin número: WhatsApp pregunta a quién enviárselo, que es lo que se
   // quiere — el enlace se manda a clientes distintos cada vez.
@@ -9078,7 +9117,7 @@ function compartirCatalogoWhatsApp() {
 }
 function copiarLinkCatalogo() {
   const url = _urlCatalogo();
-  if (!url) { showToast('Configura primero el repositorio en ⚙️ Config'); return; }
+  if (!url) { showToast('No se pudo formar el enlace: abre el panel desde su dirección web'); return; }
   navigator.clipboard.writeText(url)
     .then(() => showToast('Enlace copiado ✓'))
     .catch(() => showToast('No se pudo copiar: ' + url));
