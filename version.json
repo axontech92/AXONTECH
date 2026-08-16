@@ -1,10 +1,10 @@
 {
-  "version": 90,
-  "versionStr": "v3.6",
-  "build": 90,
-  "hash": "af87e1b78b8e425a",
-  "hashFull": "af87e1b78b8e425a",
-  "releasedAt": "2026-08-16 19:40",
+  "version": 91,
+  "versionStr": "v3.7",
+  "build": 91,
+  "hash": "06c79ae0602f4f36",
+  "hashFull": "06c79ae0602f4f36",
+  "releasedAt": "2026-08-16 19:47",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,7 @@
     "catalogo.html"
   ],
   "changelog": [
-    "La tasa del dólar ahora la baja un trabajo automático de GitHub cada 3 horas y la deja en el propio servidor de la app: ya no depende de que el teléfono pueda entrar en la web de tasas",
-    "ADMIN: nuevo ajuste en Config para sumarle CUP a la tasa. Si elToque marca 665 y pones 10, todos los gestores ven 675 — el admin sigue viendo el desglose",
-    "El ajuste se guarda aparte de la tasa real, así que cambiarlo no estropea el valor original ni obliga a rehacer cuentas"
+    "ARREGLO: el chip de la tasa no se repintaba cuando llegaba el margen del admin, así que en el móvil del gestor seguía saliendo la tasa sin el ajuste. Ahora se redibuja en cuanto entra la configuración nueva",
+    "El chip también se refresca solo cada minuto, para que la antigüedad del dato no se quede parada"
   ]
 }

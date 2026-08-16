@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 90;
+const APP_VERSION = 91;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 90;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.6';
+let _PUBLIC_VERSION_STR = 'v3.7';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'af87e1b78b8e425a';
+let _LOCAL_BUILD_HASH = '06c79ae0602f4f36';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1042,7 +1042,15 @@ async function _doRestPoll() {
           _syncCount++;
           try {
             _safeSetLS('axon_'+node, JSON.stringify(val)); // v65: idem — fallo de guardado visible
-            if(node==='config'){_configCache=val;_configDirty=false;}
+            if(node==='config'){
+              _configCache=val;_configDirty=false;
+              // v91: el chip de la tasa depende del config (ahí viaja el margen
+              // que pone el admin). Si no se repinta aquí, el margen llega al
+              // teléfono pero el número de arriba sigue siendo el de antes:
+              // refreshUI() solo redibuja cuando cambian los VALES, y un cambio
+              // de config a secas no lo despertaba.
+              if (typeof renderTasaBadge === 'function') { try { renderTasaBadge(); renderTasaModal(); } catch(e) {} }
+            }
             else if(node==='notifs'){
               // v43: merge local + remoto en vez de reemplazo ciego (evita pérdida
               // de notificaciones cuando varios dispositivos escriben el singleton)
@@ -12173,6 +12181,9 @@ function initGestorPage() {
   // the timeAgo labels every 60s (cheap and useful).
   setInterval(() => {
     if (typeof renderGestorNotifs === 'function') renderGestorNotifs();
+    // v91: de paso el chip de la tasa, para que la antigüedad y el margen del
+    // admin se reflejen aunque no pase nada más en la pantalla.
+    if (typeof renderTasaBadge === 'function') renderTasaBadge();
   }, 60000);
   renderGestores();
   renderGestorNotifs();
