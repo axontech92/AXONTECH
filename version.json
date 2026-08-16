@@ -1,10 +1,10 @@
 {
-  "version": 87,
-  "versionStr": "v3.3",
-  "build": 87,
-  "hash": "38a5cea70047b6cd",
-  "hashFull": "38a5cea70047b6cd",
-  "releasedAt": "2026-08-16 15:06",
+  "version": 88,
+  "versionStr": "v3.4",
+  "build": 88,
+  "hash": "d8682e525dc0f33f",
+  "hashFull": "d8682e525dc0f33f",
+  "releasedAt": "2026-08-16 15:45",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ADMIN: al tocar un mensajero sus entregas se abren en una ventana, con los mismos botones de Entregado, Pagado y WhatsApp. Antes se pintaban al final de la página y había que bajar y volver a subir para pasar a otro mensajero",
-    "La ventana enseña arriba a quién pertenece y cuántas entregas lleva, y el número baja solo según vas marcando",
-    "Los vales ya cobrados se recortan a los últimos 15 para que las entregas pendientes no queden sepultadas"
+    "Si el vale es RECOGIDA EN TIENDA ya no aparece el botón de asignar mensajero: no hay nada que repartir. En su lugar sale un aviso de que se entrega en el mostrador",
+    "MENSAJEROS: al marcar Entregado el vale se queda donde estaba, con la chapa naranja de Pendiente de cobro y el botón para confirmar el cobro ahí mismo. Antes bajaba a otra sección",
+    "MENSAJEROS: en la lista, el globo azul 🛵 son los vales que lleva encima sin entregar y el naranja ⏳ los que entregó y aún no ha pagado"
   ]
 }

@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 87;
+const APP_VERSION = 88;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 87;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.3';
+let _PUBLIC_VERSION_STR = 'v3.4';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '38a5cea70047b6cd';
+let _LOCAL_BUILD_HASH = 'd8682e525dc0f33f';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4548,71 +4548,61 @@ function renderMensajeroVales() {
     if(_sub) _sub.textContent='';
     c.innerHTML='<div class="es"><div class="es-icon">🛵</div><div class="es-text">Selecciona un mensajero para ver sus entregas</div></div>';return;
   }
-  const porEntregar=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='assigned').reverse();
-  const entregados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='delivered').reverse();
-  const pendientesCobro=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='pending_payment').reverse();
+  // v88: un vale entregado pero sin cobrar SIGUE siendo trabajo del mensajero,
+  // así que se queda en la misma lista de arriba con la chapa de pendiente en
+  // vez de bajar a otra sección. Como el orden es por fecha del vale (que no
+  // cambia al entregarlo), la tarjeta ni se mueve de sitio: solo cambia su
+  // chapa y su botón.
+  // 'delivered' es un estado heredado que ya ningún flujo produce, pero queda en
+  // datos antiguos — entra aquí también para que no se pierda de vista.
+  const _ES_ACTIVO={assigned:1,delivered:1,pending_payment:1};
+  const activos=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&_ES_ACTIVO[v.status]).reverse();
   const confirmados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed').reverse();
+  const nPorEntregar=activos.filter(v=>v.status==='assigned').length;
+  const nPorCobrar=activos.length-nPorEntregar;
   // La cabecera se repinta en cada render, así que al marcar una entrega el
-  // número de arriba baja solo.
+  // número de arriba se mueve solo.
   const _m=mensajeroOf(activeMensajeroId);
   if(_tit) _tit.textContent='🛵 '+((_m&&_m.name)||'Mensajero');
   if(_sub){
     const partes=[];
-    if(porEntregar.length) partes.push(`${porEntregar.length} por entregar`);
-    if(entregados.length) partes.push(`${entregados.length} entregado${entregados.length!==1?'s':''}`);
-    if(pendientesCobro.length) partes.push(`${pendientesCobro.length} pend. cobro`);
+    if(nPorEntregar) partes.push(`${nPorEntregar} por entregar`);
+    if(nPorCobrar) partes.push(`${nPorCobrar} por cobrar`);
     if(!partes.length) partes.push('Sin entregas activas');
     _sub.textContent=partes.join(' · ')+((_m&&_m.phone)?' · 📱 '+_m.phone:'');
   }
   let html='';
-  if(!porEntregar.length&&!entregados.length&&!pendientesCobro.length&&!confirmados.length){
+  if(!activos.length&&!confirmados.length){
     html='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin entregas asignadas</div></div>';
   } else {
-    if(porEntregar.length){
-      html+='<div class="lbl" style="margin-top:0;">Por entregar</div>';
-      html+=porEntregar.map(v=>{
+    if(activos.length){
+      html+='<div class="lbl" style="margin-top:0;">En curso</div>';
+      html+=activos.map(v=>{
         const g=gestorOf(v.gestorId);
         const m = v.mensajeroId ? mensajeroOf(v.mensajeroId) : null;
-        const waBtn = (m && m.phone)
+        const porEntregar = v.status==='assigned';
+        const chapa = porEntregar
+          ? '<span class="sp-assigned" style="font-size:9px;padding:2px 6px;">🛵 Asignado</span>'
+          : '<span style="color:var(--orange);font-size:10px;font-weight:700;">⏳ Pendiente de cobro</span>';
+        // Ya entregado: lo único que falta es el dinero, así que un solo botón.
+        const acciones = porEntregar
+          ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+            <button class="btn btn-green btn-sm btn-full" onclick="mensajeroEntrega(${v.id})">📦 Entregado</button>
+            <button class="btn btn-green btn-sm btn-full" style="background:#2563EB;color:white;" onclick="mensajeroPagadoDirecto(${v.id})">💰 Pagado</button>
+          </div>`
+          : `<button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Cobrado — confirmar venta</button>`;
+        const waBtn = (porEntregar && m && m.phone)
           ? `<button class="btn btn-sm btn-full" style="background:#25D366;color:white;margin-top:4px;" onclick="openMensajeroWhatsApp(${m.id}, buildShareText(getVales().find(x=>x.id===${v.id}), mensajeroOf(${v.mensajeroId})))">💬 WhatsApp al mensajero</button>`
           : '';
-        return `<div class="mv-card st-assigned">
-          <div class="mv-head"><span class="mv-time">${timeStr(v.ts)}</span><span class="sp-assigned" style="font-size:9px;padding:2px 6px;">🛵 Asignado</span></div>
+        return `<div class="mv-card ${porEntregar?'st-assigned':'st-pending_payment'}">
+          <div class="mv-head"><span class="mv-time">${timeStr(porEntregar?v.ts:(v.deliveredTs||v.ts))}</span>${chapa}</div>
           <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.telefono||'—')}</div>
           <div style="font-size:11px;color:var(--gray-400);">📍 ${escapeHTML(v.direccion||'Sin dirección')}</div>
           <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${escapeHTML(v.total||'—')}${v.vuelto?` · Vuelto: ${escapeHTML(v.vuelto)}`:''}</div>
           ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
           <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
-            <button class="btn btn-green btn-sm btn-full" onclick="mensajeroEntrega(${v.id})">📦 Entregado</button>
-            <button class="btn btn-green btn-sm btn-full" style="background:#2563EB;color:white;" onclick="mensajeroPagadoDirecto(${v.id})">💰 Pagado</button>
-          </div>
+          ${acciones}
           ${waBtn}
-        </div>`;
-      }).join('');
-    }
-    if(entregados.length){
-      html+='<div class="lbl" style="margin-top:16px;">Entregados · esperando cobro</div>';
-      html+=entregados.map(v=>{
-        const g=gestorOf(v.gestorId);
-        return `<div class="mv-card st-delivered">
-          <div class="mv-head"><span class="mv-time">${timeStr(v.deliveredTs||v.ts)}</span><span class="sp-delivered" style="font-size:9px;padding:2px 6px;">📦 Entregado</span></div>
-          <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.total||'—')}</div>
-          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
-          <button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Marcar como Pagado</button>
-        </div>`;
-      }).join('');
-    }
-    if(pendientesCobro.length){
-      html+='<div class="lbl" style="margin-top:16px;">Pendientes de cobro</div>';
-      html+=pendientesCobro.map(v=>{
-        const g=gestorOf(v.gestorId);
-        return `<div class="mv-card st-pending_payment">
-          <div class="mv-head"><span class="mv-time">${timeStr(v.ts)}</span><span style="color:var(--orange);font-size:10px;font-weight:700;">⏳ Pend. cobro</span></div>
-          <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.total||'—')}</div>
-          ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
-          <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
-          <button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Marcar como Pagado</button>
         </div>`;
       }).join('');
     }
@@ -5061,6 +5051,11 @@ function openShareModal(valeId) {
   shareTargetId=valeId;
   const v=getVales().find(x=>x.id===valeId);
   if(!v){showToast('Vale no encontrado');return;}
+  // v88: el botón ya no se enseña en las recogidas en tienda, pero el freno va
+  // aquí también: un teléfono con la versión anterior en caché lo seguiría
+  // enseñando, y asignar un mensajero a una recogida deja el vale esperando una
+  // entrega que nunca va a existir.
+  if(v.recogidaTienda&&v.status==='pending'){showToast('Recogida en tienda — no lleva mensajero 🏬');return;}
   const g=gestorOf(v.gestorId);
   document.getElementById('shareModalSub').textContent=`Vale de ${g?g.name:'—'} · ${v.cliente||'cliente'}`;
   const sel=document.getElementById('mensajeroSelect');
@@ -5288,8 +5283,17 @@ function renderValeDetail(destinoId) {
       <div style="font-size:10px;color:var(--green);font-weight:700;">✅ Productos vinculados: ${(v.valeProductos||[]).map(p=>`${escapeHTML(p.name)}${p.qty>1?' ×'+p.qty:''}`).join(', ')}</div>
     </div>`:'');
   if(v.status==='pending'){
-    actHTML=`${productPickerHTML}<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
-    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>
+    // v88: si el cliente recoge en la tienda no hay nada que repartir, así que
+    // el botón de mensajero estorba y se presta a asignar por error. En su
+    // lugar se recuerda de qué tipo de venta se trata.
+    const _cabecera = v.recogidaTienda
+      ? `<div style="background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;padding:10px;text-align:center;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:var(--blue);">🏬 Recogida en tienda</div>
+        <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">No lleva mensajero — se entrega en el mostrador</div>
+      </div>`
+      : `<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
+    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>`;
+    actHTML=`${productPickerHTML}${_cabecera}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
       <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
       <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
@@ -5978,28 +5982,38 @@ function renderMensajeros() {
   if(!c) return;
   // v86: cuántas entregas lleva cada uno ahora mismo. Se cuenta de una pasada
   // para todos, en vez de recorrer los vales otra vez dentro del bucle.
-  const enCurso=new Map();
+  // v88: se cuentan aparte los que ya entregó y están esperando el cobro — sigue
+  // siendo trabajo suyo (el dinero no ha entrado), así que tiene que verse.
+  const enCurso=new Map(), porCobrar=new Map();
+  const _suma=(mapa,id)=>mapa.set(id,(mapa.get(id)||0)+1);
   for(const v of vales){
-    if(v.status==='assigned'&&v.mensajeroId) enCurso.set(v.mensajeroId,(enCurso.get(v.mensajeroId)||0)+1);
+    if(!v.mensajeroId) continue;
+    if(v.status==='assigned') _suma(enCurso,v.mensajeroId);
+    else if(v.status==='pending_payment'||v.status==='delivered') _suma(porCobrar,v.mensajeroId);
   }
-  // v86: arriba los que están repartiendo, y entre ellos primero el que más
-  // entregas lleva; los que no tienen nada quedan debajo. sortMensajerosAlpha
-  // ya devuelve una COPIA, así que reordenarla no toca el array original, y el
-  // sort de JS es estable: dentro del mismo número de entregas se mantiene el
-  // orden alfabético.
+  const _carga=id=>(enCurso.get(id)||0)+(porCobrar.get(id)||0);
+  // v86: arriba los que tienen trabajo encima, y entre ellos primero el que más
+  // lleva; los que no tienen nada quedan debajo. sortMensajerosAlpha ya devuelve
+  // una COPIA, así que reordenarla no toca el array original, y el sort de JS es
+  // estable: dentro del mismo número se mantiene el orden alfabético.
   const list=sortMensajerosAlpha(getMensajeros())
-    .sort((a,b)=>(enCurso.get(b.id)||0)-(enCurso.get(a.id)||0));
+    .sort((a,b)=>_carga(b.id)-_carga(a.id));
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
     const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const phone=m.phone||'';
     const assigned=enCurso.get(m.id)||0;
+    const cobrar=porCobrar.get(m.id)||0;
     const act=m.id===activeMensajeroId;
     // v86: el número de entregas pasa a ser un globo visible junto al nombre —
     // antes era texto diminuto en gris y había que buscarlo.
-    const badge = assigned
-      ? `<span style="background:var(--blue);color:#fff;border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${assigned} vale${assigned!==1?'s':''} en entrega ahora mismo">🛵 ${assigned}</span>`
-      : `<span style="background:var(--surface3);color:var(--text-muted);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap;">Sin entregas</span>`;
+    // v88: dos globos, porque son dos cosas distintas y mezclarlas engañaba:
+    // azul lo que lleva encima sin entregar, naranja lo entregado que aún no ha
+    // pagado.
+    let badge='';
+    if(assigned) badge+=`<span style="background:var(--blue);color:#fff;border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${assigned} vale${assigned!==1?'s':''} en reparto ahora mismo">🛵 ${assigned}</span>`;
+    if(cobrar) badge+=`<span style="background:var(--orange);color:#fff;border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${cobrar} vale${cobrar!==1?'s':''} entregado${cobrar!==1?'s':''} pendiente${cobrar!==1?'s':''} de cobro">⏳ ${cobrar}</span>`;
+    if(!badge) badge=`<span style="background:var(--surface3);color:var(--text-muted);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap;">Sin entregas</span>`;
     const waBtn = phone
       ? `<button type="button" style="background:none;border:1px solid #25D366;cursor:pointer;font-size:10px;color:#25D366;padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}">💬 WhatsApp</button>`
       : '';
@@ -6011,7 +6025,7 @@ function renderMensajeros() {
           <div class="m-name">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓ Viendo entregas</span>':''}</div>
           ${badge}
         </div>
-        <div style="font-size:10px;color:var(--gray-400);display:flex;gap:8px;flex-wrap:wrap;margin-top:1px;">${phoneHTML}${assigned?`<span>${assigned} entrega${assigned!==1?'s':''} en curso</span>`:''}</div>
+        <div style="font-size:10px;color:var(--gray-400);display:flex;gap:8px;flex-wrap:wrap;margin-top:1px;">${phoneHTML}${assigned?`<span>${assigned} en reparto</span>`:''}${cobrar?`<span>${cobrar} sin cobrar</span>`:''}</div>
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
           ${waBtn}
           <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();openEditMensajeroModal(${m.id})">✏️ Editar</button>
