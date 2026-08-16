@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 91;
+const APP_VERSION = 92;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 91;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.7';
+let _PUBLIC_VERSION_STR = 'v3.8';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '06c79ae0602f4f36';
+let _LOCAL_BUILD_HASH = '29191550829b0f06';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -963,6 +963,9 @@ async function _doRestPoll() {
           try {
             _safeSetLS('axon_vales', JSON.stringify(merged)); // v65: era un catch vacío — si el guardado fallaba (p.ej. sin espacio), los vales se perdían sin que nadie se enterara
             _valesCache = merged; _valesDirty = false;
+            // v92: esta vía NO pasa por saveVales(), así que las reservas hay que
+            // recalcularlas aquí a mano o se quedarían con el conteo anterior.
+            setTimeout(_refrescarReservas, 0);
           } finally { _syncCount--; }
           // Show estafa alert for new vales that match blacklist
           if (typeof checkEstafaMatch === 'function' && typeof showEstafaAlert === 'function') {
@@ -2245,6 +2248,7 @@ const saveVales = v => {
   const prevVales = _valesCache; // snapshot antes de este guardado, para detectar borrados reales
   _safeSetLS('axon_vales', JSON.stringify(v));
   _valesCache = v; _valesDirty = false;
+  setTimeout(_refrescarReservas, 0);   // v92: las reservas se calculan de los vales
   if (isSyncingFromSupabase()) return;
   // ── DIFF-BASED WRITES (v13) + PAYLOAD SLIMMING (v14) ──
   // v13: solo encolar vales nuevos/cambiados (no todo el array).
@@ -2309,6 +2313,10 @@ const saveVales = v => {
     // se quedaba descontado para siempre. Se envía siempre —también en false—
     // porque "ya se devolvió" es un dato tan necesario como "está descontado".
     slim.stockDecremented = !!x.stockDecremented;
+    // v92: la marca de reserva la pone el admin. Sin esto pasaría lo de siempre:
+    // se guarda en el móvil, sube sin ella y el siguiente poll la borra — y con
+    // ella se irían las unidades apartadas del stock.
+    slim.reservado = !!x.reservado;
     // v75: la cesión de comisión del gestor no puede perderse cuando escribe el
     // admin, o el vale volvería a mostrar la comisión entera.
     if (x.comisionCedida) slim.comisionCedida = x.comisionCedida;
@@ -3295,22 +3303,92 @@ const LOW_STOCK_THRESHOLD = 3;
 // - stock: inventario físico total (no se toca al reservar).
 // - reserved: unidades comprometidas (se baja cuando se entrega/cancela).
 // - disponible = max(0, stock - reserved).
+// ── v92: reservas atadas a un vale ─────────────────────────────────────────
+// Hasta ahora `reserved` era un número suelto que solo se movía a mano desde el
+// botón 🔐. El comentario de arriba decía que bajaba al entregar o cancelar,
+// pero NADA en el código lo bajaba: al confirmar la venta caía el stock y la
+// reserva se quedaba clavada, comiéndose disponibilidad para siempre.
+//
+// Ahora el admin puede marcar un vale como reservado (v.reservado) y las
+// unidades de ese vale cuentan como comprometidas mientras el vale siga vivo.
+// No hay que liberar nada: en cuanto el vale se confirma, se cancela o se borra,
+// deja de estar en la lista y su reserva desaparece sola. Es la diferencia entre
+// una cuenta y una copia — una copia hay que acordarse de actualizarla, y ya
+// vimos con el stock (v73) cómo acaba eso.
+//
+// El botón 🔐 sigue existiendo para lo que no viene de un vale (el cliente que
+// llamó por teléfono); esa reserva manual se suma a la calculada.
+const _VALE_RESERVA_ESTADOS = { pending: 1, assigned: 1 };
+let _reservasMemo = null, _reservasMemoTs = 0;
+const _RESERVAS_MEMO_MS = 500;   // basta para cubrir una pasada de render entera
+function _invalidarReservas() { _reservasMemo = null; }
+// Mapa productoId → { unidades, vales:[{id, valeNum, cliente, qty}] }
+function _reservasPorProducto() {
+  const ahora = Date.now();
+  if (_reservasMemo && (ahora - _reservasMemoTs) < _RESERVAS_MEMO_MS) return _reservasMemo;
+  const mapa = new Map();
+  for (const v of getVales()) {
+    if (!v || !v.reservado || !_VALE_RESERVA_ESTADOS[v.status]) continue;
+    for (const it of (v.valeProductos || [])) {
+      if (!it || it.id == null) continue;
+      const qty = parseInt(it.qty || 0, 10) || 0;
+      if (qty <= 0) continue;
+      let e = mapa.get(it.id);
+      if (!e) { e = { unidades: 0, vales: [] }; mapa.set(it.id, e); }
+      e.unidades += qty;
+      e.vales.push({ id: v.id, valeNum: v.valeNum, cliente: v.cliente || '', qty });
+    }
+  }
+  _reservasMemo = mapa; _reservasMemoTs = ahora;
+  return mapa;
+}
+function _reservadasPorVales(pid) {
+  const e = _reservasPorProducto().get(pid);
+  return e ? e.unidades : 0;
+}
+// El gestor solo tiene SUS vales en el teléfono (así se recortó el consumo en
+// v66), así que no puede calcular lo que han apartado los demás. Por eso el
+// admin —que sí los tiene todos— deja el resultado escrito en el producto y
+// TODO el mundo, él incluido, lee de ahí: una sola fórmula para todos.
+// Sí, es una copia del cálculo. Pero con un único escritor y recalculada entera
+// cada vez, nunca sumando ni restando: si algún día se desfasa, el siguiente
+// recálculo la deja bien sola. Eso es justo lo que no tenía el `reserved` de
+// antes, que solo se movía a mano y se quedaba clavado para siempre.
+function _refrescarReservas() {
+  _invalidarReservas();
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  // Durante una bajada de Supabase no se escribe nada, o el guardado se tomaría
+  // por un cambio del propio dispositivo. Se reintenta al salir de la bajada.
+  if (typeof isSyncingFromSupabase === 'function' && isSyncingFromSupabase()) { setTimeout(_refrescarReservas, 200); return; }
+  const mapa = _reservasPorProducto();
+  let cambio = false;
+  const nuevos = getProductos().map(p => {
+    const u = (mapa.get(p.id) || {}).unidades || 0;
+    if (u === (parseInt(p.reservedVales || 0, 10) || 0)) return p;
+    cambio = true;
+    return { ...p, reservedVales: u };
+  });
+  if (cambio) saveProductos(nuevos);
+}
+// Reservado de verdad = lo apartado a mano + lo comprometido por vales.
+function _reservedTotal(p) {
+  if (!p) return 0;
+  return (parseInt(p.reserved || 0, 10) || 0) + (parseInt(p.reservedVales || 0, 10) || 0);
+}
 function _availableStock(p) {
   if (!p) return 0;
   const s = parseInt(p.stock || 0, 10);
-  const r = parseInt(p.reserved || 0, 10);
-  return Math.max(0, s - r);
+  return Math.max(0, s - _reservedTotal(p));
 }
 function _isFullyReserved(p) {
   if (!p) return false;
   const s = parseInt(p.stock || 0, 10);
-  const r = parseInt(p.reserved || 0, 10);
-  return s > 0 && r >= s;
+  return s > 0 && _reservedTotal(p) >= s;
 }
 function _isPartiallyReserved(p) {
   if (!p) return false;
   const s = parseInt(p.stock || 0, 10);
-  const r = parseInt(p.reserved || 0, 10);
+  const r = _reservedTotal(p);
   return r > 0 && r < s;
 }
 
@@ -5296,6 +5374,20 @@ function renderValeDetail(destinoId) {
     <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 10px;margin-bottom:10px;">
       <div style="font-size:10px;color:var(--green);font-weight:700;">✅ Productos vinculados: ${(v.valeProductos||[]).map(p=>`${escapeHTML(p.name)}${p.qty>1?' ×'+p.qty:''}`).join(', ')}</div>
     </div>`:'');
+  // v92: apartar el stock de este vale. Solo tiene sentido mientras el vale siga
+  // vivo y tenga productos del catálogo: en cuanto se cobra, el stock se
+  // descuenta de verdad y no hay nada que reservar.
+  const _puedeReservar = hasProducts && (_vStatus === 'pending' || _vStatus === 'assigned');
+  const reservaHTML = _puedeReservar ? `
+    <label style="display:flex;align-items:flex-start;gap:8px;background:${v.reservado ? 'rgba(180,83,9,.08)' : 'var(--surface2)'};border:1px solid ${v.reservado ? 'rgba(180,83,9,.35)' : 'var(--border)'};border-radius:8px;padding:9px 11px;margin-bottom:10px;cursor:pointer;">
+      <input type="checkbox" ${v.reservado ? 'checked' : ''} onchange="toggleValeReservado(${v.id})" style="margin-top:2px;width:17px;height:17px;flex-shrink:0;">
+      <span style="font-size:11px;line-height:1.35;">
+        <b style="color:${v.reservado ? '#b45309' : 'var(--text)'};">🔐 Apartar el stock de este vale</b><br>
+        <span style="color:var(--gray-400);">${v.reservado
+          ? 'Estas unidades no se pueden vender en otro vale. Se sueltan solas al cobrar, cancelar o borrar este.'
+          : 'Marca esto si el cliente aún no ha pagado pero quieres guardarle la mercancía.'}</span>
+      </span>
+    </label>` : '';
   if(v.status==='pending'){
     // v88: si el cliente recoge en la tienda no hay nada que repartir, así que
     // el botón de mensajero estorba y se presta a asignar por error. En su
@@ -5307,13 +5399,13 @@ function renderValeDetail(destinoId) {
       </div>`
       : `<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
     <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>`;
-    actHTML=`${productPickerHTML}${_cabecera}
+    actHTML=`${productPickerHTML}${reservaHTML}${_cabecera}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
       <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
       <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
     </div>`;
   } else if(v.status==='assigned'){
-    actHTML=`${productPickerHTML}<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
+    actHTML=`${productPickerHTML}${reservaHTML}<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
       <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
       <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
       <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
@@ -5449,6 +5541,30 @@ let editValePickerSelected={};
 let editValePickerCatFilter=null;
 let editValeProductos=[];
 
+// v92: marcar/desmarcar el vale como reservado. No toca ningún contador de
+// stock: las unidades apartadas se calculan a partir de esta marca, así que con
+// cambiarla ya está todo hecho — no hay nada que sumar ni que restar, que es
+// justo donde se rompió el stock en su día.
+function toggleValeReservado(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const nuevo = !v.reservado;
+  // Avisar, no bloquear: si el cliente ya tiene el vale, esas unidades le hacen
+  // falta igual; lo que no puede es pasar desapercibido. Se mira ANTES de
+  // marcar, o el propio vale ya estaría contándose a sí mismo.
+  const cortos = nuevo ? (v.valeProductos || []).map(({ id: pid, qty }) => {
+    const p = productoOf(pid); if (!p) return null;
+    const disp = _availableStock(p);
+    return disp < (qty || 0) ? `${p.name}: hay ${disp} y hacen falta ${qty}` : null;
+  }).filter(Boolean) : [];
+  patchVale(id, { reservado: nuevo });
+  _refrescarReservas();
+  renderValeDetail();
+  if (typeof renderProductGrid === 'function') renderProductGrid();
+  if (typeof renderStockCategorias === 'function') renderStockCategorias();
+  maybeAutoSync();
+  showToast(cortos.length ? ('⚠️ ' + cortos[0]) : (nuevo ? 'Stock apartado 🔐' : 'Stock liberado ✓'));
+}
+
 function openEditValeModal(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor'].forEach(k=>{
@@ -5517,7 +5633,7 @@ function renderEditValePickerProducts() {
     const fullyRes=_isFullyReserved(p);
     const partRes=_isPartiallyReserved(p);
     const blocked=oos||fullyRes;
-    const reserved=parseInt(p.reserved||0,10);
+    const reserved=_reservedTotal(p);
     const avail=_availableStock(p);
     const badge = oos
       ? `<span class="oos-badge">AGOTADO</span>`
@@ -5613,6 +5729,9 @@ function confirmEditValePickerSelection() {
     const g=items.map(({id})=>productoOf(id)?.garantia).find(Boolean);
     if(g)document.getElementById('ev-garantia').value=g;
   }
+  // v92: recalcular el total. Sin esto, añadir un producto actualizaba el precio
+  // pero dejaba el total a pagar como estaba.
+  calcEditValeTotal();
   renderEditValeSelectedProducts();
   closeAdminProductPicker();
 }
@@ -6791,14 +6910,20 @@ function _abrirVfExtrasSiTieneDatos() {
 const REQUIRED=['vf-cliente','vf-telefono','vf-direccion','vf-articulo','vf-total'];
 const fVal = id => (document.getElementById(id)?.value||'').trim();
 
-function calcAutoTotal() {
-  const pUSD = document.getElementById('vf-precioUSD')?.value || '';
-  const pMN = document.getElementById('vf-precioMN')?.value || '';
-  const mens = document.getElementById('vf-mensajeria')?.value || '';
-  
+// v92: esta cuenta —precio USD + precio MN + mensajería→ total— estaba escrita
+// DOS veces, una para el formulario del gestor (vf-) y otra igual para el vale
+// que crea el admin (av-). En el formulario de EDITAR un vale (ev-) no estaba
+// ninguna de las dos, y por eso al añadirle un producto el total se quedaba como
+// estaba. Ahora es una sola función que recibe el prefijo de los campos: añadir
+// un cuarto formulario mañana no vuelve a dejarse la cuenta por el camino.
+function _calcTotalDe(pfx) {
+  const pUSD = document.getElementById(pfx + '-precioUSD')?.value || '';
+  const pMN  = document.getElementById(pfx + '-precioMN')?.value || '';
+  const mens = document.getElementById(pfx + '-mensajeria')?.value || '';
+
   let usdTotal = 0;
   let mnTotal = 0;
-  
+
   const addVal = (str) => {
     const s = str.toUpperCase();
     const num = parsePrecioNum(s);
@@ -6811,22 +6936,24 @@ function calcAutoTotal() {
       else usdTotal += num;
     }
   };
-  
+
   addVal(pUSD);
   addVal(pMN);
   addVal(mens);
-  
+
   let out = [];
   if(usdTotal > 0) out.push(`$${usdTotal} USD`);
   if(mnTotal > 0) out.push(`${mnTotal} MN`);
-  
-  const totalInput = document.getElementById('vf-total');
+
+  const totalInput = document.getElementById(pfx + '-total');
   if(out.length > 0 && totalInput) {
     totalInput.value = out.join(' + ');
   } else if (totalInput && !pUSD && !pMN && !mens) {
     totalInput.value = '';
   }
 }
+function calcAutoTotal() { _calcTotalDe('vf'); }
+function calcEditValeTotal() { _calcTotalDe('ev'); }
 
 function onFormInput() {
   // Debounce: avoid rebuilding the vale preview on every keystroke (perf on mobile)
@@ -7343,7 +7470,7 @@ function renderPickerProducts() {
     const fullyRes=_isFullyReserved(p);
     const partRes=_isPartiallyReserved(p);
     const blocked=oos||fullyRes;
-    const reserved=parseInt(p.reserved||0,10);
+    const reserved=_reservedTotal(p);
     const avail=_availableStock(p);
     // Badge: agotado tiene prioridad sobre reservado
     const badge = oos
@@ -7567,7 +7694,7 @@ function buildProdCard(p, cats, isAgotado) {
   const cat=cats.find(c=>c.id===p.catId);
   const stockOk=(p.stock||0)>0;
   const isLow=stockOk&&(p.stock||0)<=LOW_STOCK_THRESHOLD;
-  const reserved=parseInt(p.reserved||0,10);
+  const reserved=_reservedTotal(p);
   const avail=_availableStock(p);
   const fullyReserved=_isFullyReserved(p);
   const partiallyReserved=_isPartiallyReserved(p);
@@ -7742,7 +7869,7 @@ function _notaStockProducto() {
   const nota = document.getElementById('pm-stockNota');
   if (!nota) return;
   const p = editingProductId ? productoOf(editingProductId) : null;
-  const reservado = p ? parseInt(p.reserved || 0, 10) : 0;
+  const reservado = p ? _reservedTotal(p) : 0;
   if (!reservado) { nota.textContent = ''; return; }
   const escrito = Math.max(0, parseInt(document.getElementById('pm-stock').value, 10) || 0);
   if (escrito < reservado) {
@@ -8153,7 +8280,7 @@ function stockModalPonACero() {
 function stockModalRefresca() {
   const p = productoOf(_stockModalId); if (!p) return;
   const nuevo = Math.max(0, parseInt(document.getElementById('stockModalInput').value, 10) || 0);
-  const reservado = parseInt(p.reserved || 0, 10);
+  const reservado = _reservedTotal(p);
   const disponible = Math.max(0, nuevo - reservado);
   document.getElementById('stockModalFisico').textContent = nuevo;
   document.getElementById('stockModalReservado').textContent = reservado;
@@ -8226,17 +8353,21 @@ function closeReservaModal() {
   if (m) m.classList.remove('show');
   _reservaModalId = null;
 }
+// v92: el tope de la reserva a mano ya no es el stock entero, sino lo que queda
+// después de lo que ya tienen apartado los vales: esas unidades están
+// comprometidas y contarlas dos veces daría una disponibilidad falsa.
+function _topeReservaManual(p) {
+  return Math.max(0, parseInt(p.stock || 0, 10) - _reservadasPorVales(p.id));
+}
 function reservaModalSuma(delta) {
   const p = productoOf(_reservaModalId); if (!p) return;
   const inp = document.getElementById('reservaModalInput'); if (!inp) return;
-  const stock = parseInt(p.stock || 0, 10);
-  // Tope en el stock físico: reservar más de lo que hay no significa nada.
-  inp.value = Math.min(stock, Math.max(0, (parseInt(inp.value, 10) || 0) + delta));
+  inp.value = Math.min(_topeReservaManual(p), Math.max(0, (parseInt(inp.value, 10) || 0) + delta));
   reservaModalRefresca();
 }
 function reservaModalTodo() {
   const p = productoOf(_reservaModalId); if (!p) return;
-  document.getElementById('reservaModalInput').value = parseInt(p.stock || 0, 10);
+  document.getElementById('reservaModalInput').value = _topeReservaManual(p);
   reservaModalRefresca();
 }
 function reservaModalLiberar() {
@@ -8246,25 +8377,46 @@ function reservaModalLiberar() {
 function reservaModalRefresca() {
   const p = productoOf(_reservaModalId); if (!p) return;
   const stock = parseInt(p.stock || 0, 10);
+  const porVales = _reservadasPorVales(p.id);
+  const tope = _topeReservaManual(p);
   let nuevo = Math.max(0, parseInt(document.getElementById('reservaModalInput').value, 10) || 0);
-  if (nuevo > stock) { nuevo = stock; document.getElementById('reservaModalInput').value = stock; }
+  if (nuevo > tope) { nuevo = tope; document.getElementById('reservaModalInput').value = tope; }
   document.getElementById('reservaModalFisico').textContent = stock;
-  document.getElementById('reservaModalReservado').textContent = nuevo;
-  document.getElementById('reservaModalDisponible').textContent = Math.max(0, stock - nuevo);
+  // Los tres contadores de arriba enseñan el total real, no solo lo manual.
+  document.getElementById('reservaModalReservado').textContent = nuevo + porVales;
+  document.getElementById('reservaModalDisponible').textContent = Math.max(0, stock - nuevo - porVales);
+  _pintarReservasDeVales(p);
   const antes = parseInt(p.reserved || 0, 10);
   const res = document.getElementById('reservaModalResumen');
   if (!res) return;
   const dif = nuevo - antes;
-  if (dif === 0) { res.textContent = 'Sin cambios (hay ' + antes + ' reservadas)'; res.style.color = 'var(--text-muted)'; }
-  else if (dif > 0) { res.textContent = 'Se reservan ' + dif + ' más · quedan ' + Math.max(0, stock - nuevo) + ' para vender'; res.style.color = '#b45309'; }
-  else { res.textContent = 'Se liberan ' + Math.abs(dif) + ' · quedan ' + Math.max(0, stock - nuevo) + ' para vender'; res.style.color = 'var(--green)'; }
-  if (nuevo === stock && stock > 0) { res.textContent += ' ⚠️ no queda nada disponible'; res.style.color = 'var(--red)'; }
+  const quedan = Math.max(0, stock - nuevo - porVales);
+  if (dif === 0) { res.textContent = 'Sin cambios (hay ' + antes + ' reservadas a mano)'; res.style.color = 'var(--text-muted)'; }
+  else if (dif > 0) { res.textContent = 'Se reservan ' + dif + ' más · quedan ' + quedan + ' para vender'; res.style.color = '#b45309'; }
+  else { res.textContent = 'Se liberan ' + Math.abs(dif) + ' · quedan ' + quedan + ' para vender'; res.style.color = 'var(--green)'; }
+  if (quedan === 0 && stock > 0) { res.textContent += ' ⚠️ no queda nada disponible'; res.style.color = 'var(--red)'; }
 }
+// Enseña qué vales tienen apartado este producto. Es informativo: desde aquí no
+// se sueltan, porque soltarlos a mano volvería a abrir la puerta al descuadre —
+// se sueltan solos al vender, cancelar o borrar el vale.
+function _pintarReservasDeVales(p) {
+  const c = document.getElementById('reservaModalPorVales');
+  if (!c) return;
+  const e = _reservasPorProducto().get(p.id);
+  if (!e || !e.unidades) { c.style.display = 'none'; c.innerHTML = ''; return; }
+  c.style.display = 'block';
+  c.innerHTML = `<div style="font-weight:700;color:#b45309;margin-bottom:4px;">🔐 ${e.unidades} apartada${e.unidades !== 1 ? 's' : ''} por vales</div>` +
+    e.vales.map(v => `<div style="display:flex;justify-content:space-between;gap:8px;">
+      <span>${v.valeNum ? 'V-' + String(v.valeNum).padStart(3, '0') + ' · ' : ''}${escapeHTML(v.cliente || 'Sin nombre')}</span>
+      <span style="font-weight:700;">×${v.qty}</span>
+    </div>`).join('') +
+    `<div style="color:var(--gray-400);margin-top:4px;">Se liberan solas al cobrar, cancelar o borrar el vale.</div>`;
+}
+
 function guardarReservaModal() {
   const id = _reservaModalId;
   const p = productoOf(id); if (!p) { closeReservaModal(); return; }
-  const stock = parseInt(p.stock || 0, 10);
-  const nuevo = Math.min(stock, Math.max(0, parseInt(document.getElementById('reservaModalInput').value, 10) || 0));
+  const nuevo = Math.min(_topeReservaManual(p), Math.max(0, parseInt(document.getElementById('reservaModalInput').value, 10) || 0));
   const antes = parseInt(p.reserved || 0, 10);
   if (nuevo === antes) { closeReservaModal(); showToast('Sin cambios'); return; }
   patchProducto(id, {reserved: nuevo});
@@ -10891,28 +11043,7 @@ function onAdminValeInput() {
   }
 }
 
-function calcAdminAutoTotal() {
-  const pUSD = document.getElementById('av-precioUSD')?.value || '';
-  const pMN = document.getElementById('av-precioMN')?.value || '';
-  const mens = document.getElementById('av-mensajeria')?.value || '';
-  let usdTotal = 0, mnTotal = 0;
-  const addVal = (str) => {
-    const s = str.toUpperCase();
-    const num = parsePrecioNum(s);
-    if (num === 0) return;
-    if (s.includes('MN') || s.includes('CUP')) mnTotal += num;
-    else if (s.includes('USD') || s.includes('ZELLE')) usdTotal += num;
-    else if (s.includes('$')) usdTotal += num;
-    else { if (num > 500) mnTotal += num; else usdTotal += num; }
-  };
-  addVal(pUSD); addVal(pMN); addVal(mens);
-  let out = [];
-  if (usdTotal > 0) out.push(`$${usdTotal} USD`);
-  if (mnTotal > 0) out.push(`${mnTotal} MN`);
-  const totalInput = document.getElementById('av-total');
-  if (out.length > 0 && totalInput) { totalInput.value = out.join(' + '); }
-  else if (totalInput && !pUSD && !pMN && !mens) { totalInput.value = ''; }
-}
+function calcAdminAutoTotal() { _calcTotalDe('av'); }
 
 function buildAdminValeText() {
   const gId = parseInt(avVal('av-gestor'));

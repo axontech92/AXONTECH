@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=91">
+  <link rel="stylesheet" href="./app.css?v=92">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.7</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.8</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -530,7 +530,11 @@
       </div>
     </div>
 
-    <div class="lbl" style="margin:14px 0 6px;">Unidades reservadas</div>
+    <!-- v92: lo que apartan los vales marcados como reservados. No se toca desde
+         aquí — se suelta solo cuando el vale se vende, se cancela o se borra. -->
+    <div id="reservaModalPorVales" style="display:none;font-size:11px;background:rgba(180,83,9,.08);border:1px solid rgba(180,83,9,.25);border-radius:9px;padding:9px 11px;margin-top:8px;"></div>
+
+    <div class="lbl" style="margin:14px 0 6px;">Reservadas a mano <span style="font-weight:400;color:var(--gray-400);font-size:10px;">(las que no vienen de un vale)</span></div>
     <div style="display:flex;align-items:center;gap:6px;">
       <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="reservaModalSuma(-1)">−</button>
       <input type="number" inputmode="numeric" id="reservaModalInput" value="0" min="0"
@@ -691,7 +695,7 @@
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Mensajería / costo</span></div>
-          <input type="text" id="ev-mensajeria" placeholder="Ej: $2 USD">
+          <input type="text" id="ev-mensajeria" oninput="calcEditValeTotal()" placeholder="Ej: $2 USD">
         </div>
       </div>
       <div class="vf-row">
@@ -707,13 +711,13 @@
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Precio USD</span></div>
-          <input type="text" id="ev-precioUSD" placeholder="Ej: $45 USD">
+          <input type="text" id="ev-precioUSD" oninput="calcEditValeTotal()" placeholder="Ej: $45 USD">
         </div>
       </div>
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Precio MN</span></div>
-          <input type="text" id="ev-precioMN" placeholder="Ej: 4500 MN">
+          <input type="text" id="ev-precioMN" oninput="calcEditValeTotal()" placeholder="Ej: 4500 MN">
         </div>
       </div>
       <div class="vf-row">
@@ -1252,7 +1256,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=91"></script>
+<script src="./app.js?v=92"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
