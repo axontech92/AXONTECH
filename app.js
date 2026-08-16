@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 86;
+const APP_VERSION = 87;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 86;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.2';
+let _PUBLIC_VERSION_STR = 'v3.3';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'fa43e7dddeac2bd5';
+let _LOCAL_BUILD_HASH = '38a5cea70047b6cd';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4518,27 +4518,52 @@ function _updateMensajerosCountBadge() {
 // entregas (clic en la fila), WhatsApp, editar y eliminar.
 function renderMensajeroSelector() { renderMensajeros(); }
 function renderMensajerosEditList() { /* fusionado en renderMensajeros() — se mantiene como no-op por compatibilidad */ }
+// v87: las entregas se abren en un modal en vez de pintarse al final del panel.
+// Antes había que tocar el mensajero, bajar hasta el fondo de la página para ver
+// sus entregas y volver a subir para cambiar de mensajero.
 function selectMensajero(id) {
   activeMensajeroId=id;
-  document.getElementById('adminMensajerosPanel').classList.add('has-sel');
-  document.getElementById('mensajeroChangeBtn').style.display='block';
-  renderMensajeroSelector();renderMensajeroVales();
+  const modal=document.getElementById('mensajeroEntregasModal');
+  if(modal) modal.classList.add('show');
+  renderMensajeros();renderMensajeroVales();
 }
-function changeMensajero() {
+function closeMensajeroEntregasModal() {
+  const modal=document.getElementById('mensajeroEntregasModal');
+  if(modal) modal.classList.remove('show');
+  // Se suelta la selección para que la lista no siga marcando "viendo entregas"
+  // a alguien cuyo modal ya está cerrado.
   activeMensajeroId=null;
-  document.getElementById('adminMensajerosPanel').classList.remove('has-sel');
-  document.getElementById('mensajeroChangeBtn').style.display='none';
-  renderMensajeroSelector();renderMensajeroVales();
+  renderMensajeros();
 }
+// El botón "↺ Cambiar selección" desapareció con el modal (se cambia de
+// mensajero cerrando y tocando otro). Se mantiene la función porque cerrar es
+// exactamente lo mismo que hacía.
+function changeMensajero(){ closeMensajeroEntregasModal(); }
 function renderMensajeroVales() {
-  const c=document.getElementById('mensajeroValesList');if(!c)return;
+  const c=document.getElementById('mensajeroEntregasBody');if(!c)return;
+  const _tit=document.getElementById('mensajeroEntregasTitulo');
+  const _sub=document.getElementById('mensajeroEntregasSub');
   if(!activeMensajeroId){
+    if(_tit) _tit.textContent='🛵 Entregas';
+    if(_sub) _sub.textContent='';
     c.innerHTML='<div class="es"><div class="es-icon">🛵</div><div class="es-text">Selecciona un mensajero para ver sus entregas</div></div>';return;
   }
   const porEntregar=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='assigned').reverse();
   const entregados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='delivered').reverse();
   const pendientesCobro=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='pending_payment').reverse();
   const confirmados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed').reverse();
+  // La cabecera se repinta en cada render, así que al marcar una entrega el
+  // número de arriba baja solo.
+  const _m=mensajeroOf(activeMensajeroId);
+  if(_tit) _tit.textContent='🛵 '+((_m&&_m.name)||'Mensajero');
+  if(_sub){
+    const partes=[];
+    if(porEntregar.length) partes.push(`${porEntregar.length} por entregar`);
+    if(entregados.length) partes.push(`${entregados.length} entregado${entregados.length!==1?'s':''}`);
+    if(pendientesCobro.length) partes.push(`${pendientesCobro.length} pend. cobro`);
+    if(!partes.length) partes.push('Sin entregas activas');
+    _sub.textContent=partes.join(' · ')+((_m&&_m.phone)?' · 📱 '+_m.phone:'');
+  }
   let html='';
   if(!porEntregar.length&&!entregados.length&&!pendientesCobro.length&&!confirmados.length){
     html='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin entregas asignadas</div></div>';
@@ -4592,8 +4617,14 @@ function renderMensajeroVales() {
       }).join('');
     }
     if(confirmados.length){
-      html+='<div class="lbl" style="margin-top:16px;">Cobrados / Completados</div>';
-      html+=confirmados.map(v=>{
+      // v87: los cobrados son el historial completo del mensajero y no paran de
+      // crecer. En el panel daba igual porque quedaban al fondo de la página;
+      // dentro del modal se enseñan solo los últimos 15 para que las entregas
+      // pendientes, que es a lo que se viene, no queden sepultadas.
+      const _MAX_COBRADOS=15;
+      const _confMostrar=confirmados.slice(0,_MAX_COBRADOS);
+      html+=`<div class="lbl" style="margin-top:16px;">Cobrados / Completados${confirmados.length>_MAX_COBRADOS?` <span style="font-weight:400;color:var(--gray-400);">· últimos ${_MAX_COBRADOS} de ${confirmados.length}</span>`:''}</div>`;
+      html+=_confMostrar.map(v=>{
         const g=gestorOf(v.gestorId);
         return `<div class="mv-card st-confirmed">
           <div class="mv-head"><span class="mv-time">${timeStr(v.confirmedTs||v.ts)}</span><span style="color:var(--green);font-size:10px;font-weight:700;">✅ Pagado</span></div>
@@ -4604,6 +4635,12 @@ function renderMensajeroVales() {
     }
   }
   c.innerHTML=html;
+  // Con el modal abierto, al marcar una entrega hay que refrescar también la
+  // lista de detrás: su globo 🛵 y el orden dependen de estos mismos vales. Se
+  // hace aquí y no en cada acción (mensajeroEntrega, mensajeroPagado…) para no
+  // repetir la misma llamada en cinco sitios.
+  const _modalAbierto=document.getElementById('mensajeroEntregasModal');
+  if(_modalAbierto&&_modalAbierto.classList.contains('show')) renderMensajeros();
 }
 
 // ══════════════════════════════════════════
@@ -10716,6 +10753,12 @@ document.addEventListener('keydown', (e) => {
   // Si es el modal del ticket, usar closeTicketModal() para que respete la lógica
   // de "limpiar formulario solo si se abrió tras enviar un vale".
   if (openModal.id === 'ticketModal') { closeTicketModal(); return; }
+  // v87: los modales que tienen su propia función de cierre la declaran en
+  // data-cerrar. Quitarles la clase a mano dejaba estado a medias: el de
+  // entregas seguía marcando al mensajero como "viendo entregas", y el del
+  // historial dejaba el detalle del vale apuntando al modal cerrado.
+  const cerrar = openModal.getAttribute('data-cerrar');
+  if (cerrar && typeof window[cerrar] === 'function') { window[cerrar](); return; }
   openModal.classList.remove('show');
 });
 

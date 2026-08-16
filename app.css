@@ -1013,14 +1013,6 @@ body.dark .mv-pending-sync-badge{
   border-radius:10px;padding:10px 12px;margin-bottom:6px;
 }
 
-/* ── Mensajeros panel — has selected mensajero state ── */
-#adminMensajerosPanel.has-sel{
-  background:var(--blue-lt);
-  border-radius:12px;
-  padding:12px;
-  border:1px solid var(--blue-bd);
-}
-
 /* ── Online/offline indicator ── */
 #syncIndicator{
   position:fixed;bottom:14px;left:14px;z-index:500;

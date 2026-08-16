@@ -1,10 +1,10 @@
 {
-  "version": 86,
-  "versionStr": "v3.2",
-  "build": 86,
-  "hash": "fa43e7dddeac2bd5",
-  "hashFull": "fa43e7dddeac2bd5",
-  "releasedAt": "2026-08-16 14:57",
+  "version": 87,
+  "versionStr": "v3.3",
+  "build": 87,
+  "hash": "38a5cea70047b6cd",
+  "hashFull": "38a5cea70047b6cd",
+  "releasedAt": "2026-08-16 15:06",
   "files": [
     "app.js",
     "app.css",
@@ -14,7 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ADMIN: la lista de mensajeros se ordena por entregas — primero el que más vales lleva encima, y los que no tienen ninguna quedan debajo",
-    "ADMIN: cada mensajero enseña un globo azul 🛵 con el número de vales que tiene ahora mismo en reparto, o Sin entregas si está libre"
+    "ADMIN: al tocar un mensajero sus entregas se abren en una ventana, con los mismos botones de Entregado, Pagado y WhatsApp. Antes se pintaban al final de la página y había que bajar y volver a subir para pasar a otro mensajero",
+    "La ventana enseña arriba a quién pertenece y cuántas entregas lleva, y el número baja solo según vas marcando",
+    "Los vales ya cobrados se recortan a los últimos 15 para que las entregas pendientes no queden sepultadas"
   ]
 }

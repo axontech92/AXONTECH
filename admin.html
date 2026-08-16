@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=86">
+  <link rel="stylesheet" href="./app.css?v=87">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -53,7 +53,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.2</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.3</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -197,7 +197,6 @@
       <input type="text" id="newMensajeroInput" placeholder="Nombre del mensajero" style="flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;">
       <input type="tel" id="newMensajeroPhoneInput" placeholder="📱 Teléfono (WhatsApp)" style="flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;">
       <button class="btn btn-blue" onclick="addMensajero()">＋ Agregar</button>
-      <button class="btn btn-ghost btn-sm" id="mensajeroChangeBtn" style="display:none;" onclick="changeMensajero()">↺ Cambiar selección</button>
     </div>
 
     <!-- Mensajeros registrados — plegable. Una sola lista, ordenada alfabéticamente,
@@ -211,9 +210,8 @@
       <div class="lbl" style="margin-top:0;font-size:11px;font-weight:400;color:var(--gray-400);">Toca un mensajero para ver sus entregas</div>
       <div id="mensajerosList"></div>
     </div>
-
-    <div class="lbl">Entregas asignadas</div>
-    <div id="mensajeroValesList"></div>
+    <!-- v87: las entregas ya no se pintan aquí abajo — se abren en
+         #mensajeroEntregasModal al tocar el mensajero. -->
   </div>
 
   <!-- ════════ STATS PANEL ════════ -->
@@ -585,13 +583,34 @@
      El contenido lo pinta renderValeDetail(), el mismo que la pestaña Vales, así
      que los botones de acción funcionan igual y no hay una segunda versión del
      detalle que mantener. -->
-<div class="modal-bg" id="valeHistorialModal">
+<div class="modal-bg" id="valeHistorialModal" data-cerrar="closeValeHistorialModal">
   <div class="modal" style="max-width:460px;width:94%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
     <div style="flex:1;overflow-y:auto;padding:18px 18px 4px;">
       <div id="valeHistorialDetalle"></div>
     </div>
     <div style="flex-shrink:0;padding:12px 18px 18px;border-top:1px solid var(--border);">
       <button type="button" class="btn btn-ghost btn-full" onclick="closeValeHistorialModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: Entregas del mensajero (v87) ──
+     Antes las entregas se pintaban al final del panel: había que tocar el
+     mensajero, bajar hasta el fondo de la página y volver a subir para pasar a
+     otro. El contenido lo pinta renderMensajeroVales(), el mismo de siempre, así
+     que las acciones (Entregado, Pagado, WhatsApp) funcionan igual y no hay una
+     segunda copia de las tarjetas que mantener. -->
+<div class="modal-bg" id="mensajeroEntregasModal" data-cerrar="closeMensajeroEntregasModal">
+  <div class="modal" style="max-width:460px;width:94%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
+    <div style="flex-shrink:0;padding:16px 18px 12px;border-bottom:1px solid var(--border);">
+      <div class="modal-title" id="mensajeroEntregasTitulo" style="margin-bottom:3px;">🛵 Entregas</div>
+      <div class="modal-sub" id="mensajeroEntregasSub" style="margin-bottom:0;"></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:14px 18px 4px;">
+      <div id="mensajeroEntregasBody"></div>
+    </div>
+    <div style="flex-shrink:0;padding:12px 18px 18px;border-top:1px solid var(--border);">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeMensajeroEntregasModal()">Cerrar</button>
     </div>
   </div>
 </div>
@@ -1206,7 +1225,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-<script src="./app.js?v=86"></script>
+<script src="./app.js?v=87"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {
