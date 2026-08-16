@@ -1,10 +1,10 @@
 {
-  "version": 85,
-  "versionStr": "v3.1",
-  "build": 85,
-  "hash": "d96739bd46cf65ad",
-  "hashFull": "d96739bd46cf65ad",
-  "releasedAt": "2026-08-16 14:44",
+  "version": 86,
+  "versionStr": "v3.2",
+  "build": 86,
+  "hash": "fa43e7dddeac2bd5",
+  "hashFull": "fa43e7dddeac2bd5",
+  "releasedAt": "2026-08-16 14:57",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,7 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Compartir o copiar el enlace del catálogo ya no exige tener configurado GitHub: el enlace se deduce de la propia dirección del panel",
-    "ADMIN: en la lista de gestores, el número rojo ahora dice cuántos vales faltan por mirar. Cuando ya los viste todos pasa a gris con el total en curso, sin alarma",
-    "ADMIN: nuevo botón Asignar y listo en la ventana de mensajero, que asigna sin copiar el texto ni abrir WhatsApp"
+    "ADMIN: la lista de mensajeros se ordena por entregas — primero el que más vales lleva encima, y los que no tienen ninguna quedan debajo",
+    "ADMIN: cada mensajero enseña un globo azul 🛵 con el número de vales que tiene ahora mismo en reparto, o Sin entregas si está libre"
   ]
 }

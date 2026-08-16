@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 85;
+const APP_VERSION = 86;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 85;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.1';
+let _PUBLIC_VERSION_STR = 'v3.2';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd96739bd46cf65ad';
+let _LOCAL_BUILD_HASH = 'fa43e7dddeac2bd5';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5935,18 +5935,34 @@ function removeMensajero(id) {
   saveMensajeros(getMensajeros().filter(m=>m.id!==id));renderMensajeros();maybeAutoSync();
 }
 function renderMensajeros() {
-  // Orden alfabético (copia, no muta el array original) — igual que gestores.
-  const list=sortMensajerosAlpha(getMensajeros());
   const c=document.getElementById('mensajerosList');
   const vales=getVales();
   _updateMensajerosCountBadge();
   if(!c) return;
+  // v86: cuántas entregas lleva cada uno ahora mismo. Se cuenta de una pasada
+  // para todos, en vez de recorrer los vales otra vez dentro del bucle.
+  const enCurso=new Map();
+  for(const v of vales){
+    if(v.status==='assigned'&&v.mensajeroId) enCurso.set(v.mensajeroId,(enCurso.get(v.mensajeroId)||0)+1);
+  }
+  // v86: arriba los que están repartiendo, y entre ellos primero el que más
+  // entregas lleva; los que no tienen nada quedan debajo. sortMensajerosAlpha
+  // ya devuelve una COPIA, así que reordenarla no toca el array original, y el
+  // sort de JS es estable: dentro del mismo número de entregas se mantiene el
+  // orden alfabético.
+  const list=sortMensajerosAlpha(getMensajeros())
+    .sort((a,b)=>(enCurso.get(b.id)||0)-(enCurso.get(a.id)||0));
   if(!list.length){c.innerHTML='<div class="es" style="padding:8px;"><div class="es-text">Sin mensajeros</div></div>';return;}
   c.innerHTML=list.map(m=>{
     const ini=m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const phone=m.phone||'';
-    const assigned=vales.filter(v=>v.mensajeroId===m.id&&v.status==='assigned').length;
+    const assigned=enCurso.get(m.id)||0;
     const act=m.id===activeMensajeroId;
+    // v86: el número de entregas pasa a ser un globo visible junto al nombre —
+    // antes era texto diminuto en gris y había que buscarlo.
+    const badge = assigned
+      ? `<span style="background:var(--blue);color:#fff;border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${assigned} vale${assigned!==1?'s':''} en entrega ahora mismo">🛵 ${assigned}</span>`
+      : `<span style="background:var(--surface3);color:var(--text-muted);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap;">Sin entregas</span>`;
     const waBtn = phone
       ? `<button type="button" style="background:none;border:1px solid #25D366;cursor:pointer;font-size:10px;color:#25D366;padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();openMensajeroWhatsApp(${m.id})" title="WhatsApp ${escapeHTML(phone)}">💬 WhatsApp</button>`
       : '';
@@ -5954,8 +5970,11 @@ function renderMensajeros() {
     return `<div class="m-item ${act?'active':''}" style="cursor:pointer;flex-wrap:wrap;" onclick="selectMensajero(${m.id})" title="Toca para ver sus entregas">
       <div class="m-av">${escapeHTML(ini)}</div>
       <div style="flex:1;min-width:140px;">
-        <div class="m-name">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓ Viendo entregas</span>':''}</div>
-        <div style="font-size:10px;color:var(--gray-400);display:flex;gap:8px;flex-wrap:wrap;margin-top:1px;">${phoneHTML}<span>🛵 ${assigned} entrega${assigned!==1?'s':''} en curso</span></div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="m-name">${escapeHTML(m.name)} ${act?'<span style="color:var(--blue);">✓ Viendo entregas</span>':''}</div>
+          ${badge}
+        </div>
+        <div style="font-size:10px;color:var(--gray-400);display:flex;gap:8px;flex-wrap:wrap;margin-top:1px;">${phoneHTML}${assigned?`<span>${assigned} entrega${assigned!==1?'s':''} en curso</span>`:''}</div>
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;">
           ${waBtn}
           <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="event.stopPropagation();openEditMensajeroModal(${m.id})">✏️ Editar</button>
