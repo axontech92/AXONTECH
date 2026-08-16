@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 92;
+const APP_VERSION = 93;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 92;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.8';
+let _PUBLIC_VERSION_STR = 'v3.9';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '29191550829b0f06';
+let _LOCAL_BUILD_HASH = 'b5f417dbe72aa22d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -3319,6 +3319,13 @@ const LOW_STOCK_THRESHOLD = 3;
 // El botón 🔐 sigue existiendo para lo que no viene de un vale (el cliente que
 // llamó por teléfono); esa reserva manual se suma a la calculada.
 const _VALE_RESERVA_ESTADOS = { pending: 1, assigned: 1 };
+// v93: "¿este vale está apartando stock ahora mismo?" — una sola respuesta para
+// el cálculo y para las chapas que se pintan. Si la pregunta se contestara por
+// separado en cada sitio, acabaría habiendo vales con chapa de reservado que ya
+// no reservan nada.
+function _valeReservaActiva(v) {
+  return !!(v && v.reservado && _VALE_RESERVA_ESTADOS[v.status]);
+}
 let _reservasMemo = null, _reservasMemoTs = 0;
 const _RESERVAS_MEMO_MS = 500;   // basta para cubrir una pasada de render entera
 function _invalidarReservas() { _reservasMemo = null; }
@@ -3328,7 +3335,7 @@ function _reservasPorProducto() {
   if (_reservasMemo && (ahora - _reservasMemoTs) < _RESERVAS_MEMO_MS) return _reservasMemo;
   const mapa = new Map();
   for (const v of getVales()) {
-    if (!v || !v.reservado || !_VALE_RESERVA_ESTADOS[v.status]) continue;
+    if (!_valeReservaActiva(v)) continue;
     for (const it of (v.valeProductos || [])) {
       if (!it || it.id == null) continue;
       const qty = parseInt(it.qty || 0, 10) || 0;
@@ -5052,6 +5059,13 @@ function renderAdminGestores() {
          </div>
          <div style="display:flex;align-items:center;gap:12px;">
            ${(() => {
+             // v93: cuántos de sus vales tienen stock apartado. Va aparte del
+             // contador de nuevos porque son dos cosas distintas: uno es "míralo",
+             // el otro es "esto tiene mercancía comprometida".
+             const _res = pendingVales.filter(_valeReservaActiva).length;
+             return _res ? `<span style="background:rgba(180,83,9,.15);color:#b45309;border:1px solid rgba(180,83,9,.35);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${_res} vale${_res>1?'s':''} con stock apartado">🔐 ${_res}</span>` : '';
+           })()}
+           ${(() => {
              // v85: el número rojo contaba TODOS los vales activos del gestor,
              // vistos o no, así que no bajaba nunca y no servía para saber si
              // había entrado algo nuevo. Ahora el rojo son los que faltan por
@@ -5101,12 +5115,15 @@ function buildInboxCard(v) {
   const estafaMatch=checkEstafaMatch(v);
   const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
   const estafaTag=estafaMatch.length?'<span style="background:var(--red);color:white;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;">🚫 ESTAFA</span>':'';
+  // v93: chapa de reservado, para saber de un vistazo qué vales tienen mercancía
+  // apartada sin tener que abrirlos uno a uno.
+  const reservaTag=_valeReservaActiva(v)?'<span style="background:rgba(180,83,9,.15);color:#b45309;border:1px solid rgba(180,83,9,.35);border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;white-space:nowrap;">🔐 RESERVADO</span>':'';
   return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}${estafaBorder}">
     ${isNew?'<div class="new-dot"></div>':''}
     <div class="ic-head" style="margin-bottom:4px;">
       <span class="ic-time">${timeStr(v.ts)}</span>
     </div>
-    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}</div>
+    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}${reservaTag}</div>
     <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">

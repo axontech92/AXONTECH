@@ -1,10 +1,10 @@
 {
-  "version": 92,
-  "versionStr": "v3.8",
-  "build": 92,
-  "hash": "29191550829b0f06",
-  "hashFull": "29191550829b0f06",
-  "releasedAt": "2026-08-16 20:11",
+  "version": 93,
+  "versionStr": "v3.9",
+  "build": 93,
+  "hash": "b5f417dbe72aa22d",
+  "hashFull": "b5f417dbe72aa22d",
+  "releasedAt": "2026-08-16 20:25",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ARREGLO: al editar un vale y añadirle un producto, el total a pagar no se recalculaba. La cuenta estaba escrita dos veces (formulario del gestor y vale del admin) y en el de editar no estaba ninguna; ahora es una sola para los tres",
-    "NUEVO: el admin puede marcar 🔐 en un vale para apartarle el stock. Esas unidades dejan de estar disponibles para otros vales y se sueltan solas al cobrar, cancelar o borrar el vale — no hay que acordarse de liberarlas",
-    "En Stock, el candado de cada producto ya suma lo apartado por vales, y al abrirlo se ve qué vales lo tienen reservado",
-    "La reserva a mano del botón 🔐 sigue funcionando para lo que no viene de un vale, y se suma a la otra"
+    "ADMIN: en la lista de vales, cada gestor con mercancía apartada enseña un globo 🔐 con cuántos vales suyos la tienen",
+    "Cada vale reservado lleva su chapa 🔐 RESERVADO en la tarjeta, para verlo sin abrirlo",
+    "Las dos chapas desaparecen solas en cuanto el vale se cobra o se cancela, igual que la reserva"
   ]
 }
