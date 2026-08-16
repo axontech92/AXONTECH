@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 88;
+const APP_VERSION = 89;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 88;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.4';
+let _PUBLIC_VERSION_STR = 'v3.5';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd8682e525dc0f33f';
+let _LOCAL_BUILD_HASH = '3abb9630e6ff1e8a';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2016,6 +2016,9 @@ window.addEventListener('offline', () => {
 // también se pausa cuando la pestaña no es visible.
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
+  // La tasa se reintenta al volver; actualizarTasaUSD() se frena sola si el
+  // dato tiene menos de 3 h, así que esto no dispara peticiones de más.
+  if (typeof actualizarTasaUSD === 'function') actualizarTasaUSD(false);
   // Solo actuar si hay trabajo pendiente o Supabase parece desconectado
   if (_sbWriteQueue.length === 0 && _countPendingSyncVales() === 0 && _sbConnected) {
     _updateSyncIndicator();
@@ -3124,6 +3127,9 @@ function _doRefreshUI() {
        }
     }
   }
+  // v89: el chip de la tasa, en los dos roles. El admin la comparte por el
+  // config sincronizado, así que al gestor le llega en este mismo refresco.
+  if(typeof renderTasaBadge === 'function') renderTasaBadge();
 }
 let _rankingIdleHandle = null;
 
@@ -9810,6 +9816,26 @@ function loadGhConfigUI() {
   if(autoPub)autoPub.checked=!!cfg.ghAutoPublishCatalog;
   if(meta)meta.value=cfg.metaPuntos||'';
   if(metaStatus&&cfg.metaPuntos)metaStatus.innerHTML=`<span style="color:var(--green);">✓ Meta actual: ${cfg.metaPuntos} pts</span>`;
+  // v89: fuente de la tasa del dólar
+  const tKey=document.getElementById('cfg-tasa-key');
+  const tUrl=document.getElementById('cfg-tasa-url');
+  if(tKey)tKey.value=tasaApiKey();
+  if(tUrl)tUrl.value=cfg.tasaUrl||'';
+}
+// v89: guarda de dónde sacar la tasa y prueba en el momento, para no dejar al
+// admin sin saber si lo que acaba de pegar sirve o no.
+function saveTasaFuente() {
+  const cfg=getConfig()||{};
+  const tKey=document.getElementById('cfg-tasa-key');
+  const tUrl=document.getElementById('cfg-tasa-url');
+  // La clave se queda SOLO en este teléfono, igual que el token de GitHub: el
+  // config se sincroniza a Supabase y de allí lo lee cualquiera con la anon key,
+  // que es pública. La dirección sí se comparte — no es un secreto y así los
+  // gestores también pueden bajar la tasa por su cuenta.
+  _safeSetLS('axon_tasa_key',(tKey&&tKey.value||'').trim());
+  saveConfig({...cfg, tasaUrl:(tUrl&&tUrl.value||'').trim()});
+  showToast('Fuente guardada · probando…');
+  actualizarTasaUSD(true);
 }
 async function syncToGitHub(silent) {
   const cfg=getConfig();
@@ -11826,6 +11852,229 @@ async function init() {
   // ── Auto-seleccionar gestor fijado al inicio (si existe) ──
   _autoSelectPinnedGestor();
 }
+// ══════════════════════════════════════════
+//  TASA DEL DÓLAR (v89)
+// ══════════════════════════════════════════
+// Chip en la cabecera con la tasa informal del USD en Cuba, la de elToque.
+//
+// Aquí no se puede dar por hecho que haya internet ni que la fuente responda:
+// la app se usa en móviles cubanos y las webs de tasas cambian de sitio cada
+// cierto tiempo. Por eso el valor SIEMPRE se guarda, se enseña aunque sea viejo
+// (con su fecha, para que nadie cobre con una tasa de hace una semana creyendo
+// que es de hoy) y se puede escribir a mano. La descarga automática es una
+// ayuda, no el único camino.
+const TASA_MIN = 20, TASA_MAX = 5000;            // rango de cordura del valor
+const TASA_REFRESCO_MS = 3 * 60 * 60 * 1000;     // no reintentar antes de 3 h
+const TASA_VIEJA_MS = 24 * 60 * 60 * 1000;       // a partir de aquí se marca en naranja
+let _tasaBuscando = false;
+
+function _tasaLocal() { try { return JSON.parse(localStorage.getItem('axon_tasa_usd') || 'null'); } catch(e) { return null; } }
+// La clave de elToque vive solo en este teléfono, nunca en el config que se
+// sincroniza — mismo criterio que el token de GitHub.
+const tasaApiKey = () => { try { return localStorage.getItem('axon_tasa_key') || ''; } catch(e) { return ''; } };
+
+// Lo que se enseña: lo más reciente entre lo que bajó este teléfono y lo que el
+// admin compartió por el config sincronizado. Así un gestor sin acceso a la web
+// de tasas ve igualmente la del admin.
+function tasaUSD() {
+  const cfg = getConfig() || {};
+  const local = _tasaLocal();
+  const compartida = cfg.tasaUSD ? { valor: cfg.tasaUSD, ts: cfg.tasaUSDTs || 0, fuente: cfg.tasaUSDFuente || 'admin' } : null;
+  if (local && compartida) return (local.ts || 0) >= (compartida.ts || 0) ? local : compartida;
+  return local || compartida || null;
+}
+
+function _tasaFechaTxt(ts) {
+  if (!ts) return 'sin fecha';
+  const d = new Date(ts), min = Math.round((Date.now() - ts) / 60000);
+  if (min < 60) return `hace ${Math.max(1, min)} min`;
+  if (min < 60 * 24) return `hace ${Math.round(min / 60)} h`;
+  return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) + ' ' + timeStr(d.toISOString());
+}
+
+function renderTasaBadge() {
+  const b = document.getElementById('tasaUSDBadge');
+  if (!b) return;
+  const val = document.getElementById('tasaUSDValor');
+  const t = tasaUSD();
+  b.style.display = 'inline-flex';
+  if (!t) {
+    if (val) val.textContent = '—';
+    b.title = 'Tasa del dólar · toca para actualizarla o escribirla a mano';
+    b.style.borderColor = 'rgba(255,255,255,.15)';
+    return;
+  }
+  if (val) val.textContent = String(t.valor);
+  const vieja = (Date.now() - (t.ts || 0)) > TASA_VIEJA_MS;
+  // Naranja = el dato tiene más de un día. No se esconde: un valor viejo con su
+  // fecha es más útil que un guion, siempre que se vea que es viejo.
+  b.style.borderColor = vieja ? 'rgba(245,158,11,.65)' : 'rgba(255,255,255,.15)';
+  b.title = `1 USD = ${t.valor} CUP · ${_tasaFechaTxt(t.ts)} · ${t.fuente}${vieja ? ' · dato de más de un día' : ''}`;
+}
+
+// Guarda el valor y, si es el admin, lo comparte con todos por el config que ya
+// se sincroniza. Solo el admin escribe: si lo hiciera cada teléfono, el mismo
+// número se estaría subiendo a Supabase varias veces al día para nada.
+function _aplicarTasa(valor, fuente) {
+  const o = { valor: Math.round(valor * 100) / 100, ts: Date.now(), fuente: fuente || 'elToque' };
+  _safeSetLS('axon_tasa_usd', JSON.stringify(o));
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) {
+    const cfg = getConfig() || {};
+    if (cfg.tasaUSD !== o.valor || !cfg.tasaUSDTs) {
+      saveConfig({ ...cfg, tasaUSD: o.valor, tasaUSDTs: o.ts, tasaUSDFuente: o.fuente });
+    }
+  }
+  renderTasaBadge();
+  return o;
+}
+
+// Las respuestas de estas webs no tienen todas la misma forma, y cambian sin
+// avisar. En vez de casar una estructura exacta se busca el número del USD por
+// las claves donde suele venir, y se descarta lo que no esté en un rango
+// razonable — así un cambio de formato no deja el chip clavado en un número
+// absurdo.
+// Claves donde estas webs suelen meter el número, en orden de preferencia: la
+// mediana es la cifra que publica elToque como tasa del día.
+const _TASA_CLAVES_VALOR = ['median', 'mediana', 'value', 'price', 'rate', 'tasa', 'avg', 'close', 'last'];
+function _valorDeMoneda(o, ok) {
+  if (!o || typeof o !== 'object') return null;
+  for (const k of _TASA_CLAVES_VALOR) { const v = ok(o[k]); if (v) return v; }
+  return null;
+}
+function _extraerTasaUSD(j, prof) {
+  prof = prof || 0;
+  if (j == null || prof > 6) return null;
+  // Devuelve el número o null. Hay webs que mandan el valor como texto ("440"),
+  // así que se acepta también eso; lo que no pase el rango se descarta.
+  const ok = n => {
+    if (typeof n === 'string' && /^\s*-?\d+([.,]\d+)?\s*$/.test(n)) n = parseFloat(n.trim().replace(',', '.'));
+    return (typeof n === 'number' && isFinite(n) && n >= TASA_MIN && n <= TASA_MAX) ? n : null;
+  };
+  if (Array.isArray(j)) {
+    for (let i = j.length - 1; i >= 0; i--) { const v = _extraerTasaUSD(j[i], prof + 1); if (v) return v; }
+    return null;
+  }
+  if (typeof j !== 'object') return null;
+  const cur = String(j.currency || j.cur || j.moneda || '').toUpperCase();
+  if (cur === 'USD') { const v = _valorDeMoneda(j, ok); if (v) return v; }
+  for (const k of ['USD', 'usd', 'Usd']) {
+    const directo = ok(j[k]);
+    if (directo) return directo;
+    if (j[k] && typeof j[k] === 'object') {
+      // Ya sabemos que este objeto ES el del dólar, así que aquí el número que
+      // lleve dentro vale aunque no venga etiquetado otra vez como USD.
+      const v = _valorDeMoneda(j[k], ok) || _extraerTasaUSD(j[k], prof + 1);
+      if (v) return v;
+    }
+  }
+  for (const k of ['tasas', 'rates', 'x_rates', 'data', 'result', 'results', 'items']) {
+    if (j[k] != null) { const v = _extraerTasaUSD(j[k], prof + 1); if (v) return v; }
+  }
+  return null;
+}
+
+function _tasaFuentes() {
+  const cfg = getConfig() || {};
+  const hoy = new Date().toISOString().slice(0, 10);
+  const lista = [];
+  // 1) La que ponga el admin en Config, por si el día de mañana hay que cambiar
+  //    de sitio sin tocar el código.
+  if (cfg.tasaUrl) lista.push({ url: cfg.tasaUrl, opts: {}, nombre: 'propia' });
+  // 2) La API oficial de elToque. Pide una clave que ellos dan al registrarse;
+  //    sin clave no se intenta siquiera, para no gastar la conexión en un 401.
+  const clave = tasaApiKey();
+  if (clave) lista.push({
+    url: `https://tasas.eltoque.com/v1/trmi?date_from=${hoy}%2000:00:01&date_to=${hoy}%2023:59:01`,
+    opts: { headers: { Authorization: 'Bearer ' + clave } },
+    nombre: 'elToque'
+  });
+  // 3) Espejos públicos de esos mismos datos, que no piden clave.
+  lista.push({ url: 'https://api.cambiocuba.money/api/v1/x-rates-by-date-range-history?trmi=true&cur=USD&period=1', opts: {}, nombre: 'elToque (espejo)' });
+  lista.push({ url: 'https://api.cambiocuba.money/api/v1/x-rates', opts: {}, nombre: 'elToque (espejo)' });
+  return lista;
+}
+
+async function actualizarTasaUSD(manual) {
+  if (_tasaBuscando) return null;
+  const actual = tasaUSD();
+  if (!manual && actual && (Date.now() - (actual.ts || 0)) < TASA_REFRESCO_MS) return actual;
+  if (!navigator.onLine) { if (manual) showToast('Sin conexión'); return null; }
+  _tasaBuscando = true;
+  renderTasaModal();
+  try {
+    for (const f of _tasaFuentes()) {
+      try {
+        // Timeout propio: en 2G una petición puede quedarse colgada minutos y
+        // bloquear el intento de la siguiente fuente.
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 9000);
+        let r;
+        try { r = await fetch(f.url, { ...f.opts, signal: ctrl.signal, cache: 'no-store' }); }
+        finally { clearTimeout(to); }
+        if (!r || !r.ok) continue;
+        const valor = _extraerTasaUSD(await r.json());
+        if (valor) { const o = _aplicarTasa(valor, f.nombre); if (manual) showToast(`Tasa actualizada: ${o.valor} CUP 💵`); return o; }
+      } catch(e) { /* fuente caída o bloqueada — se prueba la siguiente */ }
+    }
+    if (manual) showToast('No se pudo leer la tasa · ponla a mano');
+    return null;
+  } finally { _tasaBuscando = false; renderTasaModal(); }
+}
+
+// ── Modal de la tasa ──
+// Se construye desde aquí en vez de meterlo en index.html y admin.html, que
+// obligaría a mantener el mismo bloque en dos sitios.
+function openTasaModal() {
+  let m = document.getElementById('tasaModal');
+  if (!m) {
+    m = document.createElement('div');
+    m.className = 'modal-bg';
+    m.id = 'tasaModal';
+    m.setAttribute('data-cerrar', 'closeTasaModal');
+    m.innerHTML = `<div class="modal" style="max-width:340px;"><div id="tasaModalBody"></div></div>`;
+    document.body.appendChild(m);
+  }
+  m.classList.add('show');
+  renderTasaModal();
+  actualizarTasaUSD(false);
+}
+function closeTasaModal() { const m = document.getElementById('tasaModal'); if (m) m.classList.remove('show'); }
+function renderTasaModal() {
+  const c = document.getElementById('tasaModalBody');
+  if (!c) return;
+  const t = tasaUSD();
+  const esAdmin = (typeof IS_ADMIN !== 'undefined' && IS_ADMIN);
+  const vieja = t && (Date.now() - (t.ts || 0)) > TASA_VIEJA_MS;
+  c.innerHTML = `
+    <div class="modal-title">💵 Tasa del dólar</div>
+    <div class="modal-sub">Mercado informal · elToque</div>
+    <div style="text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;">
+      <div style="font-size:30px;font-weight:800;color:var(--blue);line-height:1.1;">${t ? escapeHTML(String(t.valor)) : '—'}</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">CUP por 1 USD</div>
+      <div style="font-size:11px;color:${vieja ? 'var(--orange)' : 'var(--gray-400)'};margin-top:6px;font-weight:${vieja ? '700' : '400'};">
+        ${t ? `${escapeHTML(_tasaFechaTxt(t.ts))} · ${escapeHTML(t.fuente || '')}` : 'Todavía sin dato'}
+        ${vieja ? '<br>⚠️ Tiene más de un día' : ''}
+      </div>
+    </div>
+    <button class="btn btn-blue btn-full" onclick="actualizarTasaUSD(true)" ${_tasaBuscando ? 'disabled' : ''}>${_tasaBuscando ? '⏳ Buscando…' : '🔄 Actualizar ahora'}</button>
+    ${esAdmin ? `
+    <div class="lbl" style="margin:12px 0 4px;">Ponerla a mano</div>
+    <div style="display:flex;gap:6px;">
+      <input type="number" inputmode="decimal" id="tasaManualInput" placeholder="${t ? escapeHTML(String(t.valor)) : 'Ej: 440'}" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px;color:var(--text);">
+      <button class="btn btn-green" onclick="guardarTasaManual()">Guardar</button>
+    </div>
+    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Lo que guardes aquí lo ven todos los gestores.</div>` : ''}
+    <button class="btn btn-ghost btn-full" style="margin-top:12px;" onclick="closeTasaModal()">Cerrar</button>`;
+}
+function guardarTasaManual() {
+  const inp = document.getElementById('tasaManualInput');
+  const n = parseFloat((inp && inp.value || '').replace(',', '.'));
+  if (!isFinite(n) || n < TASA_MIN || n > TASA_MAX) { showToast(`Pon un número entre ${TASA_MIN} y ${TASA_MAX}`); return; }
+  _aplicarTasa(n, 'a mano');
+  renderTasaModal();
+  showToast('Tasa guardada ✓');
+}
+
 function initGestorPage() {
   // Removed the 12-second setInterval that re-rendered everything — Supabase
   // listeners already trigger refreshUI on every remote change. Only refresh
@@ -11836,6 +12085,7 @@ function initGestorPage() {
   renderGestores();
   renderGestorNotifs();
   renderGestorRanking();
+  renderTasaBadge(); actualizarTasaUSD(false);
   const bc = document.getElementById('btnCatalogo');
   if (bc) bc.style.display = 'inline-flex';
   // Triple-tap on AX logo → go to admin page
@@ -11857,6 +12107,7 @@ function initGestorPage() {
 function initAdminPage() {
   updateAdminBadge(); updateMensajeroBadge();
   renderAuditLog();
+  renderTasaBadge(); actualizarTasaUSD(false);
   if (adminActive) {
     activateAdminMode();
     _resetSessionTimer();

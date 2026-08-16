@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=88">
+  <link rel="stylesheet" href="./app.css?v=89">
   <style>
     /* Splash screen inline — no depende de app.css.
        Se muestra INMEDIATAMENTE al cargar el HTML, antes de que app.js termine.
@@ -58,13 +58,17 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.4</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v3.5</span>
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
     <button onclick="openNotifsModal()" title="Ver Novedades" aria-label="Ver novedades" style="position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;">
       📢 Novedades <span id="notifUnreadBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 5px;font-size:9px;"></span>
     </button>
+    <!-- v89: tasa informal del USD (elToque). El valor y su fecha los pinta
+         renderTasaBadge(); al tocarlo se abre el detalle y se puede refrescar
+         o escribir a mano. -->
+    <button id="tasaUSDBadge" onclick="openTasaModal()" title="Tasa del dólar" aria-label="Tasa del dólar" style="display:none;align-items:center;gap:4px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;">💵 <span id="tasaUSDValor">—</span></button>
     <div class="header-date" id="headerDate"></div>
     <button id="btnCatalogo" onclick="openGestorCatalog()" title="Ver catálogo de productos" aria-label="Ver catálogo de stock" style="display:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;">📦 Stock</button>
     <button id="btnPWAInstallHeader" title="Instalar AXONTECH en tu teléfono" aria-label="Instalar app" style="display:none;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;">📲 Instalar</button>
@@ -755,7 +759,7 @@
 </div>
 
 
-<script src="./app.js?v=88"></script>
+<script src="./app.js?v=89"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

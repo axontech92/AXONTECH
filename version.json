@@ -1,10 +1,10 @@
 {
-  "version": 88,
-  "versionStr": "v3.4",
-  "build": 88,
-  "hash": "d8682e525dc0f33f",
-  "hashFull": "d8682e525dc0f33f",
-  "releasedAt": "2026-08-16 15:45",
+  "version": 89,
+  "versionStr": "v3.5",
+  "build": 89,
+  "hash": "3abb9630e6ff1e8a",
+  "hashFull": "3abb9630e6ff1e8a",
+  "releasedAt": "2026-08-16 19:26",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,9 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Si el vale es RECOGIDA EN TIENDA ya no aparece el botón de asignar mensajero: no hay nada que repartir. En su lugar sale un aviso de que se entrega en el mostrador",
-    "MENSAJEROS: al marcar Entregado el vale se queda donde estaba, con la chapa naranja de Pendiente de cobro y el botón para confirmar el cobro ahí mismo. Antes bajaba a otra sección",
-    "MENSAJEROS: en la lista, el globo azul 🛵 son los vales que lleva encima sin entregar y el naranja ⏳ los que entregó y aún no ha pagado"
+    "Nuevo chip 💵 en la barra de arriba con la tasa informal del dólar (elToque), junto a Novedades y Stock. Al tocarlo se ve el valor, de cuándo es y de dónde salió",
+    "La tasa se intenta bajar sola al abrir la app y al volver a ella, como mucho una vez cada 3 horas. Si el dato tiene más de un día el chip se pone naranja para que nadie cobre con una tasa vieja creyendo que es de hoy",
+    "El admin puede escribirla a mano y todos los gestores la ven: si la web de tasas no responde desde el móvil, la app no se queda sin dato",
+    "En Config hay un apartado para la clave de la API de elToque o para otra dirección, por si algún día cambian de sitio. La clave se queda solo en el teléfono del admin, no se sincroniza"
   ]
 }
