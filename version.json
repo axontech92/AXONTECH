@@ -1,10 +1,10 @@
 {
-  "version": 94,
-  "versionStr": "v4.0",
-  "build": 94,
-  "hash": "a0a0533d24a66b65",
-  "hashFull": "a0a0533d24a66b65",
-  "releasedAt": "2026-08-17 14:28",
+  "version": 95,
+  "versionStr": "v4.1",
+  "build": 95,
+  "hash": "ec894cf4b3492ad6",
+  "hashFull": "ec894cf4b3492ad6",
+  "releasedAt": "2026-08-17 14:33",
   "files": [
     "app.js",
     "app.css",
@@ -14,8 +14,8 @@
     "catalogo.html"
   ],
   "changelog": [
-    "ARREGLO GRAVE: el recálculo de reservas que entró ayer reenviaba la lista completa de productos y, si el teléfono llevaba horas sin refrescar, subía el inventario viejo y borraba las ventas del día. Las unidades apartadas ya no se guardan dentro del producto, sino en su propio documento: el stock queda fuera de ese camino",
-    "El poll ya no baja datos mientras hay una subida en vuelo, que podía pisar el stock recién descontado. A los vales se les puso ese cerrojo hace tiempo; a productos y ajustes se les había olvidado",
-    "TASA: rango de cordura estrechado (antes aceptaba desde 20, por eso coló un 116) y quitada la clave 'price', que es la que usa una tienda para el precio de un artículo"
+    "LA CAUSA DE FONDO: cambiar el stock de UN producto subía el catálogo ENTERO tal como estaba en ese teléfono. Si el teléfono llevaba horas sin refrescar, reponía el inventario viejo de todos los demás productos. Ahora cada cambio sube solo el producto tocado",
+    "Eliminar un producto ahora lo borra de verdad. Antes solo se quitaba del teléfono y la siguiente sincronización lo devolvía a la vida",
+    "Arreglado un índice interno de productos que no se refrescaba al bajar datos nuevos: productoOf() devolvía objetos viejos, y por ahí volvía stock antiguo al almacén al revertir un vale"
   ]
 }

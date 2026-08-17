@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 94;
+const APP_VERSION = 95;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 94;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v4.0';
+let _PUBLIC_VERSION_STR = 'v4.1';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a0a0533d24a66b65';
+let _LOCAL_BUILD_HASH = 'ec894cf4b3492ad6';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -1036,7 +1036,15 @@ async function _doRestPoll() {
           _safeSetLS('axon_'+node, JSON.stringify(arr)); // v65: idem — fallo de guardado visible
           if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
           else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
-          else if(node==='productos'){_productosCache=arr;_productosDirty=false;}
+          else if(node==='productos'){
+            // v95: _productosMap=null es OBLIGATORIO. Ese índice solo se
+            // reconstruía al guardar, así que tras bajar productos nuevos
+            // productoOf() seguía devolviendo los objetos VIEJOS para siempre —
+            // y hay escrituras que leen de ahí (devolver stock al revertir un
+            // vale, el modal de stock, la venta directa), así que el dato viejo
+            // acababa volviendo al almacén.
+            _productosCache=arr;_productosDirty=false;_productosMap=null;
+          }
           else if(node==='categorias'){_categoriasCache=arr;_categoriasDirty=false;}
         } finally { _syncCount--; }
       } catch(e) { console.warn(`[rest-poll] ${node} sync error:`, e && e.message); }
@@ -2539,7 +2547,42 @@ const getProductos  = () => {
   }
   return _productosCache;
 };
+// ⚠️ saveProductos SUBE EL CATÁLOGO ENTERO. Úsalo solo cuando de verdad quieras
+// reemplazarlo todo (importar, restaurar, cargar demo). Para cambiar uno o dos
+// productos usa guardarProductos(lista, ids), justo debajo.
 const saveProductos = v  => { if(Array.isArray(v)) v.forEach(_normalizeProducto); _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; _productosMap = null; if (!isSyncingFromSupabase()) setSB('productos', v); triggerAutoPublishCatalog(); };
+
+// ── v95: guardar SOLO los productos que cambian ─────────────────────────────
+// El 16/08 se perdió el inventario de un día entero por esto. Alguien tocó el
+// stock desde un segundo teléfono y, en vez de subir ese producto, subió su
+// copia COMPLETA del catálogo — que llevaba horas sin refrescarse, porque la
+// lista de productos solo se baja cada 5 minutos y nunca con la app en segundo
+// plano. El upsert de Supabase no compara fechas: el último que escribe gana.
+// Así que un teléfono desactualizado podía reponer el inventario de la mañana
+// con una sola pulsación, y ni siquiera hacía falta mala suerte.
+//
+// Ahora cada cambio manda solo las filas tocadas. Las demás ni se mencionan, así
+// que lo que otro dispositivo haya hecho mientras tanto sobrevive intacto.
+// Un id que ya no está en la lista se manda como null y eso SÍ borra la fila en
+// Supabase — antes, borrar un producto solo lo quitaba del teléfono y volvía a
+// aparecer en la siguiente sincronización.
+function guardarProductos(lista, ids) {
+  if (Array.isArray(lista)) lista.forEach(_normalizeProducto);
+  _safeSetLS('axon_productos', JSON.stringify(lista));
+  _productosCache = lista; _productosDirty = false; _productosMap = null;
+  if (!isSyncingFromSupabase()) {
+    const porId = new Map();
+    (lista || []).forEach(p => { if (p && p.id != null) porId.set(String(p.id), p); });
+    const cambios = {};
+    (ids || []).forEach(id => {
+      if (id == null) return;
+      const k = String(id);
+      cambios[k] = porId.has(k) ? porId.get(k) : null;   // null = borrar la fila
+    });
+    if (Object.keys(cambios).length) _enqueueSB('productos', cambios, 'update');
+  }
+  triggerAutoPublishCatalog();
+}
 
 const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
 const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromSupabase()) setSB('categorias', v); };
@@ -3299,11 +3342,11 @@ function valeNumStr(v) {
   return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
 }
 function patchProducto(id, changes) {
-  // v65: .slice() por coherencia con patchVale. Hoy saveProductos() sube el
-  // array entero y no hace diff, así que aquí no había fallo; pero si mañana se
-  // le añade un diff, el stock heredaría exactamente el bug de v59.
+  // v65: .slice() para no mutar el array vivo del caché.
+  // v95: sube SOLO este producto. Antes reenviaba el catálogo entero, y con él
+  // el stock de todos los demás tal y como estuviera en este teléfono.
   const all = getProductos().slice(); const i = all.findIndex(p=>p.id===id);
-  if (i!==-1){all[i]={...all[i],...changes};saveProductos(all);}
+  if (i!==-1){all[i]={...all[i],...changes};guardarProductos(all,[id]);}
 }
 
 // ══════════════════════════════════════════
@@ -3442,11 +3485,14 @@ function _isPartiallyReserved(p) {
 // que tenían 4 copias del mismo bloque con divergencias sutiles.
 // Ver AUDITORIA-AXONTECH.md MEDIO 28.
 function _descontarStock(v) {
-  const prods = getProductos();
+  // v95: .slice() y lista de tocados, para subir solo esos.
+  const prods = getProductos().slice();
+  const tocados = [];
   let stockChanged = false;
   (v.valeProductos || []).forEach(({id:pid, qty}) => {
     const idx = prods.findIndex(p => p.id === pid);
     if (idx === -1) return;
+    tocados.push(pid);
     const oldStock = prods[idx].stock || 0;
     const newStock = Math.max(0, oldStock - qty);
     prods[idx] = {...prods[idx], stock: newStock};
@@ -3455,7 +3501,7 @@ function _descontarStock(v) {
     if (newStock === 0 && oldStock > 0) addNotif('out_of_stock', prods[idx].name, pid, 'stock agotado');
     else if (newStock > 0 && newStock <= LOW_STOCK_THRESHOLD && oldStock > LOW_STOCK_THRESHOLD) addNotif('low_stock', prods[idx].name, pid, `quedan ${newStock}`);
   });
-  if (stockChanged) saveProductos(prods);
+  if (stockChanged) guardarProductos(prods, tocados);
   return stockChanged;
 }
 
@@ -7477,7 +7523,7 @@ function openProductPicker() {
           // v41: Normalize products from Supabase
           prodArr.forEach(_normalizeProducto);
           localStorage.setItem('axon_productos', JSON.stringify(prodArr));
-          _productosCache = prodArr; _productosDirty = false;
+          _productosCache = prodArr; _productosDirty = false; _productosMap = null;  // v95
           if (catArr && catArr.length > 0) {
             localStorage.setItem('axon_categorias', JSON.stringify(catArr));
             _categoriasCache = catArr; _categoriasDirty = false;
@@ -8231,7 +8277,7 @@ function saveProduct() {
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
-    const list=getProductos();list.push({id:newId,...prod});saveProductos(list);
+    const list=getProductos().slice();list.push({id:newId,...prod});guardarProductos(list,[newId]);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
   }
@@ -8241,7 +8287,10 @@ function removeProducto(id) {
   const p=productoOf(id);
   const name = p ? p.name : 'este producto';
   showConfirmAction('¿Eliminar este producto?', name, 'Eliminar', 'btn-red', () => {
-    saveProductos(getProductos().filter(x=>x.id!==id));
+    // v95: al mandar este id como ausente, guardarProductos manda un borrado
+    // de verdad. Antes solo se quitaba del teléfono y la siguiente
+    // sincronización lo devolvía a la vida.
+    guardarProductos(getProductos().filter(x=>x.id!==id), [id]);
     renderProductGrid();renderStockCategorias();showToast('Producto eliminado');
   });
 }
@@ -8999,7 +9048,7 @@ function openGestorCatalog() {
         _syncCount++;
         try {
           localStorage.setItem('axon_productos', JSON.stringify(prodArr));
-          _productosCache = prodArr; _productosDirty = false;
+          _productosCache = prodArr; _productosDirty = false; _productosMap = null;  // v95
           if (catArr && catArr.length > 0) {
             localStorage.setItem('axon_categorias', JSON.stringify(catArr));
             _categoriasCache = catArr; _categoriasDirty = false;
@@ -9240,7 +9289,7 @@ function renderAdminCatalog() {
         _syncCount++;
         try {
           localStorage.setItem('axon_productos', JSON.stringify(prodArr));
-          _productosCache = prodArr; _productosDirty = false;
+          _productosCache = prodArr; _productosDirty = false; _productosMap = null;  // v95
           if (catArr && catArr.length > 0) {
             localStorage.setItem('axon_categorias', JSON.stringify(catArr));
             _categoriasCache = catArr; _categoriasDirty = false;
@@ -10908,7 +10957,7 @@ async function nukeAndRebuild() {
     _gestoresCache=null;_gestoresDirty=true;
     _valesCache=null;_valesDirty=true;
     _mensajerosCache=null;_mensajerosDirty=true;
-    _productosCache=null;_productosDirty=true;
+    _productosCache=null;_productosDirty=true;_productosMap=null;  // v95
     _categoriasCache=null;_categoriasDirty=true;
     _notifsCache=null;_notifsDirty=true;
     _estafaCache=null;_estafaDirty=true;
