@@ -21,6 +21,10 @@ on:
         description: 'Saltar el ancla (usar tras un movimiento real del mercado)'
         type: boolean
         default: false
+      urls_prueba:
+        description: 'Direcciones extra a probar, separadas por comas (solo con diagnóstico)'
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -45,6 +49,7 @@ jobs:
           ELTOQUE_API_KEY: ${{ secrets.ELTOQUE_API_KEY }}
           TASA_URL_EXTRA: ${{ vars.TASA_URL_EXTRA }}
           TASA_DIAG: ${{ inputs.diagnostico && '1' || '' }}
+          TASA_URLS_PRUEBA: ${{ inputs.urls_prueba }}
           TASA_FORZAR: ${{ inputs.forzar && '1' || '' }}
         run: python3 tasa_usd.py
 

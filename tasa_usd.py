@@ -282,6 +282,21 @@ CABECERAS_NAVEGADOR = {
     'Origin': 'https://cambiocuba.money',
 }
 
+# Para las páginas web: un 403 suele venir de un portero (Cloudflare) que mira si
+# la petición se parece a la de un navegador de verdad. Con las cabeceras
+# completas a veces pasa. Si aun así devuelve 403, es que bloquea por IP —los
+# servidores de GitHub están en listas de centros de datos— y no hay cabecera que
+# lo arregle.
+CABECERAS_PAGINA = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Upgrade-Insecure-Requests': '1',
+}
+
 
 def fuentes():
     hoy = datetime.now(timezone.utc).strftime('%Y-%m-%d')
@@ -308,11 +323,22 @@ def fuentes():
     # La web de elToque publica sus tasas y, al estar hecha con Next.js, manda el
     # dato ya escrito dentro de la página. No hace falta clave ni navegador.
     lista.append(('elToque (web)',
-                  'https://eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy', None, 'auto'))
-    lista.append(('cambiocuba.money (web)', 'https://cambiocuba.money/', None, 'auto'))
+                  'https://eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy',
+                  CABECERAS_PAGINA, 'auto'))
+    lista.append(('elToque (web, www)',
+                  'https://www.eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy',
+                  CABECERAS_PAGINA, 'auto'))
+    lista.append(('cambiocuba.money (web)', 'https://www.cambiocuba.money/',
+                  CABECERAS_PAGINA, 'auto'))
     extra = os.environ.get('TASA_URL_EXTRA', '').strip()
     if extra:
-        lista.append(('fuente propia', extra, None, 'auto'))
+        lista.append(('fuente propia', extra, CABECERAS_PAGINA, 'auto'))
+    # Solo para el modo diagnóstico: lista de direcciones separadas por comas que
+    # se quieren probar sin tocar el código. Así se puede buscar una fuente nueva
+    # desde el botón de Actions en vez de a ciegas.
+    for i, u in enumerate(
+            [x.strip() for x in os.environ.get('TASA_URLS_PRUEBA', '').split(',') if x.strip()]):
+        lista.append((f'prueba {i + 1}', u, CABECERAS_PAGINA, 'auto'))
     # tiendamax.org estuvo aquí como última reserva y fue justo quien publicó el
     # 116. Ver la nota larga arriba: su tasa la pinta el navegador, así que en el
     # HTML solo hay "USD --" y cualquier número que se saque de ahí es otra cosa.
