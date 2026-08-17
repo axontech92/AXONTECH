@@ -1,0 +1,17 @@
+name: Verificar el orden de los gestores
+
+# Ejecuta las funciones REALES de app.js contra los datos reales de Supabase y
+# dice si el orden por comisión cambia la lista o no. No escribe nada.
+# Existe porque replicar el cálculo por mi cuenta dio cifras equivocadas y una
+# conclusión equivocada con ellas: si hay que comprobar qué hace un código, se
+# ejecuta ese código.
+on:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ejecutar
+        run: node verificar_orden.js
