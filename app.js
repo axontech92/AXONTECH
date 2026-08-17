@@ -5130,13 +5130,24 @@ function _updateGestoresCountBadge() {
 // listar a cada gestor por nombre — mismo dato repetido dos veces en la misma
 // pestaña. Ahora las comisiones son una tercera fila plegable DENTRO de la
 // misma tarjeta (reutiliza renderComisionBody, que no cambió).
-// Lo que se le debe a un gestor ahora mismo: vales cobrados cuya comisión no se
-// ha pagado ni está en el sobre. v99: estaba escrito dentro del orden de este
-// panel; se saca aquí porque la bandeja de vales lo necesita para lo mismo, y
-// dos copias de esta regla acabarían divergiendo como ya pasó con otras.
+// Lo que se le DEBE a un gestor: todo lo de sus ventas cobradas que aún no ha
+// cobrado él. Incluye lo que está "en sobre".
+//
+// ⚠ v102 — esto estaba mal y por eso el panel parecía no ordenarse.
+// La versión anterior descartaba los vales con commissionStatus 'en_sobre', y
+// resulta que ahí es donde está casi todo el dinero: un gestor con once vales y
+// $185 + 46500 MN apartados en sobres contaba como CERO para el orden y caía al
+// final de la lista, entre los que no han vendido nada. En pantalla se le veía
+// su chapa con la cifra —esa sí sumaba el sobre—, así que la lista parecía
+// ignorar un número que estaba ahí escrito.
+//
+// "En sobre" significa apartado, no pagado: el gestor sigue sin tener ese
+// dinero en la mano. Para saber a quién hay que pagar —que es para lo que se
+// usa esta lista— cuenta igual que lo pendiente. Lo único que sale de la cuenta
+// es lo ya cobrado.
 function comisionPendienteDe(gestorId) {
   const vs = getVales().filter(v => v.gestorId === gestorId && v.status === 'confirmed'
-    && !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
+    && !v.commissionPaid && v.commissionStatus !== 'cobrado');
   try { return sumCommissions(vs); } catch(e) { return { usd: 0, mn: 0 }; }
 }
 // Compara dos gestores por lo que se les debe, de más a menos. Devuelve 0 si

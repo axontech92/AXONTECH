@@ -75,7 +75,11 @@ function filasA(lista) {
 
   // Las funciones de las que dependen las de comisiones. Se toman de app.js
   // cuando existen como función declarada; si no, se pone el equivalente mínimo.
-  const mapaProd = new Map(productos.map(p => [p.id, p]));
+  // getProductos() normaliza cada producto al leerlo (rellena precio desde
+  // precioActual, comisionMoneda, etc.) y el cálculo de comisiones depende de
+  // esos campos. Sin normalizar, este banco de pruebas daba cifras más bajas que
+  // la app y me llevó a una conclusión equivocada. Se normaliza igual que allí.
+  let mapaProd = new Map();
   const contexto = {
     getVales: () => vales,
     getProductos: () => productos,
@@ -83,7 +87,7 @@ function filasA(lista) {
     console,
   };
 
-  const fuentes = ['parsePrecioNum', 'getValeCommissionParts', 'sumCommissions',
+  const fuentes = ['_normalizeProducto', 'parsePrecioNum', 'getValeCommissionParts', 'sumCommissions',
                    'fmtComisionBadge', 'comisionPendienteDe', '_cmpComisionPendiente'];
   let codigo = '';
   for (const n of fuentes) {
@@ -93,9 +97,11 @@ function filasA(lista) {
 
   const nombres = Object.keys(contexto);
   const fn = new Function(...nombres, codigo + `
-    return { comisionPendienteDe, _cmpComisionPendiente, sumCommissions, fmtComisionBadge };
+    return { _normalizeProducto, comisionPendienteDe, _cmpComisionPendiente, sumCommissions, fmtComisionBadge };
   `);
   const api = fn(...nombres.map(n => contexto[n]));
+  productos.forEach(api._normalizeProducto);
+  mapaProd = new Map(productos.map(p => [p.id, p]));
 
   // El mismo orden que aplica renderAdminGestoresList: alfabético y luego por
   // comisión pendiente (Array.sort es estable, así que el alfabético desempata).
