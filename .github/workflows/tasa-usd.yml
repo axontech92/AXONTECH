@@ -6,10 +6,12 @@ name: Tasa del dólar
 # las webs de tasas no lo autorizan. Este trabajo corre en un servidor de
 # GitHub, donde esa restricción no existe.
 on:
-  schedule:
-    # Cada 3 horas. El minuto 17 a propósito: en punto es cuando más trabajos
-    # programados se acumulan en GitHub y más se retrasan.
-    - cron: '17 */3 * * *'
+  # PARADO el 17/08/2026. El scraping de tiendamax.org devolvió 116 en lugar de
+  # ~665 y el trabajo estuvo publicando ese valor cada 3 horas. Hasta que la
+  # validación sea de fiar, esto solo se ejecuta a mano desde la pestaña Actions.
+  # Para reactivarlo, descomenta el bloque schedule.
+  # schedule:
+  #   - cron: '17 */3 * * *'
   workflow_dispatch:        # botón manual en la pestaña Actions
 
 permissions:
