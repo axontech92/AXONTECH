@@ -189,6 +189,38 @@ def extraer_de_html_incrustado(html):
     return None
 
 
+def extraer_de_html_texto(html):
+    """Último recurso: números en rango cerca de las palabras del dólar.
+
+    Esto es EXACTAMENTE lo que publicó el 116, así que vuelve con una correa:
+    quien llame a esto marca el valor como débil, y un valor débil solo se
+    publica si el ancla lo respalda (ver main). Antes no había ancla y por eso
+    un precio cualquiera pasaba por tasa; ahora, para colarse, un número tendría
+    que estar además a menos de un 25 % de la última tasa buena — que ya no es
+    un número cualquiera, es prácticamente la tasa.
+    """
+    texto = re.sub(r'<script\b.*?</script>|<style\b.*?</style>', ' ', html,
+                   flags=re.S | re.I)
+    texto = re.sub(r'<[^>]+>', ' ', texto)
+    texto = re.sub(r'&nbsp;?', ' ', texto)
+    texto = re.sub(r'\s+', ' ', texto)
+
+    candidatos = []
+    for m in re.finditer(r'\bUSD\b|\bd[oó]lar(?:es)?\b', texto, flags=re.I):
+        marca = m.group(0).upper()
+        ventana = texto[max(0, m.start() - 90): m.end() + 90]
+        for num in re.finditer(r'\b(\d{2,4}(?:[.,]\d{1,2})?)\b', ventana):
+            n = _num(num.group(1))
+            if n:
+                candidatos.append((marca, n, ventana.strip()))
+    if not candidatos:
+        log('      · tampoco hay números de tasa en el texto de la página')
+        return None
+    for marca, n, ctx in candidatos[:4]:
+        log(f'      · candidato débil {n} (junto a "{marca}"): …{ctx[:120]}…')
+    return candidatos[0][1]
+
+
 def pedir(url, headers=None):
     req = urllib.request.Request(url, headers={'User-Agent': UA, **(headers or {})})
     with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
@@ -328,8 +360,10 @@ def fuentes():
     lista.append(('elToque (web, www)',
                   'https://www.eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy',
                   CABECERAS_PAGINA, 'auto'))
-    lista.append(('cambiocuba.money (web)', 'https://www.cambiocuba.money/',
-                  CABECERAS_PAGINA, 'auto'))
+    # elveedor responde 200 desde los servidores de GitHub —de las pocas que no
+    # bloquean—, pero su tasa no viene en datos incrustados. Se lee del texto, y
+    # por eso solo pasa si el ancla la respalda.
+    lista.append(('elveedor.com', 'https://www.elveedor.com/', CABECERAS_PAGINA, 'auto'))
     extra = os.environ.get('TASA_URL_EXTRA', '').strip()
     if extra:
         lista.append(('fuente propia', extra, CABECERAS_PAGINA, 'auto'))
@@ -373,12 +407,17 @@ def main():
                     valor = extraer_de_json(json.loads(cuerpo))
                 except Exception:
                     pass
+            debil = False
             if valor is None and tipo in ('html', 'auto'):
                 valor = extraer_de_html_incrustado(cuerpo)
+            if valor is None and tipo in ('html', 'auto'):
+                valor = extraer_de_html_texto(cuerpo)
+                debil = valor is not None
             if valor:
                 vivas += 1
                 dentro = validar_con_ancla(valor, ancla, ts_ancla)
-                log(f'    ✅ leería {valor} · {"pasa" if dentro else "la rechaza"} el ancla')
+                etiqueta = 'del texto (débil)' if debil else 'de datos (fiable)'
+                log(f'    ✅ leería {valor} {etiqueta} · {"pasa" if dentro else "la rechaza"} el ancla')
             else:
                 log('    ✗ respondió, pero no trae la tasa')
         log(f'· Resumen: {vivas} fuente(s) utilizable(s).')
@@ -404,20 +443,37 @@ def main():
                 if tipo == 'json':
                     log(f'    ✗ no es JSON válido: {e}')
                     log(f'      primeros 200 caracteres: {cuerpo[:200]!r}')
+        debil = False
         if valor is None and tipo in ('html', 'auto'):
             valor = extraer_de_html_incrustado(cuerpo)
+        if valor is None and tipo in ('html', 'auto'):
+            # Raspar el texto es lo que produjo el 116. Se permite, pero marcado:
+            # abajo se exige que el ancla lo respalde.
+            valor = extraer_de_html_texto(cuerpo)
+            debil = valor is not None
 
         if valor:
             valor_redondeado = round(valor, 2)
             # Validar contra el ancla antes de escribir
             valor_ancla, ts_ancla = leer_ancla()
+            if debil and valor_ancla is None:
+                # Sin ancla no hay con qué contrastar, y un número sacado del
+                # texto sin contrastar es justo el 116 otra vez. Se descarta: es
+                # preferible quedarse con la tasa vieja y su fecha en naranja.
+                log('    ✗ valor del texto sin ancla que lo respalde — no se publica')
+                continue
+            if debil and os.environ.get('TASA_FORZAR') == '1':
+                # Forzar sirve para reanclar a mano con una fuente FIABLE, no
+                # para bendecir un número raspado de una página cualquiera.
+                log('    ✗ TASA_FORZAR no se aplica a valores del texto — no se publica')
+                continue
             if not validar_con_ancla(valor_redondeado, valor_ancla, ts_ancla):
                 log(f'    ✗ valor rechazado por band-clamping (ancla={valor_ancla})')
                 continue
 
             datos = {
                 'valor': valor_redondeado,
-                'fuente': nombre,
+                'fuente': nombre + (' · leído del texto' if debil else ''),
                 'ts': int(datetime.now(timezone.utc).timestamp() * 1000),
                 'actualizado': datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),
             }

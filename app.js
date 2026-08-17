@@ -350,6 +350,109 @@ async function _detectGestorRpc() {
   return _sbGestorRpcAvailable;
 }
 
+// ════════════════════════════════════════
+//  v96: RPC aplicar_delta_stock
+// ════════════════════════════════════════
+//  Desde v95 cada venta sube solo el producto tocado, así que un teléfono con la
+//  copia vieja ya no puede reponer el catálogo entero. Pero lo que sube sigue
+//  siendo un número ABSOLUTO, y eso deja un hueco más pequeño y más tonto:
+//
+//    El teléfono A lee stock=10, vende 2 y escribe 8.
+//    El teléfono B, que también leyó 10, vende 1 y escribe 9.
+//
+//  Salieron 3 unidades y en la nube quedan 9. No hace falta una caché de ayer:
+//  basta con que los dos hayan mirado en los últimos 5 minutos.
+//
+//  Con el RPC el teléfono deja de decir "queda en 8" y dice "quita 2". El orden
+//  de llegada da igual y no hay foto vieja de por medio. Requiere ejecutar
+//  migration_v96_stock.sql; si no está, se hace leer-restar-escribir contra
+//  Supabase, que tiene una ventana mínima pero sigue partiendo del dato bueno.
+let _sbStockRpcAvailable = null; // null=sin saber, true=disponible, false=no
+
+async function _detectStockRpc() {
+  if (_sbStockRpcAvailable !== null) return _sbStockRpcAvailable;
+  try {
+    // Sonda con delta 0 sobre un id que no existe: si la función está, responde
+    // 200 con -1 (producto no encontrado); si no está, 404. En ningún caso toca
+    // un dato real.
+    const res = await fetch(`${_SB_REST}/rpc/aplicar_delta_stock`, {
+      method: 'POST', headers: _SB_AUTH_HDRS,
+      body: JSON.stringify({ p_id: 0, p_delta: 0 })
+    });
+    _sbStockRpcAvailable = (res.status !== 404);
+    console.log(`[sb] aplicar_delta_stock RPC: ${_sbStockRpcAvailable ? 'disponible' : 'NO disponible (leer-restar-escribir)'}`);
+  } catch (e) {
+    _sbStockRpcAvailable = false;
+    console.warn('[sb] Error detectando RPC aplicar_delta_stock:', e.message);
+  }
+  return _sbStockRpcAvailable;
+}
+
+// Aplica el stock que devuelve el servidor sobre la copia local, sin encolar
+// nada: es un dato que BAJA, no un cambio nuestro. Si no coincide con lo que
+// teníamos, manda el servidor — ahí está la venta del otro teléfono.
+function _asentarStockServidor(id, stockServidor) {
+  if (stockServidor == null || stockServidor < 0) return;
+  const lista = getProductos();
+  const i = lista.findIndex(p => p && p.id === id);
+  if (i === -1) return;
+  const local = parseInt(lista[i].stock || 0, 10);
+  if (local === stockServidor) return;
+  console.log(`[sb] stock de ${id}: local ${local} → servidor ${stockServidor}`);
+  lista[i] = { ...lista[i], stock: stockServidor };
+  _safeSetLS('axon_productos', JSON.stringify(lista));
+  _productosCache = lista; _productosDirty = false; _productosMap = null;
+  if (typeof renderProductGrid === 'function') { try { renderProductGrid(); } catch(e) {} }
+}
+
+// mapa: {idProducto: delta}. Negativo descuenta.
+async function _sbRestAplicarDeltas(mapa) {
+  const entradas = Object.entries(mapa || {}).filter(([, d]) => Number(d));
+  if (!entradas.length) return;
+  const disponible = await _detectStockRpc();
+  for (const [idStr, delta] of entradas) {
+    const id = Number(idStr);
+    if (disponible) {
+      const res = await fetch(`${_SB_REST}/rpc/aplicar_delta_stock`, {
+        method: 'POST', headers: _SB_AUTH_HDRS,
+        body: JSON.stringify({ p_id: id, p_delta: Number(delta) })
+      });
+      if (res.status === 404) {
+        _sbStockRpcAvailable = false;           // la migración se revirtió
+        await _deltaStockPorLectura(id, Number(delta));
+        continue;
+      }
+      if (!res.ok) {
+        const t = await res.text().catch(() => '');
+        throw new Error(`RPC aplicar_delta_stock(${id}) ${res.status}: ${t.slice(0,150)}`);
+      }
+      const nuevo = await res.json().catch(() => null);
+      _asentarStockServidor(id, typeof nuevo === 'number' ? nuevo : null);
+    } else {
+      await _deltaStockPorLectura(id, Number(delta));
+    }
+  }
+}
+
+// Sin la función SQL: se lee la fila, se aplica el delta sobre lo que hay en la
+// nube (no sobre la pantalla) y se escribe. Queda una rendija entre leer y
+// escribir, pero es de milisegundos en vez de los 5 minutos de la caché.
+async function _deltaStockPorLectura(id, delta) {
+  const url = `${_SB_REST}/productos?select=data&id=eq.${encodeURIComponent(String(id))}`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) throw new Error(`GET productos/${id} ${res.status}`);
+  const filas = await res.json().catch(() => []);
+  if (!filas || !filas.length) return;            // ya no está: nada que restar
+  const data = filas[0].data || {};
+  const nuevo = Math.max(0, (parseInt(data.stock || 0, 10) || 0) + delta);
+  const patch = await fetch(`${_SB_REST}/productos?id=eq.${encodeURIComponent(String(id))}`, {
+    method: 'PATCH', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ data: { ...data, stock: nuevo } })
+  });
+  if (!patch.ok) throw new Error(`PATCH productos/${id} ${patch.status}`);
+  _asentarStockServidor(id, nuevo);
+}
+
 // Llama al RPC upsert_vale_from_gestor para un vale individual.
 // items: [{id, value}, ...]  — value es el slim del vale (sin campos del admin)
 async function _sbRestUpsertValeFromGestorBatch(items) {
