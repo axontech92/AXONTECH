@@ -287,6 +287,62 @@ async function _sbRestGetCollection(collName) {
   const rows = await res.json();
   return (rows || []).map(r => r.data).filter(x => x != null);
 }
+
+// ── v103: preguntar antes de bajar, en vez de bajar para preguntar ─────────
+// El 17/08/2026 el plan gratuito de Supabase (5 GB de salida al mes) se agotó
+// a la mitad del ciclo. La causa: _sbRestGetCollection('vales') se llamaba
+// cada 5 SEGUNDOS desde cualquier teléfono sin gestor activo (el admin,
+// básicamente) — la tabla vales ENTERA, se hubiera movido algo o no. Con la
+// pantalla del admin abierta una jornada de 10 horas eso son 7.200 descargas
+// completas al día de un solo teléfono.
+//
+// Cada tabla ya lleva un `updated_at` que un trigger de Postgres actualiza
+// solo (ver supabase_schema.sql): ningún camino de escritura —upsert, RPC,
+// borrado— puede dejarlo desactualizado, así que sirve para preguntar "¿hay
+// ALGO más nuevo que la última vez?" con una consulta de un puñado de bytes
+// en vez de la tabla entera. Si la respuesta es no, no hay nada que fusionar
+// y se sale sin gastar el ancho de banda.
+//
+// Lo único que este truco NO puede ver es un BORRADO: la fila desaparece, no
+// queda un updated_at más reciente que avise de ello. Por eso quien lo usa
+// (_doRestPoll) igual fuerza una bajada real de vez en cuando pase lo que
+// pase — la red de seguridad que limita cuánto puede tardar un borrado en
+// notarse, sin volver a la descarga constante de antes.
+async function _sbRestHayCambios(collName, desdeISO) {
+  if (!desdeISO) return true; // sin referencia previa: no se puede saber → se baja todo
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=id&updated_at=gt.${encodeURIComponent(desdeISO)}&limit=1`;
+  try {
+    const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+    if (!res.ok) return true; // ante la duda, se baja todo — nunca debe quedarse corto
+    const rows = await res.json().catch(() => null);
+    return !Array.isArray(rows) || rows.length > 0;
+  } catch (e) { return true; }
+}
+// Como _sbRestGetCollection, pero además devuelve el updated_at más reciente
+// visto — DEL SERVIDOR, no del reloj del teléfono (que puede estar mal puesto
+// y hacer que _sbRestHayCambios descarte un cambio real o repita trabajo de
+// más). Ese valor es lo que se usa como referencia la próxima vez.
+async function _sbRestGetCollectionYTs(collName) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data,updated_at&order=id.asc`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) { if (res.status === 404) return { items: [], maxTs: null }; throw new Error(`Supabase GET ${collName} ${res.status}`); }
+  const rows = await res.json();
+  const items = []; let maxTs = null;
+  (rows || []).forEach(r => {
+    if (r && r.data != null) items.push(r.data);
+    if (r && r.updated_at && (!maxTs || r.updated_at > maxTs)) maxTs = r.updated_at;
+  });
+  return { items, maxTs };
+}
+// Estado del truco de arriba, por colección. _ultimaTsVisto guarda la
+// referencia para la pregunta barata; _ultimoFetchReal, cuándo fue la última
+// vez que de verdad se bajó algo (para la red de seguridad de los borrados).
+let _ultimaTsVisto = {};
+let _ultimoFetchReal = {};
+// vales: red de seguridad corta (30 s) — un vale es dinero, que un borrado
+// tarde medio minuto en notarse no lo nota nadie. lento: los cuatro nodos que
+// ya iban cada 5 min; 20 min de red de seguridad es de sobra para un catálogo.
+const _GATE_SEGURIDAD_MS = { vales: 30000, lento: 20 * 60000 };
 // ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
 // Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
 // —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
@@ -930,10 +986,27 @@ async function _doRestPoll() {
         // Si el filtrado falla, _sbRestGetValesDeGestor devuelve null y se cae a
         // la descarga completa de siempre.
         let rawVales = null;
+        let _saltarVales = false;
         if (!IS_ADMIN && activeGestorId != null) {
           rawVales = await _sbRestGetValesDeGestor(activeGestorId);
         }
-        if (rawVales === null) rawVales = await _sbRestGetCollection('vales');
+        if (rawVales === null) {
+          // v103: aquí es donde se iban los GB — ver la nota grande junto a
+          // _sbRestHayCambios(). Se pregunta primero con una consulta mínima;
+          // solo si dice que sí (o toca la red de seguridad) se baja la tabla.
+          const _tsVales = _ultimaTsVisto.vales;
+          const _fetchViejo = (Date.now() - (_ultimoFetchReal.vales || 0)) > _GATE_SEGURIDAD_MS.vales;
+          const _hayCambiosVales = (_tsVales === undefined) || _fetchViejo || await _sbRestHayCambios('vales', _tsVales);
+          if (_hayCambiosVales) {
+            const _r = await _sbRestGetCollectionYTs('vales');
+            rawVales = _r.items;
+            _ultimoFetchReal.vales = Date.now();
+            _ultimaTsVisto.vales = _r.maxTs || new Date().toISOString();
+          } else {
+            _saltarVales = true; // nada nuevo — no hay nada que fusionar esta vez
+          }
+        }
+        if (_saltarVales) { /* nada que hacer: el estado local ya refleja lo último visto */ } else {
         const flatVales = _flattenValesFromSB(rawVales);
         // v67: aquí iba el log [AXON-DIAG] por cada pasada del poll, que sirvió
         // para localizar por qué los estados no llegaban al gestor. Ya cumplió y
@@ -1201,6 +1274,7 @@ async function _doRestPoll() {
             }, 3000);
           }
         }
+        } // v103: cierra el "else" de _saltarVales — ver el gate más arriba
       } catch(e) {
         // v58: este catch envuelve TODO el bloque de vales (lectura, merge, avisos
         // y guardado). Con console.warn el fallo pasaba desapercibido y el poll
@@ -1237,7 +1311,20 @@ async function _doRestPoll() {
         const _enVuelo = _sbProcessing && _currentWritePath &&
                          (_currentWritePath === node || _currentWritePath.startsWith(node + '/'));
         if (_enVuelo || _sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) { _lentoSaltado = true; continue; }
-        const arr = await _sbRestGetCollection(node);
+        // v103: mismo truco que en vales — preguntar primero con una consulta
+        // mínima en vez de bajar la tabla entera (productos incluye fotos de
+        // hasta 200 KB cada una; con 93 productos, ~640 KB por pasada). Estos
+        // nodos ya solo se tocaban cada 5 min, pero de esos 5 minutos la
+        // mayoría no cambia nada — sobre todo de madrugada, con la tienda
+        // cerrada y el teléfono del admin encendido igual.
+        const _tsNodo = _ultimaTsVisto[node];
+        const _fetchViejoNodo = (Date.now() - (_ultimoFetchReal[node] || 0)) > _GATE_SEGURIDAD_MS.lento;
+        const _hayCambiosNodo = (_tsNodo === undefined) || _fetchViejoNodo || await _sbRestHayCambios(node, _tsNodo);
+        if (!_hayCambiosNodo) continue; // nada nuevo — no hay nada que bajar
+        const _rn = await _sbRestGetCollectionYTs(node);
+        const arr = _rn.items;
+        _ultimoFetchReal[node] = Date.now();
+        _ultimaTsVisto[node] = _rn.maxTs || new Date().toISOString();
         // v33 FIX: Always update localStorage even if Supabase returns empty
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
         _syncCount++;

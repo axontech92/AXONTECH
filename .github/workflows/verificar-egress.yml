@@ -1,0 +1,15 @@
+name: Verificar el freno de tráfico
+
+# Comprueba contra Supabase de verdad que el mecanismo de v103 (preguntar
+# "¿algo nuevo?" antes de bajar la tabla entera) funciona como se espera:
+# que updated_at existe, que el filtro de PostgREST responde bien, y el
+# tamaño real de antes vs. ahora. No escribe nada.
+on:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node verificar_egress.js
