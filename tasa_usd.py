@@ -62,7 +62,35 @@ UA = ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
 # 'median', caeríamos en 'price' sin enterarnos — el mismo error que en el HTML,
 # pero en JSON.
 CLAVES_VALOR = ('median', 'mediana', 'tasa', 'rate', 'value', 'avg', 'close', 'last')
-CONTENEDORES = ('tasas', 'rates', 'x_rates', 'data', 'result', 'results', 'items')
+CONTENEDORES = ('tasas', 'rates', 'x_rates', 'data', 'result', 'results', 'items',
+                'props', 'pageProps', 'initialState', 'dehydratedState', 'queries', 'state')
+
+# ── Por qué ya no se lee la web de una tienda ────────────────────────────────
+# 17/08/2026, sacado del registro de Actions de ese día:
+#
+#     · tiendamax.org: HTTP 200, 144547 bytes
+#       · candidato 116.0 (junto a "USD"): …💱 USD -- MN … WhatsApp 116…
+#     ✅ Tasa encontrada: 116.0
+#
+# Fíjate en lo que hay junto a USD: dos guiones. La tienda pinta su tasa con
+# JavaScript en el navegador, así que en el HTML que descarga un servidor el
+# número NO EXISTE todavía — solo está el hueco "--". El 116 que se llevó el
+# lector era el precio de un artículo que venía más adelante en la página.
+#
+# O sea: tiendamax nunca falló. Devolvía 200 perfectamente. Lo que no tenía era
+# el dato. Y como los dos espejos JSON contestaban 401 (ver abajo), la tienda
+# era la ÚNICA fuente que quedaba en pie, y publicaba un precio como si fuera la
+# tasa cada 3 horas. Por eso "fallaba tanto": no era mala suerte, era la única
+# que respondía y la única incapaz de responder bien.
+#
+# Una página así no se arregla con mejores expresiones regulares. Se quita.
+# Lo que sí se puede leer sin navegador es lo que el servidor manda ya escrito:
+# el JSON que Next.js deja incrustado en la página (__NEXT_DATA__) o los datos
+# estructurados. De eso se encarga extraer_de_html_incrustado().
+RE_NEXT_DATA = re.compile(
+    r'<script[^>]+id="__NEXT_DATA__"[^>]*>(.*?)</script>', re.S | re.I)
+RE_JSON_ISLA = re.compile(
+    r'<script[^>]+type="application/(?:ld\+)?json"[^>]*>(.*?)</script>', re.S | re.I)
 
 
 def log(msg):
@@ -135,45 +163,30 @@ def extraer_de_json(j, prof=0):
     return None
 
 
-def extraer_de_html(html):
-    """Saca la tasa de una página normal, y cuenta lo que ve.
+def extraer_de_html_incrustado(html):
+    """Lee el JSON que la página trae dentro, no el texto que pinta.
 
-    Leer HTML es frágil por naturaleza: cualquier rediseño lo rompe. Por eso no
-    se busca un hueco fijo sino números en rango cerca de las palabras del
-    dólar, y se imprime el contexto de cada candidato — así, el día que falle,
-    el registro de Actions dice exactamente qué había en la página en vez de
-    dejarnos a ciegas.
+    Muchas webs modernas (Next.js y parecidas) mandan sus datos ya escritos en
+    un <script> —__NEXT_DATA__, JSON-LD— y el navegador los usa después para
+    pintar. Ese JSON sí llega a un servidor, y viene etiquetado: se sabe que un
+    número es la tasa del dólar porque está bajo la clave del dólar, no porque
+    esté "cerca de la palabra USD" en la pantalla. Es la diferencia entre leer
+    el dato y adivinarlo mirando por la ventana.
     """
-    texto = re.sub(r'<script\b.*?</script>|<style\b.*?</style>', ' ', html,
-                   flags=re.S | re.I)
-    texto = re.sub(r'<[^>]+>', ' ', texto)
-    texto = re.sub(r'&nbsp;?', ' ', texto)
-    texto = re.sub(r'\s+', ' ', texto)
-
-    candidatos = []
-    for m in re.finditer(r'\bUSD\b|\bd[oó]lar(?:es)?\b|\bMLC\b', texto, flags=re.I):
-        marca = m.group(0).upper()
-        ventana = texto[max(0, m.start() - 90): m.end() + 90]
-        for num in re.finditer(r'\b(\d{2,4}(?:[.,]\d{1,2})?)\b', ventana):
-            n = _num(num.group(1))
-            if n:
-                candidatos.append((marca, n, ventana.strip()))
-
-    if not candidatos:
-        log('      · no se encontró ningún número de tasa en la página')
+    bloques = RE_NEXT_DATA.findall(html) + RE_JSON_ISLA.findall(html)
+    if not bloques:
+        log('      · la página no trae datos incrustados (los pinta con JavaScript)')
         return None
-
-    for marca, n, ctx in candidatos[:6]:
-        log(f'      · candidato {n} (junto a "{marca}"): …{ctx[:140]}…')
-
-    # El dólar manda: si hay candidatos junto a USD/dólar se ignoran los de MLC,
-    # que es otra moneda y otra tasa.
-    del_dolar = [c for c in candidatos if c[0] != 'MLC']
-    usar = del_dolar or candidatos
-    if not del_dolar:
-        log('      ⚠ solo había números junto a MLC — se descartan, no es la tasa del dólar')
-        return None
-    return usar[0][1]
+    log(f'      · {len(bloques)} bloque(s) de datos incrustados en la página')
+    for bruto in bloques:
+        try:
+            v = extraer_de_json(json.loads(bruto.strip()))
+        except Exception:
+            continue
+        if v:
+            return v
+    log('      · los datos incrustados no traen la tasa del USD')
+    return None
 
 
 def pedir(url, headers=None):
@@ -258,6 +271,18 @@ def validar_con_ancla(valor, valor_ancla, ts_ancla):
     return False
 
 
+# Los espejos públicos contestaron 401 todo el 17/08. Un 401 en una API abierta
+# suele significar "no vienes de mi web": comprueban Referer/Origin para que solo
+# la use su propia página. Se mandan, por si es eso; si de verdad han cerrado la
+# API, el 401 seguirá y quedará escrito en el registro.
+CABECERAS_NAVEGADOR = {
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+    'Referer': 'https://cambiocuba.money/',
+    'Origin': 'https://cambiocuba.money',
+}
+
+
 def fuentes():
     hoy = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     lista = []
@@ -270,23 +295,69 @@ def fuentes():
             'json',
         ))
     else:
-        log('· Sin ELTOQUE_API_KEY en los secretos del repositorio: se salta la API oficial.')
-    lista.append(('elToque (espejo)',
+        # Esto no es un detalle menor: sin clave, la fuente BUENA ni se intenta y
+        # todo el peso recae en espejos que pueden cerrarse cualquier día — que es
+        # exactamente lo que pasó. La clave se pide gratis en eltoque.com y se
+        # guarda en Settings → Secrets → Actions como ELTOQUE_API_KEY.
+        log('· Sin ELTOQUE_API_KEY: se salta la fuente oficial y quedamos a merced de los espejos.')
+    lista.append(('elToque (espejo cambiocuba)',
                   'https://api.cambiocuba.money/api/v1/x-rates-by-date-range-history?trmi=true&cur=USD&period=1',
-                  None, 'json'))
-    lista.append(('elToque (espejo)',
-                  'https://api.cambiocuba.money/api/v1/x-rates', None, 'json'))
+                  CABECERAS_NAVEGADOR, 'json'))
+    lista.append(('elToque (espejo cambiocuba)',
+                  'https://api.cambiocuba.money/api/v1/x-rates', CABECERAS_NAVEGADOR, 'json'))
+    # La web de elToque publica sus tasas y, al estar hecha con Next.js, manda el
+    # dato ya escrito dentro de la página. No hace falta clave ni navegador.
+    lista.append(('elToque (web)',
+                  'https://eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy', None, 'auto'))
+    lista.append(('cambiocuba.money (web)', 'https://cambiocuba.money/', None, 'auto'))
     extra = os.environ.get('TASA_URL_EXTRA', '').strip()
     if extra:
         lista.append(('fuente propia', extra, None, 'auto'))
-    # Última reserva: la web de la tienda. Va al final a propósito — casi seguro
-    # saca su número de elToque, así que ir al original evita un intermediario.
-    lista.append(('tiendamax.org', 'https://tiendamax.org/', None, 'html'))
+    # tiendamax.org estuvo aquí como última reserva y fue justo quien publicó el
+    # 116. Ver la nota larga arriba: su tasa la pinta el navegador, así que en el
+    # HTML solo hay "USD --" y cualquier número que se saque de ahí es otra cosa.
     return lista
 
 
 def main():
     log('AXONTECH · buscando la tasa del dólar')
+    # TASA_DIAG=1 prueba TODAS las fuentes y no escribe nada. Sirve para ver de
+    # un vistazo, desde el botón manual de Actions, cuáles siguen vivas — en vez
+    # de enterarse solo de la primera que contesta.
+    diagnostico = os.environ.get('TASA_DIAG') == '1'
+    if diagnostico:
+        log('· MODO DIAGNÓSTICO: se prueban todas las fuentes y no se escribe tasa.json')
+        ancla, ts_ancla = leer_ancla()
+        log(f'· ancla actual: {ancla}')
+        vivas = 0
+        for nombre, url, headers, tipo in fuentes():
+            log(f'· {nombre}: {url}')
+            try:
+                estado, cuerpo = pedir(url, headers)
+            except urllib.error.HTTPError as e:
+                log(f'    ✗ HTTP {e.code}')
+                continue
+            except Exception as e:
+                log(f'    ✗ {type(e).__name__}: {e}')
+                continue
+            log(f'    → HTTP {estado}, {len(cuerpo)} bytes')
+            valor = None
+            if tipo in ('json', 'auto'):
+                try:
+                    valor = extraer_de_json(json.loads(cuerpo))
+                except Exception:
+                    pass
+            if valor is None and tipo in ('html', 'auto'):
+                valor = extraer_de_html_incrustado(cuerpo)
+            if valor:
+                vivas += 1
+                dentro = validar_con_ancla(valor, ancla, ts_ancla)
+                log(f'    ✅ leería {valor} · {"pasa" if dentro else "la rechaza"} el ancla')
+            else:
+                log('    ✗ respondió, pero no trae la tasa')
+        log(f'· Resumen: {vivas} fuente(s) utilizable(s).')
+        return 0
+
     for nombre, url, headers, tipo in fuentes():
         log(f'· {nombre}: {url}')
         try:
@@ -308,7 +379,7 @@ def main():
                     log(f'    ✗ no es JSON válido: {e}')
                     log(f'      primeros 200 caracteres: {cuerpo[:200]!r}')
         if valor is None and tipo in ('html', 'auto'):
-            valor = extraer_de_html(cuerpo)
+            valor = extraer_de_html_incrustado(cuerpo)
 
         if valor:
             valor_redondeado = round(valor, 2)
