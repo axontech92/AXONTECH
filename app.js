@@ -683,6 +683,12 @@ async function _doRestPoll() {
   // v66: ¿toca en esta pasada refrescar lo que cambia poco? (cada 5 min)
   const _toqueNodosLentos = (Date.now() - _ultimoPollLento) >= _POLL_LENTO_MS;
   if (_toqueNodosLentos) _ultimoPollLento = Date.now();
+  // v96: si en esta pasada algún nodo lento se salta por tener un write en curso,
+  // aquí se marca para volver a intentarlo en la siguiente vuelta (5 s) en vez de
+  // esperar los 5 minutos completos. Antes el turno se daba por gastado aunque no
+  // se hubiera bajado nada: el teléfono se quedaba con su copia vieja de productos
+  // hasta 5 minutos más, y cualquier cambio hecho entretanto partía de ahí.
+  let _lentoSaltado = false;
   // v55: Snapshot de vales ANTES del poll, para detectar cambios de status
   // y forzar re-render si los hay.
   const _prePollValesMap = new Map();
@@ -1027,7 +1033,7 @@ async function _doRestPoll() {
         // olvidó — el mismo fallo, esperando su turno.
         const _enVuelo = _sbProcessing && _currentWritePath &&
                          (_currentWritePath === node || _currentWritePath.startsWith(node + '/'));
-        if (_enVuelo || _sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) continue;
+        if (_enVuelo || _sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) { _lentoSaltado = true; continue; }
         const arr = await _sbRestGetCollection(node);
         // v33 FIX: Always update localStorage even if Supabase returns empty
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
@@ -1056,7 +1062,7 @@ async function _doRestPoll() {
       try {
         // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
         // v94: y el mismo cerrojo del write en vuelo que arriba.
-        if ((_sbProcessing && _currentWritePath === node) || _sbWriteQueue.some(q => q.path === node)) continue;
+        if ((_sbProcessing && _currentWritePath === node) || _sbWriteQueue.some(q => q.path === node)) { if (_toqueNodosLentos) _lentoSaltado = true; continue; }
         const val = await _sbRestGetMeta(node);
         if (val) {
           _syncCount++;
@@ -1133,7 +1139,11 @@ async function _doRestPoll() {
     } catch(e) { /* best-effort */ }
     refreshUI();
   } catch(e) { console.warn('[rest-poll] error:', e && e.message); }
-  finally { _restPollInFlight = false; }
+  finally {
+    _restPollInFlight = false;
+    // v96: un nodo lento que no se pudo bajar no gasta el turno de 5 minutos.
+    if (_lentoSaltado) _ultimoPollLento = 0;
+  }
 }
 function _startRestPolling() {
   if (_restPollTimer) return;
@@ -2231,7 +2241,41 @@ function _safeSetLS(key, value) {
 }
 
 const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
+// ⚠️ saveGestores SUBE LA LISTA ENTERA. Solo para reemplazarlo todo (importar,
+// restaurar, cargar demo). Para tocar uno o dos usa guardarGestores(lista, ids).
 const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; if (!isSyncingFromSupabase()) setSB('gestores', v); _logAudit('gestores_update'); };
+
+// ── v96: guardar SOLO los gestores que cambian ──────────────────────────────
+// Mismo fallo que costó el inventario el 16/08, esperando su turno en otra
+// tabla. La foto y la clave las cambia el gestor DESDE SU PROPIO TELÉFONO, y
+// ese teléfono refresca la lista de gestores cada 5 minutos (nunca en segundo
+// plano). Al subirla entera devolvía a la nube su copia vieja: una clave que el
+// admin acababa de resetear volvía a la anterior, y un gestor recién dado de
+// alta desaparecía. Nadie lo habría relacionado con "me cambié la foto".
+// Ahora cada cambio manda solo las filas tocadas; un id ausente de la lista
+// viaja como null y eso borra la fila de verdad.
+function _guardarFilas(clave, nodo, lista, ids, setCache) {
+  _safeSetLS(clave, JSON.stringify(lista));
+  setCache(lista);
+  if (!isSyncingFromSupabase()) {
+    const porId = new Map();
+    (lista || []).forEach(x => { if (x && x.id != null) porId.set(String(x.id), x); });
+    const cambios = {};
+    (ids || []).forEach(id => {
+      if (id == null) return;
+      const k = String(id);
+      cambios[k] = porId.has(k) ? porId.get(k) : null;   // null = borrar la fila
+    });
+    if (Object.keys(cambios).length) _enqueueSB(nodo, cambios, 'update');
+  }
+}
+function guardarGestores(lista, ids) {
+  _guardarFilas('axon_gestores', 'gestores', lista, ids, l => { _gestoresCache = l; _gestoresDirty = false; });
+  _logAudit('gestores_update');
+}
+function guardarMensajeros(lista, ids) {
+  _guardarFilas('axon_mensajeros', 'mensajeros', lista, ids, l => { _mensajerosCache = l; _mensajerosDirty = false; });
+}
 
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; /* v41: deduplicate on read */ if(Array.isArray(_valesCache)&&_valesCache.length>1){const s=new Set();_valesCache=_valesCache.filter(v=>{if(!v||v.id==null)return false;const k=String(v.id);if(s.has(k))return false;s.add(k);return true;});} } return _valesCache; };
 // Vales are synced via saveVales → _enqueueSB('vales', updates, 'update') through the write queue.
@@ -2585,7 +2629,11 @@ function guardarProductos(lista, ids) {
 }
 
 const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
+// ⚠️ Sube la lista entera: solo para importar/restaurar/demo.
 const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromSupabase()) setSB('categorias', v); };
+function guardarCategorias(lista, ids) {
+  _guardarFilas('axon_categorias', 'categorias', lista, ids, l => { _categoriasCache = l; _categoriasDirty = false; });
+}
 
 const getConfig     = () => { if (_configDirty || !_configCache) { try { _configCache = JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { _configCache = {}; } _configDirty = false; } return _configCache; };
 const saveConfig    = v  => { _safeSetLS('axon_config', JSON.stringify(v)); _configCache = v; _configDirty = false; if (!isSyncingFromSupabase()) setSB('config', v); };
@@ -4419,7 +4467,7 @@ function handleGestorPhoto(file) {
       const i = list.findIndex(g => g.id === activeGestorId);
       if (i === -1) return;
       list[i].photo = compressed;
-      saveGestores(list); // → localStorage + Supabase → todos los dispositivos
+      guardarGestores(list, [activeGestorId]); // sube solo esta ficha
       gestoresTabDirty = true;
       // Refrescar UI inmediatamente en este dispositivo
       doSelectGestor(activeGestorId);
@@ -4446,7 +4494,7 @@ function removeGestorPhoto() {
       const i = list.findIndex(x => x.id === activeGestorId);
       if (i === -1) return;
       delete list[i].photo;
-      saveGestores(list);
+      guardarGestores(list, [activeGestorId]);
       gestoresTabDirty = true;
       doSelectGestor(activeGestorId);
       if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
@@ -4475,7 +4523,7 @@ function changeGestorPhotoById(id) {
         const i = list.findIndex(g => g.id === pendingGestorPhotoId);
         if (i === -1) return;
         list[i].photo = compressed;
-        saveGestores(list);
+        guardarGestores(list, [pendingGestorPhotoId]);
         gestoresTabDirty = true;
         renderAdminGestoresList();
         renderGestores();
@@ -4498,7 +4546,7 @@ function removeGestorPhotoById(id) {
       const i = list.findIndex(x => x.id === id);
       if (i === -1) return;
       delete list[i].photo;
-      saveGestores(list);
+      guardarGestores(list, [id]);
       gestoresTabDirty = true;
       renderAdminGestoresList();
       renderGestores();
@@ -4527,7 +4575,7 @@ function submitGestorPass() {
           try {
             const list=getGestores();
             const i=list.findIndex(x=>x.id===g.id);
-            if(i!==-1){ list[i].password=hash; saveGestores(list); }
+            if(i!==-1){ list[i].password=hash; guardarGestores(list, [g.id]); }
           } catch(e){ console.warn('Migración de clave gestor falló:', e); }
         }).catch(()=>{});
       }
@@ -5014,7 +5062,7 @@ function saveEditGestor() {
   } else if (window._editGestorPhotoRemoved) {
     delete list[i].photo;
   }
-  saveGestores(list); // → localStorage + Supabase → se actualiza en todos los dispositivos
+  guardarGestores(list, [id]); // sube solo la ficha editada
   closeEditGestorModal();
   gestoresTabDirty=true;rankingCache=null;
   renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
@@ -5028,7 +5076,7 @@ function resetGestorPass(id) {
   const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
   const np=genPassword().trim().toUpperCase();
   _hashGestorPass(np).then(hash => {
-    list[i].password=hash;saveGestores(list);
+    list[i].password=hash;guardarGestores(list, [id]);
     _logAudit('gestor_pass_reset', 'gestor:' + id);
     gestoresTabDirty=true;
     renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
@@ -5072,8 +5120,7 @@ function removeGestor(id) {
   const sub = hasVales ? 'Tiene vales registrados. Si lo borras, quedarán huérfanos.' : 'El gestor será borrado del sistema.';
   showConfirmAction('¿Eliminar a ' + g.name + '?', sub, 'Eliminar', 'btn-red', () => {
     const newList = getGestores().filter(x=>x.id!==id);
-    saveGestores(newList);
-    // saveGestores already syncs to Supabase via setSB — no need for separate db.ref call
+    guardarGestores(newList, [id]);   // el id ausente viaja como null → borra la fila
     gestoresTabDirty=true;rankingCache=null;
     renderAdminGestoresList();renderGestores();renderAdminGestores();
     if(typeof renderComisiones === 'function') renderComisiones();
@@ -5092,8 +5139,9 @@ function addGestor() {
   const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
   const password=genPassword().trim().toUpperCase();
   _hashGestorPass(password).then(hash => {
-    list.push({id:Date.now(),name,initials,color,password:hash,phone});
-    saveGestores(list);
+    const nuevoId=Date.now();
+    list.push({id:nuevoId,name,initials,color,password:hash,phone});
+    guardarGestores(list, [nuevoId]);
     const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
     gestoresTabDirty=true;rankingCache=null;
     renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
@@ -6166,7 +6214,7 @@ function addMensajero() {
   const phoneInp=document.getElementById('newMensajeroPhoneInput');
   const rawPhone = phoneInp ? (phoneInp.value||'').trim() : '';
   const phone = _normalizePhone(rawPhone);
-  const list=getMensajeros();list.push({id:Date.now(),name,phone:phone||''});saveMensajeros(list);
+  const list=getMensajeros();const nuevoId=Date.now();list.push({id:nuevoId,name,phone:phone||''});guardarMensajeros(list,[nuevoId]);
   inp.value='';if(phoneInp) phoneInp.value='';
   renderMensajeros();maybeAutoSync();
   showToast(phone ? 'Mensajero agregado ✓' : 'Mensajero agregado (sin teléfono)');
@@ -6207,7 +6255,7 @@ function _buildWhatsAppUrl(phone, text) {
 const _nmi=document.getElementById('newMensajeroInput');if(_nmi)_nmi.addEventListener('keydown',e=>{if(e.key==='Enter')addMensajero();});
 function removeMensajero(id) {
   if(getVales().some(v=>v.mensajeroId===id&&['assigned','pending_payment'].includes(v.status))){showToast('Tiene vales activos');return;}
-  saveMensajeros(getMensajeros().filter(m=>m.id!==id));renderMensajeros();maybeAutoSync();
+  guardarMensajeros(getMensajeros().filter(m=>m.id!==id),[id]);renderMensajeros();maybeAutoSync();
 }
 function renderMensajeros() {
   const c=document.getElementById('mensajerosList');
@@ -6287,7 +6335,7 @@ function saveEditMensajero() {
   const phone = _normalizePhone(rawPhone);
   const list=getMensajeros();const i=list.findIndex(m=>m.id===id);if(i===-1)return;
   list[i]={...list[i],name:newName,phone:phone||''};
-  saveMensajeros(list);
+  guardarMensajeros(list,[id]);
   closeEditMensajeroModal();
   renderMensajeros();renderMensajeroSelector();
   maybeAutoSync();
@@ -7742,12 +7790,12 @@ function addCategoria() {
   const inp=document.getElementById('newCatInput');const name=inp.value.trim();if(!name)return;
   const list=getCategorias();
   if(list.some(c=>c.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe');return;}
-  list.push({id:Date.now(),name});saveCategorias(list);inp.value='';renderStockCategorias();showToast('Categoría agregada');
+  const nuevoId=Date.now();list.push({id:nuevoId,name});guardarCategorias(list,[nuevoId]);inp.value='';renderStockCategorias();showToast('Categoría agregada');
 }
 function removeCategoria(id) {
   if(getProductos().some(p=>p.catId===id)){showToast('Primero mueve o elimina los productos de esta categoría');return;}
   showConfirmAction('¿Eliminar esta categoría?', 'Los productos quedarán sin categoría', 'Eliminar', 'btn-red', () => {
-    saveCategorias(getCategorias().filter(c=>c.id!==id));
+    guardarCategorias(getCategorias().filter(c=>c.id!==id),[id]);
     if(stockCatFilter===id)stockCatFilter=null;
     renderStockCategorias();renderProductGrid();
     showToast('Categoría eliminada');
