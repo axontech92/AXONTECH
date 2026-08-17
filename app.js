@@ -558,6 +558,36 @@ async function _sbRestMetaUpsert(name, value) {
   const res = await fetch(url, { method: 'POST', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' }, body });
   if (!res.ok) { const t = await res.text(); throw new Error(`Supabase META UPSERT ${name} ${res.status}: ${t.slice(0,150)}`); }
 }
+// ── v99: escribir SOLO unas claves de un documento compartido ───────────────
+// Los documentos como `config` viven enteros en una fila de `meta`, así que
+// subirlo es reemplazarlo. Eso convertía cualquier retoque en un borrado: al
+// crear un vale se manda {nextValeNum: N} —solo eso— y el documento pasaba a
+// tener ESA única clave. Con ella se iban el margen de la tasa (+10), la tasa
+// compartida y su fecha.
+//
+// Nadie lo relacionaba con "hice un vale": el gestor veía la tasa pelada y el
+// admin, que acababa de escribir el margen, seguía viéndolo hasta la siguiente
+// bajada. De ahí el "los gestores no ven el +10".
+//
+// Se lee lo que hay en el servidor, se le encajan las claves nuevas y se sube.
+// Se parte del documento del SERVIDOR, no de la copia del teléfono: si se
+// partiera de la copia local se estaría repitiendo el fallo que costó el
+// inventario, esta vez con el config.
+async function _sbRestMetaMerge(name, parcial) {
+  if (!parcial || typeof parcial !== 'object' || Array.isArray(parcial)) {
+    return _sbRestMetaUpsert(name, parcial);
+  }
+  let actual = {};
+  try {
+    const previo = await _sbRestGetMeta(name);
+    if (previo && typeof previo === 'object' && !Array.isArray(previo)) actual = previo;
+  } catch (e) {
+    // Si no se puede leer, mejor no escribir: subir solo las claves nuevas
+    // dejaría el documento pelado, que es justo lo que se está arreglando.
+    throw new Error(`META MERGE ${name}: no se pudo leer lo anterior (${e.message})`);
+  }
+  return _sbRestMetaUpsert(name, { ...actual, ...parcial });
+}
 async function _sbRestMetaDelete(name) {
   const url = `${_SB_REST}/meta?name=eq.${encodeURIComponent(name)}`;
   const res = await fetch(url, { method: 'DELETE', headers: _SB_AUTH_HDRS });
@@ -1607,6 +1637,10 @@ function _processSBQueue() {
     if (_FS_SINGLETON_DOCS[path]) {
       const name = _FS_SINGLETON_DOCS[path];
       if (method === 'remove') return _sbRestMetaDelete(name);
+      // v99: 'update' = tocar unas claves, no reemplazar el documento. Antes
+      // aquí se ignoraba el método y todo acababa en upsert, así que un
+      // {nextValeNum: N} borraba el resto del config. Ver _sbRestMetaMerge.
+      if (method === 'update') return _sbRestMetaMerge(name, value);
       return _sbRestMetaUpsert(name, value);
     }
     // Backups → tabla backups
@@ -3458,6 +3492,24 @@ if (IS_ADMIN) {
 // override newer Supabase changes from another device.
 const _valeLocalPatchTs = new Map();
 
+// ── v99: el más reciente primero, siempre ───────────────────────────────────
+// Las listas de vales hacían `.reverse()`, que solo funciona si el array está
+// guardado del más viejo al más nuevo. Y lo está… hasta el primer sync: el poll
+// deja los vales ORDENADOS POR FECHA DESCENDENTE (línea ~1030), así que el
+// reverse los daba la vuelta y el vale recién llegado se iba al FONDO de la
+// lista. De ahí que un vale nuevo no apareciera arriba.
+// Ordenar por la fecha en vez de por la posición no depende de cómo esté
+// guardado el array, así que no puede volver a descolocarse.
+function ordenarRecientesPrimero(vales) {
+  return (vales || []).slice().sort((a, b) => {
+    const ta = Date.parse(a && a.ts) || 0;
+    const tb = Date.parse(b && b.ts) || 0;
+    if (tb !== ta) return tb - ta;
+    // Misma marca de tiempo (dos vales del mismo segundo): el id es creciente.
+    return (Number(b && b.id) || 0) - (Number(a && a.id) || 0);
+  });
+}
+
 function patchVale(id, changes) {
   // v65: .slice() — copia del array antes de tocarlo. getVales() devuelve el
   // caché VIVO (_valesCache), así que mutarlo aquí dejaba a saveVales() sin
@@ -4928,8 +4980,8 @@ function renderMensajeroVales() {
   // 'delivered' es un estado heredado que ya ningún flujo produce, pero queda en
   // datos antiguos — entra aquí también para que no se pierda de vista.
   const _ES_ACTIVO={assigned:1,delivered:1,pending_payment:1};
-  const activos=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&_ES_ACTIVO[v.status]).reverse();
-  const confirmados=getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed').reverse();
+  const activos=ordenarRecientesPrimero(getVales().filter(v=>v.mensajeroId===activeMensajeroId&&_ES_ACTIVO[v.status]));
+  const confirmados=ordenarRecientesPrimero(getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed'));
   const nPorEntregar=activos.filter(v=>v.status==='assigned').length;
   const nPorCobrar=activos.length-nPorEntregar;
   // La cabecera se repinta en cada render, así que al marcar una entrega el
@@ -5036,23 +5088,31 @@ function _updateGestoresCountBadge() {
 // listar a cada gestor por nombre — mismo dato repetido dos veces en la misma
 // pestaña. Ahora las comisiones son una tercera fila plegable DENTRO de la
 // misma tarjeta (reutiliza renderComisionBody, que no cambió).
+// Lo que se le debe a un gestor ahora mismo: vales cobrados cuya comisión no se
+// ha pagado ni está en el sobre. v99: estaba escrito dentro del orden de este
+// panel; se saca aquí porque la bandeja de vales lo necesita para lo mismo, y
+// dos copias de esta regla acabarían divergiendo como ya pasó con otras.
+function comisionPendienteDe(gestorId) {
+  const vs = getVales().filter(v => v.gestorId === gestorId && v.status === 'confirmed'
+    && !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
+  try { return sumCommissions(vs); } catch(e) { return { usd: 0, mn: 0 }; }
+}
+// Compara dos gestores por lo que se les debe, de más a menos. Devuelve 0 si
+// deben lo mismo, para que quien llame decida el desempate.
+function _cmpComisionPendiente(a, b) {
+  const A = comisionPendienteDe(a.id), B = comisionPendienteDe(b.id);
+  if ((B.usd || 0) !== (A.usd || 0)) return (B.usd || 0) - (A.usd || 0);
+  if ((B.mn || 0) !== (A.mn || 0)) return (B.mn || 0) - (A.mn || 0);
+  return 0;
+}
+
 function renderAdminGestoresList() {
   // v83: orden por comisión pendiente, de mayor a menor. Este panel se usa para
   // ver a quién hay que pagar, así que lo útil es que los que más tienen
   // acumulado salgan primero, no que salgan por orden alfabético.
-  // Se compara en USD y, a igualdad, en MN. Los que no deben nada quedan al
-  // final ordenados por nombre, para que la lista no baile entre recargas.
-  const list = sortGestoresAlpha(getGestores()).slice().sort((a, b) => {
-    const pend = g => {
-      const vs = getVales().filter(v => v.gestorId === g.id && v.status === 'confirmed'
-        && !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
-      try { return sumCommissions(vs); } catch(e) { return {usd:0, mn:0}; }
-    };
-    const A = pend(a), B = pend(b);
-    if ((B.usd || 0) !== (A.usd || 0)) return (B.usd || 0) - (A.usd || 0);
-    if ((B.mn || 0) !== (A.mn || 0)) return (B.mn || 0) - (A.mn || 0);
-    return 0;   // sortGestoresAlpha ya los dejó por nombre; Array.sort es estable
-  });
+  // Los que no deben nada quedan al final por nombre: sortGestoresAlpha va
+  // primero y Array.sort es estable, así que la lista no baila entre recargas.
+  const list = sortGestoresAlpha(getGestores()).slice().sort(_cmpComisionPendiente);
   const c=document.getElementById('adminGestoresPanel-list');
   _updateGestoresCountBadge();
   if(!c) return;
@@ -5314,14 +5374,30 @@ function renderAdminGestores() {
      return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled');
   });
 
+  // ── v99: orden de la bandeja ────────────────────────────────────────────────
+  // Antes salían en el orden en que se dieron de alta, así que un gestor con un
+  // vale SIN VER podía quedar en mitad de la lista —su chapa roja pasaba
+  // desapercibida— mientras arriba había gente sin nada que atender.
+  // Ahora mandan, por este orden:
+  //   1. quien tiene vales sin mirar (lo que hay que atender ya),
+  //   2. a quien más comisión se le debe (misma regla que el panel de pagos),
+  //   3. el nombre, para que la lista no baile entre recargas.
+  const _sinVerDe = g => vales.filter(v => v.gestorId === g.id
+    && v.status === 'pending' && !v.seenByAdmin).length;
+  const _ordenados = sortGestoresAlpha(gestoresConPendientes).sort((a, b) => {
+    const nuevosA = _sinVerDe(a), nuevosB = _sinVerDe(b);
+    if (nuevosA !== nuevosB) return nuevosB - nuevosA;
+    return _cmpComisionPendiente(a, b);
+  });
+
   if(gestoresConPendientes.length === 0) {
      c.innerHTML = '<div class="es"><div class="es-icon">🎉</div><div class="es-text" style="font-weight:600;">No hay ningún vale pendiente.</div></div>';
      return;
   }
 
-  gestoresConPendientes.forEach(g => {
+  _ordenados.forEach(g => {
     // Solo vales activos (no confirmed/cancelled) — 'delivered' incluido, ver arriba.
-    const pendingVales = vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled').reverse();
+    const pendingVales = ordenarRecientesPrimero(vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled'));
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -6497,7 +6573,7 @@ function openMensajeroWhatsApp(mensajeroId, optionalText) {
 //  CONFIRMADOS / PENDIENTES
 // ══════════════════════════════════════════
 function renderConfirmados() {
-  const today=getVales().filter(v=>v.status==='confirmed'&&new Date(v.ts).toDateString()===todayStr()).reverse();
+  const today=ordenarRecientesPrimero(getVales().filter(v=>v.status==='confirmed'&&new Date(v.ts).toDateString()===todayStr()));
   const c=document.getElementById('confirmadosList');
   if(!c) return;
   if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
@@ -6509,7 +6585,7 @@ function renderConfirmados() {
 function renderPendienteCobro() {
   const c=document.getElementById('pendienteList');
   if(!c) return;
-  const pend=getVales().filter(v=>v.status==='pending_payment').reverse();
+  const pend=ordenarRecientesPrimero(getVales().filter(v=>v.status==='pending_payment'));
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
@@ -6519,7 +6595,7 @@ function renderPendienteCobro() {
 function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
 function renderPendingCobroSection() {
   const c=document.getElementById('pendingCobroSection');if(!c)return;
-  const pend=getVales().filter(v=>v.status==='pending_payment').reverse();
+  const pend=ordenarRecientesPrimero(getVales().filter(v=>v.status==='pending_payment'));
   if(!pend.length){c.innerHTML='';return;}
   const body=pendingCobroExpanded?`<div style="margin-top:8px;">${pend.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
@@ -6779,7 +6855,7 @@ function renderMyVales() {
   // Asegurar que el banner de pendientes refleja el estado actual
   if (typeof _updatePendingSyncBanner === 'function') _updatePendingSyncBanner();
 
-  const mine = getVales().filter(v => v.gestorId === activeGestorId).reverse();
+  const mine = ordenarRecientesPrimero(getVales().filter(v => v.gestorId === activeGestorId));
   const activeVales = mine.filter(v => ['pending','assigned','delivered','pending_payment'].includes(v.status));
   // History now separates confirmed sales from pending_payment (awaiting collection) — both "completed" deliveries
   // but pending_payment represents an outstanding balance the gestor should track.
@@ -8945,7 +9021,7 @@ function exportHistorialCSV() {
   const fromEl = document.getElementById('histDateFrom');
   const toEl = document.getElementById('histDateTo');
   const gestorEl = document.getElementById('histGestorFilter');
-  let vales = [...getVales()].reverse();
+  let vales = ordenarRecientesPrimero(getVales());
   const from = fromEl ? fromEl.value : '';
   const to = toEl ? toEl.value : '';
   const gFilter = gestorEl ? gestorEl.value : '';
@@ -10973,7 +11049,7 @@ function renderHistorial() {
     gestorEl.innerHTML=`<option value="">Todos los gestores</option>`+gestores.map(g=>`<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
     gestorEl.value=curGFilter;
   }
-  let vales=[...getVales()].reverse();
+  let vales=ordenarRecientesPrimero(getVales());
   // v53 FIX: el historial del admin SOLO debe mostrar vales ya procesados
   // (confirmed, pending_payment, cancelled, delivered, assigned). ANTES se
   // mostraban también los 'pending' → el usuario veía vales recién llegados
