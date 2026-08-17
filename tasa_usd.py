@@ -29,7 +29,26 @@ from datetime import datetime, timezone
 
 # Rango de cordura. La tasa informal cubana se mueve en cientos de CUP; si algo
 # devuelve 0.0091 (la conversión al revés) o 99999, es que hemos leído mal.
-TASA_MIN, TASA_MAX = 20.0, 5000.0
+# 17/08/2026: la banda era 20-5000 y por ahí se coló un 116 —el precio de un
+# artículo de la tienda— que se publicó como si fuera la tasa. Un rango tan
+# ancho no filtra nada. Se puede ajustar sin tocar código con las variables
+# TASA_MIN / TASA_MAX del repositorio.
+TASA_MIN = float(os.environ.get('TASA_MIN') or 250)
+TASA_MAX = float(os.environ.get('TASA_MAX') or 2500)
+
+# ── El freno de verdad: el anclaje al último valor conocido ──────────────────
+# Ninguna regla sobre el formato de la página va a cubrir todos los casos: hoy
+# es un precio junto a "USD", mañana será otra cosa. Lo que SÍ se sabe siempre
+# es que una tasa real no salta de 665 a 116 de un día para otro. Así que se
+# compara con lo último publicado y se rechaza lo que se aleje demasiado.
+# La banda se ensancha con la antigüedad del ancla (si llevamos días sin poder
+# leer, el mercado ha tenido tiempo de moverse) y se ignora si el ancla es muy
+# vieja. TASA_FORZAR=1 la salta del todo, que es como se reancla a mano tras un
+# movimiento de verdad.
+BANDA_BASE = 0.25          # 25 % de salto permitido con el ancla recién puesta
+BANDA_POR_DIA = 0.08       # se ensancha un 8 % por cada día de antigüedad
+BANDA_TOPE = 0.60
+ANCLA_CADUCA_DIAS = 30
 
 SALIDA = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tasa.json')
 TIMEOUT = 25
@@ -38,7 +57,11 @@ UA = ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
 
 # Las claves donde estas webs suelen meter el número, en orden de preferencia:
 # la mediana es la cifra que elToque publica como tasa del día.
-CLAVES_VALOR = ('median', 'mediana', 'value', 'price', 'rate', 'tasa', 'avg', 'close', 'last')
+# Ojo con lo que se mete aquí: 'price' estaba en la lista y es justo la clave que
+# usa una tienda para el precio de un artículo. Si un día la API deja de traer
+# 'median', caeríamos en 'price' sin enterarnos — el mismo error que en el HTML,
+# pero en JSON.
+CLAVES_VALOR = ('median', 'mediana', 'tasa', 'rate', 'value', 'avg', 'close', 'last')
 CONTENEDORES = ('tasas', 'rates', 'x_rates', 'data', 'result', 'results', 'items')
 
 

@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 93;
+const APP_VERSION = 94;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 93;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v3.9';
+let _PUBLIC_VERSION_STR = 'v4.0';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -45,7 +45,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'b5f417dbe72aa22d';
+let _LOCAL_BUILD_HASH = 'a0a0533d24a66b65';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -237,7 +237,7 @@ const _SB_AUTH_HDRS = {
 };
 let _syncCount = 0;
 const isSyncingFromSupabase = () => _syncCount > 0;
-const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary'];
+const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas'];
 
 async function _sbRestGetCollection(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
@@ -1019,7 +1019,15 @@ async function _doRestPoll() {
     for (const node of (_toqueNodosLentos ? ['gestores', 'mensajeros', 'productos', 'categorias'] : [])) {
       try {
         // ── v28 BUGFIX: No sobreescribir datos locales si hay writes pendientes ──
-        if (_sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) continue;
+        // v94: mirar TAMBIÉN el write en vuelo, no solo la cola. Cuando un write
+        // sale de la cola para enviarse, la cola queda vacía aunque el dato aún
+        // no haya llegado a Supabase; en esa ventana este poll bajaba la foto
+        // ANTERIOR y pisaba con ella el stock recién descontado. A los vales se
+        // les puso este mismo cerrojo en v31 (línea ~705) y a estos nodos se les
+        // olvidó — el mismo fallo, esperando su turno.
+        const _enVuelo = _sbProcessing && _currentWritePath &&
+                         (_currentWritePath === node || _currentWritePath.startsWith(node + '/'));
+        if (_enVuelo || _sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) continue;
         const arr = await _sbRestGetCollection(node);
         // v33 FIX: Always update localStorage even if Supabase returns empty
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
@@ -1039,7 +1047,8 @@ async function _doRestPoll() {
     for (const node of (_toqueNodosLentos ? _SB_SINGLETON_ROWS : ['notifs'])) {
       try {
         // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
-        if (_sbWriteQueue.some(q => q.path === node)) continue;
+        // v94: y el mismo cerrojo del write en vuelo que arriba.
+        if ((_sbProcessing && _currentWritePath === node) || _sbWriteQueue.some(q => q.path === node)) continue;
         const val = await _sbRestGetMeta(node);
         if (val) {
           _syncCount++;
@@ -1069,6 +1078,12 @@ async function _doRestPoll() {
               }
             }
             else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
+            else if(node==='reservas'){
+              // v94: unidades apartadas por vales. Vive fuera del producto a
+              // propósito — ver la nota larga en _refrescarReservas().
+              _reservasSBCache=(val&&typeof val==='object')?val:{};_reservasSBDirty=false;
+              if(typeof renderProductGrid==='function'){try{renderProductGrid();}catch(e){}}
+            }
           } finally { _syncCount--; }
         }
       } catch(e) {}
@@ -3349,38 +3364,61 @@ function _reservasPorProducto() {
   _reservasMemo = mapa; _reservasMemoTs = ahora;
   return mapa;
 }
+// Documento compartido con las unidades apartadas: {productoId: unidades}.
+// Lo escribe solo el admin (_refrescarReservas) y lo leen todos.
+let _reservasSBCache = null, _reservasSBDirty = true;
+function getReservasVales() {
+  if (_reservasSBDirty || !_reservasSBCache) {
+    try { _reservasSBCache = JSON.parse(localStorage.getItem('axon_reservas') || '{}'); }
+    catch(e) { _reservasSBCache = {}; }
+    if (!_reservasSBCache || typeof _reservasSBCache !== 'object') _reservasSBCache = {};
+    _reservasSBDirty = false;
+  }
+  return _reservasSBCache;
+}
 function _reservadasPorVales(pid) {
-  const e = _reservasPorProducto().get(pid);
-  return e ? e.unidades : 0;
+  return parseInt(getReservasVales()[String(pid)] || 0, 10) || 0;
 }
 // El gestor solo tiene SUS vales en el teléfono (así se recortó el consumo en
-// v66), así que no puede calcular lo que han apartado los demás. Por eso el
-// admin —que sí los tiene todos— deja el resultado escrito en el producto y
-// TODO el mundo, él incluido, lee de ahí: una sola fórmula para todos.
-// Sí, es una copia del cálculo. Pero con un único escritor y recalculada entera
-// cada vez, nunca sumando ni restando: si algún día se desfasa, el siguiente
-// recálculo la deja bien sola. Eso es justo lo que no tenía el `reserved` de
-// antes, que solo se movía a mano y se quedaba clavado para siempre.
+// v66), así que no puede calcular lo que han apartado los demás. El admin, que
+// sí los tiene todos, publica el resultado y todo el mundo —él incluido— lee de
+// ahí: una sola fórmula para los dos roles.
+//
+// ⚠️ v94 — POR QUÉ ESTO NO VA DENTRO DEL PRODUCTO
+// En v92 este número se guardaba como un campo más de cada producto. Parecía lo
+// natural y costó un día de inventario: `saveProductos()` sube el ARRAY ENTERO,
+// así que para escribir un contador de reservas había que reenviar también el
+// stock de todos los productos, tal y como estuviera en la copia local. Y la
+// copia local de productos solo se refresca cada 5 minutos (o nunca, si la app
+// está en segundo plano), mientras que los vales que disparan el recálculo
+// llegan cada 5 segundos. Resultado: al reabrir la app por la noche, este
+// recálculo subía el inventario de la mañana entero y borraba las ventas del
+// día. Peor todavía: al encolar esa escritura, el poll se saltaba la descarga
+// de productos —hay un guard que evita pisar un write pendiente—, así que el
+// dato bueno no volvía a bajar nunca y lo viejo quedaba consagrado.
+//
+// Ahora vive en su propio sitio (`reservas`, un documento aparte de unos pocos
+// bytes con {productoId: unidades}). El stock ya NO está en el camino de
+// escritura de las reservas: por mucho que este cálculo se equivoque, no puede
+// tocar una sola unidad de inventario.
 function _refrescarReservas() {
   _invalidarReservas();
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
   // Durante una bajada de Supabase no se escribe nada, o el guardado se tomaría
   // por un cambio del propio dispositivo. Se reintenta al salir de la bajada.
   if (typeof isSyncingFromSupabase === 'function' && isSyncingFromSupabase()) { setTimeout(_refrescarReservas, 200); return; }
-  const mapa = _reservasPorProducto();
-  let cambio = false;
-  const nuevos = getProductos().map(p => {
-    const u = (mapa.get(p.id) || {}).unidades || 0;
-    if (u === (parseInt(p.reservedVales || 0, 10) || 0)) return p;
-    cambio = true;
-    return { ...p, reservedVales: u };
-  });
-  if (cambio) saveProductos(nuevos);
+  const nuevo = {};
+  _reservasPorProducto().forEach((e, pid) => { if (e.unidades > 0) nuevo[String(pid)] = e.unidades; });
+  const ahora = JSON.stringify(nuevo);
+  if (ahora === JSON.stringify(getReservasVales())) return;   // nada que cambiar
+  _safeSetLS('axon_reservas', ahora);
+  _reservasSBCache = nuevo; _reservasSBDirty = false;
+  setSB('reservas', nuevo);
 }
 // Reservado de verdad = lo apartado a mano + lo comprometido por vales.
 function _reservedTotal(p) {
   if (!p) return 0;
-  return (parseInt(p.reserved || 0, 10) || 0) + (parseInt(p.reservedVales || 0, 10) || 0);
+  return (parseInt(p.reserved || 0, 10) || 0) + _reservadasPorVales(p.id);
 }
 function _availableStock(p) {
   if (!p) return 0;
