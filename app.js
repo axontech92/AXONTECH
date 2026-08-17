@@ -34,6 +34,43 @@ function _initVersionBadge() {
   if (badge) badge.textContent = VERSION_STR;
 }
 
+// ── v101: que un teléfono viejo se note SIEMPRE ─────────────────────────────
+// El aviso de versión nueva se puede posponer, y al posponerlo se guarda para no
+// volver a molestar (30 minutos, o hasta que salga otra versión). Efecto
+// secundario: un teléfono puede quedarse semanas con código viejo sin nada en
+// pantalla que lo delate, y quien lo usa jura que está actualizado. Pasó el
+// 17/08: se arregló el orden de los gestores y el margen de la tasa, se
+// comprobó que los datos en la nube estaban bien, y aun así dos teléfonos
+// seguían enseñando lo de antes. Media tarde para descubrir que el arreglo
+// estaba publicado pero no instalado.
+// Ahora, si hay una versión más nueva, el número de versión se pinta en naranja
+// y avisa al tocarlo. Eso no se puede posponer: o se actualiza, o se ve.
+function _marcarVersionVieja(remoteStr) {
+  const badge = document.getElementById('versionBadge');
+  if (!badge) return;
+  badge.textContent = VERSION_STR + ' ⚠';
+  badge.style.color = 'var(--orange, #f59e0b)';
+  badge.style.fontWeight = '700';
+  badge.title = `Este teléfono usa ${VERSION_STR} y ya hay ${remoteStr}. Toca para actualizar.`;
+  badge.style.cursor = 'pointer';
+  badge.onclick = () => {
+    if (typeof showConfirmAction === 'function') {
+      showConfirmAction('¿Actualizar ahora?',
+        `Este teléfono usa ${VERSION_STR} y ya hay ${remoteStr}. Hasta que se actualice, seguirá funcionando con las reglas viejas.`,
+        'Actualizar', 'btn-blue', () => applyUpdate());
+    } else { applyUpdate(); }
+  };
+}
+function _desmarcarVersionVieja() {
+  const badge = document.getElementById('versionBadge');
+  if (!badge) return;
+  badge.textContent = VERSION_STR;
+  badge.style.color = '';
+  badge.style.fontWeight = '';
+  badge.title = '';
+  badge.onclick = null;
+}
+
 // Compara dos versiones numéricas. Devuelve true si `remote` > `local`.
 function _isNewerVersion(remote, local) {
   const r = parseInt(remote, 10);
@@ -80,6 +117,9 @@ async function checkVersion(manual) {
     const hasUpdate = isNewer || hashChanged;
 
     if (hasUpdate) {
+      // v101: el número de versión se marca SIEMPRE, se haya pospuesto el aviso
+      // o no. El banner se puede callar; esto no.
+      _marcarVersionVieja(remoteStr);
       // Hay una versión nueva — mostrar banner (salvo que el usuario ya lo haya pospuesto
       // para esta sesión y no sea una verificación manual).
       // ── v28 BUGFIX: No mostrar banner si el usuario ya pospuso ESTA versión ──
@@ -111,6 +151,7 @@ async function checkVersion(manual) {
       // Se añade el nº de compilación: el badge enseña la etiqueta pública, y
       // para dar soporte hace falta saber a qué publicación corresponde.
       if (manual) showToast('Ya tienes la última versión (' + VERSION_STR + ' · build ' + APP_VERSION + ') ✓');
+      _desmarcarVersionVieja();   // v101: se actualizó — quitar el aviso naranja
       _hideUpdateBanner();
     }
   } catch (e) {
