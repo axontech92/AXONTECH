@@ -237,7 +237,7 @@ const _SB_AUTH_HDRS = {
 };
 let _syncCount = 0;
 const isSyncingFromSupabase = () => _syncCount > 0;
-const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas'];
+const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas', 'tasa'];
 
 async function _sbRestGetCollection(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
@@ -1630,7 +1630,8 @@ function _processSBQueue() {
   // db.ref() es un mock que no conecta a nada. Aquí traducimos la operación
   // a llamadas reales de Supabase REST.
   const _FS_SINGLETON_DOCS = {
-    config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary'
+    config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary',
+    reservas: 'reservas', tasa: 'tasa'
   };
   function _supabaseOpFor(path, value, method) {
     // Singleton → meta/{name}
