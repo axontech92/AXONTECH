@@ -39,11 +39,11 @@ def credenciales():
     navegador: no es un secreto y por eso no hace falta guardarla en Actions.
     Leerla de app.js evita además que este script y la app se desincronicen.
     """
-    js = open(os.path.join(RAIZ, 'app.js'), encoding='utf-8').read(20000)
+    js = open(os.path.join(RAIZ, 'app.js'), encoding='utf-8').read(40000)
     url = re.search(r"SUPABASE_URL\s*=\s*'([^']+)'", js)
-    key = re.search(r"SUPABASE_ANON_KEY\s*=\s*'([^']+)'", js)
+    key = re.search(r"SUPABASE_(?:KEY|ANON_KEY)\s*=\s*'([^']+)'", js)
     if not url or not key:
-        log('✗ No se encontraron SUPABASE_URL / SUPABASE_ANON_KEY en app.js')
+        log('✗ No se encontraron SUPABASE_URL / SUPABASE_KEY en app.js')
         sys.exit(1)
     return url.group(1) + '/rest/v1', key.group(1)
 
