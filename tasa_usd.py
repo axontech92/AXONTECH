@@ -360,10 +360,13 @@ def fuentes():
     lista.append(('elToque (web, www)',
                   'https://www.eltoque.com/tasas-de-cambio-de-moneda-en-cuba-hoy',
                   CABECERAS_PAGINA, 'auto'))
-    # elveedor responde 200 desde los servidores de GitHub —de las pocas que no
-    # bloquean—, pero su tasa no viene en datos incrustados. Se lee del texto, y
-    # por eso solo pasa si el ancla la respalda.
-    lista.append(('elveedor.com', 'https://www.elveedor.com/', CABECERAS_PAGINA, 'auto'))
+    # elveedor.com estuvo aquí unas horas. Responde 200, sí, pero es un dominio
+    # EN VENTA: la página solo dice "Price $1,888 USD - Buy Now". El lector sacó
+    # de ahí un 888 y lo habría publicado como tasa — el 116 otra vez, con otro
+    # disfraz. Esta vez lo paró el ancla (888 está a un 33 % de 665, fuera de la
+    # banda del 26 %), y por eso quedó registrado en vez de acabar en la app.
+    # Es la prueba de que el ancla no sobra: las páginas que se caen se notan,
+    # las que contestan basura no.
     extra = os.environ.get('TASA_URL_EXTRA', '').strip()
     if extra:
         lista.append(('fuente propia', extra, CABECERAS_PAGINA, 'auto'))

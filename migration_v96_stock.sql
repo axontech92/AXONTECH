@@ -40,11 +40,30 @@
 --   - El stock nunca baja de 0, igual que en la app.
 -- ══════════════════════════════════════════════════════════════════════
 
+-- ── Registro de operaciones ya aplicadas ──
+-- Un "quita 2" no es como un "queda en 8": repetirlo NO da el mismo resultado.
+-- Y repetirlo es fácil — el teléfono manda la orden, la conexión se cae antes
+-- de que llegue la confirmación, y la app reintenta creyendo que no llegó. Sin
+-- esta tabla, esa caída descontaría 4 en vez de 2.
+-- Cada orden lleva su identificador; si ya está aquí, se devuelve el stock
+-- actual sin volver a restar.
+CREATE TABLE IF NOT EXISTS stock_ops (
+  op_id       text PRIMARY KEY,
+  producto_id bigint,
+  delta       int,
+  aplicado_en timestamptz DEFAULT now()
+);
+
+-- Las órdenes viejas no sirven de nada: se pueden borrar sin miedo pasado un
+-- tiempo prudencial (un reintento nunca llega días después).
+CREATE INDEX IF NOT EXISTS stock_ops_fecha ON stock_ops (aplicado_en);
+
 -- ── Función RPC: aplicar_delta_stock ──
 -- p_id    : id del producto
 -- p_delta : cuánto sumar (negativo para descontar una venta)
+-- p_op    : identificador de la orden, para que un reintento no reste dos veces
 -- Devuelve el stock que queda, para que el teléfono pueda ponerse al día.
-CREATE OR REPLACE FUNCTION aplicar_delta_stock(p_id bigint, p_delta int)
+CREATE OR REPLACE FUNCTION aplicar_delta_stock(p_id bigint, p_delta int, p_op text DEFAULT NULL)
 RETURNS int
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -53,6 +72,14 @@ DECLARE
   v_actual int;
   v_nuevo  int;
 BEGIN
+  -- ¿Ya se aplicó esta orden? Entonces esto es un reintento: se devuelve lo que
+  -- hay sin tocar nada.
+  IF p_op IS NOT NULL AND EXISTS (SELECT 1 FROM stock_ops WHERE op_id = p_op) THEN
+    SELECT COALESCE((data->>'stock')::int, 0) INTO v_actual
+      FROM productos WHERE id = p_id;
+    RETURN COALESCE(v_actual, -1);
+  END IF;
+
   -- FOR UPDATE bloquea la fila mientras se calcula. Si dos teléfonos llegan a
   -- la vez, uno espera al otro en vez de leer los dos el mismo número viejo:
   -- ahí es donde se perdía la venta.
@@ -71,9 +98,20 @@ BEGIN
      SET data = jsonb_set(data, '{stock}', to_jsonb(v_nuevo))
    WHERE id = p_id;
 
+  IF p_op IS NOT NULL THEN
+    INSERT INTO stock_ops (op_id, producto_id, delta) VALUES (p_op, p_id, p_delta)
+    ON CONFLICT (op_id) DO NOTHING;
+  END IF;
+
   RETURN v_nuevo;
 END;
 $$;
 
 -- Permisos: los mismos que ya usa la app para escribir productos.
-GRANT EXECUTE ON FUNCTION aplicar_delta_stock(bigint, int) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION aplicar_delta_stock(bigint, int, text) TO anon, authenticated;
+GRANT SELECT, INSERT ON stock_ops TO anon, authenticated;
+
+-- ── Limpieza opcional ──
+-- Las órdenes de más de 30 días no las va a reintentar nadie. Si algún día la
+-- tabla molesta, esto la deja a raya (se puede ejecutar a mano cuando se quiera):
+--   DELETE FROM stock_ops WHERE aplicado_en < now() - interval '30 days';

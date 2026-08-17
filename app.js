@@ -405,21 +405,26 @@ function _asentarStockServidor(id, stockServidor) {
   if (typeof renderProductGrid === 'function') { try { renderProductGrid(); } catch(e) {} }
 }
 
-// mapa: {idProducto: delta}. Negativo descuenta.
+// mapa: {idProducto: {d: delta, op: identificador}}. El delta negativo descuenta.
+// El identificador se genera UNA vez al encolar y viaja con la cola cuando se
+// guarda en el teléfono, así que un reintento manda el mismo y el servidor sabe
+// que ya lo aplicó. Sin eso, una conexión que se corta después de escribir pero
+// antes de confirmar descontaría la venta dos veces.
 async function _sbRestAplicarDeltas(mapa) {
-  const entradas = Object.entries(mapa || {}).filter(([, d]) => Number(d));
+  const entradas = Object.entries(mapa || {})
+    .map(([id, v]) => [Number(id), (v && typeof v === 'object') ? v : { d: v, op: null }])
+    .filter(([, v]) => Number(v.d));
   if (!entradas.length) return;
   const disponible = await _detectStockRpc();
-  for (const [idStr, delta] of entradas) {
-    const id = Number(idStr);
+  for (const [id, { d, op }] of entradas) {
     if (disponible) {
       const res = await fetch(`${_SB_REST}/rpc/aplicar_delta_stock`, {
         method: 'POST', headers: _SB_AUTH_HDRS,
-        body: JSON.stringify({ p_id: id, p_delta: Number(delta) })
+        body: JSON.stringify({ p_id: id, p_delta: Number(d), p_op: op || null })
       });
       if (res.status === 404) {
         _sbStockRpcAvailable = false;           // la migración se revirtió
-        await _deltaStockPorLectura(id, Number(delta));
+        await _deltaStockPorLectura(id, Number(d));
         continue;
       }
       if (!res.ok) {
@@ -429,9 +434,33 @@ async function _sbRestAplicarDeltas(mapa) {
       const nuevo = await res.json().catch(() => null);
       _asentarStockServidor(id, typeof nuevo === 'number' ? nuevo : null);
     } else {
-      await _deltaStockPorLectura(id, Number(delta));
+      await _deltaStockPorLectura(id, Number(d));
     }
   }
+}
+
+// Guarda en el teléfono y manda la INTENCIÓN ("quita 2"), no el resultado.
+// deltas: {idProducto: unidades} — negativo descuenta.
+function guardarProductosPorDelta(lista, deltas) {
+  if (Array.isArray(lista)) lista.forEach(_normalizeProducto);
+  _safeSetLS('axon_productos', JSON.stringify(lista));
+  _productosCache = lista; _productosDirty = false; _productosMap = null;
+  if (!isSyncingFromSupabase()) {
+    const carga = {};
+    let hay = false;
+    Object.entries(deltas || {}).forEach(([id, d]) => {
+      if (!Number(d)) return;
+      hay = true;
+      carga[String(id)] = {
+        d: Number(d),
+        // Identificador de la orden: producto + instante + azar. Se genera aquí
+        // y se persiste con la cola, así el reintento reutiliza el mismo.
+        op: `${id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      };
+    });
+    if (hay) _enqueueSB('productos', carga, 'delta');
+  }
+  triggerAutoPublishCatalog();
 }
 
 // Sin la función SQL: se lee la fila, se aplica el delta sobre lo que hay en la
@@ -1590,6 +1619,8 @@ function _processSBQueue() {
       }
       return _sbRestMetaUpsert ? _sbRestMetaUpsert('backups', value) : Promise.resolve();
     }
+    // v96: "quita 2" en vez de "queda en 8". Ver _sbRestAplicarDeltas.
+    if (method === 'delta') return _sbRestAplicarDeltas(value);
     // Colecciones (gestores, mensajeros, productos, categorias, vales)
     const collName = path.split('/')[0];
     if (method === 'remove') {
@@ -3635,24 +3666,31 @@ function _isPartiallyReserved(p) {
 // Extraído de mensajeroEntrega/mensajeroPagado/mensajeroPagadoDirecto/confirmSale
 // que tenían 4 copias del mismo bloque con divergencias sutiles.
 // Ver AUDITORIA-AXONTECH.md MEDIO 28.
+// v96: una venta ya no dice "el stock queda en 8", dice "quita 2". Si dos
+// teléfonos venden el mismo producto con el mismo número en pantalla, antes uno
+// pisaba al otro y se perdía una venta; ahora las dos restas se suman en el
+// servidor. La resta local sigue siendo inmediata, así que se puede vender sin
+// cobertura y la orden sale cuando vuelve.
 function _descontarStock(v) {
-  // v95: .slice() y lista de tocados, para subir solo esos.
   const prods = getProductos().slice();
-  const tocados = [];
+  const deltas = {};
   let stockChanged = false;
   (v.valeProductos || []).forEach(({id:pid, qty}) => {
     const idx = prods.findIndex(p => p.id === pid);
     if (idx === -1) return;
-    tocados.push(pid);
     const oldStock = prods[idx].stock || 0;
     const newStock = Math.max(0, oldStock - qty);
+    // Lo que se manda es lo que REALMENTE sale del almacén: si había 1 y se
+    // venden 2, se resta 1, no 2. Así el servidor no acaba en negativo por un
+    // teléfono que tenía un número inflado.
+    deltas[pid] = (deltas[pid] || 0) - (oldStock - newStock);
     prods[idx] = {...prods[idx], stock: newStock};
     stockChanged = true;
     addNotif('sale_product', prods[idx].name, pid, `${qty}|${newStock}`, v.gestorId);
     if (newStock === 0 && oldStock > 0) addNotif('out_of_stock', prods[idx].name, pid, 'stock agotado');
     else if (newStock > 0 && newStock <= LOW_STOCK_THRESHOLD && oldStock > LOW_STOCK_THRESHOLD) addNotif('low_stock', prods[idx].name, pid, `quedan ${newStock}`);
   });
-  if (stockChanged) guardarProductos(prods, tocados);
+  if (stockChanged) guardarProductosPorDelta(prods, deltas);
   return stockChanged;
 }
 
@@ -10862,10 +10900,21 @@ function _valeDescontoStock(v) {
 // (revertir, cancelar y eliminar) no puedan volver a divergir.
 function _devolverStockDeVale(v) {
   if (!_valeDescontoStock(v)) return false;
+  // v96: devolver es sumar, así que va por delta igual que la venta. Con el
+  // número absoluto, revertir un vale desde un teléfono con la lista vieja
+  // devolvía el stock de HACE RATO —por ahí volvía a aparecer inventario que ya
+  // se había vendido—; sumar +2 sobre el dato del servidor no tiene ese efecto.
+  const prods = getProductos().slice();
+  const deltas = {};
+  let cambio = false;
   (v.valeProductos || []).forEach(({id:pid, qty}) => {
-    const prod = productoOf(pid); if (!prod) return;
-    patchProducto(pid, {stock: Math.max(0, (prod.stock || 0) + (qty || 0))});
+    const idx = prods.findIndex(p => p && p.id === pid);
+    if (idx === -1 || !qty) return;
+    prods[idx] = {...prods[idx], stock: Math.max(0, (prods[idx].stock || 0) + qty)};
+    deltas[pid] = (deltas[pid] || 0) + qty;
+    cambio = true;
   });
+  if (cambio) guardarProductosPorDelta(prods, deltas);
   return true;
 }
 
@@ -12193,6 +12242,7 @@ async function init() {
   // se ha resuelto.
   if (!IS_ADMIN) {
     _detectGestorRpc().catch(() => {});
+    _detectStockRpc().catch(() => {});   // v96: saber ya si la venta puede ir por delta
   }
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
