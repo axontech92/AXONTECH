@@ -1,10 +1,10 @@
 {
-  "version": 97,
-  "versionStr": "v4.3",
-  "build": 97,
-  "hash": "5d4f73caf89ea660",
-  "hashFull": "5d4f73caf89ea660",
-  "releasedAt": "2026-08-17 15:06",
+  "version": 98,
+  "versionStr": "v4.4",
+  "build": 98,
+  "hash": "b903694579610b20",
+  "hashFull": "b903694579610b20",
+  "releasedAt": "2026-08-17 19:14",
   "files": [
     "app.js",
     "app.css",
@@ -14,6 +14,6 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Actualización automática · build 5d4f73ca"
+    "Actualización automática · build b9036945"
   ]
 }
