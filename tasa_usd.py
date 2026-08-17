@@ -183,6 +183,81 @@ def pedir(url, headers=None):
         return r.status, cuerpo
 
 
+def leer_ancla():
+    """Lee el último valor conocido y su timestamp de tasa.json."""
+    try:
+        with open(SALIDA, 'r', encoding='utf-8') as f:
+            datos = json.load(f)
+        valor = datos.get('valor')
+        ts = datos.get('ts', 0)
+        # Solo usamos el ancla si es un número válido y tiene timestamp.
+        if isinstance(valor, (int, float)) and valor > 0 and ts > 0:
+            return valor, ts
+    except Exception:
+        pass
+    return None, None
+
+
+def calcular_banda(valor_ancla, ts_ancla):
+    """Calcula el rango aceptable relativo al ancla usando band-clamping.
+
+    - Empieza con BANDA_BASE (25 % de movimiento)
+    - Se ensancha BANDA_POR_DIA (8 %) por cada día de antigüedad
+    - Topa en BANDA_TOPE (60 % máximo)
+    - Si el ancla es más vieja que ANCLA_CADUCA_DIAS, retorna None (ancla inútil)
+    """
+    ahora_ts = int(datetime.now(timezone.utc).timestamp() * 1000)
+    dias_transcurridos = (ahora_ts - ts_ancla) / (1000 * 60 * 60 * 24)
+
+    if dias_transcurridos > ANCLA_CADUCA_DIAS:
+        log(f'      · ancla expirada ({dias_transcurridos:.1f} días): se ignora')
+        return None
+
+    # Banda = base + (8% por día), tope en 60%
+    banda = BANDA_BASE + (dias_transcurridos * BANDA_POR_DIA)
+    banda = min(banda, BANDA_TOPE)
+
+    margen = valor_ancla * banda
+    minimo = valor_ancla - margen
+    maximo = valor_ancla + margen
+
+    return minimo, maximo, banda
+
+
+def validar_con_ancla(valor, valor_ancla, ts_ancla):
+    """Valida un valor contra el ancla.
+
+    Retorna True si:
+    - No hay ancla válida (primera vez o expirada)
+    - El valor está dentro de la banda permitida
+    - TASA_FORZAR=1 (permite override manual)
+    """
+    if valor_ancla is None:
+        log('      · sin ancla anterior: valor aceptado')
+        return True
+
+    if os.environ.get('TASA_FORZAR') == '1':
+        log('      · TASA_FORZAR=1: banda saltada')
+        return True
+
+    banda_resultado = calcular_banda(valor_ancla, ts_ancla)
+    if banda_resultado is None:
+        log('      · ancla expirada, valor aceptado')
+        return True
+
+    minimo, maximo, banda_pct = banda_resultado
+
+    if minimo <= valor <= maximo:
+        pct_cambio = abs(valor - valor_ancla) / valor_ancla * 100
+        log(f'      · dentro de banda ({banda_pct*100:.0f}%, cambio {pct_cambio:.1f}%): aceptado')
+        return True
+
+    pct_cambio = abs(valor - valor_ancla) / valor_ancla * 100
+    log(f'      ✗ FUERA de banda ({banda_pct*100:.0f}%, cambio {pct_cambio:.1f}%): rechazado')
+    log(f'        ancla={valor_ancla}, nuevo={valor}, rango=[{minimo:.0f}, {maximo:.0f}]')
+    return False
+
+
 def fuentes():
     hoy = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     lista = []
@@ -236,8 +311,15 @@ def main():
             valor = extraer_de_html(cuerpo)
 
         if valor:
+            valor_redondeado = round(valor, 2)
+            # Validar contra el ancla antes de escribir
+            valor_ancla, ts_ancla = leer_ancla()
+            if not validar_con_ancla(valor_redondeado, valor_ancla, ts_ancla):
+                log(f'    ✗ valor rechazado por band-clamping (ancla={valor_ancla})')
+                continue
+
             datos = {
-                'valor': round(valor, 2),
+                'valor': valor_redondeado,
                 'fuente': nombre,
                 'ts': int(datetime.now(timezone.utc).timestamp() * 1000),
                 'actualizado': datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),

@@ -6,12 +6,11 @@ name: Tasa del dólar
 # las webs de tasas no lo autorizan. Este trabajo corre en un servidor de
 # GitHub, donde esa restricción no existe.
 on:
-  # PARADO el 17/08/2026. El scraping de tiendamax.org devolvió 116 en lugar de
-  # ~665 y el trabajo estuvo publicando ese valor cada 3 horas. Hasta que la
-  # validación sea de fiar, esto solo se ejecuta a mano desde la pestaña Actions.
-  # Para reactivarlo, descomenta el bloque schedule.
-  # schedule:
-  #   - cron: '17 */3 * * *'
+  # Reactivado el 17/08/2026 con band-clamping. El scraping no aceptará valores
+  # fuera de una banda relativa a la última tasa conocida (665 ± 25-60%).
+  # Esto rechaza saltos como 665→116 o cambios mayores al 25% en pocas horas.
+  schedule:
+    - cron: '17 */3 * * *'  # Cada 3 horas a las :17
   workflow_dispatch:        # botón manual en la pestaña Actions
 
 permissions:
