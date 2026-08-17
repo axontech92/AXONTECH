@@ -1,10 +1,10 @@
 {
-  "version": 96,
-  "versionStr": "v4.2",
-  "build": 96,
-  "hash": "495b62d54b63feee",
-  "hashFull": "495b62d54b63feee",
-  "releasedAt": "2026-08-17 15:20",
+  "version": 97,
+  "versionStr": "v4.3",
+  "build": 97,
+  "hash": "5d4f73caf89ea660",
+  "hashFull": "5d4f73caf89ea660",
+  "releasedAt": "2026-08-17 15:06",
   "files": [
     "app.js",
     "app.css",
@@ -14,9 +14,6 @@
     "catalogo.html"
   ],
   "changelog": [
-    "El mismo fallo que costó el inventario estaba también en gestores, mensajeros y categorías: cambiar la foto o la clave subía la lista ENTERA desde el teléfono del gestor, que solo la refresca cada 5 minutos. Podía devolver a la vida un gestor borrado o deshacer una clave recién reseteada. Ahora cada cambio sube solo la ficha tocada",
-    "Borrar un gestor, un mensajero o una categoría ahora los borra de verdad en la nube, igual que ya pasaba con los productos",
-    "Cuando el teléfono no puede bajar productos porque tiene un cambio a medio enviar, ahora lo reintenta a los 5 segundos en vez de esperar los 5 minutos completos con la copia vieja",
-    "La tasa del dólar vuelve a actualizarse sola: ahora compara con la última buena y rechaza saltos imposibles (el 116 del 17/08 habría quedado fuera). Si de verdad se mueve mucho, se reancla a mano"
+    "Actualización automática · build 5d4f73ca"
   ]
 }
