@@ -2014,6 +2014,22 @@
       "description": "Maquina de soldar\n YESWELDER FLUX-140 FLEX tres en uno con accesorios. \n\n* Ésta máquina de soldar lo trae todo;completa,profesional, compacta, portátil.. ofrece una corriente máxima de 140 A.\n\n* Corriente de entrada 110v.\n\n* Cuenta con 3 modos de soldadura: Stick, Lift TIG y Flux.\n* Materiales que puede soldar: Acero al carbono, hierro, acero dulce, acero inoxidable, aluminio, hierro fundido (limitado), cobre/latón (no recomendado) y titanio (no recomendado). \n\n* El modo Stick permite utilizar electrodos revestidos convencionales.\n\n* El modo Lift TIG permite realizar soldadura TIG mediante encendido por contacto.\n\n* El modo Flux está pensado para alambre tubular autoprotegido, sin necesidad de gas externo.\n\n* Incorpora una pantalla digital para visualizar y ajustar los parámetros de soldadura.\n\n* El producto incluye:\n_ Maquina de soldar Yeswelder FLUX-140 FLEX \n_Pinzas de tierra y de soldar de exelente calidad y 1metro de cable cada una\n_ Dos rollos de alambre para soldar de 0.8 y 0.9mm cada uno.\n_Antorcha de soldadura Mig con boquillas conductoras de cobre mig/mag 0.8 y 0.9mm\n_ Antorcha de soldadura TIG  con electrodos y accesorios intercambiables.\n_ Manual técnico del equipo.",
       "precioActual": 275,
       "comisionMoneda": "USD"
+    },
+    {
+      "id": 1787089069786,
+      "name": "Controlador solar MPPT de 48/60/72 V 1200W",
+      "description": "Tipo: Controlador solar MPPT de alta eficiencia.\nPotencia máxima: 1200 W.\nVoltaje de batería seleccionable: 48 V, 60 V o 72 V mediante interruptor.\nVoltaje de entrada solar indicado: 12–60 V DC.\nVoltajes de carga: compatibles con sistemas de 48 V, 60 V y 72 V.\nTecnología MPPT: aprovecha mejor la energía disponible de los paneles solares.\nPantalla LCD: muestra voltaje, corriente de carga, potencia y voltaje de carga.\nCorriente de carga: se ajusta automáticamente según la energía solar disponible y el sistema.\nIndicadores de estado: muestra información de carga, batería y funcionamiento del MPPT.\nAplicación: diseñado para sistemas solares de 48/60/72 V, especialmente bancos de baterías de mayor voltaje.",
+      "precio": "$90",
+      "stock": 4,
+      "puntos": 1,
+      "garantia": "",
+      "comision": "$5 USD",
+      "photo": "",
+      "catId": 20,
+      "nombre": "Controlador solar MPPT de 48/60/72 V 1200W",
+      "descripcion": "Tipo: Controlador solar MPPT de alta eficiencia.\nPotencia máxima: 1200 W.\nVoltaje de batería seleccionable: 48 V, 60 V o 72 V mediante interruptor.\nVoltaje de entrada solar indicado: 12–60 V DC.\nVoltajes de carga: compatibles con sistemas de 48 V, 60 V y 72 V.\nTecnología MPPT: aprovecha mejor la energía disponible de los paneles solares.\nPantalla LCD: muestra voltaje, corriente de carga, potencia y voltaje de carga.\nCorriente de carga: se ajusta automáticamente según la energía solar disponible y el sistema.\nIndicadores de estado: muestra información de carga, batería y funcionamiento del MPPT.\nAplicación: diseñado para sistemas solares de 48/60/72 V, especialmente bancos de baterías de mayor voltaje.",
+      "precioActual": 90,
+      "comisionMoneda": "USD"
     }
   ],
   "categorias": [
@@ -2055,6 +2071,151 @@
     }
   ],
   "vales": [
+    {
+      "id": 1787083100280,
+      "ts": "2026-08-18T19:58:20.286Z",
+      "total": "$230 USD + 5300 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "70 USD",
+      "cliente": "Milena",
+      "valeNum": 24,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1784476335609,
+      "precioMN": "",
+      "telefono": "5358467156",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Juan\n\n🔸 Nombre Cliente: Milena\n🔸Teléfono Cliente: 5358467156\n🔸Dirección Cliente: 5ta #30630 /306 y 308 Santa fé Playa\n🔸Mensajería/ costo: 5300 cup\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: 70 USD\n🔸 Total a pagar: $230 USD + 5300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/08/2026 15:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "5ta #30630 /306 y 308 Santa fé Playa",
+      "precioUSD": "$230 USD",
+      "ubicacion": "",
+      "mensajeria": "5300 cup",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1787080217231,
+      "ts": "2026-08-18T19:10:17.245Z",
+      "total": "$270 USD + 2000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Leonardo",
+      "valeNum": 23,
+      "articulo": "×1 Nanostation m2 loco / ×1 Router Tp link archer ax21 AX1800",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5354880290",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Leonardo\n🔸Teléfono Cliente: 5354880290\n🔸Dirección Cliente: Feria de la Cuevita. (Jueves en la mañana)\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n  ×1 Router Tp link archer ax21 AX1800\n🔸Precio USD/ zelle: $270 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $270 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/08/2026 15:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Feria de la Cuevita. (Jueves en la mañana)",
+      "precioUSD": "$270 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        },
+        {
+          "id": 1786858003270,
+          "qty": 1,
+          "name": "Router Tp link archer ax21 AX1800"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787079702717,
+      "ts": "2026-08-18T19:01:42.719Z",
+      "total": "$40 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Henrry",
+      "valeNum": 22,
+      "articulo": "×2 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "52670203",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Henrry\n🔸Teléfono Cliente: 52670203\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $40 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $40 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/08/2026 15:01\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$40 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 3000,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 2,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "3000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787079604553,
+      "ts": "2026-08-18T19:00:04.555Z",
+      "total": "$120 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ulises",
+      "valeNum": 21,
+      "articulo": "×1 Router Tp link archer ax21 AX1800",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "53890956",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Ulises\n🔸Teléfono Cliente: 53890956\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Tp link archer ax21 AX1800\n🔸Precio USD/ zelle: $120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $120 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/08/2026 14:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$120 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858003270,
+          "qty": 1,
+          "name": "Router Tp link archer ax21 AX1800"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1787072896389,
       "ts": "2026-08-18T17:08:16.407Z",
@@ -2172,6 +2333,7 @@
       "ts": "2026-08-18T05:27:13.782Z",
       "total": "$80 USD",
       "carnet": "",
+      "seenTs": "2026-08-18T19:34:13.303Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rafael Abreu",
@@ -2188,6 +2350,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 6000,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -4374,5 +4537,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-18T17:53:21.466Z"
+  "timestamp": "2026-08-18T21:38:50.448Z"
 }
