@@ -1379,7 +1379,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 92,
+      "stock": 91,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "140 USD",
@@ -1918,7 +1918,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "data:image/webp;base64,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",
-      "stock": 3,
+      "stock": 2,
       "imagen": "data:image/webp;base64,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",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2072,6 +2072,82 @@
     }
   ],
   "vales": [
+    {
+      "id": 1787160749801,
+      "ts": "2026-08-19T17:32:29.893Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-08-19T17:33:13.681Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Adán Perez",
+      "valeNum": 31,
+      "articulo": "×1 NanoStation 5 AC loco SIN POE",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5356685020",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Adán Perez\n🔸Teléfono Cliente: 5356685020\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 13:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-19T17:33:22.949Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 1,
+          "name": "NanoStation 5 AC loco SIN POE"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787160645182,
+      "ts": "2026-08-19T17:30:45.193Z",
+      "total": "$150 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-08-19T17:33:25.911Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Tania",
+      "valeNum": 30,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "053344443",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Tania\n🔸Teléfono Cliente: 053344443\n🔸Dirección Cliente: Santo suarez\n🔸Mensajería/ costo: 2000cup\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Santo suarez",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000cup",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-19T17:33:33.906Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1787153028974,
       "ts": "2026-08-19T15:23:48.987Z",
@@ -4404,5 +4480,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T17:27:46.651Z"
+  "timestamp": "2026-08-19T17:34:34.651Z"
 }
