@@ -1413,7 +1413,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 40,
+      "stock": 92,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "140 USD",
@@ -1449,7 +1449,7 @@
       "name": "Router Tenda AX12 pro AX3000",
       "catId": 10,
       "photo": "photos/img_1785077900654.webp",
-      "stock": 20,
+      "stock": 16,
       "imagen": "photos/img_1785077900654.webp",
       "nombre": "Router Tenda AX12 pro AX3000",
       "precio": "$130",
@@ -1500,7 +1500,7 @@
       "name": "Router ASUS AX1800",
       "catId": 10,
       "photo": "photos/img_1785078992522.webp",
-      "stock": 7,
+      "stock": 4,
       "imagen": "photos/img_1785078992522.webp",
       "nombre": "Router ASUS AX1800",
       "precio": "$150",
@@ -1828,7 +1828,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 1,
+      "stock": 2,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1847,7 +1847,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$150",
@@ -4228,5 +4228,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T04:16:51.816Z"
+  "timestamp": "2026-08-19T04:19:18.417Z"
 }
