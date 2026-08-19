@@ -649,7 +649,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -1384,7 +1384,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 90,
+      "stock": 91,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "140 USD",
@@ -2078,11 +2078,49 @@
   ],
   "vales": [
     {
+      "id": 1787175243706,
+      "ts": "2026-08-19T21:34:03.713Z",
+      "total": "$260 USD + 3300 MN",
+      "carnet": "",
+      "seenTs": "2026-08-19T21:49:24.914Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Madelin Romero",
+      "valeNum": 37,
+      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
+      "garantia": "",
+      "gestorId": 1781761257111,
+      "precioMN": "",
+      "telefono": "5354719736",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Jennifer\n\n🔸 Nombre Cliente: Madelin Romero\n🔸Teléfono Cliente: 5354719736\n🔸Dirección Cliente: Concha 371, entre central y mojarrieta, La Hata Guanabacoa.\n🔸Mensajería/ costo: 3300\n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD + 3300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 17:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Concha 371, entre central y mojarrieta, La Hata Guanabacoa.",
+      "precioUSD": "$260 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3300",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-19T21:49:29.974Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787174555915,
       "ts": "2026-08-19T21:22:35.931Z",
       "total": "$60 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-08-19T21:23:16.464Z",
+      "seenTs": "2026-08-19T21:49:37.969Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Fernando",
@@ -2113,44 +2151,6 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1787174492410,
-      "ts": "2026-08-19T21:21:32.420Z",
-      "total": "$140 USD",
-      "carnet": "",
-      "seenTs": "2026-08-19T21:21:44.987Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "Santos Leyva",
-      "valeNum": 35,
-      "articulo": "×1 NanoStation 5 AC loco SIN POE",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "5352508425",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Santos Leyva\n🔸Teléfono Cliente: 5352508425\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 17:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Tienda Axontech",
-      "precioUSD": "$140 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "",
-      "comFijadaMN": 0,
-      "confirmedTs": "2026-08-19T21:21:49.531Z",
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4676,5 +4676,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T21:24:29.107Z"
+  "timestamp": "2026-08-19T21:50:55.055Z"
 }
