@@ -173,7 +173,7 @@
       "color": "#1D4ED8",
       "phone": "56536692",
       "initials": "K",
-      "password": "WRXDWYPW"
+      "password": "pbkdf2$100000$xqLwimg3m/834saFV+z5zg==$44c40d2512386aa7ce0c1098ce7baa00058085e3244dcf38bb9e011ea6425ad1"
     },
     {
       "id": 1784476166750,
@@ -2077,45 +2077,6 @@
     }
   ],
   "vales": [
-    {
-      "id": 1787161225383,
-      "ts": "2026-08-19T17:40:25.397Z",
-      "total": "$300 USD + 1500 MN",
-      "carnet": "",
-      "seenTs": "2026-08-19T17:43:39.152Z",
-      "status": "assigned",
-      "vuelto": "",
-      "cliente": "Manuel",
-      "valeNum": 32,
-      "articulo": "×5 Router TP-Link Archer C54 Reacondicionado",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5358068977",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Manuel\n🔸Teléfono Cliente: 5358068977\n🔸Dirección Cliente: Calle 15  # 371 entre Tejar y Pocito, Lawton, 10 de de de octubre\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×5 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 13:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Calle 15  # 371 entre Tejar y Pocito, Lawton, 10 de de de octubre",
-      "precioUSD": "$300 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "assignedTs": "2026-08-19T17:43:50.258Z",
-      "mensajeria": "1500",
-      "comFijadaMN": 0,
-      "mensajeroId": 1787161412838,
-      "seenByAdmin": true,
-      "comFijadaUSD": 50,
-      "valeProductos": [
-        {
-          "id": 1787114204179,
-          "qty": 5,
-          "name": "Router TP-Link Archer C54 Reacondicionado"
-        }
-      ],
-      "comisionGestor": "$50.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
     {
       "id": 1787160749801,
       "ts": "2026-08-19T17:32:29.893Z",
@@ -4524,5 +4485,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T17:44:50.651Z"
+  "timestamp": "2026-08-19T18:52:47.651Z"
 }
