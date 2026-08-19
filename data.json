@@ -559,7 +559,7 @@
       "name": "Pistola de masaje recargable",
       "catId": 40,
       "photo": "photos/img_1778103856933.webp",
-      "stock": 0,
+      "stock": 3,
       "imagen": "photos/img_1778103856933.webp",
       "nombre": "Pistola de masaje recargable",
       "precio": "$25",
@@ -4211,5 +4211,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T04:27:58.079Z"
+  "timestamp": "2026-08-19T04:29:37.758Z"
 }
