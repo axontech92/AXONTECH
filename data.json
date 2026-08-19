@@ -802,7 +802,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 0,
+      "stock": 10,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -4485,5 +4485,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T18:52:47.651Z"
+  "timestamp": "2026-08-19T18:59:25.022Z"
 }
