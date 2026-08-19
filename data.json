@@ -506,7 +506,7 @@
       "name": "Switch dE 8 puertos",
       "catId": 10,
       "photo": "photos/img_1778102214012.webp",
-      "stock": 1,
+      "stock": 3,
       "imagen": "photos/img_1778102214012.webp",
       "nombre": "Switch dE 8 puertos",
       "precio": "$30",
@@ -4595,5 +4595,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T04:11:59.314Z"
+  "timestamp": "2026-08-19T04:13:54.622Z"
 }
