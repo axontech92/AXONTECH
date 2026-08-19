@@ -506,7 +506,7 @@
       "name": "Switch dE 8 puertos",
       "catId": 10,
       "photo": "photos/img_1778102214012.webp",
-      "stock": 10,
+      "stock": 1,
       "imagen": "photos/img_1778102214012.webp",
       "nombre": "Switch dE 8 puertos",
       "precio": "$30",
@@ -986,7 +986,7 @@
       "name": "Ventilador para carro de 3 cabezales",
       "catId": 50,
       "photo": "photos/img_1778384769262.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/img_1778384769262.webp",
       "nombre": "Ventilador para carro de 3 cabezales",
       "precio": "$30",
@@ -4595,5 +4595,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T04:10:14.722Z"
+  "timestamp": "2026-08-19T04:11:59.314Z"
 }
