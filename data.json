@@ -2073,6 +2073,175 @@
   ],
   "vales": [
     {
+      "id": 1787153028974,
+      "ts": "2026-08-19T15:23:48.987Z",
+      "total": "$180 USD + 2750 MN",
+      "carnet": "",
+      "seenTs": "2026-08-19T15:49:23.895Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Zammy",
+      "valeNum": 29,
+      "articulo": "×1 Switch dE 8 puertos / ×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5352656782",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Zammy\n🔸Teléfono Cliente: 5352656782\n🔸Dirección Cliente: Amargura #10 entre parque y entrada, calvario arroyo naranjo.\n🔸Mensajería/ costo: 2750\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 2750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 11:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Amargura #10 entre parque y entrada, calvario arroyo naranjo.",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2750",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        },
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787150490288,
+      "ts": "2026-08-19T14:41:30.300Z",
+      "total": "$580 USD",
+      "carnet": "",
+      "seenTs": "2026-08-19T15:49:01.642Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Amalia",
+      "valeNum": 28,
+      "articulo": "×2 NanoStation 5 AC loco SIN POE / ×1 Router Tp link archer ax21 AX1800 / ×3 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5350213325",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Amalia\n🔸Teléfono Cliente: 5350213325\n🔸Dirección Cliente: Parqueo de la Ramon font\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 NanoStation 5 AC loco SIN POE\n  ×1 Router Tp link archer ax21 AX1800\n  ×3 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $580 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $580 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 10:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Parqueo de la Ramon font",
+      "precioUSD": "$580 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 60,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 2,
+          "name": "NanoStation 5 AC loco SIN POE"
+        },
+        {
+          "id": 1786858003270,
+          "qty": 1,
+          "name": "Router Tp link archer ax21 AX1800"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 3,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$60.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787139164258,
+      "ts": "2026-08-19T11:32:44.261Z",
+      "total": "$115 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Oferril",
+      "valeNum": 27,
+      "articulo": "×1 Timbre inteligente / ×1 Router TP-Link Archer C54 Reacondicionado / ×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "52518556",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Oferril\n🔸Teléfono Cliente: 52518556\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Timbre inteligente\n  ×1 Router TP-Link Archer C54 Reacondicionado\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $115 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $115 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 07:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$115 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 2500,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778384840618,
+          "qty": 1,
+          "name": "Timbre inteligente"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "$10.00 USD + 2500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787139018642,
+      "ts": "2026-08-19T11:30:18.666Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Mercedes",
+      "valeNum": 26,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352081251",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Mercedes\n🔸Teléfono Cliente: 5352081251\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/08/2026 07:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787083100280,
       "ts": "2026-08-18T19:58:20.286Z",
       "total": "$230 USD + 5300 MN",
@@ -4228,5 +4397,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-19T04:42:55.493Z"
+  "timestamp": "2026-08-19T15:50:19.652Z"
 }
