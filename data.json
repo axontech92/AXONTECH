@@ -2115,8 +2115,8 @@
       "ts": "2026-08-21T22:09:47.470Z",
       "total": "$60 USD + 1750 MN",
       "carnet": "79112606145",
-      "seenTs": "2026-08-21T22:11:30.312Z",
-      "status": "pending",
+      "seenTs": "2026-08-21T22:16:09.494Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Carlos Batista",
       "valeNum": 46,
@@ -2128,10 +2128,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Carlos Batista\n🔸Teléfono Cliente: 052728648\n🔸Dirección Cliente: Fomento 573 alto esquina 5ta frente al parque de palatino cerro\n🔸Mensajería/ costo: 1750\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD + 1750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 18:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Fomento 573 alto esquina 5ta frente al parque de palatino cerro",
       "precioUSD": "$60 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": "......",
+      "assignedTs": "2026-08-21T22:15:29.820Z",
       "mensajeria": "1750",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2509,7 +2511,7 @@
       "ts": "2026-08-21T16:53:40.271Z",
       "total": "$60 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-08-21T22:11:15.992Z",
+      "seenTs": "2026-08-21T22:15:56.365Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -2522,7 +2524,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5354155364\n🔸Dirección Cliente: 10 de octubre #853 interior entre luz y alta arriba. Santos suarez 10 de octubre\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 12:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "10 de octubre #853 interior entre luz y alta arriba. Santos suarez 10 de octubre",
       "precioUSD": "$60 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": ".....",
       "assignedTs": "2026-08-21T17:01:33.212Z",
       "mensajeria": "1500",
@@ -6211,5 +6213,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T22:12:10.259Z"
+  "timestamp": "2026-08-21T22:17:13.211Z"
 }
