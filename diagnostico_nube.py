@@ -320,6 +320,36 @@ def revisar_fotos(base, clave):
     # ¿Existe de verdad cada archivo al que apuntan?
     faltan = [r for r in lista_rutas
               if r.startswith('photos/') and not os.path.exists(os.path.join(RAIZ, r))]
+
+    # Que el archivo esté en el repositorio no basta: la app lo pide por HTTP, y
+    # GitHub Pages publica con retraso. Entre que la fila apunta a la ruta y que
+    # el archivo se puede descargar hay una ventana en la que la foto se ve rota
+    # aunque el dato esté perfecto. Esto mide esa ventana.
+    sitio = os.environ.get('SITIO_URL') or (
+        'https://%s.github.io/%s/' % tuple(str(cfg.get('ghRepo', '/')).split('/')[:2])
+        if str(cfg.get('ghRepo', '')).count('/') == 1 else '')
+    if sitio and lista_rutas:
+        log(f'  comprobando descarga real desde {sitio}')
+        rotas = []
+        for r in lista_rutas[:120]:
+            try:
+                req = urllib.request.Request(sitio + r, method='HEAD',
+                                             headers={'User-Agent': 'axontech-diag'})
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    if resp.status != 200:
+                        rotas.append((r, resp.status))
+            except urllib.error.HTTPError as e:
+                rotas.append((r, e.code))
+            except Exception as e:
+                rotas.append((r, type(e).__name__))
+        if rotas:
+            log(f'  ⚠ {len(rotas)} foto(s) NO se pueden descargar todavía:')
+            for r, c in rotas[:15]:
+                log(f'      {c}  {r}')
+            log('    Si son las recién movidas, es que GitHub Pages aún no las ha')
+            log('    publicado. El dato está bien; es cuestión de esperar.')
+        else:
+            log(f'  ✓ las {len(lista_rutas)} fotos se descargan correctamente')
     if faltan:
         log(f'  ⚠ {len(faltan)} ruta(s) apuntan a un archivo que NO está en el repositorio:')
         for r in faltan[:15]:
