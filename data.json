@@ -2095,6 +2095,76 @@
   ],
   "vales": [
     {
+      "id": 1787334762393,
+      "ts": "2026-08-21T17:52:42.394Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "tywuey",
+      "valeNum": 38,
+      "articulo": "×1 Inversor Tataliken de 24V 4000W",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "385796987985",
+      "direccion": "tienda",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1777924118004,
+          "qty": 1,
+          "name": "Inversor Tataliken de 24V 4000W"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: tywuey\n🔸Teléfono Cliente: 385796987985\n🔸Dirección Cliente: tienda\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/8/2026, 13:52:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "synced": true,
+      "isNew": true
+    },
+    {
+      "id": 1787333578298,
+      "ts": "2026-08-21T17:32:58.299Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Manuel",
+      "valeNum": 37,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5354501094",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Manuel\n🔸Teléfono Cliente: 5354501094\n🔸Dirección Cliente: ......\n🔸Mensajería/ costo: ......\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 13:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "......",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": ".......",
+      "mensajeria": "......",
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1787332952796,
       "ts": "2026-08-21T17:22:32.803Z",
       "total": "$140 USD",
@@ -2129,6 +2199,38 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787332765535,
+      "ts": "2026-08-21T17:19:25.543Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alain Perez",
+      "valeNum": 35,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5354501094",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Alain Perez\n🔸Teléfono Cliente: 5354501094\n🔸Dirección Cliente: ......\n🔸Mensajería/ costo: .......\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 13:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "......",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": "........",
+      "mensajeria": ".......",
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -5871,5 +5973,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T17:24:35.667Z"
+  "timestamp": "2026-08-21T17:53:42.465Z"
 }
