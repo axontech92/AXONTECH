@@ -3795,6 +3795,14 @@ function patchVale(id, changes) {
     if (changes.status === 'assigned' && !changes.assignedTs) {
       changes.assignedTs = new Date().toISOString();
     }
+    // v114: al confirmar se congela lo que costó la mercancía, igual que la
+    // comisión se congela al crear el vale. Se hace aquí y no en los cinco
+    // sitios que confirman una venta, que es donde esta app se ha ido
+    // desincronizando siempre. No toca `changes`: el costo no va dentro del
+    // vale — ver la nota en _congelarCostoVale().
+    if (changes.status === 'confirmed' && all[i].status !== 'confirmed') {
+      try { _congelarCostoVale(all[i]); } catch(e) { console.warn('[costos] no se pudo congelar:', e && e.message); }
+    }
     all[i]={...all[i],...changes};
     // v39: Mark this vale as locally patched (for time-based local-wins in merge)
     _valeLocalPatchTs.set(String(id), Date.now());
@@ -4155,6 +4163,52 @@ function setCosto(pid, texto) {
   setSB('costos', mapa);
   return true;
 }
+// ── Costo congelado de un vale (v114) ──────────────────────────────────────
+// La comisión se congela al crear el vale: si mañana cambia el catálogo, ese
+// vale sigue valiendo lo que valía. Al costo le hacía falta lo mismo, o una
+// subida del precio de compra cambiaría sola la ganancia de las ventas del mes
+// pasado. Se congela al CONFIRMAR, que es el primer momento en que se conoce:
+// el que crea el vale suele ser el gestor, y el gestor no tiene los costos.
+//
+// Vive en el mismo documento del admin, bajo la clave reservada `_vales`, y no
+// dentro del vale: los vales de un gestor SÍ se los baja su teléfono, así que
+// un campo en el vale sería el mismo agujero que se acaba de cerrar. Un id de
+// producto nunca es la cadena "_vales", así que no se pisan.
+const costoFijadoDe = valeId => {
+  const m = getCostos()._vales;
+  const n = m && m[String(valeId)];
+  return (typeof n === 'number' && isFinite(n)) ? n : null;
+};
+// Lo que cuesta HOY la mercancía de un vale, en USD. null = no se puede saber
+// (falta algún costo, o hay pesos y no hay tasa). Igual que con la comisión:
+// si no sale un número bueno, mejor no congelar nada que congelar un cero.
+function _costoValeHoy(v) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return null;
+  const items = (v && v.valeProductos) || [];
+  if (!items.length) return null;
+  let total = 0;
+  for (const it of items) {
+    const txt = costoDe(it.id);
+    if (parsePrecioNum(txt) <= 0) return null;
+    const u = _aUSD(_montoMonedas(txt));
+    if (u === null) return null;
+    total += u * (parseInt(it.qty, 10) || 0);
+  }
+  return Math.round(total * 100) / 100;
+}
+function _congelarCostoVale(v) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  if (!v || costoFijadoDe(v.id) !== null) return false;   // ya estaba congelado
+  const usd = _costoValeHoy(v);
+  if (usd === null) return false;
+  const doc = { ...getCostos() };
+  doc._vales = { ...(doc._vales || {}), [String(v.id)]: usd };
+  _safeSetLS('axon_costos', JSON.stringify(doc));
+  _costosCache = doc; _costosDirty = false;
+  setSB('costos', doc);
+  return true;
+}
+
 // v114: la primera versión de esto guardaba el costo dentro del producto y
 // estuvo publicada un rato. Si algún producto llegó a llevarlo, aquí se pasa
 // al documento aparte y se le quita de encima — lo que además lo borra de los
@@ -5936,6 +5990,13 @@ function renderAdminGestores() {
              // el otro es "esto tiene mercancía comprometida".
              const _res = pendingVales.filter(_valeReservaActiva).length;
              return _res ? `<span style="background:rgba(180,83,9,.15);color:#b45309;border:1px solid rgba(180,83,9,.35);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${_res} vale${_res>1?'s':''} con stock apartado">🔐 ${_res}</span>` : '';
+           })()}
+           ${(() => {
+             // v114: cuántos de sus vales van ya con un mensajero. Al lado del
+             // candado y por el mismo motivo: saberlo sin tener que desplegar el
+             // grupo y abrir los vales uno a uno.
+             const _conMoto = pendingVales.filter(v => v.status === 'assigned').length;
+             return _conMoto ? `<span style="background:rgba(217,119,6,.15);color:var(--orange);border:1px solid rgba(217,119,6,.35);border-radius:12px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap;" title="${_conMoto} vale${_conMoto>1?'s':''} con mensajero">🛵 ${_conMoto}</span>` : '';
            })()}
            ${(() => {
              // v85: el número rojo contaba TODOS los vales activos del gestor,
@@ -9320,6 +9381,9 @@ function venderDirecto(id) {
     stockDecremented:true
   };
   const all=getVales();all.push(vale);saveVales(all);
+  // v114: esta venta nace ya confirmada, así que no pasa por patchVale y hay
+  // que congelarle el costo aquí.
+  try { _congelarCostoVale(vale); } catch(e) {}
   // No direct db.ref().set() — saveVales already enqueues via the write queue.
   // Direct db.ref() calls bypassed the retry queue and could lose data on network failure.
   _logAudit('direct_sale', 'product:' + id + ' qty:' + qty);
@@ -9922,22 +9986,28 @@ function renderGanancia(vales) {
   // Solo los vales confirmados. Un vale pendiente todavía se puede caer.
   const vendidos = {};   // id producto → unidades vendidas en el período
   let ingreso = 0, costoVendido = 0, comisiones = 0;
-  let valesSinCosto = 0, valesSinProductos = 0, valesConfirmados = 0;
+  let valesSinCosto = 0, valesSinProductos = 0, valesConfirmados = 0, congelados = 0;
   vales.filter(v => v.status === 'confirmed').forEach(v => {
     valesConfirmados++;
     const ing = _aUSD(_ventaVale(v));
     if (ing !== null) ingreso += ing; else hayMNSinTasa = true;
     const items = v.valeProductos || [];
     if (!items.length) { valesSinProductos++; }
-    let faltaCosto = false;
-    items.forEach(({ id, qty }) => {
-      vendidos[id] = (vendidos[id] || 0) + qty;
-      const p = productoOf(id);
-      const g = p ? _gananciaProducto(p) : null;
-      if (!g || !g.tieneCosto || g.costoU === null) { faltaCosto = true; return; }
-      costoVendido += g.costoU * qty;
-    });
-    if (faltaCosto) valesSinCosto++;
+    items.forEach(({ id, qty }) => { vendidos[id] = (vendidos[id] || 0) + qty; });
+    // v114: si el costo se congeló al confirmar la venta, manda ese. Es lo que
+    // costó de verdad ese día; el de hoy puede ser otro.
+    const fijado = costoFijadoDe(v.id);
+    if (fijado !== null) { costoVendido += fijado; congelados++; }
+    else {
+      let faltaCosto = false;
+      items.forEach(({ id, qty }) => {
+        const p = productoOf(id);
+        const g = p ? _gananciaProducto(p) : null;
+        if (!g || !g.tieneCosto || g.costoU === null) { faltaCosto = true; return; }
+        costoVendido += g.costoU * qty;
+      });
+      if (faltaCosto) valesSinCosto++;
+    }
     try {
       const r = getValeCommissionParts(v);
       const c = _aUSD({ usd: r.totalUSD || 0, mn: r.totalMN || 0 });
@@ -9972,7 +10042,7 @@ function renderGanancia(vales) {
       ${extra?`<div style="margin-top:2px;font-size:9px;color:var(--text-muted);font-weight:600;">${extra}</div>`:''}
     </div>`).join('') +
     `<div class="stat-card" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:11px;">
-      <span class="stat-lbl">Del período: vendido ${_fmtUSD(ingreso)} · costo ${_fmtUSD(costoVendido)} · comisiones ${_fmtUSD(comisiones)}</span>
+      <span class="stat-lbl">Del período: vendido ${_fmtUSD(ingreso)} · costo ${_fmtUSD(costoVendido)}${congelados?` <span title="a estas ventas se les guardó el costo del día en que se confirmaron, así que ya no cambia">(${congelados} con el costo del día 🔒)</span>`:''} · comisiones ${_fmtUSD(comisiones)}</span>
       <span style="font-size:15px;font-weight:900;color:${ganRealizada>=0?'var(--green)':'var(--red)'};">= ${_fmtUSD(ganRealizada)}</span>
     </div>` +
     (tasa ? `<div style="grid-column:1/-1;font-size:10px;color:var(--text-muted);">Los importes en MN se convirtieron a USD a ${tasa} CUP/USD.</div>` : '');
