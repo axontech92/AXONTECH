@@ -12098,37 +12098,70 @@ function renderAdminPickerProducts() {
   if (search) prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   const grid = document.getElementById('av-pickerProductGrid'); if(!grid)return;
   if(!prods.length){grid.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:32px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
+  // ── v110: agotados abajo y en gris, como en el selector del gestor ─────────
+  // Este picker enseñaba TODO mezclado, sin distinguir lo que hay de lo que no.
+  // Y al pulsar "+" en algo agotado no pasaba nada visible… salvo que el
+  // producto se colaba en la lista con cantidad 0, que es lo que rompía el vale
+  // entero (ver setAdminPickerQty). La misma regla que el picker del gestor:
+  // lo que no se puede vender, al final y apagado.
+  prods = prods.slice().sort((a,b)=>{
+    const aB=((a.stock||0)===0||_isFullyReserved(a))?1:0;
+    const bB=((b.stock||0)===0||_isFullyReserved(b))?1:0;
+    return aB-bB;
+  });
   grid.innerHTML = prods.map(p=>{
     const qty=adminPickerSelected[p.id]||0; const sel=qty>0;
     const catColor=_apcGetCatColor(p.catId);
     const catName=_apcGetCatName(p.catId);
-    return `<div class="apcard${sel?' picked':''}">
+    const oos=(p.stock||0)===0;
+    const fullyRes=_isFullyReserved(p);
+    const partRes=_isPartiallyReserved(p);
+    const blocked=oos||fullyRes;
+    const avail=_availableStock(p);
+    const badge = oos ? `<span class="oos-badge">AGOTADO</span>`
+      : fullyRes ? `<span class="reserved-badge picker-reserved-badge">🔒 RESERVADO</span>`
+      : partRes ? `<span class="reserved-badge picker-reserved-badge partial">🔐 Disp ${avail}</span>` : '';
+    const titulo = oos ? 'Producto agotado' : fullyRes ? 'Todo el stock está reservado' : '';
+    return `<div class="apcard${sel?' picked':''}${blocked?' apcard-blocked':''}"${titulo?` title="${titulo}"`:''}>
       <div class="apcard-info">
-        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
+        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${badge}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
         ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
+        ${!blocked?`<div style="font-size:9px;color:var(--text-muted);">Disponibles: ${avail}</div>`:''}
       </div>
-      <div class="apcard-controls">
-        <button class="btn-minus" onclick="event.stopPropagation();setAdminPickerQty(${p.id},-1)">−</button>
+      <div class="apcard-controls"${blocked?' style="pointer-events:none;"':''}>
+        <button class="btn-minus" ${blocked?'disabled':''} onclick="event.stopPropagation();setAdminPickerQty(${p.id},-1)">−</button>
         <span class="qty-val">${qty}</span>
-        <button class="btn-plus" onclick="event.stopPropagation();setAdminPickerQty(${p.id},1)">+</button>
+        <button class="btn-plus" ${blocked?'disabled':''} onclick="event.stopPropagation();setAdminPickerQty(${p.id},1)">+</button>
       </div>
     </div>`;
   }).join('');
 }
 
 function toggleAdminPickerProd(pid) {
-  if(adminPickerSelected[pid]){delete adminPickerSelected[pid];}else{adminPickerSelected[pid]=1;}
+  if(adminPickerSelected[pid]){delete adminPickerSelected[pid];return renderAdminPickerProducts(),renderAdminPickerSelected();}
+  const prod=productoOf(pid);
+  if(!prod||_availableStock(prod)<=0){showToast('Sin unidades disponibles');return;}   // v110
+  adminPickerSelected[pid]=1;
   renderAdminPickerProducts(); renderAdminPickerSelected();
 }
 function setAdminPickerQty(pid, delta) {
-  // A diferencia de pickerAdj() (picker del gestor) y setEditValePickerQty() (picker
-  // de edición), este picker del "Generar vale" del admin no tenía tope de stock —
-  // se podía seleccionar cualquier cantidad aunque el producto estuviera agotado o
-  // totalmente reservado. Se agrega el mismo límite que usan los otros dos pickers.
+  // ⚠ v110 — AQUÍ ESTABA EL "no funciona el botón Generar vale".
+  // Este picker no tenía tope de stock, así que se le puso Math.min(max, q).
+  // Pero con un producto AGOTADO ese max vale 0, y entonces pulsar "+" guardaba
+  // el producto con cantidad CERO: aparecía en "Seleccionados" como "0×". A
+  // partir de ahí caía todo en cadena — el precio de cero unidades es cero, así
+  // que el bloque que rellena el total no se ejecutaba, el campo Total quedaba
+  // vacío, y como Total es obligatorio el botón "Generar Vale" no se encendía
+  // nunca. Nada en pantalla decía por qué.
+  // Una cantidad de cero no significa nada: o se puede añadir, o no se añade.
   const prod=productoOf(pid);
   const max=prod?_availableStock(prod):0;
-  let q=(adminPickerSelected[pid]||0)+delta;
-  if(q<=0){delete adminPickerSelected[pid];}else{adminPickerSelected[pid]=Math.min(max,q);}
+  const actual=adminPickerSelected[pid]||0;
+  let q=actual+delta;
+  if(q<=0){ delete adminPickerSelected[pid]; }
+  else if(max<=0){ showToast('Sin unidades disponibles'); return; }
+  else if(q>max){ adminPickerSelected[pid]=max; showToast(`Solo quedan ${max} disponible${max>1?'s':''}`); }
+  else { adminPickerSelected[pid]=q; }
   renderAdminPickerProducts(); renderAdminPickerSelected();
 }
 function renderAdminPickerSelected() {
@@ -12157,8 +12190,12 @@ function handlePickerConfirm() {
 }
 function confirmAdminPickerSelection() {
   const items = Object.entries(adminPickerSelected).map(([id,qty])=>{
-    const p=productoOf(parseInt(id)); return {id:parseInt(id),name:p?p.name:id,qty};
-  });
+    const p=productoOf(parseInt(id)); return {id:parseInt(id),name:p?p.name:id,qty:parseInt(qty,10)||0};
+  // v110: red de seguridad. Un producto con cantidad 0 no es una venta, y si se
+  // cuela deja el total en blanco y el botón de generar apagado sin explicación.
+  // Se filtra aquí además de impedirlo en el picker: es la última puerta antes
+  // de que la cantidad entre en el vale.
+  }).filter(i => i.qty > 0);
   adminValeProductos = items;
   document.getElementById('av-articulo').value = items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
   // auto-sum prices: separate USD and MN properly
