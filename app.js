@@ -8914,13 +8914,29 @@ async function _subirFotoAGitHub(dataUri, prodId) {
   try {
     // ¿Ya está subida? Mismo contenido → mismo nombre → no hay nada que hacer.
     const previo = await fetch(url, { headers });
-    if (previo.ok) return ruta;
-    const res = await fetch(url, {
-      method: 'PUT', headers,
-      body: JSON.stringify({ message: `foto producto ${prodId}`, content: base64 })
-    });
-    if (!res.ok) {
-      console.warn('[fotos] GitHub respondió', res.status, 'al subir', ruta);
+    if (!previo.ok) {
+      const res = await fetch(url, {
+        method: 'PUT', headers,
+        body: JSON.stringify({ message: `foto producto ${prodId}`, content: base64 })
+      });
+      if (!res.ok) {
+        console.warn('[fotos] GitHub respondió', res.status, 'al subir', ruta);
+        return null;
+      }
+    }
+    // ── v109: subida ≠ servida ────────────────────────────────────────────────
+    // El 21/08 el "Aligerar catálogo" dejó varias fotos en blanco. No se perdió
+    // nada —los archivos estaban en el repositorio y eran WebP correctos— pero
+    // la app pide la foto por HTTP y GitHub Pages publica con retraso. Entre que
+    // la fila del producto pasó a apuntar a la ruta (instantáneo) y que el
+    // archivo se pudo descargar (unos minutos después) quedó una ventana con la
+    // foto rota, y desde fuera eso es indistinguible de haberla perdido.
+    // El fallo no fue subir mal: fue soltar la foto original antes de comprobar
+    // que la copia ya se podía bajar. Ahora se comprueba, y si todavía no está,
+    // se deja el producto como estaba y se reintenta más tarde: el archivo ya
+    // quedó subido, así que el siguiente intento solo tiene que verificarlo.
+    if (!await _fotoDescargable(ruta)) {
+      console.warn('[fotos]', ruta, 'subida pero todavía no se puede descargar — se deja la original');
       return null;
     }
     return ruta;
@@ -8928,6 +8944,16 @@ async function _subirFotoAGitHub(dataUri, prodId) {
     console.warn('[fotos] no se pudo subir', ruta, e && e.message);
     return null;
   }
+}
+
+// ¿Se puede bajar ya esta foto desde donde la va a pedir la app? Se pregunta por
+// la misma dirección que usará el <img>, para que la respuesta valga de algo.
+async function _fotoDescargable(ruta) {
+  try {
+    const url = _resolvePhotoUrl(ruta) + (ruta.includes('?') ? '&' : '?') + 'v=' + Date.now();
+    const r = await fetch(url, { cache: 'no-store' });
+    return !!(r && r.ok);
+  } catch (e) { return false; }
 }
 
 // ── v107: el mismo trabajo, pero solo y sin avisar ──────────────────────────
