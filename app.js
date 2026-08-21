@@ -334,6 +334,45 @@ async function _sbRestGetCollectionYTs(collName) {
   });
   return { items, maxTs };
 }
+// ── v112: bajar SOLO las filas que cambiaron ────────────────────────────────
+// Hasta ahora la pregunta barata (_sbRestHayCambios) evitaba bajar la tabla
+// cuando NO había novedades. Pero en cuanto había una sola —y una venta cambia
+// el stock de un producto, y cualquier toque a un vale cambia ese vale— se
+// bajaba la tabla ENTERA. Medido el 21/08:
+//
+//   una venta cambia 1 producto →   1.9 KB de datos nuevos, se bajaban 139 KB
+//   un vale cambia 1 vale       →   1.5 KB de datos nuevos, se bajaban 149 KB
+//
+// El mismo `updated_at` que sirve para preguntar sirve para pedir solo lo
+// nuevo. Lo que esto NO puede ver sigue siendo un BORRADO —la fila desaparece
+// sin dejar un updated_at más reciente—, así que la bajada completa se mantiene
+// como red de seguridad cada tanto. La diferencia es que ahora esa bajada
+// completa es la excepción y no la regla.
+async function _sbRestGetCollectionDesde(collName, desdeISO) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data,updated_at`
+            + `&updated_at=gt.${encodeURIComponent(desdeISO)}&order=id.asc`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) { if (res.status === 404) return { items: [], maxTs: null }; throw new Error(`Supabase GET ${collName} parcial ${res.status}`); }
+  const rows = await res.json();
+  const items = []; let maxTs = null;
+  (rows || []).forEach(r => {
+    if (r && r.data != null) items.push(r.data);
+    if (r && r.updated_at && (!maxTs || r.updated_at > maxTs)) maxTs = r.updated_at;
+  });
+  return { items, maxTs };
+}
+
+// Mete las filas nuevas encima de las que ya había, emparejando por id. Las que
+// no vinieron se quedan como estaban — que es justo lo que significa "no ha
+// cambiado". Ojo: esto NO sirve para detectar borrados, y por eso existe la
+// bajada completa periódica.
+function _fusionarPorId(viejas, nuevas) {
+  const mapa = new Map();
+  (viejas || []).forEach(x => { if (x && x.id != null) mapa.set(String(x.id), x); });
+  (nuevas || []).forEach(x => { if (x && x.id != null) mapa.set(String(x.id), x); });
+  return Array.from(mapa.values());
+}
+
 // Estado del truco de arriba, por colección. _ultimaTsVisto guarda la
 // referencia para la pregunta barata; _ultimoFetchReal, cuándo fue la última
 // vez que de verdad se bajó algo (para la red de seguridad de los borrados).
@@ -342,7 +381,16 @@ let _ultimoFetchReal = {};
 // vales: red de seguridad corta (30 s) — un vale es dinero, que un borrado
 // tarde medio minuto en notarse no lo nota nadie. lento: los cuatro nodos que
 // ya iban cada 5 min; 20 min de red de seguridad es de sobra para un catálogo.
-const _GATE_SEGURIDAD_MS = { vales: 30000, lento: 20 * 60000 };
+// Cada cuánto se baja la tabla ENTERA aunque no haga falta. Su única razón de
+// existir es notar los BORRADOS, que el filtro por updated_at no puede ver.
+// v112: los vales estaban en 30 s. Con la tabla en 149 KB, eso era una bajada
+// completa cada medio minuto — el teléfono del admin abierto 10 h se comía
+// ~180 MB al día solo en eso, y ahí se fue buena parte de los 5 GB del plan.
+// Desde que la sincronización es incremental, esta bajada ya no es la que trae
+// los cambios (esos llegan al instante y pesan 1,5 KB): es solo el barrido que
+// detecta lo que se borró desde otro teléfono. Cinco minutos de retraso en ver
+// un vale borrado es perfectamente asumible; 180 MB al día no lo era.
+const _GATE_SEGURIDAD_MS = { vales: 5 * 60000, lento: 20 * 60000 };
 // ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
 // Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
 // —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
@@ -987,6 +1035,12 @@ async function _doRestPoll() {
         // la descarga completa de siempre.
         let rawVales = null;
         let _saltarVales = false;
+        // v112: ¿esta pasada trajo SOLO los vales que cambiaron? De eso depende
+        // cómo se fusiona: en una bajada completa, un vale que está en el
+        // teléfono y no viene de Supabase es que lo borraron; en una parcial,
+        // simplemente no ha cambiado. Confundir esas dos cosas borraría el
+        // historial entero, así que la diferencia viaja hasta la fusión.
+        let _valesParcial = false;
         if (!IS_ADMIN && activeGestorId != null) {
           rawVales = await _sbRestGetValesDeGestor(activeGestorId);
         }
@@ -998,10 +1052,16 @@ async function _doRestPoll() {
           const _fetchViejo = (Date.now() - (_ultimoFetchReal.vales || 0)) > _GATE_SEGURIDAD_MS.vales;
           const _hayCambiosVales = (_tsVales === undefined) || _fetchViejo || await _sbRestHayCambios('vales', _tsVales);
           if (_hayCambiosVales) {
-            const _r = await _sbRestGetCollectionYTs('vales');
+            // v112: igual que con los otros nodos, solo las filas que cambiaron.
+            // Aquí es donde más se nota: la tabla de vales pesa 149 KB y cambia
+            // con cada acción sobre cualquier vale.
+            _valesParcial = (_tsVales !== undefined) && !_fetchViejo;
+            const _r = _valesParcial ? await _sbRestGetCollectionDesde('vales', _tsVales)
+                                     : await _sbRestGetCollectionYTs('vales');
             rawVales = _r.items;
-            _ultimoFetchReal.vales = Date.now();
-            _ultimaTsVisto.vales = _r.maxTs || new Date().toISOString();
+            if (!_valesParcial) _ultimoFetchReal.vales = Date.now();
+            _ultimaTsVisto.vales = _r.maxTs || _ultimaTsVisto.vales || new Date().toISOString();
+            if (_valesParcial && !rawVales.length) _saltarVales = true;
           } else {
             _saltarVales = true; // nada nuevo — no hay nada que fusionar esta vez
           }
@@ -1117,7 +1177,13 @@ async function _doRestPoll() {
               }
             } else {
               // Vale only exists locally
-              if (lv.synced === false && lv.status !== 'cancelled') {
+              // ⚠ v112: en una bajada PARCIAL esto no significa "lo borraron",
+              // significa "no ha cambiado" — que es el caso de la inmensa
+              // mayoría. Borrarlos aquí vaciaría el historial en la primera
+              // pasada. Solo una bajada completa puede concluir un borrado.
+              if (_valesParcial) {
+                mergedMap.set(id, lv);
+              } else if (lv.synced === false && lv.status !== 'cancelled') {
                 // Orphaned local vale (not yet synced to Supabase) — keep it
                 mergedMap.set(id, lv);
               }
@@ -1321,10 +1387,26 @@ async function _doRestPoll() {
         const _fetchViejoNodo = (Date.now() - (_ultimoFetchReal[node] || 0)) > _GATE_SEGURIDAD_MS.lento;
         const _hayCambiosNodo = (_tsNodo === undefined) || _fetchViejoNodo || await _sbRestHayCambios(node, _tsNodo);
         if (!_hayCambiosNodo) continue; // nada nuevo — no hay nada que bajar
-        const _rn = await _sbRestGetCollectionYTs(node);
-        const arr = _rn.items;
-        _ultimoFetchReal[node] = Date.now();
-        _ultimaTsVisto[node] = _rn.maxTs || new Date().toISOString();
+        // v112: si ya tenemos la tabla y no toca la bajada de seguridad, se
+        // piden SOLO las filas que cambiaron y se encajan sobre las que había.
+        // La bajada completa queda para el arranque y para pillar los borrados.
+        const _parcial = (_tsNodo !== undefined) && !_fetchViejoNodo;
+        const _rn = _parcial ? await _sbRestGetCollectionDesde(node, _tsNodo)
+                             : await _sbRestGetCollectionYTs(node);
+        let arr;
+        if (_parcial) {
+          if (!_rn.items.length) continue;          // la pregunta dijo sí pero no vino nada
+          const _previas = (node === 'productos') ? getProductos()
+                         : (node === 'gestores')   ? getGestores()
+                         : (node === 'mensajeros') ? getMensajeros()
+                         : (node === 'categorias') ? getCategorias() : [];
+          arr = _fusionarPorId(_previas, _rn.items);
+          console.log(`[sync] ${node}: ${_rn.items.length} fila(s) nuevas en vez de ${_previas.length}`);
+        } else {
+          arr = _rn.items;
+          _ultimoFetchReal[node] = Date.now();
+        }
+        _ultimaTsVisto[node] = _rn.maxTs || _ultimaTsVisto[node] || new Date().toISOString();
         // v33 FIX: Always update localStorage even if Supabase returns empty
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
         _syncCount++;
