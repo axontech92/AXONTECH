@@ -9690,7 +9690,14 @@ function renderStats() {
     {label:'Pendientes',val:pending,color:'var(--red)'},
   ].map(({label,val,color})=>`<div class="stat-card"><div class="stat-num" style="color:${color};">${val}</div><div class="stat-lbl">${label}</div></div>`).join('');
   // By gestor — expandible cards with drill-down details
-  const gestores=getGestores();
+  // v113: los totales de arriba SIEMPRE contaron las ventas de la tienda —salen
+  // de todos los vales— pero este desglose recorre la lista de gestores, y la
+  // tienda no está en ella (a propósito: no compite en el ranking ni cobra
+  // comisión). Resultado: una venta hecha desde el admin se confirmaba, entraba
+  // en el historial… y desaparecía del único sitio donde se mira qué se ha
+  // vendido y quién lo vendió. Aquí sí tiene que salir, con su propia tarjeta.
+  const gestores=getGestores().slice();
+  if (vales.some(esValeDeLaTienda)) gestores.push(GESTOR_TIENDA);
   document.getElementById('statsGestorList').innerHTML=gestores.length?
     gestores.map(g => _renderStatsGestorCard(g, vales, from, to)).join('') :
     '<div class="es"><div class="es-text">Sin gestores configurados</div></div>';
