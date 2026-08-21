@@ -802,7 +802,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -1384,7 +1384,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 72,
+      "stock": 67,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "140 USD",
@@ -2025,7 +2025,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 21,
+      "stock": 19,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2095,6 +2095,49 @@
   ],
   "vales": [
     {
+      "id": 1787337340767,
+      "ts": "2026-08-21T18:35:40.769Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-08-21T18:54:42.975Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Alain Perez",
+      "valeNum": 40,
+      "articulo": "×2 Router TP-Link Archer C54 Reacondicionado / ×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5354880290",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Alain Perez\n🔸Teléfono Cliente: 5354880290\n🔸Dirección Cliente: ......\n🔸Mensajería/ costo: .....\n🔸 Artículos y cantidades:\n  ×2 Router TP-Link Archer C54 Reacondicionado\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 14:34\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "......",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": ".......",
+      "mensajeria": ".....",
+      "comFijadaMN": 1500,
+      "confirmedTs": "2026-08-21T18:55:00.619Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 2,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "$20.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787332952796,
       "ts": "2026-08-21T17:22:32.803Z",
       "total": "$140 USD",
@@ -2136,8 +2179,8 @@
       "ts": "2026-08-21T17:08:14.239Z",
       "total": "$700 USD + 1400 MN",
       "carnet": "",
-      "seenTs": "2026-08-21T17:24:09.722Z",
-      "status": "pending",
+      "seenTs": "2026-08-21T18:55:38.506Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Walter",
       "valeNum": 35,
@@ -2153,6 +2196,7 @@
       "ubicacion": null,
       "mensajeria": "1400 cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-21T18:55:53.989Z",
       "seenByAdmin": true,
       "comFijadaUSD": 50,
       "valeProductos": [
@@ -2164,7 +2208,7 @@
       ],
       "comisionGestor": "$50.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -5871,5 +5915,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T18:34:37.914Z"
+  "timestamp": "2026-08-21T18:56:53.996Z"
 }
