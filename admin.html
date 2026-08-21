@@ -127,6 +127,10 @@
         <button class="btn btn-blue btn-sm" onclick="addCategoria()">＋ Categoría</button>
         <button class="btn btn-ghost btn-sm" id="catManagerToggle" onclick="toggleCatManager()">🗂️ Gestionar</button>
         <button class="btn btn-orange btn-sm" onclick="optimizeProductPhotos()" title="Convertir todas las fotos JPEG/PNG a WebP y borrar las originales">🖼️ Optimizar imágenes</button>
+        <!-- v106: saca a GitHub las fotos que quedaron guardadas dentro del
+             producto. Son las que hacen que el catálogo entero pese de más en
+             cada bajada. Ver _subirFotoAGitHub() en app.js. -->
+        <button class="btn btn-ghost btn-sm" onclick="migrarFotosAGitHub()" title="Mover a GitHub las fotos guardadas dentro de la base de datos (baja el consumo de Supabase)">☁️ Aligerar catálogo</button>
         <button class="btn btn-green btn-sm" onclick="openAddProductModal()">＋ Nuevo producto</button>
       </div>
     </div>

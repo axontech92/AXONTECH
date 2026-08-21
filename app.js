@@ -8797,8 +8797,112 @@ function handleProductPhoto(input) {
   reader.onerror=()=>{showToast('Error al leer el archivo');};
   reader.readAsDataURL(file);
 }
+// ══════════════════════════════════════════════════════════════════════════
+//  v106 · LAS FOTOS VIVEN EN GITHUB, NO DENTRO DE LA FILA
+// ══════════════════════════════════════════════════════════════════════════
+// Una foto guardada como texto base64 dentro del producto viaja con él CADA VEZ
+// que alguien baja el catálogo. Y el catálogo se baja entero en cuanto cambia
+// cualquier cosa — y cambia con cada venta, porque baja el stock.
+//
+// Medido el 17/08/2026: 12 productos con la foto incrustada sumaban 705 KB de
+// los 842 KB de la tabla. El 84% de cada bajada eran fotos que no habían
+// cambiado. A doce bajadas por hora y por teléfono, ahí se fueron los 5 GB del
+// plan gratuito de Supabase.
+//
+// Los otros 75 productos ya lo hacían bien: guardan la ruta "photos/xxx.webp" y
+// el archivo vive en GitHub, donde el service worker lo cachea PARA SIEMPRE
+// —el nombre lleva un hash del contenido, así que si la foto cambia, cambia la
+// ruta—. Bajar una foto una vez en la vida del teléfono, en vez de doce veces
+// por hora.
+//
+// Esto sube la foto a GitHub y devuelve la ruta. Si no se puede (sin token, sin
+// conexión, repo mal configurado) devuelve null y quien llama decide: aquí se
+// prefiere guardar la foto como antes a perderla.
+async function _subirFotoAGitHub(dataUri, prodId) {
+  const cfg = getConfig() || {};
+  const tok = ghToken();
+  if (!tok || !cfg.ghRepo) return null;
+  const m = /^data:image\/([a-z]+);base64,(.+)$/i.exec(String(dataUri || ''));
+  if (!m) return null;
+  const ext = m[1].toLowerCase() === 'jpeg' ? 'jpg' : m[1].toLowerCase();
+  const base64 = m[2];
+  // El nombre lleva un trozo del hash del contenido: dos fotos distintas nunca
+  // comparten archivo, y la misma foto no se vuelve a subir con otro nombre.
+  let hash = '';
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(base64));
+    hash = [...new Uint8Array(buf)].slice(0, 4).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    hash = Math.abs(base64.length * 2654435761 % 4294967296).toString(16).slice(0, 8);
+  }
+  const ruta = `photos/p-${prodId}-${hash}.${ext}`;
+  const partes = cfg.ghRepo.split('/').filter(Boolean);
+  if (partes.length < 2) return null;
+  const url = `https://api.github.com/repos/${partes[0]}/${partes.slice(1).join('/')}/contents/${ruta}`;
+  const headers = { Authorization: `token ${tok}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
+  try {
+    // ¿Ya está subida? Mismo contenido → mismo nombre → no hay nada que hacer.
+    const previo = await fetch(url, { headers });
+    if (previo.ok) return ruta;
+    const res = await fetch(url, {
+      method: 'PUT', headers,
+      body: JSON.stringify({ message: `foto producto ${prodId}`, content: base64 })
+    });
+    if (!res.ok) {
+      console.warn('[fotos] GitHub respondió', res.status, 'al subir', ruta);
+      return null;
+    }
+    return ruta;
+  } catch (e) {
+    console.warn('[fotos] no se pudo subir', ruta, e && e.message);
+    return null;
+  }
+}
+
+// Saca a GitHub las fotos que quedaron dentro de los productos. Es de una sola
+// vez: en cuanto están fuera, el catálogo adelgaza y ya no vuelve a engordar,
+// porque saveProduct() sube las nuevas directamente.
+async function migrarFotosAGitHub() {
+  const cfg = getConfig() || {};
+  if (!ghToken() || !cfg.ghRepo) {
+    showToast('Configura GitHub primero en ⚙️ Config');
+    return;
+  }
+  const lista = getProductos().slice();
+  const pesados = lista.filter(p => p && typeof p.photo === 'string' && p.photo.startsWith('data:image'));
+  if (!pesados.length) { showToast('No hay fotos que mover: el catálogo ya está ligero ✓'); return; }
+  const kb = Math.round(pesados.reduce((a, p) => a + p.photo.length, 0) / 1024);
+
+  showConfirmAction(
+    `¿Mover ${pesados.length} foto${pesados.length > 1 ? 's' : ''} a GitHub?`,
+    `Son ${kb} KB que ahora mismo se descargan cada vez que alguien abre el catálogo. ` +
+    `Las fotos se ven igual: pasan a servirse desde GitHub, donde el teléfono las guarda para siempre. ` +
+    `Si alguna no se puede subir, se queda como está.`,
+    'Mover', 'btn-green', async () => {
+      let hechas = 0, fallidas = 0;
+      const tocados = [];
+      for (const p of pesados) {
+        showToast(`📤 Subiendo ${hechas + fallidas + 1} de ${pesados.length}…`);
+        const ruta = await _subirFotoAGitHub(p.photo, p.id);
+        if (!ruta) { fallidas++; continue; }
+        const i = lista.findIndex(x => x && x.id === p.id);
+        if (i === -1) { fallidas++; continue; }
+        lista[i] = { ...lista[i], photo: ruta, imagen: ruta };
+        tocados.push(p.id);
+        hechas++;
+      }
+      if (tocados.length) guardarProductos(lista, tocados);
+      renderProductGrid();
+      if (typeof renderAdminCatalog === 'function') { try { renderAdminCatalog(); } catch(e) {} }
+      showToast(fallidas
+        ? `${hechas} movida(s), ${fallidas} sin mover (revisa la conexión y reintenta)`
+        : `✅ ${hechas} foto(s) movidas · el catálogo pesa ${kb} KB menos en cada bajada`);
+    }
+  );
+}
+
 function closeProductModal(){document.getElementById('productModal').classList.remove('show');editingProductId=null;}
-function saveProduct() {
+async function saveProduct() {
   const name=document.getElementById('pm-name').value.trim();if(!name){showToast('El nombre es obligatorio');return;}
   const catVal=document.getElementById('pm-cat').value;
   const prod={
@@ -8811,6 +8915,16 @@ function saveProduct() {
     photo:document.getElementById('pm-foto').value.trim(),
     catId:catVal?parseInt(catVal):null,
   };
+  // v106: si la foto viene incrustada (base64), se sube a GitHub y en el
+  // producto queda solo la ruta. Si la subida falla, se guarda como antes: es
+  // mejor un catálogo pesado que un producto sin foto.
+  if (prod.photo && prod.photo.startsWith('data:image')) {
+    const idParaFoto = editingProductId || Date.now();
+    showToast('📤 Subiendo la foto…');
+    const ruta = await _subirFotoAGitHub(prod.photo, idParaFoto);
+    if (ruta) { prod.photo = ruta; prod.imagen = ruta; }
+    else showToast('⚠️ La foto se guarda en la base de datos (revisa GitHub en ⚙️ Config)');
+  }
   if(editingProductId){
     const old=productoOf(editingProductId);
     patchProducto(editingProductId,prod);
