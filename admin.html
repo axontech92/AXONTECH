@@ -917,7 +917,10 @@
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Promotor *</span></div>
-          <select id="av-gestor"></select>
+          <!-- v107: sin este onchange, elegir el gestor no revisaba el
+               formulario: si era lo último que se seleccionaba, el botón
+               "Generar Vale" se quedaba apagado y no había forma de mandarlo. -->
+          <select id="av-gestor" onchange="onAdminValeInput()"></select>
         </div>
       </div>
       <div class="vf-row">

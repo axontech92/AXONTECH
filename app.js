@@ -1565,7 +1565,20 @@ function _getMensajerosMap() {
   }
   return _mensajerosMap;
 }
-const gestorOf    = id => _getGestoresMap().get(id);
+// ── v107: la tienda como "gestor" para los vales que hace el admin ──────────
+// El modal de vale del admin ofrece "👤 Admin" con el valor 0, y el vale se
+// guardaba con gestorId: 0. Pero ningún gestor tiene el id 0, así que
+// gestorOf(0) devolvía undefined y —lo importante— la bandeja, que recorre la
+// lista de gestores para agrupar los vales, no tenía dónde ponerlo: el vale se
+// creaba, decía "generado ✓" y desaparecía. Eso era el "no funciona".
+//
+// Con esta ficha de mentira el vale tiene a quién pertenecer y todas las
+// pantallas lo pintan bien sin tocarlas una por una. No entra en getGestores(),
+// así que no aparece en el ranking, ni en el panel de comisiones, ni se le
+// puede poner contraseña: es solo un nombre para los vales de la propia tienda.
+const GESTOR_TIENDA = { id: 0, name: 'Tienda (admin)', initials: '🏪', color: '#64748b', _tienda: true };
+const esValeDeLaTienda = v => !!v && (v.gestorId === 0 || v.gestorId === '0');
+const gestorOf    = id => (id === 0 || id === '0') ? GESTOR_TIENDA : _getGestoresMap().get(id);
 const mensajeroOf = id => _getMensajerosMap().get(id);
 const productoOf  = id => _getProductosMap().get(id);
 const todayStr    = () => new Date().toDateString();
@@ -5642,9 +5655,20 @@ function renderAdminGestores() {
   // revertConfirmSale (AUDITORIA-AXONTECH.md ALTO 8) que aquí seguía vivo.
   // Ningún flujo actual produce 'delivered', pero sí aparece en datos antiguos
   // y en los datos de demostración.
+  const _activo = v => v.status !== 'confirmed' && v.status !== 'cancelled';
   const gestoresConPendientes = gestores.filter(g => {
-     return vales.some(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled');
+     return vales.some(v => v.gestorId === g.id && _activo(v));
   });
+
+  // ── v107: los vales que no son de ningún gestor de la lista ────────────────
+  // Dos casos, el mismo síntoma: el vale existe pero no se ve en ninguna parte.
+  //   · Los que hace el admin eligiendo "👤 Admin" (gestorId 0).
+  //   · Los huérfanos: al borrar un gestor la app avisa de que "quedarán
+  //     huérfanos", y hasta ahora huérfano quería decir invisible.
+  // Se agrupan bajo la ficha de la tienda para que se puedan atender igual.
+  const _idsReales = new Set(gestores.map(g => g.id));
+  const _sinDuenno = vales.some(v => _activo(v) && !_idsReales.has(v.gestorId));
+  if (_sinDuenno) gestoresConPendientes.push(GESTOR_TIENDA);
 
   // ── v99: orden de la bandeja ────────────────────────────────────────────────
   // Antes salían en el orden en que se dieron de alta, así que un gestor con un
@@ -5669,7 +5693,10 @@ function renderAdminGestores() {
 
   _ordenados.forEach(g => {
     // Solo vales activos (no confirmed/cancelled) — 'delivered' incluido, ver arriba.
-    const pendingVales = ordenarRecientesPrimero(vales.filter(v => v.gestorId === g.id && v.status !== 'confirmed' && v.status !== 'cancelled'));
+    // La ficha de la tienda recoge TODO lo que no tiene dueño en la lista: sus
+    // propios vales (gestorId 0) y los huérfanos de un gestor borrado.
+    const _mio = g._tienda ? (v => !_idsReales.has(v.gestorId)) : (v => v.gestorId === g.id);
+    const pendingVales = ordenarRecientesPrimero(vales.filter(v => _mio(v) && v.status !== 'confirmed' && v.status !== 'cancelled'));
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -8859,9 +8886,48 @@ async function _subirFotoAGitHub(dataUri, prodId) {
   }
 }
 
-// Saca a GitHub las fotos que quedaron dentro de los productos. Es de una sola
-// vez: en cuanto están fuera, el catálogo adelgaza y ya no vuelve a engordar,
-// porque saveProduct() sube las nuevas directamente.
+// ── v107: el mismo trabajo, pero solo y sin avisar ──────────────────────────
+// Corre al arrancar el admin. No pregunta ni interrumpe: si hay fotos dentro de
+// la base de datos y GitHub está configurado, las va sacando. Lo único que se
+// ve es el aviso final, y solo si movió algo.
+// Va de una en una a propósito: son peticiones a la API de GitHub y no hay
+// ninguna prisa. Si algo falla, no se toca ese producto y se reintentará en el
+// siguiente arranque.
+let _aligerandoCatalogo = false;
+async function _aligerarCatalogoAuto() {
+  if (_aligerandoCatalogo) return;
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const cfg = getConfig() || {};
+  if (!ghToken() || !cfg.ghRepo) return;      // sin GitHub no hay dónde ponerlas
+  if (!navigator.onLine) return;
+  const lista = getProductos().slice();
+  const pesados = lista.filter(p => p && typeof p.photo === 'string' && p.photo.startsWith('data:image'));
+  if (!pesados.length) return;
+
+  _aligerandoCatalogo = true;
+  try {
+    const kb = Math.round(pesados.reduce((a, p) => a + p.photo.length, 0) / 1024);
+    console.log(`[fotos] ${pesados.length} foto(s) dentro de la base de datos (${kb} KB) — sacándolas a GitHub`);
+    const tocados = [];
+    for (const p of pesados) {
+      const ruta = await _subirFotoAGitHub(p.photo, p.id);
+      if (!ruta) continue;
+      const i = lista.findIndex(x => x && x.id === p.id);
+      if (i === -1) continue;
+      lista[i] = { ...lista[i], photo: ruta, imagen: ruta };
+      tocados.push(p.id);
+    }
+    if (tocados.length) {
+      guardarProductos(lista, tocados);
+      try { renderProductGrid(); } catch(e) {}
+      showToast(`☁️ ${tocados.length} foto(s) movidas a GitHub · el catálogo pesa menos`);
+    }
+  } finally { _aligerandoCatalogo = false; }
+}
+
+// La misma operación a mano, desde el botón "☁️ Aligerar catálogo". Se queda
+// como red de seguridad: si la automática no pudo (sin conexión, sin token),
+// aquí se ve exactamente qué pasa en vez de fallar en silencio.
 async function migrarFotosAGitHub() {
   const cfg = getConfig() || {};
   if (!ghToken() || !cfg.ghRepo) {
@@ -11797,6 +11863,18 @@ function onAdminValeInput() {
   const btn = document.getElementById('av-sendBtn');
   if (btn) btn.disabled = !allFilled;
 
+  // v107: con "👤 Admin" la venta es de la tienda y no da comisión a nadie. Se
+  // dice aquí, en el propio campo, en vez de dejar que se escriba un número que
+  // luego se va a ignorar al guardar.
+  const _com = document.getElementById('av-comisionGestor');
+  if (_com) {
+    const _esTienda = avVal('av-gestor') === '0';
+    _com.disabled = _esTienda;
+    _com.placeholder = _esTienda ? 'Venta de la tienda · sin comisión' : '';
+    if (_esTienda) _com.value = '';
+    _com.style.opacity = _esTienda ? '.55' : '';
+  }
+
   const anyFilled = REQUIRED_AV.some(id => avVal(id).length > 0) ||
     ['av-mensajeria','av-precioUSD','av-precioMN','av-vuelto','av-garantia','av-comisionGestor'].some(id => avVal(id).length > 0);
 
@@ -11864,6 +11942,16 @@ function sendAdminVale() {
     status: 'pending', mensajeroId: null, confirmedTs: null,
     isNew: true, adminNotes: 'Generado por Admin',
   };
+  // v107: una venta de la propia tienda no le da comisión a nadie. Se aprovecha
+  // la comisión congelada, que ya manda sobre el cálculo del catálogo: puesta a
+  // cero, todas las pantallas enseñan cero sin necesidad de un caso especial en
+  // cada una. Si el admin elige un gestor de verdad, esto no se toca y la
+  // comisión se calcula como siempre.
+  if (gId === 0) {
+    vale.comFijadaUSD = 0;
+    vale.comFijadaMN = 0;
+    vale.comisionGestor = '';
+  }
 
   // ── 1. Guardar el vale LOCALMENTE y encolar write a Supabase (síncrono, rápido) ──
   // v65: .slice() por lo mismo que en patchVale — no mutar el caché vivo.
@@ -12707,6 +12795,12 @@ async function init() {
   if (!IS_ADMIN) {
     _detectGestorRpc().catch(() => {});
     _detectStockRpc().catch(() => {});   // v96: saber ya si la venta puede ir por delta
+    // v107: sacar solas las fotos que estén dentro de la base de datos. Antes
+    // había que acordarse de pulsar un botón, y un botón que hay que recordar
+    // es un botón que no se pulsa: mientras tanto el catálogo entero —fotos
+    // incluidas— se baja en cada cambio de stock. Se hace en segundo plano y
+    // sin molestar; si falla, se reintenta en el siguiente arranque.
+    setTimeout(() => { _aligerarCatalogoAuto().catch(() => {}); }, 8000);
   }
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
