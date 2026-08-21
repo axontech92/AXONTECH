@@ -281,6 +281,54 @@ def revisar_orden(base, clave):
         log('    la app no puede recalcularla (producto borrado del catálogo).')
 
 
+def revisar_fotos(base, clave):
+    """Estado de las fotos de los productos EN LA NUBE.
+
+    Escrito el 21/08/2026 después de que "Aligerar catálogo" dejara productos
+    sin foto. Lo que hace falta saber es exactamente en qué estado quedó cada
+    fila: si la foto sigue dentro, si quedó una ruta, o si se quedó vacía. Con
+    eso se sabe si hay algo que recuperar y de dónde.
+    """
+    log('\n── fotos de los productos ─────────────────────────────────────────')
+    try:
+        filas = pedir(base, clave, '/productos?select=data')
+        cfgf = pedir(base, clave, '/meta?select=data&name=eq.config')
+    except Exception as e:
+        log(f'  ✗ no se pudo leer: {e}')
+        return
+    cfg = (cfgf[0].get('data') or {}) if cfgf else {}
+    log(f"  repo de GitHub configurado: {cfg.get('ghRepo', '— sin configurar —')!r}")
+
+    b64 = rutas = vacios = 0
+    lista_rutas = []
+    for f in filas:
+        d = f.get('data') or {}
+        if not isinstance(d, dict):
+            continue
+        foto = d.get('photo') or d.get('imagen') or ''
+        if not foto:
+            vacios += 1
+        elif str(foto).startswith('data:'):
+            b64 += 1
+        else:
+            rutas += 1
+            lista_rutas.append(str(foto))
+    log(f'  con la foto dentro de la fila (base64): {b64}')
+    log(f'  con ruta a un archivo                 : {rutas}')
+    log(f'  SIN FOTO                              : {vacios}')
+
+    # ¿Existe de verdad cada archivo al que apuntan?
+    faltan = [r for r in lista_rutas
+              if r.startswith('photos/') and not os.path.exists(os.path.join(RAIZ, r))]
+    if faltan:
+        log(f'  ⚠ {len(faltan)} ruta(s) apuntan a un archivo que NO está en el repositorio:')
+        for r in faltan[:15]:
+            log(f'      {r}')
+        log('    Esas son las fotos que se ven rotas.')
+    else:
+        log('  ✓ todas las rutas tienen su archivo en el repositorio')
+
+
 def main():
     base, clave = credenciales()
     log('AXONTECH · qué hay de verdad en la nube')
@@ -289,6 +337,7 @@ def main():
     revisar_tasa(base, clave)
     revisar_comisiones(base, clave)
     revisar_orden(base, clave)
+    revisar_fotos(base, clave)
     log('\nListo.')
     return 0
 
