@@ -279,6 +279,9 @@ const _SB_AUTH_HDRS = {
 let _syncCount = 0;
 const isSyncingFromSupabase = () => _syncCount > 0;
 const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas', 'tasa'];
+// v114: documentos que SOLO se baja el teléfono del admin. Los costos de compra
+// no tienen por qué acabar guardados en el teléfono de un gestor.
+const _SB_SINGLETON_ADMIN = ['costos'];
 
 async function _sbRestGetCollection(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
@@ -1430,7 +1433,12 @@ async function _doRestPoll() {
     // v66: 'notifs' sigue en cada pasada —es por donde llegan los avisos del admin
     // al gestor y ahí la inmediatez sí importa—. config, estafa y ranking_summary
     // pasan al ritmo lento por el mismo motivo que los nodos de arriba.
-    for (const node of (_toqueNodosLentos ? _SB_SINGLETON_ROWS : ['notifs'])) {
+    // v114: 'costos' se añade SOLO si este teléfono es el del admin — ver la
+    // nota larga en getCostos(). El del gestor ni lo pide.
+    const _singletonsAPedir = _toqueNodosLentos
+      ? (IS_ADMIN ? _SB_SINGLETON_ROWS.concat(_SB_SINGLETON_ADMIN) : _SB_SINGLETON_ROWS)
+      : ['notifs'];
+    for (const node of _singletonsAPedir) {
       try {
         // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
         // v94: y el mismo cerrojo del write en vuelo que arriba.
@@ -1469,6 +1477,14 @@ async function _doRestPoll() {
               // propósito — ver la nota larga en _refrescarReservas().
               _reservasSBCache=(val&&typeof val==='object')?val:{};_reservasSBDirty=false;
               if(typeof renderProductGrid==='function'){try{renderProductGrid();}catch(e){}}
+            }
+            else if(node==='costos'){
+              // v114: costos de compra. Aquí solo llega si IS_ADMIN.
+              _costosCache=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};_costosDirty=false;
+              // El único sitio que los enseña es el panel de ganancias, y solo
+              // si está a la vista: repintarlo a ciegas cada 5 min borraría lo
+              // que el admin esté escribiendo en la tabla en ese momento.
+              if(typeof currentAdminTab!=='undefined'&&currentAdminTab==='stats'&&typeof renderStats==='function'){try{renderStats();}catch(e){}}
             }
           } finally { _syncCount--; }
         }
@@ -1883,7 +1899,7 @@ function _processSBQueue() {
   // a llamadas reales de Supabase REST.
   const _FS_SINGLETON_DOCS = {
     config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary',
-    reservas: 'reservas', tasa: 'tasa'
+    reservas: 'reservas', tasa: 'tasa', costos: 'costos'   // v114
   };
   function _supabaseOpFor(path, value, method) {
     // Singleton → meta/{name}
@@ -4095,6 +4111,65 @@ function _refrescarReservas() {
   _safeSetLS('axon_reservas', ahora);
   _reservasSBCache = nuevo; _reservasSBDirty = false;
   setSB('reservas', nuevo);
+}
+
+// ══════════════════════════════════════════
+//  COSTOS DE COMPRA  (v114)
+// ══════════════════════════════════════════
+// Lo que le costó cada producto al dueño. Vive FUERA del producto, y no por
+// comodidad: la tabla `productos` se la baja también el teléfono del gestor
+// —la necesita para el catálogo y el picker—, así que un campo `costo` dentro
+// del producto sería un campo que el gestor tiene guardado en su teléfono
+// aunque su app no se lo enseñe en ninguna pantalla. Basta con mirar el
+// almacenamiento del navegador para leerlo.
+//
+// Aquí es un documento aparte —{productoId: "texto"}, unos pocos bytes— que
+// SOLO pide el teléfono del admin: no entra en la lista de nodos que baja
+// todo el mundo (ver _SB_SINGLETON_ADMIN en el poll). Es la misma solución
+// que se le dio a `reservas` en v94 por un motivo distinto.
+//
+// ⚠️ Con la clave pública de Supabase cualquiera que sepa buscar podría pedir
+// esta fila a mano. Lo que se garantiza es que la app del gestor no se la
+// descarga ni la guarda; para blindarlo del todo haría falta cerrar la tabla
+// `meta` por rol, que es otro trabajo.
+let _costosCache = null, _costosDirty = true;
+function getCostos() {
+  if (_costosDirty || !_costosCache) {
+    try { _costosCache = JSON.parse(localStorage.getItem('axon_costos') || '{}'); }
+    catch(e) { _costosCache = {}; }
+    if (!_costosCache || typeof _costosCache !== 'object' || Array.isArray(_costosCache)) _costosCache = {};
+    _costosDirty = false;
+  }
+  return _costosCache;
+}
+const costoDe = pid => String(getCostos()[String(pid)] || '');
+function setCosto(pid, texto) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  const limpio = String(texto || '').trim();
+  const mapa = { ...getCostos() };
+  if (limpio) mapa[String(pid)] = limpio; else delete mapa[String(pid)];
+  const ahora = JSON.stringify(mapa);
+  if (ahora === JSON.stringify(getCostos())) return false;   // nada que cambiar
+  _safeSetLS('axon_costos', ahora);
+  _costosCache = mapa; _costosDirty = false;
+  setSB('costos', mapa);
+  return true;
+}
+// v114: la primera versión de esto guardaba el costo dentro del producto y
+// estuvo publicada un rato. Si algún producto llegó a llevarlo, aquí se pasa
+// al documento aparte y se le quita de encima — lo que además lo borra de los
+// teléfonos de los gestores en su siguiente sincronización.
+function _rescatarCostosDelProducto() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const conCosto = getProductos().filter(p => p && p.costo);
+  if (!conCosto.length) return;
+  const mapa = { ...getCostos() };
+  conCosto.forEach(p => { if (!mapa[String(p.id)]) mapa[String(p.id)] = String(p.costo).trim(); });
+  _safeSetLS('axon_costos', JSON.stringify(mapa));
+  _costosCache = mapa; _costosDirty = false;
+  setSB('costos', mapa);
+  conCosto.forEach(p => patchProducto(p.id, { costo: null }));
+  console.log(`[costos] ${conCosto.length} costo(s) movidos fuera del producto`);
 }
 // Reservado de verdad = lo apartado a mano + lo comprometido por vales.
 function _reservedTotal(p) {
@@ -8748,7 +8823,7 @@ function openEditProductModal(id) {
   document.getElementById('pm-name').value=p.name||'';
   document.getElementById('pm-desc').value=p.description||'';
   document.getElementById('pm-precio').value=p.precio||'';
-  {const elC=document.getElementById('pm-costo');if(elC)elC.value=p.costo||'';}   // v114
+  {const elC=document.getElementById('pm-costo');if(elC)elC.value=costoDe(id);}   // v114: vive aparte
   document.getElementById('pm-stock').value=p.stock||0;
   document.getElementById('pm-puntos').value=p.puntos||0;
   document.getElementById('pm-garantia').value=p.garantia||'';
@@ -9166,7 +9241,6 @@ async function saveProduct() {
   const prod={
     name,description:document.getElementById('pm-desc').value.trim(),
     precio:document.getElementById('pm-precio').value.trim(),
-    costo:(document.getElementById('pm-costo')||{value:''}).value.trim(),   // v114
     stock:parseInt(document.getElementById('pm-stock').value)||0,
     puntos:parseFloat(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
@@ -9184,13 +9258,18 @@ async function saveProduct() {
     if (ruta) { prod.photo = ruta; prod.imagen = ruta; }
     else showToast('⚠️ La foto se guarda en la base de datos (revisa GitHub en ⚙️ Config)');
   }
+  // v114: el costo NO va dentro del producto —ver la nota en getCostos()— así
+  // que se guarda aparte, con el id que le toque.
+  const costoEscrito=(document.getElementById('pm-costo')||{value:''}).value.trim();
   if(editingProductId){
     const old=productoOf(editingProductId);
+    setCosto(editingProductId,costoEscrito);
     patchProducto(editingProductId,prod);
     if(old&&old.stock===0&&prod.stock>0) addNotif('restocked',prod.name,editingProductId,`stock: ${prod.stock}`);
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
+    setCosto(newId,costoEscrito);
     const list=getProductos().slice();list.push({id:newId,...prod});guardarProductos(list,[newId]);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
@@ -9750,9 +9829,10 @@ const _fmtUSD = n => (n === null || n === undefined || !isFinite(n)) ? '—'
 // ganancia con él, y el panel lo dice en vez de contarlo como ganancia total.
 function _gananciaProducto(p) {
   const stock  = Math.max(0, parseInt(p.stock, 10) || 0);
+  const costoTxt = costoDe(p.id);          // v114: el costo vive fuera del producto
   const ventaU = _aUSD(_montoMonedas(p.precio));
-  const costoU = _aUSD(_montoMonedas(p.costo));
-  const tieneCosto = !!(p.costo && parsePrecioNum(p.costo) > 0);
+  const costoU = _aUSD(_montoMonedas(costoTxt));
+  const tieneCosto = parsePrecioNum(costoTxt) > 0;
   const ganU   = (tieneCosto && ventaU !== null && costoU !== null) ? ventaU - costoU : null;
   return {
     stock, ventaU, costoU, ganU, tieneCosto,
@@ -9811,10 +9891,8 @@ function toggleGananciaCols() {
 // Escribir el costo desde la propia tabla. Con casi cien productos, abrir la
 // ficha de cada uno para rellenarlos sería inviable.
 function setCostoProducto(id, valor) {
-  const p = productoOf(id); if (!p) return;
-  const limpio = String(valor || '').trim();
-  if (limpio === (p.costo || '')) return;
-  patchProducto(id, { costo: limpio });
+  if (!productoOf(id)) return;
+  if (!setCosto(id, valor)) return;        // no cambió nada
   renderStats();
   maybeAutoSync();
 }
@@ -9916,7 +9994,7 @@ function renderGanancia(vales) {
   const celda = (k, p, g) => {
     switch (k) {
       case 'stock':    return String(g.stock);
-      case 'costo':    return `<input value="${escapeHTML(p.costo||'')}" placeholder="—" onchange="setCostoProducto(${p.id},this.value)"
+      case 'costo':    return `<input value="${escapeHTML(costoDe(p.id))}" placeholder="—" onchange="setCostoProducto(${p.id},this.value)"
                                  style="width:88px;background:var(--surface);border:1px solid ${g.tieneCosto?'var(--border)':'var(--orange)'};border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;color:var(--text);">`;
       case 'precio':   return num(g.ventaU);
       case 'ganU':     return num(g.ganU);
@@ -13291,12 +13369,19 @@ async function init() {
   if (!IS_ADMIN) {
     _detectGestorRpc().catch(() => {});
     _detectStockRpc().catch(() => {});   // v96: saber ya si la venta puede ir por delta
+  } else {
     // v107: sacar solas las fotos que estén dentro de la base de datos. Antes
     // había que acordarse de pulsar un botón, y un botón que hay que recordar
     // es un botón que no se pulsa: mientras tanto el catálogo entero —fotos
     // incluidas— se baja en cada cambio de stock. Se hace en segundo plano y
     // sin molestar; si falla, se reintenta en el siguiente arranque.
+    //
+    // v114: esta llamada estaba DENTRO del bloque del gestor, y la función
+    // arranca con "si no soy el admin, me voy" — o sea, no corrió nunca. Y solo
+    // el admin puede hacerlo: es el único que tiene el token de GitHub.
     setTimeout(() => { _aligerarCatalogoAuto().catch(() => {}); }, 8000);
+    // v114: rescatar los costos que hubieran quedado dentro del producto.
+    setTimeout(() => { try { _rescatarCostosDelProducto(); } catch(e) {} }, 9000);
   }
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
