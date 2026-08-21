@@ -206,6 +206,19 @@
         </div>
       </div>
 
+      <!-- v104: la hora a la que el cliente espera el pedido. Un vale mandado a
+           las 10 de la mañana para entregar a las 3 de la tarde se quedaba
+           enterrado entre los demás y se pasaba la hora. Poniéndola aquí, el
+           admin recibe un aviso una hora antes. Es opcional: si se deja vacío,
+           todo funciona igual que siempre. -->
+      <div class="vf-row">
+        <span class="vf-emoji">⏰</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Hora de entrega <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional, avisa al admin 1 h antes</span></span></div>
+          <input type="time" id="vf-horaEntrega" oninput="onFormInput()">
+        </div>
+      </div>
+
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">

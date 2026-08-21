@@ -1427,6 +1427,10 @@ async function _doRestPoll() {
         _lastValesHash = ''; // forzar render completo
       }
     } catch(e) { /* best-effort */ }
+    // v104: mirar si algún vale tiene su hora de entrega encima. Va dentro del
+    // try/catch de la pasada y con su propio guard, para que un fallo aquí no
+    // pueda cortar la sincronización de vales, que es lo importante.
+    try { revisarEntregasProximas(); } catch(e) { console.warn('[entregas]', e && e.message); }
     refreshUI();
   } catch(e) { console.warn('[rest-poll] error:', e && e.message); }
   finally {
@@ -2475,7 +2479,8 @@ function _ensurePendingValesEnqueued() {
   const GESTOR_REENQUEUE_FIELDS = [
     'id','valeNum','gestorId','ts','cliente','telefono','direccion',
     'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
-    'total','garantia','comisionGestor','recogidaTienda','ubicacion'
+    'total','garantia','comisionGestor','recogidaTienda','ubicacion',
+    'horaEntrega'   // v104
   ];
   const REENQUEUE_ADMIN_PRESERVE = [
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
@@ -2711,6 +2716,8 @@ const saveVales = v => {
     'id','valeNum','gestorId','ts','cliente','telefono','direccion',
     'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
     'total','garantia','comisionGestor','recogidaTienda','ubicacion',
+    // v104: la hora de entrega la pone el gestor, así que viaja con sus campos.
+    'horaEntrega',
     // v75: la cesión de comisión la decide el gestor al hacer el vale, así que
     // viaja con sus campos. Si faltara aquí, pasaría lo de la marca de stock en
     // v73: se guarda en el móvil, sube sin ella y el poll la borra al volver.
@@ -3745,8 +3752,116 @@ const _VALE_RESERVA_ESTADOS = { pending: 1, assigned: 1 };
 // separado en cada sitio, acabaría habiendo vales con chapa de reservado que ya
 // no reservan nada.
 function _valeReservaActiva(v) {
-  return !!(v && v.reservado && _VALE_RESERVA_ESTADOS[v.status]);
+  if (!v) return false;
+  // ── v104: un vale que salió con el mensajero aparta sus unidades solo ──────
+  // Hasta ahora un vale solo reservaba si alguien le daba al botón 🔐. Pero
+  // cuando el admin asigna un mensajero, esa mercancía YA VA DE CAMINO al
+  // cliente: físicamente no está en el almacén, aunque el stock no se descuente
+  // hasta que se marque la entrega. En esa ventana —que puede ser toda una
+  // tarde— otro gestor veía las unidades como disponibles y las prometía a otro
+  // cliente. Después no había qué entregar y alguien quedaba mal.
+  // Se reserva sin necesidad de acordarse de pulsar nada: el propio hecho de
+  // asignar el mensajero es la señal.
+  if (v.status === 'assigned' && !_valeDescontoStock(v)) return true;
+  return !!(v.reservado && _VALE_RESERVA_ESTADOS[v.status]);
 }
+// ══════════════════════════════════════════════════════════════════════════
+//  v104 · HORA DE ENTREGA Y AVISO AL ADMIN
+// ══════════════════════════════════════════════════════════════════════════
+// El gestor manda el vale a las 10 de la mañana pero el cliente lo espera a las
+// 3 de la tarde. Entre medias entran veinte vales más y el de las 3 queda
+// enterrado en la bandeja: cuando alguien se acuerda, ya es tarde.
+//
+// El gestor puede escribir esa hora al hacer el vale (campo opcional). El
+// teléfono del admin la vigila y avisa una hora antes.
+//
+// Por qué el aviso NO viaja por el sistema de notificaciones compartidas:
+//   · Esas notificaciones las ve todo el mundo, y esto es cosa del admin.
+//   · Cada una se sube y se baja a la nube, y en agosto nos comimos los 5 GB
+//     del plan gratuito justamente por tráfico de más.
+//   · El admin es quien tiene la app abierta todo el día, así que basta con que
+//     su propio teléfono mire el reloj.
+// A cambio, el aviso solo salta con la app abierta. Para que no dependa solo de
+// eso, el vale además lleva una chapa con la hora que se pone roja cuando se
+// acerca — esa se ve siempre, aunque nadie estuviera delante al saltar el aviso.
+const AVISO_ENTREGA_MS = 60 * 60 * 1000;      // se avisa una hora antes
+const _ESTADOS_ESPERANDO_ENTREGA = { pending: 1, assigned: 1 };
+
+// "HH:MM" + el día del vale → instante exacto, o null si no hay hora puesta.
+function _momentoEntrega(v) {
+  if (!v || !v.horaEntrega) return null;
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(v.horaEntrega).trim());
+  if (!m) return null;
+  const base = new Date(v.ts || Date.now());
+  if (isNaN(base.getTime())) return null;
+  const d = new Date(base);
+  d.setHours(parseInt(m[1], 10), parseInt(m[2], 10), 0, 0);
+  // Un vale hecho a las 23:50 para entregar "a las 00:30" es del día siguiente.
+  if (d.getTime() < base.getTime()) d.setDate(d.getDate() + 1);
+  return d.getTime();
+}
+
+// Chapa para la tarjeta del vale. Gris mientras falta mucho, naranja en la
+// última hora, roja cuando ya pasó la hora.
+function _chipHoraEntrega(v) {
+  const t = _momentoEntrega(v);
+  if (t == null || !_ESTADOS_ESPERANDO_ENTREGA[v.status]) return '';
+  const falta = t - Date.now();
+  let fondo = 'var(--surface3)', color = 'var(--text-muted)', borde = 'var(--border)';
+  if (falta < 0)                   { fondo = 'rgba(220,38,38,.15)';  color = '#dc2626'; borde = 'rgba(220,38,38,.4)'; }
+  else if (falta <= AVISO_ENTREGA_MS) { fondo = 'rgba(245,158,11,.15)'; color = '#b45309'; borde = 'rgba(245,158,11,.4)'; }
+  const hhmm = escapeHTML(String(v.horaEntrega));
+  const titulo = falta < 0 ? 'La hora de entrega ya pasó' : 'Hora de entrega acordada';
+  return `<span title="${titulo}" style="background:${fondo};color:${color};border:1px solid ${borde};border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;white-space:nowrap;">⏰ ${hhmm}</span>`;
+}
+
+// Los avisos ya dados se recuerdan en ESTE teléfono, no en la nube: es una
+// preferencia local ("ya me lo dijiste"), no un dato del negocio. La clave
+// incluye la hora, así que si el gestor la corrige, se vuelve a avisar.
+function _avisosEntregaDados() {
+  try { return new Set(JSON.parse(localStorage.getItem('axon_avisos_entrega') || '[]')); }
+  catch(e) { return new Set(); }
+}
+function _guardarAvisosEntrega(set) {
+  // Solo se conservan los últimos 200: son de un día y no valen nada mañana.
+  try { _safeSetLS('axon_avisos_entrega', JSON.stringify([...set].slice(-200))); } catch(e) {}
+}
+
+let _ultimaRevisionEntregas = 0;
+function revisarEntregasProximas() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const ahora = Date.now();
+  // El poll pasa cada 5 s; mirar el reloj tan seguido no aporta nada.
+  if (ahora - _ultimaRevisionEntregas < 60000) return;
+  _ultimaRevisionEntregas = ahora;
+
+  const dados = _avisosEntregaDados();
+  let cambio = false;
+  for (const v of getVales()) {
+    if (!_ESTADOS_ESPERANDO_ENTREGA[v.status]) continue;   // ya entregado o cancelado
+    const t = _momentoEntrega(v);
+    if (t == null) continue;
+    if (ahora < t - AVISO_ENTREGA_MS) continue;            // todavía no toca
+    // Más de 12 h tarde: el vale se quedó ahí colgado, avisar ya no ayuda.
+    if (ahora > t + 12 * 3600000) continue;
+    const clave = v.id + '@' + v.horaEntrega;
+    if (dados.has(clave)) continue;
+    dados.add(clave); cambio = true;
+
+    const min = Math.round((t - ahora) / 60000);
+    const cuando = min > 0 ? `en ${min} min` : (min === 0 ? 'ahora' : `hace ${Math.abs(min)} min`);
+    const g = (typeof gestorOf === 'function') ? gestorOf(v.gestorId) : null;
+    const quien = g && g.name ? ' · ' + g.name : '';
+    sendBrowserNotif(
+      `⏰ Entrega ${cuando} — ${v.horaEntrega}`,
+      `${v.cliente || 'Cliente'}${quien}\n${v.articulo || ''}`.trim()
+    );
+    try { playSound('vale'); } catch(e) {}
+    try { showToast(`⏰ ${v.cliente || 'Cliente'} espera su pedido ${cuando}`); } catch(e) {}
+  }
+  if (cambio) _guardarAvisosEntrega(dados);
+}
+
 let _reservasMemo = null, _reservasMemoTs = 0;
 const _RESERVAS_MEMO_MS = 500;   // basta para cubrir una pasada de render entera
 function _invalidarReservas() { _reservasMemo = null; }
@@ -5232,8 +5347,27 @@ function _updateGestoresCountBadge() {
 // dinero en la mano. Para saber a quién hay que pagar —que es para lo que se
 // usa esta lista— cuenta igual que lo pendiente. Lo único que sale de la cuenta
 // es lo ya cobrado.
+// ── v104: ¿este vale ya le genera comisión al gestor? ───────────────────────
+// Desde v52 la respuesta era "solo si está cobrado", y el razonamiento tenía
+// sentido: no contar como ganado un dinero que aún no ha entrado en caja.
+// Pero en la práctica el trabajo del gestor termina cuando la mercancía llega
+// al cliente; que el mensajero tarde en liquidar es asunto entre el mensajero y
+// la tienda, y mientras tanto el gestor no veía nada de lo que ya había
+// vendido. Decisión del 17/08/2026: cuenta desde que se entrega.
+//
+// El riesgo —comisión contada por una venta que luego se cae— está cubierto:
+// las comisiones NO se guardan, se calculan a partir del estado del vale cada
+// vez que se miran. Si el vale se revierte o se cancela, su comisión desaparece
+// sola en la misma pasada, igual que el stock vuelve al almacén.
+//
+// Esta pregunta se contesta AQUÍ y en ningún otro sitio. Estaba escrita seis
+// veces con el mismo comentario copiado, que es exactamente cómo empiezan las
+// divergencias que luego cuestan una tarde de búsqueda.
+function _valeGeneraComision(v) {
+  return !!v && (v.status === 'confirmed' || v.status === 'pending_payment');
+}
 function comisionPendienteDe(gestorId) {
-  const vs = getVales().filter(v => v.gestorId === gestorId && v.status === 'confirmed'
+  const vs = getVales().filter(v => v.gestorId === gestorId && _valeGeneraComision(v)
     && !v.commissionPaid && v.commissionStatus !== 'cobrado');
   try { return sumCommissions(vs); } catch(e) { return { usd: 0, mn: 0 }; }
 }
@@ -5265,10 +5399,8 @@ function renderAdminGestoresList() {
     const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
     // Comisiones de este gestor.
-    // v52 FIX: incluía vales en 'pending_payment' (entregado pero AÚN sin cobrar)
-    // como si ya generaran comisión pendiente. La comisión debe contarse solo al
-    // completar la venta (status 'confirmed' = cobrada), no antes.
-    const comVales=vales.filter(v=>v.status==='confirmed');
+    // v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
+    const comVales=vales.filter(_valeGeneraComision);
     const pendientes=comVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
     const enSobre=comVales.filter(v=>v.commissionStatus==='en_sobre');
     const cobrados=comVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
@@ -5612,7 +5744,7 @@ function buildInboxCard(v) {
     <div class="ic-head" style="margin-bottom:4px;">
       <span class="ic-time">${timeStr(v.ts)}</span>
     </div>
-    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}${reservaTag}</div>
+    <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}${reservaTag}${_chipHoraEntrega(v)}</div>
     <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
@@ -5972,7 +6104,7 @@ function renderValeDetail(destinoId) {
       </div>
       <table style="width:100%;font-size:12px;border-collapse:collapse;">
         ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['💰 Comisión gestor',v.comisionGestor]]
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['⏰ Hora de entrega',v.horaEntrega],['💰 Comisión gestor',v.comisionGestor]]
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
             <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:100px;">${k}</td>
@@ -6850,7 +6982,7 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   // así que un vale apenas entregado (aún sin cobrar) ya sumaba comisión —
   // justo el bug que v50 decía estar arreglando, solo que a medias: seguía
   // incluyendo pending_payment en vez de limitarse a confirmed.
-  const comValesEarned = vales.filter(v => v.status === 'confirmed');
+  const comValesEarned = vales.filter(_valeGeneraComision);
   const com = sumCommissions(comValesEarned);
   const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
   // Conversion: confirmed / (total - cancelled - pending still pending)
@@ -7491,6 +7623,9 @@ function buildValeText() {
     `🔸Teléfono Cliente: ${fVal('vf-telefono')}`,
     `🔸Dirección Cliente: ${fVal('vf-direccion')}`,
     `🔸Mensajería/ costo: ${fVal('vf-mensajeria')}`,
+    // v104: solo aparece si el gestor puso hora, para no meter una línea vacía
+    // en todos los mensajes que no la usan.
+    ...(fVal('vf-horaEntrega') ? [`🔸Hora de entrega: ${fVal('vf-horaEntrega')}`] : []),
     `🔸 Artículos y cantidades:`,prodLines,
     `🔸Precio USD/ zelle: ${fVal('vf-precioUSD')}`,
     `🔸Precio MN: ${fVal('vf-precioMN')}`,
@@ -7765,7 +7900,7 @@ function onRecogidaTiendaChange() {
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-carnet','vf-mensajeria','vf-articulo',
    'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor','vf-ubicacion',
-   'vf-comisionCedida','vf-cesionMotivo'].forEach(id=>{
+   'vf-comisionCedida','vf-cesionMotivo','vf-horaEntrega'].forEach(id=>{
      const el=document.getElementById(id);if(el)el.value='';
    });
   const chk=document.getElementById('vf-recogidaTienda');if(chk)chk.checked=false;
@@ -7810,6 +7945,7 @@ function sendVale() {
     mensajeria:fVal('vf-mensajeria'),articulo:fVal('vf-articulo'),
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
+    horaEntrega:fVal('vf-horaEntrega'),   // v104: "HH:MM" o vacío
     // v81: comisión que da este vale HOY, congelada. Si mañana cambia el catálogo,
     // este vale sigue valiendo lo que valía. Se calcula sobre un objeto suelto
     // para que no se lea a sí mismo.
@@ -9077,10 +9213,8 @@ function _renderStatsGestorCard(g, vales, from, to) {
     const ticketStr = ticketParts.length ? ticketParts.join(' + ') : '—';
 
     // Commission summary.
-    // v52 FIX: usaba closedVales (incluye 'pending_payment', o sea entregado
-    // pero AÚN sin cobrar) para contar comisiones. La comisión debe contarse
-    // solo al completar la venta (status 'confirmed' = cobrada).
-    const confirmedVales = gv.filter(v => v.status === 'confirmed');
+    // v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
+    const confirmedVales = gv.filter(_valeGeneraComision);
     const pendCom = confirmedVales.filter(v => !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado');
     const enSobre = confirmedVales.filter(v => v.commissionStatus === 'en_sobre');
     const cobrados = confirmedVales.filter(v => v.commissionPaid || v.commissionStatus === 'cobrado');
@@ -10131,8 +10265,8 @@ function markAllCommissionsEnSobre(gestorId,e) {
   const all=getVales();
   let changed=false;
   all.forEach(v=>{
-    // v52 FIX: solo vales 'confirmed' (venta completada/cobrada) generan comisión.
-    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&v.status==='confirmed'){
+    // v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
+    if(v.gestorId===gestorId&&!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado'&&_valeGeneraComision(v)){
       v.commissionPaid=false;v.commissionStatus='en_sobre';v.commissionEnSobreTs=ts;changed=true;
     }
   });
@@ -10148,8 +10282,8 @@ function markAllCommissionsCobrado(gestorId,e) {
   const all=getVales();
   let changed=false;
   all.forEach(v=>{
-    // v52 FIX: solo vales 'confirmed' (venta completada/cobrada) generan comisión.
-    if(v.gestorId===gestorId&&!v.commissionPaid&&v.status==='confirmed'){
+    // v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
+    if(v.gestorId===gestorId&&!v.commissionPaid&&_valeGeneraComision(v)){
       v.commissionPaid=true;v.commissionStatus='cobrado';v.commissionPaidTs=ts;changed=true;
     }
   });
