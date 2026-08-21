@@ -733,7 +733,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 58,
+      "stock": 57,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "140 USD",
@@ -2043,7 +2043,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2095,6 +2095,44 @@
     }
   ],
   "vales": [
+    {
+      "id": 1787347962055,
+      "ts": "2026-08-21T21:32:42.063Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "seenTs": "2026-08-21T21:34:01.425Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Christopher Hernández Infante",
+      "valeNum": 44,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5356223606",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Christopher Hernández Infante\n🔸Teléfono Cliente: 5356223606\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 17:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-21T21:34:03.474Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1787344258132,
       "ts": "2026-08-21T20:30:58.155Z",
@@ -2299,8 +2337,8 @@
       "ts": "2026-08-21T17:22:32.803Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-08-21T21:29:24.215Z",
-      "status": "pending",
+      "seenTs": "2026-08-21T21:33:57.261Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Christopher Hernández Infante",
       "valeNum": 36,
@@ -2316,6 +2354,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-21T21:34:00.030Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2327,7 +2366,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -6076,5 +6115,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T21:32:23.394Z"
+  "timestamp": "2026-08-21T21:35:04.395Z"
 }
