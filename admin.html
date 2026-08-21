@@ -246,6 +246,18 @@
     <div class="lbl">Resumen</div>
     <div id="statsSummaryRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;"></div>
 
+    <!-- v114: control de ganancias. Lo que hay arriba cuenta vales; esto cuenta
+         dinero: cuánto hay metido en mercancía, cuánto vale esa mercancía si se
+         vende toda, y cuánto se ganó de verdad en el período. -->
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <div class="lbl">💰 Ganancia e Inversión</div>
+      <button class="btn btn-ghost btn-sm" onclick="toggleGananciaCols()">⚙️ Columnas</button>
+    </div>
+    <div id="statsGananciaAviso"></div>
+    <div id="statsGananciaRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;"></div>
+    <div id="statsGananciaCols" style="display:none;margin-bottom:10px;"></div>
+    <div id="statsGananciaTabla" style="margin-bottom:18px;"></div>
+
     <div class="lbl">Por gestor (click para expandir)</div>
     <div id="statsGestorList" style="margin-bottom:18px;"></div>
 
@@ -851,6 +863,17 @@
         <div class="vf-inner">
           <div class="vf-label"><span>Precio</span></div>
           <input type="text" id="pm-precio" placeholder="Ej: $45 USD o 4500 MN">
+        </div>
+      </div>
+      <!-- v114: sin este dato no hay forma de saber lo que se gana. Se escribe
+           igual que el precio ("$30 USD" o "3000 MN") y solo lo ve el admin:
+           nunca sale en el catálogo ni en el vale del cliente. -->
+      <div class="vf-row">
+        <span class="vf-emoji">🏷️</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Costo — lo que te costó a ti</span></div>
+          <input type="text" id="pm-costo" placeholder="Ej: $30 USD o 3000 MN">
+          <div style="font-size:10px;color:var(--gray-400);margin-top:3px;">Privado. Se usa para calcular la ganancia en 📊 Estadísticas.</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">

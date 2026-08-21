@@ -8681,7 +8681,7 @@ function populateCatSelect(selectedId) {
 function openAddProductModal() {
   editingProductId=null;
   document.getElementById('productModalTitle').textContent='📦 Nuevo Producto';
-  ['pm-name','pm-desc','pm-precio','pm-foto','pm-garantia','pm-comision'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pm-name','pm-desc','pm-precio','pm-costo','pm-foto','pm-garantia','pm-comision'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('pm-comision-amount').value='';
   document.getElementById('pm-comision-currency').value='USD';
   document.getElementById('pm-stock').value='0';document.getElementById('pm-puntos').value='0';
@@ -8748,6 +8748,7 @@ function openEditProductModal(id) {
   document.getElementById('pm-name').value=p.name||'';
   document.getElementById('pm-desc').value=p.description||'';
   document.getElementById('pm-precio').value=p.precio||'';
+  {const elC=document.getElementById('pm-costo');if(elC)elC.value=p.costo||'';}   // v114
   document.getElementById('pm-stock').value=p.stock||0;
   document.getElementById('pm-puntos').value=p.puntos||0;
   document.getElementById('pm-garantia').value=p.garantia||'';
@@ -9165,6 +9166,7 @@ async function saveProduct() {
   const prod={
     name,description:document.getElementById('pm-desc').value.trim(),
     precio:document.getElementById('pm-precio').value.trim(),
+    costo:(document.getElementById('pm-costo')||{value:''}).value.trim(),   // v114
     stock:parseInt(document.getElementById('pm-stock').value)||0,
     puntos:parseFloat(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
@@ -9712,6 +9714,252 @@ function exportHistorialCSV() {
   showToast(`Exportados ${vales.length} vales ✓`);
 }
 
+// ══════════════════════════════════════════
+//  GANANCIA E INVERSIÓN  (v114)
+// ══════════════════════════════════════════
+// Todo lo que había en Estadísticas contaba vales y unidades. Esto cuenta
+// dinero: cuánto hay metido en la mercancía, cuánto vale si se vende toda, y
+// cuánto se ganó de verdad en el período (venta − costo − comisión).
+//
+// Precios y costos se escriben como texto ("$45 USD" / "4500 MN"), igual que en
+// el resto de la app. Para poder sumarlos entre sí hay que pasarlo todo a una
+// sola moneda, y se usa la tasa del día. Si no hay tasa, no se inventa un
+// número: se avisa y los importes en MN se dejan aparte.
+
+// Separa un texto de precio en las dos monedas, con el mismo criterio que ya
+// usa el picker de productos: si dice MN o CUP es moneda nacional.
+function _montoMonedas(txt) {
+  const s = String(txt || '');
+  const n = parsePrecioNum(s);
+  if (!(n > 0)) return { usd: 0, mn: 0 };
+  const u = s.toUpperCase();
+  return (u.includes('MN') || u.includes('CUP')) ? { usd: 0, mn: n } : { usd: n, mn: 0 };
+}
+// Devuelve el equivalente en USD, o null si hay pesos y no hay tasa para
+// convertirlos. null significa "no lo sé", no "cero": pintar 0 ahí sería mentir.
+function _aUSD(m) {
+  if (!m.mn) return m.usd;
+  const t = tasaUSDFinal();
+  if (!t || t <= 0) return null;
+  return m.usd + m.mn / t;
+}
+const _fmtUSD = n => (n === null || n === undefined || !isFinite(n)) ? '—'
+  : (n < 0 ? '−' : '') + '$' + Math.abs(n).toLocaleString('es-ES', { maximumFractionDigits: 2 });
+
+// Las cuentas de un producto. tieneCosto=false ⇒ no se puede calcular nada de
+// ganancia con él, y el panel lo dice en vez de contarlo como ganancia total.
+function _gananciaProducto(p) {
+  const stock  = Math.max(0, parseInt(p.stock, 10) || 0);
+  const ventaU = _aUSD(_montoMonedas(p.precio));
+  const costoU = _aUSD(_montoMonedas(p.costo));
+  const tieneCosto = !!(p.costo && parsePrecioNum(p.costo) > 0);
+  const ganU   = (tieneCosto && ventaU !== null && costoU !== null) ? ventaU - costoU : null;
+  return {
+    stock, ventaU, costoU, ganU, tieneCosto,
+    margen  : (ganU !== null && ventaU) ? (ganU / ventaU) * 100 : null,
+    inv     : costoU !== null ? costoU * stock : null,
+    valor   : ventaU !== null ? ventaU * stock : null,
+    ganTotal: ganU   !== null ? ganU   * stock : null,
+  };
+}
+// Lo que se cobró de verdad por un vale. Se prefieren los campos de precio; si
+// el vale es viejo y solo tiene "total", se lee de ahí.
+function _ventaVale(v) {
+  const a = _montoMonedas(v.precioUSD), b = _montoMonedas(v.precioMN);
+  let usd = a.usd + b.usd, mn = a.mn + b.mn;
+  if (!usd && !mn) { const t = _montoMonedas(v.total); usd = t.usd; mn = t.mn; }
+  return { usd, mn };
+}
+
+// ── COLUMNAS CONFIGURABLES ──
+// El dueño pidió poder añadir y quitar campos. La elección se guarda en el
+// teléfono del admin (no se sincroniza: es una preferencia de pantalla, no un
+// dato del negocio).
+const GANANCIA_COLUMNAS = [
+  { k:'stock',    label:'Stock',       def:true  },
+  { k:'costo',    label:'Costo u.',    def:true  },
+  { k:'precio',   label:'Venta u.',    def:true  },
+  { k:'ganU',     label:'Gana u.',     def:true  },
+  { k:'margen',   label:'Margen %',    def:true  },
+  { k:'inv',      label:'Inversión',   def:false },
+  { k:'valor',    label:'Valor venta', def:false },
+  { k:'ganTotal', label:'Ganancia',    def:true  },
+  { k:'vendidos', label:'Vendidos',    def:false },
+];
+const _GAN_COLS_KEY = 'axon_ganancia_cols';
+function _gananciaCols() {
+  let guardadas = null;
+  try { guardadas = JSON.parse(localStorage.getItem(_GAN_COLS_KEY) || 'null'); } catch(e) {}
+  if (!Array.isArray(guardadas)) return GANANCIA_COLUMNAS.filter(c => c.def).map(c => c.k);
+  // Se filtra contra la lista real: si algún día se quita una columna del
+  // código, la preferencia vieja no deja una cabecera vacía colgando.
+  return guardadas.filter(k => GANANCIA_COLUMNAS.some(c => c.k === k));
+}
+function toggleGananciaCol(k) {
+  const act = new Set(_gananciaCols());
+  if (act.has(k)) act.delete(k); else act.add(k);
+  // Se guarda en el orden del código, no en el que se fue tocando, para que la
+  // tabla no cambie de orden de columnas cada vez que se marca una.
+  const orden = GANANCIA_COLUMNAS.filter(c => act.has(c.k)).map(c => c.k);
+  try { localStorage.setItem(_GAN_COLS_KEY, JSON.stringify(orden)); } catch(e) {}
+  renderStats();
+}
+function toggleGananciaCols() {
+  const c = document.getElementById('statsGananciaCols'); if (!c) return;
+  c.style.display = c.style.display === 'none' ? 'block' : 'none';
+}
+// Escribir el costo desde la propia tabla. Con casi cien productos, abrir la
+// ficha de cada uno para rellenarlos sería inviable.
+function setCostoProducto(id, valor) {
+  const p = productoOf(id); if (!p) return;
+  const limpio = String(valor || '').trim();
+  if (limpio === (p.costo || '')) return;
+  patchProducto(id, { costo: limpio });
+  renderStats();
+  maybeAutoSync();
+}
+
+function renderGanancia(vales) {
+  const cAviso = document.getElementById('statsGananciaAviso');
+  const cRow   = document.getElementById('statsGananciaRow');
+  const cCols  = document.getElementById('statsGananciaCols');
+  const cTabla = document.getElementById('statsGananciaTabla');
+  if (!cRow || !cTabla) return;
+
+  const prods = getProductos();
+  const cats  = getCategorias();
+  const tasa  = tasaUSDFinal();
+
+  // ── INVENTARIO: lo que hay metido y lo que vale ──
+  let inversion = 0, valorVenta = 0, sinCosto = 0, conCosto = 0, hayMNSinTasa = false;
+  prods.forEach(p => {
+    const g = _gananciaProducto(p);
+    if (!g.tieneCosto) { sinCosto++; } else { conCosto++; }
+    if (g.inv   !== null) inversion  += g.inv;   else if (g.tieneCosto) hayMNSinTasa = true;
+    if (g.valor !== null) valorVenta += g.valor; else hayMNSinTasa = true;
+  });
+  const potencial = valorVenta - inversion;
+
+  // ── PERÍODO: lo que se ganó de verdad ──
+  // Solo los vales confirmados. Un vale pendiente todavía se puede caer.
+  const vendidos = {};   // id producto → unidades vendidas en el período
+  let ingreso = 0, costoVendido = 0, comisiones = 0;
+  let valesSinCosto = 0, valesSinProductos = 0, valesConfirmados = 0;
+  vales.filter(v => v.status === 'confirmed').forEach(v => {
+    valesConfirmados++;
+    const ing = _aUSD(_ventaVale(v));
+    if (ing !== null) ingreso += ing; else hayMNSinTasa = true;
+    const items = v.valeProductos || [];
+    if (!items.length) { valesSinProductos++; }
+    let faltaCosto = false;
+    items.forEach(({ id, qty }) => {
+      vendidos[id] = (vendidos[id] || 0) + qty;
+      const p = productoOf(id);
+      const g = p ? _gananciaProducto(p) : null;
+      if (!g || !g.tieneCosto || g.costoU === null) { faltaCosto = true; return; }
+      costoVendido += g.costoU * qty;
+    });
+    if (faltaCosto) valesSinCosto++;
+    try {
+      const r = getValeCommissionParts(v);
+      const c = _aUSD({ usd: r.totalUSD || 0, mn: r.totalMN || 0 });
+      if (c !== null) comisiones += c; else hayMNSinTasa = true;
+    } catch(e) {}
+  });
+  const ganRealizada = ingreso - costoVendido - comisiones;
+
+  // ── AVISOS ──
+  // Sin costos el panel no puede decir nada, así que lo dice claro en vez de
+  // enseñar ceros que parecen un negocio en ruina.
+  const avisos = [];
+  if (sinCosto) avisos.push(`${sinCosto} de ${prods.length} productos no tienen costo puesto — escríbelo en la columna <b>Costo u.</b> de la tabla de abajo y los números se completan solos.`);
+  if (hayMNSinTasa && !tasa) avisos.push('Hay precios o costos en MN y no hay tasa del día guardada, así que no se pueden sumar con los de USD. Pon la tasa en ⚙️ Config.');
+  if (valesSinProductos) avisos.push(`${valesSinProductos} venta(s) confirmada(s) del período no tienen productos del catálogo enlazados, así que su costo no se puede saber.`);
+  else if (valesSinCosto) avisos.push(`${valesSinCosto} venta(s) confirmada(s) llevan productos sin costo — la ganancia del período sale más alta de lo real.`);
+  cAviso.innerHTML = avisos.length
+    ? `<div style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--text);">
+         ${avisos.map(a => `<div style="margin:2px 0;">⚠️ ${a}</div>`).join('')}
+       </div>` : '';
+
+  // ── TARJETAS ──
+  const margenGlobal = valorVenta > 0 ? (potencial / valorVenta) * 100 : null;
+  cRow.innerHTML = [
+    { label:'Inversión en stock',  val:_fmtUSD(inversion),   color:'var(--orange)', extra:`${conCosto} producto(s) con costo` },
+    { label:'Valor de venta',      val:_fmtUSD(valorVenta),  color:'var(--blue)',   extra:'si se vende todo el stock' },
+    { label:'Ganancia potencial',  val:_fmtUSD(potencial),   color:'var(--green)',  extra:margenGlobal!==null?`margen ${margenGlobal.toFixed(0)}%`:'' },
+    { label:'Ganancia del período',val:_fmtUSD(ganRealizada),color:ganRealizada>=0?'var(--green)':'var(--red)', extra:`${valesConfirmados} venta(s) confirmada(s)` },
+  ].map(({label,val,color,extra}) => `<div class="stat-card">
+      <div class="stat-num" style="color:${color};font-size:18px;">${val}</div>
+      <div class="stat-lbl">${label}</div>
+      ${extra?`<div style="margin-top:2px;font-size:9px;color:var(--text-muted);font-weight:600;">${extra}</div>`:''}
+    </div>`).join('') +
+    `<div class="stat-card" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:11px;">
+      <span class="stat-lbl">Del período: vendido ${_fmtUSD(ingreso)} · costo ${_fmtUSD(costoVendido)} · comisiones ${_fmtUSD(comisiones)}</span>
+      <span style="font-size:15px;font-weight:900;color:${ganRealizada>=0?'var(--green)':'var(--red)'};">= ${_fmtUSD(ganRealizada)}</span>
+    </div>` +
+    (tasa ? `<div style="grid-column:1/-1;font-size:10px;color:var(--text-muted);">Los importes en MN se convirtieron a USD a ${tasa} CUP/USD.</div>` : '');
+
+  // ── SELECTOR DE COLUMNAS ──
+  const activas = _gananciaCols();
+  cCols.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;">
+    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Columnas de la tabla</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      ${GANANCIA_COLUMNAS.map(c => { const on = activas.includes(c.k);
+        return `<button class="btn btn-sm" style="background:${on?'var(--blue)':'transparent'};color:${on?'#fff':'var(--text-muted)'};border:1px solid ${on?'var(--blue)':'var(--border)'};font-size:11px;" onclick="toggleGananciaCol('${c.k}')">${on?'✓':'+'} ${c.label}</button>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // ── TABLA POR CATEGORÍA ──
+  if (!prods.length) { cTabla.innerHTML = '<div class="es"><div class="es-text">Sin productos en el catálogo</div></div>'; return; }
+  const num = (v, suf) => v === null ? '<span style="color:var(--gray-400);">—</span>' : (suf === '%' ? v.toFixed(0) + '%' : _fmtUSD(v));
+  const celda = (k, p, g) => {
+    switch (k) {
+      case 'stock':    return String(g.stock);
+      case 'costo':    return `<input value="${escapeHTML(p.costo||'')}" placeholder="—" onchange="setCostoProducto(${p.id},this.value)"
+                                 style="width:88px;background:var(--surface);border:1px solid ${g.tieneCosto?'var(--border)':'var(--orange)'};border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;color:var(--text);">`;
+      case 'precio':   return num(g.ventaU);
+      case 'ganU':     return num(g.ganU);
+      case 'margen':   return num(g.margen, '%');
+      case 'inv':      return num(g.inv);
+      case 'valor':    return num(g.valor);
+      case 'ganTotal': return num(g.ganTotal);
+      case 'vendidos': return String(vendidos[p.id] || 0);
+    }
+    return '';
+  };
+  const colsAct = GANANCIA_COLUMNAS.filter(c => activas.includes(c.k));
+  const seccion = (titulo, lista) => {
+    if (!lista.length) return '';
+    let sInv = 0, sGan = 0;
+    lista.forEach(p => { const g = _gananciaProducto(p); if (g.inv !== null) sInv += g.inv; if (g.ganTotal !== null) sGan += g.ganTotal; });
+    return `<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px 8px 0 0;">
+        <span style="font-size:11px;font-weight:800;color:var(--text);">${escapeHTML(titulo)} <span style="color:var(--text-muted);font-weight:600;">(${lista.length})</span></span>
+        <span style="font-size:10px;color:var(--text-muted);">invertido <b style="color:var(--orange);">${_fmtUSD(sInv)}</b> · gana <b style="color:var(--green);">${_fmtUSD(sGan)}</b></span>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-top:0;border-radius:0 0 8px 8px;">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:${140+colsAct.length*84}px;">
+          <thead><tr style="background:var(--surface2);">
+            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);position:sticky;left:0;background:var(--surface2);">Producto</th>
+            ${colsAct.map(c=>`<th style="text-align:right;padding:6px 10px;font-weight:700;color:var(--text-muted);white-space:nowrap;">${c.label}</th>`).join('')}
+          </tr></thead>
+          <tbody>${lista.map(p => { const g = _gananciaProducto(p);
+            return `<tr style="border-top:1px solid var(--border);${g.tieneCosto?'':'background:rgba(245,158,11,.05);'}">
+              <td style="padding:5px 10px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;background:var(--surface);">${escapeHTML(p.name||p.nombre||'—')}</td>
+              ${colsAct.map(c=>`<td style="padding:5px 10px;text-align:right;white-space:nowrap;">${celda(c.k,p,g)}</td>`).join('')}
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  };
+  let tabla = '';
+  cats.forEach(cat => { tabla += seccion(cat.name || 'Categoría', prods.filter(p => p.catId === cat.id)); });
+  tabla += seccion('Sin categoría', prods.filter(p => !p.catId || !cats.some(c => c.id === p.catId)));
+  cTabla.innerHTML = tabla;
+}
+
 function renderStats() {
   const from=document.getElementById('statsDateFrom').value;
   const to=document.getElementById('statsDateTo').value;
@@ -9735,6 +9983,7 @@ function renderStats() {
   // comisión). Resultado: una venta hecha desde el admin se confirmaba, entraba
   // en el historial… y desaparecía del único sitio donde se mira qué se ha
   // vendido y quién lo vendió. Aquí sí tiene que salir, con su propia tarjeta.
+  renderGanancia(vales);   // v114
   const gestores=getGestores().slice();
   if (vales.some(esValeDeLaTienda)) gestores.push(GESTOR_TIENDA);
   document.getElementById('statsGestorList').innerHTML=gestores.length?
