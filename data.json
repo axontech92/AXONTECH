@@ -1384,7 +1384,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 67,
+      "stock": 58,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "140 USD",
@@ -2025,7 +2025,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 17,
+      "stock": 2,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2097,25 +2097,26 @@
     {
       "id": 1787339603705,
       "ts": "2026-08-21T19:13:23.719Z",
-      "total": "$2160 USD + 1406475 MN",
+      "total": "1406475 MN",
       "carnet": "",
       "seenTs": "2026-08-21T19:25:13.488Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lien",
       "valeNum": 41,
       "articulo": "×9 NanoStation 5 AC loco SIN POE / ×15 Router TP-Link Archer C54 Reacondicionado",
       "garantia": "",
       "gestorId": 1781761257100,
-      "precioMN": "1406475",
+      "precioMN": "1406475 cup",
       "telefono": "5351936227",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Lien\n🔸Teléfono Cliente: 5351936227\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×9 NanoStation 5 AC loco SIN POE\n  ×15 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $2160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $2160 USD\n🔸 Rebaja: −$45 USD\n🔸 Total a pagar: $2115 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 15:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
-      "precioUSD": "$2160 USD",
+      "precioUSD": "",
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-21T19:31:26.053Z",
       "seenByAdmin": true,
       "comFijadaUSD": 240,
       "valeProductos": [
@@ -2133,7 +2134,7 @@
       "comisionCedida": 45,
       "comisionGestor": "$240.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2296,7 +2297,7 @@
       "ts": "2026-08-21T16:50:34.177Z",
       "total": "$60 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-08-21T17:06:34.394Z",
+      "seenTs": "2026-08-21T19:31:46.565Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Chenier",
@@ -5960,5 +5961,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T19:26:00.424Z"
+  "timestamp": "2026-08-21T19:32:26.394Z"
 }
