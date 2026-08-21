@@ -442,7 +442,7 @@
       "name": "Inversor Tataliken de 24V 4000W",
       "catId": 20,
       "photo": "photos/img_1777924118004.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1777924118004.webp",
       "nombre": "Inversor Tataliken de 24V 4000W",
       "precio": "$180",
@@ -2099,7 +2099,8 @@
       "ts": "2026-08-21T17:52:42.394Z",
       "total": "$180 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-08-21T17:53:52.433Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "tywuey",
       "valeNum": 38,
@@ -2108,6 +2109,7 @@
       "gestorId": 0,
       "precioMN": "",
       "telefono": "385796987985",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: tywuey\n🔸Teléfono Cliente: 385796987985\n🔸Dirección Cliente: tienda\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/8/2026, 13:52:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "tienda",
       "precioUSD": "$180 USD",
       "reservado": false,
@@ -2115,8 +2117,9 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-08-21T17:54:41.585Z",
       "mensajeroId": null,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2127,10 +2130,8 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: tywuey\n🔸Teléfono Cliente: 385796987985\n🔸Dirección Cliente: tienda\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/8/2026, 13:52:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "synced": true,
-      "isNew": true
+      "stockDecremented": true,
+      "synced": true
     },
     {
       "id": 1787333578298,
@@ -5973,5 +5974,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T17:53:42.465Z"
+  "timestamp": "2026-08-21T17:55:41.618Z"
 }
