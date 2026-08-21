@@ -1666,6 +1666,31 @@ const productoOf  = id => _getProductosMap().get(id);
 const todayStr    = () => new Date().toDateString();
 
 // ══════════════════════════════════════════
+//  ESTADOS DEL VALE — una sola tabla
+//  v114: esta tabla estaba copiada en tres sitios (bandeja, detalle e
+//  historial) y ninguna de las tres tenía los mismos estados: a la bandeja le
+//  faltaba 'confirmed', al detalle 'delivered' y al historial 'cancelled' y
+//  los iconos. El resultado era que un vale confirmado salía en la bandeja
+//  con la palabra "confirmed" en inglés y sin color.
+//  El icono es lo que pidió el dueño: ver de un vistazo qué vale ya salió con
+//  el mensajero (🛵) sin tener que leer estado por estado.
+// ══════════════════════════════════════════
+const VALE_ESTADOS = {
+  pending:         { label:'Pendiente',     cls:'sp-pending',         icon:'🔵' },
+  assigned:        { label:'Con mensajero', cls:'sp-assigned',        icon:'🛵' },
+  delivered:       { label:'Entregado',     cls:'sp-delivered',       icon:'📦' },
+  confirmed:       { label:'Confirmado',    cls:'sp-confirmed',       icon:'✅' },
+  pending_payment: { label:'Pend. cobro',   cls:'sp-pending_payment', icon:'⏳' },
+  cancelled:       { label:'Cancelado',     cls:'sp-cancelled',       icon:'🚫' },
+};
+// Nunca devuelve undefined: si llega un estado que no conocemos se pinta tal
+// cual en vez de dejar la chapa en blanco.
+function estadoVale(v) {
+  const st = (v && v.status) || 'pending';
+  return VALE_ESTADOS[st] || { label: st, cls: '', icon: '•' };
+}
+
+// ══════════════════════════════════════════
 //  GESTOR AVATAR HELPER (foto de perfil o iniciales)
 //  Devuelve el HTML interno del avatar. Si el gestor tiene foto,
 //  muestra <img> dentro de un wrapper circular; si no, las iniciales.
@@ -5872,16 +5897,12 @@ function setGestorFilter(gId){
 //  ADMIN INBOX
 // ══════════════════════════════════════════
 function buildInboxCard(v) {
-  const sMap={
-    pending:{label:'Pendiente',cls:'sp-pending'},
-    assigned:{label:'Con mensajero',cls:'sp-assigned'},
-    delivered:{label:'Entregado',cls:'sp-delivered'},
-    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
-    cancelled:{label:'Cancelado',cls:'sp-cancelled'}
-  };
-  // v51 FIX: normalizar status para evitar 'undefined' si el vale llegó sin status
-  const _vStatus = v.status || 'pending';
-  const s=sMap[_vStatus]||{label:_vStatus,cls:''};
+  // v114: el icono lo llevaba el detalle del vale desde siempre, pero la tarjeta
+  // de la bandeja solo el texto. En una lista larga eso obliga a leer estado por
+  // estado; un 🛵 se ve de un vistazo y dice lo que más importa saber de un
+  // golpe: ese vale ya salió de la tienda.
+  const _vStatus = v.status || 'pending';   // v51 FIX: por si llegó sin status
+  const s=estadoVale(v);
   const isNew=v.isNew&&_vStatus==='pending';
   const sel=v.id===selectedValeId;
   const estafaMatch=checkEstafaMatch(v);
@@ -5899,7 +5920,7 @@ function buildInboxCard(v) {
     <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
-      <span class="sp ${s.cls}" style="font-size:10px;">${s.label}</span>
+      <span class="sp ${s.cls}" style="font-size:10px;">${s.icon?s.icon+' ':''}${s.label}</span>
       <span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total||'')}</span>
     </div>
   </div>`;
@@ -6140,16 +6161,9 @@ function renderValeDetail(destinoId) {
   if(!c) return;
   if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
   const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-  const sMap={
-    pending:{label:'Pendiente',cls:'sp-pending',icon:'🔵'},
-    assigned:{label:'Con mensajero',cls:'sp-assigned',icon:'🛵'},
-    confirmed:{label:'Confirmado',cls:'sp-confirmed',icon:'✅'},
-    pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment',icon:'⏳'},
-    cancelled:{label:'Cancelado',cls:'sp-cancelled',icon:'🚫'},
-  };
   // v51 FIX: normalizar status
   const _vStatus = v.status || 'pending';
-  const s=sMap[_vStatus]||{label:_vStatus,cls:'',icon:'•'};
+  const s=estadoVale(v);
   const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
   let actHTML='';
   // Product link status — show picker if no products linked
@@ -6354,12 +6368,29 @@ function toggleValeReservado(id) {
   showToast(cortos.length ? ('⚠️ ' + cortos[0]) : (nuevo ? 'Stock apartado 🔐' : 'Stock liberado ✓'));
 }
 
+// v114: la fecha del vale se guarda en ISO/UTC (v.ts) pero el <input
+// datetime-local> habla en hora local. Estas dos funciones traducen entre
+// los dos formatos; sin ellas el vale se movería de hora cada vez que se
+// abre y se guarda el modal.
+function _tsAInputLocal(ts) {
+  const d = ts ? new Date(ts) : null;
+  if (!d || isNaN(d.getTime())) return '';
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function _inputLocalATs(val) {
+  if (!val) return null;
+  const d = new Date(val);   // sin zona horaria, JS lo lee como hora local
+  return isNaN(d.getTime()) ? null : d.toISOString();
+}
 function openEditValeModal(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor',
    'horaEntrega'].forEach(k=>{                     // v108: y la hora de entrega
     const el=document.getElementById('ev-'+k);if(el)el.value=v[k]||'';
   });
+  const elFecha=document.getElementById('ev-fecha');
+  if(elFecha)elFecha.value=_tsAInputLocal(v.ts);
   // Load articulo + precio fields
   const elArt=document.getElementById('ev-articulo');if(elArt)elArt.value=v.articulo||'';
   const elUSD=document.getElementById('ev-precioUSD');if(elUSD)elUSD.value=v.precioUSD||'';
@@ -6533,6 +6564,14 @@ function saveEditVale() {
    'horaEntrega'].forEach(k=>{                     // v108
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
+  // v114: fecha editable. Solo se toca v.ts si el admin puso una fecha válida;
+  // si borra el campo o escribe algo imposible, se queda la de antes en vez de
+  // dejar el vale sin fecha (que lo sacaría del historial y de las estadísticas).
+  const elFecha=document.getElementById('ev-fecha');
+  if(elFecha&&elFecha.value){
+    const nuevoTs=_inputLocalATs(elFecha.value);
+    if(nuevoTs&&nuevoTs!==v.ts)changes.ts=nuevoTs;
+  }
   // Save product selection. editValeProductos siempre refleja la selección actual
   // del picker (se inicializa desde v.valeProductos al abrir el modal) — antes,
   // si el admin quitaba todos los productos del vale, el array quedaba vacío y
@@ -10684,6 +10723,9 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
           <div style="flex:1;min-width:0;">
             <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
             <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
+            ${v.adminNotes && v.adminNotes !== 'Generado por Admin' ? `<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-top:3px;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
+            ${v.rebajaAdminMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🏷️ Rebaja: ${escapeHTML(v.rebajaAdminMotivo)}</div>` : ''}
+            ${v.comisionCedidaMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🤝 Cedió comisión: ${escapeHTML(v.comisionCedidaMotivo)}</div>` : ''}
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
               ${r.parts.length?r.parts.map(p=>`<span style="background:${p.cedido?'rgba(245,158,11,.14)':'rgba(16,185,129,.12)'};color:${p.cedido?'var(--orange)':'var(--green)'};border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
@@ -10716,6 +10758,9 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
           <div style="flex:1;min-width:0;">
             <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
             <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
+            ${v.adminNotes && v.adminNotes !== 'Generado por Admin' ? `<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-top:3px;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
+            ${v.rebajaAdminMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🏷️ Rebaja: ${escapeHTML(v.rebajaAdminMotivo)}</div>` : ''}
+            ${v.comisionCedidaMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🤝 Cedió comisión: ${escapeHTML(v.comisionCedidaMotivo)}</div>` : ''}
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
               ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(245,158,11,.12);color:var(--yellow);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
@@ -10746,6 +10791,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;margin-bottom:4px;opacity:.85;">
           <div style="flex:1;min-width:0;">
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);">${escapeHTML(v.cliente||'—')}</div>
+            ${v.adminNotes && v.adminNotes !== 'Generado por Admin' ? `<div style="color:var(--yellow);font-size:9px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
             ${r.parts.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;">${r.parts.map(p=>`<span style="background:rgba(16,185,129,.1);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">${escapeHTML(p.com)}</span>`).join('')}</div>`:''}
           </div>
           <div style="text-align:right;flex-shrink:0;">
@@ -11697,11 +11743,6 @@ function renderHistorial() {
     if(!groups[d])groups[d]=[];
     groups[d].push(v);
   });
-  const sMap={
-    pending:{label:'Pendiente',cls:'sp-pending'},assigned:{label:'Con mensajero',cls:'sp-assigned'},
-    delivered:{label:'Entregado',cls:'sp-delivered'},
-    confirmed:{label:'Confirmado',cls:'sp-confirmed'},pending_payment:{label:'Pend. cobro',cls:'sp-pending_payment'},
-  };
   let html='';
   Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date=>{
     const day=new Date(date+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -11710,7 +11751,7 @@ function renderHistorial() {
       const g=gestorOf(v.gestorId);
       // v51 FIX: normalizar status
       const _vStatus = v.status || 'pending';
-      const s=sMap[_vStatus]||{label:_vStatus,cls:''};
+      const s=estadoVale(v);
       const estafaMatch=checkEstafaMatch(v);
       const estafaBorder=estafaMatch.length?'border-left:3px solid var(--red);':'';
       const estafaTag=estafaMatch.length?'<span style="background:var(--red);color:white;border-radius:6px;padding:1px 5px;font-size:8px;font-weight:700;margin-left:3px;">🚫</span>':'';
@@ -11723,7 +11764,7 @@ function renderHistorial() {
           <div style="font-size:10px;color:var(--gray-400);">${v.telefono?escapeHTML(v.telefono)+' · ':''}${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <span class="sp ${s.cls}" style="font-size:9px;">${s.label}</span>
+          <span class="sp ${s.cls}" style="font-size:9px;">${s.icon?s.icon+' ':''}${s.label}</span>
           <div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:2px;">${escapeHTML(v.total||'')}</div>
         </div>
       </div>`;

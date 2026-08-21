@@ -686,6 +686,16 @@
       <div class="modal-sub">Modifica los campos y guarda</div>
     </div>
     <div style="flex:1;overflow-y:auto;padding:0 22px;">
+      <!-- v114: la fecha del vale se puede corregir. Un vale apuntado tarde
+           (o al día siguiente) salía con la fecha equivocada en el historial
+           y en las estadísticas, y no había manera de arreglarlo. -->
+      <div class="vf-row">
+        <span class="vf-emoji">📅</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Fecha del vale</span></div>
+          <input type="datetime-local" id="ev-fecha">
+        </div>
+      </div>
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Cliente</span></div>
