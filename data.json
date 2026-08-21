@@ -2115,6 +2115,7 @@
       "ts": "2026-08-21T22:09:47.470Z",
       "total": "$60 USD + 1750 MN",
       "carnet": "79112606145",
+      "seenTs": "2026-08-21T22:11:30.312Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos Batista",
@@ -2127,10 +2128,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Carlos Batista\n🔸Teléfono Cliente: 052728648\n🔸Dirección Cliente: Fomento 573 alto esquina 5ta frente al parque de palatino cerro\n🔸Mensajería/ costo: 1750\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD + 1750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 18:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Fomento 573 alto esquina 5ta frente al parque de palatino cerro",
       "precioUSD": "$60 USD",
+      "reservado": false,
       "ubicacion": "......",
       "mensajeria": "1750",
       "comFijadaMN": 0,
-      "horaEntrega": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2139,11 +2141,10 @@
           "name": "Router TP-Link Archer C54 Reacondicionado"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2164,7 +2165,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Jrjrjt\n🔸Teléfono Cliente: 626262659\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Tp link archer ax21 AX1800\n  ×1 Cerradura inteligente\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 18:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$180 USD",
-      "reservado": true,
+      "reservado": false,
       "ubicacion": null,
       "adminNotes": "comision en mn",
       "mensajeria": "Sin envío",
@@ -2274,7 +2275,7 @@
       "ts": "2026-08-21T19:51:30.952Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-08-21T22:04:51.071Z",
+      "seenTs": "2026-08-21T22:10:30.043Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Camilo Pérez fleita",
@@ -2508,7 +2509,7 @@
       "ts": "2026-08-21T16:53:40.271Z",
       "total": "$60 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-08-21T21:30:58.382Z",
+      "seenTs": "2026-08-21T22:11:15.992Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -6210,5 +6211,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T22:10:00.632Z"
+  "timestamp": "2026-08-21T22:12:10.259Z"
 }
