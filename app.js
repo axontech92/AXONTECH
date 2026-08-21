@@ -3840,11 +3840,51 @@ function _guardarAvisosEntrega(set) {
   try { _safeSetLS('axon_avisos_entrega', JSON.stringify([...set].slice(-200))); } catch(e) {}
 }
 
+// ── v108: la lista de entregas con hora, siempre a la vista ─────────────────
+// El aviso del sistema salta una vez y se lo puede llevar el viento: si en ese
+// momento nadie estaba mirando, no queda rastro. Esto es lo contrario — una
+// lista corta, ordenada por cercanía, que está ahí todo el rato. El aviso pasa
+// a ser el extra, no el único sitio donde se entera uno.
+function renderProximasEntregas() {
+  const cont = document.getElementById('proximasEntregas');
+  const sec = document.getElementById('proximasEntregasSection');
+  if (!cont || !sec) return;
+  const ahora = Date.now();
+  const pendientes = getVales()
+    .filter(v => _ESTADOS_ESPERANDO_ENTREGA[v.status] && _momentoEntrega(v) != null)
+    .map(v => ({ v, t: _momentoEntrega(v) }))
+    // Lo de ayer no interesa; lo de hace un rato sí, porque sigue sin entregarse.
+    .filter(x => x.t > ahora - 12 * 3600000)
+    .sort((a, b) => a.t - b.t);
+
+  if (!pendientes.length) { sec.style.display = 'none'; cont.innerHTML = ''; return; }
+  sec.style.display = '';
+  cont.innerHTML = pendientes.map(({ v, t }) => {
+    const min = Math.round((t - ahora) / 60000);
+    let cuando, color, fondo;
+    if (min < 0)        { cuando = `${Math.abs(min)} min tarde`; color = '#dc2626'; fondo = 'rgba(220,38,38,.10)'; }
+    else if (min <= 60) { cuando = `en ${min} min`;              color = '#b45309'; fondo = 'rgba(245,158,11,.10)'; }
+    else                { cuando = `en ${Math.round(min / 60)} h`; color = 'var(--text-muted)'; fondo = 'transparent'; }
+    const g = gestorOf(v.gestorId);
+    return `<div onclick="selectVale(${v.id})" style="display:flex;align-items:center;gap:10px;background:${fondo};border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-bottom:6px;cursor:pointer;">
+      <span style="font-weight:800;font-size:13px;color:${color};white-space:nowrap;">${escapeHTML(String(v.horaEntrega))}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.cliente || 'Cliente')}</div>
+        <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</div>
+      </div>
+      <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;">${cuando}</span>
+    </div>`;
+  }).join('');
+}
+
 let _ultimaRevisionEntregas = 0;
 function revisarEntregasProximas() {
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  // v108: la lista se repinta en cada pasada (es corta y sale barato), para que
+  // la cuenta atrás no se quede congelada en pantalla.
+  try { renderProximasEntregas(); } catch(e) {}
   const ahora = Date.now();
-  // El poll pasa cada 5 s; mirar el reloj tan seguido no aporta nada.
+  // El aviso, en cambio, no necesita mirarse cada 5 s.
   if (ahora - _ultimaRevisionEntregas < 60000) return;
   _ultimaRevisionEntregas = ahora;
 
@@ -4475,7 +4515,9 @@ function adminTab(tab) {
     const el=document.getElementById(pid);
     if(el){el.style.display=t===tab?(t==='vales'?'grid':'block'):'none';}
   });
-  if(tab==='vales'){renderAdminGestores();renderMensajeros();renderConfirmados();renderPendienteCobro();}
+  if(tab==='vales'){renderAdminGestores();renderMensajeros();renderConfirmados();renderPendienteCobro();
+    if(typeof renderProximasEntregas==='function'){try{renderProximasEntregas();}catch(e){}}  // v108
+  }
   if(tab==='stock'){renderStockCategorias();renderProductGrid();}
   if(tab==='catalog'){_adminShowAgotados=false;adminCatalogCatFilter=null;renderAdminCatalogCats();renderAdminCatalog();}
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
@@ -6232,7 +6274,8 @@ function toggleValeReservado(id) {
 
 function openEditValeModal(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
-  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor'].forEach(k=>{
+  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor',
+   'horaEntrega'].forEach(k=>{                     // v108: y la hora de entrega
     const el=document.getElementById('ev-'+k);if(el)el.value=v[k]||'';
   });
   // Load articulo + precio fields
@@ -6404,7 +6447,8 @@ function saveEditVale() {
   const id=parseInt(document.getElementById('editValeModal').dataset.valeId);
   const v=getVales().find(x=>x.id===id);if(!v)return;
   const changes={};
-  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor','articulo','precioUSD','precioMN'].forEach(k=>{
+  ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor','articulo','precioUSD','precioMN',
+   'horaEntrega'].forEach(k=>{                     // v108
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
   // Save product selection. editValeProductos siempre refleja la selección actual
@@ -11832,7 +11876,8 @@ function openAdminValeModal() {
     gestores.map(g => `<option value="${g.id}">${escapeHTML(g.name)}</option>`).join('');
 
   ['av-cliente','av-telefono','av-direccion','av-mensajeria','av-articulo',
-   'av-precioUSD','av-precioMN','av-vuelto','av-total','av-garantia','av-comisionGestor'].forEach(id => {
+   'av-precioUSD','av-precioMN','av-vuelto','av-total','av-garantia','av-comisionGestor',
+   'av-horaEntrega'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -11938,6 +11983,7 @@ function sendAdminVale() {
     precioUSD: avVal('av-precioUSD'), precioMN: avVal('av-precioMN'),
     vuelto: avVal('av-vuelto'), total: avVal('av-total'),
     garantia: avVal('av-garantia'), comisionGestor: avVal('av-comisionGestor'),
+    horaEntrega: avVal('av-horaEntrega'),          // v108
     valeProductos: adminValeProductos, valeText: buildAdminValeText(),
     status: 'pending', mensajeroId: null, confirmedTs: null,
     isNew: true, adminNotes: 'Generado por Admin',

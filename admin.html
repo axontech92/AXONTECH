@@ -98,6 +98,14 @@
   <div id="adminValesPanel" class="admin-panel" style="display:grid;grid-template-columns:1fr 1.4fr;gap:14px;align-items:start;">
     <!-- Left: inbox -->
     <div>
+      <!-- v108: entregas con hora acordada, la más próxima arriba. Un aviso que
+           salta una vez es fácil de perder; esto se ve siempre. Se esconde solo
+           cuando ningún vale pendiente lleva hora. -->
+      <div id="proximasEntregasSection" style="display:none;margin-bottom:14px;">
+        <div class="lbl" style="margin-top:0;">⏰ Próximas entregas</div>
+        <div id="proximasEntregas"></div>
+      </div>
+
       <div class="lbl" style="margin-top:0;">📥 Bandeja de entrada</div>
       <div id="adminGestoresList"></div>
 
@@ -736,6 +744,16 @@
           <input type="text" id="ev-garantia" placeholder="Ej: 6 meses">
         </div>
       </div>
+
+      <!-- v108: poder poner o corregir la hora despues. Si el gestor se olvidó
+           de ponerla, hasta ahora no había forma de añadirla. -->
+      <div class="vf-row">
+        <span class="vf-emoji">⏰</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Hora de entrega</span></div>
+          <input type="time" id="ev-horaEntrega">
+        </div>
+      </div>
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Comisión gestor</span></div>
@@ -985,6 +1003,17 @@
         <div class="vf-inner">
           <div class="vf-label"><span>Garantía</span></div>
           <input type="text" id="av-garantia" placeholder="Ej: 6 meses" oninput="onAdminValeInput()">
+        </div>
+      </div>
+
+      <!-- v108: sin este campo, un vale hecho desde el admin no podía llevar
+           hora de entrega, así que nunca avisaba. Estaba solo en el formulario
+           del gestor. -->
+      <div class="vf-row">
+        <span class="vf-emoji">⏰</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Hora de entrega <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional, avisa 1 h antes</span></span></div>
+          <input type="time" id="av-horaEntrega" oninput="onAdminValeInput()">
         </div>
       </div>
       <div class="vf-row">
