@@ -12034,6 +12034,14 @@ function sendAdminVale() {
   playSound('vale');
   showToast(`Vale ${valeNumStr(vale)} generado para ${g ? g.name : 'gestor'} ✓`);
   closeAdminValeModal();
+  } catch (e) {
+    // v111: antes, si algo fallaba aquí el error se perdía y el botón se
+    // quedaba en "Generando..." para siempre, sin decir nada. Un botón que no
+    // responde y no explica es exactamente lo que costó encontrar este fallo.
+    console.error('[vale admin] no se pudo generar:', e);
+    showToast('No se pudo generar el vale: ' + (e && e.message ? e.message : 'error'));
+    const btn = document.getElementById('av-sendBtn');
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Generar Vale'; }
   } finally { _isSendingAdminVale = false; }
 
   // ── 3. Diferir los renders pesados ──

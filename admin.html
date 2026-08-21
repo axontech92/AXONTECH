@@ -1030,7 +1030,12 @@
       </div>
       <div class="modal-btns" style="margin-top:10px;">
         <button class="btn btn-ghost btn-full" onclick="closeAdminValeModal()">Cancelar</button>
-        <button class="btn btn-blue btn-full" id="av-sendBtn" disabled>📤 Generar Vale</button>
+        <!-- v111: este botón NUNCA tuvo onclick. La función sendAdminVale()
+             existía, estaba bien escrita y funcionaba — pero nadie la llamaba,
+             así que era código muerto y pulsar aquí no hacía absolutamente
+             nada. Ni un error en la consola: simplemente no pasaba nada, que es
+             lo peor que puede hacer un botón. -->
+        <button class="btn btn-blue btn-full" id="av-sendBtn" onclick="sendAdminVale()" disabled>📤 Generar Vale</button>
       </div>
     </div>
   </div>
