@@ -888,7 +888,7 @@
       "name": "Cerradura inteligente",
       "catId": 80,
       "photo": "photos/img_1778384158283.webp",
-      "stock": 4,
+      "stock": 5,
       "imagen": "photos/img_1778384158283.webp",
       "nombre": "Cerradura inteligente",
       "precio": "$60",
@@ -1907,7 +1907,7 @@
       "name": "Router Tp link archer ax21 AX1800",
       "catId": 10,
       "photo": "photos/p-1786858003270-7199b45b.webp",
-      "stock": 3,
+      "stock": 4,
       "imagen": "photos/p-1786858003270-7199b45b.webp",
       "nombre": "Router Tp link archer ax22 AX1800",
       "precio": "$120",
@@ -2111,12 +2111,48 @@
   ],
   "vales": [
     {
+      "id": 1787350187461,
+      "ts": "2026-08-21T22:09:47.470Z",
+      "total": "$60 USD + 1750 MN",
+      "carnet": "79112606145",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Carlos Batista",
+      "valeNum": 46,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "052728648",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Carlos Batista\n🔸Teléfono Cliente: 052728648\n🔸Dirección Cliente: Fomento 573 alto esquina 5ta frente al parque de palatino cerro\n🔸Mensajería/ costo: 1750\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD + 1750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 18:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Fomento 573 alto esquina 5ta frente al parque de palatino cerro",
+      "precioUSD": "$60 USD",
+      "ubicacion": "......",
+      "mensajeria": "1750",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1787349989085,
       "ts": "2026-08-21T22:06:29.092Z",
       "total": "$180 USD",
       "carnet": "",
       "seenTs": "2026-08-21T22:06:36.125Z",
-      "status": "confirmed",
+      "status": "pending",
       "vuelto": "",
       "cliente": "Jrjrjt",
       "valeNum": 45,
@@ -2128,12 +2164,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Jrjrjt\n🔸Teléfono Cliente: 626262659\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Tp link archer ax21 AX1800\n  ×1 Cerradura inteligente\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/08/2026 18:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$180 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "adminNotes": "comision en mn",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-08-21T22:06:57.540Z",
+      "confirmedTs": null,
       "seenByAdmin": true,
       "comFijadaUSD": 15,
       "valeProductos": [
@@ -2150,7 +2186,7 @@
       ],
       "comisionGestor": "$15.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": true,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -6174,5 +6210,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-21T22:07:57.605Z"
+  "timestamp": "2026-08-21T22:10:00.632Z"
 }
