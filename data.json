@@ -1366,7 +1366,7 @@
       "stock": 57,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
-      "precio": "140 USD",
+      "precio": "$140",
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
@@ -6291,5 +6291,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T05:13:41.640Z"
+  "timestamp": "2026-08-22T05:14:59.069Z"
 }
