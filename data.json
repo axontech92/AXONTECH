@@ -1836,7 +1836,7 @@
       "name": "Breker digital ajustable",
       "catId": 20,
       "photo": "photos/img_1786594651216.webp",
-      "stock": 8,
+      "stock": 6,
       "imagen": "photos/img_1786594651216.webp",
       "nombre": "Breker digital ajustable",
       "precio": "$20",
@@ -2125,6 +2125,45 @@
   ],
   "vales": [
     {
+      "id": 1787421918834,
+      "ts": "2026-08-22T18:05:18.846Z",
+      "total": "$1400 USD + 3500 MN",
+      "carnet": "",
+      "seenTs": "2026-08-22T18:27:57.842Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yoan Yadrian",
+      "valeNum": 54,
+      "articulo": "×10 NanoStation 5 AC loco SIN POE",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5355195492",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Yoan Yadrian\n🔸Teléfono Cliente: 5355195492\n🔸Dirección Cliente: calle 119 #11906 entre 119a y lindero, frente a La Cujae  reparto Toledo marianao\n🔸Mensajería/ costo: 3500 cup\n🔸 Artículos y cantidades:\n  ×10 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $1400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1400 USD + 3500 MN\n🔸 Rebaja: −$30 USD\n🔸 Total a pagar: $1370 USD + 3500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 14:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "calle 119 #11906 entre 119a y lindero, frente a La Cujae  reparto Toledo marianao",
+      "precioUSD": "$1400 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3500 cup",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 10,
+          "name": "NanoStation 5 AC loco SIN POE"
+        }
+      ],
+      "comisionCedida": 30,
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "Cliente de peovincia",
+      "synced": true
+    },
+    {
       "id": 1787417407333,
       "ts": "2026-08-22T16:50:07.378Z",
       "total": "$20 USD",
@@ -2166,8 +2205,8 @@
       "ts": "2026-08-22T16:23:26.088Z",
       "total": "$40 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-08-22T16:24:06.622Z",
-      "status": "assigned",
+      "seenTs": "2026-08-22T18:26:51.139Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alexantros",
       "valeNum": 50,
@@ -2184,6 +2223,8 @@
       "assignedTs": "2026-08-22T16:25:25.925Z",
       "mensajeria": "3500",
       "comFijadaMN": 3000,
+      "confirmedTs": "2026-08-22T18:27:06.221Z",
+      "deliveredTs": "2026-08-22T18:27:04.376Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2196,7 +2237,7 @@
       ],
       "comisionGestor": "3000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2205,7 +2246,7 @@
       "ts": "2026-08-22T16:12:29.281Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-08-22T16:17:03.617Z",
+      "seenTs": "2026-08-22T18:28:05.032Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adeian",
@@ -2235,7 +2276,8 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1787414011351,
@@ -6556,5 +6598,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T17:10:58.448Z"
+  "timestamp": "2026-08-22T18:28:06.232Z"
 }
