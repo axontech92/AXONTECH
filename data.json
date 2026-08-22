@@ -2004,7 +2004,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 4,
+      "stock": 11,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -6257,5 +6257,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T05:06:47.892Z"
+  "timestamp": "2026-08-22T05:08:29.097Z"
 }
