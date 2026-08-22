@@ -2389,40 +2389,6 @@
       "synced": true
     },
     {
-      "id": 1787415788030,
-      "ts": "2026-08-22T16:23:08.043Z",
-      "total": "$120 USD",
-      "carnet": "",
-      "seenTs": "2026-08-22T23:16:32.959Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Yony",
-      "valeNum": 51,
-      "articulo": "×2 Router TP-Link Archer C54 Reacondicionado",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "precioMN": "",
-      "telefono": "5352842022",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony\n🔸Teléfono Cliente: 5352842022\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $120 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 12:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$120 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787114204179,
-          "qty": 2,
-          "name": "Router TP-Link Archer C54 Reacondicionado"
-        }
-      ],
-      "comisionGestor": "$20.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "synced": true
-    },
-    {
       "id": 1787414011351,
       "ts": "2026-08-22T15:53:31.362Z",
       "total": "$300 USD",
@@ -6743,5 +6709,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T23:17:36.447Z"
+  "timestamp": "2026-08-22T23:19:24.447Z"
 }
