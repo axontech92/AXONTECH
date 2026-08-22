@@ -1904,7 +1904,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 12,
+      "stock": 10,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2125,12 +2125,125 @@
   ],
   "vales": [
     {
+      "id": 1787417407333,
+      "ts": "2026-08-22T16:50:07.378Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-08-22T17:10:06.398Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Edgar Sabina",
+      "valeNum": 52,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786555619210,
+      "precioMN": "",
+      "telefono": "54698937",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Edgar Sabina\n🔸Teléfono Cliente: 54698937\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 12:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787415806084,
+      "ts": "2026-08-22T16:23:26.088Z",
+      "total": "$40 USD + 3500 MN",
+      "carnet": "",
+      "seenTs": "2026-08-22T16:24:06.622Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Alexantros",
+      "valeNum": 50,
+      "articulo": "×2 Breker digital ajustable",
+      "garantia": "",
+      "gestorId": 1786209632708,
+      "precioMN": "",
+      "telefono": "5352836751",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sheila\n\n🔸 Nombre Cliente: Alexantros\n🔸Teléfono Cliente: 5352836751\n🔸Dirección Cliente: Calle 14 #23 entre 2da y 4ta reparto Antonio Guiteras,  el bahia\n🔸Mensajería/ costo: 3500\n🔸 Artículos y cantidades:\n  ×2 Breker digital ajustable\n🔸Precio USD/ zelle: $40 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $40 USD + 3500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 12:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 14 #23 entre 2da y 4ta reparto Antonio Guiteras,  el bahia",
+      "precioUSD": "$40 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-08-22T16:25:25.925Z",
+      "mensajeria": "3500",
+      "comFijadaMN": 3000,
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786594651216,
+          "qty": 2,
+          "name": "Breker digital ajustable"
+        }
+      ],
+      "comisionGestor": "3000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787415149274,
+      "ts": "2026-08-22T16:12:29.281Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-08-22T16:17:03.617Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Adeian",
+      "valeNum": 49,
+      "articulo": "×3 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257113,
+      "precioMN": "",
+      "telefono": "52554439",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Adrian\n\n🔸 Nombre Cliente: Adeian\n🔸Teléfono Cliente: 52554439\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 12:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 30,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 3,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$30.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787414011351,
       "ts": "2026-08-22T15:53:31.362Z",
       "total": "$300 USD",
       "carnet": "",
-      "seenTs": "2026-08-22T15:53:39.841Z",
-      "status": "pending",
+      "seenTs": "2026-08-22T17:09:52.931Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Amalia",
       "valeNum": 53,
@@ -2146,6 +2259,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-22T17:09:57.719Z",
       "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
@@ -2157,7 +2271,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -6442,5 +6556,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T16:09:15.446Z"
+  "timestamp": "2026-08-22T17:10:58.448Z"
 }
