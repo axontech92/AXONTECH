@@ -2311,43 +2311,6 @@
       "synced": true
     },
     {
-      "id": 1787417407333,
-      "ts": "2026-08-22T16:50:07.378Z",
-      "total": "$20 USD",
-      "carnet": "",
-      "seenTs": "2026-08-22T17:10:06.398Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Edgar Sabina",
-      "valeNum": 52,
-      "articulo": "×1 SWITCH DE 5 PUERTOS",
-      "garantia": "",
-      "gestorId": 1786555619210,
-      "precioMN": "",
-      "telefono": "54698937",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Edgar Sabina\n🔸Teléfono Cliente: 54698937\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 12:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$20 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 1500,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1778336689684,
-          "qty": 1,
-          "name": "SWITCH DE 5 PUERTOS"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1787415806084,
       "ts": "2026-08-22T16:23:26.088Z",
       "total": "$40 USD + 3500 MN",
@@ -6709,5 +6672,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T23:19:24.447Z"
+  "timestamp": "2026-08-22T23:22:36.447Z"
 }
