@@ -2342,6 +2342,7 @@
       "comisionCedida": 30,
       "comisionGestor": "$100.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "comisionCedidaMotivo": "Cliente de peovincia",
@@ -2422,6 +2423,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2459,7 +2461,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2497,7 +2501,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6710,5 +6716,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T23:55:37.798Z"
+  "timestamp": "2026-08-22T23:58:18.526Z"
 }
