@@ -3012,8 +3012,15 @@ function _normalizeProducto(p) {
   if (p.precioActual == null && p.precio) {
     p.precioActual = typeof p.precio === 'string' ? parseFloat(p.precio.replace(/[^0-9.]/g, '')) || 0 : p.precio;
   }
-  // puntos default to 1 if missing (every sale earns at least 1 point)
-  if (p.puntos == null || p.puntos === 0) p.puntos = 1;
+  // Si el producto viene SIN el campo (los de productos.json, por ejemplo), se
+  // le pone 1: toda venta valía al menos un punto.
+  //
+  // v114: antes esta línea también pisaba el 0. Escribir 0 puntos en la ficha
+  // guardaba 0, y al volver a leer el producto salía 1 — no había forma de
+  // dejar un producto sin puntos, que es justo lo que hace falta con los que
+  // no puntúan. Un 0 escrito a propósito no es un campo que falta.
+  if (p.puntos == null || p.puntos === '') p.puntos = 1;
+  else { const _n = parseFloat(p.puntos); p.puntos = isFinite(_n) && _n > 0 ? _n : 0; }
   // comisionMoneda default
   if (p.comision && !p.comisionMoneda) {
     const c = String(p.comision).toUpperCase();
