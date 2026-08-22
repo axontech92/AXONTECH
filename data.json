@@ -423,7 +423,7 @@
       "name": "Inversor Tataliken de 24V 4000W",
       "catId": 20,
       "photo": "photos/img_1777924118004.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1777924118004.webp",
       "nombre": "Inversor Tataliken de 24V 4000W",
       "precio": "$180",
@@ -2129,8 +2129,8 @@
       "ts": "2026-08-22T18:05:18.846Z",
       "total": "$1400 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-08-22T18:27:57.842Z",
-      "status": "pending",
+      "seenTs": "2026-08-22T19:40:30.705Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Yoan Yadrian",
       "valeNum": 54,
@@ -2144,8 +2144,10 @@
       "precioUSD": "$1400 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-08-22T19:36:38.127Z",
       "mensajeria": "3500 cup",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "comFijadaUSD": 100,
       "valeProductos": [
@@ -2276,8 +2278,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1787414011351,
@@ -2474,8 +2475,8 @@
       "ts": "2026-08-22T11:59:08.720Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-08-22T13:01:22.730Z",
-      "status": "pending",
+      "seenTs": "2026-08-22T20:44:07.723Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "David Brugal",
       "valeNum": 48,
@@ -2491,6 +2492,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-22T20:44:11.878Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2502,7 +2504,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2633,7 +2635,7 @@
       "ts": "2026-08-21T19:51:30.952Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-08-22T13:01:44.063Z",
+      "seenTs": "2026-08-22T20:44:18.898Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Camilo Pérez fleita",
@@ -6598,5 +6600,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T18:28:06.232Z"
+  "timestamp": "2026-08-22T20:45:11.894Z"
 }
