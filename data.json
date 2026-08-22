@@ -2006,7 +2006,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 6,
+      "stock": 2,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2124,6 +2124,42 @@
     }
   ],
   "vales": [
+    {
+      "id": 1787441208082,
+      "ts": "2026-08-22T23:26:48.092Z",
+      "total": "$240 USD",
+      "carnet": "",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Adrian",
+      "valeNum": 53,
+      "articulo": "×4 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257113,
+      "precioMN": "",
+      "telefono": "52554439",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Adrian\n\n🔸 Nombre Cliente: Adrian\n🔸Teléfono Cliente: 52554439\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×4 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/08/2026 19:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$240 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-22T23:31:09.061Z",
+      "comFijadaUSD": 40,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 4,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$40.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1787439410229,
       "ts": "2026-08-22T22:56:50.236Z",
@@ -6672,5 +6708,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T23:22:36.447Z"
+  "timestamp": "2026-08-22T23:32:09.447Z"
 }
