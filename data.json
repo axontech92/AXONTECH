@@ -2283,6 +2283,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2399,6 +2400,7 @@
       "comisionCedida": 45,
       "comisionGestor": "$240.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2518,6 +2520,7 @@
       ],
       "comisionGestor": "$50.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2595,6 +2598,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2713,6 +2717,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -2867,6 +2872,7 @@
       ],
       "comisionGestor": "$20.00 USD + 1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3114,6 +3120,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5131,6 +5138,7 @@
       "comisionCedida": 2000,
       "comisionGestor": "$50.00 USD + 15000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "rebajaAdminMotivo": "cliente fijo",
@@ -6231,5 +6239,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T04:52:12.262Z"
+  "timestamp": "2026-08-22T04:57:27.121Z"
 }
