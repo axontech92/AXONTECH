@@ -1885,7 +1885,7 @@
       "name": "Router Tp link archer ax21 AX1800",
       "catId": 10,
       "photo": "photos/p-1786858003270-7199b45b.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1786858003270-7199b45b.webp",
       "nombre": "Router Tp link archer ax22 AX1800",
       "precio": "$120",
@@ -1970,7 +1970,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 4,
+      "stock": 2,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -6257,5 +6257,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T05:04:23.019Z"
+  "timestamp": "2026-08-22T05:06:47.892Z"
 }
