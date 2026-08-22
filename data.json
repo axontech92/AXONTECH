@@ -2152,7 +2152,7 @@
       "ts": "2026-08-21T22:09:47.470Z",
       "total": "$60 USD + 1750 MN",
       "carnet": "79112606145",
-      "seenTs": "2026-08-21T23:14:28.011Z",
+      "seenTs": "2026-08-22T04:24:47.313Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Carlos Batista",
@@ -3658,7 +3658,9 @@
         }
       ],
       "comisionGestor": "3000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6251,5 +6253,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-22T04:21:14.069Z"
+  "timestamp": "2026-08-22T04:43:46.898Z"
 }
