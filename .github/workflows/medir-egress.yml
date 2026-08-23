@@ -1,0 +1,20 @@
+name: Medir el gasto de Supabase
+
+# Botón manual. Pide exactamente las mismas URLs que pide la app en su bucle de
+# 5 segundos, pesa cada respuesta y calcula lo que sale al mes. Sirve para saber
+# POR DÓNDE se van los GB en vez de suponerlo.
+#
+# Solo lee. No imprime ni un nombre, ni un teléfono, ni una dirección: este
+# repositorio es público y los registros de Actions también.
+on:
+  workflow_dispatch:
+
+jobs:
+  medir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Medir
+        run: node medir_egress.js
