@@ -58,9 +58,13 @@ function anotar(rol, etiqueta, bytes, cadaSegundos, gated) {
   console.log(`  "¿hay vales nuevos?"        ${String(preguntaVales.bytes).padStart(7)} B   (con freno ✓)`);
   anotar('admin', '¿hay vales nuevos?', preguntaVales.bytes, 5, true);
 
+  const preguntaNotifs = await pesar(`/meta?select=name&name=eq.notifs&updated_at=gt.${encodeURIComponent(futuro)}&limit=1`);
   const notifs = await pesar('/meta?select=data&name=eq.notifs');
-  console.log(`  bajar notifs ENTERO        ${String(notifs.bytes).padStart(7)} B   ${notifs.bytes > 2000 ? '⚠️ SIN FRENO' : '(pequeño)'}`);
-  anotar('admin', 'notifs entero', notifs.bytes, 5, false);
+  console.log(`  "¿hay avisos nuevos?"       ${String(preguntaNotifs.bytes).padStart(7)} B   (con freno desde v114 ✓)`);
+  console.log(`  bajar notifs ENTERO        ${String(notifs.bytes).padStart(7)} B   ← solo cuando la pregunta dice que sí`);
+  // Lo que cuesta el bucle EN RÉGIMEN es la pregunta, no la bajada. La bajada
+  // solo ocurre cuando de verdad hay un aviso nuevo.
+  anotar('admin', '¿hay avisos nuevos?', preguntaNotifs.bytes, 5, true);
 
   // ══════════════════════════════════════════════════════
   //  2. EL BUCLE DE 5 SEGUNDOS — CAMINO DEL GESTOR
@@ -69,18 +73,21 @@ function anotar(rol, etiqueta, bytes, cadaSegundos, gated) {
   let peorGestor = 0, totalGestores = 0;
   for (const g of gestores) {
     const gid = encodeURIComponent(String(g.id));
-    const a = await pesar(`/vales?select=data&data->>gestorId=eq.${gid}`);
-    const b = await pesar(`/vales?select=data&id=eq.${gid}`);
-    const suma = a.bytes + b.bytes;
-    const filas = JSON.parse(a.texto).length;
+    const completa = await pesar(`/vales?select=data&data->>gestorId=eq.${gid}`);
+    const pregunta = await pesar(`/vales?select=id&data->>gestorId=eq.${gid}&updated_at=gt.${encodeURIComponent(futuro)}&limit=1`);
+    const filas = JSON.parse(completa.texto).length;
+    if (!filas) continue;   // sin vales no hay nada que contar
     // Sin nombres: solo el número de gestor por orden de aparición.
-    console.log(`  gestor #${String(gestores.indexOf(g) + 1).padEnd(2)} · ${String(filas).padStart(3)} vales   ${String(suma).padStart(7)} B   ⚠️ SIN FRENO`);
-    peorGestor = Math.max(peorGestor, suma);
-    totalGestores += suma;
-    anotar('gestor', `vales del gestor #${gestores.indexOf(g) + 1}`, suma, 5, false);
-    anotar('gestor', 'notifs entero', notifs.bytes, 5, false);
+    console.log(`  gestor #${String(gestores.indexOf(g) + 1).padEnd(2)} · ${String(filas).padStart(3)} vales   pregunta ${String(pregunta.bytes).padStart(5)} B  ·  bajada completa ${String(completa.bytes).padStart(7)} B`);
+    peorGestor = Math.max(peorGestor, completa.bytes);
+    totalGestores += completa.bytes;
+    // v114: en régimen solo se paga la pregunta. La bajada completa quedó para
+    // el arranque y para la red de seguridad de cada 5 minutos.
+    anotar('gestor', `pregunta del gestor #${gestores.indexOf(g) + 1}`, pregunta.bytes, 5, true);
+    anotar('gestor', `bajada de seguridad #${gestores.indexOf(g) + 1}`, completa.bytes, 300, true);
+    anotar('gestor', '¿hay avisos nuevos?', preguntaNotifs.bytes, 5, true);
   }
-  console.log(`  (los dos "select=data" van SIEMPRE, cambie algo o no)`);
+  console.log(`  (antes de v114 la "bajada completa" iba cada 5 s, cambiara algo o no)`);
 
   // ══════════════════════════════════════════════════════
   //  3. LO QUE SE BAJARÍA CON EL FRENO PUESTO
@@ -118,9 +125,16 @@ function anotar(rol, etiqueta, bytes, cadaSegundos, gated) {
   console.log('\n── Veredicto ─────────────────────────────────────────────────');
   if (totalMes > 5 * 1073741824) {
     console.log('  ✗ Solo con el bucle ya se pasa de los 5 GB del plan.');
+    if (totalMesSinFreno > 0) console.log(`    ${GB(totalMesSinFreno)} de eso vienen de llamadas SIN freno — ahí está el problema.`);
   } else {
-    console.log(`  El bucle solo da ${GB(totalMes)}: si el panel marca más, hay otra fuente.`);
+    console.log(`  ✓ El bucle da ${GB(totalMes)} de los 5 GB del plan.`);
+    console.log('    (con TODOS los gestores conectados a la vez la jornada entera:');
+    console.log('     en la práctica será bastante menos)');
   }
-  const ahorro = totalMesSinFreno - (preguntaVales.bytes * (HORAS * 3600 / 5) * DIAS * (gestores.length + 1));
-  if (ahorro > 0) console.log(`  Poniéndoles el mismo freno que a los vales del admin se ahorrarían ~${GB(ahorro)} al mes.`);
+  // Lo que costaría sin los frenos de v103/v112/v114, para ver el antes y el después.
+  let sinFrenos = 0;
+  const pasadasMes = (HORAS * 3600 / 5) * DIAS;
+  sinFrenos += notifs.bytes * pasadasMes * (gestores.length + 1);
+  sinFrenos += totalGestores * pasadasMes;
+  console.log(`\n  Sin los frenos, lo mismo costaría ${GB(sinFrenos)} al mes.`);
 })().catch(e => { console.error('FALLO:', e && e.message); process.exit(1); });

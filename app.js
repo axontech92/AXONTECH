@@ -393,7 +393,7 @@ let _ultimoFetchReal = {};
 // los cambios (esos llegan al instante y pesan 1,5 KB): es solo el barrido que
 // detecta lo que se borró desde otro teléfono. Cinco minutos de retraso en ver
 // un vale borrado es perfectamente asumible; 180 MB al día no lo era.
-const _GATE_SEGURIDAD_MS = { vales: 5 * 60000, lento: 20 * 60000 };
+const _GATE_SEGURIDAD_MS = { vales: 5 * 60000, lento: 20 * 60000, meta: 5 * 60000 };
 // ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
 // Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
 // —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
@@ -405,12 +405,52 @@ const _GATE_SEGURIDAD_MS = { vales: 5 * 60000, lento: 20 * 60000 };
 // Si algo falla —filtro no soportado, error de red— se devuelve null y quien
 // llama se baja la tabla entera como hasta ahora. Ahorrar tráfico nunca debe
 // costar que un gestor deje de ver sus vales.
+// ── v114: el freno de v103/v112, que se quedó a medias ─────────────────────
+// v103 preguntaba antes de bajar y v112 bajaba solo las filas cambiadas… pero
+// las dos cosas viven en la rama del ADMIN. El gestor entra por aquí, y aquí no
+// había ni freno ni bajada parcial: sus vales se descargaban ENTEROS cada 5
+// segundos, hubiera cambiado algo o no. Medido: el gestor con más trabajo son
+// 46 KB por pasada, o sea 32 MB por hora de un solo teléfono.
+//
+// Estas dos funciones son las mismas preguntas que ya se le hacen a la tabla
+// entera, pero acotadas a un gestor.
+async function _sbRestHayCambiosDeGestor(gestorId, desdeISO) {
+  const gid = Number(gestorId);
+  if (!gid || isNaN(gid) || !desdeISO) return true;
+  const url = `${_SB_REST}/vales?select=id&data->>gestorId=eq.${encodeURIComponent(String(gid))}`
+            + `&updated_at=gt.${encodeURIComponent(desdeISO)}&limit=1`;
+  try {
+    const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+    if (!res.ok) return true;
+    const rows = await res.json().catch(() => null);
+    return !Array.isArray(rows) || rows.length > 0;
+  } catch (e) { return true; }
+}
+// Solo las filas del gestor que cambiaron. Devuelve null si falla, para que el
+// que llama se caiga a la descarga completa de siempre.
+async function _sbRestGetValesDeGestorDesde(gestorId, desdeISO) {
+  const gid = Number(gestorId);
+  if (!gid || isNaN(gid) || !desdeISO) return null;
+  const url = `${_SB_REST}/vales?select=data,updated_at&data->>gestorId=eq.${encodeURIComponent(String(gid))}`
+            + `&updated_at=gt.${encodeURIComponent(desdeISO)}`;
+  try {
+    const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+    if (!res.ok) return null;
+    const filas = (await res.json()) || [];
+    let maxTs = null;
+    filas.forEach(r => { if (r.updated_at && (!maxTs || r.updated_at > maxTs)) maxTs = r.updated_at; });
+    return { items: filas.map(r => r.data).filter(x => x != null), maxTs };
+  } catch (e) { return null; }
+}
+// La descarga completa de los vales de un gestor. Sigue haciendo falta: es la
+// que arranca el teléfono y la que cada tanto pilla los borrados, que una
+// bajada parcial no puede ver.
 async function _sbRestGetValesDeGestor(gestorId) {
   const gid = Number(gestorId);
   if (!gid || isNaN(gid)) return null;
   try {
-    const urlNew = `${_SB_REST}/vales?select=data&data->>gestorId=eq.${encodeURIComponent(String(gid))}`;
-    const urlOld = `${_SB_REST}/vales?select=data&id=eq.${encodeURIComponent(String(gid))}`;
+    const urlNew = `${_SB_REST}/vales?select=data,updated_at&data->>gestorId=eq.${encodeURIComponent(String(gid))}`;
+    const urlOld = `${_SB_REST}/vales?select=data,updated_at&id=eq.${encodeURIComponent(String(gid))}`;
     const [rNew, rOld] = await Promise.all([
       fetch(urlNew, { headers: _SB_AUTH_HDRS }),
       fetch(urlOld, { headers: _SB_AUTH_HDRS }),
@@ -420,7 +460,9 @@ async function _sbRestGetValesDeGestor(gestorId) {
     const filas = [];
     if (rNew.ok) filas.push(...((await rNew.json()) || []));
     if (rOld.ok) filas.push(...((await rOld.json()) || []));
-    return filas.map(r => r.data).filter(x => x != null);
+    let maxTs = null;
+    filas.forEach(r => { if (r.updated_at && (!maxTs || r.updated_at > maxTs)) maxTs = r.updated_at; });
+    return { items: filas.map(r => r.data).filter(x => x != null), maxTs };
   } catch(e) {
     console.warn('[rest-poll] no se pudo filtrar por gestor, se descargará todo:', e && e.message);
     return null;
@@ -433,6 +475,36 @@ async function _sbRestGetMeta(name) {
   const rows = await res.json();
   if (!rows || rows.length === 0) return null;
   return rows[0].data;
+}
+// ── v114: el mismo freno de v103, pero para los documentos de `meta` ────────
+// v103 le puso freno a las TABLAS y se dejó fuera los documentos sueltos. El
+// peor con diferencia es `notifs`: va en cada pasada del bucle —cada 5 s, en
+// TODOS los teléfonos, admin y gestores— y se baja entero, haya avisos nuevos
+// o no. Medido contra la base de datos de verdad: 11.551 bytes cada vez. Eso
+// es 8 MB por hora y por teléfono; solo el del admin, con la app abierta una
+// jornada, son 2,4 GB al mes de los 5 que da el plan.
+//
+// La pregunta equivalente pesa 2 bytes.
+async function _sbRestMetaHayCambios(name, desdeISO) {
+  if (!desdeISO) return true;   // sin referencia previa: se baja, como siempre
+  const url = `${_SB_REST}/meta?select=name&name=eq.${encodeURIComponent(name)}&updated_at=gt.${encodeURIComponent(desdeISO)}&limit=1`;
+  try {
+    const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+    if (!res.ok) return true;   // ante la duda se baja: nunca debe quedarse corto
+    const rows = await res.json().catch(() => null);
+    return !Array.isArray(rows) || rows.length > 0;
+  } catch (e) { return true; }
+}
+// Como _sbRestGetMeta pero trae también el updated_at, que es la referencia con
+// la que se hará la pregunta la próxima vez. Se usa la hora del SERVIDOR, no la
+// del teléfono: un reloj mal puesto descartaría cambios reales.
+async function _sbRestGetMetaYTs(name) {
+  const url = `${_SB_REST}/meta?select=data,updated_at&name=eq.${encodeURIComponent(name)}`;
+  const res = await fetch(url, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) { if (res.status === 404) return { data: null, ts: null }; throw new Error(`Supabase GET meta/${name} ${res.status}`); }
+  const rows = await res.json();
+  if (!rows || rows.length === 0) return { data: null, ts: null };
+  return { data: rows[0].data, ts: rows[0].updated_at || null };
 }
 async function _sbRestUpsert(collName, id, value) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}`;
@@ -1044,8 +1116,41 @@ async function _doRestPoll() {
         // simplemente no ha cambiado. Confundir esas dos cosas borraría el
         // historial entero, así que la diferencia viaja hasta la fusión.
         let _valesParcial = false;
-        if (!IS_ADMIN && activeGestorId != null) {
-          rawVales = await _sbRestGetValesDeGestor(activeGestorId);
+        // v114: un gestor que todavía no ha entrado con su clave no tiene
+        // ningún vale que enseñar — la pantalla de antes de entrar solo lista
+        // nombres. Pero el bucle se bajaba igualmente la tabla ENTERA (149 KB
+        // medidos) en CADA arranque de la app y en cada teléfono, para no
+        // pintar nada con ella. Se espera a que entre.
+        if (!IS_ADMIN && activeGestorId == null) { _saltarVales = true; rawVales = []; }
+        else if (!IS_ADMIN && activeGestorId != null) {
+          // v114: el mismo freno que el admin lleva desde v103, que a esta rama
+          // se le había olvidado poner. Ver la nota en _sbRestHayCambiosDeGestor.
+          const _tsG = _ultimaTsVisto.vales;
+          const _fetchViejoG = (Date.now() - (_ultimoFetchReal.vales || 0)) > _GATE_SEGURIDAD_MS.vales;
+          if (_tsG !== undefined && !_fetchViejoG) {
+            if (await _sbRestHayCambiosDeGestor(activeGestorId, _tsG)) {
+              const _rg = await _sbRestGetValesDeGestorDesde(activeGestorId, _tsG);
+              if (_rg) {
+                rawVales = _rg.items;
+                _valesParcial = true;
+                if (_rg.maxTs) _ultimaTsVisto.vales = _rg.maxTs;
+                if (!rawVales.length) _saltarVales = true;
+              }
+            } else {
+              _saltarVales = true;
+              rawVales = [];   // nada nuevo; no se toca el estado local
+            }
+          }
+          // Primera pasada, o toca la bajada de seguridad (la única que ve los
+          // borrados), o la parcial falló: se baja todo lo suyo.
+          if (rawVales === null && !_saltarVales) {
+            const _rgFull = await _sbRestGetValesDeGestor(activeGestorId);
+            if (_rgFull) {
+              rawVales = _rgFull.items;
+              _ultimoFetchReal.vales = Date.now();
+              _ultimaTsVisto.vales = _rgFull.maxTs || _ultimaTsVisto.vales || new Date().toISOString();
+            }
+          }
         }
         if (rawVales === null) {
           // v103: aquí es donde se iban los GB — ver la nota grande junto a
@@ -1443,7 +1548,21 @@ async function _doRestPoll() {
         // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
         // v94: y el mismo cerrojo del write en vuelo que arriba.
         if ((_sbProcessing && _currentWritePath === node) || _sbWriteQueue.some(q => q.path === node)) { if (_toqueNodosLentos) _lentoSaltado = true; continue; }
-        const val = await _sbRestGetMeta(node);
+        // v114: preguntar antes de bajar, igual que las tablas desde v103. Sin
+        // esto, `notifs` se bajaba entero (11,5 KB medidos) cada 5 segundos en
+        // cada teléfono, hubiera avisos nuevos o no. Ver _sbRestMetaHayCambios.
+        //
+        // La red de seguridad es la misma que en las tablas: cada tanto se baja
+        // igualmente, por si un cambio se hizo sin que el trigger tocara el
+        // updated_at o por si este teléfono se perdió una pasada.
+        const _claveTs = 'meta:' + node;
+        const _tsMeta = _ultimaTsVisto[_claveTs];
+        const _fetchViejoMeta = (Date.now() - (_ultimoFetchReal[_claveTs] || 0)) > _GATE_SEGURIDAD_MS.meta;
+        if (_tsMeta !== undefined && !_fetchViejoMeta && !(await _sbRestMetaHayCambios(node, _tsMeta))) continue;
+        const _rm = await _sbRestGetMetaYTs(node);
+        const val = _rm.data;
+        _ultimoFetchReal[_claveTs] = Date.now();
+        if (_rm.ts) _ultimaTsVisto[_claveTs] = _rm.ts;
         if (val) {
           _syncCount++;
           try {
