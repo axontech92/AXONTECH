@@ -54,6 +54,12 @@ CREATE TABLE IF NOT EXISTS stock_ops (
   aplicado_en timestamptz DEFAULT now()
 );
 
+-- v114: cerrada al público. La app NUNCA lee ni escribe esta tabla: solo llama
+-- a aplicar_delta_stock(), que al ser SECURITY DEFINER apunta aquí con los
+-- permisos de su dueño. Dejarla abierta permitía que cualquiera con la clave
+-- pública insertara órdenes inventadas y una venta real no descontara stock.
+ALTER TABLE stock_ops ENABLE ROW LEVEL SECURITY;   -- sin políticas: nadie entra por fuera
+
 -- Las órdenes viejas no sirven de nada: se pueden borrar sin miedo pasado un
 -- tiempo prudencial (un reintento nunca llega días después).
 CREATE INDEX IF NOT EXISTS stock_ops_fecha ON stock_ops (aplicado_en);
@@ -67,6 +73,11 @@ CREATE OR REPLACE FUNCTION aplicar_delta_stock(p_id bigint, p_delta int, p_op te
 RETURNS int
 LANGUAGE plpgsql
 SECURITY DEFINER
+-- v114: SECURITY DEFINER corre con los permisos del dueño (superusuario). Sin
+-- fijar el search_path, quien la llame podría hacer que `productos` apunte a
+-- otra tabla suya y que el superusuario trabaje sobre ella. Con esto, la
+-- función siempre mira donde tiene que mirar.
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_actual int;
@@ -109,7 +120,10 @@ $$;
 
 -- Permisos: los mismos que ya usa la app para escribir productos.
 GRANT EXECUTE ON FUNCTION aplicar_delta_stock(bigint, int, text) TO anon, authenticated;
-GRANT SELECT, INSERT ON stock_ops TO anon, authenticated;
+-- v114: aquí había un GRANT SELECT, INSERT ON stock_ops TO anon. Sobraba —la
+-- app nunca toca esa tabla— y abría el agujero que se explica arriba. Se quita,
+-- y se revoca por si esta migración ya se había ejecutado con él.
+REVOKE ALL ON stock_ops FROM anon, authenticated;
 
 -- ── Limpieza opcional ──
 -- Las órdenes de más de 30 días no las va a reintentar nadie. Si algún día la
