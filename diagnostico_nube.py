@@ -70,9 +70,23 @@ def revisar_config(base, clave):
         log(f'  ⚠ el documento no es un objeto, es {type(d).__name__}')
         return
     log(f'  claves presentes ({len(d)}): {", ".join(sorted(d.keys())) or "NINGUNA"}')
-    # Solo los valores de la tasa: lo demás puede llevar teléfonos.
-    for k in ('tasaMargen', 'tasaUSD', 'tasaUSDTs', 'tasaUSDFuente'):
+    # Solo los valores de la tasa y la meta: lo demás puede llevar teléfonos.
+    for k in ('tasaMargen', 'tasaUSD', 'tasaUSDTs', 'tasaUSDFuente', 'metaPuntos'):
         log(f'    · {k}: {d.get(k, "— AUSENTE —")!r}')
+    # v114: sin meta no hay ciclo que reiniciar, la animación no puede salir y
+    # el ranking pinta "% del líder" en vez de la barra de meta. Es lo primero
+    # que hay que descartar cuando los puntos "no reinician".
+    _m = d.get('metaPuntos')
+    try:
+        _m = float(_m)
+    except (TypeError, ValueError):
+        _m = 0
+    if not _m:
+        log('  → NO HAY META configurada (metaPuntos vacío o 0). Sin meta los puntos')
+        log('    no reinician nunca y la animación no puede saltar: no hay a qué llegar.')
+        log('    Se pone en ⚙️ Config → "Meta de puntos (ranking)".')
+    else:
+        log(f'  → Meta configurada en {_m:g} pts.')
     if 'tasaMargen' not in d:
         log('  → El margen NO está en la nube: por eso los gestores ven la tasa pelada.')
         if list(d.keys()) == ['nextValeNum']:
@@ -359,11 +373,36 @@ def revisar_fotos(base, clave):
         log('  ✓ todas las rutas tienen su archivo en el repositorio')
 
 
+def revisar_metas(base, clave):
+    """v114: ¿tienen los gestores el contador de ciclos, o siguen con el total
+    de siempre? Sin nombres: solo cuántos y con qué números."""
+    log('\n── ciclos de meta por gestor (v114) ───────────────────────────────')
+    try:
+        filas = pedir(base, clave, '/gestores?select=data')
+    except Exception as e:
+        log(f'  ✗ no se pudo leer: {e}')
+        return
+    ges = [f.get('data') or {} for f in filas]
+    ges = [g for g in ges if isinstance(g, dict)]
+    con = [g for g in ges if g.get('puntosCanjeados') or g.get('metasLogradas')]
+    log(f'  gestores en la nube: {len(ges)}')
+    log(f'  con ciclos cerrados: {len(con)}')
+    if not con:
+        log('  → Ninguno ha cerrado un ciclo todavía. Eso es lo normal si la meta')
+        log('    se acaba de poner, o si los teléfonos aún no se han actualizado:')
+        log('    el ciclo se cierra al CONFIRMAR una venta, no al abrir la app.')
+    else:
+        for g in con:
+            log(f"    · gestor #{g.get('id')}: canjeados={g.get('puntosCanjeados')} "
+                f"metas={g.get('metasLogradas')} última={g.get('ultimaMetaTs') or '—'}")
+
+
 def main():
     base, clave = credenciales()
     log('AXONTECH · qué hay de verdad en la nube')
     log(f'· {base}')
     revisar_config(base, clave)
+    revisar_metas(base, clave)
     revisar_tasa(base, clave)
     revisar_comisiones(base, clave)
     revisar_orden(base, clave)
