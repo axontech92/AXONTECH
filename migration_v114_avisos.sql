@@ -93,15 +93,27 @@ END $$;
 --  3. Comprobación — esto es lo que hay que mirar al terminar
 -- ══════════════════════════════════════════════════════════════════════
 
+-- Lo que DE VERDAD cierra la puerta es la RLS: con ella activada y sin
+-- políticas, nadie de fuera entra aunque tenga permisos concedidos. Se
+-- comprueba aparte del REVOKE a propósito — si se juntaran en una sola línea,
+-- volver a ejecutar el v96 antiguo (que reparte permisos otra vez) haría que
+-- esto dijera "REVISAR" estando perfectamente protegido.
 SELECT
-  'stock_ops cerrada al público' AS comprueba,
-  CASE WHEN c.relrowsecurity
-         AND NOT has_table_privilege('anon', 'stock_ops', 'SELECT')
-         AND NOT has_table_privilege('anon', 'stock_ops', 'INSERT')
-       THEN 'OK' ELSE '✗ REVISAR' END AS resultado
+  'stock_ops · RLS activada (lo que protege)' AS comprueba,
+  CASE WHEN c.relrowsecurity THEN 'OK' ELSE '✗ REVISAR' END AS resultado
   FROM pg_class c
   JOIN pg_namespace n ON n.oid = c.relnamespace
  WHERE n.nspname = 'public' AND c.relname = 'stock_ops'
+
+UNION ALL
+
+SELECT
+  'stock_ops · permisos públicos quitados',
+  CASE WHEN NOT has_table_privilege('anon', 'stock_ops', 'SELECT')
+        AND NOT has_table_privilege('anon', 'stock_ops', 'INSERT')
+       THEN 'OK'
+       ELSE 'quedan permisos — inofensivo con la RLS puesta, pero vuelve a '
+            || 'ejecutar ESTE archivo para quitarlos' END
 
 UNION ALL
 
