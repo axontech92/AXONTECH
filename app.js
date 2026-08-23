@@ -1435,10 +1435,15 @@ async function _doRestPoll() {
             clearTimeout(_rankingDebounce);
             _rankingDebounce = setTimeout(() => {
               const gestores = getGestores();
+              // v114: los puntos del CICLO, no los de siempre. Este es el número
+              // que el gestor ve en su barra de meta: si no se le descuentan los
+              // ciclos ya cerrados, la barra se queda llena para siempre y la
+              // meta deja de significar nada.
               const summary = gestores.map(g => {
-                const pts = merged.filter(v => v.gestorId === g.id && ['confirmed', 'pending_payment'].includes(v.status))
-                  .reduce((sum, v) => sum + (v.valeProductos || []).reduce((s, p) => { const pr = (typeof productoOf === 'function') ? productoOf(p.id) : null; return s + (pr ? pr.puntos * p.qty : 0); }, 0), 0);
-                return { id: g.id, pts };
+                const total = merged.filter(v => v.gestorId === g.id && ['confirmed', 'pending_payment'].includes(v.status))
+                  .reduce((sum, v) => sum + (v.valeProductos || []).reduce((s, p) => { const pr = (typeof productoOf === 'function') ? productoOf(p.id) : null; return s + ((pr && pr.puntos) || 0) * p.qty; }, 0), 0);
+                const pts = Math.max(0, total - (parseFloat(g.puntosCanjeados) || 0));
+                return { id: g.id, pts, metas: parseInt(g.metasLogradas, 10) || 0 };
               });
               const summaryStr = JSON.stringify(summary);
               if (summaryStr !== _lastRankingSummary) {
@@ -1520,8 +1525,11 @@ async function _doRestPoll() {
         _syncCount++;
         try {
           _safeSetLS('axon_'+node, JSON.stringify(arr)); // v65: idem — fallo de guardado visible
-          if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;}
-          else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;}
+          // v114: y aquí también hay que tirar el índice — ver la nota en
+          // guardarGestores(). Esta bajada deja _gestoresDirty en false, así que
+          // sin esto gestorOf() seguiría sirviendo las fichas de antes del poll.
+          if(node==='gestores'){_gestoresCache=arr;_gestoresDirty=false;_gestoresMap=null;}
+          else if(node==='mensajeros'){_mensajerosCache=arr;_mensajerosDirty=false;_mensajerosMap=null;}
           else if(node==='productos'){
             // v95: _productosMap=null es OBLIGATORIO. Ese índice solo se
             // reconstruía al guardar, así que tras bajar productos nuevos
@@ -1588,6 +1596,10 @@ async function _doRestPoll() {
               // a veces no se renderizaba. Ahora lo forzamos directamente.
               if (typeof renderGestorNotifs === 'function') {
                 try { renderGestorNotifs(); } catch(e) {}
+                // v114: si entre los avisos que acaban de llegar está el de su
+                // meta, el teléfono del gestor lanza la animación. Hasta ahora
+                // solo la veía el admin, que es quien confirma la venta.
+                try { _celebrarMetaDelGestor(); } catch(e) {}
               }
             }
             else if(node==='estafa'){_estafaCache=val;_estafaDirty=false;}
@@ -2800,7 +2812,7 @@ function _safeSetLS(key, value) {
 const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
 // ⚠️ saveGestores SUBE LA LISTA ENTERA. Solo para reemplazarlo todo (importar,
 // restaurar, cargar demo). Para tocar uno o dos usa guardarGestores(lista, ids).
-const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; if (!isSyncingFromSupabase()) setSB('gestores', v); _logAudit('gestores_update'); };
+const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; _gestoresMap = null; if (!isSyncingFromSupabase()) setSB('gestores', v); _logAudit('gestores_update'); };
 
 // ── v96: guardar SOLO los gestores que cambian ──────────────────────────────
 // Mismo fallo que costó el inventario el 16/08, esperando su turno en otra
@@ -2826,12 +2838,20 @@ function _guardarFilas(clave, nodo, lista, ids, setCache) {
     if (Object.keys(cambios).length) _enqueueSB(nodo, cambios, 'update');
   }
 }
+// ⚠️ v114 — _gestoresMap = null es OBLIGATORIO, igual que en saveProductos.
+// gestorOf() no lee la lista: lee un índice aparte (_gestoresMap) que solo se
+// reconstruye cuando _gestoresDirty está en true. Y todos los guardados lo
+// dejan en FALSE, porque el dato que acaban de escribir es el bueno. Resultado:
+// después de tocar un gestor —su foto, su clave, sus puntos— gestorOf() seguía
+// devolviendo la ficha ANTERIOR en ese mismo teléfono hasta la siguiente
+// bajada de Supabase. Es el mismo despiste que ya se cazó con los productos en
+// v95, esperando su turno en otra tabla.
 function guardarGestores(lista, ids) {
-  _guardarFilas('axon_gestores', 'gestores', lista, ids, l => { _gestoresCache = l; _gestoresDirty = false; });
+  _guardarFilas('axon_gestores', 'gestores', lista, ids, l => { _gestoresCache = l; _gestoresDirty = false; _gestoresMap = null; });
   _logAudit('gestores_update');
 }
 function guardarMensajeros(lista, ids) {
-  _guardarFilas('axon_mensajeros', 'mensajeros', lista, ids, l => { _mensajerosCache = l; _mensajerosDirty = false; });
+  _guardarFilas('axon_mensajeros', 'mensajeros', lista, ids, l => { _mensajerosCache = l; _mensajerosDirty = false; _mensajerosMap = null; });
 }
 
 const getVales      = () => { if (_valesDirty || !_valesCache) { try { _valesCache = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _valesCache = []; } _valesDirty = false; /* v41: deduplicate on read */ if(Array.isArray(_valesCache)&&_valesCache.length>1){const s=new Set();_valesCache=_valesCache.filter(v=>{if(!v||v.id==null)return false;const k=String(v.id);if(s.has(k))return false;s.add(k);return true;});} } return _valesCache; };
@@ -3108,7 +3128,7 @@ const saveVales = v => {
 };
 
 const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
-const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; if (!isSyncingFromSupabase()) setSB('mensajeros', v); };
+const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; _mensajerosMap = null; if (!isSyncingFromSupabase()) setSB('mensajeros', v); };
 
 // v41: Normalize product fields — some products come from productos.json with Spanish
 // field names (nombre, descripcion, imagen, precioActual) while the code uses English
@@ -4407,7 +4427,7 @@ function _descontarStock(v) {
 
 // v52: tipos de aviso que son PERSONALES de un gestor (su vale, su ranking).
 // El resto (stock, productos nuevos) son avisos globales de la tienda.
-const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'];
+const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3','meta_alcanzada'];
 const _esNotifPersonal = n => !!n && NOTIF_PERSONAL_TYPES.includes(n.type);
 
 // v52 FIX: el recorte a 50 avisos era ciego y el array de notifs es GLOBAL:
@@ -4685,6 +4705,8 @@ function renderGestorNotifs() {
       msg=`👁️ <b>El admin vio tu vale</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='vale_confirmed'){
       msg=`<b>¡Venta completada! ✅</b> · ${safeName}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
+    } else if(n.type==='meta_alcanzada'){
+      msg=`🎯 <b>¡Meta alcanzada!</b> Llegaste a los ${safeExtra} puntos — el contador vuelve a empezar.`;
     } else if(n.type==='vale_delivered'){
       msg=`📦 <b>¡Tu venta fue entregada!</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='vale_pending'){
@@ -5201,6 +5223,16 @@ function doSelectGestor(id) {
   // v65: aquí se llamaba a listenToMyVales(id), eliminada por ser código muerto.
   // Los vales del gestor los sincroniza _doRestPoll() cada 5 s vía REST.
   activeGestorId=id;
+  // v114: se apunta cuál es su último aviso de meta ANTES de empezar a mirar,
+  // para que al entrar no le salte la fiesta de una meta de la semana pasada.
+  // A partir de aquí, cualquier aviso de meta nuevo sí se celebra.
+  try {
+    const k='axon_meta_celebrada_'+id;
+    if(localStorage.getItem(k)===null){
+      const mia=getNotifs().find(n=>n&&n.type==='meta_alcanzada'&&n.gestorId===id);
+      localStorage.setItem(k, mia?String(mia.id):'0');
+    }
+  } catch(e) {}
   // v77: dejar los campos automáticos bloqueados desde el primer momento, sin
   // esperar a que el gestor toque algo.
   setTimeout(() => { if (typeof _aplicarCamposAuto === 'function') _aplicarCamposAuto(); }, 0);const g=gestorOf(id);
@@ -5811,8 +5843,7 @@ function renderAdminGestoresList() {
   c.innerHTML=list.map(g=>{
     const vales=getVales().filter(v=>v.gestorId===g.id);
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
-    const pts=vales.filter(v=>['confirmed','pending_payment'].includes(v.status))
-      .reduce((s,v)=>s+(v.valeProductos||[]).reduce((ss,p)=>{const pr=productoOf(p.id);return ss+(pr?pr.puntos*p.qty:0);},0),0);
+    const pts=getGestorPoints(g.id);   // v114: los del ciclo, los que corren hacia la meta
     const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
     // Comisiones de este gestor.
@@ -7408,18 +7439,21 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   // Ahora: puntos "ganados" (confirmed/pending_payment) y puntos "potenciales" (todos).
   const earnedStatuses = ['confirmed','pending_payment'];
   const allActiveStatuses = ['pending','assigned','delivered','pending_payment','confirmed'];
-  const ptsEarned = vales
-    .filter(v => earnedStatuses.includes(v.status))
-    .reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
+  // v114: se descuentan los ciclos de meta ya cerrados, para que este número
+  // sea el MISMO que el de la barra de meta y el del ranking. Antes eran los
+  // puntos de siempre y seguían subiendo aunque la meta ya se hubiera logrado.
+  //
+  // SOLO cuando se está mirando todo el histórico. Si hay un rango de fechas
+  // ("Este mes", "Mes pasado"), lo que se pregunta es cuántos puntos se hicieron
+  // EN ESAS FECHAS: restarle ahí los ciclos de toda la vida daría cero.
+  const _canjeados = (from || to) ? 0
+    : ((gestorOf(gestorId) && parseFloat(gestorOf(gestorId).puntosCanjeados)) || 0);
+  const _sumaPuntos = lista => lista.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
       const pr = productoOf(p.id);
-      return s + (pr ? (pr.puntos||0) * p.qty : 0);
+      return s + ((pr && pr.puntos) || 0) * p.qty;
     }, sum), 0);
-  const ptsPotential = vales
-    .filter(v => allActiveStatuses.includes(v.status))
-    .reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
-      const pr = productoOf(p.id);
-      return s + (pr ? (pr.puntos||0) * p.qty : 0);
-    }, sum), 0);
+  const ptsEarned    = Math.max(0, _sumaPuntos(vales.filter(v => earnedStatuses.includes(v.status)))    - _canjeados);
+  const ptsPotential = Math.max(0, _sumaPuntos(vales.filter(v => allActiveStatuses.includes(v.status))) - _canjeados);
   // v80 FIX: aquí se hacía `ptsEarned > 0 ? ptsEarned : ptsPotential`, con la
   // idea (v41) de que un gestor nuevo no viera un cero desangelado. Pero eso
   // hacía que el número CAMBIARA DE SIGNIFICADO según el caso: sin ventas
@@ -11392,6 +11426,13 @@ function renderGestorRanking() {
         <div style="display:flex;align-items:center;gap:6px;">
           <div class="g-avatar" style="background:${g.color};width:26px;height:26px;font-size:10px;flex-shrink:0;">${escapeHTML(g.initials)}</div>
           <span class="rank-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(g.name)}</span>
+          ${(() => {
+            // v114: los puntos ahora vuelven a cero al llegar a la meta, así que
+            // el mérito acumulado se enseña aquí: cuántas metas lleva cerradas.
+            // Si no, reiniciar el contador parecería que le borran el trabajo.
+            const _m = parseInt(g.metas, 10) || 0;
+            return _m ? `<span style="background:rgba(245,158,11,.15);color:var(--yellow);border-radius:20px;padding:1px 6px;font-size:9px;font-weight:800;flex-shrink:0;" title="${_m} meta${_m>1?'s':''} completada${_m>1?'s':''}">🏆 ${_m}</span>` : '';
+          })()}
           <span class="rank-pts" style="${reached?'color:var(--green);':''}flex-shrink:0;">${g.pts} pts</span>
           ${hint?`<span style="font-size:9px;flex-shrink:0;">${hint}</span>`:''}
         </div>
@@ -11837,8 +11878,12 @@ function getTop3Ranked() {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+    // v114: puntos del ciclo en curso, igual que la barra de meta. Si el
+    // ranking siguiera contando los de siempre, quien ya cerró varias metas se
+    // quedaría arriba para siempre y resetear el contador no serviría de nada.
+    const pts=Math.max(0, confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0)
+      - (parseFloat(g.puntosCanjeados)||0));
     return {...g,pts};
   }).sort((a,b)=>b.pts-a.pts);
   return ranked.slice(0,3);
@@ -11849,8 +11894,12 @@ function getGestorRank(gestorId) {
   const gestores=getGestores();
   const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
   const ranked=gestores.map(g=>{
-    const pts=confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+    // v114: puntos del ciclo en curso, igual que la barra de meta. Si el
+    // ranking siguiera contando los de siempre, quien ya cerró varias metas se
+    // quedaría arriba para siempre y resetear el contador no serviría de nada.
+    const pts=Math.max(0, confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
+      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0)
+      - (parseFloat(g.puntosCanjeados)||0));
     return {id:g.id,pts};
   }).sort((a,b)=>b.pts-a.pts);
   const idx=ranked.findIndex(r=>r.id===gestorId);
@@ -11858,10 +11907,30 @@ function getGestorRank(gestorId) {
 }
 
 // Get a specific gestor's total points
-function getGestorPoints(gestorId) {
+// Puntos que ha hecho un gestor DESDE SIEMPRE. Este número solo sube.
+function getGestorPointsTotal(gestorId) {
   const confirmedVales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
   return confirmedVales.reduce((sum,v)=>
-    sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
+    sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0);
+}
+// ── v114: los puntos del CICLO en curso ────────────────────────────────────
+// Antes esto devolvía el total de siempre, y eso rompía la meta de dos formas
+// a la vez, que son justo las dos que se ven en la app:
+//
+//   · La animación saltaba UNA sola vez en la vida. checkGoalReached solo
+//     celebraba si el gestor estaba por debajo de la meta ANTES de esa venta;
+//     como el total nunca bajaba, a partir de la primera vez ya siempre estaba
+//     por encima y no volvía a saltar nunca.
+//   · El contador seguía subiendo para siempre: 10, 24, 137… La meta dejaba de
+//     significar nada en cuanto se pasaba.
+//
+// Ahora, al llegar a la meta se "canjean" esos puntos (se apuntan en el gestor)
+// y el contador vuelve a empezar. Lo que sobró NO se pierde: si la meta son 100
+// y se llegó a 105, el ciclo nuevo empieza en 5.
+function getGestorPoints(gestorId) {
+  const g = gestorOf(gestorId);
+  const canjeados = (g && parseFloat(g.puntosCanjeados)) || 0;
+  return Math.max(0, getGestorPointsTotal(gestorId) - canjeados);
 }
 
 // Create the glow rings background
@@ -12091,18 +12160,58 @@ function dismissGoalBanner(){
 }
 
 function checkGoalReached(gestorId, currentValeId) {
-  const meta=getConfig().metaPuntos;if(!meta||!gestorId)return;
-  const g=gestorOf(gestorId);if(!g)return;
-  const pts=getGestorPoints(gestorId);
-  if(pts>=meta){
-    // Celebrate only if THIS sale crossed the threshold (exclude current vale from prev total)
-    const vales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
-    const prev=vales.filter(v=>v.id!==currentValeId).reduce((sum,v)=>sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+(pr?pr.puntos*p.qty:0);},0),0);
-    if(prev<meta){
-      // EPIC GLOW PULSE — Full-screen celebration
-      launchEpicGlowPulse(g,pts);
-    }
+  const meta=parseFloat(getConfig().metaPuntos);
+  if(!meta||meta<=0||!gestorId)return;
+  const g=gestorOf(gestorId);if(!g||g._tienda)return;   // la tienda no compite
+  if(getGestorPoints(gestorId)<meta)return;
+  // v114: ya no hace falta comprobar si "esta venta" fue la que cruzó. Al
+  // cerrar el ciclo el contador baja solo, así que la próxima vez que se
+  // llegue a la meta esto vuelve a ser verdad — y la animación vuelve a salir.
+  // Aquella comprobación era justo lo que la dejaba muda para siempre.
+  //
+  // Puede llegarse a la meta con MUCHO margen de una sola venta (meta 10 y una
+  // venta de 25). El while cierra los ciclos que hagan falta en vez de dejar el
+  // contador por encima de la meta otra vez.
+  let cerrados=0, canjeados=(parseFloat(g.puntosCanjeados)||0);
+  while(getGestorPointsTotal(gestorId)-canjeados>=meta && cerrados<50){
+    canjeados+=meta; cerrados++;
   }
+  if(!cerrados)return;
+  // Se sube SOLO esta ficha (guardarGestores con ids), no la lista entera: es
+  // el mismo cuidado que se le puso al stock, y por el mismo motivo.
+  const lista=getGestores();
+  const i=lista.findIndex(x=>x.id===gestorId);
+  if(i===-1)return;
+  const logradas=(parseInt(g.metasLogradas,10)||0)+cerrados;
+  lista[i]={...lista[i], puntosCanjeados:canjeados, metasLogradas:logradas,
+            ultimaMetaTs:new Date().toISOString()};
+  guardarGestores(lista,[gestorId]);
+  gestoresTabDirty=true; rankingCache=null;
+  // El aviso viaja al teléfono del gestor. La animación de aquí abajo solo la
+  // ve quien confirma la venta —el admin—; el gestor la lanza al recibir esto.
+  // Ver _celebrarMetaDelGestor().
+  addNotif('meta_alcanzada', g.name, null, String(meta), gestorId,
+           'meta:'+gestorId+':'+logradas);
+  launchEpicGlowPulse(g, meta);
+  renderGestorRanking();
+}
+
+// ── v114: la animación en el teléfono del GESTOR ───────────────────────────
+// checkGoalReached corre donde se confirma la venta, o sea en el teléfono del
+// admin. El gestor —que es para quien es la fiesta— no veía nada. Al llegarle
+// el aviso de su meta, su teléfono lanza la misma animación. Se apunta cuál se
+// celebró ya para no repetirla en cada pasada del bucle.
+function _celebrarMetaDelGestor() {
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) return;
+  if (activeGestorId == null) return;
+  const mia = getNotifs().find(n => n && n.type === 'meta_alcanzada' && n.gestorId === activeGestorId);
+  if (!mia) return;
+  let visto = null;
+  try { visto = localStorage.getItem('axon_meta_celebrada_' + activeGestorId); } catch(e) {}
+  if (visto === String(mia.id)) return;                 // esta ya se celebró
+  try { localStorage.setItem('axon_meta_celebrada_' + activeGestorId, String(mia.id)); } catch(e) {}
+  const g = gestorOf(activeGestorId);
+  if (g) launchEpicGlowPulse(g, parseFloat(mia.extra) || 0);
 }
 
 // ══════════════════════════════════════════
