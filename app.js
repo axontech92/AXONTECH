@@ -5829,13 +5829,28 @@ function _cmpComisionPendiente(a, b) {
   return 0;
 }
 
+// v116: foto del orden de la lista mientras el modal de comisiones está
+// abierto. Se declara junto a quien la LEE: si se quedara al lado de quien la
+// escribe (~5000 líneas más abajo) y algo renderizara durante la carga, sería
+// un ReferenceError por la zona muerta de `let`.
+let _ordenGestoresCongelado = null;
 function renderAdminGestoresList() {
   // v83: orden por comisión pendiente, de mayor a menor. Este panel se usa para
   // ver a quién hay que pagar, así que lo útil es que los que más tienen
   // acumulado salgan primero, no que salgan por orden alfabético.
   // Los que no deben nada quedan al final por nombre: sortGestoresAlpha va
   // primero y Array.sort es estable, así que la lista no baila entre recargas.
-  const list = sortGestoresAlpha(getGestores()).slice().sort(_cmpComisionPendiente);
+  // v116: con el modal de comisiones abierto, la lista se REFRESCA pero NO se
+  // reordena. Se ordena por lo que se le debe a cada gestor, así que cada
+  // comisión que tocas lo movería de sitio bajo el modal; al cerrar te
+  // encontrarías otra lista. Se congela el orden mientras dura la faena y se
+  // recalcula al cerrar. Las chapas sí se actualizan al momento.
+  let list = sortGestoresAlpha(getGestores()).slice().sort(_cmpComisionPendiente);
+  if (Array.isArray(_ordenGestoresCongelado)) {
+    const pos = new Map(_ordenGestoresCongelado.map((id, i) => [id, i]));
+    // Un gestor creado a mitad no está en la foto: va al final, no se pierde.
+    list.sort((a, b) => (pos.has(a.id) ? pos.get(a.id) : 1e9) - (pos.has(b.id) ? pos.get(b.id) : 1e9));
+  }
   const c=document.getElementById('adminGestoresPanel-list');
   _updateGestoresCountBadge();
   if(!c) return;
@@ -5859,7 +5874,7 @@ function renderAdminGestoresList() {
     else if(enSobre.length)comBadgeHTML+=`<span style="background:var(--yellow);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">✉️ ${enSobre.length}</span>`;
     if(!comBadgeHTML)comBadgeHTML=cobrados.length?`<span style="background:var(--green);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">✓ al día</span>`:`<span style="color:var(--gray-400);font-size:10px;">Sin comisiones</span>`;
 
-    return `<div class="gp-card">
+    return `<div class="gp-card" data-gestor-id="${g.id}">
       <div class="gp-card-top">
         <div class="g-avatar" style="background:${hasPhoto?'transparent':g.color};width:44px;height:44px;font-size:14px;flex-shrink:0;position:relative;">${gestorAvatarInner(g)}</div>
         <div style="flex:1;min-width:0;">
@@ -11106,6 +11121,12 @@ function toggleComisionGestor(id) {
     renderComisiones();
     return;
   }
+  // Foto del orden actual, para que la lista de detrás no baile mientras se
+  // marcan comisiones. Se toma del DOM y no recalculando: es exactamente lo que
+  // el admin tiene delante en este momento.
+  _ordenGestoresCongelado = [...document.querySelectorAll('#adminGestoresPanel-list .gp-card')]
+    .map(c => parseInt(c.dataset.gestorId, 10)).filter(n => !isNaN(n));
+  if (!_ordenGestoresCongelado.length) _ordenGestoresCongelado = null;
   modal.dataset.gestorId = id;
   // El 'show' va ANTES de pintar: renderComisionesModal() se niega a escribir en
   // un modal cerrado (para que renderComisiones() no pinte a ciegas), así que al
@@ -11117,7 +11138,8 @@ function closeComisionesModal() {
   const modal = document.getElementById('comisionesGestorModal');
   if (modal) modal.classList.remove('show');
   activeComisionGestorId = null;
-  renderAdminGestoresList();       // que las chapas de la lista reflejen lo hecho
+  _ordenGestoresCongelado = null;  // se descongela: ahora sí puede reordenarse
+  renderAdminGestoresList();
 }
 // Repinta SOLO el contenido del modal. Es lo que se llama después de cada
 // botón: la lista de detrás se deja para cuando se cierre, así no se reordena
@@ -11353,7 +11375,11 @@ function fmtComisionBadge(usd,mn,computed) {
 // el que estás gestionando saltaría de sitio a mitad de faena. La lista se
 // pone al día al cerrar el modal.
 function renderComisiones() {
-  if (typeof renderComisionesModal === 'function' && renderComisionesModal()) return;
+  // v116: se repintan LAS DOS. La lista tiene el orden congelado mientras el
+  // modal está abierto (ver toggleComisionGestor), así que se pone al día sin
+  // moverse de sitio: las chapas del gestor reflejan al momento lo que acabas
+  // de marcar, y al revertir una comisión vuelve a verse como pendiente.
+  if (typeof renderComisionesModal === 'function') renderComisionesModal();
   renderAdminGestoresList();
 }
 function renderComisionBody(g,pendientes,enSobre,cobrados) {
