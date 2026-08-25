@@ -11290,22 +11290,34 @@ function markAllCommissionsEnSobre(gestorId,e) {
   renderComisiones();maybeAutoSync();
   showToast('Todas las comisiones marcadas En Sobre ✉️');
 }
+// ── v116: "Cobrar todas" cobra SOLO lo que está en el sobre ────────────────
+// Este botón vive dentro de la sección "✉️ En sobre", pero se llevaba por
+// delante TODAS las comisiones sin pagar del gestor: también las pendientes,
+// que ni siquiera habían pasado por el sobre. Dabas por cobrado dinero que
+// todavía no habías apartado ni contado, y para deshacerlo había que ir vale
+// por vale con "↩ Pendiente".
+//
+// Los montones salen de _comisionesDe(), el mismo sitio del que se pinta la
+// sección: así el botón no puede cobrar algo distinto de lo que tiene encima.
 function markAllCommissionsCobrado(gestorId,e) {
   if(e)e.stopPropagation();
+  const ids=new Set(_comisionesDe(gestorId).enSobre.map(v=>v.id));
+  if(!ids.size){ showToast('No hay comisiones en el sobre'); return; }
   const ts=new Date().toISOString();
   // Una sola escritura de todo el array, no N patchVale.
   const all=getVales();
   let changed=false;
   all.forEach(v=>{
-    // v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
-    if(v.gestorId===gestorId&&!v.commissionPaid&&_valeGeneraComision(v)){
+    if(ids.has(v.id)){
       v.commissionPaid=true;v.commissionStatus='cobrado';v.commissionPaidTs=ts;changed=true;
     }
   });
   if(changed) saveVales(all);
   gestoresTabDirty=true;
   renderComisiones();maybeAutoSync();
-  showToast('Todas las comisiones marcadas Cobrado 💰');
+  const _n=ids.size;
+  showToast(_n===1 ? '1 comisión del sobre marcada como cobrada 💰'
+                   : `${_n} comisiones del sobre marcadas como cobradas 💰`);
 }
 function payAllCommissions(gestorId,e) {
   // Legacy: kept for compatibility, now marks all as cobrado
@@ -11391,7 +11403,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
           <span style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;">✉️ En sobre (${enSobre.length})</span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             ${sumBadge?`<span style="font-size:13px;font-weight:800;color:var(--green);">💵 ${sumBadge}</span>`:''}
-            ${enSobre.length>1?`<button class="btn btn-green btn-sm" onclick="markAllCommissionsCobrado(${g.id},event)">💰 Cobrar todas</button>`:''}
+            ${enSobre.length>1?`<button class="btn btn-green btn-sm" onclick="markAllCommissionsCobrado(${g.id},event)" title="Solo las ${enSobre.length} que están en el sobre; las pendientes no se tocan">💰 Cobrar las ${enSobre.length} del sobre</button>`:''}
           </div>
         </div>`;
       html+=enSobre.map(v=>{
