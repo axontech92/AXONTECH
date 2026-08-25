@@ -793,6 +793,25 @@
 </div>
 
 <!-- ── MODAL: Editar Gestor ── -->
+<!-- ── MODAL: Comisiones de un gestor ──────────────────────────────────────
+     v116: antes esto se desplegaba dentro de la tarjeta del gestor. La lista
+     está ordenada por lo que se le debe a cada uno, así que al marcar una
+     comisión como cobrada la lista se reordenaba y el gestor que estabas
+     mirando saltaba a otro sitio de la pantalla. En un modal se queda quieto:
+     lo de detrás puede moverse todo lo que quiera. -->
+<div class="modal-bg" id="comisionesGestorModal">
+  <div class="modal" style="max-width:520px;width:94%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
+    <div style="padding:20px 22px 12px;flex-shrink:0;">
+      <div class="modal-title" id="comisionesModalTitle">💰 Comisiones</div>
+      <div class="modal-sub" id="comisionesModalSub"></div>
+    </div>
+    <div id="comisionesModalBody" style="flex:1;overflow-y:auto;"></div>
+    <div style="flex-shrink:0;padding:14px 22px 20px;border-top:1px solid var(--border);">
+      <button class="btn btn-ghost btn-full" onclick="closeComisionesModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="editGestorModal">
   <div class="modal" style="max-width:340px;">
     <div class="modal-title">✏️ Editar gestor</div>

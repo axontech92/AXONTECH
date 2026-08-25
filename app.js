@@ -5846,13 +5846,8 @@ function renderAdminGestoresList() {
     const pts=getGestorPoints(g.id);   // v114: los del ciclo, los que corren hacia la meta
     const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
-    // Comisiones de este gestor.
-    // v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
-    const comVales=vales.filter(_valeGeneraComision);
-    const pendientes=comVales.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
-    const enSobre=comVales.filter(v=>v.commissionStatus==='en_sobre');
-    const cobrados=comVales.filter(v=>v.commissionPaid||v.commissionStatus==='cobrado');
-    const isOpen=activeComisionGestorId===g.id;
+    // Comisiones de este gestor, repartidas en los tres montones.
+    const {pendientes,enSobre,cobrados}=_comisionesDe(g.id);
     const pendSum=sumCommissions(pendientes);
     const sobreSum=sumCommissions(enSobre);
     const pendBadge=fmtComisionBadge(pendSum.usd,pendSum.mn,pendSum.computed);
@@ -5883,12 +5878,11 @@ function renderAdminGestoresList() {
         ${hasPhoto?`<button type="button" style="background:none;border:1px solid var(--red);cursor:pointer;font-size:10px;color:var(--red);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="removeGestorPhotoById(${g.id})" title="Quitar foto de perfil">✕ Quitar foto</button>`:''}
       </div>
 
-      <div class="gp-card-com" onclick="toggleComisionGestor(${g.id})">
+      <div class="gp-card-com" onclick="toggleComisionGestor(${g.id})" title="Abrir las comisiones de ${escapeHTML(g.name)}">
         <span style="font-size:11px;font-weight:700;color:var(--text-muted);flex-shrink:0;">💰 Comisiones</span>
         <div style="display:flex;gap:4px;flex-wrap:wrap;flex:1;">${comBadgeHTML}</div>
-        <span style="color:var(--gray-400);font-size:12px;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
+        <span style="color:var(--gray-400);font-size:12px;flex-shrink:0;">›</span>
       </div>
-      ${isOpen?renderComisionBody(g,pendientes,enSobre,cobrados):''}
     </div>`;
   }).join('');
 }
@@ -7470,14 +7464,25 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   // así que un vale apenas entregado (aún sin cobrar) ya sumaba comisión —
   // justo el bug que v50 decía estar arreglando, solo que a medias: seguía
   // incluyendo pending_payment en vez de limitarse a confirmed.
-  const comValesEarned = vales.filter(_valeGeneraComision);
+  // ── v116: aquí sale lo que le DEBEN, no lo que ha ganado en su vida ───────
+  // Antes esta tarjeta sumaba todas las ventas que generan comisión, cobrada ya
+  // o no. El gestor cobraba su dinero y la tarjeta seguía enseñando el mismo
+  // importe, así que no servía para lo único que se mira en ella: cuánto falta
+  // por cobrar. Es el mismo criterio que usa el panel del admin desde v102 —
+  // "en sobre" sigue contando (está apartado, pero el gestor no lo tiene en la
+  // mano) y lo ya cobrado desaparece.
+  const comValesEarned = vales.filter(v => _valeGeneraComision(v)
+    && !v.commissionPaid && v.commissionStatus !== 'cobrado');
+  const comCobrados = vales.filter(v => _valeGeneraComision(v)
+    && (v.commissionPaid || v.commissionStatus === 'cobrado')).length;
   const com = sumCommissions(comValesEarned);
   const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
   // Conversion: confirmed / (total - cancelled - pending still pending)
   // More useful: closed sales (confirmed + pending_payment) / total attempted
   const closed = confirmed + pendingPay;
   const conversion = total > 0 ? Math.round((closed / total) * 100) : 0;
-  return { total, confirmed, pendingPay, pending, cancelled, pts, ptsEarned, ptsPotential, com, comBadge, conversion, closed };
+  return { total, confirmed, pendingPay, pending, cancelled, pts, ptsEarned, ptsPotential,
+           com, comBadge, comPendientes: comValesEarned.length, comCobrados, conversion, closed };
 }
 
 // Comparison arrow HTML — previous vs current value
@@ -7554,17 +7559,30 @@ function renderGestorDashboard() {
   const _heroLbl = 'font-size:11px;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.5px;';
   let comHero = '';
   if (cur.comBadge) {
-    // Cuántas ventas hay detrás del importe: un número suelto no dice nada, y es
-    // la primera pregunta del gestor al verlo.
-    const _n = cur.confirmed;
-    const _sub = _n > 0 ? `de ${_n} venta${_n !== 1 ? 's' : ''} cobrada${_n !== 1 ? 's' : ''}` : '';
+    // v116: cuántas ventas quedan por cobrar detrás del importe. Antes decía
+    // "de N ventas cobradas" usando el total de ventas, que no tenía nada que
+    // ver con el dinero que falta por pagarle.
+    const _n = cur.comPendientes;
+    const _sub = _n > 0 ? `de ${_n} venta${_n !== 1 ? 's' : ''} sin cobrar` : '';
     comHero = `<div style="${_heroBase}">
       <div style="min-width:0;">
-        <div style="${_heroLbl}">Comisión estimada</div>
+        <div style="${_heroLbl}">Comisión por cobrar</div>
         <div style="font-size:26px;font-weight:800;color:white;margin-top:3px;line-height:1.1;word-break:break-word;">${escapeHTML(cur.comBadge)}</div>
         ${_sub ? `<div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:3px;">${_sub}</div>` : ''}
       </div>
       <div style="font-size:30px;opacity:.75;flex-shrink:0;">💰</div>
+    </div>`;
+  } else if (cur.comCobrados > 0) {
+    // v116: ya cobró todo lo que se le debía. Se dice, en vez de dejar el hueco
+    // en blanco: un gestor que ve la tarjeta desaparecer piensa que se perdió
+    // su dinero, no que ya lo tiene.
+    comHero = `<div style="${_heroBase}">
+      <div style="min-width:0;">
+        <div style="${_heroLbl}">Comisión por cobrar</div>
+        <div style="font-size:26px;font-weight:800;color:white;margin-top:3px;line-height:1.1;">$0</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:3px;">✓ ya cobraste ${cur.comCobrados} venta${cur.comCobrados !== 1 ? 's' : ''} — al día</div>
+      </div>
+      <div style="font-size:30px;opacity:.75;flex-shrink:0;">✅</div>
     </div>`;
   } else if (cur.closed > 0) {
     comHero = `<div style="${_heroBase}">
@@ -11057,9 +11075,71 @@ function exportCatalogPDF(){
 // ══════════════════════════════════════════
 //  COMISIONES
 // ══════════════════════════════════════════
+// v116: el reparto en los tres montones vive AQUÍ y solo aquí. Lo usan la
+// tarjeta de la lista y el modal; si cada uno lo calculara por su cuenta,
+// acabarían diciendo cosas distintas — que es como esta app se ha ido rompiendo
+// otras veces (la tabla de estados estaba en tres sitios y a cada copia le
+// faltaba algo).
+// v104: la comisión cuenta desde que se entrega — ver _valeGeneraComision.
+function _comisionesDe(gestorId) {
+  const comVales = getVales().filter(v => v.gestorId === gestorId && _valeGeneraComision(v));
+  return {
+    pendientes: comVales.filter(v => !v.commissionPaid && v.commissionStatus !== 'en_sobre' && v.commissionStatus !== 'cobrado'),
+    enSobre:    comVales.filter(v => v.commissionStatus === 'en_sobre'),
+    cobrados:   comVales.filter(v => v.commissionPaid || v.commissionStatus === 'cobrado'),
+  };
+}
+
+// ── v116: las comisiones se abren en un modal, no desplegando la tarjeta ────
+// Al marcar una comisión como cobrada o en sobre se repinta la lista entera, y
+// la lista se REORDENA por lo que se le debe a cada gestor. O sea: justo
+// después de tocar un botón, el gestor que estabas mirando salta a otro sitio
+// de la pantalla y hay que buscarlo otra vez. Con varias comisiones seguidas
+// eso es inmanejable.
+// En un modal el gestor se queda quieto: lo de detrás puede reordenarse todo lo
+// que quiera, que no se mueve lo que estás usando.
 function toggleComisionGestor(id) {
-  activeComisionGestorId=activeComisionGestorId===id?null:id;
-  renderComisiones();
+  activeComisionGestorId = id;
+  const modal = document.getElementById('comisionesGestorModal');
+  if (!modal) {                                  // sin modal en el HTML: como antes
+    activeComisionGestorId = activeComisionGestorId === id ? null : id;
+    renderComisiones();
+    return;
+  }
+  modal.dataset.gestorId = id;
+  // El 'show' va ANTES de pintar: renderComisionesModal() se niega a escribir en
+  // un modal cerrado (para que renderComisiones() no pinte a ciegas), así que al
+  // revés se abría vacío.
+  modal.classList.add('show');
+  renderComisionesModal();
+}
+function closeComisionesModal() {
+  const modal = document.getElementById('comisionesGestorModal');
+  if (modal) modal.classList.remove('show');
+  activeComisionGestorId = null;
+  renderAdminGestoresList();       // que las chapas de la lista reflejen lo hecho
+}
+// Repinta SOLO el contenido del modal. Es lo que se llama después de cada
+// botón: la lista de detrás se deja para cuando se cierre, así no se reordena
+// bajo los pies.
+function renderComisionesModal() {
+  const modal = document.getElementById('comisionesGestorModal');
+  if (!modal || !modal.classList.contains('show')) return false;
+  const id = parseInt(modal.dataset.gestorId, 10);
+  const g = gestorOf(id);
+  const cuerpo = document.getElementById('comisionesModalBody');
+  const titulo = document.getElementById('comisionesModalTitle');
+  if (!g || !cuerpo) { closeComisionesModal(); return true; }
+  const { pendientes, enSobre, cobrados } = _comisionesDe(id);
+  if (titulo) titulo.textContent = '💰 ' + g.name;
+  const sub = document.getElementById('comisionesModalSub');
+  if (sub) {
+    const s = sumCommissions(pendientes.concat(enSobre));
+    const b = fmtComisionBadge(s.usd, s.mn, s.computed);
+    sub.textContent = b ? `Se le deben ${b}` : 'No se le debe nada';
+  }
+  cuerpo.innerHTML = renderComisionBody(g, pendientes, enSobre, cobrados);
+  return true;
 }
 function getValeCommissionParts(v) {
   const items=v.valeProductos||[];
@@ -11256,7 +11336,14 @@ function fmtComisionBadge(usd,mn,computed) {
 // renderAdminGestoresList) en vez de en una lista aparte que repetía cada
 // nombre otra vez. Se deja esta función como alias — la llaman ~15 sitios
 // distintos cada vez que cambia el estado de una comisión.
-function renderComisiones() { renderAdminGestoresList(); }
+// v116: si el modal está abierto, se repinta SOLO él. Repintar la lista de
+// detrás la reordenaría —está ordenada por lo que se le debe a cada gestor— y
+// el que estás gestionando saltaría de sitio a mitad de faena. La lista se
+// pone al día al cerrar el modal.
+function renderComisiones() {
+  if (typeof renderComisionesModal === 'function' && renderComisionesModal()) return;
+  renderAdminGestoresList();
+}
 function renderComisionBody(g,pendientes,enSobre,cobrados) {
   let html='<div style="border-top:1px solid var(--border);padding:12px 14px;">';
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){
