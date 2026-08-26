@@ -10813,6 +10813,11 @@ function renderGanancia(vales) {
 function _lineasPorDueno(vales) {
   const porDueno = new Map();       // clave → {nombre, propia, lineas[]}
   let conRebaja = 0, sinPrecio = 0;
+  // v119: ventas del período que no llevan NI UN producto del catálogo. Sin
+  // productos no hay a quién atribuirlas, así que el panel no puede repartir
+  // nada y sale todo en cero — pero callándose, que es lo peor: parece que no
+  // se vendió nada cuando lo que pasa es que no se puede saber de quién era.
+  let sinProductos = 0;
   vales.forEach(v => {
     const esTienda = esValeDeLaTienda(v) || v.gestorId === 'admin';
     const g = gestorOf(v.gestorId);
@@ -10823,6 +10828,7 @@ function _lineasPorDueno(vales) {
     // panel de Gestores, en vez de seguir pidiéndolo por siempre.
     const comEstado = (v.commissionPaid || v.commissionStatus === 'cobrado') ? 'cobrado'
                      : v.commissionStatus === 'en_sobre' ? 'en_sobre' : 'pendiente';
+    if (!(v.valeProductos || []).length) sinProductos++;
     (v.valeProductos || []).forEach(({ id, qty }) => {
       const p = productoOf(id);
       const dueno = duenoPorId(duenoIdDe(id));
@@ -10866,7 +10872,7 @@ function _lineasPorDueno(vales) {
     gr.comUSD   = gr.lineas.reduce((s, l) => s + l.comUSD,   0);
     gr.comMN    = gr.lineas.reduce((s, l) => s + l.comMN,    0);
   });
-  return { porDueno, conRebaja, sinPrecio };
+  return { porDueno, conRebaja, sinPrecio, sinProductos };
 }
 
 // Un importe en las dos monedas, tal cual, sin convertir. "—" si no hay nada.
@@ -11118,13 +11124,21 @@ function renderDuenos() {
     });
   }
 
-  const { porDueno, conRebaja, sinPrecio } = _lineasPorDueno(_valesDelCorte());
+  const { porDueno, conRebaja, sinPrecio, sinProductos } = _lineasPorDueno(_valesDelCorte());
   const registrados = listaDuenos();
 
   // ── AVISOS ──
   const avisos = [];
   if (!registrados.length) avisos.push('Todavía no hay dueños dados de alta. Agrégalos aquí arriba y después elígelos en la ficha de cada producto (📦 Stock → tocar un producto → <b>Dueño de la mercancía</b>).');
   else if (!Object.keys(getDuenosDoc().asig).length) avisos.push('Hay dueños dados de alta pero ningún producto asignado todavía. Se elige en la ficha del producto (📦 Stock).');
+  // Esto va ANTES que los demás avisos: si es lo que está pasando, explica el
+  // panel entero, y sin él lo único que se ve son ceros sin motivo.
+  if (sinProductos) {
+    const _totalCorte = _valesDelCorte().length;
+    avisos.push(sinProductos === _totalCorte
+      ? `Las ${sinProductos} venta(s) del período no llevan productos del catálogo enlazados, así que <b>no se puede saber de qué dueño era la mercancía</b> y el corte sale en cero. Se enlazan al hacer el vale, eligiendo los productos del catálogo en vez de escribirlos a mano.`
+      : `${sinProductos} venta(s) del período no llevan productos del catálogo enlazados y no entran en este reparto.`);
+  }
   if (sinPrecio) avisos.push(`${sinPrecio} línea(s) de venta son de productos sin precio en el catálogo (o borrados), así que no suman importe.`);
   if (conRebaja) avisos.push(`${conRebaja} vale(s) del período llevaban rebaja: se cobró menos de lo que suman sus líneas, que van al precio de catálogo.`);
   cAviso.innerHTML = avisos.length ? `<div class="ax2-aviso">${avisos.map(a => `<div>⚠️ ${a}</div>`).join('')}</div>` : '';
