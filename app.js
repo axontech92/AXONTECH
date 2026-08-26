@@ -1611,7 +1611,7 @@ async function _doRestPoll() {
             }
             else if(node==='duenos'){
               // v117: de quién es cada producto. Solo llega si IS_ADMIN.
-              _duenosCache=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};_duenosDirty=false;
+              _duenosCache=_normalizarDocDuenos(val);_duenosDirty=false;
               if(typeof currentAdminTab!=='undefined'&&currentAdminTab==='duenos'&&typeof renderDuenos==='function'){try{renderDuenos();}catch(e){}}
             }
             else if(node==='costos'){
@@ -4369,40 +4369,117 @@ function _congelarCostoVale(v) {
 //
 // Vive fuera del producto por el mismo motivo que los costos: la tabla
 // `productos` se la baja también el teléfono del gestor, y de quién es la
-// mercancía no es asunto suyo. Documento aparte —{productoId: "Nombre"}— que
-// solo pide el teléfono del admin.
+// mercancía no es asunto suyo. Documento aparte que solo pide el admin.
+//
+// Forma del documento:
+//   { lista: [{id, nombre}], asig: { productoId: duenoId } }
+//
+// Los dueños son una lista con id propio, no un texto suelto en cada producto:
+// así se les puede cambiar el nombre sin perder de vista qué era suyo, y al dar
+// de alta un producto se ELIGE de una lista en vez de teclear —que es como
+// acababan "Pedro", "pedro" y "Pedro " siendo tres personas distintas.
 let _duenosCache = null, _duenosDirty = true;
-function getDuenos() {
+
+// La primera versión guardaba {productoId: "Nombre"} y estuvo publicada un rato.
+// Si el documento viene con esa forma se convierte al vuelo: se da de alta un
+// dueño por cada nombre distinto y se les reasignan sus productos. No se pierde
+// nada de lo que se hubiera escrito.
+function _normalizarDocDuenos(doc) {
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return { lista: [], asig: {} };
+  if (Array.isArray(doc.lista) && doc.asig && typeof doc.asig === 'object') {
+    return {
+      lista: doc.lista.filter(d => d && d.id != null && String(d.nombre || '').trim())
+                      .map(d => ({ id: Number(d.id), nombre: String(d.nombre).trim() })),
+      asig: { ...doc.asig },
+    };
+  }
+  // Forma vieja: {productoId: "Nombre"}
+  const porClave = new Map();     // nombre normalizado → {id, nombre}
+  const asig = {};
+  let siguiente = 1;
+  Object.entries(doc).forEach(([pid, nombre]) => {
+    const limpio = String(nombre || '').trim();
+    if (!limpio) return;
+    const k = _claveDueno(limpio);
+    if (!porClave.has(k)) porClave.set(k, { id: siguiente++, nombre: limpio });
+    asig[String(pid)] = porClave.get(k).id;
+  });
+  return { lista: [...porClave.values()], asig };
+}
+
+function getDuenosDoc() {
   if (_duenosDirty || !_duenosCache) {
-    try { _duenosCache = JSON.parse(localStorage.getItem('axon_duenos') || '{}'); }
-    catch(e) { _duenosCache = {}; }
-    if (!_duenosCache || typeof _duenosCache !== 'object' || Array.isArray(_duenosCache)) _duenosCache = {};
+    let crudo = null;
+    try { crudo = JSON.parse(localStorage.getItem('axon_duenos') || 'null'); } catch(e) {}
+    _duenosCache = _normalizarDocDuenos(crudo);
     _duenosDirty = false;
   }
   return _duenosCache;
 }
-const duenoDe = pid => String(getDuenos()[String(pid)] || '');
-function setDueno(pid, nombre) {
+function _guardarDuenos(doc) {
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
-  const limpio = String(nombre || '').trim();
-  const mapa = { ...getDuenos() };
-  if (limpio) mapa[String(pid)] = limpio; else delete mapa[String(pid)];
-  const ahora = JSON.stringify(mapa);
-  if (ahora === JSON.stringify(getDuenos())) return false;
+  const ahora = JSON.stringify(doc);
+  if (ahora === JSON.stringify(getDuenosDoc())) return false;
   _safeSetLS('axon_duenos', ahora);
-  _duenosCache = mapa; _duenosDirty = false;
-  setSB('duenos', mapa);
+  _duenosCache = doc; _duenosDirty = false;
+  setSB('duenos', doc);
   return true;
 }
-// Los nombres ya usados, para ofrecerlos al escribir y que no acaben tres
-// variantes del mismo dueño por una mayúscula o un espacio de más.
+
+// La lista de dueños, por nombre.
 function listaDuenos() {
-  const vistos = new Map();      // clave normalizada → nombre tal cual se escribió
-  Object.values(getDuenos()).forEach(n => {
-    const k = String(n).trim().toLowerCase();
-    if (k && !vistos.has(k)) vistos.set(k, String(n).trim());
+  return getDuenosDoc().lista.slice().sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+}
+const duenoPorId = id => getDuenosDoc().lista.find(d => d.id === Number(id)) || null;
+// A qué dueño pertenece un producto. null = mercancía de la tienda.
+const duenoIdDe = pid => {
+  const v = getDuenosDoc().asig[String(pid)];
+  return v == null ? null : Number(v);
+};
+const duenoDe = pid => { const d = duenoPorId(duenoIdDe(pid)); return d ? d.nombre : ''; };
+
+function addDueno(nombre) {
+  const limpio = String(nombre || '').trim();
+  if (!limpio) return null;
+  const doc = getDuenosDoc();
+  const ya = doc.lista.find(d => _claveDueno(d.nombre) === _claveDueno(limpio));
+  if (ya) return ya;                       // ya existe: no se duplica
+  const id = doc.lista.reduce((m, d) => Math.max(m, d.id), 0) + 1;
+  const nuevo = { id, nombre: limpio };
+  _guardarDuenos({ lista: doc.lista.concat([nuevo]), asig: { ...doc.asig } });
+  return nuevo;
+}
+function renameDueno(id, nombre) {
+  const limpio = String(nombre || '').trim();
+  if (!limpio) return false;
+  const doc = getDuenosDoc();
+  if (!doc.lista.some(d => d.id === Number(id))) return false;
+  return _guardarDuenos({
+    lista: doc.lista.map(d => d.id === Number(id) ? { ...d, nombre: limpio } : d),
+    asig: { ...doc.asig },
   });
-  return [...vistos.values()].sort((a, b) => a.localeCompare(b, 'es'));
+}
+// Al borrar un dueño, sus productos quedan SIN dueño (mercancía de la tienda).
+// No se borra nada del catálogo: el producto sigue ahí, solo deja de tener quien
+// lo reclame.
+function removeDueno(id) {
+  const doc = getDuenosDoc();
+  const asig = {};
+  Object.entries(doc.asig).forEach(([pid, did]) => { if (Number(did) !== Number(id)) asig[pid] = did; });
+  return _guardarDuenos({ lista: doc.lista.filter(d => d.id !== Number(id)), asig });
+}
+// Asignarle (o quitarle) el dueño a un producto. duenoId vacío = de la tienda.
+function setDuenoProducto(pid, duenoId) {
+  const doc = getDuenosDoc();
+  const asig = { ...doc.asig };
+  const n = Number(duenoId);
+  if (duenoId === '' || duenoId == null || isNaN(n) || !duenoPorId(n)) delete asig[String(pid)];
+  else asig[String(pid)] = n;
+  return _guardarDuenos({ lista: doc.lista.slice(), asig });
+}
+// Cuántos productos del catálogo tiene asignados un dueño.
+function productosDeDueno(id) {
+  return getProductos().filter(p => duenoIdDe(p.id) === Number(id));
 }
 // Clave del grupo "sin dueño" (mercancía tuya). Se le pone un nombre en vez
 // de una cadena rara: así no se confunde con un dueño que se llame así, y no
@@ -9063,9 +9140,15 @@ function populateCatSelect(selectedId) {
   document.getElementById('pm-cat').innerHTML=
     `<option value="">Sin categoría</option>`+
     cats.map(c=>`<option value="${c.id}" ${c.id===selectedId?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
-  // v117: los dueños ya escritos, para elegir en vez de teclear otra vez.
-  const dl=document.getElementById('pm-duenos-lista');
-  if(dl)dl.innerHTML=listaDuenos().map(n=>`<option value="${escapeHTML(n)}"></option>`).join('');
+  // v117: se ELIGE de los dueños dados de alta. Tecleando acababan tres
+  // variantes del mismo nombre; con una lista eso no puede pasar.
+  const sel=document.getElementById('pm-dueno');
+  if(sel){
+    const actual=sel.value;
+    sel.innerHTML='<option value="">🏪 Mercancía de la tienda</option>'
+      +listaDuenos().map(d=>`<option value="${d.id}">${escapeHTML(d.nombre)}</option>`).join('');
+    sel.value=actual;
+  }
 }
 function openAddProductModal() {
   editingProductId=null;
@@ -9138,7 +9221,7 @@ function openEditProductModal(id) {
   document.getElementById('pm-desc').value=p.description||'';
   document.getElementById('pm-precio').value=p.precio||'';
   {const elC=document.getElementById('pm-costo');if(elC)elC.value=costoDe(id);}   // v114: vive aparte
-  {const elD=document.getElementById('pm-dueno');if(elD)elD.value=duenoDe(id);}   // v117: idem
+  {const elD=document.getElementById('pm-dueno');if(elD)elD.value=duenoIdDe(id)==null?'':String(duenoIdDe(id));}   // v117
   document.getElementById('pm-stock').value=p.stock||0;
   document.getElementById('pm-puntos').value=p.puntos||0;
   document.getElementById('pm-garantia').value=p.garantia||'';
@@ -9576,18 +9659,18 @@ async function saveProduct() {
   // v114: el costo NO va dentro del producto —ver la nota en getCostos()— así
   // que se guarda aparte, con el id que le toque.
   const costoEscrito=(document.getElementById('pm-costo')||{value:''}).value.trim();
-  const duenoEscrito=(document.getElementById('pm-dueno')||{value:''}).value.trim();
+  const duenoElegido=(document.getElementById('pm-dueno')||{value:''}).value;
   if(editingProductId){
     const old=productoOf(editingProductId);
     setCosto(editingProductId,costoEscrito);
-    setDueno(editingProductId,duenoEscrito);
+    setDuenoProducto(editingProductId,duenoElegido);
     patchProducto(editingProductId,prod);
     if(old&&old.stock===0&&prod.stock>0) addNotif('restocked',prod.name,editingProductId,`stock: ${prod.stock}`);
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
     setCosto(newId,costoEscrito);
-    setDueno(newId,duenoEscrito);
+    setDuenoProducto(newId,duenoElegido);
     const list=getProductos().slice();list.push({id:newId,...prod});guardarProductos(list,[newId]);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
@@ -10382,7 +10465,7 @@ function renderGanancia(vales) {
 //   · Si la comisión del catálogo cambió después de la venta, la suma por
 //     líneas no coincide con la que se le congeló al vale.
 function _lineasPorDueno(vales) {
-  const porDueno = new Map();       // clave normalizada → {nombre, lineas[]}
+  const porDueno = new Map();       // clave → {nombre, propia, lineas[]}
   let conRebaja = 0, sinPrecio = 0;
   vales.forEach(v => {
     const esTienda = esValeDeLaTienda(v) || v.gestorId === 'admin';
@@ -10391,34 +10474,55 @@ function _lineasPorDueno(vales) {
     if (tieneRebaja) conRebaja++;
     (v.valeProductos || []).forEach(({ id, qty }) => {
       const p = productoOf(id);
-      const nombre = duenoDe(id);
-      const clave = _claveDueno(nombre) || _SIN_DUENO;   // sin dueño = mercancía tuya
+      const dueno = duenoPorId(duenoIdDe(id));
+      const clave = dueno ? String(dueno.id) : _SIN_DUENO;
       const unidades = parseInt(qty, 10) || 0;
-      const venta = _aUSD(_montoMonedas(p ? p.precio : ''));
-      if (venta === null || !venta) sinPrecio++;
+      // v117: cada moneda por su lado. Antes se pasaba todo a USD con la tasa
+      // del día, y al dueño hay que pagarle en lo que se cobró, no en un
+      // equivalente que cambia cada mañana.
+      const pv = _montoMonedas(p ? p.precio : '');
+      const ventaUSD = pv.usd * unidades, ventaMN = pv.mn * unidades;
+      if (!pv.usd && !pv.mn) sinPrecio++;
       // La comisión del gestor. Una venta hecha desde el admin no genera
       // comisión: no hay a quién pagársela.
-      let comision = 0;
+      let comUSD = 0, comMN = 0;
       if (!esTienda && p) {
         try {
           const r = getValeCommissionParts({ valeProductos: [{ id, qty: unidades }] });
-          const c = _aUSD({ usd: r.totalUSD || 0, mn: r.totalMN || 0 });
-          comision = c === null ? 0 : c;
-        } catch(e) { comision = 0; }
+          comUSD = r.totalUSD || 0; comMN = r.totalMN || 0;
+        } catch(e) {}
       }
-      if (!porDueno.has(clave)) porDueno.set(clave, { nombre: nombre || 'Mercancía de la tienda', propia: !nombre, lineas: [] });
+      if (!porDueno.has(clave)) porDueno.set(clave, {
+        id: dueno ? dueno.id : null,
+        nombre: dueno ? dueno.nombre : 'Mercancía de la tienda',
+        propia: !dueno, lineas: [],
+      });
       porDueno.get(clave).lineas.push({
         ts: v.ts, valeId: v.id, valeNum: (typeof valeNumStr === 'function' ? valeNumStr(v) : ''),
+        cliente: v.cliente || '',
         gestor: esTienda ? 'Tienda (admin)' : (g ? g.name : '—'), esTienda,
         producto: p ? (p.name || p.nombre || ('#' + id)) : ('Producto #' + id + ' (borrado)'),
-        qty: unidades,
-        venta: venta === null ? 0 : venta * unidades,
-        sinPrecio: venta === null || !venta,
-        comision, tieneRebaja,
+        qty: unidades, ventaUSD, ventaMN, comUSD, comMN,
+        sinPrecio: !pv.usd && !pv.mn, tieneRebaja,
       });
     });
   });
+  // Los totales de cada grupo, en las dos monedas.
+  porDueno.forEach(gr => {
+    gr.ventaUSD = gr.lineas.reduce((s, l) => s + l.ventaUSD, 0);
+    gr.ventaMN  = gr.lineas.reduce((s, l) => s + l.ventaMN,  0);
+    gr.comUSD   = gr.lineas.reduce((s, l) => s + l.comUSD,   0);
+    gr.comMN    = gr.lineas.reduce((s, l) => s + l.comMN,    0);
+  });
   return { porDueno, conRebaja, sinPrecio };
+}
+
+// Un importe en las dos monedas, tal cual, sin convertir. "—" si no hay nada.
+function _fmtDosMonedas(usd, mn) {
+  const p = [];
+  if (usd) p.push('$' + (Math.round(usd * 100) / 100).toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' USD');
+  if (mn)  p.push(Math.round(mn).toLocaleString('es-ES') + ' MN');
+  return p.length ? p.join(' + ') : '—';
 }
 
 function setDuenosRango(cual) {
@@ -10433,6 +10537,140 @@ function setDuenosRango(cual) {
   renderDuenos();
 }
 
+function addDuenoDesdeUI() {
+  const el = document.getElementById('newDuenoInput');
+  if (!el) return;
+  const nombre = el.value.trim();
+  if (!nombre) { showToast('Escribe el nombre del dueño'); return; }
+  const ya = listaDuenos().some(d => _claveDueno(d.nombre) === _claveDueno(nombre));
+  addDueno(nombre);
+  el.value = '';
+  showToast(ya ? `"${nombre}" ya estaba en la lista` : `Dueño "${nombre}" agregado ✓`);
+  renderDuenos(); maybeAutoSync();
+}
+function renameDuenoDesdeUI(id, e) {
+  if (e) e.stopPropagation();
+  const d = duenoPorId(id); if (!d) return;
+  const n = prompt('Nombre del dueño:', d.nombre);
+  if (n === null) return;
+  if (!String(n).trim()) { showToast('El nombre no puede quedar vacío'); return; }
+  renameDueno(id, n);
+  renderDuenos(); renderDuenoModal(); maybeAutoSync();
+  showToast('Nombre cambiado ✓');
+}
+function removeDuenoDesdeUI(id, e) {
+  if (e) e.stopPropagation();
+  const d = duenoPorId(id); if (!d) return;
+  const n = productosDeDueno(id).length;
+  showConfirmAction('¿Eliminar este dueño?',
+    `${escapeHTML(d.nombre)}${n ? ` · sus <b>${n}</b> producto(s) quedarían como mercancía de la tienda` : ''}. No se borra ningún producto.`,
+    'Eliminar', 'btn-red', () => {
+      removeDueno(id);
+      closeDuenoModal();
+      renderDuenos(); maybeAutoSync();
+      showToast('Dueño eliminado');
+    });
+}
+
+// ── EL MODAL DE UN DUEÑO ───────────────────────────────────────────────────
+let _duenoModalId = null;
+function openDuenoModal(clave) {
+  const modal = document.getElementById('duenoModal');
+  if (!modal) return;
+  _duenoModalId = clave;
+  modal.classList.add('show');      // antes de pintar: renderDuenoModal se niega si está cerrado
+  renderDuenoModal();
+}
+function closeDuenoModal() {
+  const modal = document.getElementById('duenoModal');
+  if (modal) modal.classList.remove('show');
+  _duenoModalId = null;
+}
+function renderDuenoModal() {
+  const modal = document.getElementById('duenoModal');
+  if (!modal || !modal.classList.contains('show') || _duenoModalId == null) return false;
+  const cuerpo = document.getElementById('duenoModalBody');
+  const titulo = document.getElementById('duenoModalTitle');
+  const sub    = document.getElementById('duenoModalSub');
+  if (!cuerpo) return true;
+  const { porDueno } = _lineasPorDueno(_valesDelCorte());
+  const gr = porDueno.get(String(_duenoModalId));
+  if (!gr) { cuerpo.innerHTML = '<div class="es"><div class="es-text">Sin ventas de este dueño en estas fechas</div></div>';
+             if (titulo) { const d = duenoPorId(_duenoModalId); titulo.textContent = '🧑‍💼 ' + (d ? d.nombre : 'Dueño'); }
+             if (sub) sub.textContent = '';
+             return true; }
+  if (titulo) titulo.textContent = (gr.propia ? '🏪 ' : '🧑‍💼 ') + gr.nombre;
+  if (sub) sub.textContent = `Vendido ${_fmtDosMonedas(gr.ventaUSD, gr.ventaMN)} · comisiones ${_fmtDosMonedas(gr.comUSD, gr.comMN)}`;
+
+  // Lo que le toca a cada gestor, que es lo que se lleva apuntado en la mano.
+  const porGestor = new Map();
+  gr.lineas.forEach(l => {
+    if (!l.comUSD && !l.comMN) return;
+    const a = porGestor.get(l.gestor) || { usd: 0, mn: 0 };
+    a.usd += l.comUSD; a.mn += l.comMN;
+    porGestor.set(l.gestor, a);
+  });
+  const filasGestor = [...porGestor.entries()].sort((a, b) => (b[1].usd + b[1].mn) - (a[1].usd + a[1].mn));
+
+  // Las ventas, agrupadas por vale: es como se mira un vale de verdad.
+  const porVale = new Map();
+  gr.lineas.forEach(l => {
+    if (!porVale.has(l.valeId)) porVale.set(l.valeId, { ...l, lineas: [] });
+    porVale.get(l.valeId).lineas.push(l);
+  });
+  const vales = [...porVale.values()].sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts));
+
+  cuerpo.innerHTML = `
+    ${filasGestor.length ? `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">Comisiones que debe pagar</div>
+      ${filasGestor.map(([n, a]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border);">
+        <span style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(n)}</span>
+        <span style="font-size:12px;font-weight:800;color:var(--orange);white-space:nowrap;">${_fmtDosMonedas(a.usd, a.mn)}</span>
+      </div>`).join('')}
+    </div>` : '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Sin comisiones que pagar en estas fechas.</div>'}
+
+    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Vales (${vales.length})</div>
+    ${vales.map(v => {
+      const vu = v.lineas.reduce((s, l) => s + l.ventaUSD, 0), vm = v.lineas.reduce((s, l) => s + l.ventaMN, 0);
+      const cu = v.lineas.reduce((s, l) => s + l.comUSD, 0),  cm = v.lineas.reduce((s, l) => s + l.comMN, 0);
+      return `<div style="border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:7px;background:var(--surface2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:12px;font-weight:700;color:var(--text);">
+            ${v.valeNum ? `<span style="color:var(--blue);">${escapeHTML(v.valeNum)}</span> ` : ''}${escapeHTML(v.cliente || '—')}
+            ${v.tieneRebaja ? '<span title="este vale llevaba rebaja: se cobró menos" style="color:var(--orange);">🏷️</span>' : ''}
+          </span>
+          <span style="font-size:10px;color:var(--text-muted);white-space:nowrap;">${new Date(v.ts).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} · ${escapeHTML(v.gestor)}${v.esTienda ? ' (sin comisión)' : ''}</span>
+        </div>
+        ${v.lineas.map(l => `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
+          ${escapeHTML(l.producto)}${l.qty > 1 ? ` <b>×${l.qty}</b>` : ''} — ${l.sinPrecio ? '<span style="color:var(--gray-400);">sin precio</span>' : _fmtDosMonedas(l.ventaUSD, l.ventaMN)}
+        </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);font-size:11px;">
+          <span>Vendido <b style="color:var(--blue);">${_fmtDosMonedas(vu, vm)}</b></span>
+          <span>Comisión <b style="color:${cu || cm ? 'var(--orange)' : 'var(--gray-400)'};">${_fmtDosMonedas(cu, cm)}</b></span>
+        </div>
+      </div>`;
+    }).join('')}
+
+    ${gr.propia ? '' : `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px;">
+      <button class="btn btn-ghost btn-sm" onclick="renameDuenoDesdeUI(${gr.id},event)">✏️ Cambiar nombre</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="removeDuenoDesdeUI(${gr.id},event)">Eliminar dueño</button>
+    </div>`}`;
+  return true;
+}
+
+// Los vales que entran en el corte: solo ventas cerradas, dentro de las fechas.
+// Un vale pendiente todavía se puede caer, y no se le pide dinero a nadie por
+// algo que aún no se ha cobrado.
+function _valesDelCorte() {
+  const elF = document.getElementById('duenosDateFrom');
+  const elT = document.getElementById('duenosDateTo');
+  const from = elF ? elF.value : '', to = elT ? elT.value : '';
+  let vales = getVales().filter(v => v.status === 'confirmed');
+  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
+  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
+  return vales;
+}
+
 function renderDuenos() {
   const cAviso = document.getElementById('duenosAviso');
   const cRes   = document.getElementById('duenosResumen');
@@ -10445,99 +10683,78 @@ function renderDuenos() {
     const hoy = localDay(new Date().toISOString());
     elF.value = hoy; elT.value = hoy;
   }
-  const from = elF ? elF.value : '', to = elT ? elT.value : '';
 
-  // Solo ventas cerradas: un vale pendiente todavía se puede caer, y no se le
-  // pide dinero a nadie por algo que aún no se ha cobrado.
-  let vales = getVales().filter(v => v.status === 'confirmed');
-  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
-  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
-
-  const { porDueno, conRebaja, sinPrecio } = _lineasPorDueno(vales);
-  const tasa = tasaUSDFinal();
+  const { porDueno, conRebaja, sinPrecio } = _lineasPorDueno(_valesDelCorte());
+  const registrados = listaDuenos();
 
   // ── AVISOS ──
   const avisos = [];
-  const prodsConDueno = Object.keys(getDuenos()).length;
-  if (!prodsConDueno) avisos.push('Ningún producto tiene dueño puesto todavía. Se pone en la ficha del producto (📦 Stock → tocar un producto → <b>Dueño de la mercancía</b>). Lo que no lleve dueño cuenta como mercancía tuya.');
+  if (!registrados.length) avisos.push('Todavía no hay dueños dados de alta. Agrégalos aquí arriba y después elígelos en la ficha de cada producto (📦 Stock → tocar un producto → <b>Dueño de la mercancía</b>).');
+  else if (!Object.keys(getDuenosDoc().asig).length) avisos.push('Hay dueños dados de alta pero ningún producto asignado todavía. Se elige en la ficha del producto (📦 Stock).');
   if (sinPrecio) avisos.push(`${sinPrecio} línea(s) de venta son de productos sin precio en el catálogo (o borrados), así que no suman importe.`);
   if (conRebaja) avisos.push(`${conRebaja} vale(s) del período llevaban rebaja: se cobró menos de lo que suman sus líneas, que van al precio de catálogo.`);
-  if (!tasa) avisos.push('No hay tasa del día guardada, así que lo que esté en MN no se puede sumar con lo que está en USD.');
   cAviso.innerHTML = avisos.length
     ? `<div style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--text);">
          ${avisos.map(a => `<div style="margin:2px 0;">⚠️ ${a}</div>`).join('')}
        </div>` : '';
 
-  if (!porDueno.size) {
-    cRes.innerHTML = '';
-    cList.innerHTML = '<div class="es"><div class="es-icon">🧑‍💼</div><div class="es-text">Sin ventas confirmadas en estas fechas</div></div>';
+  // ── RESUMEN, cada moneda por su lado ──
+  let tvU = 0, tvM = 0, tcU = 0, tcM = 0;
+  porDueno.forEach(gr => { tvU += gr.ventaUSD; tvM += gr.ventaMN; tcU += gr.comUSD; tcM += gr.comMN; });
+  cRes.innerHTML = [
+    { label: 'Vendido en el período', val: _fmtDosMonedas(tvU, tvM), color: 'var(--blue)' },
+    { label: 'Comisiones a pagar',    val: _fmtDosMonedas(tcU, tcM), color: 'var(--orange)' },
+    { label: 'Queda después de pagar',val: _fmtDosMonedas(tvU - tcU, tvM - tcM), color: 'var(--green)' },
+  ].map(({ label, val, color }) => `<div class="stat-card">
+      <div class="stat-num" style="color:${color};font-size:15px;line-height:1.25;word-break:break-word;">${val}</div>
+      <div class="stat-lbl">${label}</div>
+    </div>`).join('');
+
+  // ── UNA TARJETA POR DUEÑO ──
+  // Salen TODOS los dados de alta, hayan vendido o no: si uno no aparece porque
+  // no vendió nada, no hay dónde tocar para cambiarle el nombre o quitarlo.
+  const tarjetas = [];
+  registrados.forEach(d => {
+    const gr = porDueno.get(String(d.id));
+    tarjetas.push({ clave: String(d.id), id: d.id, nombre: d.nombre, propia: false,
+                    ventaUSD: gr ? gr.ventaUSD : 0, ventaMN: gr ? gr.ventaMN : 0,
+                    comUSD: gr ? gr.comUSD : 0, comMN: gr ? gr.comMN : 0,
+                    ventas: gr ? gr.lineas.length : 0,
+                    productos: productosDeDueno(d.id).length });
+  });
+  const tienda = porDueno.get(_SIN_DUENO);
+  if (tienda) tarjetas.push({ clave: _SIN_DUENO, id: null, nombre: tienda.nombre, propia: true,
+                              ventaUSD: tienda.ventaUSD, ventaMN: tienda.ventaMN,
+                              comUSD: tienda.comUSD, comMN: tienda.comMN,
+                              ventas: tienda.lineas.length, productos: 0 });
+  if (!tarjetas.length) {
+    cList.innerHTML = '<div class="es"><div class="es-icon">🧑‍💼</div><div class="es-text">Sin dueños todavía</div></div>';
     return;
   }
+  // Primero quien más vendió; los que no vendieron nada, por nombre al final.
+  tarjetas.sort((a, b) => (a.propia ? 1 : 0) - (b.propia ? 1 : 0)
+                       || (b.ventaUSD + b.ventaMN / 1000) - (a.ventaUSD + a.ventaMN / 1000)
+                       || a.nombre.localeCompare(b.nombre, 'es'));
 
-  // Los de la tienda al final: primero la gente a la que hay que pagarle.
-  const grupos = [...porDueno.values()].sort((a, b) => (a.propia ? 1 : 0) - (b.propia ? 1 : 0) || a.nombre.localeCompare(b.nombre, 'es'));
-
-  let totVenta = 0, totCom = 0;
-  grupos.forEach(gr => {
-    gr.venta = gr.lineas.reduce((s, l) => s + l.venta, 0);
-    gr.com   = gr.lineas.reduce((s, l) => s + l.comision, 0);
-    totVenta += gr.venta; totCom += gr.com;
-  });
-
-  cRes.innerHTML = [
-    { label: 'Vendido en el período', val: _fmtUSD(totVenta), color: 'var(--blue)' },
-    { label: 'Comisiones a pagar',    val: _fmtUSD(totCom),   color: 'var(--orange)' },
-    { label: 'Queda después de pagar',val: _fmtUSD(totVenta - totCom), color: 'var(--green)' },
-  ].map(({ label, val, color }) => `<div class="stat-card">
-      <div class="stat-num" style="color:${color};font-size:19px;">${val}</div>
-      <div class="stat-lbl">${label}</div>
-    </div>`).join('') +
-    (tasa ? `<div style="grid-column:1/-1;font-size:10px;color:var(--text-muted);">Lo que estaba en MN se convirtió a USD a ${tasa} CUP/USD.</div>` : '');
-
-  // ── UN BLOQUE POR DUEÑO ──
-  cList.innerHTML = grupos.map(gr => {
-    // Cuánto le toca a cada gestor, que es lo que se lleva apuntado en la mano.
-    const porGestor = new Map();
-    gr.lineas.forEach(l => {
-      if (!l.comision) return;
-      porGestor.set(l.gestor, (porGestor.get(l.gestor) || 0) + l.comision);
-    });
-    const chapasGestor = [...porGestor.entries()].sort((a, b) => b[1] - a[1])
-      .map(([n, c]) => `<span style="background:rgba(245,158,11,.15);color:var(--orange);border:1px solid rgba(245,158,11,.35);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap;">${escapeHTML(n)} · ${_fmtUSD(c)}</span>`).join('');
-    const lineasOrdenadas = gr.lineas.slice().sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts));
-    return `<div style="margin-bottom:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:var(--surface2);">
-        <span style="font-size:13px;font-weight:800;color:var(--text);">${gr.propia ? '🏪' : '🧑‍💼'} ${escapeHTML(gr.nombre)}
-          <span style="color:var(--text-muted);font-weight:600;font-size:11px;">· ${gr.lineas.length} venta(s)</span></span>
-        <span style="font-size:11px;color:var(--text-muted);">
-          vendido <b style="color:var(--blue);">${_fmtUSD(gr.venta)}</b>
-          · comisiones <b style="color:var(--orange);">${_fmtUSD(gr.com)}</b>
-          · queda <b style="color:var(--green);">${_fmtUSD(gr.venta - gr.com)}</b>
-        </span>
+  cList.innerHTML = tarjetas.map(t => `
+    <div class="gp-card" data-dueno="${escapeHTML(t.clave)}" style="cursor:pointer;" onclick="openDuenoModal('${escapeHTML(t.clave)}')"
+         title="Ver las ventas de ${escapeHTML(t.nombre)}">
+      <div class="gp-card-top">
+        <div class="g-avatar" style="background:${t.propia ? 'var(--gray-500)' : 'var(--blue)'};width:40px;height:40px;font-size:16px;flex-shrink:0;">${t.propia ? '🏪' : '🧑‍💼'}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:15px;color:var(--text);">${escapeHTML(t.nombre)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
+            ${t.ventas} venta(s) en el período${t.propia ? '' : ` · ${t.productos} producto(s) suyos`}
+          </div>
+        </div>
+        <span style="color:var(--gray-400);font-size:14px;flex-shrink:0;">›</span>
       </div>
-      ${chapasGestor ? `<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);">
-        <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;align-self:center;">Debe pagar a:</span>${chapasGestor}
-      </div>` : ''}
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:520px;">
-          <thead><tr style="background:var(--surface2);">
-            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);">Fecha</th>
-            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);">Producto</th>
-            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);">Vendió</th>
-            <th style="text-align:right;padding:6px 10px;font-weight:700;color:var(--text-muted);">Importe</th>
-            <th style="text-align:right;padding:6px 10px;font-weight:700;color:var(--text-muted);">Comisión</th>
-          </tr></thead>
-          <tbody>${lineasOrdenadas.map(l => `<tr style="border-top:1px solid var(--border);">
-            <td style="padding:5px 10px;white-space:nowrap;color:var(--text-muted);">${new Date(l.ts).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
-            <td style="padding:5px 10px;">${escapeHTML(l.producto)}${l.qty > 1 ? ` <b>×${l.qty}</b>` : ''}${l.tieneRebaja ? ' <span title="este vale llevaba rebaja: se cobró menos" style="color:var(--orange);">🏷️</span>' : ''}</td>
-            <td style="padding:5px 10px;">${escapeHTML(l.gestor)}${l.esTienda ? ' <span style="color:var(--text-muted);font-size:9px;">(sin comisión)</span>' : ''}</td>
-            <td style="padding:5px 10px;text-align:right;white-space:nowrap;">${l.sinPrecio ? '<span style="color:var(--gray-400);">—</span>' : _fmtUSD(l.venta)}</td>
-            <td style="padding:5px 10px;text-align:right;white-space:nowrap;color:${l.comision ? 'var(--orange)' : 'var(--gray-400)'};">${l.comision ? _fmtUSD(l.comision) : '—'}</td>
-          </tr>`).join('')}</tbody>
-        </table>
+      <div class="gp-card-com" style="cursor:pointer;">
+        <span style="font-size:11px;font-weight:700;color:var(--text-muted);flex-shrink:0;">Vendido</span>
+        <span style="font-size:12px;font-weight:800;color:var(--blue);flex:1;">${_fmtDosMonedas(t.ventaUSD, t.ventaMN)}</span>
+        ${(t.comUSD || t.comMN) ? `<span style="background:var(--orange);color:white;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;white-space:nowrap;">paga ${_fmtDosMonedas(t.comUSD, t.comMN)}</span>` : ''}
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
 function renderStats() {

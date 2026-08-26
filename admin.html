@@ -281,6 +281,13 @@
        aquí sale, por cada una, qué se vendió de lo suyo, qué comisión le toca
        pagar a cada gestor y cuánto queda después de pagarlas. -->
   <div id="adminDuenosPanel" class="admin-panel">
+    <div class="lbl" style="margin-top:0;">➕ Agregar dueño</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+      <input type="text" id="newDuenoInput" placeholder="Nombre del dueño" onkeydown="if(event.key==='Enter')addDuenoDesdeUI()"
+             style="flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;color:var(--text);">
+      <button class="btn btn-blue" onclick="addDuenoDesdeUI()">＋ Agregar</button>
+    </div>
+
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
       <div class="lbl" style="margin-top:0;">🧑‍💼 Dueños · corte de ventas</div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -823,6 +830,23 @@
      comisión como cobrada la lista se reordenaba y el gestor que estabas
      mirando saltaba a otro sitio de la pantalla. En un modal se queda quieto:
      lo de detrás puede moverse todo lo que quiera. -->
+<!-- ── MODAL: ventas de un dueño ───────────────────────────────────────────
+     v117: mismo patrón que el de comisiones por gestor. La lista de dueños se
+     reordena por lo que se vendió de cada uno; con el detalle desplegado dentro
+     de la tarjeta, cualquier cambio te movía de sitio lo que estabas mirando. -->
+<div class="modal-bg" id="duenoModal">
+  <div class="modal" style="max-width:640px;width:96%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
+    <div style="padding:20px 22px 12px;flex-shrink:0;">
+      <div class="modal-title" id="duenoModalTitle">🧑‍💼 Dueño</div>
+      <div class="modal-sub" id="duenoModalSub"></div>
+    </div>
+    <div id="duenoModalBody" style="flex:1;overflow-y:auto;padding:0 18px;"></div>
+    <div style="flex-shrink:0;padding:14px 22px 20px;border-top:1px solid var(--border);">
+      <button class="btn btn-ghost btn-full" onclick="closeDuenoModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="comisionesGestorModal">
   <div class="modal" style="max-width:520px;width:94%;padding:0;display:flex;flex-direction:column;max-height:92vh;">
     <div style="padding:20px 22px 12px;flex-shrink:0;">
@@ -926,9 +950,8 @@
         <span class="vf-emoji">🧑‍💼</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Dueño de la mercancía</span></div>
-          <input type="text" id="pm-dueno" list="pm-duenos-lista" placeholder="Déjalo vacío si es tuyo" autocomplete="off">
-          <datalist id="pm-duenos-lista"></datalist>
-          <div style="font-size:10px;color:var(--gray-400);margin-top:3px;">Privado. Se usa para el corte de 🧑‍💼 Dueños; los gestores no lo ven.</div>
+          <select id="pm-dueno"></select>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:3px;">Privado. Los dueños se dan de alta en la pestaña 🧑‍💼 Dueños; los gestores no los ven.</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
