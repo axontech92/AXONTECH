@@ -2142,6 +2142,47 @@
   ],
   "vales": [
     {
+      "id": 1787708268138,
+      "ts": "2026-08-27T01:37:00.000Z",
+      "total": "$300 USD + 4150 MN",
+      "carnet": "",
+      "seenTs": "2026-08-26T16:02:24.241Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "David espinosa Lopez",
+      "valeNum": 83,
+      "articulo": "×2 Tp Link Archer ax55, ax3000",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5352463535",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: David espinosa Lopez\n🔸Teléfono Cliente: 5352463535\n🔸Dirección Cliente: Calle 200 # 3746 entre avenida 37 y avenida 45 versalles la lisa\n🔸Mensajería/ costo: 4150\n🔸 Artículos y cantidades:\n  ×2 Tp Link Archer ax55, ax3000\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD + 4150 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/08/2026 21:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 200 # 3746 entre avenida 37 y avenida 45 versalles la lisa",
+      "precioUSD": "$300 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-08-26T15:59:14.645Z",
+      "mensajeria": "4150",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-26T16:03:47.285Z",
+      "deliveredTs": "2026-08-26T16:03:42.665Z",
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787375561622,
+          "qty": 2,
+          "name": "Tp Link Archer ax55, ax3000"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787759837601,
       "ts": "2026-08-26T15:57:17.606Z",
       "total": "$150 USD",
@@ -2223,8 +2264,8 @@
       "ts": "2026-08-26T14:58:48.532Z",
       "total": "$145 USD + 800 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T15:59:05.719Z",
-      "status": "confirmed",
+      "seenTs": "2026-08-26T16:04:43.006Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Yoan",
       "valeNum": 85,
@@ -2241,8 +2282,6 @@
       "assignedTs": "2026-08-26T15:03:22.688Z",
       "mensajeria": "800",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-08-26T15:59:13.650Z",
-      "deliveredTs": "2026-08-26T15:59:11.584Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
@@ -2255,7 +2294,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": true,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2291,47 +2330,6 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1787708268138,
-      "ts": "2026-08-26T01:37:48.144Z",
-      "total": "$300 USD + 4150 MN",
-      "carnet": "",
-      "seenTs": "2026-08-26T15:25:16.523Z",
-      "status": "assigned",
-      "vuelto": "",
-      "cliente": "David espinosa Lopez",
-      "valeNum": 83,
-      "articulo": "×2 Tp Link Archer ax55, ax3000",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "5352463535",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: David espinosa Lopez\n🔸Teléfono Cliente: 5352463535\n🔸Dirección Cliente: Calle 200 # 3746 entre avenida 37 y avenida 45 versalles la lisa\n🔸Mensajería/ costo: 4150\n🔸 Artículos y cantidades:\n  ×2 Tp Link Archer ax55, ax3000\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD + 4150 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/08/2026 21:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Calle 200 # 3746 entre avenida 37 y avenida 45 versalles la lisa",
-      "precioUSD": "$300 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "assignedTs": "2026-08-26T15:59:14.645Z",
-      "mensajeria": "4150",
-      "comFijadaMN": 0,
-      "confirmedTs": null,
-      "deliveredTs": "2026-08-26T14:44:10.739Z",
-      "mensajeroId": 1784408225928,
-      "seenByAdmin": true,
-      "comFijadaUSD": 20,
-      "valeProductos": [
-        {
-          "id": 1787375561622,
-          "qty": 2,
-          "name": "Tp Link Archer ax55, ax3000"
-        }
-      ],
-      "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -8538,5 +8536,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T16:00:13.697Z"
+  "timestamp": "2026-08-26T16:04:47.320Z"
 }
