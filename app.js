@@ -10759,9 +10759,9 @@ function renderDuenoModal() {
   cuerpo.innerHTML = `<div class="ax2-panel">
     ${filasGestor.length ? `<div class="ax2-card" style="padding:10px 12px;margin-bottom:12px;">
       <div style="font-size:10px;font-weight:700;color:var(--ax2-text-low);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">Comisiones que debe pagar</div>
-      ${filasGestor.map(([, a]) => `<div${_filaPagarAttrs(a.gestorId)} style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--ax2-line);flex-wrap:wrap;">
-        <span style="font-size:12px;font-weight:700;color:var(--ax2-text-hi);">${escapeHTML(a.nombre)}${a.gestorId != null ? ' ›' : ''}</span>
-        <span class="ax2-mono" style="font-size:12px;font-weight:800;color:var(--ax2-ember-soft);text-align:right;">${_montoDebePagarHTML(a)}</span>
+      ${filasGestor.map(([, a]) => `<div class="ax2-owe-row"${_filaPagarAttrs(a.gestorId)}>
+        <div class="ax2-owe-name">${escapeHTML(a.nombre)}${a.gestorId != null ? ' ›' : ''}</div>
+        <div class="ax2-owe-amt">${_montoDebePagarHTML(a)}</div>
       </div>`).join('')}
     </div>` : '<div style="font-size:11px;color:var(--ax2-text-low);margin-bottom:12px;">Sin comisiones que pagar en estas fechas.</div>'}
 

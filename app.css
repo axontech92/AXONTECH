@@ -221,6 +221,25 @@ body.dark .ax2-chip.active{background:linear-gradient(135deg,var(--ax2-signal),#
 .ax2-payout-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--ax2-ember-dim),var(--ax2-ember));}
 .ax2-payout-amt{font-family:var(--ax2-mono);font-size:11.5px;text-align:right;color:var(--ax2-ember-soft);font-weight:600;flex-shrink:0;}
 
+/* ── Fila "se le debe a X" (dentro del modal de un dueño) ──
+   Misma idea que .ax2-payout-row pero sin barra: el nombre ocupa lo que
+   necesite y parte por dentro si hace falta, y el importe se queda anclado a
+   la derecha con su tachado justo debajo. Antes esto era un flex con
+   flex-wrap:wrap y el importe llevaba un <div> dentro de un <span>: con un
+   nombre largo la fila se partía y el tachado acababa flotando solo, lejos
+   del gestor al que pertenecía. */
+.ax2-owe-row{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  padding:7px 0;border-top:1px solid var(--ax2-line);border-radius:8px;
+}
+.ax2-owe-row[onclick]{cursor:pointer;}
+.ax2-owe-row[onclick]:hover{background:rgba(127,127,127,.06);}
+.ax2-owe-name{font-size:12px;font-weight:700;color:var(--ax2-text-hi);min-width:0;overflow-wrap:anywhere;}
+.ax2-owe-amt{
+  font-family:var(--ax2-mono);font-size:12px;font-weight:800;
+  color:var(--ax2-ember-soft);text-align:right;flex-shrink:0;
+}
+
 /* ── Filas de lista (fichas clicables, "ledger") ── */
 .ax2-row-card{padding:0 4px;}
 .ax2-row{
