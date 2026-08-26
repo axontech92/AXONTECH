@@ -737,7 +737,7 @@
       "nombre": "ESTACION DE CARGA PORTÁTIL",
       "precio": "$700 USD",
       "puntos": 1,
-      "comision": "$20 USD",
+      "comision": "$15 USD",
       "garantia": "",
       "descripcion": "[BATERÍAS]\nEstacion de carga portátil \nBLUETTI AC 180.\n🔹 Potencia de salida de 1800W continuos (pico de hasta 2700W). \nBLUETTI-US\n🔹 Capacidad de batería de 1152Wh, ideal para respaldo y uso portátil. \nBLUETTI-US\n🔹 Batería LiFePO₄ (litio hierro fosfato), más segura y duradera. \nBLUETTI-US\n🔹 Más de 3500 ciclos de vida útil hasta el 80% de capacidad. \nBLUETTI-US\n🔹 Carga rápida: hasta 80% en aproximadamente 45 minutos.\n🔹 Entrada solar de hasta 500W, compatible con paneles solares. \nBLUETTI-US\n🔹 Múltiples salidas: AC, USB-A, USB-C (100W), 12V y carga inalámbrica. \nBLUETTI-US\n🔹 Inversor de onda sinusoidal pura, seguro para equipos sensibles. \nBLUETTI-US\n🔹 4 formas de recarga: enchufe, panel solar, vehículo o generador.\n🔹 Sistema de protección (BMS + MPPT) para mayor seguridad y eficiencia.",
       "description": "[BATERÍAS]\nEstacion de carga portátil \nBLUETTI AC 180.\n🔹 Potencia de salida de 1800W continuos (pico de hasta 2700W). \nBLUETTI-US\n🔹 Capacidad de batería de 1152Wh, ideal para respaldo y uso portátil. \nBLUETTI-US\n🔹 Batería LiFePO₄ (litio hierro fosfato), más segura y duradera. \nBLUETTI-US\n🔹 Más de 3500 ciclos de vida útil hasta el 80% de capacidad. \nBLUETTI-US\n🔹 Carga rápida: hasta 80% en aproximadamente 45 minutos.\n🔹 Entrada solar de hasta 500W, compatible con paneles solares. \nBLUETTI-US\n🔹 Múltiples salidas: AC, USB-A, USB-C (100W), 12V y carga inalámbrica. \nBLUETTI-US\n🔹 Inversor de onda sinusoidal pura, seguro para equipos sensibles. \nBLUETTI-US\n🔹 4 formas de recarga: enchufe, panel solar, vehículo o generador.\n🔹 Sistema de protección (BMS + MPPT) para mayor seguridad y eficiencia.",
@@ -2292,6 +2292,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2490,6 +2491,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2569,6 +2571,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3233,6 +3236,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3313,6 +3317,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5173,8 +5178,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6366,8 +6372,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6563,8 +6570,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6602,8 +6610,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6646,8 +6655,9 @@
         }
       ],
       "comisionGestor": "$50.00 USD + 7500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7181,8 +7191,9 @@
       ],
       "comisionCedida": 2000,
       "comisionGestor": "15000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "rebajaAdminMotivo": "cliente fijo",
@@ -7231,8 +7242,9 @@
       ],
       "comisionCedida": 2000,
       "comisionGestor": "$50.00 USD + 15000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "rebajaAdminMotivo": "cliente fijo",
@@ -7451,8 +7463,9 @@
         }
       ],
       "comisionGestor": "$15.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7493,8 +7506,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -8351,5 +8365,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T03:59:11.576Z"
+  "timestamp": "2026-08-26T04:01:49.103Z"
 }
