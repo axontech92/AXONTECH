@@ -2226,41 +2226,6 @@
       "synced": true
     },
     {
-      "id": 1787778978792,
-      "ts": "2026-08-26T21:16:18.818Z",
-      "total": "4200 MN",
-      "carnet": "",
-      "seenTs": "2026-08-26T23:29:49.357Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Fernando Zorrilla",
-      "valeNum": 93,
-      "articulo": "×15 Cable de red categoría 6",
-      "garantia": "",
-      "gestorId": 1786555619210,
-      "precioMN": "4200 MN",
-      "telefono": "56467163",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Fernando Zorrilla\n🔸Teléfono Cliente: 56467163\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×15 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 4200 MN\n🔸 Vuelto: \n🔸 Total a pagar: 4200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/08/2026 17:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787349543585,
-          "qty": 15,
-          "name": "Cable de red categoría 6"
-        }
-      ],
-      "comisionGestor": "",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1787778541925,
       "ts": "2026-08-26T21:09:01.944Z",
       "total": "$130 USD",
@@ -2318,7 +2283,9 @@
       "precioUSD": "",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-08-26T23:30:01.996Z",
       "mensajeria": "1500",
+      "mensajeroId": 1787786983983,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -2331,9 +2298,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "mensajeroId": 1787786983983,
-      "assignedTs": "2026-08-26T23:30:01.996Z"
+      "synced": true
     },
     {
       "id": 1787770889284,
@@ -8940,5 +8905,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T23:30:44.239Z"
+  "timestamp": "2026-08-26T23:33:36.047Z"
 }
