@@ -732,7 +732,7 @@
       "name": "ESTACION DE CARGA PORTÁTIL",
       "catId": 20,
       "photo": "photos/img_1778104924836.webp",
-      "stock": 18,
+      "stock": 17,
       "imagen": "photos/img_1778104924836.webp",
       "nombre": "ESTACION DE CARGA PORTÁTIL",
       "precio": "$700 USD",
@@ -2146,7 +2146,7 @@
       "ts": "2026-08-26T01:37:48.144Z",
       "total": "$300 USD + 4150 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T03:31:13.869Z",
+      "seenTs": "2026-08-26T13:01:25.055Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David espinosa Lopez",
@@ -2185,8 +2185,8 @@
       "ts": "2026-08-26T00:21:18.808Z",
       "total": "$700 USD",
       "carnet": "",
-      "seenTs": "2026-08-26T00:21:24.575Z",
-      "status": "assigned",
+      "seenTs": "2026-08-26T13:00:31.695Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "vecina",
       "valeNum": 82,
@@ -2203,7 +2203,8 @@
       "adminNotes": "Generado por Admin",
       "assignedTs": "2026-08-26T00:22:00.890Z",
       "mensajeria": "0",
-      "confirmedTs": null,
+      "confirmedTs": "2026-08-26T13:00:43.635Z",
+      "deliveredTs": "2026-08-26T13:00:39.794Z",
       "mensajeroId": 1786823798542,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2215,7 +2216,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2223,7 +2224,7 @@
       "ts": "2026-08-25T23:34:34.783Z",
       "total": "$700 USD",
       "carnet": "",
-      "seenTs": "2026-08-26T00:17:26.971Z",
+      "seenTs": "2026-08-26T13:01:27.856Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ileana",
@@ -2380,7 +2381,7 @@
       "ts": "2026-08-25T19:22:00.000Z",
       "total": "$180 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-08-25T23:14:14.678Z",
+      "seenTs": "2026-08-26T13:01:32.720Z",
       "status": "pending_payment",
       "vuelto": "20",
       "cliente": "Daniel",
@@ -2626,7 +2627,7 @@
       "ts": "2026-08-25T16:23:07.719Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-08-25T23:30:35.345Z",
+      "seenTs": "2026-08-26T13:00:59.014Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Humberto",
@@ -3178,7 +3179,7 @@
       "ts": "2026-08-24T17:02:25.787Z",
       "total": "$520 USD",
       "carnet": "",
-      "seenTs": "2026-08-25T23:31:10.725Z",
+      "seenTs": "2026-08-26T13:01:01.668Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Manuel Gonzales",
@@ -8377,5 +8378,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T04:24:53.412Z"
+  "timestamp": "2026-08-26T13:01:43.657Z"
 }
