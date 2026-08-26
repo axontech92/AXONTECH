@@ -11,6 +11,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH Admin">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
+  <!-- v118: Sora + JetBrains Mono, solo para el rediseño nuevo (🧑‍💼 Dueños,
+       💰 Ganancia). El resto del admin sigue con la tipografía de siempre
+       hasta que se le pase el mismo estilo. Con crossorigin+anonymous el
+       navegador cachea el archivo de la fuente aparte de la petición CSS, así
+       que una vez descargada sirve sin red — y si el primer arranque es sin
+       conexión, cae sola al 'var(--font)' del stack de reserva. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./app.css?v=124">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
@@ -250,14 +259,28 @@
     <!-- v114: control de ganancias. Lo que hay arriba cuenta vales; esto cuenta
          dinero: cuánto hay metido en mercancía, cuánto vale esa mercancía si se
          vende toda, y cuánto se ganó de verdad en el período. -->
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-      <div class="lbl">💰 Ganancia e Inversión</div>
-      <button class="btn btn-ghost btn-sm" onclick="toggleGananciaCols()">⚙️ Columnas</button>
+    <div class="ax2-panel">
+      <div class="ax2-card ax2-hero">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:15px;font-weight:700;color:var(--ax2-text-hi);">💰 Ganancia e inversión</div>
+          <button class="ax2-btn" onclick="toggleGananciaCols()">⚙️ Columnas</button>
+        </div>
+        <div class="ax2-search-box" style="margin-bottom:10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="gananciaBuscar" type="text" placeholder="Buscar producto..." oninput="onGananciaBuscar(this.value)">
+        </div>
+        <div class="ax2-chip-row" id="gananciaChips">
+          <div class="ax2-chip active" data-f="todos" onclick="setGananciaFiltro('todos')">Todos <span class="n" id="gcnt-todos">0</span></div>
+          <div class="ax2-chip danger" data-f="agotado" onclick="setGananciaFiltro('agotado')">Agotados <span class="n" id="gcnt-agotado">0</span></div>
+          <div class="ax2-chip warn" data-f="bajo" onclick="setGananciaFiltro('bajo')">Bajo stock <span class="n" id="gcnt-bajo">0</span></div>
+          <div class="ax2-chip" data-f="sincosto" onclick="setGananciaFiltro('sincosto')">Sin costo <span class="n" id="gcnt-sincosto">0</span></div>
+        </div>
+      </div>
+      <div id="statsGananciaAviso"></div>
+      <div id="statsGananciaRow" class="ax2-kpi-grid" style="margin-bottom:10px;"></div>
+      <div id="statsGananciaCols" style="display:none;margin-bottom:10px;"></div>
+      <div id="statsGananciaTabla" style="margin-bottom:18px;"></div>
     </div>
-    <div id="statsGananciaAviso"></div>
-    <div id="statsGananciaRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;"></div>
-    <div id="statsGananciaCols" style="display:none;margin-bottom:10px;"></div>
-    <div id="statsGananciaTabla" style="margin-bottom:18px;"></div>
 
     <div class="lbl">Por gestor (click para expandir)</div>
     <div id="statsGestorList" style="margin-bottom:18px;"></div>
@@ -280,29 +303,39 @@
        v117: el corte del día. La tienda vende mercancía de varias personas;
        aquí sale, por cada una, qué se vendió de lo suyo, qué comisión le toca
        pagar a cada gestor y cuánto queda después de pagarlas. -->
-  <div id="adminDuenosPanel" class="admin-panel">
-    <div class="lbl" style="margin-top:0;">➕ Agregar dueño</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
-      <input type="text" id="newDuenoInput" placeholder="Nombre del dueño" onkeydown="if(event.key==='Enter')addDuenoDesdeUI()"
-             style="flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:13px;color:var(--text);">
-      <button class="btn btn-blue" onclick="addDuenoDesdeUI()">＋ Agregar</button>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
-      <div class="lbl" style="margin-top:0;">🧑‍💼 Dueños · corte de ventas</div>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="setDuenosRango('hoy')">Hoy</button>
-        <button class="btn btn-ghost btn-sm" onclick="setDuenosRango('ayer')">Ayer</button>
-        <button class="btn btn-ghost btn-sm" onclick="setDuenosRango('mes')">Este mes</button>
-        <label style="font-size:11px;color:var(--gray-500);">Desde:</label>
-        <input type="date" id="duenosDateFrom" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:12px;">
-        <label style="font-size:11px;color:var(--gray-500);">Hasta:</label>
-        <input type="date" id="duenosDateTo" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:12px;">
-        <button class="btn btn-blue btn-sm" onclick="renderDuenos()">Actualizar</button>
+  <div id="adminDuenosPanel" class="admin-panel ax2-panel">
+    <div class="ax2-card ax2-hero">
+      <div style="font-size:15px;font-weight:700;color:var(--ax2-text-hi);margin-bottom:12px;">🧑‍💼 Dueños · corte de ventas</div>
+      <div class="ax2-chip-row" id="duenosRangoChips">
+        <div class="ax2-chip" data-rango="hoy" onclick="setDuenosRango('hoy')">Hoy</div>
+        <div class="ax2-chip" data-rango="ayer" onclick="setDuenosRango('ayer')">Ayer</div>
+        <div class="ax2-chip" data-rango="mes" onclick="setDuenosRango('mes')">Este mes</div>
+        <label style="font-size:10.5px;color:var(--ax2-text-low);align-self:center;">Desde</label>
+        <input type="date" id="duenosDateFrom" class="ax2-input" onchange="renderDuenos()">
+        <label style="font-size:10.5px;color:var(--ax2-text-low);align-self:center;">Hasta</label>
+        <input type="date" id="duenosDateTo" class="ax2-input" onchange="renderDuenos()">
       </div>
     </div>
+
+    <div class="ax2-card" style="padding:12px 14px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <input type="text" id="newDuenoInput" placeholder="Nombre del nuevo dueño" onkeydown="if(event.key==='Enter')addDuenoDesdeUI()"
+             class="ax2-input" style="flex:1;min-width:160px;">
+      <button class="ax2-btn primary" onclick="addDuenoDesdeUI()">＋ Agregar dueño</button>
+    </div>
+
     <div id="duenosAviso"></div>
-    <div id="duenosResumen" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+    <div id="duenosResumen" class="ax2-kpi-grid" style="margin-bottom:14px;"></div>
+
+    <div class="ax2-section-head">
+      <div class="ax2-section-title">Debe pagar a</div>
+      <div class="ax2-section-count" id="duenosPagarCount"></div>
+    </div>
+    <div id="duenosPagarCard"></div>
+
+    <div class="ax2-section-head">
+      <div class="ax2-section-title">Por dueño</div>
+      <div class="ax2-section-count" id="duenosListaCount"></div>
+    </div>
     <div id="duenosLista"></div>
   </div>
 

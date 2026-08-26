@@ -76,6 +76,259 @@ body.dark{
   --shadow-lg:0 12px 40px rgba(0,0,0,.55);
 }
 
+/* ════════════════════════════════════════════════════════════
+   AX2 — sistema de diseño nuevo (v118)
+   ════════════════════════════════════════════════════════════
+   Empieza en 🧑‍💼 Dueños y 💰 Ganancia; el resto del admin se pasa a esto
+   panel por panel, no de golpe. Por eso son variables NUEVAS (prefijo ax2-)
+   en vez de tocar --surface/--text/--border: así ningún panel sin tocar
+   todavía cambia de aspecto por accidente cuando se ajuste esta paleta.
+
+   En oscuro los valores son los del diseño que se aprobó (ámbar + cian sobre
+   azul casi negro). En claro es una traducción propia con el mismo lenguaje
+   —tarjetas con degradado sutil, texto a tres niveles, números en mono—
+   pero en blanco: no es "el oscuro con los colores invertidos", es el
+   mismo sistema pensado para las dos luces.
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --ax2-bg0:#f3f6fb;
+  --ax2-bg1:#eef2f9;
+  --ax2-card:#ffffff;
+  --ax2-card-hi:#ffffff;
+  --ax2-line:#e6ebf3;
+  --ax2-ember:#d97706;
+  --ax2-ember-soft:#f59e0b;
+  --ax2-ember-dim:#fde3b0;
+  --ax2-signal:#0891b2;
+  --ax2-signal-dim:#e0f4f8;
+  --ax2-good:#059669;
+  --ax2-danger:#dc2626;
+  --ax2-text-hi:#0f172a;
+  --ax2-text-mid:#5c6b81;
+  --ax2-text-low:#94a3b8;
+  --ax2-aura1:rgba(8,145,178,.07);
+  --ax2-aura2:rgba(217,119,6,.05);
+  --ax2-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px -12px rgba(15,23,42,.10);
+  --ax2-font:'Sora',var(--font);
+  --ax2-mono:'JetBrains Mono','Courier New',monospace;
+}
+body.dark{
+  --ax2-bg0:#0a1120;
+  --ax2-bg1:#0e1729;
+  --ax2-card:#111c33;
+  --ax2-card-hi:#15223c;
+  --ax2-line:rgba(120,170,220,.10);
+  --ax2-ember:#f5a623;
+  --ax2-ember-soft:#ffc266;
+  --ax2-ember-dim:#7a5716;
+  --ax2-signal:#22b8cf;
+  --ax2-signal-dim:rgba(34,184,207,.14);
+  --ax2-good:#4ade80;
+  --ax2-danger:#f56565;
+  --ax2-text-hi:#eef4fb;
+  --ax2-text-mid:#9fb1c9;
+  --ax2-text-low:#647c95;
+  --ax2-aura1:rgba(34,184,207,.14);
+  --ax2-aura2:rgba(245,166,35,.07);
+  --ax2-shadow:0 10px 30px -14px rgba(0,0,0,.6);
+}
+
+/* El halo del panel: dos degradados radiales muy suaves, como fondo del
+   propio panel en vez de la página entera (la cabecera/barra del admin no
+   entra todavía en este rediseño). */
+.ax2-panel{
+  background:
+    radial-gradient(ellipse 640px 320px at 12% -8%, var(--ax2-aura1), transparent 60%),
+    radial-gradient(ellipse 520px 320px at 100% 0%, var(--ax2-aura2), transparent 55%);
+  border-radius:18px;
+  font-family:var(--ax2-font);
+}
+.ax2-mono{font-family:var(--ax2-mono);}
+
+/* ── Tarjeta base ── */
+.ax2-card{
+  background:linear-gradient(160deg,var(--ax2-card-hi),var(--ax2-card));
+  border:1px solid var(--ax2-line);
+  border-radius:18px;
+  box-shadow:var(--ax2-shadow);
+}
+
+/* ── Cabecera / hero ── */
+.ax2-hero{
+  position:relative;overflow:hidden;
+  padding:16px 16px 14px;margin-bottom:12px;
+}
+.ax2-hero::after{
+  content:"";position:absolute;width:200px;height:200px;right:-70px;top:-90px;
+  background:radial-gradient(circle,var(--ax2-signal-dim),transparent 70%);
+  pointer-events:none;
+}
+
+/* ── Chips de filtro / rango ── */
+.ax2-chip-row{display:flex;gap:7px;flex-wrap:wrap;}
+.ax2-chip{
+  font-size:11.5px;padding:6px 13px;border-radius:100px;
+  background:rgba(127,127,127,.06);border:1px solid var(--ax2-line);
+  color:var(--ax2-text-mid);cursor:pointer;user-select:none;
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.ax2-chip .n{font-family:var(--ax2-mono);font-size:10px;opacity:.75;}
+.ax2-chip.active{background:linear-gradient(135deg,var(--ax2-signal),var(--ax2-good) 180%);color:#04222b;font-weight:700;border-color:transparent;}
+body.dark .ax2-chip.active{background:linear-gradient(135deg,var(--ax2-signal),#0e7490);}
+.ax2-chip.danger.active{background:linear-gradient(135deg,var(--ax2-danger),#b33636);color:#fff;}
+.ax2-chip.warn.active{background:linear-gradient(135deg,var(--ax2-ember),#b3790f);color:#fff;}
+
+/* ── Cuadrícula de KPIs ── */
+.ax2-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ax2-kpi{padding:14px 14px;}
+.ax2-kpi.wide{grid-column:1/-1;}
+.ax2-kpi-label{
+  font-size:10.5px;color:var(--ax2-text-low);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:7px;display:flex;align-items:center;gap:6px;
+}
+.ax2-kpi-value{font-family:var(--ax2-mono);font-size:22px;font-weight:700;letter-spacing:-.3px;color:var(--ax2-text-hi);}
+.ax2-kpi-value.ember{color:var(--ax2-ember-soft);}
+.ax2-kpi-value.good{color:var(--ax2-good);}
+.ax2-kpi-value.danger{color:var(--ax2-danger);}
+.ax2-kpi-sub{font-size:10.5px;color:var(--ax2-text-low);margin-top:5px;}
+.ax2-flow{display:flex;align-items:center;gap:7px;margin-top:11px;font-family:var(--ax2-mono);font-size:11.5px;flex-wrap:wrap;color:var(--ax2-text-mid);}
+.ax2-flow .arrow{color:var(--ax2-text-low);}
+.ax2-flow .neg{color:var(--ax2-ember-soft);}
+.ax2-flow .pos{color:var(--ax2-good);font-weight:700;}
+
+/* ── Encabezado de sección ── */
+.ax2-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:18px 2px 10px;}
+.ax2-section-title{font-size:13.5px;font-weight:700;color:var(--ax2-text-hi);}
+.ax2-section-count{font-family:var(--ax2-mono);font-size:10.5px;color:var(--ax2-text-low);}
+
+/* ── Barras de reparto (payout) ── */
+.ax2-payout-card{padding:14px 14px 6px;}
+.ax2-payout-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.ax2-payout-total-label{font-size:11.5px;color:var(--ax2-text-low);}
+.ax2-payout-total-value{font-family:var(--ax2-mono);font-size:14px;font-weight:700;color:var(--ax2-ember-soft);}
+.ax2-payout-row{display:grid;grid-template-columns:74px 1fr 54px;align-items:center;gap:9px;padding:7px 0;}
+.ax2-payout-name{font-size:11.5px;color:var(--ax2-text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ax2-payout-track{height:7px;border-radius:100px;background:rgba(127,127,127,.10);overflow:hidden;}
+.ax2-payout-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--ax2-ember-dim),var(--ax2-ember));}
+.ax2-payout-amt{font-family:var(--ax2-mono);font-size:11.5px;text-align:right;color:var(--ax2-ember-soft);font-weight:600;white-space:nowrap;}
+
+/* ── Filas de lista (fichas clicables, "ledger") ── */
+.ax2-row-card{padding:0 4px;}
+.ax2-row{
+  display:flex;align-items:center;gap:11px;padding:12px 10px;
+  border-bottom:1px solid var(--ax2-line);cursor:pointer;transition:background .12s;
+}
+.ax2-row:last-child{border-bottom:none;}
+.ax2-row:hover{background:rgba(127,127,127,.05);}
+.ax2-row-avatar{
+  width:38px;height:38px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+  background:var(--ax2-signal-dim);color:var(--ax2-signal);
+}
+.ax2-row-body{flex:1;min-width:0;}
+.ax2-row-title{font-size:13px;font-weight:700;color:var(--ax2-text-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ax2-row-meta{font-size:10.5px;color:var(--ax2-text-low);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.ax2-row-meta .who{color:var(--ax2-signal);}
+.ax2-row-nums{text-align:right;flex-shrink:0;}
+.ax2-row-amount{font-family:var(--ax2-mono);font-size:12.5px;font-weight:700;color:var(--ax2-text-hi);white-space:nowrap;}
+.ax2-row-sub{font-family:var(--ax2-mono);font-size:10.5px;color:var(--ax2-ember-soft);margin-top:2px;white-space:nowrap;}
+.ax2-row-chevron{color:var(--ax2-text-low);font-size:14px;flex-shrink:0;}
+
+/* ── Buscador ── */
+.ax2-search-box{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:rgba(127,127,127,.06);border:1px solid var(--ax2-line);
+  border-radius:14px;padding:9px 12px;
+}
+.ax2-search-box svg{flex-shrink:0;opacity:.5;color:var(--ax2-text-mid);}
+.ax2-search-box input{
+  background:none;border:none;outline:none;width:100%;
+  color:var(--ax2-text-hi);font-family:var(--ax2-font);font-size:12.5px;
+}
+.ax2-search-box input::placeholder{color:var(--ax2-text-low);}
+
+/* ── Campo de texto/fecha suelto (fuera de un search-box) ── */
+.ax2-input{
+  background:rgba(127,127,127,.06);border:1px solid var(--ax2-line);
+  border-radius:10px;padding:8px 12px;font-family:var(--ax2-font);
+  font-size:12.5px;color:var(--ax2-text-hi);outline:none;
+}
+.ax2-input::placeholder{color:var(--ax2-text-low);}
+.ax2-input:focus{border-color:var(--ax2-signal);}
+body.dark .ax2-input{color-scheme:dark;}
+
+/* ── Insignia de stock ── */
+.ax2-badge{
+  font-family:var(--ax2-mono);font-size:11px;font-weight:700;
+  text-align:center;padding:3px 0;border-radius:8px;display:block;
+}
+.ax2-badge.zero{color:var(--ax2-danger);background:rgba(220,38,38,.10);}
+.ax2-badge.low{color:var(--ax2-ember-soft);background:rgba(245,158,11,.12);}
+.ax2-badge.ok{color:var(--ax2-signal);background:var(--ax2-signal-dim);}
+
+/* ── Categorías plegables ── */
+.ax2-cat-card{margin-bottom:10px;overflow:hidden;}
+.ax2-cat-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;cursor:pointer;user-select:none;flex-wrap:wrap;}
+.ax2-cat-head-left{display:flex;align-items:center;gap:9px;min-width:0;}
+.ax2-cat-chevron{display:inline-block;color:var(--ax2-text-low);transition:transform .18s,color .18s;font-size:12px;}
+.ax2-cat-card.open .ax2-cat-chevron{transform:rotate(90deg);color:var(--ax2-signal);}
+.ax2-cat-title{font-size:13px;font-weight:700;color:var(--ax2-text-hi);}
+.ax2-cat-count{font-family:var(--ax2-mono);font-size:10.5px;color:var(--ax2-text-low);background:rgba(127,127,127,.08);padding:2px 7px;border-radius:100px;}
+.ax2-cat-stats{font-family:var(--ax2-mono);font-size:10.5px;color:var(--ax2-text-low);text-align:right;}
+.ax2-cat-stats b{color:var(--ax2-good);font-weight:600;}
+.ax2-cat-body{display:none;border-top:1px solid var(--ax2-line);}
+.ax2-cat-card.open .ax2-cat-body{display:block;}
+
+/* ── Tabla dentro de una categoría ── */
+.ax2-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.ax2-table thead th{
+  text-align:right;padding:7px 10px;font-weight:700;color:var(--ax2-text-low);
+  white-space:nowrap;font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;
+  background:rgba(127,127,127,.04);
+}
+.ax2-table thead th:first-child{text-align:left;position:sticky;left:0;background:rgba(127,127,127,.04);}
+.ax2-table td{padding:7px 10px;text-align:right;white-space:nowrap;border-top:1px solid var(--ax2-line);color:var(--ax2-text-mid);}
+.ax2-table td:first-child{
+  text-align:left;color:var(--ax2-text-hi);max-width:180px;overflow:hidden;text-overflow:ellipsis;
+  position:sticky;left:0;background:var(--ax2-card);
+}
+.ax2-table tr.sin-costo td:first-child{background:rgba(245,158,11,.05);}
+
+.ax2-cost-input{
+  width:84px;background:rgba(127,127,127,.04);border:1px solid var(--ax2-ember-dim);
+  border-radius:7px;color:var(--ax2-text-hi);font-family:var(--ax2-mono);
+  font-size:11px;padding:5px 7px;text-align:right;outline:none;
+}
+.ax2-cost-input:focus{border-color:var(--ax2-ember);}
+.ax2-cost-input::placeholder{color:var(--ax2-text-low);}
+.ax2-gain{color:var(--ax2-text-low);}
+.ax2-gain.set{color:var(--ax2-good);font-weight:600;}
+
+/* ── Aviso ── */
+.ax2-aviso{
+  background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.30);
+  border-radius:12px;padding:10px 13px;margin-bottom:10px;
+  font-size:11px;line-height:1.55;color:var(--ax2-text-mid);
+}
+.ax2-aviso div{margin:2px 0;}
+
+.ax2-empty{padding:26px 20px;text-align:center;color:var(--ax2-text-low);font-size:12px;}
+
+/* ── Botones pequeños en el lenguaje ax2 ── */
+.ax2-btn{
+  font-family:var(--ax2-font);font-size:11px;font-weight:700;
+  padding:6px 12px;border-radius:10px;cursor:pointer;
+  background:rgba(127,127,127,.06);border:1px solid var(--ax2-line);color:var(--ax2-text-mid);
+}
+.ax2-btn:hover{background:rgba(127,127,127,.12);}
+.ax2-btn.primary{background:linear-gradient(135deg,var(--ax2-signal),#0e7490);color:#fff;border-color:transparent;}
+.ax2-btn.danger{color:var(--ax2-danger);border-color:rgba(220,38,38,.3);}
+
+@media (max-width:480px){
+  .ax2-payout-row{grid-template-columns:58px 1fr 46px;}
+}
+
 /* ── Reset básico ── */
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}

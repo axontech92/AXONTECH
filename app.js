@@ -10301,12 +10301,37 @@ function setCostoProducto(id, valor) {
   maybeAutoSync();
 }
 
+// ── v118: buscador, chips de filtro y categorías plegables ──────────────────
+// Estado de pantalla (no es dato del negocio, así que no se sincroniza ni se
+// guarda entre sesiones — vive solo mientras la pestaña está abierta).
+let _gananciaFiltro = 'todos';        // todos | agotado | bajo | sincosto
+let _gananciaBusqueda = '';
+let _gananciaCatAbierta = null;       // Set<string> — se siembra la primera vez
+// El último `vales` (ya filtrado por fecha) que le pasó renderStats(). Buscar
+// o cambiar de chip no toca el rango de fechas, así que no hace falta rehacer
+// la pestaña de Estadísticas entera para repintar solo esto — se reutiliza.
+let _gananciaValesUltimos = [];
+function setGananciaFiltro(f) {
+  _gananciaFiltro = f;
+  renderGanancia(_gananciaValesUltimos);
+}
+function onGananciaBuscar(v) {
+  _gananciaBusqueda = String(v || '').trim().toLowerCase();
+  renderGanancia(_gananciaValesUltimos);
+}
+function toggleGananciaCat(key) {
+  if (!_gananciaCatAbierta) _gananciaCatAbierta = new Set();
+  if (_gananciaCatAbierta.has(key)) _gananciaCatAbierta.delete(key); else _gananciaCatAbierta.add(key);
+  renderGanancia(_gananciaValesUltimos);
+}
+
 function renderGanancia(vales) {
   const cAviso = document.getElementById('statsGananciaAviso');
   const cRow   = document.getElementById('statsGananciaRow');
   const cCols  = document.getElementById('statsGananciaCols');
   const cTabla = document.getElementById('statsGananciaTabla');
   if (!cRow || !cTabla) return;
+  _gananciaValesUltimos = vales;
 
   const prods = getProductos();
   const cats  = getCategorias();
@@ -10356,96 +10381,148 @@ function renderGanancia(vales) {
   });
   const ganRealizada = ingreso - costoVendido - comisiones;
 
+  // ── CHIPS DE FILTRO: contadores del catálogo entero y estado activo ──
+  // Solo se tocan las clases/textos de los chips que ya están en el DOM —
+  // nunca su innerHTML— para no borrarle el foco al buscador, que es su
+  // hermano en el mismo contenedor.
+  let cAgotado = 0, cBajo = 0, cSinCosto = 0;
+  prods.forEach(p => {
+    const st = parseInt(p.stock, 10) || 0;
+    if (st === 0) cAgotado++;
+    else if (st <= LOW_STOCK_THRESHOLD) cBajo++;
+    if (!_gananciaProducto(p).tieneCosto) cSinCosto++;
+  });
+  const conteos = { todos: prods.length, agotado: cAgotado, bajo: cBajo, sincosto: cSinCosto };
+  document.querySelectorAll('#gananciaChips .ax2-chip').forEach(chip => {
+    const f = chip.dataset.f;
+    chip.classList.toggle('active', f === _gananciaFiltro);
+    const nEl = chip.querySelector('.n'); if (nEl) nEl.textContent = conteos[f] != null ? conteos[f] : 0;
+  });
+
   // ── AVISOS ──
   // Sin costos el panel no puede decir nada, así que lo dice claro en vez de
   // enseñar ceros que parecen un negocio en ruina.
   const avisos = [];
-  if (sinCosto) avisos.push(`${sinCosto} de ${prods.length} productos no tienen costo puesto — escríbelo en la columna <b>Costo u.</b> de la tabla de abajo y los números se completan solos.`);
+  if (sinCosto) avisos.push(`${sinCosto} de ${prods.length} productos no tienen costo puesto — escríbelo en la columna <b>Costo u.</b> de la tabla de abajo, o filtra por "Sin costo" arriba.`);
   if (hayMNSinTasa && !tasa) avisos.push('Hay precios o costos en MN y no hay tasa del día guardada, así que no se pueden sumar con los de USD. Pon la tasa en ⚙️ Config.');
   if (valesSinProductos) avisos.push(`${valesSinProductos} venta(s) confirmada(s) del período no tienen productos del catálogo enlazados, así que su costo no se puede saber.`);
   else if (valesSinCosto) avisos.push(`${valesSinCosto} venta(s) confirmada(s) llevan productos sin costo — la ganancia del período sale más alta de lo real.`);
-  cAviso.innerHTML = avisos.length
-    ? `<div style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--text);">
-         ${avisos.map(a => `<div style="margin:2px 0;">⚠️ ${a}</div>`).join('')}
-       </div>` : '';
+  cAviso.innerHTML = avisos.length ? `<div class="ax2-aviso">${avisos.map(a => `<div>⚠️ ${a}</div>`).join('')}</div>` : '';
 
   // ── TARJETAS ──
   const margenGlobal = valorVenta > 0 ? (potencial / valorVenta) * 100 : null;
   cRow.innerHTML = [
-    { label:'Inversión en stock',  val:_fmtUSD(inversion),   color:'var(--orange)', extra:`${conCosto} producto(s) con costo` },
-    { label:'Valor de venta',      val:_fmtUSD(valorVenta),  color:'var(--blue)',   extra:'si se vende todo el stock' },
-    { label:'Ganancia potencial',  val:_fmtUSD(potencial),   color:'var(--green)',  extra:margenGlobal!==null?`margen ${margenGlobal.toFixed(0)}%`:'' },
-    { label:'Ganancia del período',val:_fmtUSD(ganRealizada),color:ganRealizada>=0?'var(--green)':'var(--red)', extra:`${valesConfirmados} venta(s) confirmada(s)` },
-  ].map(({label,val,color,extra}) => `<div class="stat-card">
-      <div class="stat-num" style="color:${color};font-size:18px;">${val}</div>
-      <div class="stat-lbl">${label}</div>
-      ${extra?`<div style="margin-top:2px;font-size:9px;color:var(--text-muted);font-weight:600;">${extra}</div>`:''}
+    { label:'Inversión en stock',  val:_fmtUSD(inversion),   cls:'ember', sub:`${conCosto} producto(s) con costo` },
+    { label:'Valor de venta',      val:_fmtUSD(valorVenta),  cls:'',      sub:'si se vende todo el stock' },
+    { label:'Ganancia potencial',  val:_fmtUSD(potencial),   cls:'good',  sub:margenGlobal!==null?`margen ${margenGlobal.toFixed(0)}%`:'' },
+    { label:'Ganancia del período',val:_fmtUSD(ganRealizada),cls:ganRealizada>=0?'good':'danger', sub:`${valesConfirmados} venta(s) confirmada(s)` },
+  ].map(({label,val,cls,sub}) => `<div class="ax2-card ax2-kpi">
+      <div class="ax2-kpi-label">${label}</div>
+      <div class="ax2-kpi-value ${cls}">${val}</div>
+      ${sub?`<div class="ax2-kpi-sub">${sub}</div>`:''}
     </div>`).join('') +
-    `<div class="stat-card" style="grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:11px;">
-      <span class="stat-lbl">Del período: vendido ${_fmtUSD(ingreso)} · costo ${_fmtUSD(costoVendido)}${congelados?` <span title="a estas ventas se les guardó el costo del día en que se confirmaron, así que ya no cambia">(${congelados} con el costo del día 🔒)</span>`:''} · comisiones ${_fmtUSD(comisiones)}</span>
-      <span style="font-size:15px;font-weight:900;color:${ganRealizada>=0?'var(--green)':'var(--red)'};">= ${_fmtUSD(ganRealizada)}</span>
-    </div>` +
-    (tasa ? `<div style="grid-column:1/-1;font-size:10px;color:var(--text-muted);">Los importes en MN se convirtieron a USD a ${tasa} CUP/USD.</div>` : '');
+    `<div class="ax2-card ax2-kpi wide">
+      <div class="ax2-kpi-label">Del período</div>
+      <div class="ax2-flow">
+        <span>${_fmtUSD(ingreso)}</span><span class="arrow">−</span>
+        <span class="neg">${_fmtUSD(costoVendido)}${congelados?` <span title="a estas ventas se les guardó el costo del día en que se confirmaron, así que ya no cambia">🔒</span>`:''}</span>
+        <span class="arrow">−</span><span class="neg">${_fmtUSD(comisiones)}</span>
+        <span class="arrow">=</span><span class="pos">${_fmtUSD(ganRealizada)}</span>
+      </div>
+      ${tasa?`<div class="ax2-kpi-sub">Los importes en MN se convirtieron a USD a ${tasa} CUP/USD.</div>`:''}
+    </div>`;
 
   // ── SELECTOR DE COLUMNAS ──
   const activas = _gananciaCols();
-  cCols.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;">
-    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Columnas de la tabla</div>
+  cCols.innerHTML = `<div class="ax2-card" style="padding:10px 12px;">
+    <div style="font-size:10px;font-weight:700;color:var(--ax2-text-low);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Columnas de la tabla</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;">
       ${GANANCIA_COLUMNAS.map(c => { const on = activas.includes(c.k);
-        return `<button class="btn btn-sm" style="background:${on?'var(--blue)':'transparent'};color:${on?'#fff':'var(--text-muted)'};border:1px solid ${on?'var(--blue)':'var(--border)'};font-size:11px;" onclick="toggleGananciaCol('${c.k}')">${on?'✓':'+'} ${c.label}</button>`;
+        return `<button class="ax2-btn${on?' primary':''}" onclick="toggleGananciaCol('${c.k}')">${on?'✓':'+'} ${c.label}</button>`;
       }).join('')}
     </div>
   </div>`;
 
-  // ── TABLA POR CATEGORÍA ──
-  if (!prods.length) { cTabla.innerHTML = '<div class="es"><div class="es-text">Sin productos en el catálogo</div></div>'; return; }
-  const num = (v, suf) => v === null ? '<span style="color:var(--gray-400);">—</span>' : (suf === '%' ? v.toFixed(0) + '%' : _fmtUSD(v));
+  // ── TABLA POR CATEGORÍA, con buscador + chips + plegado ──
+  if (!prods.length) { cTabla.innerHTML = '<div class="ax2-empty">Sin productos en el catálogo</div>'; return; }
+  const pasaFiltro = p => {
+    const st = parseInt(p.stock, 10) || 0;
+    if (_gananciaFiltro === 'agotado')  return st === 0;
+    if (_gananciaFiltro === 'bajo')     return st > 0 && st <= LOW_STOCK_THRESHOLD;
+    if (_gananciaFiltro === 'sincosto') return !_gananciaProducto(p).tieneCosto;
+    return true;
+  };
+  const pasaBusqueda = p => !_gananciaBusqueda || String(p.name || p.nombre || '').toLowerCase().includes(_gananciaBusqueda);
+  const filtrando = _gananciaFiltro !== 'todos' || !!_gananciaBusqueda;
+
+  // Primera vez que se pinta esta pestaña: se abre sola la primera categoría
+  // que tenga productos, para no soltar el catálogo entero plegado y vacío.
+  if (!_gananciaCatAbierta) {
+    _gananciaCatAbierta = new Set();
+    const primeraConCat = cats.find(c => prods.some(p => p.catId === c.id));
+    if (primeraConCat) _gananciaCatAbierta.add(String(primeraConCat.id));
+    else if (prods.some(p => !p.catId || !cats.some(c => c.id === p.catId))) _gananciaCatAbierta.add('__sin_cat__');
+  }
+
+  const num = (v, suf) => v === null ? '<span style="color:var(--ax2-text-low);">—</span>' : (suf === '%' ? v.toFixed(0) + '%' : _fmtUSD(v));
   const celda = (k, p, g) => {
     switch (k) {
-      case 'stock':    return String(g.stock);
-      case 'costo':    return `<input value="${escapeHTML(costoDe(p.id))}" placeholder="—" onchange="setCostoProducto(${p.id},this.value)"
-                                 style="width:88px;background:var(--surface);border:1px solid ${g.tieneCosto?'var(--border)':'var(--orange)'};border-radius:6px;padding:3px 6px;font-size:11px;text-align:right;color:var(--text);">`;
+      case 'stock': {
+        const cls = g.stock === 0 ? 'zero' : g.stock <= LOW_STOCK_THRESHOLD ? 'low' : 'ok';
+        return `<span class="ax2-badge ${cls}">${g.stock}</span>`;
+      }
+      case 'costo': return `<input class="ax2-cost-input" value="${escapeHTML(costoDe(p.id))}" placeholder="—" onchange="setCostoProducto(${p.id},this.value)">`;
       case 'precio':   return num(g.ventaU);
-      case 'ganU':     return num(g.ganU);
+      case 'ganU':     return `<span class="ax2-gain${g.ganU!==null?' set':''}">${num(g.ganU)}</span>`;
       case 'margen':   return num(g.margen, '%');
       case 'inv':      return num(g.inv);
       case 'valor':    return num(g.valor);
-      case 'ganTotal': return num(g.ganTotal);
+      case 'ganTotal': return `<span class="ax2-gain${g.ganTotal!==null?' set':''}">${num(g.ganTotal)}</span>`;
       case 'vendidos': return String(vendidos[p.id] || 0);
     }
     return '';
   };
   const colsAct = GANANCIA_COLUMNAS.filter(c => activas.includes(c.k));
-  const seccion = (titulo, lista) => {
+  const seccion = (key, titulo, lista) => {
     if (!lista.length) return '';
+    const mostrar = filtrando ? lista.filter(p => pasaFiltro(p) && pasaBusqueda(p)) : lista;
+    if (filtrando && !mostrar.length) return '';   // categoría entera sin coincidencias: no ocupa sitio
+    const abierta = filtrando || _gananciaCatAbierta.has(key);
+    // Los totales de la cabecera son SIEMPRE de la categoría completa, aunque
+    // el buscador esté escondiendo filas — filtrar no cambia lo que hay.
     let sInv = 0, sGan = 0;
     lista.forEach(p => { const g = _gananciaProducto(p); if (g.inv !== null) sInv += g.inv; if (g.ganTotal !== null) sGan += g.ganTotal; });
-    return `<div style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px 8px 0 0;">
-        <span style="font-size:11px;font-weight:800;color:var(--text);">${escapeHTML(titulo)} <span style="color:var(--text-muted);font-weight:600;">(${lista.length})</span></span>
-        <span style="font-size:10px;color:var(--text-muted);">invertido <b style="color:var(--orange);">${_fmtUSD(sInv)}</b> · gana <b style="color:var(--green);">${_fmtUSD(sGan)}</b></span>
+    return `<div class="ax2-card ax2-cat-card${abierta?' open':''}">
+      <div class="ax2-cat-head" onclick="toggleGananciaCat('${key}')">
+        <div class="ax2-cat-head-left">
+          <span class="ax2-cat-chevron">›</span>
+          <span class="ax2-cat-title">${escapeHTML(titulo)}</span>
+          <span class="ax2-cat-count">${mostrar.length}${filtrando && mostrar.length!==lista.length?` de ${lista.length}`:''}</span>
+        </div>
+        <div class="ax2-cat-stats">invertido ${_fmtUSD(sInv)} · <b>gana ${_fmtUSD(sGan)}</b></div>
       </div>
-      <div style="overflow-x:auto;border:1px solid var(--border);border-top:0;border-radius:0 0 8px 8px;">
-        <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:${140+colsAct.length*84}px;">
-          <thead><tr style="background:var(--surface2);">
-            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);position:sticky;left:0;background:var(--surface2);">Producto</th>
-            ${colsAct.map(c=>`<th style="text-align:right;padding:6px 10px;font-weight:700;color:var(--text-muted);white-space:nowrap;">${c.label}</th>`).join('')}
-          </tr></thead>
-          <tbody>${lista.map(p => { const g = _gananciaProducto(p);
-            return `<tr style="border-top:1px solid var(--border);${g.tieneCosto?'':'background:rgba(245,158,11,.05);'}">
-              <td style="padding:5px 10px;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:sticky;left:0;background:var(--surface);">${escapeHTML(p.name||p.nombre||'—')}</td>
-              ${colsAct.map(c=>`<td style="padding:5px 10px;text-align:right;white-space:nowrap;">${celda(c.k,p,g)}</td>`).join('')}
-            </tr>`;
-          }).join('')}</tbody>
-        </table>
+      <div class="ax2-cat-body">
+        <div style="overflow-x:auto;">
+          <table class="ax2-table" style="min-width:${140+colsAct.length*84}px;">
+            <thead><tr>
+              <th style="text-align:left;">Producto</th>
+              ${colsAct.map(c=>`<th>${c.label}</th>`).join('')}
+            </tr></thead>
+            <tbody>${mostrar.map(p => { const g = _gananciaProducto(p);
+              return `<tr${g.tieneCosto?'':' class="sin-costo"'}>
+                <td>${escapeHTML(p.name||p.nombre||'—')}</td>
+                ${colsAct.map(c=>`<td>${celda(c.k,p,g)}</td>`).join('')}
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
       </div>
     </div>`;
   };
   let tabla = '';
-  cats.forEach(cat => { tabla += seccion(cat.name || 'Categoría', prods.filter(p => p.catId === cat.id)); });
-  tabla += seccion('Sin categoría', prods.filter(p => !p.catId || !cats.some(c => c.id === p.catId)));
-  cTabla.innerHTML = tabla;
+  cats.forEach(cat => { tabla += seccion(String(cat.id), cat.name || 'Categoría', prods.filter(p => p.catId === cat.id)); });
+  tabla += seccion('__sin_cat__', 'Sin categoría', prods.filter(p => !p.catId || !cats.some(c => c.id === p.catId)));
+  cTabla.innerHTML = tabla || '<div class="ax2-empty">Ningún producto coincide con la búsqueda</div>';
 }
 
 // ══════════════════════════════════════════
@@ -10595,10 +10672,12 @@ function renderDuenoModal() {
   if (!cuerpo) return true;
   const { porDueno } = _lineasPorDueno(_valesDelCorte());
   const gr = porDueno.get(String(_duenoModalId));
-  if (!gr) { cuerpo.innerHTML = '<div class="es"><div class="es-text">Sin ventas de este dueño en estas fechas</div></div>';
-             if (titulo) { const d = duenoPorId(_duenoModalId); titulo.textContent = '🧑‍💼 ' + (d ? d.nombre : 'Dueño'); }
-             if (sub) sub.textContent = '';
-             return true; }
+  if (!gr) {
+    cuerpo.innerHTML = '<div class="ax2-panel"><div class="ax2-empty">Sin ventas de este dueño en estas fechas</div></div>';
+    if (titulo) { const d = duenoPorId(_duenoModalId); titulo.textContent = '🧑‍💼 ' + (d ? d.nombre : 'Dueño'); }
+    if (sub) sub.textContent = '';
+    return true;
+  }
   if (titulo) titulo.textContent = (gr.propia ? '🏪 ' : '🧑‍💼 ') + gr.nombre;
   if (sub) sub.textContent = `Vendido ${_fmtDosMonedas(gr.ventaUSD, gr.ventaMN)} · comisiones ${_fmtDosMonedas(gr.comUSD, gr.comMN)}`;
 
@@ -10610,7 +10689,15 @@ function renderDuenoModal() {
     a.usd += l.comUSD; a.mn += l.comMN;
     porGestor.set(l.gestor, a);
   });
-  const filasGestor = [...porGestor.entries()].sort((a, b) => (b[1].usd + b[1].mn) - (a[1].usd + a[1].mn));
+  // v118: NO se ordena sumando usd+mn — eso trata un peso cubano como si
+  // valiera lo mismo que un dólar, y ordenaría a quien le deben 400 MN por
+  // delante de a quien le deben $10 USD. Se ordena por lo que representa DE
+  // SU PROPIA moneda: quien se lleva la mayor tajada del USD que se debe, o de
+  // el MN que se debe, el que sea más grande, va primero.
+  let _mUSD = 0, _mMN = 0;
+  porGestor.forEach(a => { _mUSD = Math.max(_mUSD, a.usd); _mMN = Math.max(_mMN, a.mn); });
+  const _pctDe = a => Math.max(_mUSD ? a.usd / _mUSD : 0, _mMN ? a.mn / _mMN : 0);
+  const filasGestor = [...porGestor.entries()].sort((a, b) => _pctDe(b[1]) - _pctDe(a[1]));
 
   // Las ventas, agrupadas por vale: es como se mira un vale de verdad.
   const porVale = new Map();
@@ -10620,41 +10707,42 @@ function renderDuenoModal() {
   });
   const vales = [...porVale.values()].sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts));
 
-  cuerpo.innerHTML = `
-    ${filasGestor.length ? `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
-      <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">Comisiones que debe pagar</div>
-      ${filasGestor.map(([n, a]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--border);">
-        <span style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(n)}</span>
-        <span style="font-size:12px;font-weight:800;color:var(--orange);white-space:nowrap;">${_fmtDosMonedas(a.usd, a.mn)}</span>
+  cuerpo.innerHTML = `<div class="ax2-panel">
+    ${filasGestor.length ? `<div class="ax2-card" style="padding:10px 12px;margin-bottom:12px;">
+      <div style="font-size:10px;font-weight:700;color:var(--ax2-text-low);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">Comisiones que debe pagar</div>
+      ${filasGestor.map(([n, a]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--ax2-line);">
+        <span style="font-size:12px;font-weight:700;color:var(--ax2-text-hi);">${escapeHTML(n)}</span>
+        <span class="ax2-mono" style="font-size:12px;font-weight:800;color:var(--ax2-ember-soft);white-space:nowrap;">${_fmtDosMonedas(a.usd, a.mn)}</span>
       </div>`).join('')}
-    </div>` : '<div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">Sin comisiones que pagar en estas fechas.</div>'}
+    </div>` : '<div style="font-size:11px;color:var(--ax2-text-low);margin-bottom:12px;">Sin comisiones que pagar en estas fechas.</div>'}
 
-    <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Vales (${vales.length})</div>
+    <div style="font-size:10px;font-weight:700;color:var(--ax2-text-low);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Vales (${vales.length})</div>
     ${vales.map(v => {
       const vu = v.lineas.reduce((s, l) => s + l.ventaUSD, 0), vm = v.lineas.reduce((s, l) => s + l.ventaMN, 0);
       const cu = v.lineas.reduce((s, l) => s + l.comUSD, 0),  cm = v.lineas.reduce((s, l) => s + l.comMN, 0);
-      return `<div style="border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:7px;background:var(--surface2);">
+      return `<div class="ax2-card" style="padding:9px 11px;margin-bottom:7px;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span style="font-size:12px;font-weight:700;color:var(--text);">
-            ${v.valeNum ? `<span style="color:var(--blue);">${escapeHTML(v.valeNum)}</span> ` : ''}${escapeHTML(v.cliente || '—')}
-            ${v.tieneRebaja ? '<span title="este vale llevaba rebaja: se cobró menos" style="color:var(--orange);">🏷️</span>' : ''}
+          <span style="font-size:12px;font-weight:700;color:var(--ax2-text-hi);">
+            ${v.valeNum ? `<span style="color:var(--ax2-signal);">${escapeHTML(v.valeNum)}</span> ` : ''}${escapeHTML(v.cliente || '—')}
+            ${v.tieneRebaja ? '<span title="este vale llevaba rebaja: se cobró menos" style="color:var(--ax2-ember-soft);">🏷️</span>' : ''}
           </span>
-          <span style="font-size:10px;color:var(--text-muted);white-space:nowrap;">${new Date(v.ts).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} · ${escapeHTML(v.gestor)}${v.esTienda ? ' (sin comisión)' : ''}</span>
+          <span style="font-size:10px;color:var(--ax2-text-low);white-space:nowrap;">${new Date(v.ts).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} · ${escapeHTML(v.gestor)}${v.esTienda ? ' (sin comisión)' : ''}</span>
         </div>
-        ${v.lineas.map(l => `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
-          ${escapeHTML(l.producto)}${l.qty > 1 ? ` <b>×${l.qty}</b>` : ''} — ${l.sinPrecio ? '<span style="color:var(--gray-400);">sin precio</span>' : _fmtDosMonedas(l.ventaUSD, l.ventaMN)}
+        ${v.lineas.map(l => `<div style="font-size:11px;color:var(--ax2-text-mid);margin-top:3px;">
+          ${escapeHTML(l.producto)}${l.qty > 1 ? ` <b>×${l.qty}</b>` : ''} — ${l.sinPrecio ? '<span style="color:var(--ax2-text-low);">sin precio</span>' : `<span class="ax2-mono">${_fmtDosMonedas(l.ventaUSD, l.ventaMN)}</span>`}
         </div>`).join('')}
-        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:5px;padding-top:5px;border-top:1px solid var(--border);font-size:11px;">
-          <span>Vendido <b style="color:var(--blue);">${_fmtDosMonedas(vu, vm)}</b></span>
-          <span>Comisión <b style="color:${cu || cm ? 'var(--orange)' : 'var(--gray-400)'};">${_fmtDosMonedas(cu, cm)}</b></span>
+        <div style="display:flex;justify-content:space-between;gap:8px;margin-top:5px;padding-top:5px;border-top:1px solid var(--ax2-line);font-size:11px;">
+          <span>Vendido <b class="ax2-mono" style="color:var(--ax2-signal);">${_fmtDosMonedas(vu, vm)}</b></span>
+          <span>Comisión <b class="ax2-mono" style="color:${cu || cm ? 'var(--ax2-ember-soft)' : 'var(--ax2-text-low)'};">${_fmtDosMonedas(cu, cm)}</b></span>
         </div>
       </div>`;
     }).join('')}
 
     ${gr.propia ? '' : `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px;">
-      <button class="btn btn-ghost btn-sm" onclick="renameDuenoDesdeUI(${gr.id},event)">✏️ Cambiar nombre</button>
-      <button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="removeDuenoDesdeUI(${gr.id},event)">Eliminar dueño</button>
-    </div>`}`;
+      <button class="ax2-btn" onclick="renameDuenoDesdeUI(${gr.id},event)">✏️ Cambiar nombre</button>
+      <button class="ax2-btn danger" onclick="removeDuenoDesdeUI(${gr.id},event)">Eliminar dueño</button>
+    </div>`}
+  </div>`;
   return true;
 }
 
@@ -10674,6 +10762,9 @@ function _valesDelCorte() {
 function renderDuenos() {
   const cAviso = document.getElementById('duenosAviso');
   const cRes   = document.getElementById('duenosResumen');
+  const cPagarCard  = document.getElementById('duenosPagarCard');
+  const cPagarCount = document.getElementById('duenosPagarCount');
+  const cListCount  = document.getElementById('duenosListaCount');
   const cList  = document.getElementById('duenosLista');
   if (!cList) return;
   const elF = document.getElementById('duenosDateFrom');
@@ -10682,6 +10773,23 @@ function renderDuenos() {
   if (elF && !elF.value && elT && !elT.value) {
     const hoy = localDay(new Date().toISOString());
     elF.value = hoy; elT.value = hoy;
+  }
+
+  // ── CHIP DE RANGO ACTIVO ──
+  // Se recalcula cada vez comparando las fechas actuales contra lo que daría
+  // cada preset, así que da igual si llegaron ahí por un chip o escribiendo a
+  // mano: el chip que coincide se enciende solo.
+  if (elF && elT) {
+    const hoy = new Date(), dia = d => localDay(d.toISOString());
+    const rangos = {
+      hoy: [dia(hoy), dia(hoy)],
+      ayer: [dia(new Date(hoy.getTime() - 86400000)), dia(new Date(hoy.getTime() - 86400000))],
+      mes: [dia(new Date(hoy.getFullYear(), hoy.getMonth(), 1)), dia(hoy)],
+    };
+    document.querySelectorAll('#duenosRangoChips .ax2-chip').forEach(chip => {
+      const r = rangos[chip.dataset.rango];
+      chip.classList.toggle('active', !!r && r[0] === elF.value && r[1] === elT.value);
+    });
   }
 
   const { porDueno, conRebaja, sinPrecio } = _lineasPorDueno(_valesDelCorte());
@@ -10693,24 +10801,67 @@ function renderDuenos() {
   else if (!Object.keys(getDuenosDoc().asig).length) avisos.push('Hay dueños dados de alta pero ningún producto asignado todavía. Se elige en la ficha del producto (📦 Stock).');
   if (sinPrecio) avisos.push(`${sinPrecio} línea(s) de venta son de productos sin precio en el catálogo (o borrados), así que no suman importe.`);
   if (conRebaja) avisos.push(`${conRebaja} vale(s) del período llevaban rebaja: se cobró menos de lo que suman sus líneas, que van al precio de catálogo.`);
-  cAviso.innerHTML = avisos.length
-    ? `<div style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--text);">
-         ${avisos.map(a => `<div style="margin:2px 0;">⚠️ ${a}</div>`).join('')}
-       </div>` : '';
+  cAviso.innerHTML = avisos.length ? `<div class="ax2-aviso">${avisos.map(a => `<div>⚠️ ${a}</div>`).join('')}</div>` : '';
 
   // ── RESUMEN, cada moneda por su lado ──
   let tvU = 0, tvM = 0, tcU = 0, tcM = 0;
   porDueno.forEach(gr => { tvU += gr.ventaUSD; tvM += gr.ventaMN; tcU += gr.comUSD; tcM += gr.comMN; });
-  cRes.innerHTML = [
-    { label: 'Vendido en el período', val: _fmtDosMonedas(tvU, tvM), color: 'var(--blue)' },
-    { label: 'Comisiones a pagar',    val: _fmtDosMonedas(tcU, tcM), color: 'var(--orange)' },
-    { label: 'Queda después de pagar',val: _fmtDosMonedas(tvU - tcU, tvM - tcM), color: 'var(--green)' },
-  ].map(({ label, val, color }) => `<div class="stat-card">
-      <div class="stat-num" style="color:${color};font-size:15px;line-height:1.25;word-break:break-word;">${val}</div>
-      <div class="stat-lbl">${label}</div>
-    </div>`).join('');
+  cRes.innerHTML = `
+    <div class="ax2-card ax2-kpi">
+      <div class="ax2-kpi-label">Vendido en el período</div>
+      <div class="ax2-kpi-value">${_fmtDosMonedas(tvU, tvM)}</div>
+    </div>
+    <div class="ax2-card ax2-kpi">
+      <div class="ax2-kpi-label">Comisiones a pagar</div>
+      <div class="ax2-kpi-value ember">${_fmtDosMonedas(tcU, tcM)}</div>
+    </div>
+    <div class="ax2-card ax2-kpi wide">
+      <div class="ax2-kpi-label">Queda después de pagar</div>
+      <div class="ax2-kpi-value good">${_fmtDosMonedas(tvU - tcU, tvM - tcM)}</div>
+      <div class="ax2-flow">
+        <span>${_fmtDosMonedas(tvU, tvM)}</span><span class="arrow">−</span>
+        <span class="neg">${_fmtDosMonedas(tcU, tcM)}</span><span class="arrow">=</span>
+        <span class="pos">${_fmtDosMonedas(tvU - tcU, tvM - tcM)}</span>
+      </div>
+    </div>`;
 
-  // ── UNA TARJETA POR DUEÑO ──
+  // ── "DEBE PAGAR A" — agregado por gestor, cruzando TODOS los dueños ──
+  // Aquí sí importa quién cobra, no de quién era la mercancía: es la lista que
+  // se usa para pagarle a cada gestor de una vez, sin ir dueño por dueño.
+  const porGestorGlobal = new Map();
+  porDueno.forEach(gr => gr.lineas.forEach(l => {
+    if (!l.comUSD && !l.comMN) return;
+    const a = porGestorGlobal.get(l.gestor) || { usd: 0, mn: 0 };
+    a.usd += l.comUSD; a.mn += l.comMN;
+    porGestorGlobal.set(l.gestor, a);
+  }));
+  // El ancho de la barra (y el orden de la lista) es un adelanto visual, no un
+  // importe: compara cada fila con el máximo DE SU MISMA MONEDA y se queda con
+  // la mayor de las dos. Sumar USD y MN en un solo número —como se hacía antes
+  // de esta pasada— pondría a quien le deben 400 MN por delante de a quien le
+  // deben $10 USD, tratando un peso como si valiera lo mismo que un dólar.
+  let maxUSD = 0, maxMN = 0;
+  porGestorGlobal.forEach(a => { maxUSD = Math.max(maxUSD, a.usd); maxMN = Math.max(maxMN, a.mn); });
+  const pctDe = a => Math.max(maxUSD ? a.usd / maxUSD : 0, maxMN ? a.mn / maxMN : 0);
+  const filasPagar = [...porGestorGlobal.entries()].sort((a, b) => pctDe(b[1]) - pctDe(a[1]));
+  if (cPagarCount) cPagarCount.textContent = filasPagar.length ? `${filasPagar.length} persona${filasPagar.length!==1?'s':''}` : '';
+  if (!filasPagar.length) {
+    cPagarCard.innerHTML = '<div class="ax2-card ax2-empty">Sin comisiones que pagar en estas fechas</div>';
+  } else {
+    cPagarCard.innerHTML = `<div class="ax2-card ax2-payout-card">
+      <div class="ax2-payout-total">
+        <div class="ax2-payout-total-label">Total comisiones del período</div>
+        <div class="ax2-payout-total-value">${_fmtDosMonedas(tcU, tcM)}</div>
+      </div>
+      ${filasPagar.map(([nombre, a]) => `<div class="ax2-payout-row">
+          <div class="ax2-payout-name">${escapeHTML(nombre)}</div>
+          <div class="ax2-payout-track"><div class="ax2-payout-fill" style="width:${Math.max(4,pctDe(a)*100).toFixed(0)}%;"></div></div>
+          <div class="ax2-payout-amt">${_fmtDosMonedas(a.usd, a.mn)}</div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // ── UNA FICHA POR DUEÑO ──
   // Salen TODOS los dados de alta, hayan vendido o no: si uno no aparece porque
   // no vendió nada, no hay dónde tocar para cambiarle el nombre o quitarlo.
   const tarjetas = [];
@@ -10727,8 +10878,9 @@ function renderDuenos() {
                               ventaUSD: tienda.ventaUSD, ventaMN: tienda.ventaMN,
                               comUSD: tienda.comUSD, comMN: tienda.comMN,
                               ventas: tienda.lineas.length, productos: 0 });
+  if (cListCount) cListCount.textContent = tarjetas.length ? `${tarjetas.length}` : '';
   if (!tarjetas.length) {
-    cList.innerHTML = '<div class="es"><div class="es-icon">🧑‍💼</div><div class="es-text">Sin dueños todavía</div></div>';
+    cList.innerHTML = '<div class="ax2-card ax2-empty">Sin dueños todavía</div>';
     return;
   }
   // Primero quien más vendió; los que no vendieron nada, por nombre al final.
@@ -10736,25 +10888,21 @@ function renderDuenos() {
                        || (b.ventaUSD + b.ventaMN / 1000) - (a.ventaUSD + a.ventaMN / 1000)
                        || a.nombre.localeCompare(b.nombre, 'es'));
 
-  cList.innerHTML = tarjetas.map(t => `
-    <div class="gp-card" data-dueno="${escapeHTML(t.clave)}" style="cursor:pointer;" onclick="openDuenoModal('${escapeHTML(t.clave)}')"
-         title="Ver las ventas de ${escapeHTML(t.nombre)}">
-      <div class="gp-card-top">
-        <div class="g-avatar" style="background:${t.propia ? 'var(--gray-500)' : 'var(--blue)'};width:40px;height:40px;font-size:16px;flex-shrink:0;">${t.propia ? '🏪' : '🧑‍💼'}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:800;font-size:15px;color:var(--text);">${escapeHTML(t.nombre)}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">
-            ${t.ventas} venta(s) en el período${t.propia ? '' : ` · ${t.productos} producto(s) suyos`}
-          </div>
+  cList.innerHTML = `<div class="ax2-card ax2-row-card">
+    ${tarjetas.map(t => `
+      <div class="ax2-row" data-dueno="${escapeHTML(t.clave)}" onclick="openDuenoModal('${escapeHTML(t.clave)}')" title="Ver las ventas de ${escapeHTML(t.nombre)}">
+        <div class="ax2-row-avatar" style="${t.propia?'background:rgba(127,127,127,.15);color:var(--ax2-text-mid);':''}">${t.propia ? '🏪' : '🧑‍💼'}</div>
+        <div class="ax2-row-body">
+          <div class="ax2-row-title">${escapeHTML(t.nombre)}</div>
+          <div class="ax2-row-meta">${t.ventas} venta(s) en el período${t.propia ? '' : ` · ${t.productos} producto(s) suyos`}</div>
         </div>
-        <span style="color:var(--gray-400);font-size:14px;flex-shrink:0;">›</span>
-      </div>
-      <div class="gp-card-com" style="cursor:pointer;">
-        <span style="font-size:11px;font-weight:700;color:var(--text-muted);flex-shrink:0;">Vendido</span>
-        <span style="font-size:12px;font-weight:800;color:var(--blue);flex:1;">${_fmtDosMonedas(t.ventaUSD, t.ventaMN)}</span>
-        ${(t.comUSD || t.comMN) ? `<span style="background:var(--orange);color:white;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;white-space:nowrap;">paga ${_fmtDosMonedas(t.comUSD, t.comMN)}</span>` : ''}
-      </div>
-    </div>`).join('');
+        <div class="ax2-row-nums">
+          <div class="ax2-row-amount">${_fmtDosMonedas(t.ventaUSD, t.ventaMN)}</div>
+          ${(t.comUSD || t.comMN) ? `<div class="ax2-row-sub">paga ${_fmtDosMonedas(t.comUSD, t.comMN)}</div>` : ''}
+        </div>
+        <span class="ax2-row-chevron">›</span>
+      </div>`).join('')}
+  </div>`;
 }
 
 function renderStats() {

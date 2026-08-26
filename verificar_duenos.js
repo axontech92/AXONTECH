@@ -4,8 +4,8 @@ const JS=fs.readFileSync('/home/user/AXONTECH/app.js','utf8');
 function ex(n){const i=JS.search(new RegExp('function\\s+'+n+'\\s*\\('));if(i<0)throw new Error('falta '+n);let p=0,d=false;for(let j=i;j<JS.length;j++){const c=JS[j];if(c==='{'){p++;d=true;}else if(c==='}'){p--;if(d&&p===0)return JS.slice(i,j+1);}}}
 
 const els={}; const mk=id=>(els[id]={id,innerHTML:'',value:'',style:{},classList:{_s:new Set(),add(c){this._s.add(c)},remove(c){this._s.delete(c)},contains(c){return this._s.has(c)}}});
-['duenosAviso','duenosResumen','duenosLista','duenosDateFrom','duenosDateTo','duenoModal','duenoModalBody','duenoModalTitle','duenoModalSub'].forEach(mk);
-global.document={getElementById:id=>els[id]||null};
+['duenosAviso','duenosResumen','duenosLista','duenosDateFrom','duenosDateTo','duenoModal','duenoModalBody','duenoModalTitle','duenoModalSub','duenosPagarCard','duenosPagarCount','duenosListaCount'].forEach(mk);
+global.document={getElementById:id=>els[id]||null,querySelectorAll:()=>[]};
 global.localStorage={_d:{},getItem(k){return this._d[k]||null;},setItem(k,v){this._d[k]=v;}};
 global._safeSetLS=(k,v)=>localStorage.setItem(k,v);
 global.setSB=()=>{}; global.showToast=()=>{}; global.maybeAutoSync=()=>{};
