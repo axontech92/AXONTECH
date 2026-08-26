@@ -321,6 +321,27 @@ async function _sbRestHayCambios(collName, desdeISO) {
     return !Array.isArray(rows) || rows.length > 0;
   } catch (e) { return true; }
 }
+// ── v119: contar filas sin traérselas ──────────────────────────────────────
+// El barrido de seguridad existe solo para enterarse de los BORRADOS, y para
+// eso no hace falta la tabla: basta con cuántas filas hay. Con
+// `Prefer: count=exact` y `limit=0`, PostgREST no devuelve ni una fila — el
+// número viene en la cabecera Content-Range ("0-0/1234"). Son unos cientos de
+// bytes en vez de megas, y —esto es lo importante— cuesta lo mismo con 200
+// vales que con 20.000: el gasto deja de crecer con el negocio.
+// Devuelve null si no se puede saber; quien llama entonces baja la tabla, que
+// es el comportamiento seguro de siempre.
+async function _sbRestContarFilas(collName, filtroExtra) {
+  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=id&limit=0`
+            + (filtroExtra ? '&' + filtroExtra : '');
+  try {
+    const res = await fetch(url, { headers: { ..._SB_AUTH_HDRS, 'Prefer': 'count=exact' } });
+    if (!res.ok) return null;
+    const rango = res.headers.get('content-range') || '';   // "0-0/1234" o "*/1234"
+    const n = parseInt(String(rango).split('/')[1], 10);
+    return isNaN(n) ? null : n;
+  } catch (e) { return null; }
+}
+
 // Como _sbRestGetCollection, pero además devuelve el updated_at más reciente
 // visto — DEL SERVIDOR, no del reloj del teléfono (que puede estar mal puesto
 // y hacer que _sbRestHayCambios descarte un cambio real o repita trabajo de
@@ -328,14 +349,18 @@ async function _sbRestHayCambios(collName, desdeISO) {
 async function _sbRestGetCollectionYTs(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data,updated_at&order=id.asc`;
   const res = await fetch(url, { headers: _SB_AUTH_HDRS });
-  if (!res.ok) { if (res.status === 404) return { items: [], maxTs: null }; throw new Error(`Supabase GET ${collName} ${res.status}`); }
+  if (!res.ok) { if (res.status === 404) return { items: [], maxTs: null, filas: 0 }; throw new Error(`Supabase GET ${collName} ${res.status}`); }
   const rows = await res.json();
   const items = []; let maxTs = null;
   (rows || []).forEach(r => {
     if (r && r.data != null) items.push(r.data);
     if (r && r.updated_at && (!maxTs || r.updated_at > maxTs)) maxTs = r.updated_at;
   });
-  return { items, maxTs };
+  // v119: `filas` es cuántas trajo el servidor, que NO tiene por qué ser
+  // items.length —una fila con data nula no entra en items— y es contra ese
+  // número contra el que compara el conteo barato del barrido. Usar
+  // items.length haría que no cuadraran nunca y el atajo no serviría de nada.
+  return { items, maxTs, filas: (rows || []).length };
 }
 // ── v112: bajar SOLO las filas que cambiaron ────────────────────────────────
 // Hasta ahora la pregunta barata (_sbRestHayCambios) evitaba bajar la tabla
@@ -413,6 +438,24 @@ let _ultimoFetchReal = {};
 // fila por gestor con varios vales dentro (vieja)— y un barrido por ids se
 // tragaría los de formato viejo dándolos por borrados.
 const _GATE_SEGURIDAD_MS = { vales: 30 * 60000, lento: 60 * 60000, meta: 20 * 60000 };
+// v119: cuántas FILAS tenía el servidor la última vez que se bajó la tabla
+// entera. Es la referencia del atajo barato del barrido (ver
+// _sbRestContarFilas): si el conteo de ahora coincide, no se ha borrado nada.
+// null = todavía no consta, y entonces se barre como siempre.
+const _filasVistas = { vales: null };
+// Cuándo se bajó la tabla ENTERA por última vez. Tiene que ser un reloj aparte
+// de _ultimoFetchReal: ese lo renueva también el conteo barato —para eso está,
+// para aplazar el barrido— y si el gate de fondo mirara ahí, cada conteo le
+// daría cuerda y las horas no se cumplirían nunca. El barrido de fondo dejaría
+// de existir sin que se notara.
+const _ultimaBajadaCompleta = { vales: 0 };
+// El barrido de verdad, el que sí se baja la tabla. Aunque el conteo diga
+// "nada nuevo" una y otra vez, cada tantas horas se baja igual: el conteo no
+// ve un vale borrado de DENTRO de una fila del formato viejo (una fila por
+// gestor con varios vales dentro), y ese caso solo lo corrige la foto completa.
+// Cuatro horas son seis bajadas completas al día en el peor caso, frente a las
+// 288 de antes, y el resto del tiempo el barrido cuesta 200 bytes.
+const _GATE_ABSOLUTO_MS = { vales: 4 * 60 * 60000 };
 // ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
 // Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
 // —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
@@ -1176,7 +1219,31 @@ async function _doRestPoll() {
           // _sbRestHayCambios(). Se pregunta primero con una consulta mínima;
           // solo si dice que sí (o toca la red de seguridad) se baja la tabla.
           const _tsVales = _ultimaTsVisto.vales;
-          const _fetchViejo = (Date.now() - (_ultimoFetchReal.vales || 0)) > _GATE_SEGURIDAD_MS.vales;
+          let _fetchViejo = (Date.now() - (_ultimoFetchReal.vales || 0)) > _GATE_SEGURIDAD_MS.vales;
+          // ── v119: preguntar cuántas filas hay antes de bajarlas ──
+          // Al barrido solo le interesa saber si desapareció algo. Si el número
+          // de filas del servidor es el mismo que la última vez que se bajó de
+          // verdad, no se ha borrado nada y no hay nada que barrer: se deja el
+          // turno para dentro de otro rato y se sigue por la vía incremental.
+          // Cuesta ~200 bytes frente a la tabla entera, y cuesta lo mismo aunque
+          // la tabla crezca — que es lo que hacía que esto se repitiera cada
+          // pocos meses según crecía el negocio.
+          //
+          // El barrido de verdad NO desaparece: _GATE_ABSOLUTO_MS lo fuerza cada
+          // pocas horas pase lo que pase. Hace falta porque el número de filas no
+          // lo ve todo: en el formato viejo de la tabla una fila guarda los vales
+          // de un gestor entero, así que borrar uno de dentro deja el conteo
+          // igual. Ese caso se corrige en el barrido de fondo.
+          if (_fetchViejo && _filasVistas.vales != null) {
+            const _fetchMuyViejo = (Date.now() - (_ultimaBajadaCompleta.vales || 0)) > _GATE_ABSOLUTO_MS.vales;
+            if (!_fetchMuyViejo) {
+              const _n = await _sbRestContarFilas('vales');
+              if (_n !== null && _n === _filasVistas.vales) {
+                _fetchViejo = false;                  // nada borrado: no toca barrer
+                _ultimoFetchReal.vales = Date.now();  // se renueva el turno
+              }
+            }
+          }
           const _hayCambiosVales = (_tsVales === undefined) || _fetchViejo || await _sbRestHayCambios('vales', _tsVales);
           if (_hayCambiosVales) {
             // v112: igual que con los otros nodos, solo las filas que cambiaron.
@@ -1186,7 +1253,13 @@ async function _doRestPoll() {
             const _r = _valesParcial ? await _sbRestGetCollectionDesde('vales', _tsVales)
                                      : await _sbRestGetCollectionYTs('vales');
             rawVales = _r.items;
-            if (!_valesParcial) _ultimoFetchReal.vales = Date.now();
+            if (!_valesParcial) {
+              _ultimoFetchReal.vales = Date.now();
+              _ultimaBajadaCompleta.vales = Date.now();   // esta sí fue completa
+              // Con la foto recién bajada, se apunta cuántas filas tenía: es
+              // contra este número contra el que compara el conteo barato.
+              _filasVistas.vales = (typeof _r.filas === 'number') ? _r.filas : null;
+            }
             _ultimaTsVisto.vales = _r.maxTs || _ultimaTsVisto.vales || new Date().toISOString();
             if (_valesParcial && !rawVales.length) _saltarVales = true;
           } else {
