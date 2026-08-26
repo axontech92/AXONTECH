@@ -12533,9 +12533,16 @@ function exportData() {
     productos:getProductos(),categorias:getCategorias(),
     vales:getVales(),notifs:getNotifs(),
     estafa:getEstafa(),
+    // v119: los dueños y los costos también. Faltaban desde que existen, así
+    // que la copia de seguridad no los guardaba: restaurar desde el archivo
+    // dejaba el catálogo entero sin dueño y sin precio de compra, sin avisar.
+    // Se exportan solo si este es el admin — son los dos documentos que el
+    // gestor no debe tener nunca (ver _SB_SINGLETON_ADMIN).
+    duenos: IS_ADMIN ? getDuenosDoc() : undefined,
+    costos: IS_ADMIN ? getCostos()    : undefined,
     // Include config but EXCLUDE ghToken for security — never export the token
     config:{...cfg, ghToken: undefined},
-    timestamp:new Date().toISOString(),version:2
+    timestamp:new Date().toISOString(),version:3
   };
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -12561,6 +12568,21 @@ function importData(input) {
         saveVales(data.vales);
       }
       if(data.notifs)saveNotifs(data.notifs);
+      // v119: dueños y costos. Solo los restaura el admin, y solo si el archivo
+      // los trae: los backups anteriores a v119 no los llevan, y en ese caso hay
+      // que DEJAR los que ya están en el teléfono. Restaurar un backup viejo no
+      // puede borrar de quién es cada producto ni lo que costó comprarlo.
+      if(IS_ADMIN && data.duenos && typeof data.duenos==='object'){
+        try { _guardarDuenos(_normalizarDocDuenos(data.duenos)); } catch(e) {}
+      }
+      if(IS_ADMIN && data.costos && typeof data.costos==='object'){
+        try {
+          const _m = { ...getCostos(), ...data.costos };   // lo del backup manda, lo demás se conserva
+          _safeSetLS('axon_costos', JSON.stringify(_m));
+          _costosCache = _m; _costosDirty = false;
+          setSB('costos', _m);
+        } catch(e) {}
+      }
       if(data.config){
         // Merge config to avoid wiping ghToken etc if backup is older
         const cur=getConfig();
