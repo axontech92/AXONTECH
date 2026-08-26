@@ -278,7 +278,10 @@ const _SB_AUTH_HDRS = {
 };
 let _syncCount = 0;
 const isSyncingFromSupabase = () => _syncCount > 0;
-const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas', 'tasa'];
+// 'vales_borrados' lo bajan TODOS, admin y gestores: al gestor también le
+// borran vales desde el panel del admin, y sin la lápida se le quedarían de
+// fantasmas en la pantalla hasta el siguiente barrido completo.
+const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas', 'tasa', 'vales_borrados'];
 // v114: documentos que SOLO se baja el teléfono del admin. Los costos de compra
 // no tienen por qué acabar guardados en el teléfono de un gestor.
 const _SB_SINGLETON_ADMIN = ['costos', 'duenos'];
@@ -453,9 +456,12 @@ const _ultimaBajadaCompleta = { vales: 0 };
 // "nada nuevo" una y otra vez, cada tantas horas se baja igual: el conteo no
 // ve un vale borrado de DENTRO de una fila del formato viejo (una fila por
 // gestor con varios vales dentro), y ese caso solo lo corrige la foto completa.
-// Cuatro horas son seis bajadas completas al día en el peor caso, frente a las
-// 288 de antes, y el resto del tiempo el barrido cuesta 200 bytes.
-const _GATE_ABSOLUTO_MS = { vales: 4 * 60 * 60000 };
+// v119b: con las lápidas (ver _apuntarValeBorrado) los borrados ya llegan
+// avisados y por su id, incluidos los del formato viejo —que también pasan por
+// _sbRestDeleteVale—, así que este barrido deja de ser la forma de enterarse y
+// pasa a ser solo una red por si una lápida no llegó a escribirse. Una vez al
+// día basta: una sola bajada completa, y el resto del tiempo 200 bytes.
+const _GATE_ABSOLUTO_MS = { vales: 24 * 60 * 60000 };
 // ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
 // Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
 // —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
@@ -916,7 +922,55 @@ const _valesDirectDeleting = new Set();
 // v33 FIX: No more silent returns — all failure paths now throw or log clearly.
 // v33 FIX: Added verification step to confirm the delete actually worked.
 // v33 FIX: Added retry logic for transient network errors.
+// ── v119: dejar constancia de que un vale se borró ─────────────────────────
+// Hasta ahora, para enterarse de un borrado hecho desde otro teléfono había
+// que bajarse la tabla entera y ver cuál faltaba: preguntar por todos para
+// encontrar a uno. Y como no hay forma de que una fila que ya no existe avise
+// de nada, ese barrido tenía que repetirse para siempre.
+//
+// Lo que sí puede avisar es QUIEN BORRA, en el momento de borrar. Se apunta el
+// id en un documento aparte —la "lápida"— y los demás teléfonos solo tienen
+// que leer esa lista, que pesa unos bytes por borrado, y quitar exactamente
+// esos. Se deja de preguntar por 20.000 vales para localizar uno.
+//
+// Se escribe con 'update' (merge en el servidor) a propósito: dos teléfonos
+// borrando a la vez no se pisan las lápidas el uno al otro.
+const _LAPIDAS_DIAS = 30;   // pasado ese tiempo ya no hay teléfono tan atrasado
+function _apuntarValeBorrado(valeId) {
+  if (valeId == null) return;
+  try {
+    const ahora = new Date();
+    const doc = { [String(valeId)]: ahora.toISOString() };
+    // Aprovechando el viaje, se tiran las lápidas viejas para que el documento
+    // no crezca sin fin. Solo puede hacerlo quien ya tiene la lista delante.
+    try {
+      const previas = (typeof _lapidasCache === 'object' && _lapidasCache) ? _lapidasCache : null;
+      if (previas) {
+        const corte = ahora.getTime() - _LAPIDAS_DIAS * 86400000;
+        Object.keys(previas).forEach(k => {
+          const t = Date.parse(previas[k]);
+          if (isFinite(t) && t < corte) doc[k] = null;   // null = quitar la clave
+        });
+      }
+    } catch(e) {}
+    setSB('vales_borrados', doc, 'update');
+  } catch (e) { console.warn('[lapidas] no se pudo apuntar el borrado de', valeId, e && e.message); }
+}
+let _lapidasCache = null;
+
+// La lápida se pone SOLO si el borrado salió bien, nunca antes de intentarlo.
+// Al revés se abre un ida y vuelta sin fin: si el DELETE falla por red, el vale
+// sigue en la nube pero los demás teléfonos ya lo han quitado por la lápida; el
+// siguiente barrido se lo devuelve, la lápida vuelve a quitarlo, y así siempre.
+// Si lo que falla es apuntar la lápida, el vale queda borrado y algún teléfono
+// tarda en enterarse — eso lo arregla el barrido de fondo. Ese lado sí se puede
+// asumir; el otro no se arregla solo.
 async function _sbRestDeleteVale(valeId, gestorId, _retryCount) {
+  const _r = await _sbRestDeleteValeCore(valeId, gestorId, _retryCount);
+  _apuntarValeBorrado(valeId);
+  return _r;
+}
+async function _sbRestDeleteValeCore(valeId, gestorId, _retryCount) {
   if (_retryCount === undefined) _retryCount = 0;
   console.log(`[sbRestDeleteVale] Deleting vale ${valeId} (gestorId=${gestorId}), attempt ${_retryCount + 1}`);
   // 1) Try NEW format: delete row where id = valeId
@@ -949,7 +1003,7 @@ async function _sbRestDeleteVale(valeId, gestorId, _retryCount) {
             const foundGestorId = row.id;
             console.log(`[sbRestDeleteVale] Found vale ${valeId} in gestor row ${foundGestorId}`);
             // Recurse with the found gestorId
-            return _sbRestDeleteVale(valeId, foundGestorId, _retryCount);
+            return _sbRestDeleteValeCore(valeId, foundGestorId, _retryCount);
           }
         }
       }
@@ -1003,7 +1057,7 @@ async function _sbRestDeleteVale(valeId, gestorId, _retryCount) {
           console.error(`[sbRestDeleteVale] ✗✗ VERIFICATION FAILED: vale ${vKey} still in gestor row ${gestorId}!`);
           if (_retryCount < 2) {
             console.log(`[sbRestDeleteVale] Retrying deletion (attempt ${_retryCount + 2})...`);
-            return _sbRestDeleteVale(valeId, gestorId, _retryCount + 1);
+            return _sbRestDeleteValeCore(valeId, gestorId, _retryCount + 1);
           }
           throw new Error(`Verification failed: vale ${vKey} still exists after delete`);
         }
@@ -1640,9 +1694,15 @@ async function _doRestPoll() {
     // pasan al ritmo lento por el mismo motivo que los nodos de arriba.
     // v114: 'costos' se añade SOLO si este teléfono es el del admin — ver la
     // nota larga en getCostos(). El del gestor ni lo pide.
+    // v119: 'vales_borrados' va en el carril rápido junto a 'notifs'. En el
+    // lento tardaría hasta 5 min en saberse que un vale se borró, y el sentido
+    // de las lápidas es enterarse en el momento. Sale barato porque antes de
+    // bajarlo se pregunta si cambió (_sbRestMetaHayCambios): mientras nadie
+    // borre nada son unos cientos de bytes por pasada, y el documento en sí
+    // pesa ~45 bytes por borrado.
     const _singletonsAPedir = _toqueNodosLentos
       ? (IS_ADMIN ? _SB_SINGLETON_ROWS.concat(_SB_SINGLETON_ADMIN) : _SB_SINGLETON_ROWS)
-      : ['notifs'];
+      : ['notifs', 'vales_borrados'];
     for (const node of _singletonsAPedir) {
       try {
         // ── v28 BUGFIX: Mismo guard para singleton rows (estafa, config, etc.) ──
@@ -1689,7 +1749,28 @@ async function _doRestPoll() {
           _syncCount++;
           try {
             _safeSetLS('axon_'+node, JSON.stringify(val)); // v65: idem — fallo de guardado visible
-            if(node==='config'){
+            if(node==='vales_borrados'){
+              // v119: la lista de vales que alguien borró. En vez de bajar la
+              // tabla entera para ver cuál falta, se quitan exactamente estos.
+              _lapidasCache = (val && typeof val === 'object' && !Array.isArray(val)) ? val : {};
+              // Solo cuentan las que llevan fecha. Una lápida podada se queda
+              // como clave en null —el merge del servidor conserva las claves,
+              // no puede quitarlas— y si se tomara por buena seguiría borrando
+              // un vale para siempre, incluso pasados los 30 días de la poda.
+              const ids = new Set(Object.keys(_lapidasCache).filter(k => !!_lapidasCache[k]));
+              if (ids.size) {
+                const vivos = getVales() || [];
+                const quedan = vivos.filter(v => !v || v.id == null || !ids.has(String(v.id)));
+                if (quedan.length !== vivos.length) {
+                  console.log(`[lapidas] ${vivos.length - quedan.length} vale(s) borrados desde otro teléfono`);
+                  // Estamos dentro de _syncCount++, así que saveVales NO reenvía
+                  // esto a Supabase: se aplica aquí y no rebota.
+                  saveVales(quedan);
+                  if (typeof refreshUI === 'function') { try { refreshUI(); } catch(e) {} }
+                }
+              }
+            }
+            else if(node==='config'){
               _configCache=val;_configDirty=false;
               // v91: el chip de la tasa depende del config (ahí viaja el margen
               // que pone el admin). Si no se repinta aquí, el margen llega al
@@ -2157,7 +2238,8 @@ function _processSBQueue() {
   const _FS_SINGLETON_DOCS = {
     config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary',
     reservas: 'reservas', tasa: 'tasa', costos: 'costos',  // v114
-    duenos: 'duenos'                                       // v119 — ver aviso de arriba
+    duenos: 'duenos',                                      // v119 — ver aviso de arriba
+    vales_borrados: 'vales_borrados'                       // v119 — lápidas de borrado
   };
   function _supabaseOpFor(path, value, method) {
     // Singleton → meta/{name}
