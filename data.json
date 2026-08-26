@@ -2061,7 +2061,7 @@
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
-      "puntos": 1,
+      "puntos": 0,
       "comision": "",
       "garantia": "",
       "description": "",
@@ -8377,5 +8377,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T04:21:14.276Z"
+  "timestamp": "2026-08-26T04:23:53.321Z"
 }
