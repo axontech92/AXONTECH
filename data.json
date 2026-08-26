@@ -2089,7 +2089,7 @@
       "name": "Tp Link Archer ax55, ax3000",
       "catId": 10,
       "photo": "photos/p-1787375561622-74c433ef.webp",
-      "stock": 5,
+      "stock": 10,
       "imagen": "photos/p-1787375561622-74c433ef.webp",
       "nombre": "Tp Link Archer ax55, ax3000",
       "precio": "$150",
@@ -8377,5 +8377,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T04:23:53.321Z"
+  "timestamp": "2026-08-26T04:24:53.412Z"
 }
