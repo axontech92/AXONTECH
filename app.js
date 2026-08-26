@@ -281,7 +281,7 @@ const isSyncingFromSupabase = () => _syncCount > 0;
 const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas', 'tasa'];
 // v114: documentos que SOLO se baja el teléfono del admin. Los costos de compra
 // no tienen por qué acabar guardados en el teléfono de un gestor.
-const _SB_SINGLETON_ADMIN = ['costos'];
+const _SB_SINGLETON_ADMIN = ['costos', 'duenos'];
 
 async function _sbRestGetCollection(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
@@ -1608,6 +1608,11 @@ async function _doRestPoll() {
               // propósito — ver la nota larga en _refrescarReservas().
               _reservasSBCache=(val&&typeof val==='object')?val:{};_reservasSBDirty=false;
               if(typeof renderProductGrid==='function'){try{renderProductGrid();}catch(e){}}
+            }
+            else if(node==='duenos'){
+              // v117: de quién es cada producto. Solo llega si IS_ADMIN.
+              _duenosCache=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};_duenosDirty=false;
+              if(typeof currentAdminTab!=='undefined'&&currentAdminTab==='duenos'&&typeof renderDuenos==='function'){try{renderDuenos();}catch(e){}}
             }
             else if(node==='costos'){
               // v114: costos de compra. Aquí solo llega si IS_ADMIN.
@@ -4355,6 +4360,57 @@ function _congelarCostoVale(v) {
   return true;
 }
 
+// ══════════════════════════════════════════
+//  DUEÑOS DE LA MERCANCÍA  (v117)
+// ══════════════════════════════════════════
+// De quién es cada producto. La tienda vende mercancía de varias personas y al
+// final del día hay que decirle a cada una cuánto se vendió de lo suyo y cuánta
+// comisión le toca pagar a cada gestor.
+//
+// Vive fuera del producto por el mismo motivo que los costos: la tabla
+// `productos` se la baja también el teléfono del gestor, y de quién es la
+// mercancía no es asunto suyo. Documento aparte —{productoId: "Nombre"}— que
+// solo pide el teléfono del admin.
+let _duenosCache = null, _duenosDirty = true;
+function getDuenos() {
+  if (_duenosDirty || !_duenosCache) {
+    try { _duenosCache = JSON.parse(localStorage.getItem('axon_duenos') || '{}'); }
+    catch(e) { _duenosCache = {}; }
+    if (!_duenosCache || typeof _duenosCache !== 'object' || Array.isArray(_duenosCache)) _duenosCache = {};
+    _duenosDirty = false;
+  }
+  return _duenosCache;
+}
+const duenoDe = pid => String(getDuenos()[String(pid)] || '');
+function setDueno(pid, nombre) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  const limpio = String(nombre || '').trim();
+  const mapa = { ...getDuenos() };
+  if (limpio) mapa[String(pid)] = limpio; else delete mapa[String(pid)];
+  const ahora = JSON.stringify(mapa);
+  if (ahora === JSON.stringify(getDuenos())) return false;
+  _safeSetLS('axon_duenos', ahora);
+  _duenosCache = mapa; _duenosDirty = false;
+  setSB('duenos', mapa);
+  return true;
+}
+// Los nombres ya usados, para ofrecerlos al escribir y que no acaben tres
+// variantes del mismo dueño por una mayúscula o un espacio de más.
+function listaDuenos() {
+  const vistos = new Map();      // clave normalizada → nombre tal cual se escribió
+  Object.values(getDuenos()).forEach(n => {
+    const k = String(n).trim().toLowerCase();
+    if (k && !vistos.has(k)) vistos.set(k, String(n).trim());
+  });
+  return [...vistos.values()].sort((a, b) => a.localeCompare(b, 'es'));
+}
+// Clave del grupo "sin dueño" (mercancía tuya). Se le pone un nombre en vez
+// de una cadena rara: así no se confunde con un dueño que se llame así, y no
+// acaba un carácter invisible dentro del código.
+const _SIN_DUENO = '__tienda__';
+// Dos nombres son el mismo dueño si solo cambian mayúsculas o espacios.
+const _claveDueno = n => String(n || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
 // v114: la primera versión de esto guardaba el costo dentro del producto y
 // estuvo publicada un rato. Si algún producto llegó a llevarlo, aquí se pasa
 // al documento aparte y se le quita de encima — lo que además lo borra de los
@@ -4893,7 +4949,7 @@ function logoutAdmin() {
 // ══════════════════════════════════════════
 function adminTab(tab) {
   currentAdminTab=tab;
-  ['vales','stock','gestores','stats','mensajeros','config','historial','catalog','estafa'].forEach(t=>{
+  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa'].forEach(t=>{
     const btn=document.getElementById('anav-'+t);if(btn)btn.classList.toggle('active',t===tab);
     const pid='admin'+t.charAt(0).toUpperCase()+t.slice(1)+'Panel';
     const el=document.getElementById(pid);
@@ -4908,6 +4964,7 @@ function adminTab(tab) {
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
   if(tab==='mensajeros'){renderMensajeroSelector();renderPendingCobroSection();renderMensajeroVales();}
   if(tab==='config'){loadGhConfigUI();}
+  if(tab==='duenos'){renderDuenos();}
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
 }
@@ -9006,11 +9063,14 @@ function populateCatSelect(selectedId) {
   document.getElementById('pm-cat').innerHTML=
     `<option value="">Sin categoría</option>`+
     cats.map(c=>`<option value="${c.id}" ${c.id===selectedId?'selected':''}>${escapeHTML(c.name)}</option>`).join('');
+  // v117: los dueños ya escritos, para elegir en vez de teclear otra vez.
+  const dl=document.getElementById('pm-duenos-lista');
+  if(dl)dl.innerHTML=listaDuenos().map(n=>`<option value="${escapeHTML(n)}"></option>`).join('');
 }
 function openAddProductModal() {
   editingProductId=null;
   document.getElementById('productModalTitle').textContent='📦 Nuevo Producto';
-  ['pm-name','pm-desc','pm-precio','pm-costo','pm-foto','pm-garantia','pm-comision'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pm-name','pm-desc','pm-precio','pm-costo','pm-dueno','pm-foto','pm-garantia','pm-comision'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('pm-comision-amount').value='';
   document.getElementById('pm-comision-currency').value='USD';
   document.getElementById('pm-stock').value='0';document.getElementById('pm-puntos').value='0';
@@ -9078,6 +9138,7 @@ function openEditProductModal(id) {
   document.getElementById('pm-desc').value=p.description||'';
   document.getElementById('pm-precio').value=p.precio||'';
   {const elC=document.getElementById('pm-costo');if(elC)elC.value=costoDe(id);}   // v114: vive aparte
+  {const elD=document.getElementById('pm-dueno');if(elD)elD.value=duenoDe(id);}   // v117: idem
   document.getElementById('pm-stock').value=p.stock||0;
   document.getElementById('pm-puntos').value=p.puntos||0;
   document.getElementById('pm-garantia').value=p.garantia||'';
@@ -9515,15 +9576,18 @@ async function saveProduct() {
   // v114: el costo NO va dentro del producto —ver la nota en getCostos()— así
   // que se guarda aparte, con el id que le toque.
   const costoEscrito=(document.getElementById('pm-costo')||{value:''}).value.trim();
+  const duenoEscrito=(document.getElementById('pm-dueno')||{value:''}).value.trim();
   if(editingProductId){
     const old=productoOf(editingProductId);
     setCosto(editingProductId,costoEscrito);
+    setDueno(editingProductId,duenoEscrito);
     patchProducto(editingProductId,prod);
     if(old&&old.stock===0&&prod.stock>0) addNotif('restocked',prod.name,editingProductId,`stock: ${prod.stock}`);
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
     setCosto(newId,costoEscrito);
+    setDueno(newId,duenoEscrito);
     const list=getProductos().slice();list.push({id:newId,...prod});guardarProductos(list,[newId]);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
@@ -10299,6 +10363,181 @@ function renderGanancia(vales) {
   cats.forEach(cat => { tabla += seccion(cat.name || 'Categoría', prods.filter(p => p.catId === cat.id)); });
   tabla += seccion('Sin categoría', prods.filter(p => !p.catId || !cats.some(c => c.id === p.catId)));
   cTabla.innerHTML = tabla;
+}
+
+// ══════════════════════════════════════════
+//  CORTE POR DUEÑO  (v117)
+// ══════════════════════════════════════════
+// Qué se vendió de cada dueño y qué comisión le toca pagar a cada gestor.
+//
+// ⚠️ POR QUÉ ESTO SE CALCULA LÍNEA A LÍNEA Y NO DEL TOTAL DEL VALE
+// Un vale puede llevar productos de DOS dueños distintos, y guarda un solo
+// importe total (y una sola comisión congelada). De ese total no se puede
+// deducir cuánto era de cada uno. Así que cada línea se valora con el precio
+// del producto en el catálogo por su cantidad, que es lo que el dueño sabe que
+// vale su mercancía.
+//
+// Eso trae dos avisos que el panel enseña cuando tocan, en vez de callárselos:
+//   · Si el vale llevaba una rebaja, se cobró menos de lo que suman las líneas.
+//   · Si la comisión del catálogo cambió después de la venta, la suma por
+//     líneas no coincide con la que se le congeló al vale.
+function _lineasPorDueno(vales) {
+  const porDueno = new Map();       // clave normalizada → {nombre, lineas[]}
+  let conRebaja = 0, sinPrecio = 0;
+  vales.forEach(v => {
+    const esTienda = esValeDeLaTienda(v) || v.gestorId === 'admin';
+    const g = gestorOf(v.gestorId);
+    const tieneRebaja = !!(typeof _rebajaVale === 'function' && _rebajaVale(v));
+    if (tieneRebaja) conRebaja++;
+    (v.valeProductos || []).forEach(({ id, qty }) => {
+      const p = productoOf(id);
+      const nombre = duenoDe(id);
+      const clave = _claveDueno(nombre) || _SIN_DUENO;   // sin dueño = mercancía tuya
+      const unidades = parseInt(qty, 10) || 0;
+      const venta = _aUSD(_montoMonedas(p ? p.precio : ''));
+      if (venta === null || !venta) sinPrecio++;
+      // La comisión del gestor. Una venta hecha desde el admin no genera
+      // comisión: no hay a quién pagársela.
+      let comision = 0;
+      if (!esTienda && p) {
+        try {
+          const r = getValeCommissionParts({ valeProductos: [{ id, qty: unidades }] });
+          const c = _aUSD({ usd: r.totalUSD || 0, mn: r.totalMN || 0 });
+          comision = c === null ? 0 : c;
+        } catch(e) { comision = 0; }
+      }
+      if (!porDueno.has(clave)) porDueno.set(clave, { nombre: nombre || 'Mercancía de la tienda', propia: !nombre, lineas: [] });
+      porDueno.get(clave).lineas.push({
+        ts: v.ts, valeId: v.id, valeNum: (typeof valeNumStr === 'function' ? valeNumStr(v) : ''),
+        gestor: esTienda ? 'Tienda (admin)' : (g ? g.name : '—'), esTienda,
+        producto: p ? (p.name || p.nombre || ('#' + id)) : ('Producto #' + id + ' (borrado)'),
+        qty: unidades,
+        venta: venta === null ? 0 : venta * unidades,
+        sinPrecio: venta === null || !venta,
+        comision, tieneRebaja,
+      });
+    });
+  });
+  return { porDueno, conRebaja, sinPrecio };
+}
+
+function setDuenosRango(cual) {
+  const f = document.getElementById('duenosDateFrom');
+  const t = document.getElementById('duenosDateTo');
+  if (!f || !t) return;
+  const hoy = new Date();
+  const dia = d => localDay(d.toISOString());
+  if (cual === 'hoy')  { f.value = dia(hoy); t.value = dia(hoy); }
+  else if (cual === 'ayer') { const a = new Date(hoy.getTime() - 86400000); f.value = dia(a); t.value = dia(a); }
+  else if (cual === 'mes')  { f.value = dia(new Date(hoy.getFullYear(), hoy.getMonth(), 1)); t.value = dia(hoy); }
+  renderDuenos();
+}
+
+function renderDuenos() {
+  const cAviso = document.getElementById('duenosAviso');
+  const cRes   = document.getElementById('duenosResumen');
+  const cList  = document.getElementById('duenosLista');
+  if (!cList) return;
+  const elF = document.getElementById('duenosDateFrom');
+  const elT = document.getElementById('duenosDateTo');
+  // Por defecto, el corte del día: es para lo que se abre esta pantalla.
+  if (elF && !elF.value && elT && !elT.value) {
+    const hoy = localDay(new Date().toISOString());
+    elF.value = hoy; elT.value = hoy;
+  }
+  const from = elF ? elF.value : '', to = elT ? elT.value : '';
+
+  // Solo ventas cerradas: un vale pendiente todavía se puede caer, y no se le
+  // pide dinero a nadie por algo que aún no se ha cobrado.
+  let vales = getVales().filter(v => v.status === 'confirmed');
+  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
+  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
+
+  const { porDueno, conRebaja, sinPrecio } = _lineasPorDueno(vales);
+  const tasa = tasaUSDFinal();
+
+  // ── AVISOS ──
+  const avisos = [];
+  const prodsConDueno = Object.keys(getDuenos()).length;
+  if (!prodsConDueno) avisos.push('Ningún producto tiene dueño puesto todavía. Se pone en la ficha del producto (📦 Stock → tocar un producto → <b>Dueño de la mercancía</b>). Lo que no lleve dueño cuenta como mercancía tuya.');
+  if (sinPrecio) avisos.push(`${sinPrecio} línea(s) de venta son de productos sin precio en el catálogo (o borrados), así que no suman importe.`);
+  if (conRebaja) avisos.push(`${conRebaja} vale(s) del período llevaban rebaja: se cobró menos de lo que suman sus líneas, que van al precio de catálogo.`);
+  if (!tasa) avisos.push('No hay tasa del día guardada, así que lo que esté en MN no se puede sumar con lo que está en USD.');
+  cAviso.innerHTML = avisos.length
+    ? `<div style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:9px;padding:9px 12px;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--text);">
+         ${avisos.map(a => `<div style="margin:2px 0;">⚠️ ${a}</div>`).join('')}
+       </div>` : '';
+
+  if (!porDueno.size) {
+    cRes.innerHTML = '';
+    cList.innerHTML = '<div class="es"><div class="es-icon">🧑‍💼</div><div class="es-text">Sin ventas confirmadas en estas fechas</div></div>';
+    return;
+  }
+
+  // Los de la tienda al final: primero la gente a la que hay que pagarle.
+  const grupos = [...porDueno.values()].sort((a, b) => (a.propia ? 1 : 0) - (b.propia ? 1 : 0) || a.nombre.localeCompare(b.nombre, 'es'));
+
+  let totVenta = 0, totCom = 0;
+  grupos.forEach(gr => {
+    gr.venta = gr.lineas.reduce((s, l) => s + l.venta, 0);
+    gr.com   = gr.lineas.reduce((s, l) => s + l.comision, 0);
+    totVenta += gr.venta; totCom += gr.com;
+  });
+
+  cRes.innerHTML = [
+    { label: 'Vendido en el período', val: _fmtUSD(totVenta), color: 'var(--blue)' },
+    { label: 'Comisiones a pagar',    val: _fmtUSD(totCom),   color: 'var(--orange)' },
+    { label: 'Queda después de pagar',val: _fmtUSD(totVenta - totCom), color: 'var(--green)' },
+  ].map(({ label, val, color }) => `<div class="stat-card">
+      <div class="stat-num" style="color:${color};font-size:19px;">${val}</div>
+      <div class="stat-lbl">${label}</div>
+    </div>`).join('') +
+    (tasa ? `<div style="grid-column:1/-1;font-size:10px;color:var(--text-muted);">Lo que estaba en MN se convirtió a USD a ${tasa} CUP/USD.</div>` : '');
+
+  // ── UN BLOQUE POR DUEÑO ──
+  cList.innerHTML = grupos.map(gr => {
+    // Cuánto le toca a cada gestor, que es lo que se lleva apuntado en la mano.
+    const porGestor = new Map();
+    gr.lineas.forEach(l => {
+      if (!l.comision) return;
+      porGestor.set(l.gestor, (porGestor.get(l.gestor) || 0) + l.comision);
+    });
+    const chapasGestor = [...porGestor.entries()].sort((a, b) => b[1] - a[1])
+      .map(([n, c]) => `<span style="background:rgba(245,158,11,.15);color:var(--orange);border:1px solid rgba(245,158,11,.35);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:700;white-space:nowrap;">${escapeHTML(n)} · ${_fmtUSD(c)}</span>`).join('');
+    const lineasOrdenadas = gr.lineas.slice().sort((a, b) => Date.parse(b.ts) - Date.parse(a.ts));
+    return `<div style="margin-bottom:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;background:var(--surface2);">
+        <span style="font-size:13px;font-weight:800;color:var(--text);">${gr.propia ? '🏪' : '🧑‍💼'} ${escapeHTML(gr.nombre)}
+          <span style="color:var(--text-muted);font-weight:600;font-size:11px;">· ${gr.lineas.length} venta(s)</span></span>
+        <span style="font-size:11px;color:var(--text-muted);">
+          vendido <b style="color:var(--blue);">${_fmtUSD(gr.venta)}</b>
+          · comisiones <b style="color:var(--orange);">${_fmtUSD(gr.com)}</b>
+          · queda <b style="color:var(--green);">${_fmtUSD(gr.venta - gr.com)}</b>
+        </span>
+      </div>
+      ${chapasGestor ? `<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);">
+        <span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;align-self:center;">Debe pagar a:</span>${chapasGestor}
+      </div>` : ''}
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:520px;">
+          <thead><tr style="background:var(--surface2);">
+            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);">Fecha</th>
+            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);">Producto</th>
+            <th style="text-align:left;padding:6px 10px;font-weight:700;color:var(--text-muted);">Vendió</th>
+            <th style="text-align:right;padding:6px 10px;font-weight:700;color:var(--text-muted);">Importe</th>
+            <th style="text-align:right;padding:6px 10px;font-weight:700;color:var(--text-muted);">Comisión</th>
+          </tr></thead>
+          <tbody>${lineasOrdenadas.map(l => `<tr style="border-top:1px solid var(--border);">
+            <td style="padding:5px 10px;white-space:nowrap;color:var(--text-muted);">${new Date(l.ts).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})}</td>
+            <td style="padding:5px 10px;">${escapeHTML(l.producto)}${l.qty > 1 ? ` <b>×${l.qty}</b>` : ''}${l.tieneRebaja ? ' <span title="este vale llevaba rebaja: se cobró menos" style="color:var(--orange);">🏷️</span>' : ''}</td>
+            <td style="padding:5px 10px;">${escapeHTML(l.gestor)}${l.esTienda ? ' <span style="color:var(--text-muted);font-size:9px;">(sin comisión)</span>' : ''}</td>
+            <td style="padding:5px 10px;text-align:right;white-space:nowrap;">${l.sinPrecio ? '<span style="color:var(--gray-400);">—</span>' : _fmtUSD(l.venta)}</td>
+            <td style="padding:5px 10px;text-align:right;white-space:nowrap;color:${l.comision ? 'var(--orange)' : 'var(--gray-400)'};">${l.comision ? _fmtUSD(l.comision) : '—'}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderStats() {

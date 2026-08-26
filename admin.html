@@ -88,6 +88,7 @@
     <button class="anav-btn" id="anav-catalog" onclick="adminTab('catalog')">🛍️ Catálogo</button>
     <button class="anav-btn" id="anav-gestores" onclick="adminTab('gestores')">👥 Gestores</button>
     <button class="anav-btn" id="anav-mensajeros" onclick="adminTab('mensajeros')">🛵 Mensajeros<span id="mensajeroBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;"></span></button>
+    <button class="anav-btn" id="anav-duenos" onclick="adminTab('duenos')">🧑‍💼 Dueños</button>
     <button class="anav-btn" id="anav-stats" onclick="adminTab('stats')">📊 Estadísticas</button>
     <button class="anav-btn" id="anav-historial" onclick="adminTab('historial')">📋 Historial</button>
     <button class="anav-btn" id="anav-estafa" onclick="adminTab('estafa')">🚫 Estafa</button>
@@ -275,6 +276,29 @@
   </div>
 
   <!-- ════════ HISTORIAL PANEL ════════ -->
+  <!-- ════════ DUEÑOS PANEL ════════
+       v117: el corte del día. La tienda vende mercancía de varias personas;
+       aquí sale, por cada una, qué se vendió de lo suyo, qué comisión le toca
+       pagar a cada gestor y cuánto queda después de pagarlas. -->
+  <div id="adminDuenosPanel" class="admin-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+      <div class="lbl" style="margin-top:0;">🧑‍💼 Dueños · corte de ventas</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="setDuenosRango('hoy')">Hoy</button>
+        <button class="btn btn-ghost btn-sm" onclick="setDuenosRango('ayer')">Ayer</button>
+        <button class="btn btn-ghost btn-sm" onclick="setDuenosRango('mes')">Este mes</button>
+        <label style="font-size:11px;color:var(--gray-500);">Desde:</label>
+        <input type="date" id="duenosDateFrom" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:12px;">
+        <label style="font-size:11px;color:var(--gray-500);">Hasta:</label>
+        <input type="date" id="duenosDateTo" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:12px;">
+        <button class="btn btn-blue btn-sm" onclick="renderDuenos()">Actualizar</button>
+      </div>
+    </div>
+    <div id="duenosAviso"></div>
+    <div id="duenosResumen" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+    <div id="duenosLista"></div>
+  </div>
+
   <div id="adminHistorialPanel" class="admin-panel">
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
       <div class="lbl" style="margin-top:0;">📋 Historial (vales procesados)</div>
@@ -893,6 +917,18 @@
           <div class="vf-label"><span>Costo — lo que te costó a ti</span></div>
           <input type="text" id="pm-costo" placeholder="Ej: $30 USD o 3000 MN">
           <div style="font-size:10px;color:var(--gray-400);margin-top:3px;">Solo tuyo: se guarda aparte del producto y no se descarga al teléfono de los gestores. Se usa para la ganancia en 📊 Estadísticas.</div>
+        </div>
+      </div>
+      <!-- v117: de quién es la mercancía. Como el costo, solo lo ve el admin.
+           El datalist ofrece los dueños ya escritos para que no acaben tres
+           variantes del mismo nombre por una mayúscula. -->
+      <div class="vf-row">
+        <span class="vf-emoji">🧑‍💼</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Dueño de la mercancía</span></div>
+          <input type="text" id="pm-dueno" list="pm-duenos-lista" placeholder="Déjalo vacío si es tuyo" autocomplete="off">
+          <datalist id="pm-duenos-lista"></datalist>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:3px;">Privado. Se usa para el corte de 🧑‍💼 Dueños; los gestores no lo ven.</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
