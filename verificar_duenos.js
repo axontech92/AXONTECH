@@ -51,6 +51,7 @@ const code="const IS_ADMIN=true;\n"
  +"const duenoIdDe = pid => { const v=getDuenosDoc().asig[String(pid)]; return v==null?null:Number(v); };\n"
  +ex('addDueno')+'\n'+ex('renameDueno')+'\n'+ex('removeDueno')+'\n'+ex('setDuenoProducto')+'\n'+ex('productosDeDueno')+'\n'
  +ex('parsePrecioNum')+'\n'+ex('_montoMonedas')+'\n'+ex('_fmtDosMonedas')+'\n'
+ +ex('_montoDebePagarHTML')+'\n'+ex('_filaPagarAttrs')+'\n'
  +ex('_lineasPorDueno')+'\n'+ex('_valesDelCorte')+'\n'+ex('renderDuenos')+'\n'
  +ex('openDuenoModal')+'\n'+ex('closeDuenoModal')+'\n'+ex('renderDuenoModal')+'\n'
  +"let _duenoModalId=null;\n"

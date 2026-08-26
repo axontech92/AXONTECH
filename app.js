@@ -10549,6 +10549,11 @@ function _lineasPorDueno(vales) {
     const g = gestorOf(v.gestorId);
     const tieneRebaja = !!(typeof _rebajaVale === 'function' && _rebajaVale(v));
     if (tieneRebaja) conRebaja++;
+    // Estado del pago de la comisión de este vale: se necesita para poder tachar
+    // en "Debe pagar a" lo que el admin ya marcó como en sobre o cobrado en el
+    // panel de Gestores, en vez de seguir pidiéndolo por siempre.
+    const comEstado = (v.commissionPaid || v.commissionStatus === 'cobrado') ? 'cobrado'
+                     : v.commissionStatus === 'en_sobre' ? 'en_sobre' : 'pendiente';
     (v.valeProductos || []).forEach(({ id, qty }) => {
       const p = productoOf(id);
       const dueno = duenoPorId(duenoIdDe(id));
@@ -10578,6 +10583,7 @@ function _lineasPorDueno(vales) {
         ts: v.ts, valeId: v.id, valeNum: (typeof valeNumStr === 'function' ? valeNumStr(v) : ''),
         cliente: v.cliente || '',
         gestor: esTienda ? 'Tienda (admin)' : (g ? g.name : '—'), esTienda,
+        gestorId: esTienda ? null : v.gestorId, comEstado,
         producto: p ? (p.name || p.nombre || ('#' + id)) : ('Producto #' + id + ' (borrado)'),
         qty: unidades, ventaUSD, ventaMN, comUSD, comMN,
         sinPrecio: !pv.usd && !pv.mn, tieneRebaja,
@@ -10597,9 +10603,35 @@ function _lineasPorDueno(vales) {
 // Un importe en las dos monedas, tal cual, sin convertir. "—" si no hay nada.
 function _fmtDosMonedas(usd, mn) {
   const p = [];
-  if (usd) p.push('$' + (Math.round(usd * 100) / 100).toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' USD');
-  if (mn)  p.push(Math.round(mn).toLocaleString('es-ES') + ' MN');
-  return p.length ? p.join(' + ') : '—';
+  // Cada parte lleva su propio signo (−) en vez de dejar que toLocaleString lo
+  // pegue después del "+" del separador: "USD + -7.500 MN" se lee como un error
+  // de tipeo. Si la segunda parte es negativa, se une con un espacio — el propio
+  // signo ya dice "y además esto", no hace falta el "+".
+  if (usd) p.push((usd < 0 ? '−' : '') + '$' + (Math.round(Math.abs(usd) * 100) / 100).toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' USD');
+  if (mn)  p.push((mn < 0 ? '−' : '') + Math.round(Math.abs(mn)).toLocaleString('es-ES') + ' MN');
+  if (!p.length) return '—';
+  if (p.length === 1) return p[0];
+  return p[0] + (mn < 0 ? ' ' : ' + ') + p[1];
+}
+
+// El importe de "debe pagar" a un gestor: lo pendiente en grande, y si además
+// hay algo que el admin ya marcó en sobre o cobrado en 📋 Gestores para ese
+// mismo gestor, se tacha aparte — así queda claro qué falta todavía y qué ya
+// se resolvió, en vez de seguir pidiendo dinero que ya se pagó.
+function _montoDebePagarHTML(a) {
+  const hayPend = a.usdPend || a.mnPend;
+  const hayListo = a.usdListo || a.mnListo;
+  if (!hayPend && hayListo) {
+    return `<s style="opacity:.5;">${_fmtDosMonedas(a.usd, a.mn)}</s> <span style="font-size:9px;font-weight:700;color:var(--ax2-good);white-space:nowrap;">✓ pagado</span>`;
+  }
+  const pend = _fmtDosMonedas(a.usdPend, a.mnPend);
+  if (!hayListo) return pend;
+  return pend + `<div style="font-size:9.5px;font-weight:500;opacity:.55;text-decoration:line-through;margin-top:1px;">${_fmtDosMonedas(a.usdListo, a.mnListo)}</div>`;
+}
+// Atributos para saltar directo a la ficha de comisiones de ese gestor en
+// 📋 Gestores al tocar su fila en "Debe pagar a" — ver irAComisionesDeGestor().
+function _filaPagarAttrs(gestorId) {
+  return gestorId == null ? '' : ` onclick="irAComisionesDeGestor(${gestorId},event)" style="cursor:pointer;" title="Abrir sus comisiones en 📋 Gestores"`;
 }
 
 function setDuenosRango(cual) {
@@ -10649,6 +10681,20 @@ function removeDuenoDesdeUI(id, e) {
     });
 }
 
+// Desde "Debe pagar a" se salta directo a la ficha de comisiones de ese
+// gestor en 📋 Gestores, para marcarla en sobre o cobrada sin tener que ir a
+// buscarlo a mano. gestoresTabDirty=true fuerza a adminTab() a repintar la
+// pestaña aunque ya estuviera pintada de antes (si no, el cambio de tab no
+// hace nada y el modal se abriría sobre una lista vieja).
+function irAComisionesDeGestor(id, e) {
+  if (e) e.stopPropagation();
+  if (id == null) return;
+  closeDuenoModal();
+  gestoresTabDirty = true;
+  adminTab('gestores');
+  setTimeout(() => { if (typeof toggleComisionGestor === 'function') toggleComisionGestor(id); }, 50);
+}
+
 // ── EL MODAL DE UN DUEÑO ───────────────────────────────────────────────────
 let _duenoModalId = null;
 function openDuenoModal(clave) {
@@ -10685,9 +10731,12 @@ function renderDuenoModal() {
   const porGestor = new Map();
   gr.lineas.forEach(l => {
     if (!l.comUSD && !l.comMN) return;
-    const a = porGestor.get(l.gestor) || { usd: 0, mn: 0 };
+    const clave = l.gestorId != null ? String(l.gestorId) : l.gestor;
+    const a = porGestor.get(clave) || { nombre: l.gestor, gestorId: l.gestorId, usd: 0, mn: 0, usdPend: 0, mnPend: 0, usdListo: 0, mnListo: 0 };
     a.usd += l.comUSD; a.mn += l.comMN;
-    porGestor.set(l.gestor, a);
+    if (l.comEstado === 'pendiente') { a.usdPend += l.comUSD; a.mnPend += l.comMN; }
+    else { a.usdListo += l.comUSD; a.mnListo += l.comMN; }
+    porGestor.set(clave, a);
   });
   // v118: NO se ordena sumando usd+mn — eso trata un peso cubano como si
   // valiera lo mismo que un dólar, y ordenaría a quien le deben 400 MN por
@@ -10710,9 +10759,9 @@ function renderDuenoModal() {
   cuerpo.innerHTML = `<div class="ax2-panel">
     ${filasGestor.length ? `<div class="ax2-card" style="padding:10px 12px;margin-bottom:12px;">
       <div style="font-size:10px;font-weight:700;color:var(--ax2-text-low);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">Comisiones que debe pagar</div>
-      ${filasGestor.map(([n, a]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--ax2-line);">
-        <span style="font-size:12px;font-weight:700;color:var(--ax2-text-hi);">${escapeHTML(n)}</span>
-        <span class="ax2-mono" style="font-size:12px;font-weight:800;color:var(--ax2-ember-soft);white-space:nowrap;">${_fmtDosMonedas(a.usd, a.mn)}</span>
+      ${filasGestor.map(([, a]) => `<div${_filaPagarAttrs(a.gestorId)} style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0;border-top:1px solid var(--ax2-line);flex-wrap:wrap;">
+        <span style="font-size:12px;font-weight:700;color:var(--ax2-text-hi);">${escapeHTML(a.nombre)}${a.gestorId != null ? ' ›' : ''}</span>
+        <span class="ax2-mono" style="font-size:12px;font-weight:800;color:var(--ax2-ember-soft);text-align:right;">${_montoDebePagarHTML(a)}</span>
       </div>`).join('')}
     </div>` : '<div style="font-size:11px;color:var(--ax2-text-low);margin-bottom:12px;">Sin comisiones que pagar en estas fechas.</div>'}
 
@@ -10806,6 +10855,11 @@ function renderDuenos() {
   // ── RESUMEN, cada moneda por su lado ──
   let tvU = 0, tvM = 0, tcU = 0, tcM = 0;
   porDueno.forEach(gr => { tvU += gr.ventaUSD; tvM += gr.ventaMN; tcU += gr.comUSD; tcM += gr.comMN; });
+  // Si en alguna de las dos monedas se debe más comisión de lo que se vendió
+  // en esa misma moneda (p. ej. comisiones fijadas en MN sobre ventas en USD),
+  // "lo que queda" da negativo: se marca en rojo en vez de seguir en verde
+  // como si sobrara dinero.
+  const _quedaNeg = (tvU - tcU) < 0 || (tvM - tcM) < 0;
   cRes.innerHTML = `
     <div class="ax2-card ax2-kpi">
       <div class="ax2-kpi-label">Vendido en el período</div>
@@ -10817,11 +10871,11 @@ function renderDuenos() {
     </div>
     <div class="ax2-card ax2-kpi wide">
       <div class="ax2-kpi-label">Queda después de pagar</div>
-      <div class="ax2-kpi-value good">${_fmtDosMonedas(tvU - tcU, tvM - tcM)}</div>
+      <div class="ax2-kpi-value ${_quedaNeg ? 'danger' : 'good'}">${_fmtDosMonedas(tvU - tcU, tvM - tcM)}</div>
       <div class="ax2-flow">
         <span>${_fmtDosMonedas(tvU, tvM)}</span><span class="arrow">−</span>
         <span class="neg">${_fmtDosMonedas(tcU, tcM)}</span><span class="arrow">=</span>
-        <span class="pos">${_fmtDosMonedas(tvU - tcU, tvM - tcM)}</span>
+        <span class="${_quedaNeg ? 'neg' : 'pos'}">${_fmtDosMonedas(tvU - tcU, tvM - tcM)}</span>
       </div>
     </div>`;
 
@@ -10831,9 +10885,12 @@ function renderDuenos() {
   const porGestorGlobal = new Map();
   porDueno.forEach(gr => gr.lineas.forEach(l => {
     if (!l.comUSD && !l.comMN) return;
-    const a = porGestorGlobal.get(l.gestor) || { usd: 0, mn: 0 };
+    const clave = l.gestorId != null ? String(l.gestorId) : l.gestor;
+    const a = porGestorGlobal.get(clave) || { nombre: l.gestor, gestorId: l.gestorId, usd: 0, mn: 0, usdPend: 0, mnPend: 0, usdListo: 0, mnListo: 0 };
     a.usd += l.comUSD; a.mn += l.comMN;
-    porGestorGlobal.set(l.gestor, a);
+    if (l.comEstado === 'pendiente') { a.usdPend += l.comUSD; a.mnPend += l.comMN; }
+    else { a.usdListo += l.comUSD; a.mnListo += l.comMN; }
+    porGestorGlobal.set(clave, a);
   }));
   // El ancho de la barra (y el orden de la lista) es un adelanto visual, no un
   // importe: compara cada fila con el máximo DE SU MISMA MONEDA y se queda con
@@ -10853,10 +10910,12 @@ function renderDuenos() {
         <div class="ax2-payout-total-label">Total comisiones del período</div>
         <div class="ax2-payout-total-value">${_fmtDosMonedas(tcU, tcM)}</div>
       </div>
-      ${filasPagar.map(([nombre, a]) => `<div class="ax2-payout-row">
-          <div class="ax2-payout-name">${escapeHTML(nombre)}</div>
+      ${filasPagar.map(([, a]) => `<div class="ax2-payout-row"${_filaPagarAttrs(a.gestorId)}>
+          <div class="ax2-payout-row-top">
+            <div class="ax2-payout-name">${escapeHTML(a.nombre)}${a.gestorId != null ? ' ›' : ''}</div>
+            <div class="ax2-payout-amt">${_montoDebePagarHTML(a)}</div>
+          </div>
           <div class="ax2-payout-track"><div class="ax2-payout-fill" style="width:${Math.max(4,pctDe(a)*100).toFixed(0)}%;"></div></div>
-          <div class="ax2-payout-amt">${_fmtDosMonedas(a.usd, a.mn)}</div>
         </div>`).join('')}
     </div>`;
   }

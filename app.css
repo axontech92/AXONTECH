@@ -207,11 +207,19 @@ body.dark .ax2-chip.active{background:linear-gradient(135deg,var(--ax2-signal),#
 .ax2-payout-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
 .ax2-payout-total-label{font-size:11.5px;color:var(--ax2-text-low);}
 .ax2-payout-total-value{font-family:var(--ax2-mono);font-size:14px;font-weight:700;color:var(--ax2-ember-soft);}
-.ax2-payout-row{display:grid;grid-template-columns:74px 1fr 54px;align-items:center;gap:9px;padding:7px 0;}
-.ax2-payout-name{font-size:11.5px;color:var(--ax2-text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* v119: antes era una cuadrícula de 3 columnas con el importe metido en
+   54px fijos — un importe de dos monedas ("$10 USD + 1.500 MN") no cabe ahí y
+   se salía de la tarjeta. Ahora el nombre y el importe van en una fila propia
+   que se reparte el ancho que haga falta, y la barra ocupa toda la fila de
+   abajo: cabe cualquier importe, en el teléfono y en pantallas anchas. */
+.ax2-payout-row{padding:8px 0;border-radius:10px;transition:background .12s;}
+.ax2-payout-row[onclick]{cursor:pointer;}
+.ax2-payout-row[onclick]:hover{background:rgba(127,127,127,.06);}
+.ax2-payout-row-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:5px;}
+.ax2-payout-name{font-size:11.5px;color:var(--ax2-text-mid);overflow:hidden;text-overflow:ellipsis;min-width:0;}
 .ax2-payout-track{height:7px;border-radius:100px;background:rgba(127,127,127,.10);overflow:hidden;}
 .ax2-payout-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--ax2-ember-dim),var(--ax2-ember));}
-.ax2-payout-amt{font-family:var(--ax2-mono);font-size:11.5px;text-align:right;color:var(--ax2-ember-soft);font-weight:600;white-space:nowrap;}
+.ax2-payout-amt{font-family:var(--ax2-mono);font-size:11.5px;text-align:right;color:var(--ax2-ember-soft);font-weight:600;flex-shrink:0;}
 
 /* ── Filas de lista (fichas clicables, "ledger") ── */
 .ax2-row-card{padding:0 4px;}
@@ -325,8 +333,17 @@ body.dark .ax2-input{color-scheme:dark;}
 .ax2-btn.primary{background:linear-gradient(135deg,var(--ax2-signal),#0e7490);color:#fff;border-color:transparent;}
 .ax2-btn.danger{color:var(--ax2-danger);border-color:rgba(220,38,38,.3);}
 
-@media (max-width:480px){
-  .ax2-payout-row{grid-template-columns:58px 1fr 46px;}
+/* ── Pantallas anchas (PC): el panel deja de estirarse a lo ancho de la
+   ventana entera y se centra con un ancho cómodo de leer, y las cuadrículas
+   de KPI aprovechan el espacio de sobra en vez de dejarlo vacío. Nada de esto
+   toca el móvil, que sigue igual por debajo de este ancho. ── */
+@media (min-width:760px){
+  .ax2-panel{max-width:720px;margin-left:auto;margin-right:auto;}
+  /* auto-fit en vez de un número fijo de columnas: en Dueños solo hay 2
+     tarjetas cortas y con 4 columnas fijas quedaban dos vacías a la derecha;
+     con auto-fit cada tarjeta reparte el ancho que sobra, sean 2 o sean 4. */
+  .ax2-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+  .ax2-payout-row-top{gap:16px;}
 }
 
 /* ── Reset básico ── */
