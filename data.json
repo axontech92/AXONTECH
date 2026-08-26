@@ -415,6 +415,11 @@
       "id": 1787703594932,
       "name": "Rafelito",
       "phone": "5359496327"
+    },
+    {
+      "id": 1787786983983,
+      "name": "Miguel",
+      "phone": "5354393080"
     }
   ],
   "productos": [
@@ -2225,7 +2230,7 @@
       "ts": "2026-08-26T21:16:18.818Z",
       "total": "4200 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T21:16:58.495Z",
+      "seenTs": "2026-08-26T23:29:49.357Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Fernando Zorrilla",
@@ -2298,8 +2303,8 @@
       "ts": "2026-08-26T19:38:06.111Z",
       "total": "12700 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T20:03:11.722Z",
-      "status": "pending",
+      "seenTs": "2026-08-26T23:29:51.754Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Ricardo ferro",
       "valeNum": 91,
@@ -2326,7 +2331,9 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "mensajeroId": 1787786983983,
+      "assignedTs": "2026-08-26T23:30:01.996Z"
     },
     {
       "id": 1787770889284,
@@ -8933,5 +8940,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T22:31:23.328Z"
+  "timestamp": "2026-08-26T23:30:44.239Z"
 }
