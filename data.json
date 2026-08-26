@@ -1469,7 +1469,7 @@
       "name": "Router ASUS AX1800",
       "catId": 10,
       "photo": "photos/img_1785078992522.webp",
-      "stock": 3,
+      "stock": 5,
       "imagen": "photos/img_1785078992522.webp",
       "nombre": "Router ASUS AX1800",
       "precio": "$150",
@@ -8377,5 +8377,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T04:18:25.759Z"
+  "timestamp": "2026-08-26T04:21:14.276Z"
 }
