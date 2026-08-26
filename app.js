@@ -334,14 +334,27 @@ async function _sbRestHayCambios(collName, desdeISO) {
 // Devuelve null si no se puede saber; quien llama entonces baja la tabla, que
 // es el comportamiento seguro de siempre.
 async function _sbRestContarFilas(collName, filtroExtra) {
-  const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=id&limit=0`
-            + (filtroExtra ? '&' + filtroExtra : '');
+  const base = `${_SB_REST}/${encodeURIComponent(collName)}?select=id`
+             + (filtroExtra ? '&' + filtroExtra : '');
   try {
-    const res = await fetch(url, { headers: { ..._SB_AUTH_HDRS, 'Prefer': 'count=exact' } });
+    // 1) Por la cabecera: no baja ni una fila, son unos cientos de bytes.
+    const res = await fetch(base + '&limit=0', { headers: { ..._SB_AUTH_HDRS, 'Prefer': 'count=exact' } });
     if (!res.ok) return null;
     const rango = res.headers.get('content-range') || '';   // "0-0/1234" o "*/1234"
     const n = parseInt(String(rango).split('/')[1], 10);
-    return isNaN(n) ? null : n;
+    if (!isNaN(n)) return n;
+    // 2) Si no se puede leer la cabecera, se cuentan los ids a mano.
+    //    Content-Range NO es de las que el navegador deja leer por defecto: hace
+    //    falta que el servidor la exponga (Access-Control-Expose-Headers). Si no
+    //    lo hace, aquí llegaba null SIEMPRE y el atajo no ahorraba nada —sin dar
+    //    la cara, porque null significa "ante la duda, baja la tabla". Pedir los
+    //    ids pesa más que la cabecera (unos 20 bytes por vale) pero sigue siendo
+    //    una fracción de la tabla entera, y no depende de cómo esté configurado
+    //    el servidor.
+    const res2 = await fetch(base, { headers: _SB_AUTH_HDRS });
+    if (!res2.ok) return null;
+    const filas = await res2.json().catch(() => null);
+    return Array.isArray(filas) ? filas.length : null;
   } catch (e) { return null; }
 }
 
@@ -1316,6 +1329,32 @@ async function _doRestPoll() {
             }
             _ultimaTsVisto.vales = _r.maxTs || _ultimaTsVisto.vales || new Date().toISOString();
             if (_valesParcial && !rawVales.length) _saltarVales = true;
+            // ── v119: una bajada completa que vuelve vacía tiene que demostrarlo ──
+            // En el barrido completo, un vale que está aquí y no viene en la
+            // bajada se da por borrado. Eso es lo que hace que los borrados se
+            // noten... y también que una bajada vacía POR UN FALLO —un 404, un
+            // RLS mal puesto, una respuesta cortada— se lleve por delante el
+            // historial entero de este teléfono. Comprobado: devolvía [] y los
+            // vales locales desaparecían todos.
+            //
+            // "Vacío" de verdad existe (el admin puede borrarlos todos), así que
+            // no vale ignorarlo sin más: se le pregunta al servidor cuántas
+            // filas tiene. Si dice 0, era de verdad y se aplica. Si dice que hay
+            // filas —o no se puede saber— la bajada no era buena y no se toca
+            // nada: ya volverá la siguiente.
+            if (!_valesParcial && !rawVales.length) {
+              const _hayLocales = (getVales() || []).some(v => v && v.synced !== false);
+              if (_hayLocales) {
+                const _n = await _sbRestContarFilas('vales');
+                if (_n !== 0) {
+                  console.warn('[vales] bajada completa vacía pero el servidor dice que hay '
+                    + (_n === null ? '¿?' : _n) + ' fila(s) — se conserva lo de aquí');
+                  _saltarVales = true;
+                  _ultimoFetchReal.vales = 0;      // que reintente en la próxima pasada
+                  _filasVistas.vales = null;
+                }
+              }
+            }
           } else {
             _saltarVales = true; // nada nuevo — no hay nada que fusionar esta vez
           }
