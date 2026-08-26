@@ -393,7 +393,26 @@ let _ultimoFetchReal = {};
 // los cambios (esos llegan al instante y pesan 1,5 KB): es solo el barrido que
 // detecta lo que se borró desde otro teléfono. Cinco minutos de retraso en ver
 // un vale borrado es perfectamente asumible; 180 MB al día no lo era.
-const _GATE_SEGURIDAD_MS = { vales: 5 * 60000, lento: 20 * 60000, meta: 5 * 60000 };
+// v119: y volvió a pasar, por la misma razón de fondo. Estos minutos se
+// eligieron cuando la tabla pesaba 149 KB; ahora la base va por 28 MB y una
+// bajada completa cuesta un orden de magnitud más. Con el barrido cada 5 min,
+// el teléfono del admin abierto una jornada se comía otra vez varios cientos de
+// MB al día, y la cuenta llegó a 6,74 GB de los 5 GB del plan.
+//
+// El número correcto no es fijo: es "cada cuánto puedo permitirme bajar la
+// tabla entera", y eso encoge según crece la tabla. A 30 min son 48 barridos
+// al día en vez de 288 — seis veces menos — y lo único que se paga es que un
+// vale borrado desde otro teléfono tarde hasta media hora en desaparecer de
+// este. Los cambios normales (crear, confirmar, cobrar) NO pasan por aquí:
+// llegan por la vía incremental en segundos y pesan ~1,5 KB.
+//
+// Si la base sigue creciendo y el egress vuelve a apretar, lo que toca ya no es
+// subir más este número, sino dejar de barrer con la tabla entera: pedir solo
+// `?select=id` (unos KB) y comparar ids para deducir los borrados. No se hizo
+// aquí porque la tabla `vales` mezcla dos formatos —fila por vale (nueva) y
+// fila por gestor con varios vales dentro (vieja)— y un barrido por ids se
+// tragaría los de formato viejo dándolos por borrados.
+const _GATE_SEGURIDAD_MS = { vales: 30 * 60000, lento: 60 * 60000, meta: 20 * 60000 };
 // ── v66: descarga SOLO los vales de un gestor ───────────────────────────────
 // Antes, cada dispositivo de gestor se bajaba la tabla `vales` COMPLETA cada 5 s
 // —los vales de todos los demás incluidos— y luego descartaba en el navegador lo
@@ -2033,9 +2052,17 @@ function _processSBQueue() {
   // ── TRADUCIR A SUPABASE REST ──
   // db.ref() es un mock que no conecta a nada. Aquí traducimos la operación
   // a llamadas reales de Supabase REST.
+  // ⚠️ Un documento que se baja (_SB_SINGLETON_ROWS / _SB_SINGLETON_ADMIN) TIENE
+  // que estar también aquí, o la subida no encuentra su sitio: al no reconocer
+  // el nombre, más abajo se toma por una colección y se intenta escribir en una
+  // tabla con ese nombre que no existe. No da error visible —el documento es un
+  // objeto, sus claves no son ids numéricos y el lote sale vacío— así que se
+  // guarda bien en el teléfono y no llega nunca a la nube. Le pasó a `duenos`
+  // (v117): se veían en el teléfono del admin y no aparecían en ningún otro.
   const _FS_SINGLETON_DOCS = {
     config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary',
-    reservas: 'reservas', tasa: 'tasa', costos: 'costos'   // v114
+    reservas: 'reservas', tasa: 'tasa', costos: 'costos',  // v114
+    duenos: 'duenos'                                       // v119 — ver aviso de arriba
   };
   function _supabaseOpFor(path, value, method) {
     // Singleton → meta/{name}
@@ -4492,6 +4519,32 @@ const _claveDueno = n => String(n || '').trim().toLowerCase().replace(/\s+/g, ' 
 // estuvo publicada un rato. Si algún producto llegó a llevarlo, aquí se pasa
 // al documento aparte y se le quita de encima — lo que además lo borra de los
 // teléfonos de los gestores en su siguiente sincronización.
+// v119: sube los dueños que se quedaron solo en este teléfono.
+// Mientras `duenos` faltó en _FS_SINGLETON_DOCS, cada alta se guardaba aquí y
+// la subida se perdía en silencio: quien ya tenía dueños dados de alta los ve
+// bien en su teléfono y en ningún otro. Al arreglar el enrutado eso no se cura
+// solo, porque _guardarDuenos solo sube cuando el documento CAMBIA — sin tocar
+// nada, la nube se quedaría vacía para siempre.
+//
+// Solo sube si la nube NO tiene nada. Si allí ya hay una lista, manda esa: este
+// teléfono podría llevar días sin abrirse y machacarla sería justo el tipo de
+// escritura a ciegas que provoca los fallos de sincronización de esta app.
+async function _rescatarDuenosNoSubidos() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const local = getDuenosDoc();
+  if (!local || !local.lista || !local.lista.length) return;   // nada que subir
+  try {
+    const remoto = await _sbRestGetMetaYTs('duenos');
+    const yaHay = remoto && remoto.data && Array.isArray(remoto.data.lista) && remoto.data.lista.length;
+    if (yaHay) return;                                          // la nube manda
+    console.log('[duenos] la nube no los tenía — subiendo los ' + local.lista.length + ' de este teléfono');
+    setSB('duenos', local);
+  } catch (e) {
+    // Sin red o REST caído: no se fuerza nada. Se reintenta en el próximo arranque.
+    console.warn('[duenos] no se pudo comprobar la nube:', e && e.message);
+  }
+}
+
 function _rescatarCostosDelProducto() {
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
   const conCosto = getProductos().filter(p => p && p.costo);
@@ -14475,6 +14528,8 @@ async function init() {
     setTimeout(() => { _aligerarCatalogoAuto().catch(() => {}); }, 8000);
     // v114: rescatar los costos que hubieran quedado dentro del producto.
     setTimeout(() => { try { _rescatarCostosDelProducto(); } catch(e) {} }, 9000);
+    // v119: y los dueños que se quedaron sin subir — ver _rescatarDuenosNoSubidos.
+    setTimeout(() => { _rescatarDuenosNoSubidos().catch(() => {}); }, 10000);
   }
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
