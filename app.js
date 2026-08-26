@@ -11071,7 +11071,15 @@ function _valesDelCorte() {
   const elF = document.getElementById('duenosDateFrom');
   const elT = document.getElementById('duenosDateTo');
   const from = elF ? elF.value : '', to = elT ? elT.value : '';
-  let vales = getVales().filter(v => v.status === 'confirmed');
+  // v119 FIX: esto pedía status==='confirmed' a secas, y dejaba fuera los
+  // 'pending_payment' —entregados, con el cobro pendiente—. En el resto de la
+  // app esos SÍ cuentan: _valeGeneraComision los da por buenos desde v104
+  // ("la comisión cuenta desde que se entrega"), así que el panel de Gestores
+  // ya le debe ese dinero al gestor mientras Dueños decía que no se había
+  // vendido nada. Dos cifras distintas para la misma deuda, y en una tienda
+  // donde casi todo se entrega antes de cobrar, el corte salía en blanco.
+  // Se usa la MISMA función que el resto para que no puedan discrepar otra vez.
+  let vales = getVales().filter(v => _valeGeneraComision(v));
   if (from) vales = vales.filter(v => localDay(v.ts) >= from);
   if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
   return vales;
