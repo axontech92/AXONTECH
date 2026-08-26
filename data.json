@@ -2142,11 +2142,48 @@
   ],
   "vales": [
     {
+      "id": 1787751996869,
+      "ts": "2026-08-26T13:46:36.870Z",
+      "total": "$85 USD",
+      "carnet": "",
+      "seenTs": "2026-08-26T13:57:18.712Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yuniel",
+      "valeNum": 83,
+      "articulo": "×1 Bateria LUBRIM de 75A",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "52376296",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yuniel\n🔸Teléfono Cliente: 52376296\n🔸Dirección Cliente: .......\n🔸Mensajería/ costo: ......\n🔸Hora de entrega: 00:30\n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/08/2026 09:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": ".......",
+      "precioUSD": "$85 USD",
+      "reservado": false,
+      "ubicacion": "..........",
+      "mensajeria": "......",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787708268138,
       "ts": "2026-08-26T01:37:48.144Z",
       "total": "$300 USD + 4150 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T13:01:25.055Z",
+      "seenTs": "2026-08-26T13:45:40.906Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David espinosa Lopez",
@@ -2224,7 +2261,7 @@
       "ts": "2026-08-25T23:34:34.783Z",
       "total": "$700 USD",
       "carnet": "",
-      "seenTs": "2026-08-26T13:01:27.856Z",
+      "seenTs": "2026-08-26T14:09:36.903Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ileana",
@@ -2381,8 +2418,8 @@
       "ts": "2026-08-25T19:22:00.000Z",
       "total": "$180 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T13:01:32.720Z",
-      "status": "pending_payment",
+      "seenTs": "2026-08-26T14:09:30.757Z",
+      "status": "confirmed",
       "vuelto": "20",
       "cliente": "Daniel",
       "valeNum": 80,
@@ -2399,6 +2436,7 @@
       "assignedTs": "2026-08-25T19:24:57.215Z",
       "mensajeria": "2000cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-26T14:09:33.893Z",
       "deliveredTs": "2026-08-25T23:14:19.913Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
@@ -8378,5 +8416,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-26T13:01:43.657Z"
+  "timestamp": "2026-08-26T14:10:33.908Z"
 }
