@@ -1663,6 +1663,28 @@ async function _doRestPoll() {
         const val = _rm.data;
         _ultimoFetchReal[_claveTs] = Date.now();
         if (_rm.ts) _ultimaTsVisto[_claveTs] = _rm.ts;
+        // ── v119: un documento vacío de la nube NO borra lo que hay aquí ──
+        // Le pasó a `duenos` en cuanto empezó a sincronizarse de verdad: si en
+        // la nube quedaba un documento vacío —de una versión que subía mal, o
+        // de un teléfono que se abrió sin tener dueños todavía—, el poll lo
+        // bajaba encima y el admin veía su lista desaparecer entera, también de
+        // localStorage. Un vacío que llega de fuera casi nunca significa "se
+        // borraron todos": significa "ese teléfono no los tenía".
+        //
+        // Es el mismo criterio que ya sigue `config` (el disparador
+        // axon_no_vaciar_config en la base) y `notifs` (fusiona en vez de
+        // reemplazar). Aquí, además, se aprovecha para volver a subir lo bueno:
+        // si este teléfono tiene la lista y la nube no, la nube se arregla sola.
+        if (node === 'duenos' && val && typeof val === 'object') {
+          const _remotoVacio = !Array.isArray(val.lista) || !val.lista.length;
+          const _local = (typeof getDuenosDoc === 'function') ? getDuenosDoc() : null;
+          const _localTiene = _local && Array.isArray(_local.lista) && _local.lista.length;
+          if (_remotoVacio && _localTiene) {
+            console.warn('[duenos] la nube venía vacía y aquí hay ' + _local.lista.length + ' — se conserva lo de aquí y se resube');
+            try { setSB('duenos', _local); } catch(e) {}
+            continue;                                   // no se toca nada local
+          }
+        }
         if (val) {
           _syncCount++;
           try {
