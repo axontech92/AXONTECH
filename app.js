@@ -12336,6 +12336,42 @@ function renderComisiones() {
   if (typeof renderComisionesModal === 'function') renderComisionesModal();
   renderAdminGestoresList();
 }
+// ── v119: la fecha del vale y sus notas, en el modal de comisiones ─────────
+// Los tres montones (pendientes / en sobre / cobrados) pintaban la ficha por
+// su cuenta, y ya habían divergido: 'cobrados' enseñaba adminNotes pero se
+// dejaba fuera el motivo de la rebaja y el de la comisión cedida, que son
+// justo las notas que se escriben en la práctica. Con un helper compartido no
+// pueden volver a separarse.
+//
+// La fecha que se enseña es la del VALE (v.ts), no la de cuando se metió al
+// sobre o se cobró: esas ya salen a la derecha y responden a otra pregunta.
+// Aquí lo que hace falta es ubicar la venta —"¿de cuándo es esto?"— sin tener
+// que abrirla.
+function _valeFechaHTML(v) {
+  if (!v || !v.ts) return '';
+  const d = new Date(v.ts);
+  if (isNaN(d.getTime())) return '';
+  const fecha = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+  const hora  = (typeof timeStr === 'function') ? timeStr(v.ts) : '';
+  const num   = v.valeNum ? ('#' + v.valeNum + ' · ') : '';
+  return `<span style="font-size:9.5px;color:var(--text-muted);white-space:nowrap;flex-shrink:0;font-variant-numeric:tabular-nums;">${num}${fecha}${hora ? ' ' + hora : ''}</span>`;
+}
+function _valeNotasHTML(v, chico) {
+  if (!v) return '';
+  const fs = chico ? 9 : 10;
+  const notas = [];
+  // 'Generado por Admin' no es una nota, es una etiqueta que pone la app sola.
+  if (v.adminNotes && v.adminNotes !== 'Generado por Admin')
+    notas.push(`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:${fs}px;font-weight:700;margin-top:3px;">📝 ${escapeHTML(v.adminNotes)}</div>`);
+  if (v.rebajaAdminMotivo)
+    notas.push(`<div style="color:var(--orange);font-size:${fs}px;font-weight:600;margin-top:3px;">🏷️ Rebaja: ${escapeHTML(v.rebajaAdminMotivo)}</div>`);
+  if (v.comisionCedidaMotivo)
+    notas.push(`<div style="color:var(--orange);font-size:${fs}px;font-weight:600;margin-top:3px;">🤝 Cedió comisión: ${escapeHTML(v.comisionCedidaMotivo)}</div>`);
+  if (v.garantia && String(v.garantia).replace(/[-\s]/g, ''))
+    notas.push(`<div style="color:var(--text-muted);font-size:${fs}px;margin-top:3px;">🛡️ Garantía: ${escapeHTML(v.garantia)}</div>`);
+  return notas.join('');
+}
+
 function renderComisionBody(g,pendientes,enSobre,cobrados) {
   let html='<div style="border-top:1px solid var(--border);padding:12px 14px;">';
   if(!pendientes.length&&!enSobre.length&&!cobrados.length){
@@ -12357,11 +12393,12 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
         const vBadge=fmtComisionBadge(r.totalUSD||0,r.totalMN||0,r.totalUSD!==null||r.totalMN!==null);
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+              <span style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(v.cliente||'—')}</span>
+              ${_valeFechaHTML(v)}
+            </div>
             <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
-            ${v.adminNotes && v.adminNotes !== 'Generado por Admin' ? `<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-top:3px;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
-            ${v.rebajaAdminMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🏷️ Rebaja: ${escapeHTML(v.rebajaAdminMotivo)}</div>` : ''}
-            ${v.comisionCedidaMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🤝 Cedió comisión: ${escapeHTML(v.comisionCedidaMotivo)}</div>` : ''}
+            ${_valeNotasHTML(v)}
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
               ${r.parts.length?r.parts.map(p=>`<span style="background:${p.cedido?'rgba(245,158,11,.14)':'rgba(16,185,129,.12)'};color:${p.cedido?'var(--orange)':'var(--green)'};border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
@@ -12392,11 +12429,12 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
         const ts=v.commissionEnSobreTs?new Date(v.commissionEnSobreTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionEnSobreTs):'';
         return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:9px;margin-bottom:6px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:12px;font-weight:700;color:var(--text);">${escapeHTML(v.cliente||'—')}</div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+              <span style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(v.cliente||'—')}</span>
+              ${_valeFechaHTML(v)}
+            </div>
             <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.articulo||'—')}</div>
-            ${v.adminNotes && v.adminNotes !== 'Generado por Admin' ? `<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-top:3px;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
-            ${v.rebajaAdminMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🏷️ Rebaja: ${escapeHTML(v.rebajaAdminMotivo)}</div>` : ''}
-            ${v.comisionCedidaMotivo ? `<div style="color:var(--orange);font-size:10px;font-weight:600;margin-top:3px;">🤝 Cedió comisión: ${escapeHTML(v.comisionCedidaMotivo)}</div>` : ''}
+            ${_valeNotasHTML(v)}
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
               ${r.parts.length?r.parts.map(p=>`<span style="background:rgba(245,158,11,.12);color:var(--yellow);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;">${escapeHTML(p.label)}: ${escapeHTML(p.com)}</span>`).join(''):`<span style="color:var(--gray-400);font-size:10px;">Sin comisión definida</span>`}
             </div>
@@ -12426,8 +12464,11 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
         const ts=v.commissionPaidTs?new Date(v.commissionPaidTs).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' '+timeStr(v.commissionPaidTs):'';
         return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;margin-bottom:4px;opacity:.85;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:11px;font-weight:600;color:var(--text-muted);">${escapeHTML(v.cliente||'—')}</div>
-            ${v.adminNotes && v.adminNotes !== 'Generado por Admin' ? `<div style="color:var(--yellow);font-size:9px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;">
+              <span style="font-size:11px;font-weight:600;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHTML(v.cliente||'—')}</span>
+              ${_valeFechaHTML(v)}
+            </div>
+            ${_valeNotasHTML(v, true)}
             ${r.parts.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;">${r.parts.map(p=>`<span style="background:rgba(16,185,129,.1);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9px;font-weight:600;">${escapeHTML(p.com)}</span>`).join('')}</div>`:''}
           </div>
           <div style="text-align:right;flex-shrink:0;">
