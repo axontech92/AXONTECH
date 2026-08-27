@@ -759,7 +759,7 @@
       "name": "Router ASUS AX1800",
       "catId": 10,
       "photo": "photos/img_1785078992522.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1785078992522.webp",
       "nombre": "Router ASUS AX1800",
       "precio": "$150",
@@ -2166,10 +2166,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Gabriel\n🔸Teléfono Cliente: 5353329851\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: Gratis (de mi comisión)\n🔸Hora de entrega: 10:00\n🔸 Artículos y cantidades:\n  ×8 NanoStation 5 AC loco SIN POE\n  ×5 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $1420 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1420 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 18:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "La cuevita",
       "precioUSD": "$1420 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "Gratis (de mi comisión)",
       "comFijadaMN": 0,
-      "horaEntrega": "10:00",
       "comFijadaUSD": 130,
       "valeProductos": [
         {
@@ -2183,11 +2183,10 @@
           "name": "Router TP-Link Archer C54 Reacondicionado"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$130.00 USD",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2195,6 +2194,7 @@
       "ts": "2026-08-27T22:47:33.887Z",
       "total": "$160 USD",
       "carnet": "",
+      "seenTs": "2026-08-27T23:03:37.813Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ovito",
@@ -2207,10 +2207,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Ovito\n🔸Teléfono Cliente: 53883967\n🔸Dirección Cliente: Mantilla\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n  ×1 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 18:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Mantilla",
       "precioUSD": "$160 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 1500,
-      "horaEntrega": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2224,11 +2225,10 @@
           "name": "NanoStation 5 AC loco SIN POE"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2672,8 +2672,8 @@
       "ts": "2026-08-27T11:48:40.254Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-08-27T17:29:23.486Z",
-      "status": "pending",
+      "seenTs": "2026-08-27T23:04:23.159Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lázaro Rodríguez",
       "valeNum": 97,
@@ -2689,6 +2689,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-27T23:04:26.128Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2700,7 +2701,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -9548,5 +9549,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T22:56:29.747Z"
+  "timestamp": "2026-08-27T23:05:26.146Z"
 }
