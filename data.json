@@ -655,7 +655,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -2354,7 +2354,7 @@
       "ts": "2026-08-27T11:48:40.254Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-08-27T15:40:46.210Z",
+      "seenTs": "2026-08-27T17:29:23.486Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Lázaro Rodríguez",
@@ -2384,7 +2384,8 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1787708268138,
@@ -2626,8 +2627,8 @@
       "ts": "2026-08-26T19:01:29.296Z",
       "total": "$260 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-08-27T14:38:07.588Z",
-      "status": "assigned",
+      "seenTs": "2026-08-27T17:28:54.577Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Jordys",
       "valeNum": 90,
@@ -2654,8 +2655,11 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "synced": true
+      "stockDecremented": true,
+      "synced": true,
+      "isNew": false,
+      "deliveredTs": "2026-08-27T17:29:13.869Z",
+      "confirmedTs": "2026-08-27T17:29:15.792Z"
     },
     {
       "id": 1787768739671,
@@ -9192,5 +9196,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T17:26:29.652Z"
+  "timestamp": "2026-08-27T17:30:16.652Z"
 }
