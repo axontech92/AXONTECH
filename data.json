@@ -647,7 +647,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 3,
+      "stock": 1,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -2147,7 +2147,7 @@
       "total": "$140 USD + 4200 MN",
       "carnet": "",
       "seenTs": "2026-08-27T15:25:10.621Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Leo",
       "valeNum": 100,
@@ -2161,8 +2161,10 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": "https://maps.app.goo.gl/YPuDChNvuBDYX6jVA?g_st=ic",
+      "assignedTs": "2026-08-27T15:27:53.784Z",
       "mensajeria": "4200",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2183,6 +2185,7 @@
       "ts": "2026-08-27T15:15:51.491Z",
       "total": "$130 USD + 2800 MN",
       "carnet": "",
+      "seenTs": "2026-08-27T15:27:58.122Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mandy",
@@ -2195,10 +2198,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Mandy\n🔸Teléfono Cliente: 5351476685\n🔸Dirección Cliente: Calle 2 entre Sur y Norte Reloj Club , Boyero\n🔸Mensajería/ costo: 2800 cup\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 11:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 2 entre Sur y Norte Reloj Club , Boyero",
       "precioUSD": "$130 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "2800 cup",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2218,6 +2222,7 @@
       "ts": "2026-08-27T14:59:43.250Z",
       "total": "$680 USD + 41412 MN",
       "carnet": "",
+      "seenTs": "2026-08-27T15:28:01.789Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Denis",
@@ -2230,10 +2235,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Denis\n🔸Teléfono Cliente: 5353576475\n🔸Dirección Cliente: Unicacion\n🔸Mensajería/ costo: 7800 cup o 12 usd\n🔸 Artículos y cantidades:\n  ×3 NanoStation 5 AC loco SIN POE\n  ×120 Cable de red categoría 6\n  ×2 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $680 USD\n🔸Precio MN: 33600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $680 USD + 41412 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 10:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Unicacion",
       "precioUSD": "$680 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": "Ubicación",
       "mensajeria": "7800 cup o 12 usd",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 50,
       "valeProductos": [
         {
@@ -2341,8 +2347,8 @@
       "ts": "2026-08-27T01:30:55.976Z",
       "total": "$260 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-08-27T14:37:54.367Z",
-      "status": "assigned",
+      "seenTs": "2026-08-27T15:28:20.038Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Eddy Torres",
       "valeNum": 96,
@@ -2359,6 +2365,8 @@
       "assignedTs": "2026-08-27T13:29:53.156Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-27T15:28:38.760Z",
+      "deliveredTs": "2026-08-27T15:28:36.823Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2371,7 +2379,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2380,8 +2388,8 @@
       "ts": "2026-08-27T01:14:43.931Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-08-27T14:37:57.590Z",
-      "status": "pending",
+      "seenTs": "2026-08-27T15:28:07.903Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ismanuel",
       "valeNum": 95,
@@ -2397,6 +2405,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-27T15:28:14.630Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2408,7 +2417,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2879,7 +2888,7 @@
       "ts": "2026-08-26T15:45:17.185Z",
       "total": "$150 USD + 4150 MN",
       "carnet": "",
-      "seenTs": "2026-08-27T13:27:40.763Z",
+      "seenTs": "2026-08-27T15:29:01.746Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Arlines de la Caridad Figueredo  Prats",
@@ -9094,5 +9103,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T15:26:14.660Z"
+  "timestamp": "2026-08-27T15:29:38.771Z"
 }
