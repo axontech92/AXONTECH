@@ -323,6 +323,14 @@
       "phone": "59496327",
       "initials": "R",
       "password": "pbkdf2$100000$UQD9QQgLAx3lsMkx45AfjA==$99965ac3f348c7ed825043e7e0b898d55e9dde7ab65730c9185c0763c8de8ca9"
+    },
+    {
+      "id": 1787851412069,
+      "name": "Yoeni",
+      "color": "#7C3AED",
+      "phone": "52652859",
+      "initials": "Y",
+      "password": "pbkdf2$100000$qx678od+KRXfhdSiG3FrDw==$e4ad1dcf00e16f01aaeb3d1fb22341eb76268a9c8c6e8a0a3b3f76b9707174d9"
     }
   ],
   "mensajeros": [
@@ -9184,5 +9192,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T17:13:09.652Z"
+  "timestamp": "2026-08-27T17:26:29.652Z"
 }
