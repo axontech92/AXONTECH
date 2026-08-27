@@ -1805,7 +1805,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 0,
+      "stock": 8,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1929,7 +1929,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 0,
+      "stock": 20,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -9271,5 +9271,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T18:26:59.433Z"
+  "timestamp": "2026-08-27T18:28:19.651Z"
 }
