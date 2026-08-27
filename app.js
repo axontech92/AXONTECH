@@ -6059,6 +6059,61 @@ function closeMensajeroEntregasModal() {
 // mensajero cerrando y tocando otro). Se mantiene la función porque cerrar es
 // exactamente lo mismo que hacía.
 function changeMensajero(){ closeMensajeroEntregasModal(); }
+// ── v119: la deuda del mensajero deja de deducirse del estado de la venta ──
+// Hasta ahora "este mensajero tiene dinero mío" se sacaba de v.status: valía
+// 'pending_payment' o 'delivered'. Pero ese mismo campo dice también si la
+// VENTA está cerrada, y son dos cosas distintas que pasan por separado: el
+// cliente ya pagó (la venta se cierra, el gestor gana su comisión, la venta
+// cuenta en el corte de ese día) y aun así el dinero sigue en el bolsillo del
+// mensajero hasta que lo trae.
+//
+// Como era un solo campo, el admin tenía que elegir: o cerraba la venta y la
+// deuda del mensajero desaparecía de su ficha, o la dejaba abierta y entonces
+// la venta no contaba el día que se cerró. Ahora la deuda vive en su propio
+// campo (cobroMensajeroPend) y no le importa lo que haga la venta.
+//
+// Los estados viejos siguen contando: un vale entregado y sin cobrar es deuda
+// del mensajero aunque sea anterior a este cambio y no lleve el campo nuevo.
+const _mensajeroDebeCobro = v =>
+  !!v && v.mensajeroId != null &&
+  (v.cobroMensajeroPend === true || v.status === 'pending_payment' || v.status === 'delivered');
+
+// Al cerrar una venta que llevaba mensajero hay que saber dónde está ese
+// dinero. Se marca la deuda PRIMERO y luego se pregunta, no al revés: el
+// confirmador solo tiene un botón, así que ignorar el aviso —o cerrarlo sin
+// querer— tiene que caer del lado seguro. Y el lado seguro es que la deuda
+// quede apuntada: que sobre un cobro por reclamar se arregla con un toque, que
+// falte no se descubre hasta que faltan los cuartos.
+function _marcarCobroMensajeroYPreguntar(id) {
+  const v = getVales().find(x => x.id === id);
+  if (!v || v.mensajeroId == null) return;          // sin mensajero no hay nada que preguntar
+  if (v.cobroMensajeroTs) return;                   // ya se saldó antes: no se vuelve a abrir
+  patchVale(id, { cobroMensajeroPend: true });
+  const m = (typeof mensajeroOf === 'function') ? mensajeroOf(v.mensajeroId) : null;
+  const nombre = (m && m.name) ? m.name : 'el mensajero';
+  renderMensajeros(); renderMensajeroVales(); updateMensajeroBadge();
+  showConfirmAction(`¿${escapeHTML(nombre)} ya te entregó el dinero?`,
+    `${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}<br><span style="font-size:11px;color:var(--text-muted);">Si no, queda apuntado como pendiente en su ficha.</span>`,
+    'Sí, ya lo tengo', 'btn-green', () => mensajeroEntregoDinero(id, true));
+}
+
+// Se llama cuando el mensajero por fin entrega el dinero. NO toca el estado de
+// la venta: puede llevar días cerrada.
+function mensajeroEntregoDinero(id, skipConfirm) {
+  const v = getVales().find(x => x.id === id);
+  if (!v) return;
+  if (!skipConfirm) {
+    showConfirmAction('¿El mensajero te entregó el dinero?',
+      `${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,
+      'Sí, lo recibí', 'btn-green', () => mensajeroEntregoDinero(id, true));
+    return;
+  }
+  patchVale(id, { cobroMensajeroPend: false, cobroMensajeroTs: new Date().toISOString() });
+  renderMensajeros(); renderMensajeroVales(); renderPendingCobroSection();
+  updateMensajeroBadge(); maybeAutoSync();
+  showToast('Dinero recibido del mensajero ✓');
+}
+
 function renderMensajeroVales() {
   const c=document.getElementById('mensajeroEntregasBody');if(!c)return;
   const _tit=document.getElementById('mensajeroEntregasTitulo');
@@ -6076,8 +6131,12 @@ function renderMensajeroVales() {
   // 'delivered' es un estado heredado que ya ningún flujo produce, pero queda en
   // datos antiguos — entra aquí también para que no se pierda de vista.
   const _ES_ACTIVO={assigned:1,delivered:1,pending_payment:1};
-  const activos=ordenarRecientesPrimero(getVales().filter(v=>v.mensajeroId===activeMensajeroId&&_ES_ACTIVO[v.status]));
-  const confirmados=ordenarRecientesPrimero(getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed'));
+  // v119: una venta ya cerrada cuyo dinero sigue con el mensajero SIGUE siendo
+  // trabajo suyo, así que se queda arriba con las activas en vez de bajar a
+  // "confirmados", donde se perdía de vista justo lo que hay que reclamar.
+  const _sigueActivo = v => !!_ES_ACTIVO[v.status] || _mensajeroDebeCobro(v);
+  const activos=ordenarRecientesPrimero(getVales().filter(v=>v.mensajeroId===activeMensajeroId&&_sigueActivo(v)));
+  const confirmados=ordenarRecientesPrimero(getVales().filter(v=>v.mensajeroId===activeMensajeroId&&v.status==='confirmed'&&!_mensajeroDebeCobro(v)));
   const nPorEntregar=activos.filter(v=>v.status==='assigned').length;
   const nPorCobrar=activos.length-nPorEntregar;
   // La cabecera se repinta en cada render, así que al marcar una entrega el
@@ -6101,16 +6160,25 @@ function renderMensajeroVales() {
         const g=gestorOf(v.gestorId);
         const m = v.mensajeroId ? mensajeroOf(v.mensajeroId) : null;
         const porEntregar = v.status==='assigned';
+        // v119: tres situaciones, no dos. La tercera es nueva: la venta ya está
+        // cerrada (el cliente pagó, el gestor cobró su comisión) y lo único que
+        // falta es que el mensajero traiga el dinero. Antes no podía existir
+        // —cerrar la venta borraba la deuda— y la tarjeta ofrecía "confirmar
+        // venta" sobre una venta que ya estaba confirmada.
+        const soloFaltaElDinero = !porEntregar && v.status==='confirmed';
         const chapa = porEntregar
           ? '<span class="sp-assigned" style="font-size:9px;padding:2px 6px;">🛵 Asignado</span>'
-          : '<span style="color:var(--orange);font-size:10px;font-weight:700;">⏳ Pendiente de cobro</span>';
-        // Ya entregado: lo único que falta es el dinero, así que un solo botón.
+          : soloFaltaElDinero
+            ? '<span style="color:var(--orange);font-size:10px;font-weight:700;" title="La venta ya está cerrada; falta que el mensajero entregue el dinero">💵 Te debe el dinero</span>'
+            : '<span style="color:var(--orange);font-size:10px;font-weight:700;">⏳ Pendiente de cobro</span>';
         const acciones = porEntregar
           ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
             <button class="btn btn-green btn-sm btn-full" onclick="mensajeroEntrega(${v.id})">📦 Entregado</button>
             <button class="btn btn-green btn-sm btn-full" style="background:#2563EB;color:white;" onclick="mensajeroPagadoDirecto(${v.id})">💰 Pagado</button>
           </div>`
-          : `<button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Cobrado — confirmar venta</button>`;
+          : soloFaltaElDinero
+            ? `<button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroEntregoDinero(${v.id})">💵 Me entregó el dinero</button>`
+            : `<button class="btn btn-green btn-sm btn-full" style="margin-top:8px;" onclick="mensajeroPagado(${v.id})">💰 Cobrado — confirmar venta</button>`;
         const waBtn = (porEntregar && m && m.phone)
           ? `<button class="btn btn-sm btn-full" style="background:#25D366;color:white;margin-top:4px;" onclick="openMensajeroWhatsApp(${m.id}, buildShareText(getVales().find(x=>x.id===${v.id}), mensajeroOf(${v.mensajeroId})))">💬 WhatsApp al mensajero</button>`
           : '';
@@ -7440,6 +7508,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
     showToast('Esta venta ya tiene stock descontado');
     // Just transition to confirmed without touching stock
     patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
+    _marcarCobroMensajeroYPreguntar(id);
     addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
     gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
     playSound('confirm');
@@ -7457,6 +7526,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
   // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:new Date().toISOString(),stockDecremented:true});
+  _marcarCobroMensajeroYPreguntar(id);
   addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -7485,6 +7555,7 @@ function mensajeroPagado(id, skipConfirm) {
   if(v.status === 'pending_payment' || v.stockDecremented) {
     // Stock already decremented — just confirm the sale
     patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString()});
+    _marcarCobroMensajeroYPreguntar(id);
     addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
     _logAudit('vale_confirmed', 'vale:' + id);
     gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -7503,6 +7574,7 @@ function mensajeroPagado(id, skipConfirm) {
   // First-time stock decrement (helper DRY — AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString(),deliveredTs:v.deliveredTs||new Date().toISOString(),stockDecremented:true});
+  _marcarCobroMensajeroYPreguntar(id);
   addNotif('vale_confirmed',v.cliente||'Cliente',null,`Total: ${v.total||''}`,v.gestorId,'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -7577,6 +7649,7 @@ function markAsPaid(id, skipConfirm) {
   // addNotif — el gestor solo se enteraba si su app estaba abierta y el poll
   // detectaba el cambio de status. Ahora garantizamos la notif desde el admin.
   patchVale(id,{status:'confirmed',confirmedTs:new Date().toISOString()});
+  _marcarCobroMensajeroYPreguntar(id);
   addNotif('vale_confirmed', v.cliente||'Cliente', null, `Total: ${v.total||''}`, v.gestorId, 'vale_confirmed:'+id);
   _logAudit('vale_confirmed', 'vale:' + id);
   gestoresTabDirty=true;statsTabDirty=true;rankingCache=null;
@@ -7657,7 +7730,8 @@ function renderMensajeros() {
   for(const v of vales){
     if(!v.mensajeroId) continue;
     if(v.status==='assigned') _suma(enCurso,v.mensajeroId);
-    else if(v.status==='pending_payment'||v.status==='delivered') _suma(porCobrar,v.mensajeroId);
+    // v119: la deuda ya no se deduce del estado de la venta — ver _mensajeroDebeCobro.
+    else if(_mensajeroDebeCobro(v)) _suma(porCobrar,v.mensajeroId);
   }
   const _carga=id=>(enCurso.get(id)||0)+(porCobrar.get(id)||0);
   // v86: arriba los que tienen trabajo encima, y entre ellos primero el que más
