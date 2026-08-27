@@ -2057,7 +2057,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 430,
+      "stock": 400,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2269,7 +2269,7 @@
       "ts": "2026-08-27T11:48:40.254Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-08-27T13:26:33.349Z",
+      "seenTs": "2026-08-27T15:40:46.210Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Lázaro Rodríguez",
@@ -2577,8 +2577,8 @@
       "ts": "2026-08-26T18:25:39.680Z",
       "total": "8400 MN",
       "carnet": "",
-      "seenTs": "2026-08-26T23:43:06.039Z",
-      "status": "pending",
+      "seenTs": "2026-08-27T15:40:58.467Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Lenna",
       "valeNum": 91,
@@ -2590,9 +2590,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Lenna\n🔸Teléfono Cliente: 59309819\n🔸Dirección Cliente: Habana\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×30 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 8400 MN\n🔸 Vuelto: \n🔸 Total a pagar: 8400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/08/2026 14:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Habana",
       "precioUSD": "",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "",
+      "confirmedTs": "2026-08-27T15:41:33.650Z",
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -2603,7 +2604,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -9106,5 +9107,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T15:31:15.655Z"
+  "timestamp": "2026-08-27T15:42:34.651Z"
 }
