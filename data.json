@@ -2224,7 +2224,7 @@
       "ts": "2026-08-27T01:30:55.976Z",
       "total": "$260 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-08-27T13:46:00.280Z",
+      "seenTs": "2026-08-27T14:37:54.367Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Eddy Torres",
@@ -2263,7 +2263,7 @@
       "ts": "2026-08-27T01:14:43.931Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-08-27T13:45:45.255Z",
+      "seenTs": "2026-08-27T14:37:57.590Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ismanuel",
@@ -2376,7 +2376,7 @@
       "ts": "2026-08-26T19:38:06.111Z",
       "total": "12700 MN",
       "carnet": "",
-      "seenTs": "2026-08-27T13:27:21.604Z",
+      "seenTs": "2026-08-27T14:37:45.185Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Ricardo ferro",
@@ -2413,7 +2413,7 @@
       "ts": "2026-08-26T19:01:29.296Z",
       "total": "$260 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-08-27T13:27:29.552Z",
+      "seenTs": "2026-08-27T14:38:07.588Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Jordys",
@@ -8977,5 +8977,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T14:36:46.624Z"
+  "timestamp": "2026-08-27T14:44:03.655Z"
 }
