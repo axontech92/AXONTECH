@@ -2048,7 +2048,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 11,
+      "stock": 0,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$120",
@@ -2188,6 +2188,42 @@
       "synced": true
     },
     {
+      "id": 1787853914953,
+      "ts": "2026-08-27T18:05:14.961Z",
+      "total": "$120 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ernesto",
+      "valeNum": 104,
+      "articulo": "×2 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5355093078",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5355093078\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $120 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 14:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$120 USD",
+      "ubicacion": "",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 2,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1787848930834,
       "ts": "2026-08-27T16:42:10.837Z",
       "total": "$145 USD + 750 MN",
@@ -2209,6 +2245,7 @@
       "ubicacion": null,
       "mensajeria": "750",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-27T18:09:40.914Z",
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -2222,9 +2259,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false,
-      "confirmedTs": "2026-08-27T18:09:40.914Z"
+      "synced": true
     },
     {
       "id": 1787848790084,
@@ -2287,6 +2322,8 @@
       "assignedTs": "2026-08-27T15:27:53.784Z",
       "mensajeria": "4200",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-27T18:09:50.633Z",
+      "deliveredTs": "2026-08-27T18:09:49.187Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2301,10 +2338,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false,
-      "deliveredTs": "2026-08-27T18:09:49.187Z",
-      "confirmedTs": "2026-08-27T18:09:50.633Z"
+      "synced": true
     },
     {
       "id": 1787843751480,
@@ -9237,5 +9271,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T18:10:50.651Z"
+  "timestamp": "2026-08-27T18:26:59.433Z"
 }
