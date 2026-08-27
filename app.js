@@ -15084,6 +15084,18 @@ function _tasaFuentes() {
 async function actualizarTasaUSD(manual) {
   if (_tasaBuscando) return null;
   const actual = tasaUSD();
+  // ── v119: una tasa puesta A MANO no la pisa la búsqueda automática ──
+  // Antes solo se miraba la antigüedad: pasadas 3 horas, el primer arranque
+  // salía a buscar la tasa a internet y la guardaba encima. O sea, el admin
+  // ponía su tasa, cerraba, y a la mañana siguiente se la había comido la de
+  // elToque — sin avisar, y sin forma de saber que había pasado.
+  //
+  // Ponerla a mano es una decisión, no un valor de relleno a la espera de algo
+  // mejor: si el admin vende a otro precio que el del mercado, esa es LA tasa.
+  // Solo la reemplaza él, con el botón "🔄 Actualizar ahora" (manual=true).
+  // Que se quede vieja no la esconde: el chip se pone naranja pasado un día y
+  // dice de dónde salió, así que se ve que es suya y de cuándo es.
+  if (!manual && actual && actual.fuente === 'a mano') return actual;
   if (!manual && actual && (Date.now() - (actual.ts || 0)) < TASA_REFRESCO_MS) return actual;
   if (!navigator.onLine) { if (manual) showToast('Sin conexión'); return null; }
   _tasaBuscando = true;
