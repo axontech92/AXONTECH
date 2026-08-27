@@ -2142,6 +2142,123 @@
   ],
   "vales": [
     {
+      "id": 1787843930369,
+      "ts": "2026-08-27T15:18:50.372Z",
+      "total": "$140 USD + 4200 MN",
+      "carnet": "",
+      "seenTs": "2026-08-27T15:25:10.621Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Leo",
+      "valeNum": 100,
+      "articulo": "×1 NanoStation 5 AC loco SIN POE",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "54972917",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Leo\n🔸Teléfono Cliente: 54972917\n🔸Dirección Cliente: Ubicación\n🔸Mensajería/ costo: 4200\n🔸Hora de entrega: 10:56\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $140 USD + 4200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 11:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Ubicación",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": "https://maps.app.goo.gl/YPuDChNvuBDYX6jVA?g_st=ic",
+      "mensajeria": "4200",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 1,
+          "name": "NanoStation 5 AC loco SIN POE"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787843751480,
+      "ts": "2026-08-27T15:15:51.491Z",
+      "total": "$130 USD + 2800 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Mandy",
+      "valeNum": 100,
+      "articulo": "×1 Router Tenda AX12 pro AX3000",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5351476685",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Mandy\n🔸Teléfono Cliente: 5351476685\n🔸Dirección Cliente: Calle 2 entre Sur y Norte Reloj Club , Boyero\n🔸Mensajería/ costo: 2800 cup\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 11:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 2 entre Sur y Norte Reloj Club , Boyero",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2800 cup",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1787842783240,
+      "ts": "2026-08-27T14:59:43.250Z",
+      "total": "$680 USD + 41412 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Denis",
+      "valeNum": 99,
+      "articulo": "×3 NanoStation 5 AC loco SIN POE / ×120 Cable de red categoría 6 / ×2 Router Tenda AX12 pro AX3000",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "33600 MN",
+      "telefono": "5353576475",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Denis\n🔸Teléfono Cliente: 5353576475\n🔸Dirección Cliente: Unicacion\n🔸Mensajería/ costo: 7800 cup o 12 usd\n🔸 Artículos y cantidades:\n  ×3 NanoStation 5 AC loco SIN POE\n  ×120 Cable de red categoría 6\n  ×2 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $680 USD\n🔸Precio MN: 33600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $680 USD + 41412 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 10:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Unicacion",
+      "precioUSD": "$680 USD",
+      "reservado": false,
+      "ubicacion": "Ubicación",
+      "mensajeria": "7800 cup o 12 usd",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 3,
+          "name": "NanoStation 5 AC loco SIN POE"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 120,
+          "name": "Cable de red categoría 6"
+        },
+        {
+          "id": 1785077900654,
+          "qty": 2,
+          "name": "Router Tenda AX12 pro AX3000"
+        }
+      ],
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787831320252,
       "ts": "2026-08-27T11:48:40.254Z",
       "total": "$150 USD",
@@ -8977,5 +9094,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T14:44:03.655Z"
+  "timestamp": "2026-08-27T15:26:14.660Z"
 }
