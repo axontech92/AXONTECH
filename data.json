@@ -2384,8 +2384,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1787708268138,
@@ -2644,6 +2643,8 @@
       "ubicacion": null,
       "assignedTs": "2026-08-26T19:03:55.128Z",
       "mensajeria": "1800",
+      "confirmedTs": "2026-08-27T17:29:15.792Z",
+      "deliveredTs": "2026-08-27T17:29:13.869Z",
       "mensajeroId": 1784476898824,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2656,10 +2657,7 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "synced": true,
-      "isNew": false,
-      "deliveredTs": "2026-08-27T17:29:13.869Z",
-      "confirmedTs": "2026-08-27T17:29:15.792Z"
+      "synced": true
     },
     {
       "id": 1787768739671,
@@ -9196,5 +9194,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-27T17:30:16.652Z"
+  "timestamp": "2026-08-27T17:33:31.651Z"
 }
