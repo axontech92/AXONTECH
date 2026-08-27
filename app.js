@@ -2105,6 +2105,24 @@ const localDay = d => {
   if (isNaN(x.getTime())) return '';
   return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
 };
+// ── v119: el día en el que una venta CUENTA ────────────────────────────────
+// No es el día en que se mandó el vale, es el día en que entró el dinero. Un
+// vale mandado el 26 y confirmado el 27 es dinero del 27: si se agrupa por la
+// fecha de envío, al cerrar el día 27 ese importe no aparece por ningún lado
+// —está archivado en el 26, un día que el admin ya dio por cerrado— y el corte
+// de Dueños de ese día sale corto sin que nada avise.
+//
+// El sello de envío (v.ts) NO se toca: es cuándo se hizo la venta, hace falta
+// para el historial del gestor y para saber cuánto se tarda en cerrar. Lo que
+// cambia es por cuál se AGRUPA en los paneles que hablan de dinero.
+//
+// Orden: confirmada manda; si solo está entregada, la fecha de entrega (que es
+// desde cuando el gestor gana su comisión); y si no hay ninguna, la de envío.
+function _fechaEfectiva(v) {
+  if (!v) return '';
+  const d = localDay(v.confirmedTs || v.deliveredTs || v.ts);
+  return d || localDay(v.ts);   // un sello corrupto no puede sacar el vale del historial
+}
 const timeStr     = ts => new Date(ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
 function nowDateTime() {
   const d=new Date();
@@ -7912,8 +7930,8 @@ function getGestorHistPeriodRange() {
 
 function _computeGestorStatsForRange(gestorId, from, to) {
   let vales = getVales().filter(v => v.gestorId === gestorId);
-  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
-  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
+  if (from) vales = vales.filter(v => _fechaEfectiva(v) >= from);
+  if (to)   vales = vales.filter(v => _fechaEfectiva(v) <= to);
   const total = vales.length;
   const confirmed = vales.filter(v => v.status === 'confirmed').length;
   const pendingPay = vales.filter(v => v.status === 'pending_payment').length;
@@ -10498,8 +10516,8 @@ function exportHistorialCSV() {
   const from = fromEl ? fromEl.value : '';
   const to = toEl ? toEl.value : '';
   const gFilter = gestorEl ? gestorEl.value : '';
-  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
-  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
+  if (from) vales = vales.filter(v => _fechaEfectiva(v) >= from);
+  if (to)   vales = vales.filter(v => _fechaEfectiva(v) <= to);
   if (gFilter) vales = vales.filter(v => String(v.gestorId) === gFilter);
 
   if (!vales.length) { showToast('No hay vales para exportar'); return; }
@@ -11160,8 +11178,8 @@ function _valesDelCorte() {
   // donde casi todo se entrega antes de cobrar, el corte salía en blanco.
   // Se usa la MISMA función que el resto para que no puedan discrepar otra vez.
   let vales = getVales().filter(v => _valeGeneraComision(v));
-  if (from) vales = vales.filter(v => localDay(v.ts) >= from);
-  if (to)   vales = vales.filter(v => localDay(v.ts) <= to);
+  if (from) vales = vales.filter(v => _fechaEfectiva(v) >= from);
+  if (to)   vales = vales.filter(v => _fechaEfectiva(v) <= to);
   return vales;
 }
 
@@ -11333,8 +11351,8 @@ function renderStats() {
   const from=document.getElementById('statsDateFrom').value;
   const to=document.getElementById('statsDateTo').value;
   let vales=getVales();
-  if(from)vales=vales.filter(v=>localDay(v.ts)>=from);
-  if(to)  vales=vales.filter(v=>localDay(v.ts)<=to);
+  if(from)vales=vales.filter(v=>_fechaEfectiva(v)>=from);
+  if(to)  vales=vales.filter(v=>_fechaEfectiva(v)<=to);
   const total=vales.length;
   const confirmed=vales.filter(v=>v.status==='confirmed').length;
   const pending=vales.filter(v=>v.status==='pending').length;
@@ -13569,8 +13587,8 @@ function renderHistorial() {
   const from=fromEl?fromEl.value:'';
   const to=toEl?toEl.value:'';
   const search=searchEl?searchEl.value.trim().toLowerCase():'';
-  if(from)vales=vales.filter(v=>localDay(v.ts)>=from);
-  if(to)  vales=vales.filter(v=>localDay(v.ts)<=to);
+  if(from)vales=vales.filter(v=>_fechaEfectiva(v)>=from);
+  if(to)  vales=vales.filter(v=>_fechaEfectiva(v)<=to);
   if(curGFilter)vales=vales.filter(v=>String(v.gestorId)===curGFilter);
   // Search by phone, client name, or vale number
   if(search){
@@ -13587,7 +13605,7 @@ function renderHistorial() {
   // Group by date
   const groups={};
   vales.forEach(v=>{
-    const d=localDay(v.ts);
+    const d=_fechaEfectiva(v);   // v119: agrupado por el día en que contó, no en que se mandó
     if(!groups[d])groups[d]=[];
     groups[d].push(v);
   });
