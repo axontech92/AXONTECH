@@ -961,7 +961,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 43,
+      "stock": 41,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1390,7 +1390,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 21,
+      "stock": 11,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "$140",
@@ -2080,7 +2080,7 @@
       "name": "Tp Link Archer ax55, ax3000",
       "catId": 10,
       "photo": "photos/p-1787375561622-74c433ef.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/p-1787375561622-74c433ef.webp",
       "nombre": "Tp Link Archer ax55, ax3000",
       "precio": "$150",
@@ -2275,8 +2275,8 @@
       "ts": "2026-08-28T14:55:35.157Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T16:02:28.868Z",
-      "status": "pending_payment",
+      "seenTs": "2026-08-28T16:49:38.695Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Carlos",
       "valeNum": 113,
@@ -2292,7 +2292,7 @@
       "ubicacion": "1750",
       "mensajeria": "",
       "comFijadaMN": 10500,
-      "confirmedTs": "2026-08-28T16:02:32.681Z",
+      "confirmedTs": "2026-08-28T16:50:24.361Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2315,8 +2315,8 @@
       "ts": "2026-08-28T14:32:07.726Z",
       "total": "$2880 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T15:11:37.981Z",
-      "status": "pending_payment",
+      "seenTs": "2026-08-28T16:50:35.909Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lawton",
       "valeNum": 112,
@@ -2333,10 +2333,12 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-08-28T15:11:41.362Z",
+      "confirmedTs": "2026-08-28T16:51:26.855Z",
       "mensajeroId": null,
+      "rebajaAdmin": 360,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
+      "rebajaAdminTs": "2026-08-28T16:51:17.741Z",
       "valeProductos": [
         {
           "id": 1786509644554,
@@ -2347,6 +2349,8 @@
       "comisionGestor": "",
       "recogidaTienda": false,
       "stockDecremented": true,
+      "rebajaAdminMoneda": "USD",
+      "rebajaAdminMotivo": "cliente fijo",
       "synced": true
     },
     {
@@ -2354,8 +2358,8 @@
       "ts": "2026-08-28T12:23:41.664Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T14:30:04.850Z",
-      "status": "pending",
+      "seenTs": "2026-08-28T16:51:41.409Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "--",
       "valeNum": 111,
@@ -2371,6 +2375,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-28T16:51:44.930Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2382,7 +2387,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2426,8 +2431,8 @@
       "ts": "2026-08-27T22:50:00.000Z",
       "total": "$1440 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T14:30:09.639Z",
-      "status": "pending",
+      "seenTs": "2026-08-28T16:52:16.456Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Gabriel",
       "valeNum": 109,
@@ -2443,6 +2448,7 @@
       "ubicacion": null,
       "mensajeria": "Gratis (de mi comisión)",
       "comFijadaMN": 3000,
+      "confirmedTs": "2026-08-28T16:52:26.223Z",
       "seenByAdmin": true,
       "comFijadaUSD": 100,
       "valeProductos": [
@@ -2459,7 +2465,7 @@
       ],
       "comisionGestor": "$100.00 USD + 3000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -9825,5 +9831,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T16:48:30.802Z"
+  "timestamp": "2026-08-28T16:53:26.874Z"
 }
