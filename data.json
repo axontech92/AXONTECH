@@ -1728,23 +1728,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1785079048458,
-      "name": "Router TP link ax3000",
-      "catId": 10,
-      "photo": "photos/img_1785079048458.webp",
-      "stock": 0,
-      "imagen": "photos/img_1785079048458.webp",
-      "nombre": "Router TP link ax3000",
-      "precio": "150",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "descripcion": "Tp link archer ax55, ax3000\nCaracterísticas principales:\n\nWi-Fi 6 (802.11ax)\nRendimiento de hasta 2976 Mb/s\n2,4 GHz / 5 GHz (doble banda)\n4 antenas externas\n4 puertos LAN Gigabit Ethernet\n1 puerto WAN Gigabit Ethernet\n1 puerto USB 3.1 Gen 1\nCompatible con AiMesh\nTP-Link HomeShield\nConfiguración sencilla con la aplicación TP-Link Tether.",
-      "description": "Tp link archer ax55, ax3000\nCaracterísticas principales:\n\nWi-Fi 6 (802.11ax)\nRendimiento de hasta 2976 Mb/s\n2,4 GHz / 5 GHz (doble banda)\n4 antenas externas\n4 puertos LAN Gigabit Ethernet\n1 puerto WAN Gigabit Ethernet\n1 puerto USB 3.1 Gen 1\nCompatible con AiMesh\nTP-Link HomeShield\nConfiguración sencilla con la aplicación TP-Link Tether.",
-      "precioActual": 150,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1785079145272,
       "name": "Controlador 100amp",
       "catId": 20,
@@ -1834,7 +1817,7 @@
       "name": "Mikrotik Router Board 750gr",
       "catId": 10,
       "photo": "photos/img_1785079709511.webp",
-      "stock": 0,
+      "stock": 10,
       "imagen": "photos/img_1785079709511.webp",
       "nombre": "Mikrotik Router Board 750gr",
       "precio": "$130",
@@ -1941,7 +1924,7 @@
       "name": "Mikrotik lhg 5ax",
       "catId": 10,
       "photo": "photos/img_1786509644554.webp",
-      "stock": 0,
+      "stock": 12,
       "imagen": "photos/img_1786509644554.webp",
       "nombre": "Mikrotik lhg 5ax",
       "precio": "$240",
@@ -1958,7 +1941,7 @@
       "name": "Mikrotik SXT SA 5 ac",
       "catId": 10,
       "photo": "photos/img_1786509734474.webp",
-      "stock": 0,
+      "stock": 2,
       "imagen": "photos/img_1786509734474.webp",
       "nombre": "Mikrotik SXT SA 5 ac",
       "precio": "$220",
@@ -2012,7 +1995,7 @@
       "name": "Controlador solar de 120A Y&H",
       "catId": 20,
       "photo": "photos/img_1786596117205.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/img_1786596117205.webp",
       "nombre": "Controlador solar de 120A Y&H",
       "precio": "$260",
@@ -2029,7 +2012,7 @@
       "name": "Router Tp link archer ax21 AX1800",
       "catId": 10,
       "photo": "photos/p-1786858003270-7199b45b.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/p-1786858003270-7199b45b.webp",
       "nombre": "Router Tp link archer ax22 AX1800",
       "precio": "$120",
@@ -2097,7 +2080,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 0,
+      "stock": 10,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$120",
@@ -9625,5 +9608,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T14:25:47.580Z"
+  "timestamp": "2026-08-28T14:28:27.404Z"
 }
