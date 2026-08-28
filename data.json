@@ -1390,7 +1390,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 8,
+      "stock": 9,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "$140",
@@ -2150,6 +2150,82 @@
   ],
   "vales": [
     {
+      "id": 1787944135748,
+      "ts": "2026-08-28T19:08:55.751Z",
+      "total": "$200 USD",
+      "carnet": "",
+      "seenTs": "2026-08-28T19:16:43.666Z",
+      "status": "pending",
+      "vuelto": "NO",
+      "cliente": "Rey carlos",
+      "valeNum": 120,
+      "articulo": "×10 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5354414642",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Rey carlos\n🔸Teléfono Cliente: 5354414642\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: NO\n🔸 Precio: $200 USD\n🔸 Rebaja: −2000 MN\n🔸 Total a pagar: $200 USD menos 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/08/2026 15:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 15000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 10,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionCedida": 2000,
+      "comisionGestor": "15000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "MN",
+      "comisionCedidaMotivo": "Cliente frecuente",
+      "synced": true
+    },
+    {
+      "id": 1787942075113,
+      "ts": "2026-08-28T18:34:35.127Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-08-28T19:15:31.669Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ony.JuanMiguel Mataran Gonzales",
+      "valeNum": 119,
+      "articulo": "×1 Mikrotik Router Board 750gr",
+      "garantia": "",
+      "gestorId": 1781761257108,
+      "precioMN": "",
+      "telefono": "5353910527",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Ony.JuanMiguel Mataran Gonzales\n🔸Teléfono Cliente: 5353910527\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik Router Board 750gr\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/08/2026 14:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785079709511,
+          "qty": 1,
+          "name": "Mikrotik Router Board 750gr"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1787940267591,
       "ts": "2026-08-28T18:04:27.611Z",
       "total": "$160 USD",
@@ -2273,7 +2349,7 @@
       "ts": "2026-08-28T17:58:24.493Z",
       "total": "$140 USD + 4306 MN",
       "carnet": "",
-      "seenTs": "2026-08-28T18:09:18.607Z",
+      "seenTs": "2026-08-28T19:20:42.846Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Evert Fernández",
@@ -2553,7 +2629,7 @@
       "ts": "2026-08-28T04:17:12.373Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T18:09:27.290Z",
+      "seenTs": "2026-08-28T19:16:57.575Z",
       "status": "pending",
       "vuelto": "-",
       "cliente": "Evert",
@@ -9997,5 +10073,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T18:10:22.873Z"
+  "timestamp": "2026-08-28T19:22:07.874Z"
 }
