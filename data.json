@@ -2133,6 +2133,44 @@
   ],
   "vales": [
     {
+      "id": 1787927527725,
+      "ts": "2026-08-28T14:32:07.726Z",
+      "total": "$2880 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Lawton",
+      "valeNum": 112,
+      "articulo": "×12 Mikrotik lhg 5ax",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "direccion": "lawton",
+      "precioUSD": "$2880 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 12,
+          "name": "Mikrotik lhg 5ax"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Lawton\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: lawton\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×12 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $2880 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2880 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/8/2026, 10:32:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "synced": true,
+      "isNew": true
+    },
+    {
       "id": 1787919821648,
       "ts": "2026-08-28T12:23:41.664Z",
       "total": "$150 USD",
@@ -9608,5 +9646,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T14:32:07.557Z"
+  "timestamp": "2026-08-28T14:33:07.873Z"
 }
