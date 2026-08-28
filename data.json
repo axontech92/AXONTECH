@@ -844,7 +844,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 5,
+      "stock": 16,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2137,7 +2137,7 @@
       "ts": "2026-08-28T12:23:41.664Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T13:38:28.143Z",
+      "seenTs": "2026-08-28T14:30:04.850Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "--",
@@ -2209,7 +2209,7 @@
       "ts": "2026-08-27T22:50:00.000Z",
       "total": "$1440 USD",
       "carnet": "",
-      "seenTs": "2026-08-28T14:07:59.859Z",
+      "seenTs": "2026-08-28T14:30:09.639Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Gabriel",
@@ -2222,7 +2222,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Gabriel\n🔸Teléfono Cliente: 5353329851\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: Gratis (de mi comisión)\n🔸Hora de entrega: 10:00\n🔸 Artículos y cantidades:\n  ×8 NanoStation 5 AC loco SIN POE\n  ×5 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $1420 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1420 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/08/2026 18:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "La cuevita",
       "precioUSD": "$1440 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Gratis (de mi comisión)",
       "comFijadaMN": 3000,
@@ -2244,7 +2244,8 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1787870853873,
@@ -9608,5 +9609,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T14:28:27.404Z"
+  "timestamp": "2026-08-28T14:30:12.449Z"
 }
