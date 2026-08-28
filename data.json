@@ -655,7 +655,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -2206,8 +2206,8 @@
       "ts": "2026-08-28T21:43:11.462Z",
       "total": "$260 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-08-28T22:08:34.034Z",
-      "status": "assigned",
+      "seenTs": "2026-08-28T22:55:31.336Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yeiniel",
       "valeNum": 124,
@@ -2224,6 +2224,7 @@
       "assignedTs": "2026-08-28T22:08:42.183Z",
       "mensajeria": "2300cup",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-08-28T22:55:35.047Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2236,7 +2237,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -10295,5 +10296,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T22:23:02.872Z"
+  "timestamp": "2026-08-28T22:56:35.064Z"
 }
