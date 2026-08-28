@@ -1824,7 +1824,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 1,
+      "reserved": 0,
       "descripcion": "RouterBoard MikroTik hEX S RB750Gr3 Marca/Modelo: MicroTik hEX S RB750Gr3: \n\n-CPU: MT7621A, Dual Core de 880Mhz\n-RAM: 256MB\n-Almacenamiento: 16MB\n-Software: RouterOS L4\n-Puertos: 5xRJ45; 1xUSB 2.0; Slot MicroSD\npara \"Dude Server\"\n-Monitor de temperatura PCB\n-Monitor de Voltaje\n-Beeper\n-IP20\n-Versión internacional\n-Incluye transformador para la alimentación",
       "description": "RouterBoard MikroTik hEX S RB750Gr3 Marca/Modelo: MicroTik hEX S RB750Gr3: \n\n-CPU: MT7621A, Dual Core de 880Mhz\n-RAM: 256MB\n-Almacenamiento: 16MB\n-Software: RouterOS L4\n-Puertos: 5xRJ45; 1xUSB 2.0; Slot MicroSD\npara \"Dude Server\"\n-Monitor de temperatura PCB\n-Monitor de Voltaje\n-Beeper\n-IP20\n-Versión internacional\n-Incluye transformador para la alimentación",
       "precioActual": 130,
@@ -2244,8 +2244,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1787870853873,
@@ -9609,5 +9608,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-28T14:30:12.449Z"
+  "timestamp": "2026-08-28T14:32:07.557Z"
 }
