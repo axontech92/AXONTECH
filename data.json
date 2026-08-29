@@ -2542,7 +2542,7 @@
       "ts": "2026-08-29T17:21:57.886Z",
       "total": "$130 EURO + 3200 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T19:51:21.801Z",
+      "seenTs": "2026-08-29T19:58:51.088Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Richar Abreu",
@@ -3209,10 +3209,12 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
     },
     {
       "id": 1787945107950,
@@ -6391,10 +6393,12 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
     },
     {
       "id": 1787517527098,
@@ -9296,10 +9300,12 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
     },
     {
       "id": 1786998127260,
@@ -10267,10 +10273,12 @@
       ],
       "comisionGestor": "22500 MN",
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "commissionPaid": true,
+      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
     },
     {
       "id": 1786902465950,
@@ -11213,5 +11221,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T19:58:11.051Z"
+  "timestamp": "2026-08-29T20:06:12.819Z"
 }
