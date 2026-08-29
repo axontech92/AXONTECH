@@ -1788,7 +1788,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2183,6 +2183,43 @@
     }
   ],
   "vales": [
+    {
+      "id": 1787963707239,
+      "ts": "2026-08-29T00:35:07.240Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-08-29T00:35:18.778Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "vecina",
+      "valeNum": 130,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: vecina\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/8/2026, 20:35:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": "2026-08-29T00:35:23.924Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
     {
       "id": 1787963579095,
       "ts": "2026-08-29T00:32:59.095Z",
@@ -10553,5 +10590,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T00:34:09.468Z"
+  "timestamp": "2026-08-29T00:36:23.944Z"
 }
