@@ -1337,7 +1337,7 @@
       "name": "Ventilador de techo",
       "catId": 90,
       "photo": "photos/img_1781365135486.webp",
-      "stock": 11,
+      "stock": 10,
       "imagen": "photos/img_1781365135486.webp",
       "nombre": "Ventilador de techo",
       "precio": "$35",
@@ -2423,8 +2423,8 @@
       "ts": "2026-08-29T18:19:47.672Z",
       "total": "$35 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T19:37:45.801Z",
-      "status": "assigned",
+      "seenTs": "2026-08-29T19:57:04.850Z",
+      "status": "confirmed",
       "vuelto": "NO",
       "cliente": "Susan",
       "valeNum": 138,
@@ -2441,6 +2441,8 @@
       "assignedTs": "2026-08-29T18:24:33.829Z",
       "mensajeria": "3000",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-08-29T19:57:09.964Z",
+      "deliveredTs": "2026-08-29T19:57:07.786Z",
       "mensajeroId": 1784476898824,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2453,7 +2455,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2540,7 +2542,7 @@
       "ts": "2026-08-29T17:21:57.886Z",
       "total": "$130 EURO + 3200 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T19:01:53.453Z",
+      "seenTs": "2026-08-29T19:51:21.801Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Richar Abreu",
@@ -11211,5 +11213,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T19:51:21.751Z"
+  "timestamp": "2026-08-29T19:58:11.051Z"
 }
