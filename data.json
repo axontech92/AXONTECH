@@ -2218,6 +2218,50 @@
   ],
   "vales": [
     {
+      "id": 1788032857323,
+      "ts": "2026-08-29T19:47:37.357Z",
+      "total": "$150 USD",
+      "carnet": "",
+      "seenTs": "2026-08-29T19:50:26.185Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Lyda González",
+      "valeNum": 123,
+      "articulo": "×1 Tp Link Archer ax55, ax3000 / ×1 Pistola de masaje recargable",
+      "garantia": "",
+      "gestorId": 1781761257116,
+      "precioMN": "",
+      "telefono": "50085143",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Emily\n\n🔸 Nombre Cliente: Lyda González\n🔸Teléfono Cliente: 50085143\n🔸Dirección Cliente: Calle D No 415 esquina 19  Apartamento 7 entre 17 y 19\n🔸Mensajería/ costo: Gratis\n🔸Hora de entrega: 15:45\n🔸 Artículos y cantidades:\n  ×1 Tp Link Archer ax55, ax3000\n  ×1 Pistola de masaje recargable\n🔸Precio USD/ zelle: $175 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/08/2026 15:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle D No 415 esquina 19  Apartamento 7 entre 17 y 19",
+      "precioUSD": "$175 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-08-29T19:50:21.739Z",
+      "mensajeria": "Gratis",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787375561622,
+          "qty": 1,
+          "name": "Tp Link Archer ax55, ax3000"
+        },
+        {
+          "id": 1778103856933,
+          "qty": 1,
+          "name": "Pistola de masaje recargable"
+        }
+      ],
+      "comisionGestor": "$10.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788031132542,
       "ts": "2026-08-29T19:18:52.544Z",
       "total": "$270 USD",
@@ -2266,7 +2310,7 @@
       "ts": "2026-08-29T19:06:34.880Z",
       "total": "$275 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T19:07:17.324Z",
+      "seenTs": "2026-08-29T19:37:31.586Z",
       "status": "assigned",
       "vuelto": "NO",
       "cliente": "Iliuxis",
@@ -2379,7 +2423,7 @@
       "ts": "2026-08-29T18:19:47.672Z",
       "total": "$35 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T18:23:49.723Z",
+      "seenTs": "2026-08-29T19:37:45.801Z",
       "status": "assigned",
       "vuelto": "NO",
       "cliente": "Susan",
@@ -11167,5 +11211,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T19:20:08.771Z"
+  "timestamp": "2026-08-29T19:51:21.751Z"
 }
