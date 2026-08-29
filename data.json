@@ -2222,8 +2222,8 @@
       "ts": "2026-08-29T18:43:20.248Z",
       "total": "$260 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T18:49:07.290Z",
-      "status": "pending",
+      "seenTs": "2026-08-29T18:55:28.390Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Raul",
       "valeNum": 140,
@@ -2237,7 +2237,9 @@
       "precioUSD": "$260 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-08-29T18:59:52.790Z",
       "mensajeria": "4500",
+      "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -11086,5 +11088,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T18:51:38.937Z"
+  "timestamp": "2026-08-29T19:00:52.819Z"
 }
