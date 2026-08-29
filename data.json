@@ -2218,6 +2218,45 @@
   ],
   "vales": [
     {
+      "id": 1788027587669,
+      "ts": "2026-08-29T18:19:47.672Z",
+      "total": "$35 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-08-29T18:23:49.723Z",
+      "status": "assigned",
+      "vuelto": "NO",
+      "cliente": "Susan",
+      "valeNum": 138,
+      "articulo": "×1 Ventilador de techo",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "52658152",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Susan\n🔸Teléfono Cliente: 52658152\n🔸Dirección Cliente: 40A#305 bajos /3ra y 3raA playa\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 Ventilador de techo\n🔸Precio USD/ zelle: $35 USD\n🔸Precio MN: \n🔸 Vuelto: NO\n🔸 Total a pagar: $35 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 29/08/2026 14:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "40A#305 bajos /3ra y 3raA playa",
+      "precioUSD": "$35 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-08-29T18:24:33.829Z",
+      "mensajeria": "3000",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476898824,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781365135486,
+          "qty": 1,
+          "name": "Ventilador de techo"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788026103333,
       "ts": "2026-08-29T17:55:03.354Z",
       "total": "$75 USD + 1000 MN",
@@ -2256,9 +2295,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-08-29T18:13:21.169Z"
+      "synced": true
     },
     {
       "id": 1788025438212,
@@ -10971,5 +11008,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T18:14:22.038Z"
+  "timestamp": "2026-08-29T18:38:00.390Z"
 }
