@@ -1320,7 +1320,7 @@
       "name": "Probador/ tester  digital de baterías",
       "catId": 40,
       "photo": "photos/img_1781365019871.webp",
-      "stock": 11,
+      "stock": 10,
       "imagen": "photos/img_1781365019871.webp",
       "nombre": "Probador/ tester  digital de baterías",
       "precio": "$20",
@@ -2183,6 +2183,45 @@
     }
   ],
   "vales": [
+    {
+      "id": 1787963579095,
+      "ts": "2026-08-29T00:32:59.095Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-08-29T00:33:06.921Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "vecina",
+      "valeNum": 129,
+      "articulo": "×1 Probador/ tester  digital de baterías",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: vecina\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Probador/ tester  digital de baterías\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/8/2026, 20:32:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-29T00:33:09.442Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781365019871,
+          "qty": 1,
+          "name": "Probador/ tester  digital de baterías"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
     {
       "id": 1787963484567,
       "ts": "2026-08-29T00:31:24.568Z",
@@ -10514,5 +10553,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T00:32:35.344Z"
+  "timestamp": "2026-08-29T00:34:09.468Z"
 }
