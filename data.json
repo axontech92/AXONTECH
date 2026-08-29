@@ -655,7 +655,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 13,
+      "stock": 12,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -2349,8 +2349,8 @@
       "ts": "2026-08-29T18:43:20.248Z",
       "total": "$260 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T18:55:28.390Z",
-      "status": "assigned",
+      "seenTs": "2026-08-29T20:15:21.991Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Raul",
       "valeNum": 140,
@@ -2366,6 +2366,8 @@
       "ubicacion": null,
       "assignedTs": "2026-08-29T18:59:52.790Z",
       "mensajeria": "4500",
+      "confirmedTs": "2026-08-29T20:15:29.743Z",
+      "deliveredTs": "2026-08-29T20:15:26.995Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2377,8 +2379,10 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "synced": true
+      "stockDecremented": true,
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-08-29T20:15:30.947Z"
     },
     {
       "id": 1788028914700,
@@ -2542,7 +2546,7 @@
       "ts": "2026-08-29T17:21:57.886Z",
       "total": "$130 EURO + 3200 MN",
       "carnet": "",
-      "seenTs": "2026-08-29T19:58:51.088Z",
+      "seenTs": "2026-08-29T20:15:36.072Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Richar Abreu",
@@ -3208,13 +3212,12 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
+      "synced": true
     },
     {
       "id": 1787945107950,
@@ -6392,13 +6395,12 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
+      "synced": true
     },
     {
       "id": 1787517527098,
@@ -9299,13 +9301,12 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
+      "synced": true
     },
     {
       "id": 1786998127260,
@@ -10272,13 +10273,12 @@
         }
       ],
       "comisionGestor": "22500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "commissionPaid": true,
-      "commissionPaidTs": "2026-08-29T20:05:11.942Z"
+      "synced": true
     },
     {
       "id": 1786902465950,
@@ -11221,5 +11221,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-29T20:06:12.819Z"
+  "timestamp": "2026-08-29T20:16:30.954Z"
 }
