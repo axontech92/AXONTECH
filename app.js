@@ -4847,7 +4847,7 @@ function _descontarStock(v) {
 
 // v52: tipos de aviso que son PERSONALES de un gestor (su vale, su ranking).
 // El resto (stock, productos nuevos) son avisos globales de la tienda.
-const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3','meta_alcanzada'];
+const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3','meta_alcanzada','mes_ganado'];
 const _esNotifPersonal = n => !!n && NOTIF_PERSONAL_TYPES.includes(n.type);
 
 // v52 FIX: el recorte a 50 avisos era ciego y el array de notifs es GLOBAL:
@@ -5127,6 +5127,8 @@ function renderGestorNotifs() {
       msg=`<b>¡Venta completada! ✅</b> · ${safeName}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='meta_alcanzada'){
       msg=`🎯 <b>¡Meta alcanzada!</b> Llegaste a los ${safeExtra} puntos — el contador vuelve a empezar.`;
+    } else if(n.type==='mes_ganado'){
+      msg=`🏆 <b>¡Ganaste el mes!</b> Terminaste primero con ${safeExtra} puntos.`;
     } else if(n.type==='vale_delivered'){
       msg=`📦 <b>¡Tu venta fue entregada!</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='vale_pending'){
@@ -5650,7 +5652,8 @@ function doSelectGestor(id) {
   try {
     const k='axon_meta_celebrada_'+id;
     if(localStorage.getItem(k)===null){
-      const mia=getNotifs().find(n=>n&&n.type==='meta_alcanzada'&&n.gestorId===id);
+      const mia=getNotifs().filter(n=>n&&(n.type==='meta_alcanzada'||n.type==='mes_ganado')&&n.gestorId===id)
+        .sort((a,b)=>String(b.ts||'').localeCompare(String(a.ts||'')))[0];
       localStorage.setItem(k, mia?String(mia.id):'0');
     }
   } catch(e) {}
@@ -13181,18 +13184,69 @@ const PLACE_COLOR=['#F59E0B','#94A3B8','#cd7f32'];
 const PLACE_BADGE=['CAMPEÓN','SUBCAMPEÓN','TERCERO'];
 
 // Get top 3 gestores ranked by confirmed/pending_payment points
+// ── v119: cerrar el mes y proclamar ganador ────────────────────────────────
+// En modo mensual no hay meta que alcanzar, así que checkGoalReached no dispara
+// nunca: sin esto, el modo mensual no tendría ganador ni celebración — el
+// ranking se pondría a cero el día 1 y nadie se enteraría de quién ganó.
+//
+// Lo cierra SOLO el admin, y una sola vez: los gestores se enteran por el aviso,
+// igual que con la meta fija. Si lo cerrara cada teléfono, el mismo mes se
+// proclamaría varias veces y el historial saldría duplicado.
+function _puntosEnMes(gestorId, mes) {   // mes = 'YYYY-MM'
+  return getVales()
+    .filter(v => v.gestorId === gestorId
+      && ['confirmed','pending_payment'].includes(v.status)
+      && String(_fechaEfectiva(v)).slice(0,7) === mes)
+    .reduce((sum,v) => sum + (v.valeProductos||[]).reduce((t,p) => {
+      const pr = productoOf(p.id); return t + ((pr && pr.puntos)||0) * p.qty; }, 0), 0);
+}
+function rankingDelMes(mes) {
+  return getGestores().filter(g => g && !g._tienda)
+    .map(g => ({ id:g.id, name:g.name, initials:g.initials, color:g.color, pts:_puntosEnMes(g.id, mes) }))
+    .filter(x => x.pts > 0)
+    .sort((a,b) => b.pts - a.pts);
+}
+function ganadoresMensuales() {
+  const h = (getConfig()||{}).ganadoresMensuales;
+  return Array.isArray(h) ? h : [];
+}
+function _cerrarMesSiToca() {
+  if (metaModo() !== 'mensual') return;
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const cfg = getConfig() || {};
+  const mesAhora = localDay(new Date()).slice(0,7);
+  const enCurso = cfg.mesRankingActual || '';
+  // Primera vez en este modo: se apunta el mes en curso y ya está. No se
+  // proclama nada de un mes que la app no estuvo contando.
+  if (!enCurso) { saveConfig({ ...cfg, mesRankingActual: mesAhora }); return; }
+  if (enCurso === mesAhora) return;                  // el mes no ha cambiado
+  const ranking = rankingDelMes(enCurso);
+  const hist = ganadoresMensuales().slice(-23);      // dos años de historial, de sobra
+  if (ranking.length) {
+    const g = ranking[0];
+    hist.push({ mes:enCurso, gestorId:g.id, nombre:g.name, pts:g.pts,
+                segundo:(ranking[1]||{}).name || '', ts:new Date().toISOString() });
+    addNotif('mes_ganado', g.name, null, String(g.pts), g.id, 'mes_ganado:'+enCurso);
+    _logAudit('mes_cerrado', enCurso + ' → ' + g.name + ' (' + g.pts + ' pts)');
+  }
+  saveConfig({ ...cfg, mesRankingActual: mesAhora, ganadoresMensuales: hist });
+  rankingCache = null; gestoresTabDirty = true;
+  if (ranking.length && typeof launchEpicGlowPulse === 'function') {
+    // El admin ve el podio del mes que acaba de cerrar.
+    try { launchEpicGlowPulse(ranking[0], ranking[0].pts, { mes:enCurso, ranking }); } catch(e) {}
+  }
+  try { renderGestorRanking(); } catch(e) {}
+}
+
 function getTop3Ranked() {
   const gestores=getGestores();
-  const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
-  const ranked=gestores.map(g=>{
-    // v114: puntos del ciclo en curso, igual que la barra de meta. Si el
-    // ranking siguiera contando los de siempre, quien ya cerró varias metas se
-    // quedaría arriba para siempre y resetear el contador no serviría de nada.
-    const pts=Math.max(0, confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0)
-      - (parseFloat(g.puntosCanjeados)||0));
-    return {...g,pts};
-  }).sort((a,b)=>b.pts-a.pts);
+  // v119: se usa getGestorPoints en vez de recalcular aquí. Repetir la cuenta
+  // en dos sitios ya costaba que el podio y la barra pudieran discrepar; ahora
+  // además hay periodos (mes en curso, reinicio) y esta copia no los conocía:
+  // en modo mensual el podio habría enseñado los puntos de siempre mientras la
+  // barra enseñaba los del mes.
+  const ranked=gestores.map(g=>({...g, pts:getGestorPoints(g.id)}))
+    .sort((a,b)=>b.pts-a.pts);
   return ranked.slice(0,3);
 }
 
@@ -13379,12 +13433,20 @@ function sendRankingPushNotif(top3) {
 }
 
 // EPIC GLOW PULSE — Main celebration overlay
-function launchEpicGlowPulse(triggerGestor, triggerPts) {
+// v119: `ctx` es opcional. Sin él se comporta igual que siempre (meta fija).
+// Con {mes, ranking} celebra el cierre de mes: el podio es el de ESE mes, no el
+// del ranking en curso —que el día 1 ya está a cero y enseñaría a todos con 0
+// puntos justo en la pantalla que proclama al ganador.
+function launchEpicGlowPulse(triggerGestor, triggerPts, ctx) {
   // Remove any existing overlay
   const existing=document.querySelector('.glow-overlay');if(existing)existing.remove();
 
-  const top3=getTop3Ranked();
-  const meta=getConfig().metaPuntos||0;
+  const esMes = !!(ctx && ctx.mes);
+  const top3 = esMes ? (ctx.ranking||[]).slice(0,3) : getTop3Ranked();
+  const meta = esMes ? 0 : (getConfig().metaPuntos||0);
+  const _mesTxt = esMes ? (()=>{ try {
+      return new Date(ctx.mes+'-15T12:00:00').toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+    } catch(e){ return ctx.mes; } })() : '';
 
   // Build overlay HTML
   const overlay=document.createElement('div');
@@ -13393,8 +13455,9 @@ function launchEpicGlowPulse(triggerGestor, triggerPts) {
     <div class="glow-rings"></div>
     <button class="glow-close" onclick="closeEpicGlowPulse()">✕</button>
     <div class="glow-announcement">
-      ${meta>0?`<div class="glow-meta-label">🎯 Meta: ${meta} pts</div>`:''}
-      <div class="glow-title" id="glowTitle">🏆 ¡META ALCANZADA! 🏆</div>
+      ${esMes?`<div class="glow-meta-label">📅 ${escapeHTML(_mesTxt)}</div>`
+             :(meta>0?`<div class="glow-meta-label">🎯 Meta: ${meta} pts</div>`:'')}
+      <div class="glow-title" id="glowTitle">${esMes?'🏆 ¡GANADOR DEL MES! 🏆':'🏆 ¡META ALCANZADA! 🏆'}</div>
       <div class="glow-winners-list" id="glowWinnersList">
         ${top3.map((g,i)=>`
           <div class="glow-winner-row" id="glowRow${i}" style="transition-delay:${.3+i*.25}s">
@@ -13402,7 +13465,7 @@ function launchEpicGlowPulse(triggerGestor, triggerPts) {
             <div class="glow-winner-avatar" style="background:${g.color}">${escapeHTML(g.initials)}</div>
             <div class="glow-winner-info">
               <div class="glow-winner-name">${escapeHTML(g.name)}</div>
-              <div class="glow-winner-pts">${g.pts} pts${i===0&&meta>0&&g.pts>=meta?' ⭐ ¡Meta alcanzada!':''}</div>
+              <div class="glow-winner-pts">${g.pts} pts${esMes?(i===0?' 👑 ¡Ganó el mes!':''):(i===0&&meta>0&&g.pts>=meta?' ⭐ ¡Meta alcanzada!':'')}</div>
             </div>
             <div class="glow-winner-badge glow-badge-${i+1}">${PLACE_EMOJI[i]} ${PLACE_BADGE[i]}</div>
           </div>
@@ -13564,14 +13627,27 @@ function checkGoalReached(gestorId, currentValeId) {
 function _celebrarMetaDelGestor() {
   if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) return;
   if (activeGestorId == null) return;
-  const mia = getNotifs().find(n => n && n.type === 'meta_alcanzada' && n.gestorId === activeGestorId);
+  // v119: en modo mensual el aviso es otro ('mes_ganado'), pero la celebración
+  // y el "esta ya se vio" son los mismos. Se busca el más reciente de los dos.
+  const mia = getNotifs()
+    .filter(n => n && n.gestorId === activeGestorId
+      && (n.type === 'meta_alcanzada' || n.type === 'mes_ganado'))
+    .sort((a,b) => String(b.ts||'').localeCompare(String(a.ts||'')))[0];
   if (!mia) return;
   let visto = null;
   try { visto = localStorage.getItem('axon_meta_celebrada_' + activeGestorId); } catch(e) {}
   if (visto === String(mia.id)) return;                 // esta ya se celebró
   try { localStorage.setItem('axon_meta_celebrada_' + activeGestorId, String(mia.id)); } catch(e) {}
   const g = gestorOf(activeGestorId);
-  if (g) launchEpicGlowPulse(g, parseFloat(mia.extra) || 0);
+  if (!g) return;
+  if (mia.type === 'mes_ganado') {
+    // El podio del mes que ganó, no el del ranking de ahora (que el día 1 está
+    // a cero y le enseñaría a todo el mundo con 0 puntos).
+    const mes = String(mia.evt||'').split(':')[1] || localDay(new Date()).slice(0,7);
+    launchEpicGlowPulse(g, parseFloat(mia.extra)||0, { mes, ranking: rankingDelMes(mes) });
+  } else {
+    launchEpicGlowPulse(g, parseFloat(mia.extra) || 0);
+  }
 }
 
 // ══════════════════════════════════════════
@@ -15049,6 +15125,11 @@ async function init() {
     setTimeout(() => { try { _rescatarCostosDelProducto(); } catch(e) {} }, 9000);
     // v119: y los dueños que se quedaron sin subir — ver _rescatarDuenosNoSubidos.
     setTimeout(() => { _rescatarDuenosNoSubidos().catch(() => {}); }, 10000);
+    // v119: ¿cambió el mes desde la última vez? Entonces toca proclamar al
+    // ganador del anterior. Se comprueba al arrancar y no con un temporizador a
+    // medianoche: la app no está abierta a esa hora, y el cierre tiene que
+    // ocurrir igual la próxima vez que el admin entre.
+    setTimeout(() => { try { _cerrarMesSiToca(); } catch(e) {} }, 3000);
   }
   _updateSyncIndicator();
   // Mostrar banner de vales pendientes de sincronizar al arrancar.
