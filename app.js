@@ -2156,7 +2156,6 @@ const pendingCount= () => getVales().filter(v=>v.status==='pending').length;
 // abrir un vale, así que el número baja solo a medida que se revisan.
 const sinVerCount = () => getVales().filter(v => v.status === 'pending' && !v.seenByAdmin).length;
 const pendingOf   = gId=> getVales().filter(v=>v.gestorId===gId&&v.status==='pending').length;
-const todayValesOf= gId=> getVales().filter(v=>v.gestorId===gId&&new Date(v.ts).toDateString()===todayStr());
 
 
 
@@ -7837,7 +7836,11 @@ function openMensajeroWhatsApp(mensajeroId, optionalText) {
 //  CONFIRMADOS / PENDIENTES
 // ══════════════════════════════════════════
 function renderConfirmados() {
-  const today=ordenarRecientesPrimero(getVales().filter(v=>v.status==='confirmed'&&new Date(v.ts).toDateString()===todayStr()));
+  // v119: por la fecha en que se CONFIRMÓ, no en que se mandó el vale. Es una
+  // lista de confirmaciones de hoy: un vale mandado el lunes y confirmado hoy
+  // es una confirmación de hoy, y por la fecha de envío no salía aquí.
+  const _hoy=localDay(new Date());
+  const today=ordenarRecientesPrimero(getVales().filter(v=>v.status==='confirmed'&&_fechaEfectiva(v)===_hoy));
   const c=document.getElementById('confirmadosList');
   if(!c) return;
   if(!today.length){c.innerHTML='<div class="es"><div class="es-icon">✅</div><div class="es-text">Sin confirmaciones</div></div>';return;}
