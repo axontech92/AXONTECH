@@ -12699,14 +12699,12 @@ function renderGestorRanking() {
     const pos=i<3?medals[i]:`<span style="font-size:11px;font-weight:700;color:var(--gray-400);">${i+1}</span>`;
     // Hint compacto — solo si NO es "faltan X pts" (esos ya los indica la barra)
     let hint='';
-    // v119: se mira _hayMeta, no el número guardado. En el modo por ciclos la
-    // meta sigue configurada pero no está en juego, así que la pista útil es
-    // cuánto le falta al líder — y con meta===0 no salía nunca.
+    // v119: se mira _hayMeta, no el número guardado — en el modo por ciclos la
+    // meta sigue configurada pero no está en juego.
     if(reached){hint='<span style="color:var(--green);font-weight:700;">✓ Meta</span>';}
     else if(!_hayMeta&&g.pts===0){hint='<span style="color:var(--gray-400);">Sin puntos</span>';}
-    else if(!_hayMeta&&g.pts>0&&i>0){hint=`<span style="color:var(--gray-400);">${pct}% del líder</span>`;}
     else if(!_hayMeta&&i===0){hint='<span style="color:var(--green);font-weight:700;">👑 Va ganando</span>';}
-    // Con meta en juego y sin alcanzarla, no hay pista: la barra ya lo dice.
+    // Al resto no se les pone nada: los puntos y la barra ya dicen dónde están.
     return `<div class="rank-row">
       <div class="rank-pos">${pos}</div>
       <div style="flex:1;min-width:0;">
