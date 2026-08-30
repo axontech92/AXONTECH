@@ -553,7 +553,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -2224,7 +2224,7 @@
       "total": "$85 USD + 3300 MN",
       "carnet": "",
       "seenTs": "2026-08-30T15:09:28.074Z",
-      "status": "assigned",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Rafael cordero",
       "valeNum": 128,
@@ -2240,6 +2240,7 @@
       "ubicacion": null,
       "assignedTs": "2026-08-30T13:56:07.903Z",
       "mensajeria": "3300",
+      "deliveredTs": "2026-08-30T15:57:41.287Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2251,7 +2252,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -11334,5 +11335,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T15:18:00.801Z"
+  "timestamp": "2026-08-30T15:58:41.801Z"
 }
