@@ -1,10 +1,10 @@
 {
-  "version": 141,
-  "versionStr": "v8.7",
-  "build": 141,
-  "hash": "33249697f382885f",
-  "hashFull": "33249697f382885f",
-  "releasedAt": "2026-08-30 13:33",
+  "version": 142,
+  "versionStr": "v8.8",
+  "build": 142,
+  "hash": "d89fe4749522b642",
+  "hashFull": "d89fe4749522b642",
+  "releasedAt": "2026-08-30 14:13",
   "files": [
     "app.js",
     "app.css",
@@ -14,6 +14,6 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Actualización automática · build 33249697"
+    "Actualización automática · build d89fe474"
   ]
 }
