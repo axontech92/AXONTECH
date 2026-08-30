@@ -2227,6 +2227,78 @@
   ],
   "vales": [
     {
+      "id": 1788115304301,
+      "ts": "2026-08-30T18:41:44.330Z",
+      "total": "$260 USD + 3300 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Diamelsa",
+      "valeNum": 131,
+      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "54973283",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Diamelsa\n🔸Teléfono Cliente: 54973283\n🔸Dirección Cliente: Calle 140 esquina 33 al lado de círculo macarenco albergue frente a la bodega marianao\n🔸Mensajería/ costo: 3300\n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD + 3300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 14:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 140 esquina 33 al lado de círculo macarenco albergue frente a la bodega marianao",
+      "precioUSD": "$260 USD",
+      "ubicacion": "",
+      "mensajeria": "3300",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1788114761715,
+      "ts": "2026-08-30T18:32:41.718Z",
+      "total": "13700 mn",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Roberto López",
+      "valeNum": 130,
+      "articulo": "×1 Probador/ tester  digital de baterías",
+      "garantia": "",
+      "gestorId": 1781761257109,
+      "precioMN": "",
+      "telefono": "52743056",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: Roberto López\n🔸Teléfono Cliente: 52743056\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Probador/ tester  digital de baterías\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: 13700 mn\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 14:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1000,
+      "horaEntrega": "",
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781365019871,
+          "qty": 1,
+          "name": "Probador/ tester  digital de baterías"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "1000 MN",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1788108622517,
       "ts": "2026-08-30T16:50:22.690Z",
       "total": "$25 USD",
@@ -11397,5 +11469,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T18:06:02.801Z"
+  "timestamp": "2026-08-30T18:49:41.511Z"
 }
