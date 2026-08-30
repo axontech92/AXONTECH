@@ -663,7 +663,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 12,
+      "stock": 11,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -2227,11 +2227,87 @@
   ],
   "vales": [
     {
+      "id": 1788117154323,
+      "ts": "2026-08-30T19:12:34.326Z",
+      "total": "$150 USD + 3300 MN",
+      "carnet": "",
+      "seenTs": "2026-08-30T19:52:40.988Z",
+      "status": "assigned",
+      "vuelto": "10 USD",
+      "cliente": "Roger Monzon",
+      "valeNum": 133,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1784476335609,
+      "precioMN": "",
+      "telefono": "59289703",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Juan\n\n🔸 Nombre Cliente: Roger Monzon\n🔸Teléfono Cliente: 59289703\n🔸Dirección Cliente: Soy de los pinos, calle perla entre embil y calle primera, edif 10214 apto 1 bajos\n🔸Mensajería/ costo: 3300 cup\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: 10 USD\n🔸 Total a pagar: $150 USD + 3300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 15:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Soy de los pinos, calle perla entre embil y calle primera, edif 10214 apto 1 bajos",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-08-30T19:16:40.049Z",
+      "mensajeria": "3300 cup",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788117079693,
+      "ts": "2026-08-30T19:11:19.713Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-08-30T19:11:32.212Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Anaís Triana",
+      "valeNum": 133,
+      "articulo": "×1 Router Tenda AX12 pro AX3000",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5352622289",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Anaís Triana\n🔸Teléfono Cliente: 5352622289\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 15:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788116821735,
       "ts": "2026-08-30T19:07:01.742Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-08-30T19:07:39.868Z",
+      "seenTs": "2026-08-30T19:18:12.096Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Guille",
@@ -2268,8 +2344,8 @@
       "ts": "2026-08-30T18:41:44.330Z",
       "total": "$260 USD + 3300 MN",
       "carnet": "",
-      "seenTs": "2026-08-30T19:06:31.289Z",
-      "status": "assigned",
+      "seenTs": "2026-08-30T19:52:32.868Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Diamelsa",
       "valeNum": 131,
@@ -2286,6 +2362,7 @@
       "assignedTs": "2026-08-30T19:06:46.066Z",
       "mensajeria": "3300",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-08-30T19:52:36.551Z",
       "mensajeroId": 1784408255563,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2298,7 +2375,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -11511,5 +11588,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T19:10:11.685Z"
+  "timestamp": "2026-08-30T19:53:36.801Z"
 }
