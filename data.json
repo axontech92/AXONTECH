@@ -2219,6 +2219,42 @@
   ],
   "vales": [
     {
+      "id": 1788108622517,
+      "ts": "2026-08-30T16:50:22.690Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Denilsen",
+      "valeNum": 129,
+      "articulo": "×1 Creatina Monohidratada Luckycare® (5000 mg)",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "058457991",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Denilsen\n🔸Teléfono Cliente: 058457991\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Creatina Monohidratada Luckycare® (5000 mg)\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 12:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$25 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1000,
+      "horaEntrega": "",
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781377297283,
+          "qty": 1,
+          "name": "Creatina Monohidratada Luckycare® (5000 mg)"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "1000 MN",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1788097179889,
       "ts": "2026-08-30T13:39:39.903Z",
       "total": "$85 USD + 3300 MN",
@@ -11337,5 +11373,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T16:40:33.464Z"
+  "timestamp": "2026-08-30T17:04:33.245Z"
 }
