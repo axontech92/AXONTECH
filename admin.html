@@ -412,6 +412,16 @@
         <button class="btn btn-sm" data-modo="mensual" onclick="setMetaModo('mensual')">📅 Ranking mensual</button>
       </div>
       <div id="metaModoAyuda" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;"></div>
+      <!-- v119: el ciclo puede empezar el día que se elija, no solo el 1. -->
+      <div id="cicloFila" style="display:none;border:1px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">El ciclo empieza el día:</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="date" id="cfg-ciclo-inicio" style="flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);">
+          <button class="btn btn-blue btn-sm" onclick="guardarCicloInicio()">Aplicar</button>
+          <button class="btn btn-ghost btn-sm" id="btnCicloMesNatural" style="font-size:11px;" onclick="guardarCicloInicio('')">Mes natural</button>
+        </div>
+        <div id="cicloStatus" style="margin-top:7px;font-size:11px;"></div>
+      </div>
       <div id="metaFijaFila" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input type="number" id="cfg-meta-puntos" placeholder="Ej: 100" min="1" style="flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
         <button class="btn btn-blue btn-sm" onclick="saveMetaPuntos()">Fijar meta</button>

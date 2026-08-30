@@ -12789,6 +12789,36 @@ function importData(input) {
   };
   reader.readAsText(file);
 }
+// v119: fijar desde qué día cuenta el ciclo. Se admite una fecha PASADA a
+// propósito: la competencia casi nunca se configura el mismo día que se decide
+// empezarla, y sin esto habría que tirar lo ya vendido o esperar al mes que
+// viene. Hacia adelante no tiene sentido —el ciclo no habría empezado— así que
+// se rechaza.
+function guardarCicloInicio(valor) {
+  const cfg = getConfig() || {};
+  if (valor === '') {                       // volver al mes natural
+    const c = { ...cfg }; delete c.cicloInicio; delete c.cicloActual;
+    saveConfig(c);
+    rankingCache = null; gestoresTabDirty = true;
+    renderGestorRanking(); loadGhConfigUI(); maybeAutoSync();
+    showToast('El ciclo vuelve a ser el mes natural');
+    return;
+  }
+  const inp = document.getElementById('cfg-ciclo-inicio');
+  const d = (valor != null ? valor : (inp && inp.value) || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { showToast('Elige una fecha'); return; }
+  if (d > localDay(new Date())) { showToast('No se puede empezar un ciclo en el futuro'); return; }
+  // cicloActual se pone al ciclo que corresponde a esa fecha, no a la fecha
+  // suelta: si no, el primer arranque creería que el ciclo cambió y cerraría
+  // uno recién abierto, proclamando un ganador de la nada.
+  saveConfig({ ...cfg, cicloInicio: d, cicloActual: undefined });
+  const cfg2 = getConfig() || {};
+  saveConfig({ ...cfg2, cicloActual: _inicioDelCiclo() });
+  rankingCache = null; gestoresTabDirty = true;
+  renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI(); maybeAutoSync();
+  showToast('Los puntos cuentan desde el ' + d + ' ✓');
+}
+
 // ── v119: cambiar de modo ──────────────────────────────────────────────────
 function setMetaModo(modo) {
   if(!['off','fija','mensual'].includes(modo))return;
@@ -12913,6 +12943,21 @@ function loadGhConfigUI() {
   // visible siempre para no perder de vista lo que hay configurado al volver.
   const _fila=document.getElementById('metaFijaFila');
   if(_fila)_fila.style.opacity=(_modo==='fija')?'1':'.45';
+  // El selector de fecha solo tiene sentido en el modo por ciclos.
+  const _cf=document.getElementById('cicloFila');
+  if(_cf)_cf.style.display=(_modo==='mensual')?'block':'none';
+  const _ci=document.getElementById('cfg-ciclo-inicio');
+  if(_ci&&!_ci.value)_ci.value=cicloInicioCfg()||localDay(new Date());
+  const _cs=document.getElementById('cicloStatus');
+  if(_cs&&_modo==='mensual'){
+    const ini=_inicioDelCiclo(), fin=_finDelCiclo(ini);
+    const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'});}catch(e){return d;}};
+    _cs.innerHTML=cicloInicioCfg()
+      ? `<span style="color:var(--green);">✓ Ciclo en curso: <b>${fmt(ini)} → ${fmt(fin)}</b></span>`
+      : `<span style="color:var(--gray-400);">Mes natural · ciclo en curso: ${fmt(ini)} → ${fmt(fin)}</span>`;
+  }
+  const _bn=document.getElementById('btnCicloMesNatural');
+  if(_bn)_bn.style.display=cicloInicioCfg()?'inline-flex':'none';
   const _pd=document.getElementById('puntosDesdeStatus');
   const _btnUndo=document.getElementById('btnDeshacerReinicio');
   if(_pd){
@@ -13235,17 +13280,21 @@ const PLACE_BADGE=['CAMPEÓN','SUBCAMPEÓN','TERCERO'];
 // Lo cierra SOLO el admin, y una sola vez: los gestores se enteran por el aviso,
 // igual que con la meta fija. Si lo cerrara cada teléfono, el mismo mes se
 // proclamaría varias veces y el historial saldría duplicado.
-function _puntosEnMes(gestorId, mes) {   // mes = 'YYYY-MM'
+function _puntosEnRango(gestorId, desde, hasta) {
   return getVales()
-    .filter(v => v.gestorId === gestorId
-      && ['confirmed','pending_payment'].includes(v.status)
-      && String(_fechaEfectiva(v)).slice(0,7) === mes)
+    .filter(v => {
+      if (v.gestorId !== gestorId) return false;
+      if (!['confirmed','pending_payment'].includes(v.status)) return false;
+      const d = _fechaEfectiva(v);
+      return !!d && d >= desde && d <= hasta;
+    })
     .reduce((sum,v) => sum + (v.valeProductos||[]).reduce((t,p) => {
       const pr = productoOf(p.id); return t + ((pr && pr.puntos)||0) * p.qty; }, 0), 0);
 }
-function rankingDelMes(mes) {
+function rankingDelCiclo(desde, hasta) {
   return getGestores().filter(g => g && !g._tienda)
-    .map(g => ({ id:g.id, name:g.name, initials:g.initials, color:g.color, pts:_puntosEnMes(g.id, mes) }))
+    .map(g => ({ id:g.id, name:g.name, initials:g.initials, color:g.color,
+                 pts:_puntosEnRango(g.id, desde, hasta) }))
     .filter(x => x.pts > 0)
     .sort((a,b) => b.pts - a.pts);
 }
@@ -13257,22 +13306,25 @@ function _cerrarMesSiToca() {
   if (metaModo() !== 'mensual') return;
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
   const cfg = getConfig() || {};
-  const mesAhora = localDay(new Date()).slice(0,7);
-  const enCurso = cfg.mesRankingActual || '';
-  // Primera vez en este modo: se apunta el mes en curso y ya está. No se
-  // proclama nada de un mes que la app no estuvo contando.
-  if (!enCurso) { saveConfig({ ...cfg, mesRankingActual: mesAhora }); return; }
-  if (enCurso === mesAhora) return;                  // el mes no ha cambiado
-  const ranking = rankingDelMes(enCurso);
+  // El ciclo se identifica por el día en que empezó, no por 'YYYY-MM': con una
+  // fecha de inicio elegida, dos ciclos pueden caer dentro del mismo mes
+  // natural y el mes ya no sirve para distinguirlos.
+  const cicloAhora = _inicioDelCiclo();
+  const enCurso = cfg.cicloActual || '';
+  // Primera vez en este modo: se apunta el ciclo en curso y ya está. No se
+  // proclama nada de un ciclo que la app no estuvo contando.
+  if (!enCurso) { saveConfig({ ...cfg, cicloActual: cicloAhora }); return; }
+  if (enCurso === cicloAhora) return;                // sigue el mismo ciclo
+  const ranking = rankingDelCiclo(enCurso, _finDelCiclo(enCurso));
   const hist = ganadoresMensuales().slice(-23);      // dos años de historial, de sobra
   if (ranking.length) {
     const g = ranking[0];
-    hist.push({ mes:enCurso, gestorId:g.id, nombre:g.name, pts:g.pts,
+    hist.push({ mes:enCurso, hasta:_finDelCiclo(enCurso), gestorId:g.id, nombre:g.name, pts:g.pts,
                 segundo:(ranking[1]||{}).name || '', ts:new Date().toISOString() });
     addNotif('mes_ganado', g.name, null, String(g.pts), g.id, 'mes_ganado:'+enCurso);
-    _logAudit('mes_cerrado', enCurso + ' → ' + g.name + ' (' + g.pts + ' pts)');
+    _logAudit('ciclo_cerrado', enCurso + ' → ' + g.name + ' (' + g.pts + ' pts)');
   }
-  saveConfig({ ...cfg, mesRankingActual: mesAhora, ganadoresMensuales: hist });
+  saveConfig({ ...cfg, cicloActual: cicloAhora, ganadoresMensuales: hist });
   rankingCache = null; gestoresTabDirty = true;
   if (ranking.length && typeof launchEpicGlowPulse === 'function') {
     // El admin ve el podio del mes que acaba de cerrar.
@@ -13339,10 +13391,58 @@ function puntosDesde() {
   return (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) ? d : '';
 }
 
-// El primer día del mes en curso, para el modo mensual.
+// El primer día del mes en curso. Es el ciclo por defecto, cuando no se ha
+// elegido una fecha de inicio.
 function _inicioDelMes() {
   const h = new Date();
   return localDay(new Date(h.getFullYear(), h.getMonth(), 1));
+}
+
+// ── v119: el ciclo puede empezar el día que se elija ───────────────────────
+// El mes natural no siempre sirve: la competencia se pone en marcha un día
+// cualquiera, y obligar a esperar al 1 significa perder lo que ya se vendió o
+// arrancar con un primer mes cojo. Con una fecha de inicio, el ciclo va de ese
+// día al mismo día del mes siguiente: si se elige el 29, cuenta del 29 al 28.
+//
+// Los días que no existen en todos los meses se recortan al último del mes: un
+// ciclo anclado al 31 empieza el 28 en febrero. Es lo que se espera de "todos
+// los meses el mismo día" cuando ese día no existe; la alternativa —saltar al
+// 1 del siguiente— dejaría un mes sin ciclo.
+const _diasDelMes = (y, m) => new Date(y, m, 0).getDate();   // m: 1-12
+
+function cicloInicioCfg() {
+  const d = (getConfig() || {}).cicloInicio;
+  return (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) ? d : '';
+}
+
+// El día en que empezó el ciclo que corre ahora mismo.
+function _inicioDelCiclo() {
+  const ancla = cicloInicioCfg();
+  if (!ancla) return _inicioDelMes();
+  const diaAncla = parseInt(ancla.slice(8, 10), 10);
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  let y = hoy.getFullYear(), m = hoy.getMonth() + 1;
+  let inicio = new Date(y, m - 1, Math.min(diaAncla, _diasDelMes(y, m)));
+  if (inicio > hoy) {                        // este mes aún no ha llegado el día
+    m--; if (m === 0) { m = 12; y--; }
+    inicio = new Date(y, m - 1, Math.min(diaAncla, _diasDelMes(y, m)));
+  }
+  const s = localDay(inicio);
+  // Nunca antes de la fecha elegida: los ciclos no existían todavía.
+  return s < ancla ? ancla : s;
+}
+
+// El último día del ciclo que empezó en `inicio` (la víspera del siguiente).
+function _finDelCiclo(inicio) {
+  const ancla = cicloInicioCfg();
+  const d0 = new Date(inicio + 'T12:00:00');
+  if (!ancla) return localDay(new Date(d0.getFullYear(), d0.getMonth() + 1, 0));
+  const diaAncla = parseInt(ancla.slice(8, 10), 10);
+  let y = d0.getFullYear(), m = d0.getMonth() + 2;      // mes siguiente, 1-12
+  if (m > 12) { m = 1; y++; }
+  const sig = new Date(y, m - 1, Math.min(diaAncla, _diasDelMes(y, m)));
+  sig.setDate(sig.getDate() - 1);
+  return localDay(sig);
 }
 
 // ¿Entra esta venta en el recuento de puntos de ahora mismo?
@@ -13355,7 +13455,7 @@ function _valeCuentaPuntos(v) {
   if (!d) return false;
   const desde = puntosDesde();
   if (desde && d < desde) return false;
-  if (metaModo() === 'mensual' && d < _inicioDelMes()) return false;
+  if (metaModo() === 'mensual' && d < _inicioDelCiclo()) return false;
   return true;
 }
 
@@ -13686,8 +13786,9 @@ function _celebrarMetaDelGestor() {
   if (mia.type === 'mes_ganado') {
     // El podio del mes que ganó, no el del ranking de ahora (que el día 1 está
     // a cero y le enseñaría a todo el mundo con 0 puntos).
-    const mes = String(mia.evt||'').split(':')[1] || localDay(new Date()).slice(0,7);
-    launchEpicGlowPulse(g, parseFloat(mia.extra)||0, { mes, ranking: rankingDelMes(mes) });
+    const desde = String(mia.evt||'').split(':')[1] || _inicioDelCiclo();
+    launchEpicGlowPulse(g, parseFloat(mia.extra)||0,
+      { mes: desde, hasta: _finDelCiclo(desde), ranking: rankingDelCiclo(desde, _finDelCiclo(desde)) });
   } else {
     launchEpicGlowPulse(g, parseFloat(mia.extra) || 0);
   }
