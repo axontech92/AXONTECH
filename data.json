@@ -1124,7 +1124,7 @@
       "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "catId": 20,
       "photo": "photos/img_1779208523952.webp",
-      "stock": 10,
+      "stock": 20,
       "imagen": "photos/img_1779208523952.webp",
       "nombre": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "precio": "$180 USD",
@@ -1398,7 +1398,7 @@
       "name": "NanoStation 5 AC loco SIN POE",
       "catId": 10,
       "photo": "photos/img_1784727083369.webp",
-      "stock": 0,
+      "stock": 20,
       "imagen": "photos/img_1784727083369.webp",
       "nombre": "NanoStation AC loco SIN POE",
       "precio": "$140",
@@ -1796,7 +1796,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 12,
+      "stock": 22,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -11802,5 +11802,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T23:29:46.184Z"
+  "timestamp": "2026-08-30T23:32:25.758Z"
 }
