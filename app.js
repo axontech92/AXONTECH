@@ -1660,12 +1660,20 @@ async function _doRestPoll() {
               // que el gestor ve en su barra de meta: si no se le descuentan los
               // ciclos ya cerrados, la barra se queda llena para siempre y la
               // meta deja de significar nada.
-              const summary = gestores.map(g => {
-                const total = merged.filter(v => v.gestorId === g.id && ['confirmed', 'pending_payment'].includes(v.status))
-                  .reduce((sum, v) => sum + (v.valeProductos || []).reduce((s, p) => { const pr = (typeof productoOf === 'function') ? productoOf(p.id) : null; return s + ((pr && pr.puntos) || 0) * p.qty; }, 0), 0);
-                const pts = Math.max(0, total - (parseFloat(g.puntosCanjeados) || 0));
-                return { id: g.id, pts, metas: parseInt(g.metasLogradas, 10) || 0 };
-              });
+              // v119: se usa getGestorPoints, la misma función que la ficha del
+              // gestor y el podio. Aquí había una TERCERA copia de la cuenta, y
+              // era la peor de las tres: es la que alimenta el ranking del admin
+              // Y el de todos los gestores, y no sabía nada de periodos ni de
+              // modos. Al estrenar el ranking por ciclos, seguía sumando desde
+              // siempre y restando los puntos canjeados — o sea, el modo nuevo
+              // no se notaba por ningún lado.
+              // Puede leer de getVales() sin miedo: unas líneas más arriba se
+              // guardó `merged` en la caché, y esto va con debounce.
+              const summary = gestores.map(g => ({
+                id: g.id,
+                pts: getGestorPoints(g.id),
+                metas: parseInt(g.metasLogradas, 10) || 0
+              }));
               const summaryStr = JSON.stringify(summary);
               if (summaryStr !== _lastRankingSummary) {
                 _lastRankingSummary = summaryStr;
@@ -12656,7 +12664,12 @@ function renderGestorRanking() {
     'linear-gradient(90deg,#6366f1,#818cf8)',
     'linear-gradient(90deg,#ec4899,#f472b6)',
   ];
-  const maxRef=meta>0?meta:Math.max(ranked[0]?.pts||1,1);
+  // v119: la barra se mide contra la meta solo cuando HAY meta que alcanzar. En
+  // el modo por ciclos gana quien más lleve, así que la referencia es el primero
+  // —si no, con una meta vieja de 100 pts guardada, todos saldrían con la barra
+  // casi vacía aunque fueran líderes.
+  const _hayMeta = metaModo()==='fija' && meta>0;
+  const maxRef=_hayMeta?meta:Math.max(ranked[0]?.pts||1,1);
   let html='';
   if(meta>0){
     const reached=ranked.filter(g=>g.pts>=meta).length;
@@ -12799,7 +12812,7 @@ function guardarCicloInicio(valor) {
   if (valor === '') {                       // volver al mes natural
     const c = { ...cfg }; delete c.cicloInicio; delete c.cicloActual;
     saveConfig(c);
-    rankingCache = null; gestoresTabDirty = true;
+    rankingCache = null; gestoresTabDirty = true; _recalcularRankingSummary();
     renderGestorRanking(); loadGhConfigUI(); maybeAutoSync();
     showToast('El ciclo vuelve a ser el mes natural');
     return;
@@ -12814,9 +12827,28 @@ function guardarCicloInicio(valor) {
   saveConfig({ ...cfg, cicloInicio: d, cicloActual: undefined });
   const cfg2 = getConfig() || {};
   saveConfig({ ...cfg2, cicloActual: _inicioDelCiclo() });
-  rankingCache = null; gestoresTabDirty = true;
+  rankingCache = null; gestoresTabDirty = true; _recalcularRankingSummary();
   renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI(); maybeAutoSync();
   showToast('Los puntos cuentan desde el ' + d + ' ✓');
+}
+
+// v119: recalcular el ranking AHORA, sin esperar a la próxima venta.
+// El resumen de puntos solo se rehacía dentro del poll de vales, así que al
+// cambiar de modo o de ciclo el panel seguía enseñando los puntos viejos hasta
+// que alguien vendiera algo. Y como el gestor lo recibe por la nube, hasta
+// entonces veía el modo anterior en su teléfono.
+function _recalcularRankingSummary() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  try {
+    const summary = getGestores().map(g => ({
+      id: g.id, pts: getGestorPoints(g.id), metas: parseInt(g.metasLogradas, 10) || 0
+    }));
+    _safeSetLS('axon_ranking_summary', JSON.stringify(summary));   // para esta pantalla
+    setSB('ranking_summary', summary);                             // y para los gestores
+    rankingCache = null;
+    if (typeof renderGestorRanking === 'function') renderGestorRanking();
+    if (typeof renderAdminGestoresList === 'function') renderAdminGestoresList();
+  } catch(e) { console.warn('[ranking] no se pudo recalcular:', e && e.message); }
 }
 
 // ── v119: cambiar de modo ──────────────────────────────────────────────────
@@ -12827,7 +12859,7 @@ function setMetaModo(modo) {
   // 'fija' tiene que estar donde estaba, que es justo lo que pidió el usuario
   // al decir "deja los modos por si hay que volver a cambiar".
   saveConfig({...cfg, metaModo:modo});
-  rankingCache=null; gestoresTabDirty=true;
+  rankingCache=null; gestoresTabDirty=true; _recalcularRankingSummary();
   renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI();
   maybeAutoSync();
   showToast(modo==='off'?'Meta desactivada'
@@ -12850,7 +12882,7 @@ function reiniciarPuntos(skipConfirm) {
   }
   const cfg=getConfig()||{};
   saveConfig({...cfg, puntosDesde:localDay(new Date()), puntosDesdeTs:new Date().toISOString()});
-  rankingCache=null; gestoresTabDirty=true;
+  rankingCache=null; gestoresTabDirty=true; _recalcularRankingSummary();
   renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI();
   maybeAutoSync();
   showToast('Puntos reiniciados · cuentan desde hoy ✓');
@@ -12860,7 +12892,7 @@ function deshacerReinicioPuntos() {
   if(!cfg.puntosDesde){showToast('No hay ningún reinicio que deshacer');return;}
   const copia={...cfg}; delete copia.puntosDesde; delete copia.puntosDesdeTs;
   saveConfig(copia);
-  rankingCache=null; gestoresTabDirty=true;
+  rankingCache=null; gestoresTabDirty=true; _recalcularRankingSummary();
   renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI();
   maybeAutoSync();
   showToast('Reinicio deshecho · los puntos vuelven a contarse enteros ✓');
@@ -13325,7 +13357,7 @@ function _cerrarMesSiToca() {
     _logAudit('ciclo_cerrado', enCurso + ' → ' + g.name + ' (' + g.pts + ' pts)');
   }
   saveConfig({ ...cfg, cicloActual: cicloAhora, ganadoresMensuales: hist });
-  rankingCache = null; gestoresTabDirty = true;
+  rankingCache = null; gestoresTabDirty = true; _recalcularRankingSummary();
   if (ranking.length && typeof launchEpicGlowPulse === 'function') {
     // El admin ve el podio del mes que acaba de cerrar.
     try { launchEpicGlowPulse(ranking[0], ranking[0].pts, { mes:enCurso, ranking }); } catch(e) {}
@@ -13481,9 +13513,17 @@ function getGestorPointsTotal(gestorId) {
 // y el contador vuelve a empezar. Lo que sobró NO se pierde: si la meta son 100
 // y se llegó a 105, el ciclo nuevo empieza en 5.
 function getGestorPoints(gestorId) {
+  // v119: `puntosCanjeados` es una pieza del modo de META FIJA: los puntos que
+  // ya se "gastaron" al cerrar un ciclo, para que el contador vuelva a empezar.
+  // En el modo por ciclos no pinta nada, y restarlo era ruinoso: los puntos del
+  // ciclo son pocos (50) y lo canjeado de meses de meta fija puede ser mucho
+  // (500), así que max(0, 50-500) daba CERO. Todo gestor con historial aparecía
+  // a cero justo al estrenar el modo nuevo, y parecía que no se aplicaba.
+  const total = getGestorPointsTotal(gestorId);
+  if (metaModo() !== 'fija') return Math.max(0, total);
   const g = gestorOf(gestorId);
   const canjeados = (g && parseFloat(g.puntosCanjeados)) || 0;
-  return Math.max(0, getGestorPointsTotal(gestorId) - canjeados);
+  return Math.max(0, total - canjeados);
 }
 
 // Create the glow rings background
