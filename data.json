@@ -1328,7 +1328,7 @@
       "name": "Probador/ tester  digital de baterías",
       "catId": 40,
       "photo": "photos/img_1781365019871.webp",
-      "stock": 9,
+      "stock": 8,
       "imagen": "photos/img_1781365019871.webp",
       "nombre": "Probador/ tester  digital de baterías",
       "precio": "$20",
@@ -2261,8 +2261,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788115304301,
@@ -2308,8 +2307,8 @@
       "ts": "2026-08-30T18:32:41.718Z",
       "total": "13700 mn",
       "carnet": "",
-      "seenTs": "2026-08-30T19:06:52.110Z",
-      "status": "pending",
+      "seenTs": "2026-08-30T19:09:07.919Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Roberto López",
       "valeNum": 130,
@@ -2325,6 +2324,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1000,
+      "confirmedTs": "2026-08-30T19:09:11.669Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2336,7 +2336,7 @@
       ],
       "comisionGestor": "1000 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2504,7 +2504,7 @@
       "ts": "2026-08-30T01:36:36.599Z",
       "total": "$1260 USD",
       "carnet": "",
-      "seenTs": "2026-08-30T16:39:00.377Z",
+      "seenTs": "2026-08-30T19:09:44.728Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Lien",
@@ -2543,7 +2543,7 @@
       "ts": "2026-08-30T00:30:42.715Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-08-30T16:38:46.349Z",
+      "seenTs": "2026-08-30T19:09:24.548Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pachile",
@@ -11511,5 +11511,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T19:07:46.080Z"
+  "timestamp": "2026-08-30T19:10:11.685Z"
 }
