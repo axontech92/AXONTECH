@@ -331,6 +331,14 @@
       "phone": "52652859",
       "initials": "Y",
       "password": "pbkdf2$100000$qx678od+KRXfhdSiG3FrDw==$e4ad1dcf00e16f01aaeb3d1fb22341eb76268a9c8c6e8a0a3b3f76b9707174d9"
+    },
+    {
+      "id": 1788109709390,
+      "name": "Albe",
+      "color": "#059669",
+      "phone": "58140797",
+      "initials": "A",
+      "password": "pbkdf2$100000$qlhgRSHwMQgs1dCla9qL1A==$d4512df295530162f02a032c292bfda38f1a5bc5a434a23ab6b8a6d4fda12691"
     }
   ],
   "mensajeros": [
@@ -1354,7 +1362,7 @@
       "name": "Creatina Monohidratada Luckycare® (5000 mg)",
       "catId": 130,
       "photo": "photos/p-1781377297283-cc909b2a.webp",
-      "stock": 13,
+      "stock": 12,
       "imagen": "photos/p-1781377297283-cc909b2a.webp",
       "nombre": "Creatina Monohidratada Luckycare® (5000 mg)",
       "precio": "$25",
@@ -2223,7 +2231,8 @@
       "ts": "2026-08-30T16:50:22.690Z",
       "total": "$25 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-08-30T17:05:05.770Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Denilsen",
       "valeNum": 129,
@@ -2235,10 +2244,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Denilsen\n🔸Teléfono Cliente: 058457991\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Creatina Monohidratada Luckycare® (5000 mg)\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 12:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$25 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1000,
-      "horaEntrega": "",
+      "confirmedTs": "2026-08-30T17:05:50.430Z",
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2247,11 +2258,10 @@
           "name": "Creatina Monohidratada Luckycare® (5000 mg)"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "1000 MN",
       "recogidaTienda": true,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2740,8 +2750,9 @@
         }
       ],
       "comisionGestor": "4500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2858,8 +2869,9 @@
       ],
       "comisionCedida": 230,
       "comisionGestor": "$230.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "comisionCedidaMotivo": "Cliente Fiel",
@@ -3149,8 +3161,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -3442,8 +3455,9 @@
       ],
       "comisionCedida": 56,
       "comisionGestor": "$80.00 USD + 12000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "comisionCedidaMotivo": "Va pagar en Mn 392042 cup",
@@ -3528,8 +3542,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4025,8 +4040,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4308,8 +4324,9 @@
         }
       ],
       "comisionGestor": "1000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4876,8 +4893,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4918,8 +4936,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5408,8 +5427,9 @@
         }
       ],
       "comisionGestor": "$30.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5735,8 +5755,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -6781,8 +6802,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -7763,8 +7785,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -9950,8 +9973,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11373,5 +11397,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T17:05:19.453Z"
+  "timestamp": "2026-08-30T18:06:02.801Z"
 }
