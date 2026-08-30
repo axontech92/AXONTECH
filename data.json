@@ -578,7 +578,7 @@
       "name": "Pistola de masaje recargable",
       "catId": 40,
       "photo": "photos/img_1778103856933.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778103856933.webp",
       "nombre": "Pistola de masaje recargable",
       "precio": "$25",
@@ -2285,8 +2285,8 @@
       "ts": "2026-08-30T23:04:42.400Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-08-30T23:06:01.598Z",
-      "status": "pending",
+      "seenTs": "2026-08-30T23:33:51.922Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Daila",
       "valeNum": 138,
@@ -2302,6 +2302,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-08-30T23:42:25.499Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2313,7 +2314,8 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "commissionStatus": "en_sobre",
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -11802,5 +11804,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T23:33:46.800Z"
+  "timestamp": "2026-08-30T23:43:46.801Z"
 }
