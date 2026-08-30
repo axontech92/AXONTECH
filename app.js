@@ -12671,25 +12671,42 @@ function renderGestorRanking() {
   const _hayMeta = metaModo()==='fija' && meta>0;
   const maxRef=_hayMeta?meta:Math.max(ranked[0]?.pts||1,1);
   let html='';
-  if(meta>0){
-    const reached=ranked.filter(g=>g.pts>=meta).length;
-    html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--gray-200);">
-      <span style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">🎯 Meta: ${meta} pts</span>
-      <span style="font-size:11px;font-weight:600;color:${reached>0?'var(--green)':'var(--gray-400)'};">${reached}/${ranked.length} alcanzaron</span>
+  // v119: la cabecera dice de qué va la competencia AHORA. Antes se pintaba la
+  // meta con solo haber un número guardado, así que en el modo por ciclos
+  // seguía anunciando "Meta: 100 pts · 0/43 alcanzaron" — una meta que ya no
+  // existe y una cuenta que nunca iba a subir.
+  const _cab=(izq,der,color)=>`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--gray-200);">
+      <span style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;">${izq}</span>
+      <span style="font-size:11px;font-weight:600;color:${color||'var(--gray-400)'};">${der}</span>
     </div>`;
+  if(_hayMeta){
+    const reached=ranked.filter(g=>g.pts>=meta).length;
+    html+=_cab(`🎯 Meta: ${meta} pts`, `${reached}/${ranked.length} alcanzaron`,
+               reached>0?'var(--green)':'var(--gray-400)');
+  } else if(metaModo()==='mensual'){
+    const ini=_inicioDelCiclo(), fin=_finDelCiclo(ini);
+    const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'});}catch(e){return d;}};
+    const lider=ranked[0]&&ranked[0].pts>0?ranked[0]:null;
+    html+=_cab(`📅 Ciclo: ${fmt(ini)} → ${fmt(fin)}`,
+               lider?`👑 Va ganando ${escapeHTML(lider.name)}`:'Sin puntos todavía',
+               lider?'var(--green)':'var(--gray-400)');
   }
   html+=ranked.map((g,i)=>{
     const pct=maxRef>0?Math.min(100,Math.round((g.pts/maxRef)*100)):0;
-    const reached=meta>0&&g.pts>=meta;
+    const reached=_hayMeta&&g.pts>=meta;
     const grad=reached?'linear-gradient(90deg,var(--green),#10B981)':barGradients[Math.min(i,barGradients.length-1)];
     // Posiciones: medallas para top 3 (más compactas), número pequeño para el resto
     const pos=i<3?medals[i]:`<span style="font-size:11px;font-weight:700;color:var(--gray-400);">${i+1}</span>`;
     // Hint compacto — solo si NO es "faltan X pts" (esos ya los indica la barra)
     let hint='';
+    // v119: se mira _hayMeta, no el número guardado. En el modo por ciclos la
+    // meta sigue configurada pero no está en juego, así que la pista útil es
+    // cuánto le falta al líder — y con meta===0 no salía nunca.
     if(reached){hint='<span style="color:var(--green);font-weight:700;">✓ Meta</span>';}
-    else if(meta===0&&g.pts===0){hint='<span style="color:var(--gray-400);">Sin puntos</span>';}
-    else if(meta===0&&g.pts>0){hint=`<span style="color:var(--gray-400);">${pct}% del líder</span>`;}
-    // Si meta>0 y no reached, NO mostramos hint (la barra + número ya dicen todo)
+    else if(!_hayMeta&&g.pts===0){hint='<span style="color:var(--gray-400);">Sin puntos</span>';}
+    else if(!_hayMeta&&g.pts>0&&i>0){hint=`<span style="color:var(--gray-400);">${pct}% del líder</span>`;}
+    else if(!_hayMeta&&i===0){hint='<span style="color:var(--green);font-weight:700;">👑 Va ganando</span>';}
+    // Con meta en juego y sin alcanzarla, no hay pista: la barra ya lo dice.
     return `<div class="rank-row">
       <div class="rank-pos">${pos}</div>
       <div style="flex:1;min-width:0;">
