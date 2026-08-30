@@ -944,7 +944,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 11,
+      "stock": 10,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -2223,7 +2223,7 @@
       "ts": "2026-08-30T13:39:39.903Z",
       "total": "$85 USD + 3300 MN",
       "carnet": "",
-      "seenTs": "2026-08-30T13:55:50.579Z",
+      "seenTs": "2026-08-30T15:09:28.074Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rafael cordero",
@@ -2260,7 +2260,7 @@
       "total": "$25 USD + 1800 MN",
       "carnet": "",
       "seenTs": "2026-08-30T13:53:22.936Z",
-      "status": "assigned",
+      "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Celso",
       "valeNum": 128,
@@ -2277,6 +2277,7 @@
       "assignedTs": "2026-08-30T13:54:44.165Z",
       "mensajeria": "1800",
       "comFijadaMN": 1500,
+      "deliveredTs": "2026-08-30T15:17:00.563Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2289,7 +2290,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -11333,5 +11334,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T14:57:07.800Z"
+  "timestamp": "2026-08-30T15:18:00.801Z"
 }
