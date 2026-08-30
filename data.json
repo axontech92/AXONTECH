@@ -1320,7 +1320,7 @@
       "name": "Probador/ tester  digital de baterías",
       "catId": 40,
       "photo": "photos/img_1781365019871.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/img_1781365019871.webp",
       "nombre": "Probador/ tester  digital de baterías",
       "precio": "$20",
@@ -2298,8 +2298,8 @@
       "ts": "2026-08-30T13:19:50.936Z",
       "total": "$20 USD + 600 MN",
       "carnet": "",
-      "seenTs": "2026-08-30T13:54:56.065Z",
-      "status": "assigned",
+      "seenTs": "2026-08-30T14:48:33.329Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "David",
       "valeNum": 126,
@@ -2316,6 +2316,8 @@
       "assignedTs": "2026-08-30T13:55:11.064Z",
       "mensajeria": "600 CUP",
       "comFijadaMN": 1000,
+      "confirmedTs": "2026-08-30T14:49:24.315Z",
+      "deliveredTs": "2026-08-30T14:49:24.315Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2328,7 +2330,7 @@
       ],
       "comisionGestor": "1000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -11313,5 +11315,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-30T14:46:55.454Z"
+  "timestamp": "2026-08-30T14:50:24.341Z"
 }
