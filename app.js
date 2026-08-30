@@ -420,8 +420,44 @@ function _fusionarPorId(viejas, nuevas) {
 // Estado del truco de arriba, por colección. _ultimaTsVisto guarda la
 // referencia para la pregunta barata; _ultimoFetchReal, cuándo fue la última
 // vez que de verdad se bajó algo (para la red de seguridad de los borrados).
-let _ultimaTsVisto = {};
-let _ultimoFetchReal = {};
+// ── v119: la marca de agua sobrevive al cierre de la app ───────────────────
+// Esto vivía solo en memoria, y ahí estaba el grueso del gasto: al recargar,
+// la app olvidaba lo fresca que era su copia y volvía a bajarse la tabla de
+// vales, la de productos y la de gestores ENTERAS — aunque los datos ya
+// estuvieran guardados en el teléfono y no hubiera cambiado nada. Medido: unos
+// 670 KB por cada apertura, por teléfono. Con decenas de gestores abriendo la
+// app varias veces al día, eso solo ya se comía el plan entero.
+//
+// Guardarla es seguro porque va al lado de los datos que describe: los dos
+// están en localStorage y los escribe la misma pasada, así que no pueden
+// quedar descompasados. Y si aun así llegara desfasada, lo peor que pasa es
+// que la consulta incremental traiga de más, nunca de menos.
+const _TS_VISTOS_KEY = 'axon_sync_ts';
+const _SYNC_GUARDADO = (() => {
+  try { const o = JSON.parse(localStorage.getItem(_TS_VISTOS_KEY) || '{}');
+        return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
+  catch(e) { return {}; }
+})();
+let _ultimaTsVisto = (_SYNC_GUARDADO.ts && typeof _SYNC_GUARDADO.ts === 'object') ? _SYNC_GUARDADO.ts : {};
+// Cuándo se bajó de verdad cada cosa por última vez. Va JUNTO a la marca y no
+// aparte: guardar solo la marca no servía de casi nada, porque los barridos de
+// seguridad miran ESTE reloj — con él a cero se creen vencidos en cada apertura
+// y se bajan la tabla entera igual, marca o no marca. Medido: el ahorro pasaba
+// del 50% al 97% con solo persistir también esto.
+let _ultimoFetchReal = (_SYNC_GUARDADO.fetch && typeof _SYNC_GUARDADO.fetch === 'object') ? _SYNC_GUARDADO.fetch : {};
+let _tsVistosSucio = false;
+function _guardarTsVistos() {
+  if (!_tsVistosSucio) return;
+  _tsVistosSucio = false;
+  try { localStorage.setItem(_TS_VISTOS_KEY,
+    JSON.stringify({ ts:_ultimaTsVisto, fetch:_ultimoFetchReal })); } catch(e) {}
+}
+// Al importar datos o vaciar la base, la copia local deja de corresponderse con
+// la marca: hay que olvidarla o la app se creería al día sin estarlo.
+function _olvidarTsVistos() {
+  _ultimaTsVisto = {}; _ultimoFetchReal = {}; _tsVistosSucio = false;
+  try { localStorage.removeItem(_TS_VISTOS_KEY); } catch(e) {}
+}
 // vales: red de seguridad corta (30 s) — un vale es dinero, que un borrado
 // tarde medio minuto en notarse no lo nota nadie. lento: los cuatro nodos que
 // ya iban cada 5 min; 20 min de red de seguridad es de sobra para un catálogo.
@@ -1262,7 +1298,7 @@ async function _doRestPoll() {
               if (_rg) {
                 rawVales = _rg.items;
                 _valesParcial = true;
-                if (_rg.maxTs) _ultimaTsVisto.vales = _rg.maxTs;
+                if (_rg.maxTs) _ultimaTsVisto.vales = _rg.maxTs; _tsVistosSucio = true;
                 if (!rawVales.length) _saltarVales = true;
               }
             } else {
@@ -1276,8 +1312,8 @@ async function _doRestPoll() {
             const _rgFull = await _sbRestGetValesDeGestor(activeGestorId);
             if (_rgFull) {
               rawVales = _rgFull.items;
-              _ultimoFetchReal.vales = Date.now();
-              _ultimaTsVisto.vales = _rgFull.maxTs || _ultimaTsVisto.vales || new Date().toISOString();
+              _ultimoFetchReal.vales = Date.now(); _tsVistosSucio = true;
+              _ultimaTsVisto.vales = _rgFull.maxTs || _ultimaTsVisto.vales || new Date().toISOString(); _tsVistosSucio = true;
             }
           }
         }
@@ -1307,7 +1343,7 @@ async function _doRestPoll() {
               const _n = await _sbRestContarFilas('vales');
               if (_n !== null && _n === _filasVistas.vales) {
                 _fetchViejo = false;                  // nada borrado: no toca barrer
-                _ultimoFetchReal.vales = Date.now();  // se renueva el turno
+                _ultimoFetchReal.vales = Date.now(); _tsVistosSucio = true;  // se renueva el turno
               }
             }
           }
@@ -1321,13 +1357,13 @@ async function _doRestPoll() {
                                      : await _sbRestGetCollectionYTs('vales');
             rawVales = _r.items;
             if (!_valesParcial) {
-              _ultimoFetchReal.vales = Date.now();
+              _ultimoFetchReal.vales = Date.now(); _tsVistosSucio = true;
               _ultimaBajadaCompleta.vales = Date.now();   // esta sí fue completa
               // Con la foto recién bajada, se apunta cuántas filas tenía: es
               // contra este número contra el que compara el conteo barato.
               _filasVistas.vales = (typeof _r.filas === 'number') ? _r.filas : null;
             }
-            _ultimaTsVisto.vales = _r.maxTs || _ultimaTsVisto.vales || new Date().toISOString();
+            _ultimaTsVisto.vales = _r.maxTs || _ultimaTsVisto.vales || new Date().toISOString(); _tsVistosSucio = true;
             if (_valesParcial && !rawVales.length) _saltarVales = true;
             // ── v119: una bajada completa que vuelve vacía tiene que demostrarlo ──
             // En el barrido completo, un vale que está aquí y no viene en la
@@ -1702,9 +1738,9 @@ async function _doRestPoll() {
           console.log(`[sync] ${node}: ${_rn.items.length} fila(s) nuevas en vez de ${_previas.length}`);
         } else {
           arr = _rn.items;
-          _ultimoFetchReal[node] = Date.now();
+          _ultimoFetchReal[node] = Date.now(); _tsVistosSucio = true;
         }
-        _ultimaTsVisto[node] = _rn.maxTs || _ultimaTsVisto[node] || new Date().toISOString();
+        _ultimaTsVisto[node] = _rn.maxTs || _ultimaTsVisto[node] || new Date().toISOString(); _tsVistosSucio = true;
         // v33 FIX: Always update localStorage even if Supabase returns empty
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
         _syncCount++;
@@ -1760,8 +1796,8 @@ async function _doRestPoll() {
         if (_tsMeta !== undefined && !_fetchViejoMeta && !(await _sbRestMetaHayCambios(node, _tsMeta))) continue;
         const _rm = await _sbRestGetMetaYTs(node);
         const val = _rm.data;
-        _ultimoFetchReal[_claveTs] = Date.now();
-        if (_rm.ts) _ultimaTsVisto[_claveTs] = _rm.ts;
+        _ultimoFetchReal[_claveTs] = Date.now(); _tsVistosSucio = true;
+        if (_rm.ts) _ultimaTsVisto[_claveTs] = _rm.ts; _tsVistosSucio = true;
         // ── v119: un documento vacío de la nube NO borra lo que hay aquí ──
         // Le pasó a `duenos` en cuanto empezó a sincronizarse de verdad: si en
         // la nube quedaba un documento vacío —de una versión que subía mal, o
@@ -1905,6 +1941,9 @@ async function _doRestPoll() {
     _restPollInFlight = false;
     // v96: un nodo lento que no se pudo bajar no gasta el turno de 5 minutos.
     if (_lentoSaltado) _ultimoPollLento = 0;
+    // v119: al terminar la pasada se apunta hasta dónde se llegó, para que la
+    // próxima apertura no vuelva a bajarse todo. Solo escribe si algo cambió.
+    _guardarTsVistos();
   }
 }
 function _startRestPolling() {
@@ -12730,6 +12769,7 @@ function importData(input) {
         merged.ghToken = cur.ghToken;
         saveConfig(merged);
       }
+      _olvidarTsVistos();   // v119: los datos ya no son los que describía la marca
       _logAudit('data_imported', 'file:' + file.name);
       // Reload UI
       activeGestorId=null;activeMensajeroId=null;selectedValeId=null;adminGestorFilter=null;
@@ -13884,6 +13924,7 @@ function toggleTheme() {
 
 
 async function nukeAndRebuild() {
+  _olvidarTsVistos();   // v119: se vacía la base; la marca de agua ya no describe nada
   // Three-step confirmation for this destructive action
   if(!confirm("⚠️ ¿Estás seguro? Esto borrará Supabase entero y cargará la base limpia.")) return;
   if(!confirm("⚠️ ÚLTIMA VERIFICACIÓN: ¿Continuar con el reseteo total? Se creará un backup automático antes.")) return;
