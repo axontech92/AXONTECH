@@ -404,11 +404,26 @@
 
     <div class="lbl">🎯 Meta de puntos (ranking)</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <!-- v119: tres modos. El número de la meta se conserva al cambiar de
+           modo, para poder volver al fijo sin tener que reconfigurarlo. -->
+      <div id="metaModoChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+        <button class="btn btn-sm" data-modo="off"     onclick="setMetaModo('off')">Sin meta</button>
+        <button class="btn btn-sm" data-modo="fija"    onclick="setMetaModo('fija')">🎯 Meta fija</button>
+        <button class="btn btn-sm" data-modo="mensual" onclick="setMetaModo('mensual')">📅 Ranking mensual</button>
+      </div>
+      <div id="metaModoAyuda" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;"></div>
+      <div id="metaFijaFila" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <input type="number" id="cfg-meta-puntos" placeholder="Ej: 100" min="1" style="flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
         <button class="btn btn-blue btn-sm" onclick="saveMetaPuntos()">Fijar meta</button>
       </div>
       <div id="metaPuntosStatus" style="margin-top:6px;font-size:11px;"></div>
+      <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:10px;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-sm" style="border:1px solid var(--orange);color:var(--orange);background:none;" onclick="reiniciarPuntos()">♻️ Reiniciar puntos</button>
+          <button class="btn btn-ghost btn-sm" id="btnDeshacerReinicio" style="display:none;font-size:11px;color:var(--blue);" onclick="deshacerReinicioPuntos()">↩ Deshacer</button>
+        </div>
+        <div id="puntosDesdeStatus" style="margin-top:6px;font-size:11px;"></div>
+      </div>
     </div>
 
     <!-- v89: fuente de la tasa del dólar. La app ya prueba sola unos espejos

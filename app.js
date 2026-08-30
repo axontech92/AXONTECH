@@ -12743,6 +12743,53 @@ function importData(input) {
   };
   reader.readAsText(file);
 }
+// ── v119: cambiar de modo ──────────────────────────────────────────────────
+function setMetaModo(modo) {
+  if(!['off','fija','mensual'].includes(modo))return;
+  const cfg=getConfig()||{};
+  // El número de la meta NO se borra al pasar a otro modo: si se vuelve a
+  // 'fija' tiene que estar donde estaba, que es justo lo que pidió el usuario
+  // al decir "deja los modos por si hay que volver a cambiar".
+  saveConfig({...cfg, metaModo:modo});
+  rankingCache=null; gestoresTabDirty=true;
+  renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI();
+  maybeAutoSync();
+  showToast(modo==='off'?'Meta desactivada'
+    : modo==='mensual'?'Ranking mensual activado · gana quien más puntos haga en el mes'
+    : 'Meta fija activada');
+}
+
+// ── v119: reiniciar los puntos SIN borrar nada ─────────────────────────────
+// No pone contadores a cero: apunta desde qué día cuentan. Los vales siguen
+// enteros, así que el reinicio se deshace con un toque y lo de antes se puede
+// seguir mirando. Un contador puesto a cero de verdad no tiene vuelta atrás, y
+// aquí lo que está en juego es el ranking de la gente que trabaja contigo.
+function reiniciarPuntos(skipConfirm) {
+  if(!skipConfirm){
+    const hoy=localDay(new Date());
+    showConfirmAction('¿Reiniciar los puntos de todos?',
+      `Los puntos empezarán a contar desde hoy (${hoy}).<br><span style="font-size:11px;color:var(--text-muted);">No se borra ninguna venta: esto se puede deshacer.</span>`,
+      'Reiniciar','btn-blue',()=>reiniciarPuntos(true));
+    return;
+  }
+  const cfg=getConfig()||{};
+  saveConfig({...cfg, puntosDesde:localDay(new Date()), puntosDesdeTs:new Date().toISOString()});
+  rankingCache=null; gestoresTabDirty=true;
+  renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI();
+  maybeAutoSync();
+  showToast('Puntos reiniciados · cuentan desde hoy ✓');
+}
+function deshacerReinicioPuntos() {
+  const cfg=getConfig()||{};
+  if(!cfg.puntosDesde){showToast('No hay ningún reinicio que deshacer');return;}
+  const copia={...cfg}; delete copia.puntosDesde; delete copia.puntosDesdeTs;
+  saveConfig(copia);
+  rankingCache=null; gestoresTabDirty=true;
+  renderGestorRanking(); renderAdminGestoresList(); loadGhConfigUI();
+  maybeAutoSync();
+  showToast('Reinicio deshecho · los puntos vuelven a contarse enteros ✓');
+}
+
 function saveMetaPuntos() {
   const val=parseInt(document.getElementById('cfg-meta-puntos').value);
   if(!val||val<1){showToast('Ingresa un número válido');return;}
@@ -12802,6 +12849,32 @@ function loadGhConfigUI() {
   if(autoPub)autoPub.checked=!!cfg.ghAutoPublishCatalog;
   if(meta)meta.value=cfg.metaPuntos||'';
   if(metaStatus&&cfg.metaPuntos)metaStatus.innerHTML=`<span style="color:var(--green);">✓ Meta actual: ${cfg.metaPuntos} pts</span>`;
+  // ── v119: modo del ranking, ayuda y estado del reinicio ──
+  const _modo=metaModo();
+  document.querySelectorAll('#metaModoChips button').forEach(b=>{
+    const act=b.dataset.modo===_modo;
+    b.className='btn btn-sm'+(act?' btn-blue':'');
+    if(!act){b.style.border='1px solid var(--border)';b.style.background='none';b.style.color='var(--text-muted)';}
+    else {b.style.border='';b.style.background='';b.style.color='';}
+  });
+  const _ayuda=document.getElementById('metaModoAyuda');
+  if(_ayuda)_ayuda.innerHTML={
+    off:'Los puntos se siguen viendo, pero no hay meta ni premio.',
+    fija:'Al llegar a la meta se cierra un ciclo y el contador vuelve a empezar. Se puede lograr varias veces.',
+    mensual:'Gana quien más puntos haga en el mes. <b>No hay que reiniciar nada</b>: el 1º de cada mes empieza de cero solo, y los meses anteriores se pueden seguir consultando.'
+  }[_modo]||'';
+  // El número de la meta solo pinta algo en el modo fijo, pero el campo se deja
+  // visible siempre para no perder de vista lo que hay configurado al volver.
+  const _fila=document.getElementById('metaFijaFila');
+  if(_fila)_fila.style.opacity=(_modo==='fija')?'1':'.45';
+  const _pd=document.getElementById('puntosDesdeStatus');
+  const _btnUndo=document.getElementById('btnDeshacerReinicio');
+  if(_pd){
+    _pd.innerHTML=cfg.puntosDesde
+      ? `<span style="color:var(--orange);">♻️ Los puntos cuentan desde el <b>${cfg.puntosDesde}</b></span>`
+      : '<span style="color:var(--gray-400);">Los puntos cuentan desde siempre</span>';
+  }
+  if(_btnUndo)_btnUndo.style.display=cfg.puntosDesde?'inline-flex':'none';
   // v89: fuente de la tasa del dólar
   const tKey=document.getElementById('cfg-tasa-key');
   const tUrl=document.getElementById('cfg-tasa-url');
@@ -13142,8 +13215,57 @@ function getGestorRank(gestorId) {
 
 // Get a specific gestor's total points
 // Puntos que ha hecho un gestor DESDE SIEMPRE. Este número solo sube.
+// ── v119: en qué modo está el ranking ──────────────────────────────────────
+// Tres modos, no dos, porque son tres cosas distintas:
+//   'off'     — no hay meta ni competencia; los puntos se ven pero no premian.
+//   'fija'    — el de siempre: al llegar a N puntos se cierra un ciclo y el
+//               contador vuelve a empezar. Se puede lograr varias veces.
+//   'mensual' — gana quien más puntos hace en el mes. No hay que reiniciar
+//               nada: los puntos salen de las ventas y las ventas tienen fecha,
+//               así que el 1º a las 00:00 el ranking está a cero solo, y los
+//               meses anteriores se pueden seguir consultando.
+// Los modos se guardan por separado del número de la meta, para poder cambiar
+// de uno a otro y volver sin perder lo configurado.
+function metaModo() {
+  const cfg = getConfig() || {};
+  if (cfg.metaModo === 'off' || cfg.metaModo === 'fija' || cfg.metaModo === 'mensual') return cfg.metaModo;
+  // Sin modo guardado (config de antes de v119): si había meta puesta, era el
+  // modo fijo; si no, no había meta.
+  return (parseFloat(cfg.metaPuntos) > 0) ? 'fija' : 'off';
+}
+
+// Desde cuándo cuentan los puntos. El botón de reiniciar no borra nada: apunta
+// aquí la fecha y los puntos empiezan a contarse desde ahí. Así el reinicio se
+// puede deshacer y el historial de ventas se queda intacto.
+function puntosDesde() {
+  const d = (getConfig() || {}).puntosDesde;
+  return (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) ? d : '';
+}
+
+// El primer día del mes en curso, para el modo mensual.
+function _inicioDelMes() {
+  const h = new Date();
+  return localDay(new Date(h.getFullYear(), h.getMonth(), 1));
+}
+
+// ¿Entra esta venta en el recuento de puntos de ahora mismo?
+// Se mide por _fechaEfectiva —el día en que la venta se cerró— por lo mismo que
+// el corte de Dueños: una venta cerrada el 1 de septiembre es de septiembre,
+// aunque el vale se mandara el 31 de agosto.
+function _valeCuentaPuntos(v) {
+  if (!v) return false;
+  const d = _fechaEfectiva(v);
+  if (!d) return false;
+  const desde = puntosDesde();
+  if (desde && d < desde) return false;
+  if (metaModo() === 'mensual' && d < _inicioDelMes()) return false;
+  return true;
+}
+
 function getGestorPointsTotal(gestorId) {
-  const confirmedVales=getVales().filter(v=>v.gestorId===gestorId&&['confirmed','pending_payment'].includes(v.status));
+  const confirmedVales=getVales().filter(v=>v.gestorId===gestorId
+    &&['confirmed','pending_payment'].includes(v.status)
+    &&_valeCuentaPuntos(v));   // v119: solo las del periodo en curso
   return confirmedVales.reduce((sum,v)=>
     sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0);
 }
@@ -13394,6 +13516,10 @@ function dismissGoalBanner(){
 }
 
 function checkGoalReached(gestorId, currentValeId) {
+  // v119: cerrar ciclos es cosa del modo 'fija'. En 'mensual' no hay meta que
+  // alcanzar —gana el que más lleve al acabar el mes— y en 'off' no hay premio,
+  // así que en los dos casos esto no debe tocar nada ni lanzar la animación.
+  if(metaModo()!=='fija')return;
   const meta=parseFloat(getConfig().metaPuntos);
   if(!meta||meta<=0||!gestorId)return;
   const g=gestorOf(gestorId);if(!g||g._tienda)return;   // la tienda no compite
