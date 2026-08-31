@@ -935,7 +935,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -2278,6 +2278,48 @@
   ],
   "vales": [
     {
+      "id": 1788198917490,
+      "ts": "2026-08-31T17:55:17.502Z",
+      "total": "$300 USD",
+      "carnet": "",
+      "seenTs": "2026-08-31T18:29:23.484Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ernesto",
+      "valeNum": 139,
+      "articulo": "×2 NanoStation 5 AC loco SIN POE / ×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "527718107493",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 527718107493\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 NanoStation 5 AC loco SIN POE\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 13:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$300 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 2,
+          "name": "NanoStation 5 AC loco SIN POE"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "$20.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788194511362,
       "ts": "2026-08-31T16:41:51.366Z",
       "total": "$140 USD + 2000 MN",
@@ -2370,11 +2412,10 @@
       "direccion": "Calle 3ra #18336 entre Rafael de Cardenas y Alamo",
       "precioUSD": "$90 USD",
       "reservado": false,
-      "ubicacion": "",
+      "ubicacion": null,
       "assignedTs": "2026-08-31T16:01:05.550Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
-      "horaEntrega": "",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
@@ -2547,8 +2588,8 @@
       "ts": "2026-08-31T15:09:31.645Z",
       "total": "$25 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T15:52:35.680Z",
-      "status": "assigned",
+      "seenTs": "2026-08-31T18:29:27.108Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yordan",
       "valeNum": 133,
@@ -2565,6 +2606,8 @@
       "assignedTs": "2026-08-31T15:52:30.887Z",
       "mensajeria": "1300 cup",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-08-31T18:30:02.290Z",
+      "deliveredTs": "2026-08-31T18:30:00.021Z",
       "mensajeroId": 1784408225928,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2577,9 +2620,11 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-08-31T18:30:04.244Z"
     },
     {
       "id": 1788188801988,
@@ -12411,5 +12456,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T17:49:40.402Z"
+  "timestamp": "2026-08-31T18:31:04.402Z"
 }
