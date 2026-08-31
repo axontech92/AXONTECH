@@ -2349,8 +2349,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788209256536,
@@ -12583,5 +12582,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T22:08:35.402Z"
+  "timestamp": "2026-08-31T22:27:05.401Z"
 }
