@@ -2409,7 +2409,7 @@
       "ts": "2026-08-31T12:26:26.771Z",
       "total": "$150 USD + 4300 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T14:09:22.637Z",
+      "seenTs": "2026-08-31T15:15:31.045Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Leydis",
@@ -3228,45 +3228,6 @@
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788053796579,
-      "ts": "2026-08-30T01:36:36.599Z",
-      "total": "$1260 USD",
-      "carnet": "",
-      "seenTs": "2026-08-31T14:09:17.644Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Lien",
-      "valeNum": 125,
-      "articulo": "×9 Ubiquiti Litebeam m5",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "precioMN": "",
-      "telefono": "5351936227",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Lien\n🔸Teléfono Cliente: 5351936227\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×9 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $1260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1260 USD\n🔸 Rebaja: −$90 USD\n🔸 Total a pagar: $1170 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/08/2026 21:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$1260 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 90,
-      "valeProductos": [
-        {
-          "id": 1787930017841,
-          "qty": 9,
-          "name": "Ubiquiti Litebeam m5"
-        }
-      ],
-      "comisionCedida": 90,
-      "comisionGestor": "$90.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "Cliente Fiel",
       "synced": true
     },
     {
@@ -12247,5 +12208,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T15:15:27.448Z"
+  "timestamp": "2026-08-31T15:17:30.402Z"
 }
