@@ -2282,6 +2282,7 @@
       "ts": "2026-08-31T12:27:33.751Z",
       "total": "$1470 USD + 2500 MN",
       "carnet": "",
+      "seenTs": "2026-08-31T13:44:23.970Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -2298,6 +2299,7 @@
       "ubicacion": null,
       "mensajeria": "2500",
       "comFijadaMN": 12000,
+      "seenByAdmin": true,
       "comFijadaUSD": 80,
       "valeProductos": [
         {
@@ -2332,7 +2334,7 @@
       "ts": "2026-08-31T12:26:26.771Z",
       "total": "$150 USD + 4300 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T13:29:11.602Z",
+      "seenTs": "2026-08-31T13:40:31.432Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Leydis",
@@ -2371,6 +2373,7 @@
       "ts": "2026-08-31T11:50:33.343Z",
       "total": "$140 USD",
       "carnet": "",
+      "seenTs": "2026-08-31T13:42:52.570Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -2387,6 +2390,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2406,6 +2410,7 @@
       "ts": "2026-08-31T11:49:37.173Z",
       "total": "$130 USD",
       "carnet": "",
+      "seenTs": "2026-08-31T13:42:54.358Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Nunzio",
@@ -2422,6 +2427,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2441,6 +2447,7 @@
       "ts": "2026-08-31T11:44:01.630Z",
       "total": "$20 USD",
       "carnet": "",
+      "seenTs": "2026-08-31T13:38:12.276Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Joan",
@@ -2457,6 +2464,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2550,6 +2558,7 @@
       "ts": "2026-08-31T01:21:14.228Z",
       "total": "$140 USD",
       "carnet": "",
+      "seenTs": "2026-08-31T13:44:21.992Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Esteban Perez",
@@ -2566,6 +2575,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2585,7 +2595,7 @@
       "ts": "2026-08-30T23:16:51.927Z",
       "total": "$20 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T13:23:15.317Z",
+      "seenTs": "2026-08-31T13:40:18.921Z",
       "status": "assigned",
       "vuelto": "0",
       "cliente": "Talia Molina",
@@ -2783,7 +2793,7 @@
       "ts": "2026-08-30T20:24:47.446Z",
       "total": "$150 USD + 1600 MN",
       "carnet": "",
-      "seenTs": "2026-08-30T23:54:17.126Z",
+      "seenTs": "2026-08-31T13:38:16.061Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Mayrin",
@@ -2903,8 +2913,8 @@
       "ts": "2026-08-30T18:41:44.330Z",
       "total": "$260 USD + 3300 MN",
       "carnet": "",
-      "seenTs": "2026-08-30T21:39:10.152Z",
-      "status": "pending_payment",
+      "seenTs": "2026-08-31T13:45:36.548Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Diamelsa",
       "valeNum": 131,
@@ -2921,6 +2931,7 @@
       "assignedTs": "2026-08-30T19:06:46.066Z",
       "mensajeria": "3300",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-31T13:45:43.849Z",
       "deliveredTs": "2026-08-30T19:52:36.551Z",
       "mensajeroId": 1784408255563,
       "seenByAdmin": true,
@@ -3184,7 +3195,7 @@
       "ts": "2026-08-30T00:30:42.715Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-08-30T22:18:19.584Z",
+      "seenTs": "2026-08-31T13:44:20.613Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pachile",
@@ -12152,5 +12163,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T13:30:22.401Z"
+  "timestamp": "2026-08-31T13:46:44.402Z"
 }
