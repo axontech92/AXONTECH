@@ -1141,7 +1141,7 @@
       "name": "ZOSI - Camara de seguridad CCTV",
       "catId": 80,
       "photo": "photos/p-1780344659047-5feab86d.webp",
-      "stock": 36,
+      "stock": 24,
       "imagen": "photos/p-1780344659047-5feab86d.webp",
       "nombre": "ZOSI - Camara de seguridad CCTV",
       "precio": "$50",
@@ -2370,10 +2370,11 @@
       "direccion": "Calle 3ra #18336 entre Rafael de Cardenas y Alamo",
       "precioUSD": "$90 USD",
       "reservado": false,
-      "ubicacion": null,
+      "ubicacion": "",
       "assignedTs": "2026-08-31T16:01:05.550Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "horaEntrega": "",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
@@ -12410,5 +12411,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T16:53:49.457Z"
+  "timestamp": "2026-08-31T17:49:40.402Z"
 }
