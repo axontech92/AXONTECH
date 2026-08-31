@@ -2095,7 +2095,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 9,
+      "reserved": 8,
       "descripcion": "El Ubiquiti LiteBeam M5 (LBE-M5-23) es una antena direccional para enlaces inalámbricos de 5 GHz, pensada principalmente para llevar Internet de un punto a otro a distancia. \n\nCaracterísticas principales:\n📡 Frecuencia: 5 GHz\n📶 Ganancia: 23 dBi\n🔗 Ideal para enlaces punto a punto (PtP)\n📡 Tecnología airMAX TDMA\n🔌 1 puerto Ethernet 10/100 Mbps\n⚡ Alimentación: PoE pasivo 24 V\n🔋 Consumo máximo: alrededor de 7 W\n🌧️ Diseñado para instalación exterior\n📏 Alcance: depende mucho de la línea de vista, interferencias y configuración.",
       "description": "El Ubiquiti LiteBeam M5 (LBE-M5-23) es una antena direccional para enlaces inalámbricos de 5 GHz, pensada principalmente para llevar Internet de un punto a otro a distancia. \n\nCaracterísticas principales:\n📡 Frecuencia: 5 GHz\n📶 Ganancia: 23 dBi\n🔗 Ideal para enlaces punto a punto (PtP)\n📡 Tecnología airMAX TDMA\n🔌 1 puerto Ethernet 10/100 Mbps\n⚡ Alimentación: PoE pasivo 24 V\n🔋 Consumo máximo: alrededor de 7 W\n🌧️ Diseñado para instalación exterior\n📏 Alcance: depende mucho de la línea de vista, interferencias y configuración.",
       "precioActual": 150,
@@ -2622,43 +2622,6 @@
           "id": 1786509790425,
           "qty": 1,
           "name": "Nanostation m2"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788139274223,
-      "ts": "2026-08-31T01:21:14.228Z",
-      "total": "$140 USD",
-      "carnet": "",
-      "seenTs": "2026-08-31T15:14:40.894Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Esteban Perez",
-      "valeNum": 125,
-      "articulo": "×1 Ubiquiti Litebeam m5",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "5358453798",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Esteban Perez\n🔸Teléfono Cliente: 5358453798\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 21:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$140 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1787930017841,
-          "qty": 1,
-          "name": "Ubiquiti Litebeam m5"
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -3235,7 +3198,7 @@
       "ts": "2026-08-30T00:30:42.715Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-08-31T15:06:48.502Z",
+      "seenTs": "2026-08-31T15:18:56.702Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pachile",
@@ -12208,5 +12171,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T15:17:30.402Z"
+  "timestamp": "2026-08-31T15:20:01.402Z"
 }
