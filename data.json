@@ -952,7 +952,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 22,
+      "stock": 13,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -12568,5 +12568,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T20:39:22.401Z"
+  "timestamp": "2026-08-31T20:42:51.841Z"
 }
