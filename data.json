@@ -2095,7 +2095,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 9,
+      "reserved": 7,
       "descripcion": "El Ubiquiti LiteBeam M5 (LBE-M5-23) es una antena direccional para enlaces inalámbricos de 5 GHz, pensada principalmente para llevar Internet de un punto a otro a distancia. \n\nCaracterísticas principales:\n📡 Frecuencia: 5 GHz\n📶 Ganancia: 23 dBi\n🔗 Ideal para enlaces punto a punto (PtP)\n📡 Tecnología airMAX TDMA\n🔌 1 puerto Ethernet 10/100 Mbps\n⚡ Alimentación: PoE pasivo 24 V\n🔋 Consumo máximo: alrededor de 7 W\n🌧️ Diseñado para instalación exterior\n📏 Alcance: depende mucho de la línea de vista, interferencias y configuración.",
       "description": "El Ubiquiti LiteBeam M5 (LBE-M5-23) es una antena direccional para enlaces inalámbricos de 5 GHz, pensada principalmente para llevar Internet de un punto a otro a distancia. \n\nCaracterísticas principales:\n📡 Frecuencia: 5 GHz\n📶 Ganancia: 23 dBi\n🔗 Ideal para enlaces punto a punto (PtP)\n📡 Tecnología airMAX TDMA\n🔌 1 puerto Ethernet 10/100 Mbps\n⚡ Alimentación: PoE pasivo 24 V\n🔋 Consumo máximo: alrededor de 7 W\n🌧️ Diseñado para instalación exterior\n📏 Alcance: depende mucho de la línea de vista, interferencias y configuración.",
       "precioActual": 150,
@@ -12166,5 +12166,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T14:31:39.401Z"
+  "timestamp": "2026-08-31T14:55:06.402Z"
 }
