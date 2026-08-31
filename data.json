@@ -2278,6 +2278,43 @@
   ],
   "vales": [
     {
+      "id": 1788188971643,
+      "ts": "2026-08-31T15:09:31.645Z",
+      "total": "$25 USD + 1300 MN",
+      "carnet": "",
+      "seenTs": "2026-08-31T15:10:14.957Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yordan",
+      "valeNum": 133,
+      "articulo": "×1 Linterna de cabeza superpotente",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5353617465",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Yordan\n🔸Teléfono Cliente: 5353617465\n🔸Dirección Cliente: Arango #569/ Melones y Rosa Enrique Luyano\n🔸Mensajería/ costo: 1300 cup\n🔸 Artículos y cantidades:\n  ×1 Linterna de cabeza superpotente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD + 1300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 11:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Arango #569/ Melones y Rosa Enrique Luyano",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "1300 cup",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384507302,
+          "qty": 1,
+          "name": "Linterna de cabeza superpotente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788188801988,
       "ts": "2026-08-31T15:06:42.001Z",
       "total": "$85 USD",
@@ -2598,7 +2635,7 @@
       "ts": "2026-08-31T01:21:14.228Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-08-31T15:06:50.269Z",
+      "seenTs": "2026-08-31T15:14:40.894Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Esteban Perez",
@@ -2635,7 +2672,7 @@
       "ts": "2026-08-30T23:16:51.927Z",
       "total": "$20 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T14:09:12.215Z",
+      "seenTs": "2026-08-31T15:15:12.975Z",
       "status": "assigned",
       "vuelto": "0",
       "cliente": "Talia Molina",
@@ -2917,7 +2954,7 @@
       "ts": "2026-08-30T19:07:01.742Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-08-31T15:08:54.666Z",
+      "seenTs": "2026-08-31T15:10:20.749Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Guille",
@@ -3103,8 +3140,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -3798,8 +3836,9 @@
         }
       ],
       "comisionGestor": "3000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6485,8 +6524,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -8873,8 +8913,9 @@
         }
       ],
       "comisionGestor": "13300 cup",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11217,8 +11258,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11384,8 +11426,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -12204,5 +12247,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T15:09:54.401Z"
+  "timestamp": "2026-08-31T15:15:27.448Z"
 }
