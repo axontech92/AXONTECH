@@ -544,7 +544,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -2278,6 +2278,44 @@
   ],
   "vales": [
     {
+      "id": 1788188801988,
+      "ts": "2026-08-31T15:06:42.001Z",
+      "total": "$85 USD",
+      "carnet": "",
+      "seenTs": "2026-08-31T15:08:49.358Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Ernesto",
+      "valeNum": 132,
+      "articulo": "×1 Bateria LUBRIM de 75A",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5352835843",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5352835843\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 11:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$85 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-08-31T15:08:53.653Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788179253733,
       "ts": "2026-08-31T12:27:33.751Z",
       "total": "$1470 USD + 2500 MN",
@@ -2560,7 +2598,7 @@
       "ts": "2026-08-31T01:21:14.228Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-08-31T14:09:27.257Z",
+      "seenTs": "2026-08-31T15:06:50.269Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Esteban Perez",
@@ -2879,7 +2917,7 @@
       "ts": "2026-08-30T19:07:01.742Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-08-31T14:08:55.349Z",
+      "seenTs": "2026-08-31T15:08:54.666Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Guille",
@@ -3198,7 +3236,7 @@
       "ts": "2026-08-30T00:30:42.715Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-08-31T14:09:34.774Z",
+      "seenTs": "2026-08-31T15:06:48.502Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pachile",
@@ -12166,5 +12204,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T15:00:01.403Z"
+  "timestamp": "2026-08-31T15:09:54.401Z"
 }
