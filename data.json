@@ -2332,7 +2332,8 @@
       "ts": "2026-08-31T12:26:26.771Z",
       "total": "$150 USD + 4300 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-08-31T13:29:11.602Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Leydis",
       "valeNum": 131,
@@ -2346,8 +2347,11 @@
       "precioUSD": "$150 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-08-31T13:29:21.577Z",
       "mensajeria": "4300",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2472,6 +2476,7 @@
       "ts": "2026-08-31T04:44:18.353Z",
       "total": "$130 USD",
       "carnet": "",
+      "seenTs": "2026-08-31T13:24:49.922Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yiliannis",
@@ -2488,6 +2493,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -12146,5 +12152,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T13:24:32.424Z"
+  "timestamp": "2026-08-31T13:30:22.401Z"
 }
