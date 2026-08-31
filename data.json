@@ -1903,7 +1903,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 39,
+      "stock": 38,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -1971,7 +1971,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2278,6 +2278,83 @@
   ],
   "vales": [
     {
+      "id": 1788207209599,
+      "ts": "2026-08-31T20:13:29.641Z",
+      "total": "$1600 USD",
+      "carnet": "",
+      "seenTs": "2026-08-31T20:17:53.345Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Angel",
+      "valeNum": 142,
+      "articulo": "×10 Adaptador poe UBIQUITI de 0.3A / ×10 NanoStation 5 AC loco SIN POE",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "058311470",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Angel\n🔸Teléfono Cliente: 058311470\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Adaptador poe UBIQUITI de 0.3A\n  ×10 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $1600 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1600 USD\n🔸 Rebaja: −$50 USD\n🔸 Total a pagar: $1550 USD\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 16:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1600 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 15000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 10,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1784727083369,
+          "qty": 10,
+          "name": "NanoStation 5 AC loco SIN POE"
+        }
+      ],
+      "comisionCedida": 50,
+      "comisionGestor": "$100.00 USD + 15000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788203965885,
+      "ts": "2026-08-31T19:19:25.912Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-08-31T20:18:56.296Z",
+      "status": "pending",
+      "vuelto": ".",
+      "cliente": "Adisbel",
+      "valeNum": 141,
+      "articulo": "×1 Router KUWIFI de linea de 1.150MBPS",
+      "garantia": "Nota instalación y mensajería Rafelito",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "52511573",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Adisbel\n🔸Teléfono Cliente: 52511573\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router KUWIFI de linea de 1.150MBPS\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: .\n🔸 Total a pagar: $130 USD\n\n*Garantía: Nota instalación y mensajería Rafelito\n*Fecha y hora de Venta: 31/08/2026 15:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 1,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1788201066266,
       "ts": "2026-08-31T18:31:06.271Z",
       "total": "$180 USD + 6310 MN",
@@ -2435,8 +2512,8 @@
       "ts": "2026-08-31T15:54:34.054Z",
       "total": "$90 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T16:00:45.424Z",
-      "status": "assigned",
+      "seenTs": "2026-08-31T20:18:30.549Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Bernardo",
       "valeNum": 136,
@@ -2453,6 +2530,8 @@
       "assignedTs": "2026-08-31T16:01:05.550Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-31T20:18:42.127Z",
+      "deliveredTs": "2026-08-31T20:18:40.405Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
@@ -2465,7 +2544,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2491,6 +2570,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-31T18:52:36.293Z",
       "seenByAdmin": true,
       "comFijadaUSD": 70,
       "valeProductos": [
@@ -2505,9 +2585,7 @@
       "recogidaTienda": true,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false,
-      "confirmedTs": "2026-08-31T18:52:36.293Z"
+      "synced": true
     },
     {
       "id": 1788190000807,
@@ -2758,8 +2836,8 @@
       "ts": "2026-08-31T12:26:26.771Z",
       "total": "$150 USD + 4300 MN",
       "carnet": "",
-      "seenTs": "2026-08-31T15:44:00.094Z",
-      "status": "assigned",
+      "seenTs": "2026-08-31T20:18:45.658Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Leydis",
       "valeNum": 131,
@@ -2776,6 +2854,8 @@
       "assignedTs": "2026-08-31T13:29:21.577Z",
       "mensajeria": "4300",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-08-31T20:18:51.144Z",
+      "deliveredTs": "2026-08-31T20:18:49.829Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2788,7 +2868,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -12493,5 +12573,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-08-31T18:53:36.403Z"
+  "timestamp": "2026-08-31T20:19:52.402Z"
 }
