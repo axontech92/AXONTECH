@@ -958,7 +958,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1627,7 +1627,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 24,
+      "stock": 0,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -1992,7 +1992,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 14,
+      "stock": 0,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2282,6 +2282,49 @@
   ],
   "vales": [
     {
+      "id": 1788283959884,
+      "ts": "2026-09-01T17:32:39.893Z",
+      "total": "$300 USD",
+      "carnet": "",
+      "seenTs": "2026-09-01T17:32:55.257Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ernesto",
+      "valeNum": 152,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A / ×2 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "527718107493",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 527718107493\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 13:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$300 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "de ayer",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 2,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$20.00 USD + 1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788283371567,
       "ts": "2026-09-01T17:22:51.573Z",
       "total": "$140 USD",
@@ -2477,8 +2520,8 @@
       "ts": "2026-09-01T15:00:00.000Z",
       "total": "$2760 USD + 6000 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T15:03:57.055Z",
-      "status": "assigned",
+      "seenTs": "2026-09-01T17:32:03.884Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lawton",
       "valeNum": 145,
@@ -2496,7 +2539,8 @@
       "assignedTs": "2026-09-01T15:03:50.732Z",
       "mensajeria": "6000",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-01T17:32:18.116Z",
+      "deliveredTs": "2026-09-01T17:32:11.568Z",
       "mensajeroId": 1784476898824,
       "rebajaAdmin": 260,
       "seenByAdmin": true,
@@ -2516,10 +2560,12 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "rebajaAdminMotivo": "cliente fijo",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-01T17:32:21.820Z"
     },
     {
       "id": 1788268933269,
@@ -12901,5 +12947,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T17:32:30.229Z"
+  "timestamp": "2026-09-01T17:33:21.831Z"
 }
