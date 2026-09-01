@@ -2294,7 +2294,7 @@
       "ts": "2026-09-01T17:58:21.164Z",
       "total": "$90 USD + 5200 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T18:03:54.558Z",
+      "seenTs": "2026-09-01T19:10:26.033Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yadier",
@@ -2309,10 +2309,10 @@
       "precioUSD": "$90 USD",
       "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-01T18:03:22.117Z",
+      "assignedTs": "2026-09-01T19:10:21.158Z",
       "mensajeria": "5200 cup",
       "comFijadaMN": 0,
-      "mensajeroId": 1784476898824,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -2662,7 +2662,7 @@
       "ts": "2026-09-01T13:22:00.000Z",
       "total": "$680 USD + 56000 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T16:37:03.998Z",
+      "seenTs": "2026-09-01T19:01:52.520Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -2751,7 +2751,7 @@
       "ts": "2026-08-31T21:07:16.612Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T18:03:48.250Z",
+      "seenTs": "2026-09-01T19:02:47.832Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Maurilys",
@@ -2788,7 +2788,7 @@
       "ts": "2026-08-31T20:52:21.305Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T18:22:56.065Z",
+      "seenTs": "2026-09-01T18:50:21.957Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis",
@@ -13037,5 +13037,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T18:40:59.680Z"
+  "timestamp": "2026-09-01T19:11:21.244Z"
 }
