@@ -2083,7 +2083,7 @@
       "name": "Ubiquiti Litebeam m5",
       "catId": 10,
       "photo": "photos/p-1787930017841-5a594c52.webp",
-      "stock": 1,
+      "stock": 3,
       "imagen": "photos/p-1787930017841-5a594c52.webp",
       "nombre": "Ubiquiti Litebeam m5",
       "precio": "$140",
@@ -13158,5 +13158,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T21:26:19.245Z"
+  "timestamp": "2026-09-01T21:56:02.244Z"
 }
