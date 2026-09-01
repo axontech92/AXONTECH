@@ -936,7 +936,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 9,
+      "stock": 8,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -1588,7 +1588,7 @@
       "name": "Hamaca con mosquitero",
       "catId": 90,
       "photo": "photos/p-1786160676965-b34f4749.webp",
-      "stock": 23,
+      "stock": 22,
       "imagen": "photos/p-1786160676965-b34f4749.webp",
       "nombre": "Hamaca con mosquitero",
       "precio": "$20",
@@ -1605,7 +1605,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$35 USD",
@@ -2259,6 +2259,41 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788275596494,
+      "ts": "2026-09-01T15:13:16.508Z",
+      "total": "$280 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "David Poli",
+      "valeNum": 146,
+      "articulo": "×2 Ubiquiti Litebeam m5",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "79996280459",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: David Poli\n🔸Teléfono Cliente: 79996280459\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $280 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $280 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 11:13\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$280 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787930017841,
+          "qty": 2,
+          "name": "Ubiquiti Litebeam m5"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1788274802251,
       "ts": "2026-09-01T15:00:00.000Z",
@@ -3162,8 +3197,8 @@
       "ts": "2026-08-31T11:44:00.000Z",
       "total": "$80 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T13:21:37.606Z",
-      "status": "pending",
+      "seenTs": "2026-09-01T15:17:08.929Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Joan",
       "valeNum": 128,
@@ -3179,6 +3214,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 4500,
+      "confirmedTs": "2026-09-01T15:17:23.119Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -3200,7 +3236,7 @@
       ],
       "comisionGestor": "4500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -12718,5 +12754,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T15:07:17.160Z"
+  "timestamp": "2026-09-01T15:18:23.139Z"
 }
