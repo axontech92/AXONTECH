@@ -1761,7 +1761,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 21,
+      "stock": 19,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1885,7 +1885,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 38,
+      "stock": 37,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2222,16 +2222,17 @@
     {
       "id": 1788278326719,
       "name": "NanoStation 5AC Loco",
-      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
-      "precio": "140 USD",
-      "stock": 0,
-      "puntos": 0,
-      "garantia": "",
-      "comision": "",
-      "photo": "",
       "catId": 10,
+      "photo": "data:image/webp;base64,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",
+      "stock": 0,
+      "imagen": "data:image/webp;base64,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",
       "nombre": "NanoStation 5AC Loco",
+      "precio": "140 USD",
+      "puntos": 0,
+      "comision": "",
+      "garantia": "",
       "descripcion": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
       "precioActual": 140
     }
   ],
@@ -2291,10 +2292,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Esteban Pérez\n🔸Teléfono Cliente: 5358453798\n🔸Dirección Cliente: Albear #366 e/ 1ra y Palatino. Cerro\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 11:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Albear #366 e/ 1ra y Palatino. Cerro",
       "precioUSD": "$140 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "1800",
       "comFijadaMN": 0,
-      "horaEntrega": "",
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2303,11 +2304,10 @@
           "name": "Ubiquiti Litebeam m5"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2315,6 +2315,7 @@
       "ts": "2026-09-01T15:13:16.508Z",
       "total": "$280 USD",
       "carnet": "",
+      "seenTs": "2026-09-01T16:02:00.919Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "David Poli",
@@ -2331,6 +2332,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -3076,8 +3078,8 @@
       "ts": "2026-08-31T12:27:33.751Z",
       "total": "$1470 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T13:48:34.157Z",
-      "status": "assigned",
+      "seenTs": "2026-09-01T16:07:04.730Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Darel",
       "valeNum": 131,
@@ -3094,6 +3096,8 @@
       "assignedTs": "2026-09-01T13:02:09.456Z",
       "mensajeria": "2500",
       "comFijadaMN": 12000,
+      "confirmedTs": "2026-09-01T16:07:37.267Z",
+      "deliveredTs": "2026-09-01T16:07:34.771Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 80,
@@ -3120,9 +3124,11 @@
       ],
       "comisionGestor": "$80.00 USD + 12000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-01T16:07:40.659Z"
     },
     {
       "id": 1788179186759,
@@ -12805,5 +12811,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T15:59:47.244Z"
+  "timestamp": "2026-09-01T16:08:40.669Z"
 }
