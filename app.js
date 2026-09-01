@@ -6619,7 +6619,7 @@ function renderAdminGestoresList() {
       </div>
 
       <div class="gp-card-actions">
-        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Click para ver clave (solo claves legacy no encriptadas)">${(g.password||'').startsWith('pbkdf2$')||(g.password||'').startsWith('sha256:') ? '🔒 Encriptada' : '🔑 ' + escapeHTML(g.password||'—').replace(/./g, '•')}</span>
+        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Toca para ver la clave, o para generar una nueva si está encriptada">${(g.password||'').startsWith('pbkdf2$')||(g.password||'').startsWith('sha256:') ? '🔒 Encriptada' : '🔑 ' + escapeHTML(g.password||'—').replace(/./g, '•')}</span>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
         <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
@@ -6743,8 +6743,64 @@ function resetGestorPass(id) {
     list[i].password=hash;guardarGestores(list, [id]);
     _logAudit('gestor_pass_reset', 'gestor:' + id);
     gestoresTabDirty=true;
-    renderAdminGestoresList();maybeAutoSync();showToast(`Nueva clave: ${np}`);
+    renderAdminGestoresList();maybeAutoSync();
+    mostrarClaveGestor(id, np);
   }).catch(() => { showToast('No se pudo encriptar la clave, reintenta'); });
+}
+
+// ── v119: la clave nueva, en una ventana que espera ────────────────────────
+// Las claves se guardan encriptadas (PBKDF2, ver _hashGestorPass): ni el admin
+// puede leerlas después, y eso es a propósito — así una copia de la base de
+// datos no reparte las claves de nadie. El problema no era ese, era que la
+// única vez que la clave se podía leer era un aviso de tres segundos: si se
+// iba antes de apuntarla, no había manera de recuperarla y tocaba generar otra
+// (y otra, si volvía a pasar).
+//
+// Ahora sale en una ventana que se queda hasta que la cierras, con un botón
+// para copiarla y otro para mandársela al gestor por WhatsApp con su enlace.
+let _claveGestorId = null, _claveGestorTexto = '';
+function mostrarClaveGestor(gestorId, clave) {
+  _claveGestorId = gestorId; _claveGestorTexto = String(clave || '');
+  const g = gestorOf(gestorId);
+  const m = document.getElementById('claveGestorModal');
+  // La app del gestor no tiene esta ventana; ahí se avisa como antes.
+  if (!m) { showToast('Clave: ' + _claveGestorTexto); return; }
+  const nom = document.getElementById('claveGestorNombre');
+  if (nom) nom.textContent = (g && g.name) ? g.name : 'Gestor';
+  const val = document.getElementById('claveGestorValor');
+  if (val) val.textContent = _claveGestorTexto;
+  m.classList.add('show');
+}
+function cerrarClaveGestor() {
+  const m = document.getElementById('claveGestorModal');
+  if (m) m.classList.remove('show');
+  _claveGestorId = null; _claveGestorTexto = '';
+}
+function copiarClaveGestor() {
+  if (!_claveGestorTexto) return;
+  navigator.clipboard.writeText(_claveGestorTexto)
+    .then(() => showToast('Clave copiada ✓'))
+    .catch(() => showToast('No se pudo copiar — apúntala de la pantalla'));
+}
+// El enlace de la app del gestor sale de esta misma dirección: el admin está en
+// .../admin.html y el gestor entra por .../index.html. Así no hay que
+// configurar ninguna dirección a mano ni se queda desfasada al mudar el sitio.
+function _urlAppGestor() {
+  try {
+    return location.href.split(/[?#]/)[0].replace(/[^/]*$/, 'index.html');
+  } catch (e) { return ''; }
+}
+function enviarClaveGestorWA() {
+  if (!_claveGestorTexto) return;
+  const g = gestorOf(_claveGestorId);
+  const url = _urlAppGestor();
+  const texto = `Hola${g && g.name ? ' ' + g.name : ''} 👋\n\nTu clave de AXONTECH es:\n\n*${_claveGestorTexto}*\n\n`
+    + (url ? `Entra aquí: ${url}\n\n` : '')
+    + 'Guárdala, no se puede volver a ver.';
+  // Con teléfono se abre el chat con él; sin teléfono, WhatsApp pregunta a
+  // quién mandárselo, que es mejor que no poder mandarlo.
+  const tel = (g && g.phone || '').replace(/[^\d]/g, '');
+  window.open((tel ? `https://wa.me/${tel}` : 'https://wa.me/') + '?text=' + encodeURIComponent(texto), '_blank');
 }
 // toggleGestorPass / copyGestorPass now look up the password by gestor id
 // instead of receiving it via the onclick attribute. This eliminates the
@@ -6758,7 +6814,10 @@ function toggleGestorPass(id) {
   const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
   if (hashed) {
     el.textContent='🔒 Encriptada';
-    showToast('Clave encriptada — usa "↺ Resetear" para generar una nueva');
+    // v119: antes esto era un aviso que decía "usa Resetear" y ahí se acababa.
+    // Quien toca el candado es porque necesita mandarle la clave al gestor, así
+    // que se le ofrece hacerlo desde aquí mismo.
+    _ofrecerClaveNueva(id, g);
     return;
   }
   if(el.dataset.shown==='1'){
@@ -6769,11 +6828,23 @@ function toggleGestorPass(id) {
     el.dataset.shown='1';
   }
 }
+// v119: explica por qué no se puede leer y ofrece la única salida que hay.
+// Se avisa de lo que cuesta —el gestor tendrá que entrar con la nueva— porque
+// generar una clave sin querer deja fuera a alguien que está trabajando.
+function _ofrecerClaveNueva(id, g) {
+  const nombre = (g && g.name) ? g.name : 'este gestor';
+  showConfirmAction(
+    'La clave de ' + nombre + ' no se puede ver',
+    'Se guarda encriptada, así que ni desde aquí se puede leer — es lo que impide que una copia de la base de datos reparta las claves de todos.<br><br>Lo que sí se puede es <b>generar una nueva</b> y mandársela ahora. Ojo: la que tenga dejará de servirle y tendrá que entrar con la nueva.',
+    'Generar y enviar', 'btn-blue',
+    () => resetGestorPass(id)
+  );
+}
 function copyGestorPass(id) {
   const g=gestorOf(id);if(!g)return;
   const pass=g.password||'';
   const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
-  if (hashed) { showToast('Clave encriptada — usa "↺ Resetear" para generar una nueva'); return; }
+  if (hashed) { _ofrecerClaveNueva(id, g); return; }
   navigator.clipboard.writeText(pass).then(()=>showToast('Contraseña copiada ✓')).catch(()=>showToast('No se pudo copiar'));
 }
 
@@ -6810,7 +6881,8 @@ function addGestor() {
     gestoresTabDirty=true;rankingCache=null;
     renderAdminGestoresList();renderGestores();renderAdminGestores();renderGestorRanking();
     maybeAutoSync();
-    showToast(`Gestor agregado ✓ · Clave: ${password}`);
+    showToast('Gestor agregado ✓');
+    mostrarClaveGestor(nuevoId, password);   // v119 — ver mostrarClaveGestor
   }).catch(() => { showToast('No se pudo encriptar la clave, reintenta'); });
   inp.value='';
 }

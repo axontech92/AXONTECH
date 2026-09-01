@@ -559,6 +559,36 @@
   </div>
 </div>
 
+<!-- ── MODAL: la clave recién generada de un gestor (v119) ──
+     Las claves se guardan encriptadas a propósito: ni el admin puede leerlas
+     después. Por eso este es el ÚNICO momento en que se puede ver la clave, y
+     antes salía en un aviso que se iba solo a los tres segundos — si te lo
+     perdías, no había forma de recuperarla y había que generar otra. -->
+<div class="modal-bg" id="claveGestorModal">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-title">🔑 Clave nueva</div>
+    <div class="modal-sub" id="claveGestorNombre">Gestor</div>
+
+    <div id="claveGestorValor"
+         style="margin:16px 0 10px;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+                font-size:30px;font-weight:800;letter-spacing:4px;color:var(--text);
+                background:var(--surface2);border:2px dashed var(--blue);border-radius:12px;
+                padding:16px 8px;word-break:break-all;user-select:all;">--------</div>
+
+    <div style="font-size:11px;color:var(--text-muted);line-height:1.5;background:rgba(245,158,11,.10);
+                border-left:3px solid var(--orange);border-radius:6px;padding:9px 11px;">
+      ⚠️ Cópiala o mándasela ahora. Se guarda encriptada, así que después
+      <b>no se podrá volver a ver</b>: si se pierde hay que generar otra.
+    </div>
+
+    <div class="modal-btns" style="margin-top:14px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="copiarClaveGestor()">📋 Copiar</button>
+      <button type="button" class="btn btn-green btn-full" onclick="enviarClaveGestorWA()">💬 Enviar</button>
+    </div>
+    <button type="button" class="btn btn-ghost btn-full" style="margin-top:7px;" onclick="cerrarClaveGestor()">Ya la tengo</button>
+  </div>
+</div>
+
 <!-- ── MODAL: Confirmar Acción ── -->
 <div class="modal-bg" id="confirmActionModal">
   <div class="modal" style="max-width:320px;">
