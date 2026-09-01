@@ -2264,8 +2264,8 @@
       "ts": "2026-09-01T15:00:00.000Z",
       "total": "$2760 USD + 6000 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T15:00:09.342Z",
-      "status": "pending",
+      "seenTs": "2026-09-01T15:03:57.055Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Lawton",
       "valeNum": 145,
@@ -2280,14 +2280,15 @@
       "reservado": true,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
+      "assignedTs": "2026-09-01T15:03:50.732Z",
       "mensajeria": "6000",
       "comFijadaMN": 0,
       "confirmedTs": null,
-      "mensajeroId": null,
-      "rebajaAdmin": 120,
+      "mensajeroId": 1784476898824,
+      "rebajaAdmin": 260,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
-      "rebajaAdminTs": "2026-09-01T15:00:57.192Z",
+      "rebajaAdminTs": "2026-09-01T15:03:19.189Z",
       "valeProductos": [
         {
           "id": 1787114204179,
@@ -12717,5 +12718,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T15:01:57.202Z"
+  "timestamp": "2026-09-01T15:04:50.744Z"
 }
