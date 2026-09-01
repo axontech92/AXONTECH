@@ -1378,25 +1378,6 @@
       "comisionMoneda": "MN"
     },
     {
-      "id": 1784727083369,
-      "name": "NanoStation 5 AC loco SIN POE",
-      "catId": 10,
-      "photo": "photos/img_1784727083369.webp",
-      "stock": 7,
-      "imagen": "photos/img_1784727083369.webp",
-      "nombre": "NanoStation AC loco SIN POE",
-      "precio": "$140",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "son radios de largo alcance en la banda de 5 GHz, diseñados para conexiones inalámbricas robustas y de alta velocidad. Cada unidad cuenta con tecnología airMAX ac, que mejora el rendimiento y la capacidad de transmisión, permitiendo conexiones eficientes en redes point-to-point o point-to-multi-point. Estos equipos son ideales para extendar redes Wi-Fi, conectar edificios o zonas alejadas, y ofrecen un diseño compacto y resistente para uso exterior. Incluyen puertos Ethernet para integración con redes existentes, y su configuración es sencilla para facilitar implementaciones rápidas. Son soluciones confiables para mejorar la conectividad en áreas con dificultad de cableado.\nVERSIÓN INTERNACIONAL",
-      "description": "son radios de largo alcance en la banda de 5 GHz, diseñados para conexiones inalámbricas robustas y de alta velocidad. Cada unidad cuenta con tecnología airMAX ac, que mejora el rendimiento y la capacidad de transmisión, permitiendo conexiones eficientes en redes point-to-point o point-to-multi-point. Estos equipos son ideales para extendar redes Wi-Fi, conectar edificios o zonas alejadas, y ofrecen un diseño compacto y resistente para uso exterior. Incluyen puertos Ethernet para integración con redes existentes, y su configuración es sencilla para facilitar implementaciones rápidas. Son soluciones confiables para mejorar la conectividad en áreas con dificultad de cableado.\nVERSIÓN INTERNACIONAL",
-      "precioActual": 140,
-      "reservedVales": 5,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1785076318779,
       "name": "Cargador inteligente de 12v(35A) y 24v(15A) configurable",
       "catId": 20,
@@ -1641,7 +1622,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 0,
+      "stock": 24,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -2006,7 +1987,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 0,
+      "stock": 14,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2313,8 +2294,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788268933269,
@@ -2963,7 +2943,7 @@
       "ts": "2026-08-31T12:27:33.751Z",
       "total": "$1470 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T13:22:04.051Z",
+      "seenTs": "2026-09-01T13:48:34.157Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Darel",
@@ -12728,5 +12708,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T13:36:42.245Z"
+  "timestamp": "2026-09-01T14:58:38.473Z"
 }
