@@ -1312,7 +1312,7 @@
       "name": "Probador/ tester  digital de baterías",
       "catId": 40,
       "photo": "photos/img_1781365019871.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1781365019871.webp",
       "nombre": "Probador/ tester  digital de baterías",
       "precio": "$20",
@@ -2276,10 +2276,86 @@
   ],
   "vales": [
     {
+      "id": 1788280288273,
+      "ts": "2026-09-01T16:31:00.000Z",
+      "total": "",
+      "carnet": "",
+      "seenTs": "2026-09-01T16:34:07.257Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ernesto",
+      "valeNum": 150,
+      "articulo": "×1 Forros de asientos de lujo para autos",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5352835843",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5352835843\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Forros de asientos de lujo para autos\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: 103000\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 12:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778213413973,
+          "qty": 1,
+          "name": "Forros de asientos de lujo para autos"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788280086696,
+      "ts": "2026-09-01T16:28:06.702Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-01T16:33:54.678Z",
+      "status": "confirmed",
+      "vuelto": "No",
+      "cliente": "Luciano Fariña",
+      "valeNum": 149,
+      "articulo": "×1 Probador/ tester  digital de baterías",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "52653133",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Luciano Fariña\n🔸Teléfono Cliente: 52653133\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Probador/ tester  digital de baterías\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 12:28\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781365019871,
+          "qty": 1,
+          "name": "Probador/ tester  digital de baterías"
+        }
+      ],
+      "comisionGestor": "1000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "confirmedTs": "2026-09-01T16:33:59.627Z"
+    },
+    {
       "id": 1788277968588,
       "ts": "2026-09-01T15:52:48.589Z",
       "total": "$140 USD + 1800 MN",
       "carnet": "",
+      "seenTs": "2026-09-01T16:13:54.449Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Esteban Pérez",
@@ -2296,6 +2372,7 @@
       "ubicacion": null,
       "mensajeria": "1800",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2437,7 +2514,7 @@
       "ts": "2026-09-01T13:22:13.272Z",
       "total": "$680 USD + 280 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T13:33:52.280Z",
+      "seenTs": "2026-09-01T16:13:58.909Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -3126,9 +3203,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-01T16:07:40.659Z"
+      "synced": true
     },
     {
       "id": 1788179186759,
@@ -12811,5 +12886,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T16:08:40.669Z"
+  "timestamp": "2026-09-01T16:34:59.638Z"
 }
