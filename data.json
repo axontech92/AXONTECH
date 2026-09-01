@@ -3111,8 +3111,8 @@
       "ts": "2026-08-31T17:55:17.502Z",
       "total": "$300 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T22:10:07.942Z",
-      "status": "pending",
+      "seenTs": "2026-09-01T23:04:52.584Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ernesto",
       "valeNum": 139,
@@ -3128,6 +3128,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-01T23:05:07.160Z",
       "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
@@ -3143,7 +3144,7 @@
       ],
       "comisionGestor": "$20.00 USD + 1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -13267,5 +13268,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T22:52:39.244Z"
+  "timestamp": "2026-09-01T23:06:07.183Z"
 }
