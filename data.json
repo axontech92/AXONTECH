@@ -2260,6 +2260,54 @@
   ],
   "vales": [
     {
+      "id": 1788274802251,
+      "ts": "2026-09-01T15:00:00.000Z",
+      "total": "$2760 USD + 6000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-01T15:00:09.342Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Lawton",
+      "valeNum": 145,
+      "articulo": "×14 Router TP-Link Archer C54 Reacondicionado / ×24 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "5358068977",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Lawton\n🔸Teléfono Cliente: 5358068977\n🔸Dirección Cliente: Calle 15  # 371 entre Tejar y Pocito, Lawton, 10 de de de octubre\n🔸Mensajería/ costo: 6000\n🔸 Artículos y cantidades:\n  ×14 Router TP-Link Archer C54 Reacondicionado\n  ×24 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $2760 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2760 USD + 6000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 1/9/2026, 11:00:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 15  # 371 entre Tejar y Pocito, Lawton, 10 de de de octubre",
+      "precioUSD": "$2760 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "6000",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "rebajaAdmin": 120,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "rebajaAdminTs": "2026-09-01T15:00:57.192Z",
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 14,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1786207539390,
+          "qty": 24,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "rebajaAdminMoneda": "USD",
+      "rebajaAdminMotivo": "cliente fijo",
+      "synced": true
+    },
+    {
       "id": 1788269371992,
       "ts": "2026-09-01T13:29:32.003Z",
       "total": "$140 USD",
@@ -2286,8 +2334,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -2489,8 +2536,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 12,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 12
         }
       ],
       "comisionCedida": 60,
@@ -2967,8 +3013,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 5,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 5
         },
         {
           "id": 1778384646214,
@@ -3062,8 +3107,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -4751,8 +4795,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 8,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 8
         },
         {
           "id": 1778384646214,
@@ -4844,8 +4887,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
@@ -4884,8 +4926,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -4967,8 +5008,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionCedida": 220,
@@ -5252,8 +5292,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 10,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 10
         },
         {
           "id": 1778384646214,
@@ -5301,8 +5340,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
@@ -5669,8 +5707,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -5748,8 +5785,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 3,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 3
         },
         {
           "id": 1787349543585,
@@ -5996,8 +6032,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -6195,8 +6230,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -6649,8 +6683,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -7058,8 +7091,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -7182,8 +7214,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -7303,8 +7334,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -7871,8 +7901,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -7911,8 +7940,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -7990,8 +8018,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -8225,8 +8252,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 10,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 10
         }
       ],
       "comisionCedida": 30,
@@ -8350,8 +8376,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -8751,8 +8776,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 9,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 9
         },
         {
           "id": 1787114204179,
@@ -8842,8 +8866,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -8882,8 +8905,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 5,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 5
         }
       ],
       "comisionGestor": "$50.00 USD",
@@ -9461,8 +9483,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 20,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 20
         }
       ],
       "comisionCedida": 200,
@@ -9829,8 +9850,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 2,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 2
         }
       ],
       "comisionGestor": "$70.00 USD",
@@ -10283,8 +10303,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -10741,8 +10760,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 2,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 2
         }
       ],
       "comisionGestor": "$20.00 USD",
@@ -10897,8 +10915,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         },
         {
           "id": 1778384646214,
@@ -10987,8 +11004,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 5,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 5
         }
       ],
       "comisionGestor": "$50.00 USD + 7500 MN",
@@ -11277,8 +11293,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
@@ -11317,8 +11332,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 10,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 10
         },
         {
           "id": 1778384646214,
@@ -11368,8 +11382,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 15,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 15
         }
       ],
       "comisionCedida": 105,
@@ -11575,8 +11588,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 5,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 5
         }
       ],
       "comisionCedida": 2000,
@@ -11709,8 +11721,7 @@
         },
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         },
         {
           "id": 1786509303890,
@@ -11970,8 +11981,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         }
       ],
       "comisionGestor": "$10.00 USD",
@@ -12175,8 +12185,7 @@
       "valeProductos": [
         {
           "id": 1784727083369,
-          "qty": 1,
-          "name": "NanoStation 5 AC loco SIN POE"
+          "qty": 1
         },
         {
           "id": 1778384646214,
@@ -12708,5 +12717,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T14:58:38.473Z"
+  "timestamp": "2026-09-01T15:01:57.202Z"
 }
