@@ -284,7 +284,9 @@ const isSyncingFromSupabase = () => _syncCount > 0;
 const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 'reservas', 'tasa', 'vales_borrados'];
 // v114: documentos que SOLO se baja el teléfono del admin. Los costos de compra
 // no tienen por qué acabar guardados en el teléfono de un gestor.
-const _SB_SINGLETON_ADMIN = ['costos', 'duenos'];
+// v119: 'mermas' entra aquí y no en la lista de todos por lo mismo — cada
+// merma lleva congelado lo que costó la mercancía perdida.
+const _SB_SINGLETON_ADMIN = ['costos', 'duenos', 'mermas'];
 
 async function _sbRestGetCollection(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
@@ -1892,6 +1894,14 @@ async function _doRestPoll() {
               _duenosCache=_normalizarDocDuenos(val);_duenosDirty=false;
               if(typeof currentAdminTab!=='undefined'&&currentAdminTab==='duenos'&&typeof renderDuenos==='function'){try{renderDuenos();}catch(e){}}
             }
+            else if(node==='mermas'){
+              // v119: bajas por daño. Aquí solo llega si IS_ADMIN.
+              _mermasCache=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};_mermasDirty=false;
+              // El stock ya viaja por su tabla: quien registró la merma bajó el
+              // producto allí. Aquí solo se repinta la lista si está a la vista.
+              const _mm=document.getElementById('mermasModal');
+              if(_mm&&_mm.classList.contains('show')&&typeof renderMermas==='function'){try{renderMermas();}catch(e){}}
+            }
             else if(node==='costos'){
               // v114: costos de compra. Aquí solo llega si IS_ADMIN.
               _costosCache=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};_costosDirty=false;
@@ -2342,7 +2352,8 @@ function _processSBQueue() {
     config: 'config', notifs: 'notifs', estafa: 'estafa', ranking_summary: 'ranking_summary',
     reservas: 'reservas', tasa: 'tasa', costos: 'costos',  // v114
     duenos: 'duenos',                                      // v119 — ver aviso de arriba
-    vales_borrados: 'vales_borrados'                       // v119 — lápidas de borrado
+    vales_borrados: 'vales_borrados',                      // v119 — lápidas de borrado
+    mermas: 'mermas'                                       // v119 — mercancía perdida
   };
   function _supabaseOpFor(path, value, method) {
     // Singleton → meta/{name}
@@ -4668,6 +4679,129 @@ function _congelarCostoVale(v) {
 }
 
 // ══════════════════════════════════════════
+//  MERMA — la mercancía que se pierde  (v119)
+// ══════════════════════════════════════════
+// Un producto que llega roto, que se moja, que se vence o que sencillamente no
+// aparece sale del almacén igual que si se hubiera vendido, pero no deja
+// dinero. Hasta ahora la única forma de descontarlo era bajar el stock a mano
+// desde "Ajustar stock", y eso no distingue una venta de una pérdida: al mes
+// siguiente nadie sabía por qué faltaban tres unidades.
+//
+// Cada baja queda apuntada con su motivo, y con lo que costó la mercancía
+// congelado en el momento —igual que el costo de un vale— para poder decir al
+// final del mes cuánto dinero se perdió. Por llevar ese costo dentro, el
+// documento es de los que solo se baja el teléfono del admin
+// (_SB_SINGLETON_ADMIN), como `costos` y `duenos`.
+//
+// Forma: { mermaId: {pid, nombre, qty, motivo, nota, ts, costoUsd} }. Un mapa y
+// no una lista para que dos teléfonos que apunten mermas a la vez no se pisen:
+// el merge del servidor junta claves (ver _sbRestMetaMerge). Deshacer una merma
+// deja la clave en null, que es como se borra en este mismo mecanismo.
+const MERMA_MOTIVOS = ['Defectuoso', 'Roto / dañado', 'Vencido', 'Perdido / robo', 'Otro'];
+let _mermasCache = null, _mermasDirty = true;
+function getMermas() {
+  if (_mermasDirty || !_mermasCache) {
+    try { _mermasCache = JSON.parse(localStorage.getItem('axon_mermas') || '{}'); }
+    catch(e) { _mermasCache = {}; }
+    if (!_mermasCache || typeof _mermasCache !== 'object' || Array.isArray(_mermasCache)) _mermasCache = {};
+    _mermasDirty = false;
+  }
+  return _mermasCache;
+}
+// Las vivas, de la más reciente a la más vieja. Las claves en null son las
+// deshechas: el merge del servidor conserva la clave, no puede quitarla.
+function listaMermas() {
+  const doc = getMermas();
+  const out = [];
+  Object.keys(doc).forEach(id => {
+    const m = doc[id];
+    if (!m || typeof m !== 'object') return;
+    out.push({ ...m, id });
+  });
+  out.sort((a, b) => (Number(b.ts) || 0) - (Number(a.ts) || 0));
+  return out;
+}
+function _escribirMermas(cambios) {
+  const doc = { ...getMermas(), ...cambios };
+  _safeSetLS('axon_mermas', JSON.stringify(doc));
+  _mermasCache = doc; _mermasDirty = false;
+  setSB('mermas', cambios, 'update');   // solo lo que cambió, para que fusione
+}
+// Da de baja `qty` unidades de un producto. Devuelve el id de la merma, o null
+// si no se pudo (no es admin, no hay producto, o pide más de lo que hay).
+function registrarMerma(pid, qty, motivo, nota) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return null;
+  const p = productoOf(pid);
+  if (!p) return null;
+  const n = Math.max(0, parseInt(qty, 10) || 0);
+  const stock = Math.max(0, parseInt(p.stock || 0, 10));
+  if (!n || n > stock) return null;    // nunca dejar el stock en negativo
+  // El costo se congela aquí: si mañana sube el precio de compra, esta pérdida
+  // sigue valiendo lo que valía. null = no se sabe (falta el costo del producto).
+  let costoUsd = null;
+  try {
+    const txt = costoDe(pid);
+    if (parsePrecioNum(txt) > 0) {
+      const u = _aUSD(_montoMonedas(txt));
+      if (u !== null) costoUsd = Math.round(u * n * 100) / 100;
+    }
+  } catch(e) {}
+  // Dos bajas seguidas del mismo producto caben en el mismo milisegundo —dos
+  // toques rápidos en el móvil bastan— y la segunda machacaría a la primera sin
+  // avisar. Si la clave está cogida (aunque sea por una merma deshecha, que se
+  // queda en null y no se puede quitar), se corre al siguiente hueco.
+  const _doc = getMermas();
+  let _t = Date.now();
+  while (Object.prototype.hasOwnProperty.call(_doc, String(_t))) _t++;
+  const id = String(_t);
+  const reg = {
+    pid: Number(pid),
+    nombre: String(p.name || ''),     // por si el producto se borra después
+    qty: n,
+    motivo: String(motivo || 'Otro'),
+    nota: String(nota || '').trim().slice(0, 200),
+    ts: _t,                            // el mismo del id, para que el orden no empate
+    costoUsd
+  };
+  _escribirMermas({ [id]: reg });
+  _aplicarCambioStock(pid, p, stock, stock - n);
+  _logAudit('merma', 'p:' + pid + ' x' + n + ' ' + reg.motivo);
+  return id;
+}
+// Deshacer devuelve las unidades al almacén: el motivo de deshacer casi siempre
+// es haberse equivocado de producto o de cantidad, y si no volvieran habría que
+// corregir el stock a mano por otro lado.
+function deshacerMerma(mid) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  const reg = getMermas()[String(mid)];
+  if (!reg || typeof reg !== 'object') return false;
+  const p = productoOf(reg.pid);
+  if (p) {
+    const stock = Math.max(0, parseInt(p.stock || 0, 10));
+    _aplicarCambioStock(reg.pid, p, stock, stock + (parseInt(reg.qty, 10) || 0));
+  }
+  _escribirMermas({ [String(mid)]: null });
+  _logAudit('merma_deshecha', 'p:' + reg.pid + ' x' + reg.qty);
+  return true;
+}
+// Unidades y dinero perdidos desde una fecha (YYYY-MM-DD, incluida). Sin fecha,
+// todo. El dinero puede quedarse corto y por eso se devuelve `sinCosto`: una
+// merma de un producto sin precio de compra apuntado suma unidades pero no USD,
+// y decir "se perdieron $12" sin avisar de eso sería mentir por omisión.
+function _resumenMermas(desdeDia) {
+  const r = { n: 0, uds: 0, usd: 0, sinCosto: 0 };
+  listaMermas().forEach(m => {
+    if (desdeDia && localDay(m.ts) < desdeDia) return;
+    r.n++;
+    r.uds += parseInt(m.qty, 10) || 0;
+    if (typeof m.costoUsd === 'number' && isFinite(m.costoUsd)) r.usd += m.costoUsd;
+    else r.sinCosto++;
+  });
+  r.usd = Math.round(r.usd * 100) / 100;
+  return r;
+}
+
+// ══════════════════════════════════════════
 //  DUEÑOS DE LA MERCANCÍA  (v117)
 // ══════════════════════════════════════════
 // De quién es cada producto. La tienda vende mercancía de varias personas y al
@@ -6358,12 +6492,37 @@ function comisionPendienteDe(gestorId) {
     && !v.commissionPaid && v.commissionStatus !== 'cobrado');
   try { return sumCommissions(vs); } catch(e) { return { usd: 0, mn: 0 }; }
 }
+// v119: lo que está PENDIENTE DE VERDAD, sin contar lo que ya se apartó en el
+// sobre. Son dos trabajos distintos: lo del sobre ya está contado y separado, y
+// lo pendiente es lo que aún hay que sentarse a repasar.
+function comisionSinSobreDe(gestorId) {
+  const vs = getVales().filter(v => v.gestorId === gestorId && _valeGeneraComision(v)
+    && !v.commissionPaid && v.commissionStatus !== 'cobrado'
+    && v.commissionStatus !== 'en_sobre');
+  try { return sumCommissions(vs); } catch(e) { return { usd: 0, mn: 0 }; }
+}
 // Compara dos gestores por lo que se les debe, de más a menos. Devuelve 0 si
 // deben lo mismo, para que quien llame decida el desempate.
+//
+// v119: manda lo pendiente SIN mandar al sobre. Antes se sumaban las dos cosas,
+// así que un gestor con todo ya apartado en el sobre podía salir por delante de
+// otro con comisiones sin repasar — justo al revés de como se trabaja: primero
+// se repasa lo pendiente y se manda al sobre, y luego se paga el sobre. Quien
+// tiene trabajo por hacer va arriba.
 function _cmpComisionPendiente(a, b) {
-  const A = comisionPendienteDe(a.id), B = comisionPendienteDe(b.id);
+  const A = comisionSinSobreDe(a.id), B = comisionSinSobreDe(b.id);
+  const _algo = x => (x.usd || 0) > 0 || (x.mn || 0) > 0;
+  // Primero se separa quién tiene algo pendiente de quién no: sin esto, alguien
+  // con 400 MN sin repasar quedaría por debajo de otro con $10 USD, porque el
+  // USD se compara antes.
+  if (_algo(A) !== _algo(B)) return _algo(B) ? 1 : -1;
   if ((B.usd || 0) !== (A.usd || 0)) return (B.usd || 0) - (A.usd || 0);
   if ((B.mn || 0) !== (A.mn || 0)) return (B.mn || 0) - (A.mn || 0);
+  // Empatados en lo pendiente: decide lo que haya en el sobre, que es el
+  // siguiente trabajo por hacer.
+  const SA = comisionPendienteDe(a.id), SB = comisionPendienteDe(b.id);
+  if ((SB.usd || 0) !== (SA.usd || 0)) return (SB.usd || 0) - (SA.usd || 0);
+  if ((SB.mn || 0) !== (SA.mn || 0)) return (SB.mn || 0) - (SA.mn || 0);
   return 0;
 }
 
@@ -6933,10 +7092,27 @@ function closeRebajaAdminModal() {
   if (m) m.classList.remove('show');
   _rebajaAdminValeId = null;
 }
+// v119: los botones rápidos se adaptan a la moneda. Estaban fijos en +5 y +10,
+// que en USD van bien pero en MN no sirven de nada: ahí las rebajas van en
+// cientos, y había que escribir el número a mano siempre. Se pasa el salto en
+// USD y se multiplica por 100 si está en MN (5 → 500, 10 → 1000).
+function _rebajaAdminEsMN() {
+  const sel = document.getElementById('rebajaAdminMoneda');
+  return !!sel && sel.value === 'MN';
+}
 function rebajaAdminSuma(delta) {
   const inp = document.getElementById('rebajaAdminInput'); if (!inp) return;
-  inp.value = Math.max(0, (parseFloat(inp.value) || 0) + delta);
+  const paso = _rebajaAdminEsMN() ? delta * 100 : delta;
+  inp.value = Math.max(0, (parseFloat(inp.value) || 0) + paso);
   rebajaAdminRefresca();
+}
+// Repinta las etiquetas de los botones para que digan lo que van a sumar.
+function _rebajaAdminPintarBotones() {
+  const mn = _rebajaAdminEsMN();
+  document.querySelectorAll('[data-rebaja-suma]').forEach(b => {
+    const d = parseFloat(b.dataset.rebajaSuma) || 0;
+    b.textContent = '+' + (mn ? d * 100 : d);
+  });
 }
 function rebajaAdminQuitar() {
   const inp = document.getElementById('rebajaAdminInput'); if (!inp) return;
@@ -6964,6 +7140,10 @@ function rebajaAdminRefresca() {
     else if (r) { out.textContent = 'restar a mano'; out.style.color = 'var(--orange)'; }
     else { out.textContent = (v.total || '—'); out.style.color = 'var(--text)'; }
   }
+}
+function rebajaAdminRefrescaConMoneda() {
+  _rebajaAdminPintarBotones();
+  rebajaAdminRefresca();
 }
 function guardarRebajaAdmin() {
   const id = _rebajaAdminValeId;
@@ -9192,9 +9372,12 @@ function renderPickerProducts() {
           ? `<span class="reserved-badge picker-reserved-badge partial">🔐 Reservado ${reserved} · Disp ${avail}</span>`
           : '';
     const cls = `picker-pill ${qty>0?'selected':''} ${oos?'out-of-stock':''} ${fullyRes?'fully-reserved':''} ${partRes?'partial-reserved':''}`;
+    // v119: la chapa NUEVO también aquí, que es la lista que el gestor mira
+    // todos los días. Solo si se puede vender: en uno agotado o reservado no
+    // aporta nada y le quita sitio a la chapa que sí importa.
     return `<div class="${cls}" style="${blocked?'pointer-events:none;':''}" ${oos?'title="Producto agotado"':fullyRes?'title="Producto totalmente reservado"':''}>
       <div class="picker-pill-info">
-        <div class="picker-pill-name">${escapeHTML(p.name)} ${badge}</div>
+        <div class="picker-pill-name">${escapeHTML(p.name)} ${badge}${!blocked&&_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}</div>
         ${p.precio?`<div class="picker-pill-price">${escapeHTML(p.precio)}</div>`:''}
         ${!blocked?`<div style="font-size:9px;color:var(--text-muted);">Disponibles: ${avail}</div>`:''}
       </div>
@@ -9436,6 +9619,7 @@ function buildProdCard(p, cats, isAgotado) {
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
           <span class="prod-name" style="margin:0;font-size:14px;">${escapeHTML(p.name)}</span>
+          ${_esProductoNuevo(p)?_BADGE_NUEVO:''}
           ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${escapeHTML(cat.name)}</span>`:''}
           ${reservedBadge}
         </div>
@@ -9453,10 +9637,15 @@ function buildProdCard(p, cats, isAgotado) {
         <button class="btn btn-ghost btn-sm btn-icono" style="color:${isFavorite(p.id)?'#F59E0B':'var(--gray-400)'};" onclick="toggleFavorite(${p.id})" title="Favorito">${isFavorite(p.id)?'⭐':'☆'}</button>
         ${p.description?`<button class="btn btn-ghost btn-sm btn-icono" onclick="copyProductDesc(${p.id})" title="Copiar descripción">📋</button>`:''}
         ${isAgotado
-          ? `<button class="btn btn-green btn-sm btn-icono con-texto" onclick="openStockModal(${p.id})">📥 Reponer</button>`
+          // v119: un producto agotado también se corrige. Antes su única acción
+          // era "Reponer", así que para arreglarle el precio o la foto había que
+          // meterle stock falso primero.
+          ? `<button class="btn btn-ghost btn-sm btn-icono" onclick="openEditProductModal(${p.id})" title="Editar producto">✏️</button>
+             <button class="btn btn-green btn-sm btn-icono con-texto" onclick="openStockModal(${p.id})">📥 Reponer</button>`
           : `<button class="btn btn-ghost btn-sm btn-icono" onclick="openEditProductModal(${p.id})" title="Editar producto">✏️</button>
              <button class="btn btn-ghost btn-sm btn-icono" onclick="openStockModal(${p.id})" title="Ajustar stock">📥</button>
-             <button class="btn btn-ghost btn-sm btn-icono" onclick="openReservaModal(${p.id})" style="color:#b45309;" title="Reservar / liberar unidades">🔐</button>`
+             <button class="btn btn-ghost btn-sm btn-icono" onclick="openReservaModal(${p.id})" style="color:#b45309;" title="Reservar / liberar unidades">🔐</button>
+             <button class="btn btn-ghost btn-sm btn-icono" onclick="openMermaModal(${p.id})" title="Merma: dar de baja unidades dañadas o perdidas">📉</button>`
         }
         <button class="btn btn-ghost btn-sm btn-icono" style="color:var(--red);" onclick="removeProducto(${p.id})" title="Eliminar producto">🗑️</button>
       </div>
@@ -10047,6 +10236,23 @@ async function migrarFotosAGitHub() {
 }
 
 function closeProductModal(){document.getElementById('productModal').classList.remove('show');editingProductId=null;}
+// ── v119: distintivo de producto nuevo ─────────────────────────────────────
+// No hacía falta migrar nada: el id de un producto ES el momento en que se
+// creó (Date.now()), así que los 98 que ya existen quedan fechados solos. Los
+// nuevos guardan además creadoTs, para no depender de esa costumbre el día que
+// los ids se generen de otra forma.
+const _DIAS_PRODUCTO_NUEVO = 3;
+function _esProductoNuevo(p) {
+  if (!p) return false;
+  const t = Number(p.creadoTs || p.id);
+  // Un id que no sea un sello de tiempo creíble no dice nada: los de la demo
+  // son 100, 101… y saldrían todos como nuevos o ninguno, según el signo.
+  if (!isFinite(t) || t < 1577836800000) return false;      // anterior a 2020
+  if (t > Date.now() + 86400000) return false;              // del futuro: dato malo
+  return (Date.now() - t) <= _DIAS_PRODUCTO_NUEVO * 86400000;
+}
+const _BADGE_NUEVO = '<span style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;letter-spacing:.3px;white-space:nowrap;" title="Añadido en los últimos ' + _DIAS_PRODUCTO_NUEVO + ' días">NUEVO</span>';
+
 async function saveProduct() {
   const name=document.getElementById('pm-name').value.trim();if(!name){showToast('El nombre es obligatorio');return;}
   const catVal=document.getElementById('pm-cat').value;
@@ -10085,7 +10291,7 @@ async function saveProduct() {
     const newId=Date.now();
     setCosto(newId,costoEscrito);
     setDuenoProducto(newId,duenoElegido);
-    const list=getProductos().slice();list.push({id:newId,...prod});guardarProductos(list,[newId]);
+    const list=getProductos().slice();list.push({id:newId,creadoTs:newId,...prod});guardarProductos(list,[newId]);
     addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
   }
@@ -10239,6 +10445,157 @@ function adjustStock(id) {
   // v70: se mantiene como puerta de entrada alternativa (por si alguna vista la
   // llama), pero ahora abre el modal en vez del prompt() del navegador.
   openStockModal(id);
+}
+
+// ── v119: ventana de merma ──────────────────────────────────────────────────
+// Deliberadamente separada de "Ajustar stock". Son dos gestos distintos: uno
+// dice cuánto hay, el otro dice que algo se perdió y por qué. Mezclarlos sería
+// volver al punto de partida, con el motivo escrito en la cabeza del admin.
+let _mermaModalId = null, _mermaMotivo = MERMA_MOTIVOS[0];
+function openMermaModal(id) {
+  const p = productoOf(id); if (!p) return;
+  const stock = Math.max(0, parseInt(p.stock || 0, 10));
+  if (!stock) { showToast('No queda stock que dar de baja'); return; }
+  _mermaModalId = id;
+  _mermaMotivo = MERMA_MOTIVOS[0];
+  document.getElementById('mermaModalName').textContent = p.name || 'Producto';
+  document.getElementById('mermaModalInput').value = 1;
+  const nota = document.getElementById('mermaModalNota'); if (nota) nota.value = '';
+  _mermaPintarMotivos();
+  closeProductModalIfOpen();
+  closeStockModal();
+  document.getElementById('mermaModal').classList.add('show');
+  mermaRefresca();
+}
+function closeMermaModal() {
+  const m = document.getElementById('mermaModal');
+  if (m) m.classList.remove('show');
+  _mermaModalId = null;
+}
+function _mermaPintarMotivos() {
+  const c = document.getElementById('mermaMotivos'); if (!c) return;
+  c.innerHTML = MERMA_MOTIVOS.map(m => {
+    const on = m === _mermaMotivo;
+    return `<button type="button" class="btn btn-sm ${on ? 'btn-red' : 'btn-ghost'}" style="font-size:11px;" onclick="mermaElegirMotivo('${escapeAttr(m)}')">${escapeHTML(m)}</button>`;
+  }).join('');
+}
+function mermaElegirMotivo(m) {
+  if (MERMA_MOTIVOS.indexOf(m) < 0) return;
+  _mermaMotivo = m;
+  _mermaPintarMotivos();
+}
+function mermaSuma(delta) {
+  const p = productoOf(_mermaModalId); if (!p) return;
+  const tope = Math.max(1, parseInt(p.stock || 0, 10));
+  const inp = document.getElementById('mermaModalInput'); if (!inp) return;
+  inp.value = Math.min(tope, Math.max(1, (parseInt(inp.value, 10) || 0) + delta));
+  mermaRefresca();
+}
+function mermaRefresca() {
+  const p = productoOf(_mermaModalId); if (!p) return;
+  const stock = Math.max(0, parseInt(p.stock || 0, 10));
+  const inp = document.getElementById('mermaModalInput');
+  const n = Math.max(1, parseInt(inp.value, 10) || 1);
+  const res = document.getElementById('mermaModalResumen');
+  const btn = document.getElementById('mermaModalGuardar');
+  const pasado = n > stock;
+  if (btn) { btn.disabled = pasado; btn.style.opacity = pasado ? '.5' : ''; }
+  if (!res) return;
+  if (pasado) {
+    res.textContent = 'Solo hay ' + stock + ' en almacén';
+    res.style.color = 'var(--red)';
+    return;
+  }
+  // Lo que cuesta la pérdida, si consta el precio de compra del producto.
+  let dinero = '';
+  try {
+    const txt = costoDe(p.id);
+    if (parsePrecioNum(txt) > 0) {
+      const u = _aUSD(_montoMonedas(txt));
+      if (u !== null) dinero = ' · se pierden ' + _fmtUSD(Math.round(u * n * 100) / 100);
+    }
+  } catch(e) {}
+  const reservado = _reservedTotal(p);
+  res.textContent = 'De ' + stock + ' a ' + (stock - n) + dinero;
+  res.style.color = 'var(--text-muted)';
+  // Bajar por debajo de lo comprometido en vales deja el disponible descuadrado.
+  if (reservado > stock - n) {
+    res.textContent += ' ⚠️ hay ' + reservado + ' reservadas';
+    res.style.color = 'var(--red)';
+  }
+}
+function guardarMerma() {
+  const id = _mermaModalId;
+  const p = productoOf(id); if (!p) { closeMermaModal(); return; }
+  const n = Math.max(1, parseInt(document.getElementById('mermaModalInput').value, 10) || 1);
+  const nota = (document.getElementById('mermaModalNota') || {}).value || '';
+  const mid = registrarMerma(id, n, _mermaMotivo, nota);
+  if (!mid) { showToast('No se pudo registrar la merma'); return; }
+  closeMermaModal();
+  showToast('📉 Baja de ' + n + ' · ' + _mermaMotivo);
+}
+
+// ── Historial de mermas ─────────────────────────────────────────────────────
+function openMermasModal() {
+  const m = document.getElementById('mermasModal'); if (!m) return;
+  renderMermas();
+  m.classList.add('show');
+}
+function closeMermasModal() {
+  const m = document.getElementById('mermasModal');
+  if (m) m.classList.remove('show');
+}
+function renderMermas() {
+  const cont = document.getElementById('mermasLista');
+  const res  = document.getElementById('mermasResumen');
+  if (!cont) return;
+  const lista = listaMermas();
+  if (res) {
+    const hoy = new Date();
+    const mes = _resumenMermas(`${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-01`);
+    const todo = _resumenMermas();
+    const caja = (n, t, color) => `<div style="text-align:center;background:var(--surface2);border-radius:9px;padding:8px 4px;">
+        <div style="font-size:18px;font-weight:800;color:${color};">${n}</div>
+        <div style="font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${t}</div>
+      </div>`;
+    // El dinero se marca con "≈" cuando alguna merma no tiene costo apuntado:
+    // ese número se queda corto y no se puede presentar como el total exacto.
+    const signo = mes.sinCosto ? '≈ ' : '';
+    res.innerHTML = caja(mes.uds, 'Uds. este mes', 'var(--red)')
+      + caja(signo + _fmtUSD(mes.usd), 'Perdido este mes', 'var(--orange)')
+      + caja(todo.uds, 'Uds. en total', 'var(--text)');
+  }
+  if (!lista.length) {
+    cont.innerHTML = '<div class="es"><div class="es-icon">📉</div><div class="es-text">Todavía no se ha dado de baja nada.</div></div>';
+    return;
+  }
+  cont.innerHTML = lista.map(m => {
+    const d = new Date(Number(m.ts) || 0);
+    const fecha = isNaN(d.getTime()) ? '—'
+      : d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) + (typeof timeStr === 'function' ? ' ' + timeStr(m.ts) : '');
+    const costo = (typeof m.costoUsd === 'number' && isFinite(m.costoUsd))
+      ? `<span style="font-size:11px;font-weight:700;color:var(--orange);">−${_fmtUSD(m.costoUsd)}</span>`
+      : `<span style="font-size:10px;color:var(--gray-400);" title="Ese producto no tiene precio de compra apuntado">sin costo</span>`;
+    return `<div style="display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:6px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:700;">${escapeHTML(m.nombre || '—')} <span style="color:var(--red);">×${parseInt(m.qty,10)||0}</span></div>
+        <div style="font-size:10px;color:var(--text-muted);">${escapeHTML(m.motivo || '—')} · ${escapeHTML(fecha)}</div>
+        ${m.nota ? `<div style="font-size:10px;color:var(--gray-400);margin-top:2px;">${escapeHTML(m.nota)}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
+        ${costo}
+        <button class="btn btn-ghost btn-sm btn-icono" title="Deshacer: devuelve las unidades al almacén" onclick="mermaDeshacer('${escapeAttr(m.id)}')">↩️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function mermaDeshacer(mid) {
+  const reg = getMermas()[String(mid)];
+  if (!reg) return;
+  if (!confirm(`¿Deshacer esta merma?\n${reg.nombre} ×${reg.qty}\nLas unidades vuelven al almacén.`)) return;
+  if (!deshacerMerma(mid)) { showToast('No se pudo deshacer'); return; }
+  renderMermas();
+  showToast('↩️ Devueltas ' + reg.qty + ' al almacén');
 }
 
 // Ajustar cantidad RESERVADA de un producto.
@@ -12746,6 +13103,7 @@ function exportData() {
     // gestor no debe tener nunca (ver _SB_SINGLETON_ADMIN).
     duenos: IS_ADMIN ? getDuenosDoc() : undefined,
     costos: IS_ADMIN ? getCostos()    : undefined,
+    mermas: IS_ADMIN ? getMermas()    : undefined,   // v119
     // Include config but EXCLUDE ghToken for security — never export the token
     config:{...cfg, ghToken: undefined},
     timestamp:new Date().toISOString(),version:3
@@ -12787,6 +13145,18 @@ function importData(input) {
           _safeSetLS('axon_costos', JSON.stringify(_m));
           _costosCache = _m; _costosDirty = false;
           setSB('costos', _m);
+        } catch(e) {}
+      }
+      if(IS_ADMIN && data.mermas && typeof data.mermas==='object'){
+        try {
+          // Igual que los costos: lo del backup manda, lo de aquí se conserva.
+          // El stock NO se vuelve a tocar — las unidades ya se descontaron
+          // cuando se registró cada merma, y restarlas otra vez al restaurar
+          // dejaría el almacén corto sin que nada lo avise.
+          const _mm = { ...getMermas(), ...data.mermas };
+          _safeSetLS('axon_mermas', JSON.stringify(_mm));
+          _mermasCache = _mm; _mermasDirty = false;
+          setSB('mermas', _mm);
         } catch(e) {}
       }
       if(data.config){
@@ -14027,8 +14397,12 @@ function renderHistorial() {
           <div class="g-avatar" style="background:${g?g.color:'#888'};width:28px;height:28px;font-size:10px;">${g?escapeHTML(g.initials):'?'}</div>
         </div>
         <div style="flex:1;min-width:0;">
-          <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${escapeHTML(v.cliente||'—')}${estafaTag}</div>
-          <div style="font-size:10px;color:var(--gray-400);">${v.telefono?escapeHTML(v.telefono)+' · ':''}${g?escapeHTML(g.name):'—'} · ${timeStr(v.ts)}</div>
+          <!-- v119: manda el GESTOR, no el cliente. En el historial se busca
+               "qué vendió Fulano", no "qué le vendimos a Mengano": el cliente
+               casi siempre es alguien que aparece una vez, y el gestor es lo
+               que se repite y por lo que se recorre la lista. -->
+          <div style="font-size:12px;font-weight:700;">${valeNumStr(v)?`<span style="color:var(--blue);">${valeNumStr(v)}</span> `:''}${g?escapeHTML(g.name):'—'}${estafaTag}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${escapeHTML(v.cliente||'—')}${v.telefono?' · '+escapeHTML(v.telefono):''} · ${timeStr(v.ts)}</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <span class="sp ${s.cls}" style="font-size:9px;">${s.icon?s.icon+' ':''}${s.label}</span>

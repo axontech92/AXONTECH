@@ -144,6 +144,9 @@
         <input type="text" id="newCatInput" placeholder="Nueva categoría…" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;width:160px;">
         <button class="btn btn-blue btn-sm" onclick="addCategoria()">＋ Categoría</button>
         <button class="btn btn-ghost btn-sm" id="catManagerToggle" onclick="toggleCatManager()">🗂️ Gestionar</button>
+        <!-- v119: lo que se dio de baja por daño o pérdida. El botón 📉 de cada
+             producto es el que registra; aquí se ve todo junto y se deshace. -->
+        <button class="btn btn-ghost btn-sm" onclick="openMermasModal()" title="Mercancía dada de baja por daño, pérdida o vencimiento">📉 Mermas</button>
         <button class="btn btn-orange btn-sm" onclick="optimizeProductPhotos()" title="Convertir todas las fotos JPEG/PNG a WebP y borrar las originales">🖼️ Optimizar imágenes</button>
         <!-- v106: saca a GitHub las fotos que quedaron guardadas dentro del
              producto. Son las que hacen que el catálogo entero pese de más en
@@ -620,6 +623,52 @@
   </div>
 </div>
 
+<!-- ── MODAL: Merma (v119) ──
+     Dar de baja mercancía que se perdió, con su motivo. Ajustar el stock a mano
+     también la quita, pero no deja constancia de por qué faltaba. -->
+<div class="modal-bg" id="mermaModal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-title">📉 Registrar merma</div>
+    <div class="modal-sub" id="mermaModalName">Producto</div>
+
+    <div class="lbl" style="margin:14px 0 6px;">¿Cuántas unidades se perdieron?</div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="mermaSuma(-1)">−</button>
+      <input type="number" inputmode="numeric" id="mermaModalInput" value="1" min="1"
+             oninput="mermaRefresca()"
+             style="flex:1;text-align:center;font-size:22px;font-weight:800;background:var(--surface);border:2px solid var(--red);border-radius:10px;padding:9px 6px;color:var(--text);">
+      <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="mermaSuma(1)">+</button>
+    </div>
+
+    <div class="lbl" style="margin:14px 0 6px;">Motivo</div>
+    <div id="mermaMotivos" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+
+    <div class="lbl" style="margin:14px 0 6px;">Nota <span style="font-weight:400;color:var(--text-muted);">(opcional)</span></div>
+    <input type="text" id="mermaModalNota" maxlength="200" placeholder="Ej: llegó con la pantalla partida"
+           style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 10px;font-size:13px;color:var(--text);">
+
+    <div id="mermaModalResumen" style="font-size:11px;color:var(--text-muted);margin-top:12px;text-align:center;min-height:16px;"></div>
+
+    <div class="modal-btns" style="margin-top:14px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeMermaModal()">Cancelar</button>
+      <button type="button" class="btn btn-red btn-full" id="mermaModalGuardar" onclick="guardarMerma()">Dar de baja</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: historial de mermas (v119) ── -->
+<div class="modal-bg" id="mermasModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-title">📉 Mermas</div>
+    <div class="modal-sub">Mercancía dada de baja por daño, pérdida o vencimiento</div>
+    <div id="mermasResumen" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:12px 0 4px;"></div>
+    <div id="mermasLista" style="max-height:52vh;overflow-y:auto;margin-top:10px;"></div>
+    <div class="modal-btns" style="margin-top:14px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeMermasModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── MODAL: Reservas (v71) ──
      Mismo trato que el de stock: antes era un prompt() del navegador con cinco
      líneas de texto explicando los números, que en el móvil se leía fatal. -->
@@ -699,14 +748,14 @@
       <input type="number" inputmode="decimal" id="rebajaAdminInput" min="0" step="0.5" placeholder="0"
              oninput="rebajaAdminRefresca()"
              style="flex:1;text-align:center;font-size:20px;font-weight:800;background:var(--surface);border:2px solid var(--blue);border-radius:10px;padding:9px 6px;color:var(--text);">
-      <select id="rebajaAdminMoneda" onchange="rebajaAdminRefresca()" style="width:88px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 8px;font-size:13px;color:var(--text);">
+      <select id="rebajaAdminMoneda" onchange="rebajaAdminRefrescaConMoneda()" style="width:88px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 8px;font-size:13px;color:var(--text);">
         <option value="USD">USD</option>
         <option value="MN">MN</option>
       </select>
     </div>
     <div style="display:flex;gap:5px;margin-top:8px;">
-      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;" onclick="rebajaAdminSuma(5)">+5</button>
-      <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;" onclick="rebajaAdminSuma(10)">+10</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-rebaja-suma="5" style="flex:1;font-size:11px;" onclick="rebajaAdminSuma(5)">+5</button>
+      <button type="button" class="btn btn-ghost btn-sm" data-rebaja-suma="10" style="flex:1;font-size:11px;" onclick="rebajaAdminSuma(10)">+10</button>
       <button type="button" class="btn btn-ghost btn-sm" style="flex:1;font-size:11px;color:var(--red);" onclick="rebajaAdminQuitar()">Quitar</button>
     </div>
 
