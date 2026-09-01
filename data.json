@@ -2075,7 +2075,7 @@
       "name": "Ubiquiti Litebeam m5",
       "catId": 10,
       "photo": "photos/p-1787930017841-5a594c52.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/p-1787930017841-5a594c52.webp",
       "nombre": "Ubiquiti Litebeam m5",
       "precio": "$140",
@@ -2282,12 +2282,51 @@
   ],
   "vales": [
     {
+      "id": 1788285501152,
+      "ts": "2026-09-01T17:58:21.164Z",
+      "total": "$90 USD + 5200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-01T18:03:54.558Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Yadier",
+      "valeNum": 153,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "059514900",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Yadier\n🔸Teléfono Cliente: 059514900\n🔸Dirección Cliente: Calle 243 e/ 228 y 230 reparto Machadito\n🔸Mensajería/ costo: 5200 cup\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD + 5200 MN\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 01/09/2026 13:58\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 243 e/ 228 y 230 reparto Machadito",
+      "precioUSD": "$90 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-01T18:03:22.117Z",
+      "mensajeria": "5200 cup",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476898824,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788285397108,
       "ts": "2026-09-01T17:56:37.115Z",
       "total": "$140 USD + 750 MN",
       "carnet": "",
       "seenTs": "2026-09-01T17:57:02.458Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Antoan",
       "valeNum": 153,
@@ -2301,8 +2340,10 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-01T18:01:53.802Z",
       "mensajeria": "750",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476898824,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2483,8 +2524,8 @@
       "ts": "2026-09-01T15:52:48.589Z",
       "total": "$140 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-01T17:07:55.140Z",
-      "status": "assigned",
+      "seenTs": "2026-09-01T18:04:16.320Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Esteban Pérez",
       "valeNum": 148,
@@ -2501,6 +2542,8 @@
       "assignedTs": "2026-09-01T17:04:21.149Z",
       "mensajeria": "1800",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-01T18:04:21.567Z",
+      "deliveredTs": "2026-09-01T18:04:19.647Z",
       "mensajeroId": 1788282079191,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2513,9 +2556,11 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-01T18:04:23.210Z"
     },
     {
       "id": 1788275596494,
@@ -2699,7 +2744,7 @@
       "ts": "2026-08-31T21:07:16.612Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T17:33:39.089Z",
+      "seenTs": "2026-09-01T18:03:48.250Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Maurilys",
@@ -3476,7 +3521,7 @@
       "ts": "2026-08-31T04:44:18.353Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T13:21:49.837Z",
+      "seenTs": "2026-09-01T18:04:29.047Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yiliannis",
@@ -12985,5 +13030,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T17:58:19.244Z"
+  "timestamp": "2026-09-01T18:05:23.244Z"
 }
