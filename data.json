@@ -340,6 +340,14 @@
       "phone": "58140797",
       "initials": "A",
       "password": "pbkdf2$100000$qlhgRSHwMQgs1dCla9qL1A==$d4512df295530162f02a032c292bfda38f1a5bc5a434a23ab6b8a6d4fda12691"
+    },
+    {
+      "id": 1788287295982,
+      "name": "Rafael 2",
+      "initials": "R2",
+      "color": "#DC2626",
+      "password": "pbkdf2$100000$zVD0PtzUlUXii+l+TWCi9g==$4334d60e9fc3a9dbd5a4a85021f665fa367b6949b199e2b73aee318a7f004a9c",
+      "phone": "+53 5 3872357"
     }
   ],
   "mensajeros": [
@@ -2558,9 +2566,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-01T18:04:23.210Z"
+      "synced": true
     },
     {
       "id": 1788275596494,
@@ -2781,7 +2787,7 @@
       "ts": "2026-08-31T20:52:21.305Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T17:36:19.660Z",
+      "seenTs": "2026-09-01T18:22:56.065Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis",
@@ -13030,5 +13036,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T18:05:23.244Z"
+  "timestamp": "2026-09-01T18:30:18.246Z"
 }
