@@ -2218,6 +2218,21 @@
       "description": "El paquete incluye 10 pares de conectores MC4 para paneles solares.",
       "precioActual": 13,
       "comisionMoneda": "USD"
+    },
+    {
+      "id": 1788278326719,
+      "name": "NanoStation 5AC Loco",
+      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "precio": "140 USD",
+      "stock": 0,
+      "puntos": 0,
+      "garantia": "",
+      "comision": "",
+      "photo": "",
+      "catId": 10,
+      "nombre": "NanoStation 5AC Loco",
+      "descripcion": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "precioActual": 140
     }
   ],
   "categorias": [
@@ -2259,6 +2274,42 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788277968588,
+      "ts": "2026-09-01T15:52:48.589Z",
+      "total": "$140 USD + 1800 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Esteban Pérez",
+      "valeNum": 148,
+      "articulo": "×1 Ubiquiti Litebeam m5",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5358453798",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Esteban Pérez\n🔸Teléfono Cliente: 5358453798\n🔸Dirección Cliente: Albear #366 e/ 1ra y Palatino. Cerro\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 11:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Albear #366 e/ 1ra y Palatino. Cerro",
+      "precioUSD": "$140 USD",
+      "ubicacion": "",
+      "mensajeria": "1800",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787930017841,
+          "qty": 1,
+          "name": "Ubiquiti Litebeam m5"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
     {
       "id": 1788275596494,
       "ts": "2026-09-01T15:13:16.508Z",
@@ -12754,5 +12805,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T15:18:23.139Z"
+  "timestamp": "2026-09-01T15:59:47.244Z"
 }
