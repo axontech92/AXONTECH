@@ -343,11 +343,11 @@
     },
     {
       "id": 1788287295982,
-      "name": "Rafael 2",
-      "initials": "R2",
+      "name": "Rafael Hernandez",
       "color": "#DC2626",
-      "password": "pbkdf2$100000$zVD0PtzUlUXii+l+TWCi9g==$4334d60e9fc3a9dbd5a4a85021f665fa367b6949b199e2b73aee318a7f004a9c",
-      "phone": "+53 5 3872357"
+      "phone": "+53 5 3872357",
+      "initials": "RH",
+      "password": "pbkdf2$100000$z9wfhDvNOBUglWYWrL4mFg==$fec7bca53191a2f8e5023932c386832aee46eedc86a1dca6696073e1a8ba3941"
     }
   ],
   "mensajeros": [
@@ -13036,5 +13036,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T18:30:18.246Z"
+  "timestamp": "2026-09-01T18:34:25.355Z"
 }
