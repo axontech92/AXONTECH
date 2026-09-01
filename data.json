@@ -2320,7 +2320,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2699,7 +2701,7 @@
       "ts": "2026-08-31T20:52:21.305Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T13:00:28.836Z",
+      "seenTs": "2026-09-01T17:36:19.660Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis",
@@ -12948,5 +12950,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T17:34:33.244Z"
+  "timestamp": "2026-09-01T17:39:07.244Z"
 }
