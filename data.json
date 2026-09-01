@@ -2279,6 +2279,93 @@
   ],
   "vales": [
     {
+      "id": 1788269371992,
+      "ts": "2026-09-01T13:29:32.003Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-09-01T13:36:30.216Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eloy",
+      "valeNum": 144,
+      "articulo": "×1 NanoStation 5 AC loco SIN POE",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5356061669",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Eloy\n🔸Teléfono Cliente: 5356061669\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 NanoStation 5 AC loco SIN POE\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 09:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1784727083369,
+          "qty": 1,
+          "name": "NanoStation 5 AC loco SIN POE"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "isNew": false
+    },
+    {
+      "id": 1788268933269,
+      "ts": "2026-09-01T13:22:13.272Z",
+      "total": "$680 USD + 280 MN",
+      "carnet": "",
+      "seenTs": "2026-09-01T13:33:52.280Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Annier Reyes Solo",
+      "valeNum": 144,
+      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS / ×2 mikrotik sxt sq 5ax / ×1 Mikrotik SXT SA 5 ac / ×1 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "280 MN",
+      "telefono": "59072435",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Annier Reyes Solo\n🔸Teléfono Cliente: 59072435\n🔸Dirección Cliente: Reservar hasta el miércoles en la mañana. El cliente viene  de oriente . Cuando llegue el  me hace saber la dirección exacta\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n  ×2 mikrotik sxt sq 5ax\n  ×1 Mikrotik SXT SA 5 ac\n  ×1 Cable de red categoría 6\n🔸Precio USD/ zelle: $680 USD\n🔸Precio MN: 280 MN\n🔸 Vuelto: \n🔸 Total a pagar: $680 USD + 280 MN\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 09:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Reservar hasta el miércoles en la mañana. El cliente viene  de oriente . Cuando llegue el  me hace saber la dirección exacta",
+      "precioUSD": "$680 USD",
+      "reservado": true,
+      "ubicacion": "............",
+      "mensajeria": "",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        },
+        {
+          "id": 1788124513018,
+          "qty": 2,
+          "name": "mikrotik sxt sq 5ax"
+        },
+        {
+          "id": 1786509734474,
+          "qty": 1,
+          "name": "Mikrotik SXT SA 5 ac"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 1,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "$40.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1788223388164,
       "ts": "2026-09-01T00:43:08.183Z",
       "total": "$50 USD",
@@ -12641,5 +12728,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-01T13:22:58.567Z"
+  "timestamp": "2026-09-01T13:36:42.245Z"
 }
