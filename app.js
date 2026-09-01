@@ -1830,6 +1830,19 @@ async function _doRestPoll() {
             continue;                                   // no se toca nada local
           }
         }
+        // v119: si la nube no tiene NINGUNA merma y aquí sí las hay, es que la
+        // subida se perdió (sin red al registrarla, o la fila nunca se creó).
+        // El bloque de abajo no llega a mirarlo, porque con `val` en null se lo
+        // salta entero, así que la nube se quedaría vacía para siempre.
+        if (node === 'mermas' && !val) {
+          try {
+            const _mias = getMermas();
+            if (Object.keys(_mias).length) {
+              console.warn('[mermas] la nube no tenía ninguna y aquí hay ' + Object.keys(_mias).length + ' — se suben');
+              setSB('mermas', _mias, 'update');
+            }
+          } catch(e) {}
+        }
         if (val) {
           _syncCount++;
           try {
@@ -1896,7 +1909,23 @@ async function _doRestPoll() {
             }
             else if(node==='mermas'){
               // v119: bajas por daño. Aquí solo llega si IS_ADMIN.
-              _mermasCache=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};_mermasDirty=false;
+              // Se FUSIONA, no se reemplaza, por lo mismo que `notifs`: si una
+              // subida se quedó por el camino (sin red al registrar la merma),
+              // reemplazar borraría de este teléfono una baja que la nube no
+              // llegó a ver. Lo que sí manda la nube son las claves en null:
+              // son las mermas que alguien deshizo, y tienen que desaparecer.
+              const _remoto=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};
+              const _fusion={...getMermas(), ..._remoto};
+              _mermasCache=_fusion;_mermasDirty=false;
+              _safeSetLS('axon_mermas', JSON.stringify(_fusion));
+              // Y si aquí hay alguna que la nube no tiene, se sube: así se
+              // arregla sola en vez de quedarse solo en este teléfono.
+              const _faltan={};
+              Object.keys(_fusion).forEach(k=>{ if(!(k in _remoto)) _faltan[k]=_fusion[k]; });
+              if(Object.keys(_faltan).length){
+                console.warn('[mermas] '+Object.keys(_faltan).length+' que la nube no tenía — se resuben');
+                try{ setSB('mermas', _faltan, 'update'); }catch(e){}
+              }
               // El stock ya viaja por su tabla: quien registró la merma bajó el
               // producto allí. Aquí solo se repinta la lista si está a la vista.
               const _mm=document.getElementById('mermasModal');
@@ -3095,8 +3124,16 @@ function _ensurePendingValesEnqueued() {
   console.log(`[sync] Re-encolados ${mine.length} vales pendientes para gestor ${activeGestorId}`);
 }
 
-const setSB = (path, v) => {
-  _enqueueSB(path, v, 'set');
+// v119 BUGFIX: el tercer argumento se caía aquí. Quien escribía
+// setSB(doc, cambios, 'update') —las lápidas de borrado y las mermas— creía
+// estar fusionando unas claves y en realidad mandaba un 'set', que REEMPLAZA la
+// fila entera de `meta`. Como esas dos llamadas suben solo lo que cambió, la
+// nube se quedaba con una única clave: la última merma borraba todas las
+// anteriores, y el siguiente poll traía ese documento pelado de vuelta a los
+// teléfonos. Es el mismo tipo de fallo silencioso que tuvo `duenos` sin
+// enrutar: la llamada no daba error, simplemente hacía otra cosa.
+const setSB = (path, v, method = 'set') => {
+  _enqueueSB(path, v, method);
 };
 
 // ═══ In-memory cache layer ═══
@@ -7492,7 +7529,10 @@ function renderEditValePickerProducts() {
       </div>
       <div class="apcard-controls" style="${blocked?'pointer-events:none;':''}">
         <button class="btn-minus" ${blocked?'disabled':''} onclick="event.stopPropagation();setEditValePickerQty(${p.id},-1)">−</button>
-        <span class="qty-val">${qty}</span>
+        <input type="number" class="qty-val" inputmode="numeric" min="0" max="${avail}" value="${qty}"
+               ${blocked?'disabled':''} onclick="event.stopPropagation();" onfocus="this.select();"
+               onchange="event.stopPropagation();editValePickerEscribe(${p.id},this.value)"
+               title="Escribe la cantidad — máximo ${avail}">
         <button class="btn-plus" ${blocked?'disabled':''} onclick="event.stopPropagation();setEditValePickerQty(${p.id},1)">+</button>
       </div>
     </div>`;
@@ -7504,6 +7544,11 @@ function setEditValePickerQty(pid,delta) {
   let q=(editValePickerSelected[pid]||0)+delta;
   if(q<=0){delete editValePickerSelected[pid];}else{editValePickerSelected[pid]=Math.min(max,q);}
   renderEditValePickerProducts();renderEditValePickerSelected();
+}
+// v119: la cantidad escrita a mano — ver _escribirCantidadPicker.
+function editValePickerEscribe(pid, texto) {
+  _escribirCantidadPicker(pid, texto, editValePickerSelected,
+    () => { renderEditValePickerProducts(); renderEditValePickerSelected(); });
 }
 function renderEditValePickerSelected() {
   const el=document.getElementById('av-pickerSelectedList');if(!el)return;
@@ -9383,7 +9428,10 @@ function renderPickerProducts() {
       </div>
       <div class="picker-pill-qty" style="${blocked?'pointer-events:none;':''}">
         <button ${blocked?'disabled':''} onclick="pickerAdj(${p.id},-1)">−</button>
-        <span>${qty}</span>
+        <input type="number" class="qty-val" inputmode="numeric" min="0" max="${avail}" value="${qty}"
+               ${blocked?'disabled':''} onclick="event.stopPropagation();" onfocus="this.select();"
+               onchange="event.stopPropagation();pickerEscribe(${p.id},this.value)"
+               title="Escribe la cantidad — máximo ${avail}">
         <button ${blocked?'disabled':''} onclick="pickerAdj(${p.id},1)">+</button>
       </div>
     </div>`;
@@ -9397,6 +9445,31 @@ function pickerAdj(pid,delta) {
   const cur=pickerSelected[pid]||0;const next=Math.max(0,Math.min(max,cur+delta));
   if(next===0)delete pickerSelected[pid];else pickerSelected[pid]=next;
   renderPickerProducts();renderPickerSelected();
+}
+// ── v119: escribir la cantidad a mano ───────────────────────────────────────
+// Los tres selectores de productos —el del gestor, el del admin y el de editar
+// un vale— solo tenían − y +. Para 200 metros de cable de red había que tocar
+// el + doscientas veces. Ahora la cantidad es una casilla donde se escribe.
+//
+// La regla del tope es la misma que ya tenían los botones: el máximo es el
+// stock DISPONIBLE (lo que hay menos lo reservado en otros vales), no el stock
+// a secas. Si se escribe de más se recorta y se avisa, en vez de dejar pasar un
+// vale por unidades que no existen.
+//
+// Los tres comparten esta función a propósito: la regla del tope estaba escrita
+// tres veces y ya se ha visto en esta app cómo acaban divergiendo tres copias
+// de la misma regla.
+function _escribirCantidadPicker(pid, texto, mapa, repintar) {
+  const prod = productoOf(pid);
+  const max = prod ? _availableStock(prod) : 0;
+  const pedido = Math.max(0, parseInt(texto, 10) || 0);
+  const q = Math.min(max, pedido);
+  if (pedido > max) showToast(max ? ('Solo hay ' + max + (max === 1 ? ' unidad' : ' unidades')) : 'Sin unidades disponibles');
+  if (q <= 0) delete mapa[pid]; else mapa[pid] = q;
+  repintar();
+}
+function pickerEscribe(pid, texto) {
+  _escribirCantidadPicker(pid, texto, pickerSelected, () => { renderPickerProducts(); renderPickerSelected(); });
 }
 function renderPickerSelected() {
   const items=Object.entries(pickerSelected).map(([id,qty])=>({id:parseInt(id),qty}));
@@ -14910,7 +14983,10 @@ function renderAdminPickerProducts() {
       </div>
       <div class="apcard-controls"${blocked?' style="pointer-events:none;"':''}>
         <button class="btn-minus" ${blocked?'disabled':''} onclick="event.stopPropagation();setAdminPickerQty(${p.id},-1)">−</button>
-        <span class="qty-val">${qty}</span>
+        <input type="number" class="qty-val" inputmode="numeric" min="0" max="${avail}" value="${qty}"
+               ${blocked?'disabled':''} onclick="event.stopPropagation();" onfocus="this.select();"
+               onchange="event.stopPropagation();adminPickerEscribe(${p.id},this.value)"
+               title="Escribe la cantidad — máximo ${avail}">
         <button class="btn-plus" ${blocked?'disabled':''} onclick="event.stopPropagation();setAdminPickerQty(${p.id},1)">+</button>
       </div>
     </div>`;
@@ -14943,6 +15019,11 @@ function setAdminPickerQty(pid, delta) {
   else if(q>max){ adminPickerSelected[pid]=max; showToast(`Solo quedan ${max} disponible${max>1?'s':''}`); }
   else { adminPickerSelected[pid]=q; }
   renderAdminPickerProducts(); renderAdminPickerSelected();
+}
+// v119: la cantidad escrita a mano — ver _escribirCantidadPicker.
+function adminPickerEscribe(pid, texto) {
+  _escribirCantidadPicker(pid, texto, adminPickerSelected,
+    () => { renderAdminPickerProducts(); renderAdminPickerSelected(); });
 }
 function renderAdminPickerSelected() {
   const el = document.getElementById('av-pickerSelectedList'); if(!el)return;

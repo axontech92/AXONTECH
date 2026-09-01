@@ -1048,6 +1048,20 @@ body.dark .mv-pending-sync-badge{
   background:var(--surface);cursor:pointer;font-weight:800;font-size:14px;color:var(--text);
 }
 .qty-val{min-width:18px;text-align:center;font-weight:700;}
+/* v119: la cantidad se escribe a mano. Doscientos metros de cable de red no se
+   marcan tocando el "+" doscientas veces. Se le quitan las flechitas que pone
+   el navegador a los campos numéricos: en 26 px de alto son intocables y solo
+   estorban al número. */
+input.qty-val{
+  width:48px;height:26px;padding:0 3px;
+  border:1px solid var(--border);border-radius:6px;
+  background:var(--surface);color:var(--text);font-size:12px;
+  -moz-appearance:textfield;appearance:textfield;
+}
+input.qty-val:focus{border-color:var(--blue);outline:none;}
+input.qty-val:disabled{opacity:.4;}
+input.qty-val::-webkit-outer-spin-button,
+input.qty-val::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 
 /* ── Stock panel ── */
 .prod-card{
@@ -1428,6 +1442,8 @@ body.dark .mv-pending-sync-badge{
   .picker-pill{padding:10px 12px;}
   .picker-pill-name{font-size:13px;}
   .picker-pill-qty button{width:30px;height:30px;font-size:16px;}
+  /* v119: la casilla de la cantidad, a la altura de los botones de al lado */
+  input.qty-val{height:30px;width:54px;font-size:14px;}
 
   /* Cards con menos padding para aprovechar pantalla */
   .card{padding:12px 14px;border-radius:12px;}
