@@ -1740,7 +1740,7 @@
       "name": "Mikrotik lhg 5ax",
       "catId": 10,
       "photo": "photos/img_1786509644554.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1786509644554.webp",
       "nombre": "Mikrotik lhg 5ax",
       "precio": "$240",
@@ -1775,7 +1775,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 26,
+      "stock": 25,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2309,6 +2309,50 @@
   ],
   "vales": [
     {
+      "id": 1788367527653,
+      "ts": "2026-09-02T16:45:27.654Z",
+      "total": "$470 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T16:45:30.442Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Miguel",
+      "valeNum": 171,
+      "articulo": "×1 Mikrotik lhg 5ax / ×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "54623521",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Miguel\n🔸Teléfono Cliente: 54623521\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $470 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $470 USD\n\n*Garantía: \n*Fecha y hora de Venta: 2/9/2026, 12:45:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$470 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-02T16:45:39.237Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 1,
+          "name": "Mikrotik lhg 5ax"
+        },
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1788364602409,
       "ts": "2026-09-02T15:56:42.411Z",
       "total": "$85 USD",
@@ -2422,7 +2466,7 @@
       "ts": "2026-09-02T14:51:47.390Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T16:42:43.103Z",
+      "seenTs": "2026-09-02T16:46:03.438Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eduardo Hidalgo Portela",
@@ -13872,5 +13916,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T16:45:16.985Z"
+  "timestamp": "2026-09-02T16:46:39.251Z"
 }
