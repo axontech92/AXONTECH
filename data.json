@@ -2290,11 +2290,48 @@
   ],
   "vales": [
     {
+      "id": 1788324504926,
+      "ts": "2026-09-02T04:48:24.929Z",
+      "total": "$480 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-02T06:01:35.690Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Leandro",
+      "valeNum": 162,
+      "articulo": "×2 Mikrotik lhg 5ax",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "54631036",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Leandro\n🔸Teléfono Cliente: 54631036\n🔸Dirección Cliente: Don Tomás # 26 / Rosell y Mirador  Bajando x la calle de la Iglesia católica de la calzada, llegar hasta el punto del gas\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×2 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $480 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $480 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 00:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Don Tomás # 26 / Rosell y Mirador  Bajando x la calle de la Iglesia católica de la calzada, llegar hasta el punto del gas",
+      "precioUSD": "$480 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "3000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 2,
+          "name": "Mikrotik lhg 5ax"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788318395004,
       "ts": "2026-09-02T03:06:35.006Z",
       "total": "$400 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T03:17:55.558Z",
+      "seenTs": "2026-09-02T06:01:39.105Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eduardo Amalfi",
@@ -2307,7 +2344,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Eduardo Amalfi\n🔸Teléfono Cliente: 52840181\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×4 Camara de Panel\n🔸Precio USD/ zelle: $400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 23:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$400 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -4510,7 +4547,7 @@
       "ts": "2026-08-30T00:30:42.715Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T01:43:54.403Z",
+      "seenTs": "2026-09-02T06:01:47.795Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pachile",
@@ -13470,5 +13507,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T04:02:16.459Z"
+  "timestamp": "2026-09-02T06:02:41.041Z"
 }
