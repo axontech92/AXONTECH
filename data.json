@@ -1740,7 +1740,7 @@
       "name": "Mikrotik lhg 5ax",
       "catId": 10,
       "photo": "photos/img_1786509644554.webp",
-      "stock": 4,
+      "stock": 2,
       "imagen": "photos/img_1786509644554.webp",
       "nombre": "Mikrotik lhg 5ax",
       "precio": "$240",
@@ -2655,7 +2655,7 @@
       "total": "$480 USD + 3000 MN",
       "carnet": "",
       "seenTs": "2026-09-02T14:04:07.264Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Leandro",
       "valeNum": 162,
@@ -2672,6 +2672,8 @@
       "assignedTs": "2026-09-02T13:46:35.912Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-02T15:22:36.018Z",
+      "deliveredTs": "2026-09-02T15:22:26.465Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
@@ -2684,9 +2686,11 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-02T15:22:38.928Z"
     },
     {
       "id": 1788318395004,
@@ -13835,5 +13839,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T15:10:30.443Z"
+  "timestamp": "2026-09-02T15:23:39.449Z"
 }
