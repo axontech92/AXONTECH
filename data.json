@@ -2309,6 +2309,43 @@
   ],
   "vales": [
     {
+      "id": 1788364602409,
+      "ts": "2026-09-02T15:56:42.411Z",
+      "total": "$85 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T15:56:52.419Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Carlos",
+      "valeNum": 170,
+      "articulo": "×1 Bateria LUBRIM de 75A",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "52902535",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 52902535\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 11:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$85 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788362541768,
       "ts": "2026-09-02T15:22:21.774Z",
       "total": "$20 USD",
@@ -2418,48 +2455,11 @@
       "synced": true
     },
     {
-      "id": 1788359943128,
-      "ts": "2026-09-02T14:39:03.129Z",
-      "total": "$320 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T15:37:34.823Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Ernesto",
-      "valeNum": 169,
-      "articulo": "×2 mikrotik sxt sq 5ax",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "5354667727",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5354667727\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 10:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$320 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 20,
-      "valeProductos": [
-        {
-          "id": 1788124513018,
-          "qty": 2,
-          "name": "mikrotik sxt sq 5ax"
-        }
-      ],
-      "comisionGestor": "$20.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788358521962,
-      "ts": "2026-09-02T14:15:21.969Z",
-      "total": "$240 USD",
+      "ts": "2026-09-02T14:15:00.000Z",
+      "total": "$240 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T15:37:33.206Z",
+      "seenTs": "2026-09-02T16:03:48.662Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -2470,11 +2470,11 @@
       "precioMN": "",
       "telefono": "5354667727",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5354667727\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 10:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
+      "direccion": "Don Tomás # 26 / Rosell y Mirador  Bajando x la calle de la Iglesia católica de la calzada, llegar hasta el punto del gas",
       "precioUSD": "$240 USD",
       "reservado": true,
       "ubicacion": null,
-      "mensajeria": "Sin envío",
+      "mensajeria": "3000",
       "comFijadaMN": 0,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2958,7 +2958,7 @@
       "ts": "2026-09-01T22:12:47.910Z",
       "total": "$150 USD + 6600 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T15:54:09.929Z",
+      "seenTs": "2026-09-02T15:58:49.545Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Adrian",
@@ -13872,5 +13872,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T15:54:57.631Z"
+  "timestamp": "2026-09-02T16:10:47.442Z"
 }
