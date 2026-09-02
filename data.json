@@ -1548,7 +1548,7 @@
       "name": "Camara de Panel",
       "catId": 80,
       "photo": "photos/img_1785079567810.webp",
-      "stock": 0,
+      "stock": 14,
       "imagen": "photos/img_1785079567810.webp",
       "nombre": "Camara de Panel",
       "precio": "$100",
@@ -2083,7 +2083,7 @@
       "name": "Ubiquiti Litebeam m5",
       "catId": 10,
       "photo": "photos/p-1787930017841-5a594c52.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/p-1787930017841-5a594c52.webp",
       "nombre": "Ubiquiti Litebeam m5",
       "precio": "$140",
@@ -2290,11 +2290,48 @@
   ],
   "vales": [
     {
+      "id": 1788317435174,
+      "ts": "2026-09-02T02:50:35.175Z",
+      "total": "$100 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T02:53:34.527Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "2",
+      "valeNum": 160,
+      "articulo": "×1 Camara de Panel",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "2",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: 2\n🔸Teléfono Cliente: 2\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Camara de Panel\n🔸Precio USD/ zelle: $100 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $100 USD\n\n*Garantía: \n*Fecha y hora de Venta: 1/9/2026, 22:50:35\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$100 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "pago 10 usd en mn serian 6500 cup",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-02T02:54:11.336Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1785079567810,
+          "qty": 1,
+          "name": "Camara de Panel"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1788317198856,
       "ts": "2026-09-02T02:46:38.862Z",
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T02:47:04.464Z",
+      "seenTs": "2026-09-02T02:49:21.569Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Juan",
@@ -2408,7 +2445,7 @@
       "ts": "2026-09-01T23:49:28.588Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T02:33:45.173Z",
+      "seenTs": "2026-09-02T02:49:29.300Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Livan",
@@ -3067,7 +3104,7 @@
       "ts": "2026-08-31T20:52:21.305Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T02:45:26.717Z",
+      "seenTs": "2026-09-02T02:50:46.916Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis",
@@ -13381,5 +13418,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T02:48:17.880Z"
+  "timestamp": "2026-09-02T02:55:11.359Z"
 }
