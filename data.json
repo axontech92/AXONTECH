@@ -1429,7 +1429,7 @@
       "name": "Router Wavlink AC1200 pequeño",
       "catId": 10,
       "photo": "photos/img_1785077980600.webp",
-      "stock": 17,
+      "stock": 16,
       "imagen": "photos/img_1785077980600.webp",
       "nombre": "Router Wavlink AC1200 pequeño",
       "precio": "$70",
@@ -1899,7 +1899,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 36,
+      "stock": 35,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -3121,8 +3121,8 @@
       "ts": "2026-09-01T22:12:00.000Z",
       "total": "$220 USD + 6600 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T17:13:07.652Z",
-      "status": "assigned",
+      "seenTs": "2026-09-02T18:13:36.550Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Adrian",
       "valeNum": 154,
@@ -3139,6 +3139,7 @@
       "assignedTs": "2026-09-02T14:03:28.898Z",
       "mensajeria": "6600",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-02T18:13:39.513Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
@@ -3156,7 +3157,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -14006,5 +14007,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T18:07:09.936Z"
+  "timestamp": "2026-09-02T18:14:39.528Z"
 }
