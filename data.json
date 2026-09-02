@@ -1747,7 +1747,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 2,
+      "reserved": 1,
       "descripcion": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
       "description": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
       "precioActual": 240,
@@ -2313,7 +2313,7 @@
       "ts": "2026-09-02T14:15:21.969Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T14:18:09.970Z",
+      "seenTs": "2026-09-02T14:28:48.718Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -2326,7 +2326,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5354667727\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 10:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$240 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -13721,5 +13721,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T14:24:16.009Z"
+  "timestamp": "2026-09-02T14:30:45.443Z"
 }
