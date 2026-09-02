@@ -2308,6 +2308,79 @@
   ],
   "vales": [
     {
+      "id": 1788357924182,
+      "ts": "2026-09-02T14:05:24.183Z",
+      "total": "$70 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T14:07:42.942Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Jose Evelio",
+      "valeNum": 168,
+      "articulo": "×1 Router Wavlink AC1200 pequeño",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5353181550",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jose Evelio\n🔸Teléfono Cliente: 5353181550\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Wavlink AC1200 pequeño\n🔸Precio USD/ zelle: $70 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $70 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 10:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$70 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785077980600,
+          "qty": 1,
+          "name": "Router Wavlink AC1200 pequeño"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788357511669,
+      "ts": "2026-09-02T13:58:31.685Z",
+      "total": "$240 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-02T14:07:27.229Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "David Patiño",
+      "valeNum": 166,
+      "articulo": "×1 Mikrotik lhg 5ax",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5356238967",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: David Patiño\n🔸Teléfono Cliente: 5356238967\n🔸Dirección Cliente: Calle 27 #1532 e/28 y 30 apto 3 ,  Plaza de la revolucion\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 09:58\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 27 #1532 e/28 y 30 apto 3 ,  Plaza de la revolucion",
+      "precioUSD": "$240 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-02T14:07:40.612Z",
+      "mensajeria": "2000",
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 1,
+          "name": "Mikrotik lhg 5ax"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1788352643037,
       "ts": "2026-09-02T12:37:23.042Z",
       "total": "$90 USD",
@@ -2696,7 +2769,7 @@
       "ts": "2026-09-01T22:12:47.910Z",
       "total": "$150 USD + 6600 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T14:03:14.996Z",
+      "seenTs": "2026-09-02T14:07:19.557Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Adrian",
@@ -13610,5 +13683,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T14:04:28.909Z"
+  "timestamp": "2026-09-02T14:08:41.443Z"
 }
