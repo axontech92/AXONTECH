@@ -1429,7 +1429,7 @@
       "name": "Router Wavlink AC1200 pequeño",
       "catId": 10,
       "photo": "photos/img_1785077980600.webp",
-      "stock": 0,
+      "stock": 19,
       "imagen": "photos/img_1785077980600.webp",
       "nombre": "Router Wavlink AC1200 pequeño",
       "precio": "$70",
@@ -13507,5 +13507,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T06:10:13.089Z"
+  "timestamp": "2026-09-02T06:12:00.504Z"
 }
