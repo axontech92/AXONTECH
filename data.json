@@ -2546,7 +2546,7 @@
       "ts": "2026-09-02T14:05:24.183Z",
       "total": "$70 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T15:54:01.772Z",
+      "seenTs": "2026-09-02T17:14:05.203Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Evelio",
@@ -2960,8 +2960,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -3004,45 +3005,6 @@
       "synced": true
     },
     {
-      "id": 1788300767901,
-      "ts": "2026-09-01T22:12:47.910Z",
-      "total": "$150 USD + 6600 MN",
-      "carnet": "",
-      "seenTs": "2026-09-02T15:58:49.545Z",
-      "status": "assigned",
-      "vuelto": "",
-      "cliente": "Adrian",
-      "valeNum": 154,
-      "articulo": "×1 Nanostation m2 loco",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "5353021498",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Adrian\n🔸Teléfono Cliente: 5353021498\n🔸Dirección Cliente: Calle 3ra #31005 e/ 310 y 312 Santa Fe Playa\n🔸Mensajería/ costo: 6600\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 6600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 18:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Calle 3ra #31005 e/ 310 y 312 Santa Fe Playa",
-      "precioUSD": "$150 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "assignedTs": "2026-09-02T14:03:28.898Z",
-      "mensajeria": "6600",
-      "comFijadaMN": 0,
-      "mensajeroId": 1784476782949,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786858233037,
-          "qty": 1,
-          "name": "Nanostation m2 loco"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788300732964,
       "ts": "2026-09-01T22:12:12.968Z",
       "total": "$150 USD",
@@ -3075,6 +3037,50 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788300767901,
+      "ts": "2026-09-01T22:12:00.000Z",
+      "total": "$220 USD + 6600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-02T17:13:07.652Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Adrian",
+      "valeNum": 154,
+      "articulo": "×1 Nanostation m2 loco / ×1 Router Wavlink AC1200 pequeño",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5353021498",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Adrian\n🔸Teléfono Cliente: 5353021498\n🔸Dirección Cliente: Calle 3ra #31005 e/ 310 y 312 Santa Fe Playa\n🔸Mensajería/ costo: 6600\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 6600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 18:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 3ra #31005 e/ 310 y 312 Santa Fe Playa",
+      "precioUSD": "$220 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-02T14:03:28.898Z",
+      "mensajeria": "6600",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        },
+        {
+          "id": 1785077980600,
+          "qty": 1,
+          "name": "Router Wavlink AC1200 pequeño"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3205,8 +3211,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3372,8 +3379,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -13923,5 +13931,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T17:12:30.694Z"
+  "timestamp": "2026-09-02T17:16:52.444Z"
 }
