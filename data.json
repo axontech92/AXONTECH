@@ -2694,7 +2694,7 @@
       "ts": "2026-09-01T22:12:47.910Z",
       "total": "$150 USD + 6600 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T13:15:28.137Z",
+      "seenTs": "2026-09-02T13:27:43.535Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -3197,7 +3197,7 @@
       "ts": "2026-09-01T13:22:00.000Z",
       "total": "$680 USD + 56000 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T02:33:22.598Z",
+      "seenTs": "2026-09-02T13:27:55.589Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -4675,43 +4675,6 @@
       "recogidaTienda": false,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788049842709,
-      "ts": "2026-08-30T00:30:42.715Z",
-      "total": "$180 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T12:14:49.181Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Pachile",
-      "valeNum": 124,
-      "articulo": "×1 Sistema de Alarma",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "5359334485",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Pachile\n🔸Teléfono Cliente: 5359334485\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Sistema de Alarma\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 29/08/2026 20:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$180 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1788025891931,
-          "qty": 1,
-          "name": "Sistema de Alarma"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -13643,5 +13606,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T13:19:21.442Z"
+  "timestamp": "2026-09-02T13:28:54.057Z"
 }
