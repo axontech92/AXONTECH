@@ -966,7 +966,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -3180,50 +3180,6 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
-      "commissionPaid": true,
-      "recogidaTienda": false,
-      "commissionStatus": "cobrado",
-      "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788198917490,
-      "ts": "2026-08-31T17:55:17.502Z",
-      "total": "$300 USD",
-      "carnet": "",
-      "seenTs": "2026-09-01T23:04:52.584Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "Ernesto",
-      "valeNum": 139,
-      "articulo": "×2 NanoStation 5 AC loco SIN POE / ×1 Adaptador poe UBIQUITI de 0.3A",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "527718107493",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 527718107493\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 NanoStation 5 AC loco SIN POE\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 13:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Tienda Axontech",
-      "precioUSD": "$300 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "",
-      "comFijadaMN": 1500,
-      "confirmedTs": "2026-09-01T23:05:07.160Z",
-      "seenByAdmin": true,
-      "comFijadaUSD": 20,
-      "valeProductos": [
-        {
-          "id": 1784727083369,
-          "qty": 2
-        },
-        {
-          "id": 1778384646214,
-          "qty": 1,
-          "name": "Adaptador poe UBIQUITI de 0.3A"
-        }
-      ],
-      "comisionGestor": "$20.00 USD + 1500 MN",
       "commissionPaid": true,
       "recogidaTienda": false,
       "commissionStatus": "cobrado",
@@ -13351,5 +13307,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T02:18:01.712Z"
+  "timestamp": "2026-09-02T02:27:22.202Z"
 }
