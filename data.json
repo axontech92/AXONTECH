@@ -1740,7 +1740,7 @@
       "name": "Mikrotik lhg 5ax",
       "catId": 10,
       "photo": "photos/img_1786509644554.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1786509644554.webp",
       "nombre": "Mikrotik lhg 5ax",
       "precio": "$240",
@@ -2309,6 +2309,43 @@
   ],
   "vales": [
     {
+      "id": 1788359943128,
+      "ts": "2026-09-02T14:39:03.129Z",
+      "total": "$320 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T14:41:55.630Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ernesto",
+      "valeNum": 169,
+      "articulo": "×2 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5354667727",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Ernesto\n🔸Teléfono Cliente: 5354667727\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 10:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$320 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 2,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788358521962,
       "ts": "2026-09-02T14:15:21.969Z",
       "total": "$240 USD",
@@ -2387,8 +2424,8 @@
       "ts": "2026-09-02T13:58:31.685Z",
       "total": "$240 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T14:10:42.411Z",
-      "status": "assigned",
+      "seenTs": "2026-09-02T14:42:05.211Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "David Patiño",
       "valeNum": 166,
@@ -2404,6 +2441,8 @@
       "ubicacion": null,
       "assignedTs": "2026-09-02T14:07:40.612Z",
       "mensajeria": "2000",
+      "confirmedTs": "2026-09-02T14:42:11.552Z",
+      "deliveredTs": "2026-09-02T14:42:09.209Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2415,7 +2454,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2654,7 +2693,7 @@
       "ts": "2026-09-02T02:46:38.862Z",
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T02:49:21.569Z",
+      "seenTs": "2026-09-02T14:42:19.668Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Juan",
@@ -13721,5 +13760,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T14:30:45.443Z"
+  "timestamp": "2026-09-02T14:43:12.394Z"
 }
