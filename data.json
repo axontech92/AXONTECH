@@ -3796,43 +3796,6 @@
       "synced": true
     },
     {
-      "id": 1788210436603,
-      "ts": "2026-08-31T21:07:16.612Z",
-      "total": "$90 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T13:57:33.847Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Maurilys",
-      "valeNum": 140,
-      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
-      "garantia": "Probar el equipo al momento de la compra",
-      "gestorId": 1786116024697,
-      "precioMN": "",
-      "telefono": "5353260581",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Maurilys\n🔸Teléfono Cliente: 5353260581\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 31/08/2026 17:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$90 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 5,
-      "valeProductos": [
-        {
-          "id": 1787089756274,
-          "qty": 1,
-          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
-        }
-      ],
-      "comisionGestor": "$5.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788209541298,
       "ts": "2026-08-31T20:52:21.305Z",
       "total": "$180 USD",
@@ -14119,5 +14082,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T18:52:47.328Z"
+  "timestamp": "2026-09-02T19:29:26.315Z"
 }
