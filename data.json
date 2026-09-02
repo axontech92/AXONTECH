@@ -347,7 +347,7 @@
       "color": "#DC2626",
       "phone": "+53 5 3872357",
       "initials": "RH",
-      "password": "pbkdf2$100000$z9wfhDvNOBUglWYWrL4mFg==$fec7bca53191a2f8e5023932c386832aee46eedc86a1dca6696073e1a8ba3941"
+      "password": "pbkdf2$100000$JwhgFq6bLcI8GuyUXBQRAg==$7bd18d55b20b9841bfd4d5688ee66886392405f312b47031f3e74b7e493d2aaf"
     }
   ],
   "mensajeros": [
@@ -13872,5 +13872,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T16:10:47.442Z"
+  "timestamp": "2026-09-02T16:13:38.443Z"
 }
