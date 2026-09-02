@@ -2309,6 +2309,48 @@
   ],
   "vales": [
     {
+      "id": 1788388497923,
+      "ts": "2026-09-02T22:34:57.923Z",
+      "total": "$230 USD + 10400 MN",
+      "carnet": "",
+      "seenTs": "2026-09-02T23:43:23.344Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yoe",
+      "valeNum": 182,
+      "articulo": "×1 Nanostation m2 / ×30 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "8400 MN",
+      "telefono": "5355265951",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yoe\n🔸Teléfono Cliente: 5355265951\n🔸Dirección Cliente: Alcalde  ofarri numero 156 Entre libertad y estrada palma santos suares 10 de octubre\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n  ×30 Cable de red categoría 6\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: 8400 MN\n🔸 Vuelto: \n🔸 Total a pagar: $230 USD + 10400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 18:34\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Alcalde  ofarri numero 156 Entre libertad y estrada palma santos suares 10 de octubre",
+      "precioUSD": "$230 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 30,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788387731316,
       "ts": "2026-09-02T22:22:11.320Z",
       "total": "$230 USD + 2300 MN",
@@ -2356,7 +2398,7 @@
       "ts": "2026-09-02T21:53:13.510Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T21:59:45.054Z",
+      "seenTs": "2026-09-02T23:42:54.261Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ahmed",
@@ -2369,7 +2411,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Ahmed\n🔸Teléfono Cliente: 54325588\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 02/09/2026 17:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$180 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -2391,21 +2433,21 @@
     {
       "id": 1788384869510,
       "ts": "2026-09-02T21:34:00.000Z",
-      "total": "$230 USD",
+      "total": "$360 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T21:35:32.899Z",
+      "seenTs": "2026-09-02T23:43:14.279Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yanela",
       "valeNum": 177,
-      "articulo": "×1 Nanostation m2",
+      "articulo": "×1 Nanostation m2 / ×1 Router Tenda AX12 pro AX3000",
       "garantia": "",
       "gestorId": 1781761257108,
       "precioMN": "",
       "telefono": "5356140642",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Yanela\n🔸Teléfono Cliente: 5356140642\n🔸Dirección Cliente: 1,ra, B entre 306 y 308 santa fe playa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 17:34\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "1,ra, B entre 306 y 308 santa fe playa",
-      "precioUSD": "$230 USD",
+      "precioUSD": "$360 USD",
       "reservado": false,
       "ubicacion": null,
       "assignedTs": "2026-09-02T21:39:51.602Z",
@@ -2413,15 +2455,20 @@
       "comFijadaMN": 0,
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
-      "comFijadaUSD": 10,
+      "comFijadaUSD": 20,
       "valeProductos": [
         {
           "id": 1786509790425,
           "qty": 1,
           "name": "Nanostation m2"
+        },
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
         }
       ],
-      "comisionGestor": "$10.00 USD",
+      "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -2617,43 +2664,6 @@
       "synced": true
     },
     {
-      "id": 1788373601501,
-      "ts": "2026-09-02T18:26:41.520Z",
-      "total": "$130 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T18:41:02.096Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Clau",
-      "valeNum": 173,
-      "articulo": "×1 Router Tenda AX12 pro AX3000",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5352382198",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Clau\n🔸Teléfono Cliente: 5352382198\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 14:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$130 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1785077900654,
-          "qty": 1,
-          "name": "Router Tenda AX12 pro AX3000"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788371243132,
       "ts": "2026-09-02T17:47:23.132Z",
       "total": "$500 USD",
@@ -2741,7 +2751,7 @@
       "ts": "2026-09-02T15:56:42.411Z",
       "total": "$85 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T15:56:52.419Z",
+      "seenTs": "2026-09-02T23:42:41.462Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos",
@@ -2754,7 +2764,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 52902535\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 11:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$85 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -2771,40 +2781,6 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788364304314,
-      "ts": "2026-09-02T15:51:44.349Z",
-      "total": "$230 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T17:36:17.123Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Ricardo Losada",
-      "valeNum": 169,
-      "articulo": "×1 Nanostation m2",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5355381639",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Ricardo Losada\n🔸Teléfono Cliente: 5355381639\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 11:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$230 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1786509790425,
-          "qty": 1,
-          "name": "Nanostation m2"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "synced": true
     },
     {
@@ -2962,43 +2938,6 @@
       "synced": true
     },
     {
-      "id": 1788357924182,
-      "ts": "2026-09-02T14:05:24.183Z",
-      "total": "$70 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T17:14:05.203Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Jose Evelio",
-      "valeNum": 168,
-      "articulo": "×1 Router Wavlink AC1200 pequeño",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "5353181550",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Jose Evelio\n🔸Teléfono Cliente: 5353181550\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Wavlink AC1200 pequeño\n🔸Precio USD/ zelle: $70 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $70 USD\n\n*Garantía: \n*Fecha y hora de Venta: 02/09/2026 10:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$70 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1785077980600,
-          "qty": 1,
-          "name": "Router Wavlink AC1200 pequeño"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788357511669,
       "ts": "2026-09-02T13:58:31.685Z",
       "total": "$240 USD + 2000 MN",
@@ -3117,7 +3056,7 @@
       "ts": "2026-09-02T06:17:02.812Z",
       "total": "$840 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T15:26:25.479Z",
+      "seenTs": "2026-09-02T22:25:40.636Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -3193,43 +3132,6 @@
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788318395004,
-      "ts": "2026-09-02T03:06:35.006Z",
-      "total": "$400 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T17:47:40.443Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Eduardo Amalfi",
-      "valeNum": 161,
-      "articulo": "×4 Camara de Panel",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "52840181",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Eduardo Amalfi\n🔸Teléfono Cliente: 52840181\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×4 Camara de Panel\n🔸Precio USD/ zelle: $400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 23:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$400 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 40,
-      "valeProductos": [
-        {
-          "id": 1785079567810,
-          "qty": 4,
-          "name": "Camara de Panel"
-        }
-      ],
-      "comisionGestor": "$40.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3420,47 +3322,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
-      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "cobrado",
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788300732964,
-      "ts": "2026-09-01T22:12:12.968Z",
-      "total": "$150 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T14:04:21.599Z",
-      "status": "pending",
-      "vuelto": "El Cliente pagará Mixto, entre CUP y USD",
-      "cliente": "Andy Perez Castro",
-      "valeNum": 156,
-      "articulo": "×1 Nanostation m2 loco",
-      "garantia": "",
-      "gestorId": 1784476036044,
-      "precioMN": "",
-      "telefono": "53462115",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Andy Perez Castro\n🔸Teléfono Cliente: 53462115\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 21:00\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: El Cliente pagará Mixto, entre CUP y USD\n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 18:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$150 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786858233037,
-          "qty": 1,
-          "name": "Nanostation m2 loco"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4036,43 +3900,6 @@
       "synced": true
     },
     {
-      "id": 1788209541298,
-      "ts": "2026-08-31T20:52:21.305Z",
-      "total": "$180 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T17:10:23.558Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Luis",
-      "valeNum": 139,
-      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5354013824",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Luis\n🔸Teléfono Cliente: 5354013824\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 16:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$180 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1779208523952,
-          "qty": 1,
-          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788209256536,
       "ts": "2026-08-31T20:47:36.555Z",
       "total": "$1920 USD",
@@ -4353,43 +4180,6 @@
       "recogidaTienda": true,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788190000807,
-      "ts": "2026-08-31T15:26:40.814Z",
-      "total": "$230 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T13:59:40.954Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Robert",
-      "valeNum": 135,
-      "articulo": "×1 Nanostation m2",
-      "garantia": "",
-      "gestorId": 1786573707656,
-      "precioMN": "",
-      "telefono": "55644209",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Robert\n🔸Teléfono Cliente: 55644209\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 31/08/2026 11:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$230 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786509790425,
-          "qty": 1,
-          "name": "Nanostation m2"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4819,43 +4609,6 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788143949675,
-      "ts": "2026-08-31T02:39:09.694Z",
-      "total": "$230 USD",
-      "carnet": "",
-      "seenTs": "2026-09-02T13:52:27.863Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Yohan",
-      "valeNum": 126,
-      "articulo": "×1 Nanostation m2",
-      "garantia": "",
-      "gestorId": 1786573707656,
-      "precioMN": "",
-      "telefono": "5354231079",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Yohan\n🔸Teléfono Cliente: 5354231079\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 30/08/2026 22:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$230 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786509790425,
-          "qty": 1,
-          "name": "Nanostation m2"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -9592,8 +9345,9 @@
         }
       ],
       "comisionGestor": "$15.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14325,5 +14079,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T22:25:09.314Z"
+  "timestamp": "2026-09-02T23:46:06.576Z"
 }
