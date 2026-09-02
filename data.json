@@ -2083,7 +2083,7 @@
       "name": "Ubiquiti Litebeam m5",
       "catId": 10,
       "photo": "photos/p-1787930017841-5a594c52.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/p-1787930017841-5a594c52.webp",
       "nombre": "Ubiquiti Litebeam m5",
       "precio": "$140",
@@ -2290,11 +2290,48 @@
   ],
   "vales": [
     {
+      "id": 1788316361491,
+      "ts": "2026-09-02T02:32:41.491Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T02:32:45.094Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "David Poli",
+      "valeNum": 158,
+      "articulo": "×1 Ubiquiti Litebeam m5",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: David Poli\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 22:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-02T02:32:51.473Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787930017841,
+          "qty": 1,
+          "name": "Ubiquiti Litebeam m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1788306568583,
       "ts": "2026-09-01T23:49:28.588Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T01:43:39.066Z",
+      "seenTs": "2026-09-02T02:33:45.173Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Livan",
@@ -2331,7 +2368,7 @@
       "ts": "2026-09-01T22:12:47.910Z",
       "total": "$150 USD + 6600 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T01:43:43.850Z",
+      "seenTs": "2026-09-02T02:32:56.116Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -2444,9 +2481,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-02T01:48:32.370Z"
+      "synced": true
     },
     {
       "id": 1788296122294,
@@ -2829,7 +2864,7 @@
       "ts": "2026-09-01T13:22:00.000Z",
       "total": "$680 USD + 56000 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T01:48:41.825Z",
+      "seenTs": "2026-09-02T02:33:22.598Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -3737,7 +3772,7 @@
       "ts": "2026-08-31T02:39:09.694Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-01T16:51:44.615Z",
+      "seenTs": "2026-09-02T02:32:43.118Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yohan",
@@ -13269,5 +13304,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T02:30:14.243Z"
+  "timestamp": "2026-09-02T02:33:51.491Z"
 }
