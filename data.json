@@ -626,7 +626,7 @@
       "name": "Router KUWIFI de linea de 1.150MBPS",
       "catId": 10,
       "photo": "photos/p-1778104287395-885659f8.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/p-1778104287395-885659f8.webp",
       "nombre": "Router KUWIFI de linea de 1.150MBPS",
       "precio": "$130",
@@ -1601,7 +1601,7 @@
       "name": "Hamaca con mosquitero",
       "catId": 90,
       "photo": "photos/p-1786160676965-b34f4749.webp",
-      "stock": 21,
+      "stock": 20,
       "imagen": "photos/p-1786160676965-b34f4749.webp",
       "nombre": "Hamaca con mosquitero",
       "precio": "$20",
@@ -2309,6 +2309,43 @@
   ],
   "vales": [
     {
+      "id": 1788382390407,
+      "ts": "2026-09-02T20:53:10.407Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "x",
+      "valeNum": 176,
+      "articulo": "×1 Hamaca con mosquitero",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "50749686",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786160676965,
+          "qty": 1,
+          "name": "Hamaca con mosquitero"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: x\n🔸Teléfono Cliente: 50749686\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Hamaca con mosquitero\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 2/9/2026, 16:53:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "synced": true
+    },
+    {
       "id": 1788377847434,
       "ts": "2026-09-02T19:37:27.470Z",
       "total": "9520 MN",
@@ -2349,7 +2386,7 @@
       "ts": "2026-09-02T18:41:26.439Z",
       "total": "$180 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T18:51:32.990Z",
+      "seenTs": "2026-09-02T20:14:12.866Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Abel",
@@ -4591,8 +4628,8 @@
       "ts": "2026-08-31T04:44:18.353Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T13:52:16.562Z",
-      "status": "pending",
+      "seenTs": "2026-09-02T20:54:08.687Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yiliannis",
       "valeNum": 127,
@@ -4608,6 +4645,7 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-02T20:54:37.385Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -4619,7 +4657,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -14124,5 +14162,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T20:10:41.314Z"
+  "timestamp": "2026-09-02T20:55:38.314Z"
 }
