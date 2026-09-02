@@ -470,7 +470,7 @@
       "name": "Inversor Tataliken de 24V 4000W",
       "catId": 20,
       "photo": "photos/img_1777924118004.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1777924118004.webp",
       "nombre": "Inversor Tataliken de 24V 4000W",
       "precio": "$180",
@@ -1601,7 +1601,7 @@
       "name": "Hamaca con mosquitero",
       "catId": 90,
       "photo": "photos/p-1786160676965-b34f4749.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/p-1786160676965-b34f4749.webp",
       "nombre": "Hamaca con mosquitero",
       "precio": "$20",
@@ -2309,11 +2309,49 @@
   ],
   "vales": [
     {
+      "id": 1788382569598,
+      "ts": "2026-09-02T20:56:09.600Z",
+      "total": "$90 USD",
+      "carnet": "",
+      "seenTs": "2026-09-02T20:56:21.489Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rolando Varona Espinosa",
+      "valeNum": 176,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "53243983",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Rolando Varona Espinosa\n🔸Teléfono Cliente: 53243983\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 02/09/2026 16:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$90 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788382390407,
       "ts": "2026-09-02T20:53:10.407Z",
       "total": "$20 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-02T20:56:34.886Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "x",
       "valeNum": 176,
@@ -2322,6 +2360,7 @@
       "gestorId": 0,
       "precioMN": "",
       "telefono": "50749686",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: x\n🔸Teléfono Cliente: 50749686\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Hamaca con mosquitero\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 2/9/2026, 16:53:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Tienda Axontech",
       "precioUSD": "$20 USD",
       "reservado": false,
@@ -2329,8 +2368,9 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-02T20:56:51.167Z",
       "mensajeroId": null,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2341,8 +2381,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: x\n🔸Teléfono Cliente: 50749686\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Hamaca con mosquitero\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 2/9/2026, 16:53:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2386,8 +2425,8 @@
       "ts": "2026-09-02T18:41:26.439Z",
       "total": "$180 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-02T20:14:12.866Z",
-      "status": "assigned",
+      "seenTs": "2026-09-02T20:57:33.313Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Abel",
       "valeNum": 174,
@@ -2403,6 +2442,8 @@
       "ubicacion": null,
       "assignedTs": "2026-09-02T18:51:46.948Z",
       "mensajeria": "2300",
+      "confirmedTs": "2026-09-02T20:57:39.402Z",
+      "deliveredTs": "2026-09-02T20:57:37.706Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2414,7 +2455,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -4628,7 +4669,7 @@
       "ts": "2026-08-31T04:44:18.353Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T20:54:08.687Z",
+      "seenTs": "2026-09-02T20:56:57.845Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yiliannis",
@@ -14162,5 +14203,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T20:55:38.314Z"
+  "timestamp": "2026-09-02T20:58:40.319Z"
 }
