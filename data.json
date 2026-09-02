@@ -1412,7 +1412,7 @@
       "name": "Router Tenda AX12 pro AX3000",
       "catId": 10,
       "photo": "photos/img_1785077900654.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1785077900654.webp",
       "nombre": "Router Tenda AX12 pro AX3000",
       "precio": "$130",
@@ -1775,7 +1775,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 25,
+      "stock": 24,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2436,7 +2436,7 @@
       "total": "$360 USD",
       "carnet": "",
       "seenTs": "2026-09-02T23:54:21.660Z",
-      "status": "assigned",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yanela",
       "valeNum": 177,
@@ -2453,6 +2453,7 @@
       "assignedTs": "2026-09-02T21:39:51.602Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-02T23:54:27.678Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
@@ -2470,7 +2471,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -14090,5 +14091,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T23:54:25.970Z"
+  "timestamp": "2026-09-02T23:55:27.697Z"
 }
