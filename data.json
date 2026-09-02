@@ -1747,7 +1747,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 1,
+      "reserved": 0,
       "descripcion": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
       "description": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
       "precioActual": 240,
@@ -2422,7 +2422,7 @@
       "ts": "2026-09-02T14:51:47.390Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T14:52:36.562Z",
+      "seenTs": "2026-09-02T16:42:43.103Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eduardo Hidalgo Portela",
@@ -13872,5 +13872,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-02T16:13:38.443Z"
+  "timestamp": "2026-09-02T16:45:16.985Z"
 }
