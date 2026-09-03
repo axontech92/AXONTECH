@@ -2310,6 +2310,135 @@
   ],
   "vales": [
     {
+      "id": 1788445495702,
+      "ts": "2026-09-03T14:24:55.704Z",
+      "total": "$730 USD + 58800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-03T14:29:01.326Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Annier Reyes Solo",
+      "valeNum": 187,
+      "articulo": "×3 Router Wavlink AC1200 pequeño / ×1 Mikrotik SXT SA 5 ac / ×1 mikrotik sxt sq 5ax / ×200 Cable de red categoría 6 / ×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "56000 MN",
+      "telefono": "59072435",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Annier Reyes Solo\n🔸Teléfono Cliente: 59072435\n🔸Dirección Cliente: : Camagüey #150 e/ Porvenir y Moisés Maestri parraga : En arroyo naranjo\n🔸Mensajería/ costo: 2800\n🔸 Artículos y cantidades:\n  ×3 Router Wavlink AC1200 pequeño\n  ×1 Mikrotik SXT SA 5 ac\n  ×1 mikrotik sxt sq 5ax\n  ×200 Cable de red categoría 6\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $730 USD\n🔸Precio MN: 56000 MN\n🔸 Vuelto: \n🔸 Total a pagar: $730 USD + 58800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 10:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": ": Camagüey #150 e/ Porvenir y Moisés Maestri parraga : En arroyo naranjo",
+      "precioUSD": "$730 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-03T14:30:00.089Z",
+      "mensajeria": "2800",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 60,
+      "valeProductos": [
+        {
+          "id": 1785077980600,
+          "qty": 3,
+          "name": "Router Wavlink AC1200 pequeño"
+        },
+        {
+          "id": 1786509734474,
+          "qty": 1,
+          "name": "Mikrotik SXT SA 5 ac"
+        },
+        {
+          "id": 1788124513018,
+          "qty": 1,
+          "name": "mikrotik sxt sq 5ax"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 200,
+          "name": "Cable de red categoría 6"
+        },
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$60.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788445198100,
+      "ts": "2026-09-03T14:19:58.124Z",
+      "total": "$100 USD + 20000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Hectico",
+      "valeNum": 186,
+      "articulo": "×1 Camara de Panel",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5352579572",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Hectico\n🔸Teléfono Cliente: 5352579572\n🔸Dirección Cliente: Quiebra hacha mariel\n🔸Mensajería/ costo: 20000\n🔸 Artículos y cantidades:\n  ×1 Camara de Panel\n🔸Precio USD/ zelle: $100 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $100 USD + 20000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 10:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Quiebra hacha mariel",
+      "precioUSD": "$100 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "20000",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785079567810,
+          "qty": 1,
+          "name": "Camara de Panel"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788444867938,
+      "ts": "2026-09-03T14:14:27.953Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Damián",
+      "valeNum": 185,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5355381639",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Damián\n🔸Teléfono Cliente: 5355381639\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 10:14\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788441955320,
       "ts": "2026-09-03T13:25:55.323Z",
       "total": "$110 USD",
@@ -2388,7 +2517,7 @@
       "ts": "2026-09-02T22:34:57.923Z",
       "total": "$230 USD + 10400 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T12:59:26.227Z",
+      "seenTs": "2026-09-03T14:30:21.703Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yoe",
@@ -2475,7 +2604,7 @@
       "ts": "2026-09-02T21:53:13.510Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-03T12:59:03.106Z",
+      "seenTs": "2026-09-03T14:14:40.304Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ahmed",
@@ -3897,57 +4026,6 @@
       "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "rebajaAdminMotivo": "cliente fijo",
-      "synced": true
-    },
-    {
-      "id": 1788268933269,
-      "ts": "2026-09-01T13:22:00.000Z",
-      "total": "$680 USD + 56000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-02T14:17:45.235Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Annier Reyes Solo",
-      "valeNum": 144,
-      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS / ×2 mikrotik sxt sq 5ax / ×1 Mikrotik SXT SA 5 ac / ×200 Cable de red categoría 6",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "56000 MN",
-      "telefono": "59072435",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Annier Reyes Solo\n🔸Teléfono Cliente: 59072435\n🔸Dirección Cliente: Reservar hasta el miércoles en la mañana. El cliente viene  de oriente . Cuando llegue el  me hace saber la dirección exacta\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n  ×2 mikrotik sxt sq 5ax\n  ×1 Mikrotik SXT SA 5 ac\n  ×1 Cable de red categoría 6\n🔸Precio USD/ zelle: $680 USD\n🔸Precio MN: 280 MN\n🔸 Vuelto: \n🔸 Total a pagar: $680 USD + 280 MN\n\n*Garantía: \n*Fecha y hora de Venta: 01/09/2026 09:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Reservar hasta el miércoles en la mañana. El cliente viene  de oriente . Cuando llegue el  me hace saber la dirección exacta",
-      "precioUSD": "$680 USD",
-      "reservado": true,
-      "ubicacion": "............",
-      "mensajeria": "",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 40,
-      "valeProductos": [
-        {
-          "id": 1788015580929,
-          "qty": 1,
-          "name": "MikroTik hEX S (2025) – E60iUGS"
-        },
-        {
-          "id": 1788124513018,
-          "qty": 2,
-          "name": "mikrotik sxt sq 5ax"
-        },
-        {
-          "id": 1786509734474,
-          "qty": 1,
-          "name": "Mikrotik SXT SA 5 ac"
-        },
-        {
-          "id": 1787349543585,
-          "qty": 200,
-          "name": "Cable de red categoría 6"
-        }
-      ],
-      "comisionGestor": "$40.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
       "synced": true
     },
     {
@@ -14170,5 +14248,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T13:59:19.378Z"
+  "timestamp": "2026-09-03T14:31:00.376Z"
 }
