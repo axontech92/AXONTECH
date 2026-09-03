@@ -916,7 +916,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 23,
+      "stock": 22,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1222,7 +1222,7 @@
       "name": "Router Tp-link Archer A6",
       "catId": 10,
       "photo": "photos/p-1788329740120-3d5fec45.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/p-1788329740120-3d5fec45.webp",
       "nombre": "Router Tp-link Archer A6",
       "precio": "$110",
@@ -2314,7 +2314,7 @@
       "ts": "2026-09-03T16:31:07.713Z",
       "total": "$70 USD + 3750 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T16:53:06.430Z",
+      "seenTs": "2026-09-03T17:39:28.281Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yonny",
@@ -2563,7 +2563,7 @@
       "total": "$110 USD",
       "carnet": "",
       "seenTs": "2026-09-03T17:37:26.330Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ángel García Padron",
       "valeNum": 184,
@@ -2577,8 +2577,10 @@
       "precioUSD": "$110 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "pagado en mn al pago por 690 serian 75 900 cup",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-03T17:38:59.284Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2590,7 +2592,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2599,8 +2601,8 @@
       "ts": "2026-09-03T13:10:51.288Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-03T15:09:37.883Z",
-      "status": "pending",
+      "seenTs": "2026-09-03T17:39:01.356Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ángel García Padron",
       "valeNum": 183,
@@ -2614,8 +2616,10 @@
       "precioUSD": "$230 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "pago en mn a 690 serian 158 700 cup",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-03T17:39:24.204Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2627,7 +2631,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -14335,5 +14339,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T17:38:29.513Z"
+  "timestamp": "2026-09-03T17:40:24.372Z"
 }
