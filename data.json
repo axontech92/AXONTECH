@@ -2353,7 +2353,7 @@
       "ts": "2026-09-03T14:24:55.704Z",
       "total": "$730 USD + 58800 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T14:37:23.079Z",
+      "seenTs": "2026-09-03T15:14:27.265Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -2366,12 +2366,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Annier Reyes Solo\n🔸Teléfono Cliente: 59072435\n🔸Dirección Cliente: : Camagüey #150 e/ Porvenir y Moisés Maestri parraga : En arroyo naranjo\n🔸Mensajería/ costo: 2800\n🔸 Artículos y cantidades:\n  ×3 Router Wavlink AC1200 pequeño\n  ×1 Mikrotik SXT SA 5 ac\n  ×1 mikrotik sxt sq 5ax\n  ×200 Cable de red categoría 6\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $730 USD\n🔸Precio MN: 56000 MN\n🔸 Vuelto: \n🔸 Total a pagar: $730 USD + 58800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 10:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": ": Camagüey #150 e/ Porvenir y Moisés Maestri parraga : En arroyo naranjo",
       "precioUSD": "$730 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-03T14:30:00.089Z",
+      "assignedTs": "2026-09-03T15:14:22.167Z",
       "mensajeria": "2800",
       "comFijadaMN": 0,
-      "mensajeroId": 1784408225928,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 60,
       "valeProductos": [
@@ -2589,8 +2589,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788388497923,
@@ -14291,5 +14290,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T15:10:10.372Z"
+  "timestamp": "2026-09-03T15:15:31.372Z"
 }
