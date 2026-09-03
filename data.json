@@ -2532,10 +2532,10 @@
       "precioUSD": "$230 USD",
       "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-03T13:05:00.963Z",
+      "assignedTs": "2026-09-03T14:32:46.821Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
-      "mensajeroId": 1784476774393,
+      "mensajeroId": 1784408225928,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -14248,5 +14248,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T14:31:00.376Z"
+  "timestamp": "2026-09-03T14:33:46.843Z"
 }
