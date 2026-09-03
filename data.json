@@ -2314,8 +2314,8 @@
       "ts": "2026-09-02T22:34:57.923Z",
       "total": "$230 USD + 10400 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T02:10:05.088Z",
-      "status": "pending",
+      "seenTs": "2026-09-03T12:59:26.227Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Yoe",
       "valeNum": 182,
@@ -2329,8 +2329,10 @@
       "precioUSD": "$230 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-03T13:05:00.963Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476774393,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2399,7 +2401,7 @@
       "ts": "2026-09-02T21:53:13.510Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T23:42:54.261Z",
+      "seenTs": "2026-09-03T12:59:03.106Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ahmed",
@@ -2436,7 +2438,7 @@
       "ts": "2026-09-02T21:34:00.000Z",
       "total": "$360 USD",
       "carnet": "",
-      "seenTs": "2026-09-02T23:54:21.660Z",
+      "seenTs": "2026-09-03T12:57:47.672Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yanela",
@@ -8312,8 +8314,7 @@
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": true
+      "synced": true
     },
     {
       "id": 1787678879689,
@@ -8436,8 +8437,7 @@
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": true
+      "synced": true
     },
     {
       "id": 1787672694643,
@@ -14096,5 +14096,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T03:56:46.365Z"
+  "timestamp": "2026-09-03T13:06:01.378Z"
 }
