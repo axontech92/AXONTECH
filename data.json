@@ -1900,7 +1900,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 33,
+      "stock": 32,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2036,7 +2036,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 251,
+      "stock": 226,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2511,8 +2511,8 @@
       "ts": "2026-09-03T18:21:24.416Z",
       "total": "$150 USD + 9600 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T20:37:44.960Z",
-      "status": "assigned",
+      "seenTs": "2026-09-03T21:57:17.103Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Keyler",
       "valeNum": 191,
@@ -2526,9 +2526,12 @@
       "precioUSD": "$150 USD",
       "reservado": true,
       "ubicacion": "Nota: Una vez el me avise que está disponible les hago saber para que salga la mensajería.",
+      "adminNotes": "pago en mn al cambio por 690 fueron 110 500 cup",
       "assignedTs": "2026-09-03T20:33:44.380Z",
       "mensajeria": "2600",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-03T21:59:42.774Z",
+      "deliveredTs": "2026-09-03T21:59:40.720Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2546,7 +2549,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -14591,5 +14594,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T21:31:40.374Z"
+  "timestamp": "2026-09-03T22:00:43.428Z"
 }
