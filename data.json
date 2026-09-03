@@ -2562,7 +2562,7 @@
       "ts": "2026-09-03T13:25:55.323Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-03T14:53:11.658Z",
+      "seenTs": "2026-09-03T17:37:26.330Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ángel García Padron",
@@ -2575,7 +2575,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Ángel García Padron\n🔸Teléfono Cliente: 5353608767\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 16:00\n🔸 Artículos y cantidades:\n  ×1 Router Tp-link Archer A6\n🔸Precio USD/ zelle: $110 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $110 USD\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 09:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$110 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -14335,5 +14335,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T17:10:47.372Z"
+  "timestamp": "2026-09-03T17:38:29.513Z"
 }
