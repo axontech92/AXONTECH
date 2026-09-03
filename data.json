@@ -2649,7 +2649,7 @@
       "precioUSD": "$150 USD",
       "reservado": true,
       "ubicacion": "Nota: Una vez el me avise que está disponible les hago saber para que salga la mensajería.",
-      "adminNotes": "pago en mn al cambio por 690 fueron 110 500 cup",
+      "adminNotes": "pago en mn al cambio por 690 fueron 103 500 cup",
       "assignedTs": "2026-09-03T20:33:44.380Z",
       "mensajeria": "2600",
       "comFijadaMN": 0,
@@ -2816,6 +2816,7 @@
       ],
       "comisionGestor": "$60.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3053,6 +3054,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3457,6 +3459,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14717,5 +14720,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T23:24:41.827Z"
+  "timestamp": "2026-09-03T23:41:55.164Z"
 }
