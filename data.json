@@ -2137,7 +2137,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2314,7 +2314,7 @@
       "ts": "2026-09-03T14:24:55.704Z",
       "total": "$730 USD + 58800 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T14:29:01.326Z",
+      "seenTs": "2026-09-03T14:37:23.079Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -2369,10 +2369,46 @@
       "synced": true
     },
     {
+      "id": 1788445475480,
+      "ts": "2026-09-03T14:24:35.495Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-09-03T14:52:59.132Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Rolando",
+      "valeNum": 187,
+      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5353008163",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rolando\n🔸Teléfono Cliente: 5353008163\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 10:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-03T14:53:01.938Z",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1788445198100,
       "ts": "2026-09-03T14:19:58.124Z",
       "total": "$100 USD + 20000 MN",
       "carnet": "",
+      "seenTs": "2026-09-03T14:37:27.499Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Hectico",
@@ -2389,6 +2425,7 @@
       "ubicacion": null,
       "mensajeria": "20000",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2443,7 +2480,7 @@
       "ts": "2026-09-03T13:25:55.323Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-03T13:30:26.403Z",
+      "seenTs": "2026-09-03T14:53:11.658Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ángel García Padron",
@@ -2480,7 +2517,7 @@
       "ts": "2026-09-03T13:10:51.288Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-03T13:22:17.004Z",
+      "seenTs": "2026-09-03T14:53:12.820Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ángel García Padron",
@@ -2517,7 +2554,7 @@
       "ts": "2026-09-02T22:34:57.923Z",
       "total": "$230 USD + 10400 MN",
       "carnet": "",
-      "seenTs": "2026-09-03T14:30:21.703Z",
+      "seenTs": "2026-09-03T14:37:38.161Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yoe",
@@ -14248,5 +14285,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T14:33:46.843Z"
+  "timestamp": "2026-09-03T14:54:02.375Z"
 }
