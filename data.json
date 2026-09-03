@@ -2310,6 +2310,45 @@
   ],
   "vales": [
     {
+      "id": 1788475359276,
+      "ts": "2026-09-03T22:42:39.278Z",
+      "total": "$130 USD + 2800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-03T22:45:07.950Z",
+      "status": "assigned",
+      "vuelto": "10 USD",
+      "cliente": "Jowell Minsal",
+      "valeNum": 197,
+      "articulo": "×1 Cargador VEVOR 6v, 12v y 24v,  30A",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "55112040",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Jowell Minsal\n🔸Teléfono Cliente: 55112040\n🔸Dirección Cliente: Pasaje B entre 2 y 10 Edif 13418 apto 4, Alta Habana, Embill, Boyeros.\n🔸Mensajería/ costo: 2800 CUP\n🔸Hora de entrega: 19:30\n🔸 Artículos y cantidades:\n  ×1 Cargador VEVOR 6v, 12v y 24v,  30A\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: 10 USD\n🔸 Total a pagar: $130 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 03/09/2026 18:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Pasaje B entre 2 y 10 Edif 13418 apto 4, Alta Habana, Embill, Boyeros.",
+      "precioUSD": "$130 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-03T22:44:23.356Z",
+      "mensajeria": "2800 CUP",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787375387767,
+          "qty": 1,
+          "name": "Cargador VEVOR 6v, 12v y 24v,  30A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788465631754,
       "ts": "2026-09-03T20:00:31.761Z",
       "total": "$90 USD",
@@ -14594,5 +14633,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-03T22:00:43.428Z"
+  "timestamp": "2026-09-03T22:45:24.374Z"
 }
