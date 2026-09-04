@@ -745,7 +745,7 @@
       "name": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
       "catId": 20,
       "photo": "photos/img_1778104850733.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778104850733.webp",
       "nombre": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
       "precio": "$80 USD",
@@ -1138,7 +1138,7 @@
       "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "catId": 20,
       "photo": "photos/img_1779208523952.webp",
-      "stock": 18,
+      "stock": 17,
       "imagen": "photos/img_1779208523952.webp",
       "nombre": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "precio": "$180 USD",
@@ -2067,7 +2067,7 @@
       "name": "Cargador VEVOR 6v, 12v y 24v,  30A",
       "catId": 20,
       "photo": "photos/p-1787375387767-495c7dd5.webp",
-      "stock": 29,
+      "stock": 28,
       "imagen": "photos/p-1787375387767-495c7dd5.webp",
       "nombre": "Cargador VEVOR 6v, 12v y 24v,  30A",
       "precio": "$130",
@@ -2364,6 +2364,90 @@
       "synced": true
     },
     {
+      "id": 1788540246870,
+      "ts": "2026-09-04T16:44:06.873Z",
+      "total": "$180 USD + 2500 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Andy Palmer Paredes",
+      "valeNum": 208,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "54100498",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Andy Palmer Paredes\n🔸Teléfono Cliente: 54100498\n🔸Dirección Cliente: https://maps.app.goo.gl/hnvN94Va8TFX8fMm7\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 12:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "https://maps.app.goo.gl/hnvN94Va8TFX8fMm7",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": "https://maps.app.goo.gl/hnvN94Va8TFX8fMm7",
+      "mensajeria": "2500",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788539531675,
+      "ts": "2026-09-04T16:32:11.685Z",
+      "total": "$390 USD",
+      "carnet": "",
+      "seenTs": "2026-09-04T16:34:37.973Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Armando",
+      "valeNum": 207,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA / ×1 Cargador VEVOR 6v, 12v y 24v,  30A / ×1 ✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "052790358",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Armando\n🔸Teléfono Cliente: 052790358\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n  ×1 Cargador VEVOR 6v, 12v y 24v,  30A\n  ×1 ✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A\n🔸Precio USD/ zelle: $390 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $390 USD\n🔸 Rebaja: −$15 USD\n🔸 Total a pagar: $375 USD\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 12:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$390 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-04T16:34:47.233Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        },
+        {
+          "id": 1787375387767,
+          "qty": 1,
+          "name": "Cargador VEVOR 6v, 12v y 24v,  30A"
+        },
+        {
+          "id": 1778104850733,
+          "qty": 1,
+          "name": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A"
+        }
+      ],
+      "comisionCedida": 15,
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788539176781,
       "ts": "2026-09-04T16:26:16.781Z",
       "total": "$80 USD",
@@ -2446,7 +2530,7 @@
       "ts": "2026-09-04T15:00:43.552Z",
       "total": "39900 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T16:04:30.389Z",
+      "seenTs": "2026-09-04T16:46:38.724Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Samuel Ojeda Pereira Cliente",
@@ -2461,9 +2545,9 @@
       "precioUSD": "",
       "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-04T15:39:04.210Z",
+      "assignedTs": "2026-09-04T16:46:35.697Z",
       "mensajeria": "700",
-      "mensajeroId": 1784476782949,
+      "mensajeroId": 1788282079191,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -15142,5 +15226,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T16:29:32.006Z"
+  "timestamp": "2026-09-04T16:47:36.006Z"
 }
