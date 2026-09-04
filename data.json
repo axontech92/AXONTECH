@@ -2364,6 +2364,43 @@
       "synced": true
     },
     {
+      "id": 1788546071543,
+      "ts": "2026-09-04T18:21:11.545Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-09-04T18:22:37.664Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Fernando Núñez Jover",
+      "valeNum": 209,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "33675618673",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Fernando Núñez Jover\n🔸Teléfono Cliente: 33675618673\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 14:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788540246870,
       "ts": "2026-09-04T16:44:06.873Z",
       "total": "$180 USD + 2500 MN",
@@ -3050,7 +3087,7 @@
       "ts": "2026-09-03T18:35:25.585Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-04T17:03:57.271Z",
+      "seenTs": "2026-09-04T18:22:19.424Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexei Alayo",
@@ -5807,8 +5844,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -10261,8 +10299,9 @@
         }
       ],
       "comisionGestor": "3000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14025,8 +14064,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14509,8 +14549,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14674,8 +14715,9 @@
       ],
       "comisionCedida": 5,
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "comisionCedidaMotivo": "Amistad mia que le hice una rebaja del producto",
@@ -15241,5 +15283,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T18:14:46.246Z"
+  "timestamp": "2026-09-04T19:04:59.807Z"
 }
