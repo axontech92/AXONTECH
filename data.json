@@ -2359,7 +2359,7 @@
       "ts": "2026-09-04T15:00:43.552Z",
       "total": "39900 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T15:17:09.335Z",
+      "seenTs": "2026-09-04T15:34:23.928Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Samuel Ojeda Pereira Cliente",
@@ -2372,7 +2372,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Samuel Ojeda Pereira Cliente\n🔸Teléfono Cliente: 53021475\n🔸Dirección Cliente: Zulueta entre gloria y apodaca #658\n🔸Mensajería/ costo: 700\n🔸 Artículos y cantidades:\n  ×140 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 39200 MN\n🔸 Vuelto: \n🔸 Total a pagar: 39900 MN\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 11:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Zulueta entre gloria y apodaca #658",
       "precioUSD": "",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "700",
       "seenByAdmin": true,
@@ -15053,5 +15053,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T15:24:56.047Z"
+  "timestamp": "2026-09-04T15:35:34.012Z"
 }
