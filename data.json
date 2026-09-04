@@ -360,10 +360,10 @@
     },
     {
       "id": 1788536314540,
-      "name": "Andy Lopez",
+      "name": "Andy Mensajero",
       "color": "#0891B2",
       "phone": "55703903",
-      "initials": "AL",
+      "initials": "AM",
       "password": "pbkdf2$100000$sxmqQsr/BuCTmxGV+U4KlQ==$1fcdb73586a27eb668f557fdb7b71bea65985622d0a49e091e274491c27ee0fd"
     }
   ],
@@ -2330,7 +2330,7 @@
       "ts": "2026-09-04T18:24:03.280Z",
       "total": "$60 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T15:17:11.399Z",
+      "seenTs": "2026-09-04T15:48:07.169Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Juan Luis",
@@ -2363,11 +2363,48 @@
       "synced": true
     },
     {
+      "id": 1788537256749,
+      "ts": "2026-09-04T15:54:16.753Z",
+      "total": "$32 USD",
+      "carnet": "",
+      "seenTs": "2026-09-04T16:03:25.979Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Lazaro",
+      "valeNum": 205,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "12392382932",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Lazaro\n🔸Teléfono Cliente: 12392382932\n🔸Dirección Cliente: Calle 136 # 25716 entre prefabricado y hospital reparto mazorra boyeros la habana\n🔸Mensajería/ costo: 7\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $32 USD\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 04/09/2026 11:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 136 # 25716 entre prefabricado y hospital reparto mazorra boyeros la habana",
+      "precioUSD": "$25 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "7",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788534043550,
       "ts": "2026-09-04T15:00:43.552Z",
       "total": "39900 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T15:34:23.928Z",
+      "seenTs": "2026-09-04T16:04:30.389Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Samuel Ojeda Pereira Cliente",
@@ -2397,14 +2434,15 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1788531170706,
       "ts": "2026-09-04T14:12:50.713Z",
       "total": "$39 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T15:17:08.579Z",
+      "seenTs": "2026-09-04T16:04:30.883Z",
       "status": "assigned",
       "vuelto": "1 usd",
       "cliente": "Samuel Ojeda Pereira Cliente",
@@ -2434,7 +2472,8 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1788531101064,
@@ -15063,5 +15102,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T15:40:05.005Z"
+  "timestamp": "2026-09-04T16:04:31.579Z"
 }
