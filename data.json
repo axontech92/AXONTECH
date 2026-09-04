@@ -745,7 +745,7 @@
       "name": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
       "catId": 20,
       "photo": "photos/img_1778104850733.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1778104850733.webp",
       "nombre": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
       "precio": "$80 USD",
@@ -2368,7 +2368,8 @@
       "ts": "2026-09-04T16:26:16.781Z",
       "total": "$80 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-04T16:28:28.976Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alfonso",
       "valeNum": 206,
@@ -2377,6 +2378,7 @@
       "gestorId": 0,
       "precioMN": "",
       "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Alfonso\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 ✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 4/9/2026, 12:26:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Tienda Axontech",
       "precioUSD": "$80 USD",
       "reservado": false,
@@ -2384,8 +2386,9 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-04T16:28:31.376Z",
       "mensajeroId": null,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2396,10 +2399,8 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Alfonso\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 ✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 4/9/2026, 12:26:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "synced": true,
-      "isNew": true
+      "stockDecremented": true,
+      "synced": true
     },
     {
       "id": 1788537256749,
@@ -15141,5 +15142,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T16:27:16.795Z"
+  "timestamp": "2026-09-04T16:29:32.006Z"
 }
