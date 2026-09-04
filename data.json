@@ -1438,7 +1438,7 @@
       "name": "Router Wavlink AC1200 pequeño",
       "catId": 10,
       "photo": "photos/img_1785077980600.webp",
-      "stock": 12,
+      "stock": 0,
       "imagen": "photos/img_1785077980600.webp",
       "nombre": "Router Wavlink AC1200 pequeño",
       "precio": "$70",
@@ -2145,7 +2145,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2317,6 +2317,39 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788534043550,
+      "ts": "2026-09-04T15:00:43.552Z",
+      "total": "39900 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Samuel Ojeda Pereira Cliente",
+      "valeNum": 203,
+      "articulo": "×140 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "39200 MN",
+      "telefono": "53021475",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Samuel Ojeda Pereira Cliente\n🔸Teléfono Cliente: 53021475\n🔸Dirección Cliente: Zulueta entre gloria y apodaca #658\n🔸Mensajería/ costo: 700\n🔸 Artículos y cantidades:\n  ×140 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 39200 MN\n🔸 Vuelto: \n🔸 Total a pagar: 39900 MN\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 11:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Zulueta entre gloria y apodaca #658",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "700",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 140,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1788531170706,
       "ts": "2026-09-04T14:12:50.713Z",
@@ -3099,7 +3132,7 @@
       "ts": "2026-09-03T14:19:58.124Z",
       "total": "$100 USD + 20000 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T13:42:32.074Z",
+      "seenTs": "2026-09-04T15:05:42.290Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Hectico",
@@ -3991,8 +4024,8 @@
       "ts": "2026-09-02T06:17:00.000Z",
       "total": "$980 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T13:43:32.183Z",
-      "status": "assigned",
+      "seenTs": "2026-09-04T15:05:44.144Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Darel",
       "valeNum": 163,
@@ -4010,6 +4043,8 @@
       "assignedTs": "2026-09-04T13:43:04.113Z",
       "mensajeria": "2500 ( de mi comisión)",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-04T15:05:47.497Z",
+      "deliveredTs": "2026-09-04T15:05:45.917Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 130,
@@ -4027,7 +4062,7 @@
       ],
       "comisionGestor": "$130.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -14979,5 +15014,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T14:38:13.009Z"
+  "timestamp": "2026-09-04T15:06:49.007Z"
 }
