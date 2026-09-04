@@ -2190,7 +2190,7 @@
       "stock": 29,
       "imagen": "photos/p-1788124513018-46338072.webp",
       "nombre": "mikrotik sxt sq 5ax",
-      "precio": "160",
+      "precio": "$160",
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
@@ -15324,5 +15324,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T21:35:29.858Z"
+  "timestamp": "2026-09-04T22:09:27.590Z"
 }
