@@ -2318,6 +2318,78 @@
   ],
   "vales": [
     {
+      "id": 1788531170706,
+      "ts": "2026-09-04T14:12:50.713Z",
+      "total": "$39 USD + 3800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-04T14:27:56.140Z",
+      "status": "pending",
+      "vuelto": "1 usd",
+      "cliente": "Samuel Ojeda Pereira Cliente",
+      "valeNum": 202,
+      "articulo": "×3 Conectores MC4 (10 pares)",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "58688267",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Samuel Ojeda Pereira Cliente\n🔸Teléfono Cliente: 58688267\n🔸Dirección Cliente: Calle 162 esquina 1era Reparto Flores\n🔸Mensajería/ costo: 3800\n🔸 Artículos y cantidades:\n  ×3 Conectores MC4 (10 pares)\n🔸Precio USD/ zelle: $39 USD\n🔸Precio MN: \n🔸 Vuelto: 1 usd\n🔸 Total a pagar: $39 USD + 3800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 10:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 162 esquina 1era Reparto Flores",
+      "precioUSD": "$39 USD",
+      "reservado": true,
+      "ubicacion": "https://maps.app.goo.gl/d1tmPtCBNeFQ8J9E9",
+      "mensajeria": "3800",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1788155775988,
+          "qty": 3,
+          "name": "Conectores MC4 (10 pares)"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788531101064,
+      "ts": "2026-09-04T14:11:41.070Z",
+      "total": "$140 USD + 4250 MN",
+      "carnet": "",
+      "seenTs": "2026-09-04T14:27:48.522Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "William Lazaro",
+      "valeNum": 202,
+      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5358691080",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: William Lazaro\n🔸Teléfono Cliente: 5358691080\n🔸Dirección Cliente: Calle 230 (27a y27c) reparto la coronela\n🔸Mensajería/ costo: 4250\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 4250 MN\n\n*Garantía: \n*Fecha y hora de Venta: 04/09/2026 10:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 230 (27a y27c) reparto la coronela",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "4250",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788526487699,
       "ts": "2026-09-04T12:54:47.711Z",
       "total": "$140 USD",
@@ -14905,5 +14977,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T14:11:41.140Z"
+  "timestamp": "2026-09-04T14:29:03.005Z"
 }
