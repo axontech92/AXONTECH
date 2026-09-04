@@ -2368,8 +2368,8 @@
       "ts": "2026-09-04T15:54:16.753Z",
       "total": "$32 USD",
       "carnet": "",
-      "seenTs": "2026-09-04T16:03:25.979Z",
-      "status": "pending",
+      "seenTs": "2026-09-04T16:08:28.890Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Lazaro",
       "valeNum": 205,
@@ -2383,8 +2383,10 @@
       "precioUSD": "$25 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-04T16:08:46.401Z",
       "mensajeria": "7",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -15101,5 +15103,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T16:07:17.006Z"
+  "timestamp": "2026-09-04T16:09:46.412Z"
 }
