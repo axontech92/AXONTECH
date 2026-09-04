@@ -748,7 +748,7 @@
       "stock": 2,
       "imagen": "photos/img_1778104850733.webp",
       "nombre": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
-      "precio": "$70 USD",
+      "precio": "$80 USD",
       "puntos": 1,
       "comision": "$5 USD",
       "garantia": "",
@@ -2362,6 +2362,44 @@
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
+    },
+    {
+      "id": 1788539176781,
+      "ts": "2026-09-04T16:26:16.781Z",
+      "total": "$80 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alfonso",
+      "valeNum": 206,
+      "articulo": "×1 ✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$80 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778104850733,
+          "qty": 1,
+          "name": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Alfonso\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 ✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 4/9/2026, 12:26:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "synced": true,
+      "isNew": true
     },
     {
       "id": 1788537256749,
@@ -15103,5 +15141,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T16:25:06.424Z"
+  "timestamp": "2026-09-04T16:27:16.795Z"
 }
