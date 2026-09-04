@@ -2322,8 +2322,8 @@
       "ts": "2026-09-04T14:12:50.713Z",
       "total": "$39 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T14:27:56.140Z",
-      "status": "pending",
+      "seenTs": "2026-09-04T14:35:30.281Z",
+      "status": "assigned",
       "vuelto": "1 usd",
       "cliente": "Samuel Ojeda Pereira Cliente",
       "valeNum": 202,
@@ -2337,7 +2337,9 @@
       "precioUSD": "$39 USD",
       "reservado": true,
       "ubicacion": "https://maps.app.goo.gl/d1tmPtCBNeFQ8J9E9",
+      "assignedTs": "2026-09-04T14:37:12.569Z",
       "mensajeria": "3800",
+      "mensajeroId": 1787161412838,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -14977,5 +14979,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T14:29:03.005Z"
+  "timestamp": "2026-09-04T14:38:13.009Z"
 }
