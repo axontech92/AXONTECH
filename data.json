@@ -2344,6 +2344,41 @@
   ],
   "vales": [
     {
+      "id": 1788565236531,
+      "ts": "2026-09-04T23:40:36.567Z",
+      "total": "$90 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "David almeida",
+      "valeNum": 214,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1786555619210,
+      "precioMN": "",
+      "telefono": "53200426",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: David almeida\n🔸Teléfono Cliente: 53200426\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 04/09/2026 19:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$90 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788561928091,
       "ts": "2026-09-04T22:45:28.091Z",
       "total": "$90 USD",
@@ -2542,6 +2577,7 @@
       ],
       "comisionGestor": "4500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2753,6 +2789,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2873,6 +2910,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2911,6 +2949,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3028,6 +3067,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3268,8 +3308,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6000,8 +6041,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6209,8 +6251,9 @@
         }
       ],
       "comisionGestor": "1000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6374,8 +6417,9 @@
         }
       ],
       "comisionGestor": "1000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6495,8 +6539,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -9320,8 +9365,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11505,8 +11551,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -12786,8 +12833,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -15476,11 +15524,12 @@
         }
       ],
       "comisionGestor": "3000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": false,
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T23:36:01.764Z"
+  "timestamp": "2026-09-04T23:41:46.100Z"
 }
