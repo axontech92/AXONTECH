@@ -2368,8 +2368,8 @@
       "ts": "2026-09-04T16:44:06.873Z",
       "total": "$180 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T17:20:07.480Z",
-      "status": "pending",
+      "seenTs": "2026-09-04T17:22:10.182Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Andy Palmer Paredes",
       "valeNum": 208,
@@ -2383,8 +2383,10 @@
       "precioUSD": "$180 USD",
       "reservado": true,
       "ubicacion": "https://maps.app.goo.gl/hnvN94Va8TFX8fMm7",
+      "assignedTs": "2026-09-04T17:22:07.277Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "mensajeroId": 1788282079191,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -15241,5 +15243,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T17:21:24.006Z"
+  "timestamp": "2026-09-04T17:23:08.006Z"
 }
