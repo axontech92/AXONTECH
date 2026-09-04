@@ -3232,8 +3232,8 @@
       "ts": "2026-09-02T22:22:11.320Z",
       "total": "$230 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T13:22:06.339Z",
-      "status": "pending",
+      "seenTs": "2026-09-04T13:37:57.817Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Ricardo Valle",
       "valeNum": 179,
@@ -3248,8 +3248,10 @@
       "reservado": true,
       "ubicacion": null,
       "adminNotes": "VALE DE ENTREGA PARA EL VIERNES",
+      "assignedTs": "2026-09-04T13:38:43.283Z",
       "mensajeria": "2300",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476898824,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
@@ -14903,5 +14905,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T13:23:03.008Z"
+  "timestamp": "2026-09-04T13:39:43.306Z"
 }
