@@ -357,6 +357,14 @@
       "phone": "",
       "initials": "L",
       "password": "pbkdf2$100000$0/LWC9HwBGb3hW2DtkC22Q==$2f53afcda3491ff3585d2b415e3f5b0e63be575d45450c22b03bab4bda1f99c8"
+    },
+    {
+      "id": 1788536314540,
+      "name": "Andy Lopez",
+      "color": "#0891B2",
+      "phone": "55703903",
+      "initials": "AL",
+      "password": "pbkdf2$100000$sxmqQsr/BuCTmxGV+U4KlQ==$1fcdb73586a27eb668f557fdb7b71bea65985622d0a49e091e274491c27ee0fd"
     }
   ],
   "mensajeros": [
@@ -2360,7 +2368,7 @@
       "total": "39900 MN",
       "carnet": "",
       "seenTs": "2026-09-04T15:34:23.928Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Samuel Ojeda Pereira Cliente",
       "valeNum": 203,
@@ -2374,7 +2382,9 @@
       "precioUSD": "",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-04T15:39:04.210Z",
       "mensajeria": "700",
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -15053,5 +15063,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T15:35:34.012Z"
+  "timestamp": "2026-09-04T15:40:05.005Z"
 }
