@@ -983,7 +983,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 12,
+      "stock": 9,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2330,8 +2330,8 @@
       "ts": "2026-09-04T18:24:03.280Z",
       "total": "$60 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-09-04T15:48:07.169Z",
-      "status": "pending",
+      "seenTs": "2026-09-04T16:06:11.435Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Juan Luis",
       "valeNum": 204,
@@ -2347,6 +2347,7 @@
       "ubicacion": null,
       "mensajeria": "700",
       "comFijadaMN": 4500,
+      "confirmedTs": "2026-09-04T16:06:16.133Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2358,7 +2359,7 @@
       ],
       "comisionGestor": "4500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2434,8 +2435,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788531170706,
@@ -2472,8 +2472,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788531101064,
@@ -15102,5 +15101,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-04T16:04:31.579Z"
+  "timestamp": "2026-09-04T16:07:17.006Z"
 }
