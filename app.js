@@ -7558,7 +7558,11 @@ function renderValeDetail(destinoId) {
   // v51 FIX: normalizar status
   const _vStatus = v.status || 'pending';
   const s=estadoVale(v);
-  const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
+  // v120: si la venta está compartida, los puntos que se enseñan son los que le
+  // quedan a ESTE gestor. Enseñar los de la venta entera aquí y la mitad en la
+  // app del gestor sería dar dos cifras distintas del mismo vale.
+  const _repDet=(typeof _factorReparto==='function')?_factorReparto(v):1;
+  const pts=Math.round((v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0)*_repDet*100)/100;
   let actHTML='';
   // Product link status — show picker if no products linked
   const hasProducts=(v.valeProductos||[]).length>0;
@@ -14473,8 +14477,13 @@ function _pgProductosSinPuntos(gestorId) {
   return [...sin.values()];
 }
 function openPuntosGestorModal(gestorId) {
-  const g = gestorOf(gestorId); if (!g) return;
-  const m = document.getElementById('puntosGestorModal'); if (!m) return;
+  // v120: si algo falla, se dice. Un `return` mudo aquí sería un botón que no
+  // hace nada al tocarlo y nadie sabría por qué — es el patrón que ya dejó
+  // escondidos otros fallos en esta app.
+  const g = gestorOf(gestorId);
+  if (!g) { console.warn('[puntos] no existe el gestor', gestorId); showToast('No se encontró ese gestor'); return; }
+  const m = document.getElementById('puntosGestorModal');
+  if (!m) { console.warn('[puntos] falta #puntosGestorModal en el HTML'); showToast('No se pudo abrir'); return; }
   _pgGestorId = gestorId;
   document.getElementById('pgNombre').textContent = g.name || 'Gestor';
   document.getElementById('pgTotal').value = Math.round(getGestorPointsTotal(gestorId));
