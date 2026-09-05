@@ -888,6 +888,21 @@
           <input type="text" id="ev-telefono" placeholder="Teléfono">
         </div>
       </div>
+      <!-- v120: se puede cambiar de recogida en tienda a mensajería y al revés.
+           Pasa a menudo: el cliente dice que pasa por la tienda y luego pide
+           que se lo lleven (o al revés), y hasta ahora eso obligaba a borrar el
+           vale y hacerlo de nuevo. -->
+      <div class="vf-row">
+        <span class="vf-emoji">🏬</span>
+        <div class="vf-inner">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;">
+            <input type="checkbox" id="ev-recogidaTienda" onchange="onEvRecogidaTiendaChange()"
+                   style="width:18px;height:18px;flex-shrink:0;cursor:pointer;">
+            <span>Recogida en tienda <span style="font-weight:400;color:var(--text-muted);font-size:11px;">(sin mensajero)</span></span>
+          </label>
+          <div id="ev-recogidaNota" style="display:none;font-size:11px;color:var(--orange);margin-top:6px;line-height:1.4;"></div>
+        </div>
+      </div>
       <div class="vf-row">
         <div class="vf-inner">
           <div class="vf-label"><span>Dirección</span></div>

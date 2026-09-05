@@ -6521,6 +6521,60 @@ function _updateGestoresCountBadge() {
 // Esta pregunta se contesta AQUÍ y en ningún otro sitio. Estaba escrita seis
 // veces con el mismo comentario copiado, que es exactamente cómo empiezan las
 // divergencias que luego cuestan una tarde de búsqueda.
+// ══════════════════════════════════════════
+//  VALES UNIDOS — una venta, varios gestores  (v120)
+// ══════════════════════════════════════════
+// Dos gestores traen al mismo cliente y cada uno apunta su vale. Es UNA venta:
+// la mercancía sale una vez del almacén y el dinero entra una vez, pero la
+// comisión y los puntos hay que repartirlos entre los dos (o entre los tres).
+//
+// Cómo se guarda: el vale secundario lleva `unidoA` con el id del principal.
+// No se borra ni se cancela —sigue en la lista y en el historial de su gestor,
+// con su chapa— porque es el rastro de quién hizo qué, y porque la unión se
+// puede deshacer.
+//
+// Reparto: cada vale del grupo calcula SU comisión y SUS puntos como siempre y
+// los multiplica por 1/N. Sumando los N vales sale exactamente una comisión
+// entera, y cada gestor ve su parte en su propia tarjeta sin que haya que
+// inventar un sitio nuevo donde guardarla.
+//
+// Lo que NO se reparte porque no se duplica: el stock y el dinero. De eso se
+// encarga el vale principal y solo él (ver _valeCuentaDinero y _descontarStock).
+const _valeEsUnido = v => !!v && v.unidoA != null;
+// Cuántos vales comparten esta venta. Se memoriza contra el array de vales:
+// cada guardado crea un array nuevo (ver saveVales), así que en cuanto algo
+// cambia el caché se invalida solo.
+let _unidosCache = null, _unidosCacheRef = null;
+function _mapaUnidos() {
+  const vs = getVales();
+  if (_unidosCache && _unidosCacheRef === vs) return _unidosCache;
+  const m = new Map();
+  vs.forEach(v => {
+    if (!v || v.unidoA == null) return;
+    const k = String(v.unidoA);
+    m.set(k, (m.get(k) || 0) + 1);
+  });
+  // El principal cuenta también: 2 secundarios = 3 gestores repartiendo.
+  const total = new Map();
+  m.forEach((n, k) => total.set(k, n + 1));
+  _unidosCache = total; _unidosCacheRef = vs;
+  return total;
+}
+const _idGrupoVale = v => !v ? '' : String(v.unidoA != null ? v.unidoA : v.id);
+function _cuantosComparten(v) {
+  if (!v) return 1;
+  const n = _mapaUnidos().get(_idGrupoVale(v));
+  return (n && n > 1) ? n : 1;
+}
+// 1 si el vale es de un solo gestor; 1/2, 1/3… si está unido.
+function _factorReparto(v) {
+  const n = _cuantosComparten(v);
+  return n > 1 ? 1 / n : 1;
+}
+// El dinero de la venta lo cuenta SOLO el principal. Si lo contaran los dos, la
+// tienda vería vendido el doble de lo que vendió.
+const _valeCuentaDinero = v => !!v && v.unidoA == null;
+
 function _valeGeneraComision(v) {
   return !!v && (v.status === 'confirmed' || v.status === 'pending_payment');
 }
@@ -7396,12 +7450,12 @@ function renderValeDetail(destinoId) {
           ${pts>0?`<div style="font-size:10px;color:var(--blue);font-weight:700;margin-top:3px;">⭐ ${pts} pts</div>`:``}
         </div>
       </div>
-      <table style="width:100%;font-size:12px;border-collapse:collapse;">
+      <table class="vale-datos">
         ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
            ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['⏰ Hora de entrega',v.horaEntrega],['💰 Comisión gestor',v.comisionGestor]]
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
-            <td style="padding:6px 0;color:var(--gray-400);font-weight:600;width:100px;">${k}</td>
+            <td class="vale-datos-k" style="padding:6px 0;">${k}</td>
             <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
       </table>
       ${(()=>{const _r=_rebajaVale(v);if(!_r)return '';return `
@@ -7520,6 +7574,9 @@ function openEditValeModal(id) {
   });
   const elFecha=document.getElementById('ev-fecha');
   if(elFecha)elFecha.value=_tsAInputLocal(v.ts);
+  // v120: recogida en tienda ↔ mensajería. Ver onEvRecogidaTiendaChange.
+  const elRec=document.getElementById('ev-recogidaTienda');
+  if(elRec){elRec.checked=!!v.recogidaTienda;_evPintarRecogida(v);}
   // Load articulo + precio fields
   const elArt=document.getElementById('ev-articulo');if(elArt)elArt.value=v.articulo||'';
   const elUSD=document.getElementById('ev-precioUSD');if(elUSD)elUSD.value=v.precioUSD||'';
@@ -7533,6 +7590,51 @@ function openEditValeModal(id) {
   document.getElementById('editValeModal').classList.add('show');
 }
 function closeEditValeModal(){document.getElementById('editValeModal').classList.remove('show');}
+// ── v120: cambiar entre recogida en tienda y mensajería, ya hecho el vale ───
+// El cliente dice que pasa por la tienda, y a la hora de la verdad pide que se
+// lo lleven (o al revés). Antes eso obligaba a borrar el vale y rehacerlo, con
+// lo que se perdía el número, la fecha y el rastro de quién lo hizo.
+//
+// Los campos NO se bloquean como en el formulario de alta: aquí el admin está
+// corrigiendo algo que ya pasó y a veces necesita dejar una dirección apuntada
+// aunque la recogida sea en tienda. Lo que sí se hace es rellenar y limpiar los
+// textos de relleno ("Recogida en tienda" / "Sin envío"), que es lo que espera
+// el resto de la app, y avisar de lo que no cuadra.
+function _evPintarRecogida(v) {
+  const chk = document.getElementById('ev-recogidaTienda');
+  const nota = document.getElementById('ev-recogidaNota');
+  if (!chk || !nota) return;
+  const avisos = [];
+  // Un vale que ya va con mensajero no puede pasar a recogida sin más: el
+  // mensajero lo tiene en la mano y sigue debiendo ese dinero.
+  if (chk.checked && v && v.mensajeroId != null) {
+    const m = (typeof mensajeroOf === 'function') ? mensajeroOf(v.mensajeroId) : null;
+    avisos.push('⚠️ Este vale ya va con ' + (m && m.name ? m.name : 'un mensajero')
+      + '. Si lo pasas a recogida en tienda, quítaselo antes o seguirá contando como suyo.');
+  }
+  if (!chk.checked && v && v.recogidaTienda) {
+    avisos.push('Al quitar la recogida vas a tener que ponerle dirección y mensajería, y asignarle un mensajero.');
+  }
+  nota.innerHTML = avisos.join('<br>');
+  nota.style.display = avisos.length ? 'block' : 'none';
+}
+function onEvRecogidaTiendaChange() {
+  const chk = document.getElementById('ev-recogidaTienda');
+  if (!chk) return;
+  const dir = document.getElementById('ev-direccion');
+  const men = document.getElementById('ev-mensajeria');
+  if (chk.checked) {
+    if (dir && !dir.value.trim()) dir.value = 'Recogida en tienda';
+    if (men && !men.value.trim()) men.value = 'Sin envío';
+  } else {
+    // Solo se borran los textos de relleno; una dirección de verdad se respeta.
+    if (dir && dir.value.trim() === 'Recogida en tienda') dir.value = '';
+    if (men && men.value.trim() === 'Sin envío') men.value = '';
+  }
+  const id = parseInt(document.getElementById('editValeModal').dataset.valeId);
+  _evPintarRecogida(getVales().find(x => x.id === id) || null);
+  if (typeof calcEditValeTotal === 'function') calcEditValeTotal();
+}
 function renderEditValeSelectedProducts() {
   const c=document.getElementById('ev-selectedProductsList');
   if(!c)return;
@@ -7709,6 +7811,9 @@ function saveEditVale() {
     const nuevoTs=_inputLocalATs(elFecha.value);
     if(nuevoTs&&nuevoTs!==v.ts)changes.ts=nuevoTs;
   }
+  // v120: recogida en tienda ↔ mensajería
+  const elRec=document.getElementById('ev-recogidaTienda');
+  if(elRec)changes.recogidaTienda=!!elRec.checked;
   // Save product selection. editValeProductos siempre refleja la selección actual
   // del picker (se inicializa desde v.valeProductos al abrir el modal) — antes,
   // si el admin quitaba todos los productos del vale, el array quedaba vacío y
@@ -14021,12 +14126,45 @@ function _valeCuentaPuntos(v) {
   return true;
 }
 
-function getGestorPointsTotal(gestorId) {
+// ── v120: puntos puestos a mano ────────────────────────────────────────────
+// Los puntos salen del catálogo: cada producto lleva los suyos y se cuentan al
+// confirmar la venta. Cuando un producto se sube SIN puntos, esa venta no da
+// ninguno y el gestor se queda corto sin que nada avise.
+//
+// El ajuste es un número aparte —positivo o negativo— que se suma al total.
+// No toca los vales ni el catálogo, así que se puede quitar y todo vuelve a
+// como estaba. Cuenta con la MISMA regla de periodo que una venta: si lleva
+// fecha y esa fecha se quedó fuera del ciclo en curso, deja de contar, igual
+// que dejan de contar las ventas del mes pasado. Sin eso, un ajuste de marzo
+// seguiría inflando el ranking en diciembre.
+function _ajustePuntosDe(gestorId) {
+  const g = gestorOf(gestorId);
+  if (!g) return 0;
+  const n = parseFloat(g.puntosAjuste);
+  if (!isFinite(n) || n === 0) return 0;
+  const d = (typeof g.puntosAjusteDia === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(g.puntosAjusteDia))
+    ? g.puntosAjusteDia : '';
+  if (d) {
+    const desde = puntosDesde();
+    if (desde && d < desde) return 0;
+    if (metaModo() === 'mensual' && d < _inicioDelCiclo()) return 0;
+  }
+  return n;
+}
+// Los puntos que dan sus ventas, sin el ajuste. Se necesita aparte para poder
+// enseñar el desglose ("12 de sus ventas + 3 a mano") y para calcular cuánto
+// ajuste hace falta cuando el admin escribe el total que quiere dejar.
+function getGestorPointsVentas(gestorId) {
   const confirmedVales=getVales().filter(v=>v.gestorId===gestorId
     &&['confirmed','pending_payment'].includes(v.status)
     &&_valeCuentaPuntos(v));   // v119: solo las del periodo en curso
   return confirmedVales.reduce((sum,v)=>
-    sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0);
+    sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);
+      // v120: los puntos se reparten entre los gestores unidos, como la comisión
+      return s+((pr&&pr.puntos)||0)*p.qty*_factorReparto(v);},0),0);
+}
+function getGestorPointsTotal(gestorId) {
+  return getGestorPointsVentas(gestorId) + _ajustePuntosDe(gestorId);
 }
 // ── v114: los puntos del CICLO en curso ────────────────────────────────────
 // Antes esto devolvía el total de siempre, y eso rompía la meta de dos formas

@@ -406,7 +406,13 @@ header .brand-icon{
 header .brand-name{font-size:15px;font-weight:800;letter-spacing:1.5px;line-height:1;}
 header .brand-sub{font-size:9px;letter-spacing:1.2px;color:rgba(255,255,255,.7);font-weight:600;}
 header #headerGestorName{font-size:13px;color:rgba(255,255,255,.85);font-weight:600;flex:1;min-width:0;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;}
-header .header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+/* v120: los botones de la derecha (Novedades, saldo, fecha, Stock, Instalar,
+   tema) sumaban 404 px en una pantalla de 390 y sacaban 24 px de barra
+   horizontal en TODA la app del gestor, con vale largo o sin él. Que se
+   encojan y, si aun así no caben, que se pasen a la línea de abajo en vez de
+   empujar la página. */
+header .header-right{display:flex;align-items:center;gap:8px;margin-left:auto;
+  flex-wrap:wrap;justify-content:flex-end;min-width:0;}
 header .header-date{font-size:11px;color:rgba(255,255,255,.7);font-weight:600;white-space:nowrap;}
 #btnTheme{
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
@@ -820,7 +826,20 @@ body.dark .mv-pending-sync-badge{
   background:var(--surface2);border:1px solid var(--border);border-radius:8px;
   padding:10px 12px;white-space:pre-wrap;font-family:'Courier New',monospace;
   font-size:11px;line-height:1.5;color:var(--text);
+  /* v120: `pre-wrap` parte por los espacios, pero una dirección de Google Maps
+     pegada es UNA palabra de 130 letras y ahí no hay dónde partir: la caja
+     crecía hasta 1085 px, se llevaba por delante el ancho de toda la página
+     —la barra de pestañas incluida— y el admin tenía que arrastrar la pantalla
+     de lado para leer nada. Con esto el texto sigue abajo, que es lo suyo. */
+  overflow-wrap:anywhere;word-break:break-word;
 }
+/* v120: la tabla de datos del vale, por lo mismo. Sin `table-layout:fixed` el
+   navegador ensancha la columna hasta que quepa la palabra más larga, y da
+   igual el width:100% del padre. Fijo el reparto: 100 px para la etiqueta y el
+   resto para el dato, que ya puede partirse. */
+.vale-datos{width:100%;table-layout:fixed;font-size:12px;border-collapse:collapse;}
+.vale-datos td{overflow-wrap:anywhere;word-break:break-word;}
+.vale-datos td.vale-datos-k{width:100px;color:var(--gray-400);font-weight:600;}
 
 /* ── Modal ── */
 .modal-bg{
