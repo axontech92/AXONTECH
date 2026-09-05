@@ -1692,7 +1692,7 @@
       "name": "Inversor Tataliken de 12V 3500W",
       "catId": 20,
       "photo": "photos/img_1786509014605.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1786509014605.webp",
       "nombre": "Inversor Tataliken de 12V 4000W",
       "precio": "$170",
@@ -1990,7 +1990,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2354,8 +2354,8 @@
       "ts": "2026-09-05T19:11:01.209Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-05T19:11:52.301Z",
-      "status": "pending",
+      "seenTs": "2026-09-05T20:11:12.171Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Elena",
       "valeNum": 226,
@@ -2368,10 +2368,10 @@
       "direccion": "Recogida en tienda",
       "precioUSD": "$90 USD",
       "reservado": false,
-      "ubicacion": "",
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "horaEntrega": "",
+      "confirmedTs": "2026-09-05T20:11:17.470Z",
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -2381,12 +2381,10 @@
           "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2431,7 +2429,7 @@
       "ts": "2026-09-05T17:33:06.279Z",
       "total": "$275 USD + 2800 MN",
       "carnet": "",
-      "seenTs": "2026-09-05T19:11:56.025Z",
+      "seenTs": "2026-09-05T20:11:23.134Z",
       "status": "pending",
       "vuelto": "25$",
       "cliente": "Osvaldo",
@@ -2468,8 +2466,8 @@
       "ts": "2026-09-05T16:51:32.102Z",
       "total": "$170 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-05T16:54:01.229Z",
-      "status": "assigned",
+      "seenTs": "2026-09-05T19:26:31.740Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Carlos Maikel Pou lorente",
       "valeNum": 222,
@@ -2486,6 +2484,8 @@
       "assignedTs": "2026-09-05T16:53:55.348Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-05T19:26:38.649Z",
+      "deliveredTs": "2026-09-05T19:26:36.070Z",
       "mensajeroId": 1787786983983,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2498,7 +2498,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2660,7 +2660,7 @@
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-05T15:14:20.553Z",
+      "seenTs": "2026-09-05T19:26:42.911Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Erick Cruz Pérez",
@@ -15889,5 +15889,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T19:17:59.142Z"
+  "timestamp": "2026-09-05T20:12:17.489Z"
 }
