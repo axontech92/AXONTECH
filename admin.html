@@ -102,6 +102,7 @@
     <button class="anav-btn" id="anav-historial" onclick="adminTab('historial')">📋 Historial</button>
     <button class="anav-btn" id="anav-estafa" onclick="adminTab('estafa')">🚫 Estafa</button>
     <button class="anav-btn" id="anav-config" onclick="adminTab('config')">⚙️ Config</button>
+    <button class="anav-btn" id="anav-ayuda" onclick="adminTab('ayuda')">❓ Ayuda</button>
   </div>
 
   <!-- ════════ VALES PANEL ════════ -->
@@ -530,6 +531,23 @@
     </div>
   </div>
 
+  <!-- ════════ AYUDA PANEL (v120) ════════
+       El manual de la app, dentro de la app. Se pinta desde AYUDA_SECCIONES en
+       app.js: cuando se añada algo nuevo, se añade ahí y sale aquí solo. -->
+  <div id="adminAyudaPanel" class="admin-panel">
+    <div class="lbl" style="margin-top:0;">❓ Ayuda · qué hace cada cosa</div>
+    <div style="position:relative;margin-bottom:10px;">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5;pointer-events:none;">🔎</span>
+      <input type="text" id="ayudaBuscador" placeholder="Buscar… (ej: merma, puntos, rebaja)" oninput="renderAyuda()"
+             style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 34px;font-size:13px;color:var(--text);">
+      <button type="button" id="ayudaBuscadorLimpiar" onclick="limpiarBuscadorAyuda()" title="Limpiar"
+              style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray-400);font-size:16px;cursor:pointer;padding:4px 8px;">×</button>
+    </div>
+    <div id="ayudaChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+    <div id="ayudaContenido"></div>
+  </div>
+
+
 </div><!-- /layoutAdmin -->
 
 <!-- ── MODAL: Contraseña Admin ── -->
@@ -557,6 +575,7 @@
       <button class="btn btn-blue btn-full" onclick="changePass()">Guardar</button>
     </div>
   </div>
+
 </div>
 
 <!-- ── MODAL: la clave recién generada de un gestor (v119) ──

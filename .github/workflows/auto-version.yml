@@ -53,11 +53,38 @@ jobs:
           BUILD=$(python3 -c "import json;d=json.load(open('version.json'));print(d['version'])")
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "build: ${VER} (compilación ${BUILD})
-
-          Versión generada automáticamente por build.py al detectar cambios en
+          # El push se rechaza si alguien subió algo mientras corría esto. Y aquí
+          # duele más que en la tasa: sin este commit la clave de caché no
+          # cambia y los teléfonos siguen abriendo la versión vieja — que es
+          # exactamente lo que tuvo la app rota durante semanas.
+          #
+          # Al reintentar se coge lo último del servidor y se vuelve a ejecutar
+          # build.py: la versión se calcula a partir de los archivos, así que
+          # tiene que salir de los archivos BUENOS, no de los que había cuando
+          # empezó este trabajo.
+          MENSAJE="Versión generada automáticamente por build.py al detectar cambios en
           los archivos que cachea el service worker. Sin este paso la clave de
           caché no cambia y los teléfonos siguen abriendo la versión anterior."
-          git push
-          echo "Publicada ${VER} (compilación ${BUILD})."
+          for INTENTO in 1 2 3 4 5; do
+            git add -A
+            git commit -m "build: ${VER} (compilación ${BUILD})
+
+          ${MENSAJE}" --quiet
+            if git push; then
+              echo "Publicada ${VER} (compilación ${BUILD}) en el intento ${INTENTO}."
+              exit 0
+            fi
+            echo "· Push rechazado (alguien subió antes). Reintento ${INTENTO}/5…"
+            sleep $((INTENTO * 5))
+            git fetch origin main --depth=1
+            git reset --hard origin/main --quiet
+            python3 build.py
+            if [ -z "$(git status --porcelain)" ]; then
+              echo "Con lo último del servidor ya no hay versión que subir."
+              exit 0
+            fi
+            VER=$(python3 -c "import json;d=json.load(open('version.json'));print(d['versionStr'])")
+            BUILD=$(python3 -c "import json;d=json.load(open('version.json'));print(d['version'])")
+          done
+          echo "::error::No se pudo publicar la versión tras 5 intentos."
+          exit 1

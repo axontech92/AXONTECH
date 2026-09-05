@@ -5550,7 +5550,7 @@ function logoutAdmin() {
 // ══════════════════════════════════════════
 function adminTab(tab) {
   currentAdminTab=tab;
-  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa'].forEach(t=>{
+  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa','ayuda'].forEach(t=>{
     const btn=document.getElementById('anav-'+t);if(btn)btn.classList.toggle('active',t===tab);
     const pid='admin'+t.charAt(0).toUpperCase()+t.slice(1)+'Panel';
     const el=document.getElementById(pid);
@@ -5568,6 +5568,7 @@ function adminTab(tab) {
   if(tab==='duenos'){renderDuenos();}
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
+  if(tab==='ayuda'){renderAyuda();}
 }
 
 // ══════════════════════════════════════════
@@ -16888,3 +16889,328 @@ function initAdminPage() {
   }
 }
 init().catch(e => console.error('[AXONTECH] init() failed:', e));
+
+// ══════════════════════════════════════════════════════════════════════════
+//  AYUDA — el manual de la app, dentro de la app  (v120)
+// ══════════════════════════════════════════════════════════════════════════
+// Regla de la casa: TODO lo que se añada a la app se añade también aquí. Si un
+// botón nuevo no aparece en esta lista, el trabajo no está terminado — a nadie
+// le sirve una función que solo sabe usar quien la pidió.
+//
+// Es una lista de datos, no HTML escrito a mano, justo para que añadir algo sea
+// escribir un bloque más y no pelearse con el maquetado. Campos:
+//   icono   · el mismo emoji que lleva el botón en la app, para reconocerlo
+//   titulo  · cómo se llama en pantalla
+//   donde   · en qué pestaña está, para poder ir a buscarlo
+//   para    · PARA QUÉ sirve, en una frase. Lo que se lee primero.
+//   como    · los pasos, tal como se hacen
+//   ojo     · lo que puede salir mal o lo que conviene saber antes (opcional)
+//   dibujo  · un esquema en SVG cuando el texto solo no basta (opcional)
+//   nuevo   · versión en que se añadió, para que se vea lo que cambió
+const _AY_C = { azul:'#2563EB', verde:'#10B981', naranja:'#F59E0B', rojo:'#EF4444', morado:'#7C3AED', gris:'#94A3B8' };
+
+// ── Dibujos ────────────────────────────────────────────────────────────────
+// SVG en línea y sin librerías: pesa poco, se ve nítido en cualquier pantalla
+// y cambia de color solo con el tema porque usa currentColor y las variables.
+function _ayCaja(x, y, w, h, color, texto, sub) {
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${color}22" stroke="${color}" stroke-width="1.5"/>
+    <text x="${x + w/2}" y="${y + (sub ? h/2 - 2 : h/2 + 4)}" text-anchor="middle" font-size="11" font-weight="700" fill="${color}">${texto}</text>
+    ${sub ? `<text x="${x + w/2}" y="${y + h/2 + 12}" text-anchor="middle" font-size="9" fill="var(--text-muted)">${sub}</text>` : ''}`;
+}
+function _ayFlecha(x1, y1, x2, y2, texto) {
+  return `<line x1="${x1}" y1="${y1}" x2="${x2 - 7}" y2="${y2}" stroke="var(--text-muted)" stroke-width="1.5"/>
+    <polygon points="${x2},${y2} ${x2-7},${y2-4} ${x2-7},${y2+4}" fill="var(--text-muted)"/>
+    ${texto ? `<text x="${(x1+x2)/2}" y="${y1 - 6}" text-anchor="middle" font-size="9" fill="var(--text-muted)">${texto}</text>` : ''}`;
+}
+const _ayLienzo = (alto, dentro) =>
+  `<svg viewBox="0 0 380 ${alto}" style="width:100%;max-width:380px;height:auto;display:block;margin:8px auto 2px;">${dentro}</svg>`;
+
+const AYUDA_DIBUJOS = {
+  // El camino de un vale, que es el esqueleto de toda la app
+  // Las cajas van holgadas a propósito: con 82 px el subtítulo se cortaba por
+  // los lados ("o mandó el gestor"), que es peor que no ponerlo.
+  vidaVale: () => _ayLienzo(160,
+    _ayCaja(2, 8, 116, 42, _AY_C.azul, 'Pendiente', 'lo mandó el gestor') +
+    _ayFlecha(120, 29, 138, 29) +
+    _ayCaja(140, 8, 106, 42, _AY_C.naranja, 'Con mensajero', 'va de camino') +
+    _ayFlecha(248, 29, 266, 29) +
+    _ayCaja(268, 8, 110, 42, _AY_C.morado, 'Entregado', 'sin cobrar aún') +
+    _ayFlecha(193, 54, 193, 76, '') +
+    _ayCaja(137, 80, 112, 42, _AY_C.verde, 'Cobrado', 'venta cerrada') +
+    `<text x="190" y="140" text-anchor="middle" font-size="9" fill="var(--text-muted)">Al cobrar: baja el stock, cuenta el dinero,</text>` +
+    `<text x="190" y="153" text-anchor="middle" font-size="9" fill="var(--text-muted)">y el gestor gana su comisión y sus puntos.</text>`),
+  // Unir vales: por qué el stock sale una vez y la comisión se parte
+  unirVales: () => _ayLienzo(160,
+    _ayCaja(6, 8, 110, 42, _AY_C.azul, 'Vale de Ana', 'mismo cliente') +
+    _ayCaja(6, 58, 110, 42, _AY_C.verde, 'Vale de Beto', 'mismo cliente') +
+    _ayFlecha(120, 30, 152, 54) + _ayFlecha(120, 78, 152, 56) +
+    _ayCaja(156, 34, 100, 46, _AY_C.morado, 'UNA venta', 'unidos 🔗') +
+    _ayFlecha(260, 45, 288, 30) + _ayFlecha(260, 66, 288, 84) +
+    _ayCaja(290, 10, 86, 38, _AY_C.gris, '1 vez', 'stock y dinero') +
+    _ayCaja(290, 66, 86, 38, _AY_C.naranja, '½ y ½', 'comisión y puntos') +
+    `<text x="190" y="130" text-anchor="middle" font-size="9" fill="var(--text-muted)">La mercancía sale del almacén UNA vez.</text>` +
+    `<text x="190" y="144" text-anchor="middle" font-size="9" fill="var(--text-muted)">Lo que se reparte es lo que gana cada gestor.</text>`),
+  // Quién paga la rebaja
+  rebaja: () => _ayLienzo(150,
+    _ayCaja(6, 10, 108, 40, _AY_C.gris, 'Vale $100', 'precio de lista') +
+    _ayFlecha(118, 30, 146, 30, 'rebajas $10') +
+    _ayCaja(150, 10, 108, 40, _AY_C.verde, 'Cobras $90', 'lo que entra') +
+    `<text x="8" y="76" font-size="10" font-weight="700" fill="var(--text)">Esos $10 los pone:</text>` +
+    _ayCaja(6, 84, 175, 38, _AY_C.naranja, 'El dueño de esa mercancía', 'a prorrata') +
+    _ayCaja(191, 84, 175, 38, _AY_C.azul, 'El gestor cobra igual', 'su comisión no baja') +
+    `<text x="190" y="140" text-anchor="middle" font-size="9" fill="var(--text-muted)">Si el vale mezcla productos de varios, se reparte según lo que puso cada uno.</text>`),
+  // De dónde salen los puntos
+  puntos: () => _ayLienzo(130,
+    _ayCaja(6, 10, 110, 42, _AY_C.azul, 'Producto', 'lleva sus puntos') +
+    _ayFlecha(120, 30, 148, 30) +
+    _ayCaja(152, 10, 104, 42, _AY_C.verde, 'Venta cobrada', 'suma los puntos') +
+    _ayFlecha(260, 30, 288, 30) +
+    _ayCaja(292, 10, 84, 42, _AY_C.naranja, 'Ranking', 'del gestor') +
+    `<text x="190" y="76" text-anchor="middle" font-size="9" fill="var(--text-muted)">Los puntos NO se congelan: salen del catálogo cada vez.</text>` +
+    `<text x="190" y="90" text-anchor="middle" font-size="9" fill="var(--text-muted)">Si un producto quedó sin puntos y se los pones ahora,</text>` +
+    `<text x="190" y="104" text-anchor="middle" font-size="9" fill="var(--text-muted)">las ventas ya hechas los suman solas.</text>`),
+};
+
+// ── El contenido ───────────────────────────────────────────────────────────
+// AQUÍ SE AÑADE LO NUEVO. Un bloque más en la sección que le toque, y listo.
+const AYUDA_SECCIONES = [
+  {
+    id: 'vales', icono: '📥', titulo: 'Vales',
+    intro: 'El camino de una venta, desde que el gestor la manda hasta que entra el dinero.',
+    dibujo: 'vidaVale',
+    temas: [
+      { icono:'📥', titulo:'Bandeja de entrada', donde:'Vales',
+        para:'Ver los vales que mandaron los gestores y que todavía no has cerrado.',
+        como:'Toca el nombre de un gestor para desplegar sus vales, y un vale para abrir su detalle a la derecha.',
+        ojo:'El contador rojo son los que aún no has abierto, no los que faltan por cobrar.' },
+      { icono:'🛵', titulo:'Asignar a un mensajero', donde:'Vales › detalle del vale',
+        para:'Mandar la mercancía con alguien y que quede apuntado quién la lleva.',
+        como:'Abre el vale, dale a "Asignar a Mensajero", elige a quién y compártele el vale por WhatsApp.',
+        ojo:'Si el vale es de recogida en tienda, este botón no sale: no hay nada que repartir.' },
+      { icono:'✅', titulo:'Cobrado directo / Entregado por cobrar', donde:'Vales › detalle del vale',
+        para:'Cerrar la venta. "Cobrado" es que el dinero ya entró; "Entregado" es que el cliente lo tiene pero aún debe.',
+        como:'Los dos botones verdes del detalle. Cualquiera de los dos descuenta el stock y le genera comisión al gestor.',
+        ojo:'La venta cuenta el día que la confirmas, no el día que el gestor mandó el vale.' },
+      { icono:'💵', titulo:'El mensajero te debe el dinero', donde:'Vales / Mensajeros',
+        para:'Separar dos cosas que antes iban juntas: la venta está cerrada, pero el mensajero aún no te entregó el efectivo.',
+        como:'Al confirmar te pregunta si el mensajero ya pagó. Si dices que no, queda apuntado en su ficha hasta que le des a "Me entregó el dinero".',
+        nuevo:'v119' },
+      { icono:'✏️', titulo:'Editar un vale', donde:'Vales › detalle del vale',
+        para:'Corregir cliente, teléfono, dirección, productos, la fecha o el precio.',
+        como:'Botón "Editar vale" en el detalle.',
+        ojo:'Si el vale ya descontó stock, los productos no se pueden cambiar: hay que revertir la venta primero.' },
+      { icono:'🏬', titulo:'Cambiar entre recogida en tienda y mensajería', donde:'Vales › Editar vale',
+        para:'El cliente dijo que pasaba por la tienda y luego pidió que se lo llevaran, o al revés.',
+        como:'En "Editar vale", marca o desmarca "Recogida en tienda". Rellena o limpia dirección y mensajería solo.',
+        ojo:'Si el vale ya va con un mensajero, te avisa: quítaselo antes o seguirá contando como suyo.',
+        nuevo:'v120' },
+      { icono:'🔗', titulo:'Unir vales de dos gestores', donde:'Vales › detalle del vale',
+        para:'Dos gestores apuntaron la MISMA venta. Es una sola: la mercancía sale una vez y el dinero entra una vez, pero la comisión y los puntos se reparten.',
+        como:'Abre el vale, "Unir con el vale de otro gestor", elige cuál y confirma. Los dos quedan marcados y se puede deshacer con el 🔓.',
+        ojo:'Solo se unen vales que aún NO hayan descontado stock. Si ya está cobrado, revierte la venta primero. A los dos gestores les llega un aviso con lo que le toca a cada uno.',
+        dibujo:'unirVales', nuevo:'v120' },
+      { icono:'🏷️', titulo:'Rebajar un vale', donde:'Vales › detalle del vale',
+        para:'Hacerle un precio al cliente sin cambiar el catálogo.',
+        como:'"Rebajar este vale", escribe cuánto se rebaja (o usa −5 / −10) y elige la moneda. Puedes poner el motivo.',
+        ojo:'Ese dinero se lo descuenta el DUEÑO de esa mercancía en el corte, repartido según lo que puso cada uno en el vale. La comisión del gestor no baja.',
+        dibujo:'rebaja' },
+      { icono:'↩️', titulo:'Revertir una venta', donde:'Vales › detalle del vale',
+        para:'Deshacer un cobro: el vale vuelve atrás y la mercancía vuelve al almacén.',
+        como:'Botón de revertir en un vale ya cobrado o entregado.',
+        ojo:'También borra los avisos de "venta cobrada" que le llegaron al gestor, para que no vea algo que ya no es.' },
+    ],
+  },
+  {
+    id: 'stock', icono: '📦', titulo: 'Stock',
+    intro: 'El almacén: lo que hay, lo que se apartó y lo que se perdió.',
+    temas: [
+      { icono:'＋', titulo:'Nuevo producto', donde:'Stock',
+        para:'Dar de alta algo para vender.',
+        como:'"+ Nuevo producto". Ponle nombre, precio, comisión, puntos, foto y de quién es.',
+        ojo:'Si le dejas los PUNTOS en cero, las ventas de ese producto no le dan puntos a nadie. Es el fallo más fácil de cometer.' },
+      { icono:'📥', titulo:'Ajustar stock', donde:'Stock › 📥',
+        para:'Decir cuántas unidades hay ahora.',
+        como:'Escribe la cantidad o usa +5 / +10 / +25. Te enseña cuántas hay, cuántas están apartadas y cuántas se pueden vender.' },
+      { icono:'📉', titulo:'Merma', donde:'Stock › 📉 en cada producto',
+        para:'Dar de baja mercancía que se perdió: rota, mojada, vencida o que no aparece. Baja el stock y deja apuntado POR QUÉ.',
+        como:'Botón 📉 del producto, pon cuántas, elige el motivo y una nota si quieres. El botón "📉 Mermas" de arriba abre el historial, con lo perdido del mes.',
+        ojo:'Se puede deshacer y las unidades vuelven al almacén. Si el producto tiene precio de compra apuntado, te dice cuánto dinero se perdió.',
+        nuevo:'v119' },
+      { icono:'🔐', titulo:'Reservar unidades', donde:'Stock › 🔐',
+        para:'Apartar mercancía para un cliente sin sacarla del almacén.',
+        como:'Botón 🔐 del producto y pon cuántas apartas.',
+        ojo:'Lo reservado no se puede vender en otro vale. El selector de productos solo deja elegir lo que queda disponible.' },
+      { icono:'🆕', titulo:'Chapa NUEVO', donde:'Stock y selector de productos',
+        para:'Que se vea de un vistazo lo que acaba de entrar. Sale sola durante 3 días.',
+        como:'No hay que hacer nada: al subir un producto se marca solo. También la ven los gestores al hacer un vale.',
+        nuevo:'v119' },
+      { icono:'✏️', titulo:'Editar un producto agotado', donde:'Stock › sección Agotados',
+        para:'Corregirle el precio, la foto o la comisión aunque no quede ninguno.',
+        como:'El lápiz ✏️ al lado de "Reponer".',
+        nuevo:'v119' },
+      { icono:'☁️', titulo:'Aligerar catálogo', donde:'Stock',
+        para:'Sacar a GitHub las fotos que están guardadas dentro de la base de datos. Baja mucho el consumo de datos de todos los teléfonos.',
+        como:'Botón "☁️ Aligerar catálogo". Necesita GitHub configurado en Config.' },
+    ],
+  },
+  {
+    id: 'gestores', icono: '👥', titulo: 'Gestores',
+    intro: 'Quién vende, cuánto se le debe y cómo va en el ranking.',
+    temas: [
+      { icono:'＋', titulo:'Agregar un gestor', donde:'Gestores',
+        para:'Dar de alta a alguien que va a vender.',
+        como:'Escribe su nombre (y su teléfono, que luego sirve para mandarle la clave) y dale a Agregar.',
+        ojo:'La clave sale en una ventana que se queda hasta que la cierres, con botón para copiarla y para mandarla por WhatsApp. Apúntala: después NO se puede volver a ver.',
+        nuevo:'v119' },
+      { icono:'🔑', titulo:'La clave de un gestor', donde:'Gestores › 🔒 o 📋 Copiar',
+        para:'Mandarle su clave para que entre en la app.',
+        como:'Al crearlo o al resetearla sale la ventana con la clave. Si ya la perdiste, toca el candado 🔒 y te ofrece generar una nueva y enviarla.',
+        ojo:'Las claves se guardan encriptadas a propósito: así una copia de la base de datos no reparte las claves de todos. Ni tú puedes leerlas. Generar una nueva deja fuera al gestor hasta que le mandes la nueva.' },
+      { icono:'💰', titulo:'Comisiones', donde:'Gestores › tarjeta del gestor',
+        para:'Ver y pagar lo que le debes a cada uno.',
+        como:'Toca "💰 Comisiones" en su tarjeta. Cada vale se puede marcar "En sobre" (apartado) o "Cobrado" (ya pagado).',
+        ojo:'La lista se ordena poniendo primero a quien tiene comisiones SIN repasar. Lo que ya está en el sobre va después, porque ese trabajo ya lo hiciste.' },
+      { icono:'⭐', titulo:'Corregir los puntos a mano', donde:'Gestores › ⭐ Puntos',
+        para:'Arreglar los puntos de un gestor cuando el cálculo automático se quedó corto.',
+        como:'Botón "⭐ Puntos" en su tarjeta. Escribe el total que DEBE tener y la app calcula el ajuste sola.',
+        ojo:'Antes de usarlo, mira el aviso: si vendió un producto sin puntos, ponérselos al producto arregla las ventas ya hechas y para todos los gestores, no solo para uno. El ajuste a mano es para lo que eso no arregle.',
+        dibujo:'puntos', nuevo:'v120' },
+      { icono:'🏆', titulo:'Meta y ranking', donde:'Config › Meta de puntos',
+        para:'La competencia entre gestores. Hay tres modos: sin meta, meta fija (llega a X puntos) o mensual (gana el que más tenga en el ciclo).',
+        como:'En Config eliges el modo. En mensual puedes escoger el día en que empieza el ciclo: si pones 29, va del 29 al 29.',
+        ojo:'Reiniciar los puntos no borra nada: marca una fecha desde la que se empieza a contar, y se puede deshacer.' },
+    ],
+  },
+  {
+    id: 'duenos', icono: '🧑‍💼', titulo: 'Dueños',
+    intro: 'De quién es cada producto, cuánto se vendió de lo suyo y cuánto le debe a los gestores.',
+    temas: [
+      { icono:'🧑‍💼', titulo:'Dar de alta un dueño', donde:'Dueños',
+        para:'Separar la mercancía de cada cual para poder cerrar cuentas al final del día.',
+        como:'Escribe el nombre y dale a "Agregar dueño". Luego, en la ficha de cada producto, eliges de quién es.' },
+      { icono:'📅', titulo:'El corte del día', donde:'Dueños',
+        para:'Saber, en un período, cuánto entró por la mercancía de cada uno y cuánta comisión debe pagar.',
+        como:'Elige las fechas (o Hoy / Ayer / Este mes). Toca a un dueño para ver sus ventas vale por vale.',
+        ojo:'Las ventas cuentan el día en que se CONFIRMAN, no el día en que se mandó el vale. Así el corte del día sale completo.' },
+      { icono:'🏷️', titulo:'Los vales rebajados en el corte', donde:'Dueños',
+        para:'Que el número que ves sea lo que de verdad entró, no el precio de lista.',
+        como:'No hay que hacer nada: la rebaja ya viene descontada del importe del dueño de esa mercancía.',
+        ojo:'Si el vale mezcla productos de varios, la rebaja se reparte según lo que puso cada uno. La comisión del gestor no cambia.',
+        nuevo:'v120' },
+      { icono:'🔒', titulo:'Quién puede ver esto', donde:'—',
+        para:'Saber que estos datos son solo tuyos.',
+        como:'Los dueños, los precios de compra y las mermas solo se los baja el teléfono del admin. La app del gestor ni los pide ni los guarda.' },
+    ],
+  },
+  {
+    id: 'stats', icono: '📊', titulo: 'Estadísticas y ganancia',
+    intro: 'Lo que se vendió, lo que costó y lo que quedó.',
+    temas: [
+      { icono:'💵', titulo:'Precio de compra', donde:'Estadísticas › tabla de ganancia',
+        para:'Sin esto no se puede saber cuánto ganas: solo cuánto vendiste.',
+        como:'Escribe el costo de cada producto en la columna "Costo u." de la tabla.',
+        ojo:'El costo se congela al confirmar la venta. Si mañana subes el precio de compra, las ventas de ayer siguen valiendo lo que valían.' },
+      { icono:'📈', titulo:'Ganancia del período', donde:'Estadísticas',
+        para:'Lo que de verdad quedó: lo que entró, menos lo que costó la mercancía, menos las comisiones.',
+        como:'Elige las fechas arriba.',
+        ojo:'Si un vale llevaba rebaja, aquí cuenta lo que se cobró de verdad, no el precio de lista.',
+        nuevo:'v120' },
+    ],
+  },
+  {
+    id: 'config', icono: '⚙️', titulo: 'Config y respaldos',
+    intro: 'Ajustes, copias de seguridad y la tasa del dólar.',
+    temas: [
+      { icono:'💱', titulo:'Tasa del dólar', donde:'Config / chip de la tasa',
+        para:'Convertir entre USD y MN en los paneles que lo necesitan.',
+        como:'Se actualiza sola cada 3 horas. También la puedes poner a mano, y entonces manda la tuya.',
+        ojo:'La tasa a mano no se pierde al cerrar la app.' },
+      { icono:'💾', titulo:'Exportar / importar datos', donde:'Config',
+        para:'Sacar una copia de todo por si acaso, y volver a meterla.',
+        como:'"Exportar" descarga un archivo. "Importar" lo vuelve a cargar.',
+        ojo:'La copia NO lleva el token de GitHub, a propósito. Al importar se conserva el que ya tengas.' },
+      { icono:'🛍️', titulo:'Publicar el catálogo', donde:'Catálogo',
+        para:'Tener una página pública con lo que hay a la venta, para pasarla por WhatsApp.',
+        como:'Configura GitHub en Config y dale a publicar. Te devuelve el enlace.' },
+    ],
+  },
+];
+
+// ── Pintar la ayuda ────────────────────────────────────────────────────────
+let _ayudaSeccion = null;   // null = todas
+function limpiarBuscadorAyuda() {
+  const i = document.getElementById('ayudaBuscador');
+  if (i) { i.value = ''; i.focus(); }
+  renderAyuda();
+}
+function ayudaFiltrar(id) {
+  _ayudaSeccion = (_ayudaSeccion === id) ? null : id;
+  renderAyuda();
+}
+function _ayudaCoincide(t, q) {
+  if (!q) return true;
+  const txt = [t.titulo, t.para, t.como, t.ojo, t.donde].filter(Boolean).join(' ').toLowerCase();
+  // Todas las palabras, en cualquier orden: "puntos gestor" encuentra el tema
+  // aunque en el texto vayan al revés.
+  return q.split(/\s+/).filter(Boolean).every(w => txt.includes(w));
+}
+function renderAyuda() {
+  const cont = document.getElementById('ayudaContenido');
+  const chips = document.getElementById('ayudaChips');
+  if (!cont) return;
+  const inp = document.getElementById('ayudaBuscador');
+  const q = ((inp && inp.value) || '').trim().toLowerCase();
+  const btnLimpiar = document.getElementById('ayudaBuscadorLimpiar');
+  if (btnLimpiar) btnLimpiar.style.display = q ? 'block' : 'none';
+
+  // Al buscar se ignora la sección elegida, por lo mismo que en el buscador de
+  // Stock: si escribes "merma" y no sale porque tenías puesto otro filtro, el
+  // buscador parece roto.
+  const secciones = AYUDA_SECCIONES
+    .filter(s => q || !_ayudaSeccion || s.id === _ayudaSeccion)
+    .map(s => ({ ...s, temas: s.temas.filter(t => _ayudaCoincide(t, q)) }))
+    .filter(s => s.temas.length);
+
+  if (chips) {
+    chips.innerHTML = AYUDA_SECCIONES.map(s => {
+      const on = !q && _ayudaSeccion === s.id;
+      return `<button type="button" class="pcat-tab ${on ? 'active' : ''}" onclick="ayudaFiltrar('${s.id}')">${s.icono} ${escapeHTML(s.titulo)}</button>`;
+    }).join('');
+    chips.style.opacity = q ? '.45' : '1';
+  }
+
+  const total = AYUDA_SECCIONES.reduce((n, s) => n + s.temas.length, 0);
+  const hallados = secciones.reduce((n, s) => n + s.temas.length, 0);
+
+  if (!secciones.length) {
+    cont.innerHTML = `<div class="es"><div class="es-icon">🔎</div><div class="es-text">Nada coincide con “${escapeHTML(q)}”.<br>
+      <span style="font-size:11px;">Prueba con una palabra suelta: merma, puntos, rebaja, clave, unir…</span></div></div>`;
+    return;
+  }
+
+  const tema = t => {
+    const dib = t.dibujo && AYUDA_DIBUJOS[t.dibujo] ? AYUDA_DIBUJOS[t.dibujo]() : '';
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px 15px;margin-bottom:8px;">
+      <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+        <span style="font-size:16px;">${t.icono}</span>
+        <span style="font-size:14px;font-weight:800;color:var(--text);">${escapeHTML(t.titulo)}</span>
+        ${t.nuevo ? `<span style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;">NUEVO ${escapeHTML(t.nuevo)}</span>` : ''}
+        ${t.donde ? `<span style="font-size:10px;color:var(--text-muted);">· ${escapeHTML(t.donde)}</span>` : ''}
+      </div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.5;margin-bottom:5px;">${escapeHTML(t.para)}</div>
+      ${t.como ? `<div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;"><b style="color:var(--text);">Cómo:</b> ${escapeHTML(t.como)}</div>` : ''}
+      ${t.ojo ? `<div style="margin-top:7px;font-size:11px;line-height:1.5;background:rgba(245,158,11,.10);border-left:3px solid var(--orange);border-radius:6px;padding:7px 10px;color:var(--text);">⚠️ ${escapeHTML(t.ojo)}</div>` : ''}
+      ${dib}
+    </div>`;
+  };
+
+  cont.innerHTML =
+    (q ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">${hallados} de ${total} · se buscó en todas las secciones</div>` : '')
+    + secciones.map(s => `
+      <div style="margin-bottom:16px;">
+        <div class="lbl" style="margin-top:0;">${s.icono} ${escapeHTML(s.titulo)}</div>
+        ${s.intro && !q ? `<div style="font-size:11.5px;color:var(--text-muted);margin:-4px 0 8px;line-height:1.5;">${escapeHTML(s.intro)}</div>` : ''}
+        ${s.dibujo && !q && AYUDA_DIBUJOS[s.dibujo] ? `<div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:8px;margin-bottom:8px;">${AYUDA_DIBUJOS[s.dibujo]()}</div>` : ''}
+        ${s.temas.map(tema).join('')}
+      </div>`).join('');
+}

@@ -62,7 +62,32 @@ jobs:
           VALOR=$(python3 -c "import json;print(json.load(open('tasa.json'))['valor'])")
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tasa.json
-          git commit -m "tasa: ${VALOR} CUP por USD"
-          git push
-          echo "Publicada la tasa ${VALOR}."
+
+          # El push se rechazaba cuando alguien había subido algo mientras este
+          # trabajo corría ("! [rejected] main -> main (fetch first)"): se
+          # perdía la tasa y había que esperar tres horas a la siguiente vuelta.
+          #
+          # No se hace rebase: este trabajo solo produce UN archivo, así que se
+          # coge lo último del servidor, se le pone encima la tasa recién leída
+          # y se sube. Si vuelve a colarse alguien, se reintenta. La tasa más
+          # nueva es la que vale, que es justo lo que se quiere.
+          TASA_NUEVA=$(cat tasa.json)
+          for INTENTO in 1 2 3 4 5; do
+            git fetch origin main --depth=1
+            git reset --hard origin/main --quiet
+            printf '%s' "$TASA_NUEVA" > tasa.json
+            if [ -z "$(git status --porcelain tasa.json)" ]; then
+              echo "Otro push ya dejó esta misma tasa — no hay nada que subir."
+              exit 0
+            fi
+            git add tasa.json
+            git commit -m "tasa: ${VALOR} CUP por USD" --quiet
+            if git push; then
+              echo "Publicada la tasa ${VALOR} (intento ${INTENTO})."
+              exit 0
+            fi
+            echo "· Push rechazado (alguien subió antes). Reintento ${INTENTO}/5…"
+            sleep $((INTENTO * 5))
+          done
+          echo "::error::No se pudo publicar la tasa ${VALOR} tras 5 intentos."
+          exit 1
