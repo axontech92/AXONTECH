@@ -30,7 +30,10 @@
       "name": "Kevin",
       "color": "#DC2626",
       "initials": "K",
-      "password": "CDFK3V"
+      "password": "CDFK3V",
+      "puntosAjuste": 5,
+      "puntosAjusteDia": "2026-09-05",
+      "puntosAjusteMotivo": ""
     },
     {
       "id": 1781761257104,
@@ -15810,5 +15813,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T17:01:39.143Z"
+  "timestamp": "2026-09-05T17:06:16.246Z"
 }
