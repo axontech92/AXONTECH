@@ -949,7 +949,7 @@
       "name": "PORTACELULARES",
       "catId": 30,
       "photo": "photos/img_1778384428890.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/img_1778384428890.webp",
       "nombre": "PORTACELULARES",
       "precio": "$15 USD",
@@ -1565,7 +1565,7 @@
       "name": "Camara de Panel",
       "catId": 80,
       "photo": "photos/img_1785079567810.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1785079567810.webp",
       "nombre": "Camara de Panel",
       "precio": "$100",
@@ -2344,11 +2344,49 @@
   ],
   "vales": [
     {
+      "id": 1788624682560,
+      "ts": "2026-09-05T16:11:22.566Z",
+      "total": "$90 USD",
+      "carnet": "",
+      "seenTs": "2026-09-05T16:12:28.512Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Cesar",
+      "valeNum": 221,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5358434612",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Cesar\n🔸Teléfono Cliente: 5358434612\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 05/09/2026 12:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$90 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788622215741,
       "ts": "2026-09-05T15:30:15.753Z",
       "total": "$100 USD + 2000 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-05T16:12:35.328Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Carlos",
       "valeNum": 220,
@@ -2360,10 +2398,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 52902139\n🔸Dirección Cliente: Almendares 226 entre benjumeda y 19 de mayo\n🔸Mensajería/ costo: 2000 mn\n🔸 Artículos y cantidades:\n  ×1 Camara de Panel\n🔸Precio USD/ zelle: $100 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $100 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 05/09/2026 11:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Almendares 226 entre benjumeda y 19 de mayo",
       "precioUSD": "$100 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "2000 mn",
       "comFijadaMN": 0,
-      "horaEntrega": "",
+      "confirmedTs": "2026-09-05T16:12:45.349Z",
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2372,11 +2412,10 @@
           "name": "Camara de Panel"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -15727,5 +15766,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T15:30:27.399Z"
+  "timestamp": "2026-09-05T16:13:45.371Z"
 }
