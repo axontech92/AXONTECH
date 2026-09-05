@@ -1990,7 +1990,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2350,6 +2350,45 @@
   ],
   "vales": [
     {
+      "id": 1788646669658,
+      "ts": "2026-09-05T22:17:49.667Z",
+      "total": "$160 USD + 2400 MN",
+      "carnet": "",
+      "seenTs": "2026-09-05T22:41:49.837Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Guajiro",
+      "valeNum": 227,
+      "articulo": "×1 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "051528817",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Guajiro\n🔸Teléfono Cliente: 051528817\n🔸Dirección Cliente: Calzada 10 de Octubre e/ General Sanchez y josefina\n🔸Mensajería/ costo: 2400\n🔸 Artículos y cantidades:\n  ×1 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 2400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 05/09/2026 18:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calzada 10 de Octubre e/ General Sanchez y josefina",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-05T22:41:23.588Z",
+      "mensajeria": "2400",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 1,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788635461206,
       "ts": "2026-09-05T19:11:01.209Z",
       "total": "$90 USD",
@@ -2429,7 +2468,7 @@
       "ts": "2026-09-05T17:33:06.279Z",
       "total": "$275 USD + 2800 MN",
       "carnet": "",
-      "seenTs": "2026-09-05T20:11:23.134Z",
+      "seenTs": "2026-09-05T22:42:51.454Z",
       "status": "pending",
       "vuelto": "25$",
       "cliente": "Osvaldo",
@@ -2507,8 +2546,8 @@
       "ts": "2026-09-05T16:11:22.566Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-05T16:12:28.512Z",
-      "status": "pending",
+      "seenTs": "2026-09-05T22:42:02.261Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Cesar",
       "valeNum": 221,
@@ -2524,6 +2563,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-05T22:42:06.650Z",
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -2535,7 +2575,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2582,7 +2622,7 @@
       "ts": "2026-09-05T15:10:09.600Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-05T17:45:12.411Z",
+      "seenTs": "2026-09-05T22:42:10.408Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis Yerandi",
@@ -3986,7 +4026,7 @@
       "ts": "2026-09-03T14:19:58.124Z",
       "total": "$100 USD + 20000 MN",
       "carnet": "",
-      "seenTs": "2026-09-05T16:53:12.241Z",
+      "seenTs": "2026-09-05T22:42:36.946Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Hectico",
@@ -15889,5 +15929,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T20:12:17.489Z"
+  "timestamp": "2026-09-05T22:43:06.671Z"
 }
