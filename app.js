@@ -11844,6 +11844,10 @@ function _lineasPorDueno(vales) {
     const comEstado = (v.commissionPaid || v.commissionStatus === 'cobrado') ? 'cobrado'
                      : v.commissionStatus === 'en_sobre' ? 'en_sobre' : 'pendiente';
     if (!(v.valeProductos || []).length) sinProductos++;
+    // v120: las líneas de ESTE vale se juntan aparte antes de repartirlas entre
+    // los dueños, porque la rebaja hay que repartirla entre ellas y para eso
+    // hace falta saber cuánto suma el vale entero. Ver el bloque de abajo.
+    const _lineasVale = [];
     (v.valeProductos || []).forEach(({ id, qty }) => {
       const p = productoOf(id);
       const dueno = duenoPorId(duenoIdDe(id));
@@ -11864,12 +11868,8 @@ function _lineasPorDueno(vales) {
           comUSD = r.totalUSD || 0; comMN = r.totalMN || 0;
         } catch(e) {}
       }
-      if (!porDueno.has(clave)) porDueno.set(clave, {
-        id: dueno ? dueno.id : null,
-        nombre: dueno ? dueno.nombre : 'Mercancía de la tienda',
-        propia: !dueno, lineas: [],
-      });
-      porDueno.get(clave).lineas.push({
+      _lineasVale.push({
+        clave, dueno,
         ts: v.ts, valeId: v.id, valeNum: (typeof valeNumStr === 'function' ? valeNumStr(v) : ''),
         cliente: v.cliente || '',
         gestor: esTienda ? 'Tienda (admin)' : (g ? g.name : '—'), esTienda,
@@ -11878,6 +11878,51 @@ function _lineasPorDueno(vales) {
         qty: unidades, ventaUSD, ventaMN, comUSD, comMN,
         sinPrecio: !pv.usd && !pv.mn, tieneRebaja,
       });
+    });
+
+    // ── v120: la rebaja del admin baja el dinero del DUEÑO de esa mercancía ──
+    // Este panel existe para saber, al cerrar el día, cuánto entró por lo de
+    // cada cual. Enseñar el precio de catálogo mentía justo en ese número: si
+    // el vale se rebajó, por lo suyo entró menos.
+    //
+    // Se reparte a prorrata de lo que pesa cada línea: si el vale mezcla un
+    // producto de Pedro de $80 y uno de la tienda de $20, una rebaja de $10 le
+    // quita $8 a Pedro y $2 a la tienda. Cada moneda por su lado, igual que en
+    // _rebajaVale: rebajar dólares no puede tocar los pesos.
+    //
+    // Solo la rebaja del ADMIN, no lo que cede el gestor. La cesión sale de la
+    // comisión del gestor, y la columna de comisión de este panel es la del
+    // catálogo (sin la cesión descontada): restarla también aquí le quitaría al
+    // dueño el mismo dinero dos veces —cobraría menos Y pagaría igual—.
+    const _reb = Math.max(0, parseFloat(v.rebajaAdmin || 0) || 0);
+    if (_reb > 0 && _lineasVale.length) {
+      const _campo = (String(v.rebajaAdminMoneda || 'USD')).toUpperCase() === 'MN' ? 'ventaMN' : 'ventaUSD';
+      const _totalVale = _lineasVale.reduce((s, l) => s + l[_campo], 0);
+      if (_totalVale > 0) {
+        // A la última línea se le da lo que quede, para que lo repartido sume
+        // exactamente la rebaja y el redondeo no pierda ni invente un céntimo.
+        let _repartido = 0;
+        _lineasVale.forEach((l, i) => {
+          const _quiere = (i === _lineasVale.length - 1)
+            ? _reb - _repartido
+            : Math.round((_reb * (l[_campo] / _totalVale)) * 100) / 100;
+          const _real = Math.max(0, Math.min(l[_campo], _quiere));
+          l[_campo] = Math.round((l[_campo] - _real) * 100) / 100;
+          l.rebajaAplicada = Math.round(((l.rebajaAplicada || 0) + _real) * 100) / 100;
+          _repartido += _real;
+        });
+      }
+      // Si el vale no tiene nada en esa moneda no hay de dónde restar. No se
+      // inventa quitándolo de la otra; el aviso de arriba ya avisa del caso.
+    }
+
+    _lineasVale.forEach(l => {
+      if (!porDueno.has(l.clave)) porDueno.set(l.clave, {
+        id: l.dueno ? l.dueno.id : null,
+        nombre: l.dueno ? l.dueno.nombre : 'Mercancía de la tienda',
+        propia: !l.dueno, lineas: [],
+      });
+      porDueno.get(l.clave).lineas.push(l);
     });
   });
   // Los totales de cada grupo, en las dos monedas.
@@ -12158,7 +12203,11 @@ function renderDuenos() {
       : `${sinProductos} venta(s) del período no llevan productos del catálogo enlazados y no entran en este reparto.`);
   }
   if (sinPrecio) avisos.push(`${sinPrecio} línea(s) de venta son de productos sin precio en el catálogo (o borrados), así que no suman importe.`);
-  if (conRebaja) avisos.push(`${conRebaja} vale(s) del período llevaban rebaja: se cobró menos de lo que suman sus líneas, que van al precio de catálogo.`);
+  // v120: el aviso decía que las líneas iban al precio de catálogo. Ya no: la
+  // rebaja se le descuenta al dueño de esa mercancía, que es lo que de verdad
+  // entró por lo suyo. Se sigue avisando para que se sepa por qué un producto
+  // aparece por debajo de su precio.
+  if (conRebaja) avisos.push(`${conRebaja} vale(s) del período llevaban rebaja: ya viene descontada del importe de cada dueño, a prorrata de lo que puso cada uno en el vale.`);
   cAviso.innerHTML = avisos.length ? `<div class="ax2-aviso">${avisos.map(a => `<div>⚠️ ${a}</div>`).join('')}</div>` : '';
 
   // ── RESUMEN, cada moneda por su lado ──
