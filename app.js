@@ -5143,8 +5143,7 @@ function _descontarStock(v) {
     prods[idx] = {...prods[idx], stock: newStock};
     stockChanged = true;
     addNotif('sale_product', prods[idx].name, pid, `${qty}|${newStock}`, v.gestorId);
-    if (newStock === 0 && oldStock > 0) addNotif('out_of_stock', prods[idx].name, pid, 'stock agotado');
-    else if (newStock > 0 && newStock <= LOW_STOCK_THRESHOLD && oldStock > LOW_STOCK_THRESHOLD) addNotif('low_stock', prods[idx].name, pid, `quedan ${newStock}`);
+    _avisarCambioStock(pid, prods[idx].name, oldStock, newStock);
   });
   if (stockChanged) guardarProductosPorDelta(prods, deltas);
   return stockChanged;
@@ -5210,6 +5209,27 @@ function addNotif(type, productName, productId, extra, gestorId, evt) {
   notifs.unshift(n);
   saveNotifs(_trimNotifs(notifs));
   renderGestorNotifs();
+}
+
+// ── v121: cuándo se avisa de un cambio de stock, en UN solo sitio ───────────
+// La regla estaba escrita en cuatro y las cuatro no decían lo mismo, así que
+// reponer avisaba o no según por dónde lo hicieras:
+//   · La ventana de stock (📦) sí avisaba.
+//   · Editar el producto avisaba solo si el stock guardado era el NÚMERO 0. Con
+//     "0" de texto —o sin el campo stock, que le pasa a los productos viejos—
+//     comparaba 0 === "0" en estricto, daba falso y no avisaba nadie. Este es
+//     el caso que se reportó: producto repuesto y ni una notificación.
+//   · Devolver stock al revertir un vale o al deshacer una merma no avisaba
+//     nunca, y ahí también vuelve a haber mercancía que vender.
+// Ahora todos pasan por aquí, y por aquí los números se leen con parseInt, sea
+// lo que sea lo que haya guardado.
+function _numStock(v) { const n = parseInt(v, 10); return isFinite(n) ? n : 0; }
+function _avisarCambioStock(id, nombre, antes, ahora) {
+  const a = _numStock(antes), b = _numStock(ahora);
+  if (a === b) return;
+  if (a === 0 && b > 0) addNotif('restocked', nombre, id, 'stock: ' + b);
+  else if (b === 0 && a > 0) addNotif('out_of_stock', nombre, id, 'stock agotado');
+  else if (b > 0 && b <= LOW_STOCK_THRESHOLD && a > LOW_STOCK_THRESHOLD) addNotif('low_stock', nombre, id, 'quedan ' + b);
 }
 
 function openNotifsModal() {
@@ -10874,7 +10894,7 @@ async function saveProduct() {
     setCosto(editingProductId,costoEscrito);
     setDuenoProducto(editingProductId,duenoElegido);
     patchProducto(editingProductId,prod);
-    if(old&&old.stock===0&&prod.stock>0) addNotif('restocked',prod.name,editingProductId,`stock: ${prod.stock}`);
+    if(old) _avisarCambioStock(editingProductId, prod.name, old.stock, prod.stock);
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
@@ -11022,9 +11042,7 @@ function guardarStockModal() {
 // cuándo avisar escrita dos veces: ya pasó con otras vistas y acabó divergiendo.
 function _aplicarCambioStock(id, p, oldStock, newStock) {
   patchProducto(id, {stock: newStock});
-  if (oldStock === 0 && newStock > 0) addNotif('restocked', p.name, id, 'stock: ' + newStock);
-  else if (newStock === 0 && oldStock > 0) addNotif('out_of_stock', p.name, id, 'stock agotado');
-  else if (newStock > 0 && newStock <= LOW_STOCK_THRESHOLD && oldStock > LOW_STOCK_THRESHOLD) addNotif('low_stock', p.name, id, 'quedan ' + newStock);
+  _avisarCambioStock(id, p.name, oldStock, newStock);
   maybeAutoSync();
   renderProductGrid();
   if (typeof renderStockCategorias === 'function') renderStockCategorias();
@@ -15160,9 +15178,14 @@ function _devolverStockDeVale(v) {
   (v.valeProductos || []).forEach(({id:pid, qty}) => {
     const idx = prods.findIndex(p => p && p.id === pid);
     if (idx === -1 || !qty) return;
-    prods[idx] = {...prods[idx], stock: Math.max(0, (prods[idx].stock || 0) + qty)};
+    const antes = _numStock(prods[idx].stock);
+    const ahora = Math.max(0, antes + qty);
+    prods[idx] = {...prods[idx], stock: ahora};
     deltas[pid] = (deltas[pid] || 0) + qty;
     cambio = true;
+    // v121: si estaba agotado y vuelve a haber, es una reposición como otra
+    // cualquiera y el gestor tiene que enterarse. Antes por aquí no salía nada.
+    _avisarCambioStock(pid, prods[idx].name, antes, ahora);
   });
   if (cambio) guardarProductosPorDelta(prods, deltas);
   return true;
@@ -17183,9 +17206,9 @@ const AYUDA_SECCIONES = [
         nuevo:'v120' },
       { icono:'🔔', titulo:'Avisos al teléfono del gestor', donde:'Automático',
         para:'Que el gestor se entere sin abrir la app de que entró un producto nuevo, de que se acabó uno (para no ofrecerlo y quedar mal) o de que se repuso.',
-        como:'No hay que hacer nada: al dar de alta, agotar o reponer un producto, a los gestores les salta el aviso con la foto del producto, su nombre y qué hacer.',
-        ojo:'Cada gestor tiene que darle una vez a "🔔 Activar alertas push" en su app; si no da permiso, no le llega nada. Solo se avisa de lo de las últimas 6 horas y como mucho 3 seguidos, para no llenarle la pantalla.',
-        nuevo:'v120' },
+        como:'No hay que hacer nada: al dar de alta, agotar o reponer un producto, a los gestores les salta el aviso con la foto del producto, su nombre y qué hacer. Da igual por dónde lo hagas —la ventana 📦, editando el producto, revirtiendo un vale o deshaciendo una merma—: si estaba a cero y vuelve a haber, se avisa.',
+        ojo:'Cada gestor tiene que darle una vez a "🔔 Activar alertas push" en su app; si no da permiso, no le llega nada. El aviso salta con la app abierta o de fondo: con la app cerrada del todo no llega —para eso haría falta un servidor de push aparte—, pero el aviso queda en la campana y lo ve al entrar. Solo se anuncia lo de las últimas 6 horas y como mucho 3 seguidos, para no llenarle la pantalla.',
+        nuevo:'v121' },
       { icono:'✏️', titulo:'Editar un producto agotado', donde:'Stock › sección Agotados',
         para:'Corregirle el precio, la foto o la comisión aunque no quede ninguno.',
         como:'El lápiz ✏️ al lado de "Reponer".',
