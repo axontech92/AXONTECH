@@ -589,6 +589,57 @@
   </div>
 </div>
 
+<!-- ── MODAL: unir vales de distintos gestores (v120) ── -->
+<div class="modal-bg" id="unirValesModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title">🔗 Unir vales</div>
+    <div class="modal-sub">Cuando dos gestores apuntan la misma venta</div>
+    <div style="background:var(--surface2);border-radius:9px;padding:9px 11px;margin:12px 0 4px;font-size:12px;">
+      <div style="font-size:9px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Vale principal</div>
+      <div id="unirPrincipal">—</div>
+    </div>
+    <div class="lbl" style="margin:12px 0 6px;">¿Con cuál se une?</div>
+    <div id="unirLista" style="max-height:44vh;overflow-y:auto;"></div>
+    <div id="unirResumen" style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center;min-height:16px;line-height:1.45;"></div>
+    <div class="modal-btns" style="margin-top:12px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closeUnirValesModal()">Cancelar</button>
+      <button type="button" class="btn btn-full" style="background:#7C3AED;color:#fff;" onclick="confirmarUnirVales()">🔗 Unir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: puntos de un gestor a mano (v120) ── -->
+<div class="modal-bg" id="puntosGestorModal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-title">⭐ Puntos</div>
+    <div class="modal-sub" id="pgNombre">Gestor</div>
+
+    <div id="pgDesglose" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:14px 0 4px;"></div>
+    <div id="pgAviso" style="display:none;font-size:11px;line-height:1.45;background:rgba(245,158,11,.10);
+         border-left:3px solid var(--orange);border-radius:6px;padding:9px 11px;margin-top:10px;"></div>
+
+    <div class="lbl" style="margin:14px 0 6px;">¿Cuántos puntos debe tener?</div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="pgSuma(-1)">−</button>
+      <input type="number" inputmode="numeric" id="pgTotal" value="0" min="0" oninput="pgRefresca()"
+             style="flex:1;text-align:center;font-size:22px;font-weight:800;background:var(--surface);border:2px solid var(--blue);border-radius:10px;padding:9px 6px;color:var(--text);">
+      <button type="button" class="btn btn-ghost" style="flex:0 0 44px;font-size:18px;font-weight:800;padding:10px 0;" onclick="pgSuma(1)">+</button>
+    </div>
+
+    <div class="lbl" style="margin:12px 0 6px;">Motivo <span style="font-weight:400;color:var(--text-muted);">(opcional)</span></div>
+    <input type="text" id="pgMotivo" maxlength="120" placeholder="Ej: el cable estaba sin puntos"
+           style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 10px;font-size:13px;color:var(--text);">
+
+    <div id="pgResumen" style="font-size:11px;color:var(--text-muted);margin-top:11px;text-align:center;min-height:16px;"></div>
+
+    <div class="modal-btns" style="margin-top:12px;">
+      <button type="button" class="btn btn-ghost btn-full" onclick="closePuntosGestorModal()">Cancelar</button>
+      <button type="button" class="btn btn-green btn-full" onclick="guardarPuntosGestor()">Guardar</button>
+    </div>
+    <button type="button" class="btn btn-ghost btn-full" id="pgQuitar" style="margin-top:7px;font-size:11px;color:var(--red);display:none;" onclick="quitarAjustePuntos()">Quitar el ajuste a mano</button>
+  </div>
+</div>
+
 <!-- ── MODAL: Confirmar Acción ── -->
 <div class="modal-bg" id="confirmActionModal">
   <div class="modal" style="max-width:320px;">

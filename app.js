@@ -3104,7 +3104,8 @@ function _ensurePendingValesEnqueued() {
   const REENQUEUE_ADMIN_PRESERVE = [
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
     'seenByAdmin','seenTs','commissionStatus','commissionPaid',
-    'stockDecremented','hiddenFromHistory','hiddenTs'
+    'stockDecremented','hiddenFromHistory','hiddenTs',
+    'unidoA'   // v120 — la unión de vales la decide el admin
   ];
   const updates = {};
   mine.forEach(v => {
@@ -3336,6 +3337,10 @@ const saveVales = v => {
     if (x.rebajaAdminMoneda) slim.rebajaAdminMoneda = x.rebajaAdminMoneda;
     if (x.rebajaAdminMotivo) slim.rebajaAdminMotivo = x.rebajaAdminMotivo;
     if (x.rebajaAdminTs) slim.rebajaAdminTs = x.rebajaAdminTs;
+    // v120: la unión con otro vale la decide el admin. Se manda SIEMPRE, también
+    // cuando vale null: null es "lo desuní", y si no viajara, el teléfono del
+    // gestor seguiría repartiendo su comisión a medias para siempre.
+    if (x.unidoA !== undefined) slim.unidoA = x.unidoA;
     return slim;
   }
   // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
@@ -3380,7 +3385,8 @@ const saveVales = v => {
   const ADMIN_PRESERVE_FIELDS = [
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
     'seenByAdmin','seenTs','commissionStatus','commissionPaid',
-    'stockDecremented','hiddenFromHistory','hiddenTs'
+    'stockDecremented','hiddenFromHistory','hiddenTs',
+    'unidoA'   // v120 — la unión de vales la decide el admin
   ];
   function slimValeGestor(x) {
     const slim = {};
@@ -5040,6 +5046,10 @@ function _isPartiallyReserved(p) {
 // servidor. La resta local sigue siendo inmediata, así que se puede vender sin
 // cobertura y la orden sale cuando vuelve.
 function _descontarStock(v) {
+  // v120: un vale unido es la MISMA venta que el principal apuntada otra vez.
+  // La mercancía sale del almacén una sola vez, y de eso se encarga el
+  // principal. Si descontara también este, se irían el doble de unidades.
+  if (v && v.unidoA != null) return false;
   const prods = getProductos().slice();
   const deltas = {};
   let stockChanged = false;
@@ -6574,6 +6584,168 @@ function _factorReparto(v) {
 // El dinero de la venta lo cuenta SOLO el principal. Si lo contaran los dos, la
 // tienda vería vendido el doble de lo que vendió.
 const _valeCuentaDinero = v => !!v && v.unidoA == null;
+const _valesUnidosA = mainId => getVales().filter(v => v && String(v.unidoA) === String(mainId));
+
+// ── Unir y desunir ─────────────────────────────────────────────────────────
+// Solo se pueden unir vales que TODAVÍA NO hayan descontado stock (pendientes o
+// con mensajero). Si uno ya descontó y se une después, al revertirlo la app
+// devolvería al almacén unas unidades que nunca salieron —porque a partir de la
+// unión deja de contar como que descontó— y el inventario se queda inflado. Es
+// la misma regla que ya tiene la app para cambiarle los productos a un vale
+// confirmado: primero se revierte la venta.
+function _porQueNoSePuedeUnir(v, principal) {
+  if (!v) return 'ese vale ya no existe';
+  if (v.id === principal.id) return 'es el mismo vale';
+  if (v.unidoA != null) return 'ya está unido a otro vale';
+  if (_valesUnidosA(v.id).length) return 'ya tiene otros vales unidos a él';
+  if (v.status === 'cancelled') return 'está cancelado';
+  if (_valeDescontoStock(v)) return 'ya descontó stock — revierte la venta primero';
+  if (v.gestorId === principal.gestorId) return 'es del mismo gestor';
+  return '';
+}
+function unirVales(mainId, secIds) {
+  const principal = getVales().find(v => v.id === mainId);
+  if (!principal) return { ok: false, error: 'No se encontró el vale principal' };
+  if (principal.unidoA != null) return { ok: false, error: 'Ese vale ya está unido a otro' };
+  if (_valeDescontoStock(principal)) return { ok: false, error: 'El vale principal ya descontó stock — revierte la venta primero' };
+  const ids = (secIds || []).map(Number).filter(Boolean);
+  if (!ids.length) return { ok: false, error: 'No elegiste ningún vale' };
+  const problemas = [];
+  ids.forEach(id => {
+    const v = getVales().find(x => x.id === id);
+    const por = _porQueNoSePuedeUnir(v, principal);
+    if (por) problemas.push('#' + (v && v.valeNum ? v.valeNum : id) + ': ' + por);
+  });
+  if (problemas.length) return { ok: false, error: problemas.join(' · ') };
+  ids.forEach(id => patchVale(id, { unidoA: mainId }));
+  _logAudit('vales_unidos', mainId + ' ← ' + ids.join(','));
+  return { ok: true, n: ids.length + 1 };
+}
+function desunirVale(secId) {
+  const v = getVales().find(x => x.id === secId);
+  if (!v || v.unidoA == null) return false;
+  patchVale(secId, { unidoA: null });
+  _logAudit('vale_desunido', 'vale:' + secId);
+  return true;
+}
+const _valeEtiqueta = v => v ? ('#' + (v.valeNum ? String(v.valeNum).padStart(3,'0') : v.id)) : '—';
+// El bloque que sale en el detalle del vale: si está unido, con quién; si tiene
+// vales unidos, cuáles; y si no, el botón para unirlo.
+function _bloqueUnionHTML(v) {
+  if (!v) return '';
+  const nombreDe = id => { const g = gestorOf(id); return g && g.name ? g.name : 'Gestor'; };
+  if (v.unidoA != null) {
+    const p = getVales().find(x => x.id === v.unidoA);
+    const n = _cuantosComparten(v);
+    return `<div class="card" style="padding:12px 14px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.28);">
+      <div style="font-size:10px;font-weight:800;color:#7C3AED;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🔗 Unido al vale ${escapeHTML(_valeEtiqueta(p))}</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.5;">Es la misma venta que ${p?escapeHTML(_valeEtiqueta(p))+' de '+escapeHTML(nombreDe(p.gestorId)):'otro vale'}.
+        La mercancía y el dinero los lleva ese; aquí solo cuenta la parte de la comisión y de los puntos.</div>
+      <div style="font-size:12px;font-weight:700;color:#7C3AED;margin-top:6px;">Le toca 1/${n} de la comisión y de los puntos</div>
+      <button class="btn btn-ghost btn-sm btn-full" style="margin-top:9px;font-size:11px;" onclick="deshacerUnionVale(${v.id})">🔓 Deshacer la unión</button>
+    </div>`;
+  }
+  const unidos = _valesUnidosA(v.id);
+  if (unidos.length) {
+    const n = unidos.length + 1;
+    return `<div class="card" style="padding:12px 14px;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.28);">
+      <div style="font-size:10px;font-weight:800;color:#7C3AED;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">🔗 Venta compartida entre ${n} gestores</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.5;">Este vale es el que lleva la mercancía y el dinero. La comisión y los puntos se parten en ${n}.</div>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px;">
+        ${unidos.map(u=>`<div style="display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;">
+          <span style="flex:1;min-width:0;font-size:11px;"><b>${escapeHTML(_valeEtiqueta(u))}</b> · ${escapeHTML(nombreDe(u.gestorId))}</span>
+          <button class="btn btn-ghost btn-sm btn-icono" title="Deshacer la unión" onclick="deshacerUnionVale(${u.id})">🔓</button>
+        </div>`).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm btn-full" style="margin-top:9px;font-size:11px;color:#7C3AED;" onclick="openUnirValesModal(${v.id})">🔗 Unir otro vale más</button>
+    </div>`;
+  }
+  // Sin unir: el botón solo aparece donde la unión es posible.
+  if (v.status === 'cancelled' || _valeDescontoStock(v)) return '';
+  return `<div class="card" style="padding:10px 14px;">
+    <button class="btn btn-ghost btn-full btn-sm" style="color:#7C3AED;" onclick="openUnirValesModal(${v.id})"
+      title="Cuando dos gestores apuntan la misma venta">🔗 Unir con el vale de otro gestor</button>
+  </div>`;
+}
+function deshacerUnionVale(secId) {
+  const v = getVales().find(x => x.id === secId); if (!v) return;
+  showConfirmAction('¿Deshacer la unión?',
+    'El vale ' + escapeHTML(_valeEtiqueta(v)) + ' vuelve a ser una venta aparte: se lleva su comisión y sus puntos enteros, y volverá a descontar stock cuando se cobre.',
+    'Deshacer', 'btn-orange', () => {
+      if (!desunirVale(secId)) { showToast('No se pudo deshacer'); return; }
+      gestoresTabDirty = true; statsTabDirty = true; rankingCache = null;
+      renderValeDetail(); renderAdminGestores(); maybeAutoSync();
+      showToast('🔓 Unión deshecha');
+    });
+}
+
+// ── La ventana para elegir con qué vale unirlo ─────────────────────────────
+let _unirPrincipalId = null, _unirElegidos = new Set();
+function openUnirValesModal(mainId) {
+  const v = getVales().find(x => x.id === mainId); if (!v) return;
+  const m = document.getElementById('unirValesModal'); if (!m) return;
+  _unirPrincipalId = mainId; _unirElegidos = new Set();
+  document.getElementById('unirPrincipal').innerHTML =
+    '<b>' + escapeHTML(_valeEtiqueta(v)) + '</b> · ' + escapeHTML((gestorOf(v.gestorId)||{}).name || 'Gestor')
+    + ' · ' + escapeHTML(v.cliente || 'Sin cliente');
+  _pintarCandidatos();
+  m.classList.add('show');
+}
+function closeUnirValesModal() {
+  const m = document.getElementById('unirValesModal');
+  if (m) m.classList.remove('show');
+  _unirPrincipalId = null; _unirElegidos = new Set();
+}
+function _pintarCandidatos() {
+  const c = document.getElementById('unirLista'); if (!c) return;
+  const principal = getVales().find(x => x.id === _unirPrincipalId);
+  if (!principal) return;
+  // Los candidatos son los que se pueden unir de verdad. Los que no, no se
+  // enseñan: una lista llena de opciones que dan error al tocarlas no ayuda.
+  const cands = getVales()
+    .filter(v => !_porQueNoSePuedeUnir(v, principal))
+    .sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0))
+    .slice(0, 40);
+  if (!cands.length) {
+    c.innerHTML = '<div class="es"><div class="es-icon">🔗</div><div class="es-text">No hay ningún vale de otro gestor que se pueda unir.<br><span style="font-size:11px;">Tiene que ser de otro gestor, sin cobrar todavía y sin unir a nada.</span></div></div>';
+    return;
+  }
+  c.innerHTML = cands.map(v => {
+    const on = _unirElegidos.has(v.id);
+    const g = gestorOf(v.gestorId);
+    return `<div onclick="toggleUnirVale(${v.id})" style="display:flex;align-items:center;gap:9px;cursor:pointer;
+        background:${on?'rgba(124,58,237,.10)':'var(--surface)'};border:1px solid ${on?'#7C3AED':'var(--border)'};
+        border-radius:10px;padding:9px 11px;margin-bottom:6px;">
+      <span style="font-size:15px;flex-shrink:0;">${on?'☑️':'⬜'}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:700;">${escapeHTML(_valeEtiqueta(v))} · ${escapeHTML(g&&g.name?g.name:'Gestor')}</div>
+        <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.cliente||'—')} · ${escapeHTML(v.total||'—')}</div>
+      </div>
+      <span class="sp ${estadoVale(v).cls}" style="font-size:9px;flex-shrink:0;">${estadoVale(v).label}</span>
+    </div>`;
+  }).join('');
+  _pintarResumenUnion();
+}
+function toggleUnirVale(id) {
+  if (_unirElegidos.has(id)) _unirElegidos.delete(id); else _unirElegidos.add(id);
+  _pintarCandidatos();
+}
+function _pintarResumenUnion() {
+  const r = document.getElementById('unirResumen'); if (!r) return;
+  const n = _unirElegidos.size + 1;
+  if (_unirElegidos.size === 0) { r.textContent = 'Elige con qué vale se une'; r.style.color = 'var(--text-muted)'; return; }
+  r.innerHTML = 'La comisión y los puntos se parten en <b>' + n + '</b> — a cada gestor le toca 1/' + n
+    + '. La mercancía sale del almacén una sola vez.';
+  r.style.color = 'var(--text-muted)';
+}
+function confirmarUnirVales() {
+  const r = unirVales(_unirPrincipalId, [..._unirElegidos]);
+  if (!r.ok) { showToast(r.error || 'No se pudo unir'); return; }
+  closeUnirValesModal();
+  gestoresTabDirty = true; statsTabDirty = true; rankingCache = null;
+  renderValeDetail(); renderAdminGestores(); maybeAutoSync();
+  showToast('🔗 Venta compartida entre ' + r.n + ' gestores');
+}
 
 function _valeGeneraComision(v) {
   return !!v && (v.status === 'confirmed' || v.status === 'pending_payment');
@@ -6677,6 +6849,7 @@ function renderAdminGestoresList() {
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
         <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
+        <button type="button" style="background:none;border:1px solid #2563EB;cursor:pointer;font-size:10px;color:#2563EB;padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openPuntosGestorModal(${g.id})" title="Corregir sus puntos a mano">⭐ Puntos</button>
         <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="changeGestorPhotoById(${g.id})" title="Cambiar foto de perfil">📷 Foto</button>
         ${hasPhoto?`<button type="button" style="background:none;border:1px solid var(--red);cursor:pointer;font-size:10px;color:var(--red);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="removeGestorPhotoById(${g.id})" title="Quitar foto de perfil">✕ Quitar foto</button>`:''}
       </div>
@@ -7498,6 +7671,7 @@ function renderValeDetail(destinoId) {
       </div>`:''}
       ${notesHighlight}
     </div>
+    ${_bloqueUnionHTML(v)}
     <div class="card" style="padding:10px 14px;display:flex;gap:6px;">
       ${v.status!=='confirmed'?`<button type="button" class="btn btn-ghost btn-full btn-sm" onclick="openEditValeModal(${v.id})">✏️ Editar vale</button>`:``}
       <button type="button" class="btn btn-sm btn-full" style="background:rgba(239,68,68,.1);color:var(--red);border:none;" onclick="adminDeleteVale(${v.id})">🗑️ Eliminar vale</button>
@@ -8409,7 +8583,8 @@ function _computeGestorStatsForRange(gestorId, from, to) {
     : ((gestorOf(gestorId) && parseFloat(gestorOf(gestorId).puntosCanjeados)) || 0);
   const _sumaPuntos = lista => lista.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
       const pr = productoOf(p.id);
-      return s + ((pr && pr.puntos) || 0) * p.qty;
+      // v120: si la venta se comparte, aquí solo cuenta la parte de este gestor
+      return s + ((pr && pr.puntos) || 0) * p.qty * _factorReparto(v);
     }, sum), 0);
   const ptsEarned    = Math.max(0, _sumaPuntos(vales.filter(v => earnedStatuses.includes(v.status)))    - _canjeados);
   const ptsPotential = Math.max(0, _sumaPuntos(vales.filter(v => allActiveStatuses.includes(v.status))) - _canjeados);
@@ -11275,6 +11450,36 @@ function _ventaVale(v) {
   if (!usd && !mn) { const t = _montoMonedas(v.total); usd = t.usd; mn = t.mn; }
   return { usd, mn };
 }
+// ── v120: lo que el cliente PAGÓ de verdad ─────────────────────────────────
+// _ventaVale devuelve el precio de catálogo. Si el vale llevaba rebaja, por la
+// caja entró menos, y el panel de Ganancia estaba contando el precio entero:
+// la ganancia salía inflada justo en lo que se había rebajado, que es lo que
+// nunca cuadraba al final del mes.
+//
+// Se restan las DOS rebajas, la del negocio y la que cedió el gestor, porque
+// las dos bajan lo que paga el cliente. La del gestor luego se recupera sola:
+// las comisiones de ese panel se calculan ya con la cesión descontada
+// (getValeCommissionParts), así que al restarla del ingreso y a la vez del
+// gasto en comisiones, se cancela — y así tiene que ser, porque ese dinero sale
+// del bolsillo del gestor, no del negocio. Lo que sí baja la ganancia de la
+// tienda es la rebaja del admin, que es exactamente lo que se quería ver.
+//
+// Cada rebaja se resta de SU moneda: rebajar $20 en un vale de "$450 + 2500 MN"
+// no puede tocar los pesos. Y nunca por debajo de cero.
+function _ventaCobradaVale(v) {
+  const base = _ventaVale(v);
+  if (!v) return base;
+  let usd = base.usd, mn = base.mn;
+  const quita = (importe, moneda) => {
+    const n = Math.max(0, parseFloat(importe || 0) || 0);
+    if (!n) return;
+    if ((String(moneda || 'USD')).toUpperCase() === 'MN') mn = Math.max(0, mn - n);
+    else usd = Math.max(0, usd - n);
+  };
+  quita(v.rebajaAdmin, v.rebajaAdminMoneda);
+  quita(v.comisionCedida, v.comisionCedidaMoneda);
+  return { usd, mn };
+}
 
 // ── COLUMNAS CONFIGURABLES ──
 // El dueño pidió poder añadir y quitar campos. La elección se guarda en el
@@ -11373,9 +11578,12 @@ function renderGanancia(vales) {
   const vendidos = {};   // id producto → unidades vendidas en el período
   let ingreso = 0, costoVendido = 0, comisiones = 0;
   let valesSinCosto = 0, valesSinProductos = 0, valesConfirmados = 0, congelados = 0;
-  vales.filter(v => v.status === 'confirmed').forEach(v => {
+  // v120: los vales unidos NO suman aquí. Son la misma venta apuntada por otro
+  // gestor: el dinero y la mercancía ya los cuenta el principal, y contarlos
+  // otra vez enseñaría el doble de ingreso y el doble de costo.
+  vales.filter(v => v.status === 'confirmed' && _valeCuentaDinero(v)).forEach(v => {
     valesConfirmados++;
-    const ing = _aUSD(_ventaVale(v));
+    const ing = _aUSD(_ventaCobradaVale(v));   // v120: con la rebaja ya restada
     if (ing !== null) ingreso += ing; else hayMNSinTasa = true;
     const items = v.valeProductos || [];
     if (!items.length) { valesSinProductos++; }
@@ -11837,7 +12045,10 @@ function _valesDelCorte() {
   // vendido nada. Dos cifras distintas para la misma deuda, y en una tienda
   // donde casi todo se entrega antes de cobrar, el corte salía en blanco.
   // Se usa la MISMA función que el resto para que no puedan discrepar otra vez.
-  let vales = getVales().filter(v => _valeGeneraComision(v));
+  // v120: fuera los vales unidos — el dinero de esa venta lo trae el principal.
+  // Si contaran los dos, el corte del día le diría al dueño que se vendió el
+  // doble de su mercancía, y de ahí sale lo que se le paga.
+  let vales = getVales().filter(v => _valeGeneraComision(v) && _valeCuentaDinero(v));
   if (from) vales = vales.filter(v => _fechaEfectiva(v) >= from);
   if (to)   vales = vales.filter(v => _fechaEfectiva(v) <= to);
   return vales;
@@ -12933,6 +13144,24 @@ function getValeCommissionParts(v) {
     totalMN  = Math.max(0, parseFloat(v.comFijadaMN  || 0) || 0);
     computable = true;
     if (!parts.length) parts.push({label:'Comisión del vale', com:'fijada al crearlo', currency:'USD'});
+  }
+
+  // ── v120: la venta se comparte entre varios gestores ────────────────────────
+  // Se reparte AQUÍ, antes de la cesión, porque la cesión es cosa de cada gestor
+  // sobre lo suyo: si Ana cede $5, los cede de SU mitad, no de la comisión
+  // entera. Y se reparte en esta función y no en cada pantalla porque por aquí
+  // pasan las trece vistas que enseñan comisiones — es el único sitio donde el
+  // reparto no puede quedarse a medias.
+  const _nComparten = (typeof _cuantosComparten === 'function') ? _cuantosComparten(v) : 1;
+  if (_nComparten > 1 && computable && parts.length) {
+    totalUSD = Math.round((totalUSD / _nComparten) * 100) / 100;
+    totalMN  = Math.round((totalMN  / _nComparten) * 100) / 100;
+    parts.push({
+      label: 'Venta compartida entre ' + _nComparten + ' gestores',
+      com: 'le toca 1/' + _nComparten,
+      currency: 'USD',
+      compartido: true
+    });
   }
 
   // ── v75: comisión cedida por el gestor ──────────────────────────────────────
@@ -14166,6 +14395,125 @@ function getGestorPointsVentas(gestorId) {
 function getGestorPointsTotal(gestorId) {
   return getGestorPointsVentas(gestorId) + _ajustePuntosDe(gestorId);
 }
+
+// ── v120: ventana para corregir los puntos ─────────────────────────────────
+// Se pide el TOTAL que debe tener, no "el ajuste": el admin piensa "este tiene
+// 12 y debería tener 15", no "hay que sumarle 3". La resta la hace la app.
+//
+// Antes de nada se busca la causa de verdad: si entre sus ventas del periodo
+// hay productos con CERO puntos, casi siempre es que ese producto se subió sin
+// ponérselos. Arreglar el producto es mejor que un parche, porque los puntos se
+// leen del catálogo cada vez y las ventas ya hechas los suman solas — y a todos
+// los gestores que lo vendieron, no solo a este.
+let _pgGestorId = null;
+function _pgProductosSinPuntos(gestorId) {
+  const sin = new Map();
+  getVales().forEach(v => {
+    if (!v || v.gestorId !== gestorId) return;
+    if (!['confirmed','pending_payment'].includes(v.status)) return;
+    if (!_valeCuentaPuntos(v)) return;
+    (v.valeProductos || []).forEach(it => {
+      const p = productoOf(it.id);
+      if (!p) return;
+      if ((parseFloat(p.puntos) || 0) > 0) return;
+      sin.set(String(p.id), { nombre: p.name || ('#' + p.id), uds: (sin.get(String(p.id)) || {uds:0}).uds + (parseInt(it.qty,10)||0) });
+    });
+  });
+  return [...sin.values()];
+}
+function openPuntosGestorModal(gestorId) {
+  const g = gestorOf(gestorId); if (!g) return;
+  const m = document.getElementById('puntosGestorModal'); if (!m) return;
+  _pgGestorId = gestorId;
+  document.getElementById('pgNombre').textContent = g.name || 'Gestor';
+  document.getElementById('pgTotal').value = Math.round(getGestorPointsTotal(gestorId));
+  const mot = document.getElementById('pgMotivo');
+  if (mot) mot.value = g.puntosAjusteMotivo || '';
+  _pgPintar();
+  m.classList.add('show');
+}
+function closePuntosGestorModal() {
+  const m = document.getElementById('puntosGestorModal');
+  if (m) m.classList.remove('show');
+  _pgGestorId = null;
+}
+function _pgPintar() {
+  const gid = _pgGestorId;
+  const ventas = getGestorPointsVentas(gid);
+  const ajuste = _ajustePuntosDe(gid);
+  const caja = (n, t, color) => `<div style="text-align:center;background:var(--surface2);border-radius:9px;padding:8px 4px;">
+      <div style="font-size:18px;font-weight:800;color:${color};">${n}</div>
+      <div style="font-size:9px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${t}</div>
+    </div>`;
+  const d = document.getElementById('pgDesglose');
+  if (d) d.innerHTML = caja(Math.round(ventas), 'De sus ventas', 'var(--text)')
+    + caja((ajuste > 0 ? '+' : '') + Math.round(ajuste), 'A mano', ajuste ? 'var(--orange)' : 'var(--gray-400)')
+    + caja(Math.round(ventas + ajuste), 'Total ahora', 'var(--blue)');
+  const btn = document.getElementById('pgQuitar');
+  if (btn) btn.style.display = ajuste ? 'block' : 'none';
+  // El aviso del producto sin puntos, que es lo que suele estar detrás.
+  const av = document.getElementById('pgAviso');
+  if (av) {
+    const sin = _pgProductosSinPuntos(gid);
+    if (sin.length) {
+      const lista = sin.slice(0, 3).map(s => escapeHTML(s.nombre) + ' ×' + s.uds).join(', ');
+      av.innerHTML = '💡 Este gestor vendió ' + (sin.length === 1 ? 'un producto que no tiene puntos' : sin.length + ' productos que no tienen puntos')
+        + ': <b>' + lista + (sin.length > 3 ? '…' : '') + '</b>.<br>'
+        + 'Ponle los puntos al producto en Stock y estas ventas los suman solas — y a todos los gestores que lo vendieron, no solo a este. '
+        + 'El ajuste de aquí abajo es solo para lo que eso no arregle.';
+      av.style.display = 'block';
+    } else av.style.display = 'none';
+  }
+  pgRefresca();
+}
+function pgSuma(delta) {
+  const inp = document.getElementById('pgTotal'); if (!inp) return;
+  inp.value = Math.max(0, (parseInt(inp.value, 10) || 0) + delta);
+  pgRefresca();
+}
+function pgRefresca() {
+  const res = document.getElementById('pgResumen'); if (!res) return;
+  const ventas = getGestorPointsVentas(_pgGestorId);
+  const quiere = Math.max(0, parseInt(document.getElementById('pgTotal').value, 10) || 0);
+  const nuevoAjuste = Math.round((quiere - ventas) * 100) / 100;
+  if (!nuevoAjuste) { res.textContent = 'Sin ajuste: se queda con los ' + Math.round(ventas) + ' de sus ventas'; res.style.color = 'var(--text-muted)'; return; }
+  res.textContent = (nuevoAjuste > 0 ? 'Se le suman ' + nuevoAjuste : 'Se le restan ' + Math.abs(nuevoAjuste)) + ' a mano';
+  res.style.color = nuevoAjuste > 0 ? 'var(--green)' : 'var(--orange)';
+}
+function _pgGuardar(ajuste, motivo) {
+  const gid = _pgGestorId;
+  const list = getGestores().slice();
+  const i = list.findIndex(g => g.id === gid);
+  if (i === -1) return false;
+  list[i] = { ...list[i], puntosAjuste: ajuste,
+    puntosAjusteDia: ajuste ? localDay(new Date()) : '',
+    puntosAjusteMotivo: ajuste ? String(motivo || '').trim().slice(0, 120) : '' };
+  guardarGestores(list, [gid]);
+  _logAudit('puntos_ajuste', 'gestor:' + gid + ' → ' + ajuste);
+  rankingCache = null; gestoresTabDirty = true;
+  // El resumen del ranking es una copia aparte y hay que rehacerla YA, o el
+  // cambio no se vería hasta el siguiente sondeo de vales.
+  if (typeof _recalcularRankingSummary === 'function') { try { _recalcularRankingSummary(); } catch(e) {} }
+  renderAdminGestoresList();
+  if (typeof renderGestorRanking === 'function') { try { renderGestorRanking(); } catch(e) {} }
+  maybeAutoSync();
+  return true;
+}
+function guardarPuntosGestor() {
+  const ventas = getGestorPointsVentas(_pgGestorId);
+  const quiere = Math.max(0, parseInt(document.getElementById('pgTotal').value, 10) || 0);
+  const ajuste = Math.round((quiere - ventas) * 100) / 100;
+  const motivo = (document.getElementById('pgMotivo') || {}).value || '';
+  if (!_pgGuardar(ajuste, motivo)) { showToast('No se pudo guardar'); return; }
+  closePuntosGestorModal();
+  showToast(ajuste ? ('⭐ Puntos: ' + quiere) : 'Ajuste quitado ✓');
+}
+function quitarAjustePuntos() {
+  if (!_pgGuardar(0, '')) return;
+  document.getElementById('pgTotal').value = Math.round(getGestorPointsVentas(_pgGestorId));
+  _pgPintar();
+  showToast('Ajuste quitado ✓');
+}
 // ── v114: los puntos del CICLO en curso ────────────────────────────────────
 // Antes esto devolvía el total de siempre, y eso rompía la meta de dos formas
 // a la vez, que son justo las dos que se ven en la app:
@@ -14547,6 +14895,12 @@ function closeConfirmAction() {
 // se deduce del estado, porque solo 'confirmed' y 'pending_payment' descuentan.
 function _valeDescontoStock(v) {
   if (!v) return false;
+  // v120: un vale unido nunca descuenta (ver _descontarStock), así que tampoco
+  // puede devolver nada al revertirlo. Sin esto, revertir un vale unido metería
+  // en el almacén unidades que jamás salieron. Va por delante de la bandera a
+  // propósito: los cinco sitios que confirman una venta escriben
+  // stockDecremented:true sin mirar, y aquí no se puede uno fiar de eso.
+  if (v.unidoA != null) return false;
   if (v.stockDecremented === true) return true;
   if (v.stockDecremented === false) return false;
   return v.status === 'confirmed' || v.status === 'pending_payment';
