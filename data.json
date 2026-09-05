@@ -949,7 +949,7 @@
       "name": "PORTACELULARES",
       "catId": 30,
       "photo": "photos/img_1778384428890.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778384428890.webp",
       "nombre": "PORTACELULARES",
       "precio": "$15 USD",
@@ -2380,8 +2380,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788624682560,
@@ -15811,5 +15810,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T16:54:56.143Z"
+  "timestamp": "2026-09-05T17:01:39.143Z"
 }
