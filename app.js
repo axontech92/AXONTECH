@@ -5074,7 +5074,8 @@ function _descontarStock(v) {
 
 // v52: tipos de aviso que son PERSONALES de un gestor (su vale, su ranking).
 // El resto (stock, productos nuevos) son avisos globales de la tienda.
-const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3','meta_alcanzada','mes_ganado'];
+const NOTIF_PERSONAL_TYPES = ['vale_confirmed','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3','meta_alcanzada','mes_ganado',
+  'vale_unido','vale_desunido'];   // v120 — solo le importan a su gestor
 const _esNotifPersonal = n => !!n && NOTIF_PERSONAL_TYPES.includes(n.type);
 
 // v52 FIX: el recorte a 50 avisos era ciego y el array de notifs es GLOBAL:
@@ -5325,12 +5326,12 @@ function renderGestorNotifs() {
   const sec = document.getElementById('gestorNotifsSection');
   const personalSec = document.getElementById('gestorPersonalNotifsSection');
   
-  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',vale_seen:'👁️',vale_delivered:'📦',vale_pending:'💰',ranking_top3:'🏆'};
+  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',vale_seen:'👁️',vale_delivered:'📦',vale_pending:'💰',ranking_top3:'🏆',vale_unido:'🔗',vale_desunido:'🔓'};
   
   const renderItem = (n, isPersonal) => {
     const icon=icons[n.type]||'📢';
     const age=timeAgo(n.ts);
-    const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3'].includes(n.type)?'ok':'';
+    const typeClass=n.type==='out_of_stock'?'agotado':n.type==='low_stock'?'low':n.type==='restocked'?'restocked':['vale_confirmed','sale_product','vale_assigned','vale_seen','vale_delivered','vale_pending','ranking_top3','vale_unido','vale_desunido'].includes(n.type)?'ok':'';
     
     // Unread logic
     const nIdx = notifs.findIndex(x => x.id === n.id);
@@ -5358,6 +5359,13 @@ function renderGestorNotifs() {
       msg=`🏆 <b>¡Ganaste el mes!</b> Terminaste primero con ${safeExtra} puntos.`;
     } else if(n.type==='vale_delivered'){
       msg=`📦 <b>¡Tu venta fue entregada!</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
+    } else if(n.type==='vale_unido'){
+      // v120: al gestor le cambia lo que va a cobrar por esa venta, así que el
+      // aviso dice por qué y cuánto le toca — no puede enterarse a fin de mes
+      // viendo media comisión sin saber de dónde sale.
+      msg=`🔗 <b>Tu vale se unió a otro</b>${safeName?` · ${safeName}`:``}${safeExtra?`<div style="color:var(--gray-400);font-size:10px;margin-top:2px;">${safeExtra}</div>`:``}`;
+    } else if(n.type==='vale_desunido'){
+      msg=`🔓 <b>Tu vale ya no está unido</b>${safeName?` · ${safeName}`:``}${safeExtra?`<div style="color:var(--gray-400);font-size:10px;margin-top:2px;">${safeExtra}</div>`:``}`;
     } else if(n.type==='vale_pending'){
       msg=`💰 <b>Vale en proceso de cobro</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='out_of_stock'){
@@ -6618,13 +6626,40 @@ function unirVales(mainId, secIds) {
   });
   if (problemas.length) return { ok: false, error: problemas.join(' · ') };
   ids.forEach(id => patchVale(id, { unidoA: mainId }));
+  // v120: se avisa a TODOS los gestores del grupo, también al del principal.
+  // Al gestor le cambia lo que va a cobrar, así que no puede enterarse al final
+  // del mes viendo la mitad de comisión sin saber por qué. El aviso es personal
+  // (ver NOTIF_PERSONAL_TYPES), así que solo lo ve el suyo.
+  const n = ids.length + 1;
+  const todos = [principal, ...ids.map(id => getVales().find(v => v.id === id))].filter(Boolean);
+  todos.forEach(v => {
+    const otros = todos.filter(x => x.id !== v.id)
+      .map(x => { const g = gestorOf(x.gestorId); return g && g.name ? g.name : 'otro gestor'; });
+    addNotif('vale_unido', v.cliente || 'Cliente', null,
+      'Vale ' + _valeEtiqueta(v) + ' · misma venta que ' + otros.join(' y ') +
+      ' · comisión y puntos entre ' + n + ' (te toca 1/' + n + ')',
+      v.gestorId, 'vale_unido:' + v.id + ':' + mainId);
+  });
   _logAudit('vales_unidos', mainId + ' ← ' + ids.join(','));
-  return { ok: true, n: ids.length + 1 };
+  return { ok: true, n };
 }
 function desunirVale(secId) {
   const v = getVales().find(x => x.id === secId);
   if (!v || v.unidoA == null) return false;
+  const mainId = v.unidoA;
+  // Los que quedan en el grupo después de sacar a este. Se calcula ANTES del
+  // parche, porque después el grupo ya es otro.
+  const quedan = [getVales().find(x => x.id === mainId), ..._valesUnidosA(mainId)]
+    .filter(x => x && x.id !== secId);
   patchVale(secId, { unidoA: null });
+  addNotif('vale_desunido', v.cliente || 'Cliente', null,
+    'Vale ' + _valeEtiqueta(v) + ' · vuelve a ser tuyo entero: comisión y puntos completos',
+    v.gestorId, 'vale_desunido:' + secId + ':' + Date.now());
+  // A los que se quedan también les cambia la parte, así que también se avisa.
+  const n = quedan.length;
+  quedan.forEach(x => addNotif('vale_desunido', x.cliente || 'Cliente', null,
+    'Vale ' + _valeEtiqueta(x) + ' · ahora ' + (n > 1 ? 'se reparte entre ' + n : 'es solo tuyo'),
+    x.gestorId, 'vale_desunido:' + x.id + ':' + Date.now()));
   _logAudit('vale_desunido', 'vale:' + secId);
   return true;
 }
@@ -7447,7 +7482,10 @@ function _rebajaAdminPintarBotones() {
   const mn = _rebajaAdminEsMN();
   document.querySelectorAll('[data-rebaja-suma]').forEach(b => {
     const d = parseFloat(b.dataset.rebajaSuma) || 0;
-    b.textContent = '+' + (mn ? d * 100 : d);
+    // v120: se pintan con MENOS. El número que se escribe abajo es cuánto se
+    // REBAJA, así que un "+5" decía justo lo contrario de lo que iba a pasar:
+    // parecía que subía el precio del vale cuando lo que hace es bajarlo 5.
+    b.textContent = '−' + (mn ? d * 100 : d);
   });
 }
 function rebajaAdminQuitar() {
@@ -8813,7 +8851,15 @@ function renderMyVales() {
       if(v.synced === false) s=pendingSyncing;
       // Show "Visto por admin" status when the admin has already opened this pending vale
       else if(_status==='pending' && v.seenByAdmin) s=pendingSeen;
-      const pts=(v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0);
+      // v120: si el admin unió este vale con el de otro gestor, los puntos que
+      // se enseñan son YA los que le tocan. Antes salían los de la venta
+      // entera, así que el gestor veía 4 y al final del mes le contaban 2.
+      const _rep=(typeof _factorReparto==='function')?_factorReparto(v):1;
+      const pts=Math.round((v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0)*_rep*100)/100;
+      const _nUnidos=(typeof _cuantosComparten==='function')?_cuantosComparten(v):1;
+      const _chapaUnido=_nUnidos>1
+        ? `<span style="background:rgba(124,58,237,.14);color:#7C3AED;border-radius:20px;padding:1px 8px;font-size:9px;font-weight:800;white-space:nowrap;" title="El admin unió este vale con el de otro gestor: es la misma venta y se reparte entre ${_nUnidos}">🔗 Compartido 1/${_nUnidos}</span>`
+        : '';
       const canCancel=true; // v33: Allow deleting ANY vale from gestor side, not just pending
       return `<div class="mv-card st-${v.status}">
         <div class="mv-head">
@@ -8824,8 +8870,13 @@ function renderMyVales() {
           </div>
         </div>
         <div class="mv-info">${escapeHTML(v.cliente||'—')} · ${escapeHTML(v.articulo||'—')}</div>
+        ${_nUnidos>1?`<div style="margin-top:6px;font-size:10.5px;color:#7C3AED;background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.22);border-radius:7px;padding:6px 9px;line-height:1.45;">
+          🔗 <b>Venta compartida</b> — el admin unió este vale con el de otro gestor porque es la misma venta.
+          La comisión y los puntos se reparten entre ${_nUnidos}: a ti te toca 1/${_nUnidos}.
+        </div>`:''}
         <div class="mv-foot">
           <span class="mv-status" style="color:${s.color}">${s.icon} ${s.label}</span>
+          ${_chapaUnido}
           ${v.synced === false ? `<span class="mv-pending-sync-badge" title="Aún no se ha subido a la nube">📡 Pendiente sync</span>` : ``}
         </div>
       </div>`;
