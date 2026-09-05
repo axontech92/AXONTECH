@@ -2344,6 +2344,45 @@
   ],
   "vales": [
     {
+      "id": 1788620116348,
+      "ts": "2026-09-05T14:55:16.382Z",
+      "total": "$25 USD + 3500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-05T15:07:35.436Z",
+      "status": "assigned",
+      "vuelto": "500 cup",
+      "cliente": "Patricia",
+      "valeNum": 218,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5359165080",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Patricia\n🔸Teléfono Cliente: 5359165080\n🔸Dirección Cliente: *Dirección playa*  Calle 5taC entre calle 88 y 90A #8803\n🔸Mensajería/ costo: 3500\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: 500 cup\n🔸 Total a pagar: $25 USD + 3500 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 05/09/2026 10:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "*Dirección playa*  Calle 5taC entre calle 88 y 90A #8803",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-05T15:07:31.860Z",
+      "mensajeria": "3500",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788614338703,
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
@@ -15574,5 +15613,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T14:52:32.142Z"
+  "timestamp": "2026-09-05T15:08:32.142Z"
 }
