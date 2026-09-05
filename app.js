@@ -12660,6 +12660,9 @@ function renderGestorCatalog() {
   let prods = _showAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
   if(catalogCatFilter!==null)prods=prods.filter(p=>p.catId===catalogCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search));
+  // v120: lo recién entrado, arriba. Esta es la lista que el gestor abre para
+  // ver qué hay, así que es donde más falta hace.
+  prods = prods.slice().sort(_ordenNuevosPrimero);
   const c=document.getElementById('gestorCatalogList');
   if(!c) return;
   // v35: Count agotados for toggle label
@@ -12681,7 +12684,7 @@ function renderGestorCatalog() {
       <div style="display:flex;align-items:center;gap:10px;padding:8px;">
         ${photoUrl?`<img src="${escapeAttr(photoUrl)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:none;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
         <div style="flex:1;min-width:0;cursor:pointer;" onclick="toggleCatalogItem(${p.id})">
-          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}${isAgotado?' <span style="font-weight:600;font-size:10px;color:var(--red);background:rgba(239,68,68,.1);padding:1px 5px;border-radius:6px;">AGOTADO</span>':''}</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}${_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}${isAgotado?' <span style="font-weight:600;font-size:10px;color:var(--red);background:rgba(239,68,68,.1);padding:1px 5px;border-radius:6px;">AGOTADO</span>':''}</div>
           ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${escapeHTML(p.precio)}</div>`:''}
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:${fav?'#F59E0B':'var(--gray-400)'};flex-shrink:0;" onclick="toggleFavorite(${p.id})" title="Favorito">${fav?'⭐':'☆'}</button>
@@ -12733,6 +12736,8 @@ function generateCatalogPDF() {
   .badge-stock { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
   .badge-garantia { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
   .badge-puntos { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+  /* v120: lo recién llegado, también para el cliente que abre el catálogo */
+  .badge-nuevo { background: linear-gradient(135deg,#22D3EE,#0EA5E9); color: #fff; border: none; }
   .footer { text-align: center; font-size: 9px; color: #94a3b8; margin-top: 36px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
   @media print { body { padding: 12px; } .prod-card { page-break-inside: avoid; } .cat-section { page-break-after: auto; } }
 </style></head><body>
@@ -12752,7 +12757,8 @@ function generateCatalogPDF() {
 
   for (const [catName, catProds] of Object.entries(grouped)) {
     html += `<div class="cat-section"><div class="cat-name">${escapeHTML(catName)}</div>`;
-    catProds.forEach(p => {
+    // v120: lo nuevo, primero, también en el catálogo que se comparte.
+    catProds.slice().sort(_ordenNuevosPrimero).forEach(p => {
       const photoUrl = _resolvePhotoUrl(p.photo);
       const hasPhoto = photoUrl && /^(https?:|data:image|blob:)/i.test(photoUrl);
       const desc = p.description || '';
@@ -12761,7 +12767,7 @@ function generateCatalogPDF() {
 ${hasPhoto ? `<img class="prod-img" src="${escapeAttr(photoUrl)}" onerror="this.parentElement.innerHTML='<span class=prod-noimg>📦</span>'">` : `<span class="prod-noimg">📦</span>`}
 </div>
 <div class="prod-info">
-  <div class="prod-name">${escapeHTML(p.name)}</div>
+  <div class="prod-name">${escapeHTML(p.name)}${_esProductoNuevo(p) ? ' <span class="badge badge-nuevo">💎 NUEVO</span>' : ''}</div>
   ${p.precio ? `<div class="prod-price">${escapeHTML(p.precio)}</div>` : ''}
   ${desc ? `<div class="prod-desc">${escapeHTML(desc)}</div>` : ''}
   <div class="prod-badges">
@@ -12868,6 +12874,7 @@ function renderAdminCatalog() {
   }
   if(adminCatalogCatFilter!==null)prods=prods.filter(p=>p.catId===adminCatalogCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
+  prods = prods.slice().sort(_ordenNuevosPrimero);   // v120: lo nuevo, arriba
   const c=document.getElementById('catalogAdminGrid');
   if(!c)return;
   // v35: Count agotados for toggle
@@ -12889,7 +12896,7 @@ function renderAdminCatalog() {
           ${isAgotado?`<span style="position:absolute;top:8px;right:8px;background:var(--red);color:white;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700;">AGOTADO</span>`:''}
         </div>
         <div style="padding:12px;">
-          <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">${escapeHTML(p.name)}</div>
+          <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;">${escapeHTML(p.name)}${_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}</div>
           ${p.description?`<div style="font-size:11px;color:var(--text-muted);line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${escapeHTML(p.description)}</div>`:''}
           ${p.precio?`<div style="font-weight:800;font-size:16px;color:var(--blue);margin-bottom:6px;">${escapeHTML(p.precio)}</div>`:''}
           <div style="display:flex;flex-wrap:wrap;gap:4px;">
@@ -17099,7 +17106,7 @@ const AYUDA_SECCIONES = [
         ojo:'Lo reservado no se puede vender en otro vale. El selector de productos solo deja elegir lo que queda disponible.' },
       { icono:'💎', titulo:'Chapa 💎 NUEVO', donde:'Stock y selector de productos',
         para:'Que se vea de un vistazo lo que acaba de entrar. Sale sola durante 3 días.',
-        como:'No hay que hacer nada: al subir un producto se marca solo y se coloca ARRIBA de la lista. También lo ven así los gestores al hacer un vale.',
+        como:'No hay que hacer nada: al subir un producto se marca solo y se coloca ARRIBA de la lista. Sale en TODAS las listas: el Stock del admin, el 📦 Stock que abre el gestor, el Catálogo, los tres selectores de productos del vale y hasta el catálogo público que le pasas al cliente.',
         ojo:'Pasados los 3 días la chapa desaparece y el producto vuelve a su sitio en la lista.',
         nuevo:'v120' },
       { icono:'🔔', titulo:'Avisos al teléfono del gestor', donde:'Automático',
