@@ -2344,6 +2344,42 @@
   ],
   "vales": [
     {
+      "id": 1788622215741,
+      "ts": "2026-09-05T15:30:15.753Z",
+      "total": "$100 USD + 2000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Carlos",
+      "valeNum": 220,
+      "articulo": "×1 Camara de Panel",
+      "garantia": "",
+      "gestorId": 1781761257109,
+      "precioMN": "",
+      "telefono": "52902139",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 52902139\n🔸Dirección Cliente: Almendares 226 entre benjumeda y 19 de mayo\n🔸Mensajería/ costo: 2000 mn\n🔸 Artículos y cantidades:\n  ×1 Camara de Panel\n🔸Precio USD/ zelle: $100 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $100 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 05/09/2026 11:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Almendares 226 entre benjumeda y 19 de mayo",
+      "precioUSD": "$100 USD",
+      "ubicacion": "",
+      "mensajeria": "2000 mn",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785079567810,
+          "qty": 1,
+          "name": "Camara de Panel"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1788621009575,
       "ts": "2026-09-05T15:10:09.600Z",
       "total": "$90 USD",
@@ -2463,7 +2499,7 @@
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-05T14:51:36.039Z",
+      "seenTs": "2026-09-05T15:14:20.553Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Erick Cruz Pérez",
@@ -3261,8 +3297,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4080,8 +4117,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -15689,5 +15727,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-05T15:13:00.528Z"
+  "timestamp": "2026-09-05T15:30:27.399Z"
 }
