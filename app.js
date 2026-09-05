@@ -16532,7 +16532,16 @@ async function init() {
 // que es de hoy) y se puede escribir a mano. La descarga automática es una
 // ayuda, no el único camino.
 const TASA_MIN = 20, TASA_MAX = 5000;            // rango de cordura del valor
-const TASA_REFRESCO_MS = 3 * 60 * 60 * 1000;     // no reintentar antes de 3 h
+// v120: era de 3 h, y como el trabajo de GitHub publica también cada 3 h, en el
+// peor caso se veía una tasa de hace SEIS horas: la app acababa de mirar justo
+// antes de que se publicara la nueva y no volvía a mirar hasta tres horas
+// después. Se vio en cuanto entró la clave de elToque — el archivo ya decía 680
+// y los teléfonos seguían enseñando 665.
+//
+// Bajarlo sale gratis: tasa.json son ~120 bytes y está en la misma dirección de
+// la app (GitHub Pages), no en Supabase, así que no toca el consumo que estamos
+// cuidando. Con 30 min lo peor que puede pasar es ver la tasa media hora tarde.
+const TASA_REFRESCO_MS = 30 * 60 * 1000;         // no reintentar antes de 30 min
 const TASA_VIEJA_MS = 24 * 60 * 60 * 1000;       // a partir de aquí se marca en naranja
 let _tasaBuscando = false;
 
@@ -17106,7 +17115,7 @@ const AYUDA_SECCIONES = [
       { icono:'💱', titulo:'Tasa del dólar', donde:'Config / chip de la tasa',
         para:'Convertir entre USD y MN en los paneles que lo necesitan.',
         como:'Se actualiza sola cada 3 horas: un trabajo de GitHub la baja y la app la lee de ahí. También la puedes poner a mano en "Ver / poner la tasa", y entonces manda la tuya.',
-        ojo:'La tasa a mano no se pierde al cerrar la app ni la pisa la automática. La clave de la API de elToque va en GitHub (Settings › Secrets › Actions, con el nombre ELTOQUE_API_KEY), no en la app: desde el navegador esa API no se puede llamar.' },
+        ojo:'La app la vuelve a mirar cada 30 minutos. Si acabas de ver que cambió y quieres el número YA, entra en "Ver / poner la tasa" y dale a "🔄 Actualizar ahora". La tasa puesta a mano no se pierde ni la pisa la automática. La clave de la API de elToque va en GitHub (Settings › Secrets › Actions, con el nombre ELTOQUE_API_KEY), no en la app: desde el navegador esa API no se puede llamar.' },
       { icono:'➕', titulo:'Sumar a la tasa (el margen)', donde:'Config › Sumar a la tasa',
         para:'Que los gestores vean una tasa distinta de la del mercado. Si elToque marca 665 y pones 10, todos ven 675.',
         como:'Escribe el número y dale al botón "Aplicar" de esa MISMA fila. Puede ser negativo. Déjalo vacío para quitarlo.',
