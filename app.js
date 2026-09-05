@@ -1880,9 +1880,15 @@ async function _doRestPoll() {
             else if(node==='notifs'){
               // v43: merge local + remoto en vez de reemplazo ciego (evita pérdida
               // de notificaciones cuando varios dispositivos escriben el singleton)
+              const _antesDeFusionar = _notifsCache;
               const mergedNotifs = _mergeNotifArrays(_notifsCache, val);
               _notifsCache = mergedNotifs; _notifsDirty = false;
               _safeSetLS('axon_notifs', JSON.stringify(mergedNotifs)); // v65: idem — fallo de guardado visible
+              // v120: aviso al teléfono de los cambios de stock. Se hace aquí y
+              // no donde se crea el aviso, porque quien lo crea es el ADMIN en
+              // SU teléfono: el gestor solo se entera cuando el aviso le baja,
+              // que es justo este punto.
+              try { _pushDeProductos(_antesDeFusionar, mergedNotifs); } catch(e) {}
               // v51 FIX: forzar render de notifs después de recibir nuevas.
               // ANTES: dependía de refreshUI() → _refreshLightUI() → renderGestorNotifs(),
               // pero si el hash de vales no cambiaba (solo llegaron notifs nuevas),
@@ -7890,7 +7896,8 @@ function renderEditValePickerProducts() {
   prods.sort((a,b)=>{
     const aBlocked=(a.stock||0)===0||_isFullyReserved(a)?1:0;
     const bBlocked=(b.stock||0)===0||_isFullyReserved(b)?1:0;
-    return aBlocked-bBlocked;
+    if(aBlocked!==bBlocked) return aBlocked-bBlocked;
+    return _ordenNuevosPrimero(a,b);   // v120
   });
   const grid=document.getElementById('av-pickerProductGrid');if(!grid)return;
   if(!prods.length){grid.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--gray-400);"><div style="font-size:32px;margin-bottom:8px;opacity:.4;">📦</div><div style="font-size:13px;">No se encontraron productos</div></div>';return;}
@@ -7914,7 +7921,7 @@ function renderEditValePickerProducts() {
     const availLine = blocked ? '' : `<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Disponibles: ${avail}</div>`;
     return `<div class="apcard${sel?' picked':''}${blocked?' apcard-blocked':''}" style="${blocked?'pointer-events:none;opacity:.55;':''}">
       <div class="apcard-info">
-        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''} ${badge}</div>
+        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${!blocked&&_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''} ${badge}</div>
         ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
         ${availLine}
       </div>
@@ -8702,10 +8709,20 @@ function renderGestorDashboard() {
     ? _computeGestorStatsForRange(activeGestorId, range.prevFrom, range.prevTo)
     : null;
 
-  // Meta progress bar
+  // ── La barra de la meta ──
+  // v120: en el modo por ciclos NO hay meta que alcanzar, y esto pintaba
+  // igualmente "x / 100 pts" con una meta vieja guardada en el config: un
+  // número que no estaba en juego y una barra que no significaba nada. Ahora,
+  // sin meta fija, la barra va contra el siguiente escalón redondo (10, 25,
+  // 50, 100…), el mismo criterio que el ranking, así que siempre hay un tramo
+  // que ganar y la barra nunca se queda clavada.
   const cfg = getConfig();
-  const meta = cfg.metaPuntos || 100;
-  const pctMeta = Math.min(100, Math.round((cur.pts / meta) * 100));
+  const _metaFija = (typeof metaModo === 'function' ? metaModo() : 'fija') === 'fija' && (cfg.metaPuntos || 0) > 0;
+  const meta = _metaFija ? cfg.metaPuntos : _siguienteEscalon(cur.pts);
+  // v120: igual que en el ranking — el 100% se reserva para quien llegó.
+  const pctMeta = meta > 0
+    ? (cur.pts >= meta ? 100 : Math.max(0, Math.min(99, Math.floor((cur.pts / meta) * 100))))
+    : 0;
 
   // Build the 4-stat summary
   const stats = [
@@ -8785,13 +8802,17 @@ function renderGestorDashboard() {
   const metaHTML = `
     <div style="grid-column:1/-1;margin-top:6px;padding:11px 14px;background:var(--surface2);border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;flex-wrap:wrap;gap:4px;">
-        <span style="font-size:12px;font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
+        <span style="font-size:12px;font-weight:700;color:var(--text);">${_metaFija ? '🎯 Meta de puntos' : '⭐ Tus puntos del ciclo'}</span>
         <span style="font-size:12px;font-weight:700;color:var(--cyan,#06b6d4);">${cur.pts} / ${meta} pts</span>
       </div>
       <div style="background:var(--gray-100);border-radius:20px;height:8px;overflow:hidden;">
         <div style="width:${pctMeta}%;height:100%;background:#06b6d4;border-radius:20px;transition:width .6s;"></div>
       </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${pctMeta >= 100 ? '¡Meta alcanzada! 🎉' : `Te faltan ${meta - cur.pts} pts para la meta`}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${
+        _metaFija
+          ? (pctMeta >= 100 ? '¡Meta alcanzada! 🎉' : `Te faltan ${meta - cur.pts} pts para la meta`)
+          : `Te faltan ${Math.max(0, meta - cur.pts)} pts para llegar a ${meta}`
+      }</div>
     </div>
   `;
 
@@ -9803,7 +9824,8 @@ function renderPickerProducts() {
   prods.sort((a,b)=>{
     const aBlocked=(a.stock||0)===0||_isFullyReserved(a)?1:0;
     const bBlocked=(b.stock||0)===0||_isFullyReserved(b)?1:0;
-    return aBlocked-bBlocked;
+    if(aBlocked!==bBlocked) return aBlocked-bBlocked;
+    return _ordenNuevosPrimero(a,b);   // v120: lo nuevo, delante
   });
   const c=document.getElementById('pickerProductGrid');
   if(!c) return;
@@ -10196,9 +10218,11 @@ function renderProductGrid() {
     c.innerHTML='<div class="es"><div class="es-icon">📦</div><div class="es-text">Sin productos. Haz clic en "+ Nuevo producto".</div></div>';return;
   }
   // 3 secciones: Disponibles, Reservados (totalmente reservados), Agotados
-  const activos = prods.filter(p => (p.stock||0) > 0 && !_isFullyReserved(p));
-  const reservados = prods.filter(p => (p.stock||0) > 0 && _isFullyReserved(p));
-  const agotados = prods.filter(p => (p.stock||0) === 0);
+  // v120: los nuevos arriba, dentro de cada sección. La chapa 💎 no sirve de
+  // nada si hay que bajar cien productos para dar con ella.
+  const activos = prods.filter(p => (p.stock||0) > 0 && !_isFullyReserved(p)).sort(_ordenNuevosPrimero);
+  const reservados = prods.filter(p => (p.stock||0) > 0 && _isFullyReserved(p)).sort(_ordenNuevosPrimero);
+  const agotados = prods.filter(p => (p.stock||0) === 0).sort(_ordenNuevosPrimero);
   const grid = s => `<div style="display:flex;flex-direction:column;gap:8px;">${s}</div>`;
   let html='';
   if(activos.length){
@@ -10732,7 +10756,19 @@ function _esProductoNuevo(p) {
   if (t > Date.now() + 86400000) return false;              // del futuro: dato malo
   return (Date.now() - t) <= _DIAS_PRODUCTO_NUEVO * 86400000;
 }
-const _BADGE_NUEVO = '<span style="background:linear-gradient(135deg,#10B981,#059669);color:#fff;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;letter-spacing:.3px;white-space:nowrap;" title="Añadido en los últimos ' + _DIAS_PRODUCTO_NUEVO + ' días">NUEVO</span>';
+const _BADGE_NUEVO = '<span style="background:linear-gradient(135deg,#22D3EE,#0EA5E9);color:#fff;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:800;letter-spacing:.3px;white-space:nowrap;box-shadow:0 1px 4px rgba(14,165,233,.35);" title="Añadido en los últimos ' + _DIAS_PRODUCTO_NUEVO + ' días">💎 NUEVO</span>';
+// v120: los recién llegados van ARRIBA en todas las listas. De poco sirve la
+// chapa si hay que bajar cien productos para verla; lo nuevo es justo lo que
+// hay que enseñar primero. Se ordena por fecha de alta entre los nuevos, para
+// que el último en entrar encabece.
+// Devuelve una clave de orden: 0 = es nuevo (y cuanto más reciente, antes), 1 = el resto.
+function _ordenNuevosPrimero(a, b) {
+  const na = _esProductoNuevo(a) ? 0 : 1;
+  const nb = _esProductoNuevo(b) ? 0 : 1;
+  if (na !== nb) return na - nb;
+  if (na === 0) return (Number(b.creadoTs || b.id) || 0) - (Number(a.creadoTs || a.id) || 0);
+  return 0;   // entre los que no son nuevos, se respeta el orden que ya traían
+}
 
 async function saveProduct() {
   const name=document.getElementById('pm-name').value.trim();if(!name){showToast('El nombre es obligatorio');return;}
@@ -13574,6 +13610,22 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
 // ══════════════════════════════════════════
 //  GESTOR RANKING
 // ══════════════════════════════════════════
+// ── v120: el escalón que toca perseguir ────────────────────────────────────
+// Devuelve el siguiente número redondo por encima de los puntos que se le
+// pasen: 0→10, 7→10, 10→25, 30→50, 60→100, 120→250… Sirve para que la barra
+// del que va primero NO esté llena: siempre queda un trecho, y al pasarlo el
+// escalón sube y la barra vuelve a empezar.
+//
+// Se usa el MISMO escalón para todos los de la lista, para que las barras se
+// puedan comparar entre sí: si cada uno tuviera el suyo, dos gestores con
+// puntos muy distintos podrían salir con la barra igual de larga.
+const _ESCALONES_PUNTOS = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
+function _siguienteEscalon(pts) {
+  const n = Math.max(0, parseFloat(pts) || 0);
+  for (const e of _ESCALONES_PUNTOS) if (n < e) return e;
+  // Pasados los 5000 se sigue en múltiplos de 5000, para no quedarse sin techo.
+  return Math.ceil((n + 1) / 5000) * 5000;
+}
 function renderGestorRanking() {
   const c=document.getElementById('rankingList');if(!c)return;
   const gestores=getGestores();
@@ -13610,7 +13662,13 @@ function renderGestorRanking() {
   // —si no, con una meta vieja de 100 pts guardada, todos saldrían con la barra
   // casi vacía aunque fueran líderes.
   const _hayMeta = metaModo()==='fija' && meta>0;
-  const maxRef=_hayMeta?meta:Math.max(ranked[0]?.pts||1,1);
+  // v120: en el modo por ciclos la referencia era el líder, así que SU barra
+  // salía siempre llena — no había nada que perseguir y el resto se medía
+  // contra un techo que se movía solo. Ahora se mide contra el siguiente
+  // escalón redondo por encima del líder (10, 25, 50, 100, 250…): al líder le
+  // queda camino visible, y cuando lo pasa, el escalón sube y la barra vuelve
+  // a arrancar. Es una barra que progresa, que es lo que se pedía.
+  const maxRef=_hayMeta?meta:_siguienteEscalon(ranked[0]?.pts||0);
   let html='';
   // v119: la cabecera dice de qué va la competencia AHORA. Antes se pintaba la
   // meta con solo haber un número guardado, así que en el modo por ciclos
@@ -13628,12 +13686,19 @@ function renderGestorRanking() {
     const ini=_inicioDelCiclo(), fin=_finDelCiclo(ini);
     const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'});}catch(e){return d;}};
     const lider=ranked[0]&&ranked[0].pts>0?ranked[0]:null;
+    // v120: se dice contra qué escalón van las barras, para que el largo de
+    // cada una signifique algo y no parezca un número inventado.
     html+=_cab(`📅 Ciclo: ${fmt(ini)} → ${fmt(fin)}`,
-               lider?`👑 Va ganando ${escapeHTML(lider.name)}`:'Sin puntos todavía',
+               lider?`👑 ${escapeHTML(lider.name)} · ${lider.pts}/${maxRef} pts`:'Sin puntos todavía',
                lider?'var(--green)':'var(--gray-400)');
   }
   html+=ranked.map((g,i)=>{
-    const pct=maxRef>0?Math.min(100,Math.round((g.pts/maxRef)*100)):0;
+    // v120: solo llega al 100% quien de verdad alcanzó la referencia. Con 4999
+    // de 5000 el redondeo daba 100% y la barra salía llena sin estarlo — el
+    // mismo efecto que se venía a quitar, solo que en el borde.
+    const pct=maxRef>0
+      ? (g.pts>=maxRef ? 100 : Math.max(0,Math.min(99,Math.floor((g.pts/maxRef)*100))))
+      : 0;
     const reached=_hayMeta&&g.pts>=meta;
     const grad=reached?'linear-gradient(90deg,var(--green),#10B981)':barGradients[Math.min(i,barGradients.length-1)];
     // Posiciones: medallas para top 3 (más compactas), número pequeño para el resto
@@ -15621,7 +15686,8 @@ function renderAdminPickerProducts() {
   prods = prods.slice().sort((a,b)=>{
     const aB=((a.stock||0)===0||_isFullyReserved(a))?1:0;
     const bB=((b.stock||0)===0||_isFullyReserved(b))?1:0;
-    return aB-bB;
+    if(aB!==bB) return aB-bB;
+    return _ordenNuevosPrimero(a,b);   // v120
   });
   grid.innerHTML = prods.map(p=>{
     const qty=adminPickerSelected[p.id]||0; const sel=qty>0;
@@ -15638,7 +15704,7 @@ function renderAdminPickerProducts() {
     const titulo = oos ? 'Producto agotado' : fullyRes ? 'Todo el stock está reservado' : '';
     return `<div class="apcard${sel?' picked':''}${blocked?' apcard-blocked':''}"${titulo?` title="${titulo}"`:''}>
       <div class="apcard-info">
-        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${badge}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
+        <div class="apcard-name"><span class="apcard-cat" style="background:${catColor}">${escapeHTML(catName)}</span>${escapeHTML(p.name)}${!blocked&&_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}${badge}${p.garantia?`<span class="apcard-garantia">🛡️ ${escapeHTML(p.garantia)}</span>`:''}</div>
         ${p.precio?`<div class="apcard-price">${escapeHTML(p.precio)}</div>`:''}
         ${!blocked?`<div style="font-size:9px;color:var(--text-muted);">Disponibles: ${avail}</div>`:''}
       </div>
@@ -17031,10 +17097,16 @@ const AYUDA_SECCIONES = [
         para:'Apartar mercancía para un cliente sin sacarla del almacén.',
         como:'Botón 🔐 del producto y pon cuántas apartas.',
         ojo:'Lo reservado no se puede vender en otro vale. El selector de productos solo deja elegir lo que queda disponible.' },
-      { icono:'🆕', titulo:'Chapa NUEVO', donde:'Stock y selector de productos',
+      { icono:'💎', titulo:'Chapa 💎 NUEVO', donde:'Stock y selector de productos',
         para:'Que se vea de un vistazo lo que acaba de entrar. Sale sola durante 3 días.',
-        como:'No hay que hacer nada: al subir un producto se marca solo. También la ven los gestores al hacer un vale.',
-        nuevo:'v119' },
+        como:'No hay que hacer nada: al subir un producto se marca solo y se coloca ARRIBA de la lista. También lo ven así los gestores al hacer un vale.',
+        ojo:'Pasados los 3 días la chapa desaparece y el producto vuelve a su sitio en la lista.',
+        nuevo:'v120' },
+      { icono:'🔔', titulo:'Avisos al teléfono del gestor', donde:'Automático',
+        para:'Que el gestor se entere sin abrir la app de que entró un producto nuevo, de que se acabó uno (para no ofrecerlo y quedar mal) o de que se repuso.',
+        como:'No hay que hacer nada: al dar de alta, agotar o reponer un producto, a los gestores les salta el aviso con la foto del producto, su nombre y qué hacer.',
+        ojo:'Cada gestor tiene que darle una vez a "🔔 Activar alertas push" en su app; si no da permiso, no le llega nada. Solo se avisa de lo de las últimas 6 horas y como mucho 3 seguidos, para no llenarle la pantalla.',
+        nuevo:'v120' },
       { icono:'✏️', titulo:'Editar un producto agotado', donde:'Stock › sección Agotados',
         para:'Corregirle el precio, la foto o la comisión aunque no quede ninguno.',
         como:'El lápiz ✏️ al lado de "Reponer".',
@@ -17066,6 +17138,11 @@ const AYUDA_SECCIONES = [
         como:'Botón "⭐ Puntos" en su tarjeta. Escribe el total que DEBE tener y la app calcula el ajuste sola.',
         ojo:'Antes de usarlo, mira el aviso: si vendió un producto sin puntos, ponérselos al producto arregla las ventas ya hechas y para todos los gestores, no solo para uno. El ajuste a mano es para lo que eso no arregle.',
         dibujo:'puntos', nuevo:'v120' },
+      { icono:'📊', titulo:'Las barras del ranking', donde:'Pantalla del gestor',
+        para:'Ver de un vistazo quién va por delante y cuánto le falta a cada uno.',
+        como:'Con meta fija, la barra se mide contra la meta. Sin meta (modo por ciclos) se mide contra el siguiente escalón redondo — 10, 25, 50, 100, 250…— igual para todos, así se pueden comparar entre sí.',
+        ojo:'Antes el que iba ganando salía siempre con la barra llena, porque la referencia era él mismo: no había nada que perseguir. Ahora el escalón va por delante, así que siempre le queda tramo; cuando lo pasa, el escalón sube y la barra vuelve a arrancar.',
+        nuevo:'v120' },
       { icono:'🏆', titulo:'Meta y ranking', donde:'Config › Meta de puntos',
         para:'La competencia entre gestores. Hay tres modos: sin meta, meta fija (llega a X puntos) o mensual (gana el que más tenga en el ciclo).',
         como:'En Config eliges el modo. En mensual puedes escoger el día en que empieza el ciclo: si pones 29, va del 29 al 29.',
@@ -17209,4 +17286,101 @@ function renderAyuda() {
         ${s.dibujo && !q && AYUDA_DIBUJOS[s.dibujo] ? `<div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:8px;margin-bottom:8px;">${AYUDA_DIBUJOS[s.dibujo]()}</div>` : ''}
         ${s.temas.map(tema).join('')}
       </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+//  AVISOS AL TELÉFONO DEL GESTOR SOBRE EL STOCK  (v120)
+// ══════════════════════════════════════════════════════════════════════════
+// El gestor tiene que enterarse de tres cosas sin abrir la app: que entró un
+// producto nuevo, que se acabó uno (para no venderlo y quedar mal con el
+// cliente) y que se repuso uno que estaba agotado.
+//
+// Esto NO es push de servidor: no hay servidor propio ni claves VAPID, y
+// montarlo costaría dinero. Es la notificación del sistema que lanza el propio
+// teléfono cuando la app —abierta o en segundo plano— recibe el aviso por el
+// sondeo. En un móvil con la app instalada se ve igual que un push normal.
+//
+// Se dispara al BAJAR los avisos, no al crearlos: quien los crea es el admin en
+// su teléfono; el gestor solo se entera cuando le llegan.
+const _PUSH_TIPOS = {
+  new_product:  { titulo: '💎 Producto nuevo',      accion: 'Ya se puede vender' },
+  out_of_stock: { titulo: '❌ Producto agotado',    accion: 'No lo ofrezcas hasta que se reponga' },
+  restocked:    { titulo: '📦 Producto repuesto',   accion: 'Vuelve a estar disponible' },
+};
+const _PUSH_VISTOS_KEY = 'axon_push_vistos';
+// Solo se avisa de lo que pasó hace poco. Sin este freno, la primera vez que un
+// teléfono se sincroniza se le echarían encima veinte notificaciones de cosas
+// de la semana pasada.
+const _PUSH_MAX_EDAD_MS = 6 * 60 * 60 * 1000;
+function _pushYaVistos() {
+  try { const a = JSON.parse(localStorage.getItem(_PUSH_VISTOS_KEY) || '[]'); return Array.isArray(a) ? a : []; }
+  catch(e) { return []; }
+}
+function _pushApuntarVistos(ids) {
+  try {
+    // Se guardan los últimos 300 y no todos: la lista solo sirve para no repetir
+    // un aviso reciente, y sin poda crecería para siempre en el teléfono.
+    const nuevos = _pushYaVistos().concat(ids).slice(-300);
+    localStorage.setItem(_PUSH_VISTOS_KEY, JSON.stringify(nuevos));
+  } catch(e) {}
+}
+// La foto del producto, si la tiene, para que el aviso se reconozca de un
+// vistazo. Si no hay, el icono de la app.
+function _pushIconoProducto(pid) {
+  try {
+    const p = pid != null ? productoOf(pid) : null;
+    if (p && p.photo && typeof _resolvePhotoUrl === 'function') {
+      const u = _resolvePhotoUrl(p.photo);
+      if (u) return u;
+    }
+  } catch(e) {}
+  return './iconos/icon-192.png';
+}
+function _pushDeProductos(antes, despues) {
+  // El admin no se avisa a sí mismo: él es quien acaba de hacer el cambio.
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) return 0;
+  if (!('Notification' in window) || Notification.permission !== 'granted') return 0;
+  if (!Array.isArray(despues)) return 0;
+  const habia = new Set((Array.isArray(antes) ? antes : []).map(n => n && n.id).filter(x => x != null));
+  const vistos = new Set(_pushYaVistos());
+  const ahora = Date.now();
+  const nuevos = [];
+  despues.forEach(n => {
+    if (!n || !_PUSH_TIPOS[n.type]) return;
+    if (habia.has(n.id) || vistos.has(n.id)) return;        // ya estaba o ya se avisó
+    const t = Date.parse(n.ts || '');
+    if (!isFinite(t) || (ahora - t) > _PUSH_MAX_EDAD_MS) return;   // demasiado viejo
+    nuevos.push(n);
+  });
+  if (!nuevos.length) return 0;
+  // De más reciente a más antiguo, y como mucho tres: una ráfaga de avisos se
+  // ignora igual que si no llegara ninguno.
+  nuevos.sort((a, b) => Date.parse(b.ts || 0) - Date.parse(a.ts || 0));
+  const _lanzar = nuevos.slice(0, 3);
+  _lanzar.forEach(n => {
+    const tipo = _PUSH_TIPOS[n.type];
+    const nombre = String(n.productName || 'Producto');
+    const extra = String(n.extra || '').trim();
+    // El cuerpo dice el producto y qué hacer; el extra trae el stock que quedó
+    // o el precio, según el aviso, y ayuda a decidir sin abrir la app.
+    const cuerpo = nombre + (extra ? ' · ' + extra : '') + '\n' + tipo.accion;
+    _pushConFoto(tipo.titulo, cuerpo, _pushIconoProducto(n.productId), 'stock:' + n.id);
+  });
+  _pushApuntarVistos(nuevos.map(n => n.id));
+  return _lanzar.length;
+}
+// Como sendBrowserNotif pero con la foto del producto y una etiqueta, para que
+// dos avisos del mismo producto no se apilen en la barra de notificaciones.
+function _pushConFoto(titulo, cuerpo, icono, etiqueta) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const opts = { body: cuerpo, icon: icono, badge: './iconos/icon-192.png', tag: etiqueta, renotify: true };
+  try {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+      navigator.serviceWorker.ready
+        .then(reg => reg.showNotification(titulo, opts))
+        .catch(() => { try { new Notification(titulo, opts); } catch(e) {} });
+    } else {
+      new Notification(titulo, opts);
+    }
+  } catch(e) { console.warn('[push] no se pudo avisar:', e && e.message); }
 }
