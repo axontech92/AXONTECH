@@ -453,13 +453,24 @@
           <span id="tasaMargenStatus" style="font-size:11px;"></span>
         </div>
         <p style="font-size:11px;color:var(--text-muted);margin:0;">Si elToque marca 665 y pones 10, todos los gestores ven 675. Puede ser negativo.</p>
-        <input type="password" id="cfg-tasa-key" placeholder="Clave de la API de elToque (opcional)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;" autocomplete="off">
-        <input type="text" id="cfg-tasa-url" placeholder="Otra dirección que devuelva la tasa en JSON (opcional)" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
+        <!-- v120: aquí había dos campos más (la clave de la API de elToque y otra
+             dirección) con su propio botón "💾 Guardar fuente". Se quitaron por
+             dos motivos, y el segundo es el que molestaba de verdad:
+              · La clave no sirve desde el navegador: la API de elToque no
+                autoriza peticiones de otras webs (CORS), y por eso existe el
+                trabajo de GitHub que la baja por su cuenta cada 3 horas. Pedirla
+                aquí era invitar a pegar un secreto que no iba a usarse.
+              · Ese botón azul quedaba justo debajo del campo del margen y NO lo
+                guardaba —el del margen es el "Aplicar" de arriba—, así que el
+                +10 parecía no guardarse cuando en realidad ni se había pulsado
+                su botón. -->
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="btn btn-blue btn-sm" onclick="saveTasaFuente()">💾 Guardar fuente</button>
           <button class="btn btn-ghost btn-sm" onclick="openTasaModal()">💵 Ver / poner la tasa</button>
         </div>
-        <p style="font-size:11px;color:var(--text-muted);margin:0;">Sin rellenar nada la app intenta bajarla sola. Si no lo consigue, puedes escribirla a mano y los gestores la verán igual.</p>
+        <p style="font-size:11px;color:var(--text-muted);margin:0;line-height:1.5;">
+          La tasa la baja sola un trabajo de GitHub cada 3 horas y la app la lee de ahí.
+          Si algún día no la consigue, escríbela a mano en “Ver / poner la tasa” y los gestores la verán igual.
+        </p>
       </div>
     </div>
 

@@ -13967,11 +13967,10 @@ function loadGhConfigUI() {
       : '<span style="color:var(--gray-400);">Los puntos cuentan desde siempre</span>';
   }
   if(_btnUndo)_btnUndo.style.display=cfg.puntosDesde?'inline-flex':'none';
-  // v89: fuente de la tasa del dólar
-  const tKey=document.getElementById('cfg-tasa-key');
-  const tUrl=document.getElementById('cfg-tasa-url');
-  if(tKey)tKey.value=tasaApiKey();
-  if(tUrl)tUrl.value=cfg.tasaUrl||'';
+  // v120: ya no hay campos de clave ni de dirección — ver la nota en admin.html.
+  // La clave que algún admin dejara guardada se borra: es un secreto que se
+  // quedaría en el teléfono sin que nada lo use.
+  try { localStorage.removeItem('axon_tasa_key'); } catch(e) {}
   const tMar=document.getElementById('cfg-tasa-margen');
   if(tMar)tMar.value=tasaMargen()||'';
   _pintarEstadoMargen();
@@ -13994,21 +13993,9 @@ function saveTasaMargenCfg() {
   guardarTasaMargen(inp && inp.value !== '' ? inp.value : 0);
   _pintarEstadoMargen();
 }
-// v89: guarda de dónde sacar la tasa y prueba en el momento, para no dejar al
-// admin sin saber si lo que acaba de pegar sirve o no.
-function saveTasaFuente() {
-  const cfg=getConfig()||{};
-  const tKey=document.getElementById('cfg-tasa-key');
-  const tUrl=document.getElementById('cfg-tasa-url');
-  // La clave se queda SOLO en este teléfono, igual que el token de GitHub: el
-  // config se sincroniza a Supabase y de allí lo lee cualquiera con la anon key,
-  // que es pública. La dirección sí se comparte — no es un secreto y así los
-  // gestores también pueden bajar la tasa por su cuenta.
-  _safeSetLS('axon_tasa_key',(tKey&&tKey.value||'').trim());
-  saveConfig({...cfg, tasaUrl:(tUrl&&tUrl.value||'').trim()});
-  showToast('Fuente guardada · probando…');
-  actualizarTasaUSD(true);
-}
+// v120: saveTasaFuente() se quitó con sus dos campos. La tasa sale de tasa.json,
+// que publica el trabajo de GitHub; la clave de elToque vive allí como secreto
+// (ELTOQUE_API_KEY) y no en el navegador, que es donde no le sirve a nadie.
 async function syncToGitHub(silent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
@@ -16552,7 +16539,6 @@ let _tasaBuscando = false;
 function _tasaLocal() { try { return JSON.parse(localStorage.getItem('axon_tasa_usd') || 'null'); } catch(e) { return null; } }
 // La clave de elToque vive solo en este teléfono, nunca en el config que se
 // sincroniza — mismo criterio que el token de GitHub.
-const tasaApiKey = () => { try { return localStorage.getItem('axon_tasa_key') || ''; } catch(e) { return ''; } };
 
 // Lo que se enseña: lo más reciente entre lo que bajó este teléfono y lo que el
 // admin compartió por el config sincronizado. Así un gestor sin acceso a la web
@@ -16680,7 +16666,6 @@ function _extraerTasaUSD(j, prof) {
 
 function _tasaFuentes() {
   const cfg = getConfig() || {};
-  const hoy = new Date().toISOString().slice(0, 10);
   const lista = [];
   // 0) tasa.json, en el propio servidor de la app. Lo deja ahí GitHub Actions
   //    cada pocas horas (.github/workflows/tasa-usd.yml). Es la vía buena: al
@@ -16692,18 +16677,15 @@ function _tasaFuentes() {
     url: './tasa.json?t=' + Date.now(), opts: {}, nombre: 'elToque',
     leer: j => j && j.valor, fuenteDe: j => (j && j.fuente) || 'elToque'
   });
-  // 1) La que ponga el admin en Config, por si el día de mañana hay que cambiar
-  //    de sitio sin tocar el código.
+  // 1) Una dirección propia, si quedó guardada en el config de antes de v120.
+  //    Ya no se puede poner desde la app, pero si alguien la tenía sigue valiendo.
   if (cfg.tasaUrl) lista.push({ url: cfg.tasaUrl, opts: {}, nombre: 'propia' });
-  // 2) La API oficial de elToque. Pide una clave que ellos dan al registrarse;
-  //    sin clave no se intenta siquiera, para no gastar la conexión en un 401.
-  const clave = tasaApiKey();
-  if (clave) lista.push({
-    url: `https://tasas.eltoque.com/v1/trmi?date_from=${hoy}%2000:00:01&date_to=${hoy}%2023:59:01`,
-    opts: { headers: { Authorization: 'Bearer ' + clave } },
-    nombre: 'elToque'
-  });
-  // 3) Espejos públicos de esos mismos datos, que no piden clave.
+  // v120: aquí se intentaba la API oficial de elToque con la clave guardada en
+  // el navegador. No se intenta más: esa API no autoriza peticiones desde otra
+  // web (CORS), así que desde el teléfono SIEMPRE fallaba — se gastaba conexión
+  // para nada y hacía creer que la clave servía de algo aquí. Quien la usa es el
+  // trabajo de GitHub, que corre en un servidor y no tiene esa restricción.
+  // 2) Espejos públicos de esos mismos datos, que no piden clave.
   lista.push({ url: 'https://api.cambiocuba.money/api/v1/x-rates-by-date-range-history?trmi=true&cur=USD&period=1', opts: {}, nombre: 'elToque (espejo)' });
   lista.push({ url: 'https://api.cambiocuba.money/api/v1/x-rates', opts: {}, nombre: 'elToque (espejo)' });
   return lista;
@@ -17123,8 +17105,13 @@ const AYUDA_SECCIONES = [
     temas: [
       { icono:'💱', titulo:'Tasa del dólar', donde:'Config / chip de la tasa',
         para:'Convertir entre USD y MN en los paneles que lo necesitan.',
-        como:'Se actualiza sola cada 3 horas. También la puedes poner a mano, y entonces manda la tuya.',
-        ojo:'La tasa a mano no se pierde al cerrar la app.' },
+        como:'Se actualiza sola cada 3 horas: un trabajo de GitHub la baja y la app la lee de ahí. También la puedes poner a mano en "Ver / poner la tasa", y entonces manda la tuya.',
+        ojo:'La tasa a mano no se pierde al cerrar la app ni la pisa la automática. La clave de la API de elToque va en GitHub (Settings › Secrets › Actions, con el nombre ELTOQUE_API_KEY), no en la app: desde el navegador esa API no se puede llamar.' },
+      { icono:'➕', titulo:'Sumar a la tasa (el margen)', donde:'Config › Sumar a la tasa',
+        para:'Que los gestores vean una tasa distinta de la del mercado. Si elToque marca 665 y pones 10, todos ven 675.',
+        como:'Escribe el número y dale al botón "Aplicar" de esa MISMA fila. Puede ser negativo. Déjalo vacío para quitarlo.',
+        ojo:'La tasa base se guarda siempre limpia y el margen se suma al enseñarla, así que cambiarlo o quitarlo no estropea el número original.',
+        nuevo:'v120' },
       { icono:'💾', titulo:'Exportar / importar datos', donde:'Config',
         para:'Sacar una copia de todo por si acaso, y volver a meterla.',
         como:'"Exportar" descarga un archivo. "Importar" lo vuelve a cargar.',
