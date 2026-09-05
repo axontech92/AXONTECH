@@ -1224,6 +1224,14 @@ const _REST_POLL_MS = 5000;
 // usa: descargarlos cada 5 s era la mayor parte del tráfico contra Supabase.
 const _POLL_LENTO_MS = 300000; // 5 minutos
 let _ultimoPollLento = 0;      // 0 = la primera pasada los trae igualmente
+// v121: cuándo guardó ESTE teléfono cada tabla por última vez. Lo apunta
+// _enqueueSB, que es por donde pasa todo guardado local que va a la nube. Sirve
+// para descartar una bajada que salió ANTES de ese guardado: la respuesta viaja
+// segundos y llega contando lo de antes, así que aplicarla borra lo recién
+// hecho. Fue justo eso lo que dejaba la lista de gestores vacía: el sondeo del
+// arranque seguía en el aire cuando se creaban, y al aterrizar traía la tabla
+// como estaba, sin ellos.
+const _ultimoGuardadoLocal = Object.create(null);
 async function _doRestPoll() {
   if (_restPollInFlight) return;
   if (!navigator.onLine) return;
@@ -1718,9 +1726,20 @@ async function _doRestPoll() {
         // ANTERIOR y pisaba con ella el stock recién descontado. A los vales se
         // les puso este mismo cerrojo en v31 (línea ~705) y a estos nodos se les
         // olvidó — el mismo fallo, esperando su turno.
-        const _enVuelo = _sbProcessing && _currentWritePath &&
-                         (_currentWritePath === node || _currentWritePath.startsWith(node + '/'));
-        if (_enVuelo || _sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'))) { _lentoSaltado = true; continue; }
+        // v121: el cerrojo se comprueba DOS veces, antes de pedir y otra vez al
+        // volver, y por eso está en una función en vez de suelto. Entre la
+        // pregunta y la respuesta pasan segundos, y en esos segundos este mismo
+        // teléfono puede haber guardado algo: un gestor nuevo, una foto, el
+        // stock. La respuesta que llega es de ANTES de ese guardado, así que
+        // aplicarla borra lo recién hecho. Visto en pruebas: la lista de
+        // gestores se quedaba vacía porque la bajada había salido antes de
+        // crearlos.
+        const _nodoOcupado = () => (_sbProcessing && _currentWritePath &&
+                                    (_currentWritePath === node || _currentWritePath.startsWith(node + '/')))
+                               || _sbWriteQueue.some(q => q.path === node || q.path.startsWith(node + '/'));
+        if (_nodoOcupado()) { _lentoSaltado = true; continue; }
+        // Desde aquí ya no se puede aceptar nada que se haya guardado después.
+        const _pedidoEn = Date.now();
         // v103: mismo truco que en vales — preguntar primero con una consulta
         // mínima en vez de bajar la tabla entera (productos incluye fotos de
         // hasta 200 KB cada una; con 93 productos, ~640 KB por pasada). Estos
@@ -1737,6 +1756,17 @@ async function _doRestPoll() {
         const _parcial = (_tsNodo !== undefined) && !_fetchViejoNodo;
         const _rn = _parcial ? await _sbRestGetCollectionDesde(node, _tsNodo)
                              : await _sbRestGetCollectionYTs(node);
+        // Y aquí la segunda vuelta del cerrojo: si mientras se bajaba esto se
+        // guardó algo de este nodo, lo que acaba de llegar ya está viejo. Se
+        // mira de dos maneras porque una sola no basta: la cola puede haberse
+        // vaciado ya (el guardado subió bien) y la respuesta seguir siendo
+        // anterior a él.
+        if (_nodoOcupado() || (_ultimoGuardadoLocal[node] || 0) >= _pedidoEn) {
+          console.warn(`[${node}] la bajada llegó vieja: aquí se guardó algo mientras iba de camino — se descarta`);
+          _lentoSaltado = true;
+          _ultimoFetchReal[node] = 0;   // que lo reintente en la próxima pasada
+          continue;
+        }
         let arr;
         if (_parcial) {
           if (!_rn.items.length) continue;          // la pregunta dijo sí pero no vino nada
@@ -1748,6 +1778,44 @@ async function _doRestPoll() {
           console.log(`[sync] ${node}: ${_rn.items.length} fila(s) nuevas en vez de ${_previas.length}`);
         } else {
           arr = _rn.items;
+          // ── v121: una bajada completa vacía tiene que demostrarlo ────────────
+          // Mismo cuidado que ya tienen los vales (ver la nota larga arriba).
+          // Estos cuatro nodos se reemplazan ENTEROS con lo que venga, así que
+          // un [] por un fallo —un 404, un RLS mal puesto, una respuesta
+          // cortada— borraba de golpe la lista de gestores, la de mensajeros o
+          // el catálogo entero de este teléfono. Se vio en pruebas: la lista de
+          // gestores quedaba en [] y la app se quedaba sin nadie a quien
+          // asignar vales.
+          //
+          // Vaciarlo de verdad es posible (el admin puede borrarlos todos), así
+          // que no se ignora sin más: se le pregunta al servidor cuántas filas
+          // tiene. Si dice 0, la bajada era buena y se aplica. Si dice que hay
+          // filas —o no se puede saber— no se toca nada y ya volverá la
+          // siguiente pasada.
+          if (!arr.length) {
+            const _previasN = (node === 'productos') ? getProductos().length
+                            : (node === 'gestores')   ? getGestores().length
+                            : (node === 'mensajeros') ? getMensajeros().length
+                            : (node === 'categorias') ? getCategorias().length : 0;
+            if (_previasN > 0) {
+              // Si este teléfono acaba de guardar aquí y el guardado subió sin
+              // queja, la nube NO puede estar vacía. Cuando lo diga igualmente,
+              // miente ella: una respuesta cortada, un 404 que devuelve [], un
+              // permiso mal puesto. Se le da un par de minutos de gracia antes
+              // de creerle, que es de sobra para lo uno y no estorba a lo otro
+              // (si el admin borra a todos de verdad, entra en la pasada
+              // siguiente).
+              const _recienGuardado = Date.now() - (_ultimoGuardadoLocal[node] || 0) < 120000;
+              const _n = _recienGuardado ? -1 : await _sbRestContarFilas(node);
+              if (_n !== 0) {
+                console.warn(`[${node}] bajada completa vacía — se conserva lo de aquí (`
+                  + (_recienGuardado ? 'se acaba de guardar desde este teléfono'
+                     : 'el servidor dice que hay ' + (_n === null ? '¿?' : _n) + ' fila(s)') + ')');
+                _ultimoFetchReal[node] = 0;   // que reintente en la próxima pasada
+                continue;
+              }
+            }
+          }
           _ultimoFetchReal[node] = Date.now(); _tsVistosSucio = true;
         }
         _ultimaTsVisto[node] = _rn.maxTs || _ultimaTsVisto[node] || new Date().toISOString(); _tsVistosSucio = true;
@@ -2661,6 +2729,10 @@ function _processSBQueue() {
 // ══════════════════════════════════════════════════════════════════
 // (El buffer _sbInFlightPending se declara arriba, junto con _sbWriteQueue.)
 function _enqueueSB(path, value, method='set', callback=null) {
+  // v121: se apunta CUÁNDO este teléfono tocó por última vez cada tabla. El
+  // sondeo lo mira al volver de la nube para saber si lo que ha bajado ya nació
+  // viejo. Ver la nota en el bucle de nodos lentos de _doRestPoll.
+  try { _ultimoGuardadoLocal[String(path).split('/')[0]] = Date.now(); } catch (e) {}
   // ── Batching para conexiones lentas ──
   // Antes: cada saveVales() encolaba un item separado. Si un gestor enviaba
   // 3 vales seguidos + editaba 1, habían 4 items encolados sobre paths
@@ -17212,6 +17284,11 @@ const AYUDA_SECCIONES = [
       { icono:'🛍️', titulo:'Publicar el catálogo', donde:'Catálogo',
         para:'Tener una página pública con lo que hay a la venta, para pasarla por WhatsApp.',
         como:'Configura GitHub en Config y dale a publicar. Te devuelve el enlace.' },
+      { icono:'🛡️', titulo:'Las listas no se borran solas', donde:'En todos los teléfonos, por debajo',
+        para:'Que un fallo de conexión no te deje sin gestores, sin mensajeros ni sin catálogo.',
+        como:'Cada pocos minutos el teléfono baja esas listas de la nube. Si la respuesta viene vacía, ya no se la cree a la primera: le pregunta a la nube cuántas fichas tiene de verdad, y solo la aplica si de verdad no hay ninguna.',
+        ojo:'También descarta la respuesta que sale de la nube ANTES de que tú guardaras algo: llegaba con lo de antes y borraba lo recién hecho. Vaciar una lista a propósito sigue funcionando; tarda como mucho un par de minutos en llegar a los demás teléfonos.',
+        nuevo:'v121' },
     ],
   },
 ];
