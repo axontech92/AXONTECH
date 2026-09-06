@@ -2354,7 +2354,7 @@
       "ts": "2026-09-06T17:52:21.841Z",
       "total": "$200 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-06T17:55:00.124Z",
+      "seenTs": "2026-09-06T18:00:17.743Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -2367,7 +2367,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Carlos Yoel\n🔸Teléfono Cliente: 58035557\n🔸Dirección Cliente: Calle 60/5ta A y 5ta B,#513,Playa.    Llamar por WhatsApp porque la línea normal no brinda mucha conexión\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 06/09/2026 13:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 60/5ta A y 5ta B,#513,Playa.    Llamar por WhatsApp porque la línea normal no brinda mucha conexión",
       "precioUSD": "$200 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "2500",
       "comFijadaMN": 0,
@@ -16643,5 +16643,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-06T17:55:44.540Z"
+  "timestamp": "2026-09-06T18:05:56.435Z"
 }
