@@ -2007,7 +2007,7 @@
       "name": "Planta de soldar Bielmeier FLUXMAX 140 (3 en 1)",
       "catId": 40,
       "photo": "photos/p-1787114047916-ce51532d.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1787114047916-ce51532d.webp",
       "nombre": "Planta de soldar Bielmeier FLUXMAX 140 (3 en 1)",
       "precio": "$275",
@@ -2058,7 +2058,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 41,
+      "stock": 246,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2350,10 +2350,85 @@
   ],
   "vales": [
     {
+      "id": 1788716010418,
+      "ts": "2026-09-06T17:33:30.418Z",
+      "total": "28000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-06T17:33:41.426Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 235,
+      "articulo": "×100 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "28000 MN",
+      "telefono": "53899293",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 53899293\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×100 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 28000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 28000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 6/9/2026, 13:33:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-06T17:33:45.460Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 100,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
+      "id": 1788715882662,
+      "ts": "2026-09-06T17:31:22.687Z",
+      "total": "70000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-06T17:33:33.421Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Luis",
+      "valeNum": 235,
+      "articulo": "×250 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "70000 MN",
+      "telefono": "5353328114",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Luis\n🔸Teléfono Cliente: 5353328114\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×250 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 70000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 70000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 06/09/2026 13:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 250,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788713553982,
       "ts": "2026-09-06T16:52:33.995Z",
       "total": "$180 USD",
       "carnet": "",
+      "seenTs": "2026-09-06T17:16:24.467Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Diana - Alberto Martinez",
@@ -2370,6 +2445,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2389,7 +2465,7 @@
       "ts": "2026-09-06T16:40:33.868Z",
       "total": "$240 USD + 2800 MN",
       "carnet": "",
-      "seenTs": "2026-09-06T16:55:28.512Z",
+      "seenTs": "2026-09-06T17:16:36.768Z",
       "status": "assigned",
       "vuelto": "60 USD",
       "cliente": "Aryam",
@@ -2428,7 +2504,7 @@
       "ts": "2026-09-06T15:55:20.611Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-06T16:38:48.912Z",
+      "seenTs": "2026-09-06T17:16:27.826Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yordani",
@@ -2504,8 +2580,8 @@
       "ts": "2026-09-06T15:50:34.142Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-09-06T15:50:50.481Z",
-      "status": "pending",
+      "seenTs": "2026-09-06T17:33:49.986Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lazaro Romero",
       "valeNum": 231,
@@ -2521,6 +2597,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-06T17:33:59.611Z",
       "seenByAdmin": true,
       "comFijadaUSD": 15,
       "valeProductos": [
@@ -2532,7 +2609,7 @@
       ],
       "comisionGestor": "$15.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -16409,5 +16486,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-06T17:06:12.702Z"
+  "timestamp": "2026-09-06T17:35:00.436Z"
 }
