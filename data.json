@@ -2350,10 +2350,85 @@
   ],
   "vales": [
     {
+      "id": 1788713553982,
+      "ts": "2026-09-06T16:52:33.995Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Diana - Alberto Martinez",
+      "valeNum": 234,
+      "articulo": "×1 Sistema de Alarma",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5352938815",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Diana - Alberto Martinez\n🔸Teléfono Cliente: 5352938815\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Sistema de Alarma\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 06/09/2026 12:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788025891931,
+          "qty": 1,
+          "name": "Sistema de Alarma"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788712833855,
+      "ts": "2026-09-06T16:40:33.868Z",
+      "total": "$240 USD + 2800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-06T16:55:28.512Z",
+      "status": "assigned",
+      "vuelto": "60 USD",
+      "cliente": "Aryam",
+      "valeNum": 233,
+      "articulo": "×2 Mikrotik SXT sq lite 2",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "63161188",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Aryam\n🔸Teléfono Cliente: 63161188\n🔸Dirección Cliente: Hotel Melia Habana 3ra y 76, Playa\n🔸Mensajería/ costo: 2800\n🔸 Artículos y cantidades:\n  ×2 Mikrotik SXT sq lite 2\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: 60 USD\n🔸 Total a pagar: $240 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 06/09/2026 12:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Hotel Melia Habana 3ra y 76, Playa",
+      "precioUSD": "$240 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-06T16:47:41.402Z",
+      "mensajeria": "2800",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787265463792,
+          "qty": 2,
+          "name": "Mikrotik SXT sq lite 2"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788710120603,
       "ts": "2026-09-06T15:55:20.611Z",
       "total": "$180 USD",
       "carnet": "",
+      "seenTs": "2026-09-06T16:38:48.912Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yordani",
@@ -2370,6 +2445,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2389,7 +2465,7 @@
       "ts": "2026-09-06T15:51:34.074Z",
       "total": "$20 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-06T16:05:03.870Z",
+      "seenTs": "2026-09-06T16:37:53.072Z",
       "status": "assigned",
       "vuelto": "80 usd",
       "cliente": "Yudith",
@@ -2504,6 +2580,7 @@
       ],
       "comisionGestor": "$30.00 USD + 4500 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2662,9 +2739,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-06T16:19:27.467Z"
+      "synced": true
     },
     {
       "id": 1788657992976,
@@ -2710,16 +2785,14 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-06T16:19:18.652Z"
+      "synced": true
     },
     {
       "id": 1788648467469,
       "ts": "2026-09-05T22:47:47.478Z",
       "total": "$38 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-06T15:01:30.464Z",
+      "seenTs": "2026-09-06T16:21:08.426Z",
       "status": "pending",
       "vuelto": "62 usd",
       "cliente": "Yenima",
@@ -2824,6 +2897,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2900,6 +2974,7 @@
       ],
       "comisionGestor": "$15.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3095,6 +3170,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -16333,5 +16409,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-06T16:20:27.476Z"
+  "timestamp": "2026-09-06T17:06:12.702Z"
 }
