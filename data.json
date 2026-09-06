@@ -2831,7 +2831,7 @@
       "total": "$20 USD + 2400 MN",
       "carnet": "",
       "seenTs": "2026-09-06T18:57:14.678Z",
-      "status": "pending_payment",
+      "status": "confirmed",
       "vuelto": "6 usd y 300 cup(revisar el cambio) paga con 30 usd todo",
       "cliente": "Evelio Guerra Quesada",
       "valeNum": 230,
@@ -2847,6 +2847,7 @@
       "ubicacion": null,
       "assignedTs": "2026-09-06T17:54:44.523Z",
       "mensajeria": "2400 cup",
+      "confirmedTs": "2026-09-06T19:48:29.448Z",
       "deliveredTs": "2026-09-06T18:57:20.562Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
@@ -16747,5 +16748,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-06T19:44:11.917Z"
+  "timestamp": "2026-09-06T19:49:31.916Z"
 }
