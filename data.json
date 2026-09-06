@@ -2476,7 +2476,7 @@
       "ts": "2026-09-06T17:41:46.380Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-06T17:41:49.135Z",
+      "seenTs": "2026-09-06T19:15:23.047Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "X",
@@ -2489,13 +2489,14 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 52474103\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×4 Audifonos Gaming NUBWO\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 6/9/2026, 13:41:46\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Tienda Axontech",
       "precioUSD": "$200 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
-      "assignedTs": "2026-09-06T17:43:51.894Z",
+      "assignedTs": "2026-09-06T19:16:12.064Z",
       "mensajeria": "",
       "comFijadaMN": 0,
       "confirmedTs": null,
+      "deliveredTs": "2026-09-06T19:15:34.682Z",
       "mensajeroId": 1784476786977,
       "rebajaAdmin": 20,
       "seenByAdmin": true,
@@ -3514,7 +3515,7 @@
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-06T18:56:56.666Z",
+      "seenTs": "2026-09-06T19:05:56.868Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Erick Cruz Pérez",
@@ -16743,5 +16744,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-06T19:05:26.916Z"
+  "timestamp": "2026-09-06T19:17:17.916Z"
 }
