@@ -2176,7 +2176,7 @@
       "name": "Sistema de Alarma",
       "catId": 80,
       "photo": "photos/p-1788025891931-11c057ae.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1788025891931-11c057ae.webp",
       "nombre": "Sistema de Alarma",
       "precio": "180 USD",
@@ -2431,7 +2431,7 @@
       "ts": "2026-09-06T17:52:00.000Z",
       "total": "$200 USD + 16500 MN",
       "carnet": "",
-      "seenTs": "2026-09-06T19:42:29.323Z",
+      "seenTs": "2026-09-06T22:18:35.732Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -2635,8 +2635,8 @@
       "ts": "2026-09-06T16:52:33.995Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-06T19:21:00.224Z",
-      "status": "pending",
+      "seenTs": "2026-09-06T22:14:15.533Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Diana - Alberto Martinez",
       "valeNum": 234,
@@ -2652,6 +2652,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-06T22:18:31.236Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2663,7 +2664,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3519,7 +3520,7 @@
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-06T19:05:56.868Z",
+      "seenTs": "2026-09-06T22:18:37.894Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Erick Cruz Pérez",
@@ -4845,7 +4846,7 @@
       "ts": "2026-09-03T14:19:58.124Z",
       "total": "$100 USD + 20000 MN",
       "carnet": "",
-      "seenTs": "2026-09-06T14:01:17.309Z",
+      "seenTs": "2026-09-06T20:00:41.068Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Hectico",
@@ -16748,5 +16749,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-06T19:49:31.916Z"
+  "timestamp": "2026-09-06T22:19:31.264Z"
 }
