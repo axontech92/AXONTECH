@@ -6949,10 +6949,22 @@ function renderAdminGestoresList() {
   _updateGestoresCountBadge();
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
-  c.innerHTML=list.map(g=>{
+  // v121: el resumen de arriba. Sin esto había que abrir gestor por gestor para
+  // enterarse de que faltaban puntos, y como no se veía, la conclusión era que
+  // la cuenta estaba mal.
+  const _totalPerdidas = list.reduce((n, g) => n + _auditarPuntosCiclo(g.id).perdidos, 0);
+  const _avisoGlobal = _totalPerdidas ? `
+    <div style="background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);border-radius:9px;padding:10px 12px;margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:800;color:var(--orange);">⚠️ ${_totalPerdidas} venta${_totalPerdidas===1?'':'s'} de este ciclo no ${_totalPerdidas===1?'está dando':'están dando'} puntos</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Casi siempre es que el vale se escribió a mano y no tiene el producto del catálogo vinculado, o que el producto no tiene puntos puestos. Toca el aviso naranja de cada gestor para ver cuáles son.</div>
+    </div>` : '';
+  c.innerHTML=_avisoGlobal+list.map(g=>{
     const vales=getVales().filter(v=>v.gestorId===g.id);
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
     const pts=getGestorPoints(g.id);   // v114: los del ciclo, los que corren hacia la meta
+    // v121: y cuántas de sus ventas del ciclo NO están dando puntos, que es lo
+    // que hacía que "a varios les faltaran" sin que nada lo dijera.
+    const _aud=_auditarPuntosCiclo(g.id);
     const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
     // Comisiones de este gestor, repartidas en los tres montones.
@@ -6974,6 +6986,7 @@ function renderAdminGestoresList() {
         <div style="flex:1;min-width:0;">
           <div style="font-weight:800;font-size:15px;color:var(--text);">${escapeHTML(g.name)}</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${vales.length} vales · ${today} hoy · ⭐ ${pts} pts</div>
+          ${_aud.perdidos ? `<div style="font-size:10px;color:var(--orange);font-weight:700;margin-top:2px;cursor:pointer;" onclick="openPuntosGestorModal(${g.id})" title="Ver por qué no suman">⚠️ ${_aud.perdidos} venta${_aud.perdidos===1?'':'s'} del ciclo sin dar puntos</div>` : ''}
         </div>
         <button type="button" class="btn btn-ghost btn-sm" style="color:var(--red);flex-shrink:0;" onclick="removeGestor(${g.id})">Eliminar</button>
       </div>
@@ -14768,6 +14781,52 @@ function getGestorPointsTotal(gestorId) {
 // leen del catálogo cada vez y las ventas ya hechas los suman solas — y a todos
 // los gestores que lo vendieron, no solo a este.
 let _pgGestorId = null;
+
+// ── v121: de dónde salen (y dónde se pierden) los puntos del ciclo ─────────
+// Reportado: "a varios les faltan puntos". La cuenta era correcta, pero se
+// callaba lo importante: hay ventas confirmadas del ciclo que dan CERO puntos y
+// no había forma de verlo. Los motivos son tres, y ninguno se veía:
+//   · El vale no tiene ningún producto del catálogo vinculado. Pasa cuando se
+//     escribe el artículo a mano en vez de escogerlo del catálogo: la venta se
+//     confirma, se cobra su comisión… y no da un solo punto.
+//   · El producto que se vendió ya no está en el catálogo (se borró).
+//   · El producto está pero tiene 0 puntos puestos.
+// Esta función mira las ventas del ciclo una a una y dice cuántos puntos suman,
+// cuántos se pierden y por cuál de los tres motivos, para poder arreglarlo en
+// vez de parchear con un ajuste a mano.
+function _auditarPuntosCiclo(gestorId) {
+  const r = { pts: 0, ventas: 0, perdidos: 0,
+              sinVincular: [], borrados: [], sinPuntos: [], compartidos: 0 };
+  getVales().forEach(v => {
+    if (!v || v.gestorId !== gestorId) return;
+    if (!['confirmed','pending_payment'].includes(v.status)) return;
+    if (!_valeCuentaPuntos(v)) return;
+    r.ventas++;
+    const factor = _factorReparto(v);
+    if (factor < 1) r.compartidos++;
+    const items = v.valeProductos || [];
+    if (!items.length) {
+      r.sinVincular.push({ id: v.id, num: v.valeNum, cliente: v.cliente || '', dia: _fechaEfectiva(v) });
+      return;
+    }
+    items.forEach(it => {
+      const uds = parseInt(it.qty, 10) || 0;
+      const p = productoOf(it.id);
+      if (!p) {
+        r.borrados.push({ nombre: it.name || ('#' + it.id), uds, vale: v.valeNum });
+        return;
+      }
+      const pu = parseFloat(p.puntos) || 0;
+      if (pu <= 0) { r.sinPuntos.push({ nombre: p.name || ('#' + p.id), uds }); return; }
+      r.pts += pu * uds * factor;
+    });
+  });
+  r.pts = Math.round(r.pts * 100) / 100;
+  // Lo que se pierde por no tener el producto vinculado no se puede cifrar —no
+  // se sabe qué se vendió—, así que solo se cuentan las ventas afectadas.
+  r.perdidos = r.sinVincular.length + r.borrados.length + r.sinPuntos.length;
+  return r;
+}
 function _pgProductosSinPuntos(gestorId) {
   const sin = new Map();
   getVales().forEach(v => {
@@ -14821,13 +14880,32 @@ function _pgPintar() {
   // El aviso del producto sin puntos, que es lo que suele estar detrás.
   const av = document.getElementById('pgAviso');
   if (av) {
-    const sin = _pgProductosSinPuntos(gid);
-    if (sin.length) {
-      const lista = sin.slice(0, 3).map(s => escapeHTML(s.nombre) + ' ×' + s.uds).join(', ');
-      av.innerHTML = '💡 Este gestor vendió ' + (sin.length === 1 ? 'un producto que no tiene puntos' : sin.length + ' productos que no tienen puntos')
-        + ': <b>' + lista + (sin.length > 3 ? '…' : '') + '</b>.<br>'
-        + 'Ponle los puntos al producto en Stock y estas ventas los suman solas — y a todos los gestores que lo vendieron, no solo a este. '
-        + 'El ajuste de aquí abajo es solo para lo que eso no arregle.';
+    // v121: los tres motivos por los que una venta del ciclo no da puntos, no
+    // solo el del producto sin puntos. El más común —y el que no se veía— es el
+    // vale sin producto del catálogo vinculado.
+    const a = _auditarPuntosCiclo(gid);
+    const trozos = [];
+    if (a.sinVincular.length) {
+      const cuales = a.sinVincular.slice(0, 4).map(x => '#' + (x.num != null ? x.num : x.id)).join(', ');
+      trozos.push('⚠️ <b>' + a.sinVincular.length + ' venta' + (a.sinVincular.length === 1 ? '' : 's')
+        + ' sin producto del catálogo</b> (' + cuales + (a.sinVincular.length > 4 ? '…' : '')
+        + '): el artículo se escribió a mano, así que no dan puntos. Ábrelas y vincúlales el producto.');
+    }
+    if (a.borrados.length) {
+      const cuales = [...new Set(a.borrados.map(x => x.nombre))].slice(0, 3).map(escapeHTML).join(', ');
+      trozos.push('🗑️ Vendió productos que ya <b>no están en el catálogo</b> (' + cuales + '): sin ficha no hay puntos que sumar.');
+    }
+    if (a.sinPuntos.length) {
+      const m = new Map();
+      a.sinPuntos.forEach(s => m.set(s.nombre, (m.get(s.nombre) || 0) + s.uds));
+      const cuales = [...m.entries()].slice(0, 3).map(([n, u]) => escapeHTML(n) + ' ×' + u).join(', ');
+      trozos.push('💡 Vendió productos <b>con 0 puntos puestos</b> (' + cuales + '). Ponles los puntos en Stock y estas ventas los suman solas, y a todos los gestores que los vendieron, no solo a este.');
+    }
+    if (trozos.length) {
+      av.innerHTML = trozos.join('<br><br>')
+        + '<br><br><span style="opacity:.75;">De sus ' + a.ventas + ' venta' + (a.ventas === 1 ? '' : 's')
+        + ' del ciclo, ' + a.perdidos + ' no suma' + (a.perdidos === 1 ? '' : 'n') + ' puntos. '
+        + 'El ajuste de aquí abajo es solo para lo que eso no arregle.</span>';
       av.style.display = 'block';
     } else av.style.display = 'none';
   }
@@ -17352,6 +17430,11 @@ const AYUDA_SECCIONES = [
         para:'Ver de un vistazo quién va por delante y cuánto le falta a cada uno.',
         como:'Con meta fija, la barra mide cuánto llevas de la meta. En el modo por ciclos NO hay meta: los puntos se cuentan sin final hasta que el ciclo acaba, así que las barras no miden progreso, comparan — la más larga es la de quien va primero y las demás salen a escala de la suya.',
         ojo:'En el ciclo, en su pantalla cada gestor ve sus puntos a secas, por qué puesto va y cuántos días quedan. Nada de "te faltan X": no falta nada, se cuenta hasta el final. (La v120 sí inventaba una meta redondeada por persona —uno veía 2/10 y otro 14/25— y eso se quitó.)',
+        nuevo:'v121' },
+      { icono:'⚠️', titulo:'Ventas que no dan puntos', donde:'Gestores (aviso naranja)',
+        para:'Enterarte de por qué a un gestor le faltan puntos, en vez de sospechar que la cuenta está mal.',
+        como:'Arriba del panel de Gestores sale cuántas ventas del ciclo no están dando puntos, y en la ficha de cada uno cuántas son las suyas. Tocando el aviso se abre ⭐ Puntos y ahí se dice cuáles y por qué.',
+        ojo:'Son tres motivos. El más común: el vale se escribió a mano y NO tiene el producto del catálogo vinculado — la venta se confirma y cobra su comisión, pero sin producto no hay puntos; se arregla abriendo el vale y vinculándolo. Los otros dos: el producto se borró del catálogo, o está pero con 0 puntos puestos (eso se arregla en Stock, y las ventas ya hechas los suman solas).',
         nuevo:'v121' },
       { icono:'🏆', titulo:'Meta y ranking', donde:'Config › Meta de puntos',
         para:'La competencia entre gestores. Hay tres modos: sin meta, meta fija (llega a X puntos) o mensual (gana el que más tenga en el ciclo).',
