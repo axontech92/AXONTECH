@@ -2368,6 +2368,43 @@
   ],
   "vales": [
     {
+      "id": 1788811225727,
+      "ts": "2026-09-07T20:00:25.730Z",
+      "total": "$140 USD + 1000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-07T20:01:03.485Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dangelo Saul",
+      "valeNum": 262,
+      "articulo": "×1 Ubiquiti Litebeam m5",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "59094488",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Dangelo Saul\n🔸Teléfono Cliente: 59094488\n🔸Dirección Cliente: Fernadina #23/ estevez y santa rosa\n🔸Mensajería/ costo: 1000\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 1000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 15:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Fernadina #23/ estevez y santa rosa",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "1000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787930017841,
+          "qty": 1,
+          "name": "Ubiquiti Litebeam m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788810749358,
       "ts": "2026-09-07T19:52:29.362Z",
       "total": "$90 USD",
@@ -17570,5 +17607,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T20:00:53.596Z"
+  "timestamp": "2026-09-07T20:02:08.967Z"
 }
