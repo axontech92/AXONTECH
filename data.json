@@ -2368,6 +2368,132 @@
   ],
   "vales": [
     {
+      "id": 1788812372048,
+      "ts": "2026-09-07T20:19:32.051Z",
+      "total": "$660 USD",
+      "carnet": "",
+      "seenTs": "2026-09-07T20:22:05.736Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Brayan",
+      "valeNum": 266,
+      "articulo": "×3 NanoStation 5AC Loco / ×3 Router TP-Link Archer C54 Reacondicionado / ×3 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5356671413",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Brayan\n🔸Teléfono Cliente: 5356671413\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 NanoStation 5AC Loco\n  ×3 Router TP-Link Archer C54 Reacondicionado\n  ×3 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $660 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $660 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$660 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 4500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 60,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 3,
+          "name": "NanoStation 5AC Loco"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 3,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 3,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "$60.00 USD + 4500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788812223382,
+      "ts": "2026-09-07T20:17:03.398Z",
+      "total": "$380 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yony",
+      "valeNum": 265,
+      "articulo": "×2 NanoStation 5AC Loco / ×2 Adaptador poe UBIQUITI de 0.3A / ×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352842022",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony\n🔸Teléfono Cliente: 5352842022\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 NanoStation 5AC Loco\n  ×2 Adaptador poe UBIQUITI de 0.3A\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $380 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $380 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$380 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 2,
+          "name": "NanoStation 5AC Loco"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 2,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$30.00 USD + 3000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1788812042898,
+      "ts": "2026-09-07T20:14:02.906Z",
+      "total": "$168 USD",
+      "carnet": "",
+      "seenTs": "2026-09-07T20:22:11.842Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "David",
+      "valeNum": 264,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "051922821",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: David\n🔸Teléfono Cliente: 051922821\n🔸Dirección Cliente: Buenas noches, Calle 152 /avenida boyeros rio verde # 25706 al costado del comité militar esto es a dos pasos peatonales después de fontanar A la izquierda por esa cuadra hacia abajo la 8va casa a mano derecha\n🔸Mensajería/ costo: 8 usd\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $168 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:13\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Buenas noches, Calle 152 /avenida boyeros rio verde # 25706 al costado del comité militar esto es a dos pasos peatonales después de fontanar A la izquierda por esa cuadra hacia abajo la 8va casa a mano derecha",
+      "precioUSD": "$160 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "8 usd",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788811630593,
       "ts": "2026-09-07T20:07:10.598Z",
       "total": "$480 USD",
@@ -2409,7 +2535,7 @@
       "ts": "2026-09-07T20:03:42.385Z",
       "total": "$700 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T20:10:32.259Z",
+      "seenTs": "2026-09-07T20:22:14.927Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rey Carlos",
@@ -2423,11 +2549,10 @@
       "direccion": "La ceiba playa",
       "precioUSD": "$700 USD",
       "reservado": true,
-      "ubicacion": "",
+      "ubicacion": null,
       "assignedTs": "2026-09-07T20:07:33.366Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
-      "horaEntrega": "",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "comFijadaUSD": 50,
@@ -2722,7 +2847,7 @@
       "ts": "2026-09-07T17:30:53.373Z",
       "total": "$510 USD + 2170 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T20:11:33.961Z",
+      "seenTs": "2026-09-07T20:12:33.596Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Margarita",
@@ -17686,5 +17811,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T20:12:20.731Z"
+  "timestamp": "2026-09-07T20:23:13.730Z"
 }
