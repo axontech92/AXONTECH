@@ -2354,8 +2354,8 @@
       "ts": "2026-09-07T13:34:57.945Z",
       "total": "$150 USD + 2800 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T13:38:55.946Z",
-      "status": "pending",
+      "seenTs": "2026-09-07T14:03:21.268Z",
+      "status": "assigned",
       "vuelto": "50 usd",
       "cliente": "Alain chang",
       "valeNum": 244,
@@ -2369,8 +2369,10 @@
       "precioUSD": "$150 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-07T14:03:27.499Z",
       "mensajeria": "2800",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476898824,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2465,7 +2467,7 @@
       "ts": "2026-09-06T23:48:58.195Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T13:37:17.755Z",
+      "seenTs": "2026-09-07T13:54:32.749Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Manolo Ochil",
@@ -2585,7 +2587,7 @@
       "ts": "2026-09-06T17:52:00.000Z",
       "total": "$200 USD + 16500 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T13:38:23.517Z",
+      "seenTs": "2026-09-07T13:49:01.482Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -3650,7 +3652,7 @@
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T13:38:53.979Z",
+      "seenTs": "2026-09-07T14:03:11.628Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Erick Cruz Pérez",
@@ -16899,5 +16901,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T13:38:59.897Z"
+  "timestamp": "2026-09-07T14:04:27.515Z"
 }
