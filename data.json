@@ -2368,6 +2368,80 @@
   ],
   "vales": [
     {
+      "id": 1788811630593,
+      "ts": "2026-09-07T20:07:10.598Z",
+      "total": "$480 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Wilban",
+      "valeNum": 263,
+      "articulo": "×2 Mikrotik lhg 5ax",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "53848706",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Wilban\n🔸Teléfono Cliente: 53848706\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $480 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $480 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$480 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 2,
+          "name": "Mikrotik lhg 5ax"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1788811422369,
+      "ts": "2026-09-07T20:03:42.385Z",
+      "total": "$700 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-07T20:06:13.626Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rey Carlos",
+      "valeNum": 263,
+      "articulo": "×5 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5354414642",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rey Carlos\n🔸Teléfono Cliente: 5354414642\n🔸Dirección Cliente: La ceiba playa\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×5 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $700 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $700 USD + 2000 MN\n🔸 Rebaja: −$25 USD\n🔸 Total a pagar: $675 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "La ceiba playa",
+      "precioUSD": "$700 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 5,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionCedida": 25,
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788811225727,
       "ts": "2026-09-07T20:00:25.730Z",
       "total": "$140 USD + 1000 MN",
@@ -2970,7 +3044,7 @@
       "ts": "2026-09-07T15:25:17.127Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T19:48:51.296Z",
+      "seenTs": "2026-09-07T20:02:12.171Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Giorgy",
@@ -17607,5 +17681,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T20:02:08.967Z"
+  "timestamp": "2026-09-07T20:07:17.492Z"
 }
