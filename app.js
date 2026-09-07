@@ -8802,16 +8802,17 @@ function renderGestorDashboard() {
     : null;
 
   // ── La barra de la meta ──
-  // v120: en el modo por ciclos NO hay meta que alcanzar, y esto pintaba
-  // igualmente "x / 100 pts" con una meta vieja guardada en el config: un
-  // número que no estaba en juego y una barra que no significaba nada. Ahora,
-  // sin meta fija, la barra va contra el siguiente escalón redondo (10, 25,
-  // 50, 100…), el mismo criterio que el ranking, así que siempre hay un tramo
-  // que ganar y la barra nunca se queda clavada.
+  // v121: en el modo por ciclos NO hay meta, así que tampoco hay denominador.
+  // La v120 pintaba "2 / 10 pts" contra un escalón redondeado a partir de los
+  // puntos DE CADA UNO: cada gestor veía una metita propia y distinta —uno
+  // contra 10, otro contra 25— y ninguna era del ciclo. Se pidió justo lo
+  // contrario: contar los puntos sin final hasta que el ciclo termine. Así que
+  // aquí se cuenta y ya —los puntos, el puesto y los días que quedan— y la
+  // barra se guarda para cuando hay una meta fija de verdad, que es lo único
+  // contra lo que se puede medir un progreso.
   const cfg = getConfig();
   const _metaFija = (typeof metaModo === 'function' ? metaModo() : 'fija') === 'fija' && (cfg.metaPuntos || 0) > 0;
-  const meta = _metaFija ? cfg.metaPuntos : _siguienteEscalon(cur.pts);
-  // v120: igual que en el ranking — el 100% se reserva para quien llegó.
+  const meta = _metaFija ? cfg.metaPuntos : 0;
   const pctMeta = meta > 0
     ? (cur.pts >= meta ? 100 : Math.max(0, Math.min(99, Math.floor((cur.pts / meta) * 100))))
     : 0;
@@ -8891,20 +8892,26 @@ function renderGestorDashboard() {
   // v60: a ancho completo por el mismo motivo que el hero (ver arriba). Con la
   // barra metida en un cuarto de columna no se leía el progreso, que es justo
   // para lo que sirve.
-  const metaHTML = `
+  const metaHTML = _metaFija ? `
     <div style="grid-column:1/-1;margin-top:6px;padding:11px 14px;background:var(--surface2);border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;flex-wrap:wrap;gap:4px;">
-        <span style="font-size:12px;font-weight:700;color:var(--text);">${_metaFija ? '🎯 Meta de puntos' : '⭐ Tus puntos del ciclo'}</span>
+        <span style="font-size:12px;font-weight:700;color:var(--text);">🎯 Meta de puntos</span>
         <span style="font-size:12px;font-weight:700;color:var(--cyan,#06b6d4);">${cur.pts} / ${meta} pts</span>
       </div>
       <div style="background:var(--gray-100);border-radius:20px;height:8px;overflow:hidden;">
         <div style="width:${pctMeta}%;height:100%;background:#06b6d4;border-radius:20px;transition:width .6s;"></div>
       </div>
       <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${
-        _metaFija
-          ? (pctMeta >= 100 ? '¡Meta alcanzada! 🎉' : `Te faltan ${meta - cur.pts} pts para la meta`)
-          : `Te faltan ${Math.max(0, meta - cur.pts)} pts para llegar a ${meta}`
+        pctMeta >= 100 ? '¡Meta alcanzada! 🎉' : `Te faltan ${meta - cur.pts} pts para la meta`
       }</div>
+    </div>
+  ` : `
+    <div style="grid-column:1/-1;margin-top:6px;padding:11px 14px;background:var(--surface2);border-radius:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
+        <span style="font-size:12px;font-weight:700;color:var(--text);">⭐ Tus puntos del ciclo</span>
+        <span style="font-size:18px;font-weight:800;color:var(--cyan,#06b6d4);line-height:1;">${cur.pts} <span style="font-size:11px;font-weight:700;">pts</span></span>
+      </div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${_pieDelCiclo(activeGestorId)}</div>
     </div>
   `;
 
@@ -13708,21 +13715,50 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
 //  GESTOR RANKING
 // ══════════════════════════════════════════
 // ── v120: el escalón que toca perseguir ────────────────────────────────────
-// Devuelve el siguiente número redondo por encima de los puntos que se le
-// pasen: 0→10, 7→10, 10→25, 30→50, 60→100, 120→250… Sirve para que la barra
-// del que va primero NO esté llena: siempre queda un trecho, y al pasarlo el
-// escalón sube y la barra vuelve a empezar.
-//
-// Se usa el MISMO escalón para todos los de la lista, para que las barras se
-// puedan comparar entre sí: si cada uno tuviera el suyo, dos gestores con
-// puntos muy distintos podrían salir con la barra igual de larga.
-const _ESCALONES_PUNTOS = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
-function _siguienteEscalon(pts) {
-  const n = Math.max(0, parseFloat(pts) || 0);
-  for (const e of _ESCALONES_PUNTOS) if (n < e) return e;
-  // Pasados los 5000 se sigue en múltiplos de 5000, para no quedarse sin techo.
-  return Math.ceil((n + 1) / 5000) * 5000;
+// v121: aquí vivía _siguienteEscalon, que redondeaba los puntos al siguiente
+// número gordo (10, 25, 50, 100…) para tener contra qué medir la barra cuando
+// no hay meta. Se quita: inventaba una meta que no existe. En el ranking se
+// colaba como "14/25 pts" y en la pantalla de cada gestor como "2/10", cada uno
+// con un denominador distinto porque cada uno se redondeaba a sí mismo. El
+// ciclo no tiene meta: se cuentan los puntos hasta que acaba, y las barras solo
+// comparan a unos con otros.
+// ── v121: qué se dice debajo de los puntos cuando NO hay meta ──────────────
+// Sin meta no hay "te faltan X": lo que sí se puede decir sin inventar nada es
+// por dónde va uno y cuánto queda de ciclo. El puesto sale del resumen que
+// calcula el admin (axon_ranking_summary), que es lo único que el teléfono del
+// gestor tiene de los demás.
+function _resumenRanking() {
+  let s = [];
+  try { s = JSON.parse(localStorage.getItem('axon_ranking_summary') || '[]'); } catch(e) { s = []; }
+  return Array.isArray(s) ? s : [];
 }
+function _puestoEnElCiclo(gid) {
+  const resumen = _resumenRanking();
+  const lista = getGestores().map(g => {
+    const s = resumen.find(x => x && x.id === g.id);
+    return { id: g.id, pts: s ? (parseFloat(s.pts) || 0) : 0 };
+  }).sort((a, b) => b.pts - a.pts);
+  const i = lista.findIndex(x => String(x.id) === String(gid));
+  return { puesto: i < 0 ? 0 : i + 1, total: lista.length };
+}
+function _diasQueQuedanDeCiclo() {
+  try {
+    const fin = _finDelCiclo(_inicioDelCiclo());
+    const ms = new Date(fin + 'T23:59:59') - new Date();
+    return Math.max(0, Math.ceil(ms / 86400000));
+  } catch (e) { return null; }
+}
+function _pieDelCiclo(gid) {
+  const partes = [];
+  const p = _puestoEnElCiclo(gid);
+  if (p.puesto > 0 && p.total > 1) partes.push(`Vas ${p.puesto}.º de ${p.total}`);
+  if (metaModo() === 'mensual') {
+    const d = _diasQueQuedanDeCiclo();
+    if (d !== null) partes.push(d === 0 ? 'el ciclo acaba hoy' : (d === 1 ? 'queda 1 día de ciclo' : `quedan ${d} días de ciclo`));
+  }
+  return partes.length ? partes.join(' · ') : 'Los puntos se van sumando durante todo el ciclo';
+}
+
 function renderGestorRanking() {
   const c=document.getElementById('rankingList');if(!c)return;
   const gestores=getGestores();
@@ -13759,13 +13795,13 @@ function renderGestorRanking() {
   // —si no, con una meta vieja de 100 pts guardada, todos saldrían con la barra
   // casi vacía aunque fueran líderes.
   const _hayMeta = metaModo()==='fija' && meta>0;
-  // v120: en el modo por ciclos la referencia era el líder, así que SU barra
-  // salía siempre llena — no había nada que perseguir y el resto se medía
-  // contra un techo que se movía solo. Ahora se mide contra el siguiente
-  // escalón redondo por encima del líder (10, 25, 50, 100, 250…): al líder le
-  // queda camino visible, y cuando lo pasa, el escalón sube y la barra vuelve
-  // a arrancar. Es una barra que progresa, que es lo que se pedía.
-  const maxRef=_hayMeta?meta:_siguienteEscalon(ranked[0]?.pts||0);
+  // v121: sin meta, las barras NO miden un progreso: comparan. La v120 las medía
+  // contra un escalón redondo por encima del líder (10, 25, 50…), y eso hacía
+  // aparecer un "14/25" que no era la meta de nada —el ciclo no tiene meta— y
+  // que además no coincidía con el número que veía cada gestor en su pantalla.
+  // Ahora la referencia es el líder, sin adornos: la barra más larga es la de
+  // quien va primero y las demás dicen cuánto les falta para alcanzarlo.
+  const maxRef=_hayMeta?meta:(ranked[0]?.pts||0);
   let html='';
   // v119: la cabecera dice de qué va la competencia AHORA. Antes se pintaba la
   // meta con solo haber un número guardado, así que en el modo por ciclos
@@ -13783,10 +13819,10 @@ function renderGestorRanking() {
     const ini=_inicioDelCiclo(), fin=_finDelCiclo(ini);
     const fmt=d=>{try{return new Date(d+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'});}catch(e){return d;}};
     const lider=ranked[0]&&ranked[0].pts>0?ranked[0]:null;
-    // v120: se dice contra qué escalón van las barras, para que el largo de
-    // cada una signifique algo y no parezca un número inventado.
+    // v121: los puntos del líder, a secas. Antes iba "14/25 pts" y ese 25 no
+    // era la meta de nada: el ciclo no tiene meta, se cuenta hasta que acaba.
     html+=_cab(`📅 Ciclo: ${fmt(ini)} → ${fmt(fin)}`,
-               lider?`👑 ${escapeHTML(lider.name)} · ${lider.pts}/${maxRef} pts`:'Sin puntos todavía',
+               lider?`👑 ${escapeHTML(lider.name)} · ${lider.pts} pts`:'Sin puntos todavía',
                lider?'var(--green)':'var(--gray-400)');
   }
   html+=ranked.map((g,i)=>{
@@ -17242,9 +17278,9 @@ const AYUDA_SECCIONES = [
         dibujo:'puntos', nuevo:'v120' },
       { icono:'📊', titulo:'Las barras del ranking', donde:'Pantalla del gestor',
         para:'Ver de un vistazo quién va por delante y cuánto le falta a cada uno.',
-        como:'Con meta fija, la barra se mide contra la meta. Sin meta (modo por ciclos) se mide contra el siguiente escalón redondo — 10, 25, 50, 100, 250…— igual para todos, así se pueden comparar entre sí.',
-        ojo:'Antes el que iba ganando salía siempre con la barra llena, porque la referencia era él mismo: no había nada que perseguir. Ahora el escalón va por delante, así que siempre le queda tramo; cuando lo pasa, el escalón sube y la barra vuelve a arrancar.',
-        nuevo:'v120' },
+        como:'Con meta fija, la barra mide cuánto llevas de la meta. En el modo por ciclos NO hay meta: los puntos se cuentan sin final hasta que el ciclo acaba, así que las barras no miden progreso, comparan — la más larga es la de quien va primero y las demás salen a escala de la suya.',
+        ojo:'En el ciclo, en su pantalla cada gestor ve sus puntos a secas, por qué puesto va y cuántos días quedan. Nada de "te faltan X": no falta nada, se cuenta hasta el final. (La v120 sí inventaba una meta redondeada por persona —uno veía 2/10 y otro 14/25— y eso se quitó.)',
+        nuevo:'v121' },
       { icono:'🏆', titulo:'Meta y ranking', donde:'Config › Meta de puntos',
         para:'La competencia entre gestores. Hay tres modos: sin meta, meta fija (llega a X puntos) o mensual (gana el que más tenga en el ciclo).',
         como:'En Config eliges el modo. En mensual puedes escoger el día en que empieza el ciclo: si pones 29, va del 29 al 29.',
