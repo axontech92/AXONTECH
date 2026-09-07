@@ -2350,6 +2350,88 @@
   ],
   "vales": [
     {
+      "id": 1788796503876,
+      "ts": "2026-09-07T15:55:03.877Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "2",
+      "valeNum": 248,
+      "articulo": "×1 Ubiquiti Litebeam m5",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "2",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: 2\n🔸Teléfono Cliente: 2\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 7/9/2026, 11:55:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1787930017841,
+          "qty": 1,
+          "name": "Ubiquiti Litebeam m5"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true,
+      "isNew": true
+    },
+    {
+      "id": 1788796459633,
+      "ts": "2026-09-07T15:54:19.633Z",
+      "total": "$1620 USD",
+      "carnet": "",
+      "seenTs": "2026-09-07T15:55:34.064Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "1",
+      "valeNum": 247,
+      "articulo": "×15 Tplink Archer AX1450 Doble Banda / ×7 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: 1\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×15 Tplink Archer AX1450 Doble Banda\n  ×7 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $1620 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1620 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 11:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$1620 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 15,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 7,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1788794717119,
       "ts": "2026-09-07T15:25:17.127Z",
       "total": "$180 USD",
@@ -16981,5 +17063,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T15:53:35.060Z"
+  "timestamp": "2026-09-07T15:56:04.730Z"
 }
