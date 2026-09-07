@@ -216,6 +216,17 @@
       <span id="gestorManagerArrow" style="color:var(--gray-400);font-size:13px;transition:transform .2s;">▼</span>
     </div>
     <div id="gestorManagerSection" style="display:block;">
+      <!-- v121: buscador de gestores. Con una lista larga, dar con uno para
+           pagarle o mirarle los puntos obligaba a recorrerla entera, y encima
+           el orden no es alfabético: va por lo que se le debe. -->
+      <div style="position:relative;margin-bottom:10px;">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5;pointer-events:none;">🔎</span>
+        <input type="text" id="gestorBuscador" placeholder="Buscar gestor por nombre o teléfono…" oninput="onBuscarGestor()"
+               style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 34px;font-size:13px;color:var(--text);">
+        <button type="button" id="gestorBuscadorLimpiar" onclick="limpiarBuscadorGestor()" title="Limpiar"
+                style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray-400);font-size:16px;cursor:pointer;padding:4px 8px;">×</button>
+      </div>
+      <div id="gestorBuscadorInfo" style="display:none;font-size:11px;color:var(--text-muted);margin:-4px 0 8px;"></div>
       <div id="adminGestoresPanel-list"></div>
     </div>
   </div>

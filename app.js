@@ -6928,6 +6928,33 @@ function _cmpComisionPendiente(a, b) {
 // escribe (~5000 líneas más abajo) y algo renderizara durante la carga, sería
 // un ReferenceError por la zona muerta de `let`.
 let _ordenGestoresCongelado = null;
+// ── v121: buscador de gestores ─────────────────────────────────────────────
+// Mismo criterio que el de Stock: todas las palabras han de aparecer, en
+// cualquier orden, y se busca también por teléfono porque a veces es lo único
+// que se tiene a mano. Mientras se busca NO se congela el orden: la lista es
+// corta y lo que se quiere es ver al que se busca, no conservar la foto.
+let _gestorBusqueda = '';
+function onBuscarGestor() {
+  const inp = document.getElementById('gestorBuscador');
+  _gestorBusqueda = ((inp && inp.value) || '').trim().toLowerCase();
+  const btn = document.getElementById('gestorBuscadorLimpiar');
+  if (btn) btn.style.display = _gestorBusqueda ? 'block' : 'none';
+  renderAdminGestoresList();
+}
+function limpiarBuscadorGestor() {
+  const inp = document.getElementById('gestorBuscador');
+  if (inp) inp.value = '';
+  _gestorBusqueda = '';
+  const btn = document.getElementById('gestorBuscadorLimpiar');
+  if (btn) btn.style.display = 'none';
+  renderAdminGestoresList();
+  if (inp) inp.focus();
+}
+function _coincideBusquedaGestor(g) {
+  if (!_gestorBusqueda) return true;
+  const txt = _sinAcentos((g.name || '') + ' ' + (g.phone || ''));
+  return _sinAcentos(_gestorBusqueda).split(/\s+/).filter(Boolean).every(w => txt.includes(w));
+}
 function renderAdminGestoresList() {
   // v83: orden por comisión pendiente, de mayor a menor. Este panel se usa para
   // ver a quién hay que pagar, así que lo útil es que los que más tienen
@@ -6949,6 +6976,25 @@ function renderAdminGestoresList() {
   _updateGestoresCountBadge();
   if(!c) return;
   if(!list.length){c.innerHTML='<div class="es"><div class="es-icon">👥</div><div class="es-text">Sin gestores. Agrega uno arriba.</div></div>';return;}
+  // v121: el buscador. Va DESPUÉS del "no hay gestores" para que no se confunda
+  // "no hay ninguno" con "ninguno coincide": son dos cosas distintas y el aviso
+  // de cada una tiene que decir lo suyo.
+  const _todos = list.length;
+  if (_gestorBusqueda) list = list.filter(_coincideBusquedaGestor);
+  {
+    const _info = document.getElementById('gestorBuscadorInfo');
+    if (_info) {
+      _info.style.display = _gestorBusqueda ? 'block' : 'none';
+      if (_gestorBusqueda) _info.textContent = list.length
+        ? (list.length + (list.length === 1 ? ' gestor' : ' gestores') + ' de ' + _todos)
+        : 'Ningún gestor coincide con “' + _gestorBusqueda + '”';
+    }
+  }
+  if(!list.length){
+    c.innerHTML='<div class="es"><div class="es-icon">🔎</div><div class="es-text">Ningún gestor se llama así</div>'
+      + '<button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="limpiarBuscadorGestor()">Ver todos</button></div>';
+    return;
+  }
   // v121: aquí hubo un aviso de "N ventas del ciclo no están dando puntos". Se
   // quita: la mayoría de esas ventas son de productos que sencillamente no
   // llevan puntos, que es lo normal y no un fallo. Avisar de eso era dar la voz
@@ -10365,6 +10411,12 @@ function buildProdCard(p, cats, isAgotado) {
 // Mientras se busca, el filtro por categoría se ignora a propósito: si escribes
 // "router" y no aparece porque tenías puesta otra categoría, el buscador parece
 // roto.
+// v121: en minúsculas y SIN acentos. Nadie escribe "Pérez" con tilde en un
+// buscador, y hasta ahora "perez" no encontraba a "Andy Pérez". Lo mismo pasaba
+// en Stock con "climatizacion" o "bateria".
+function _sinAcentos(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
 let _stockBusqueda = '';
 function onBuscarStock() {
   const inp = document.getElementById('stockBuscador');
@@ -10384,10 +10436,10 @@ function limpiarBuscadorStock() {
 }
 function _coincideBusquedaStock(p) {
   if (!_stockBusqueda) return true;
-  const txt = ((p.name || '') + ' ' + (p.description || '')).toLowerCase();
+  const txt = _sinAcentos((p.name || '') + ' ' + (p.description || ''));
   // Todas las palabras deben aparecer, en cualquier orden: "router mikrotik"
   // encuentra "Mikrotik hAP ax3 router".
-  return _stockBusqueda.split(/\s+/).filter(Boolean).every(w => txt.includes(w));
+  return _sinAcentos(_stockBusqueda).split(/\s+/).filter(Boolean).every(w => txt.includes(w));
 }
 
 function renderProductGrid() {
@@ -17470,6 +17522,11 @@ const AYUDA_SECCIONES = [
     id: 'gestores', icono: '👥', titulo: 'Gestores',
     intro: 'Quién vende, cuánto se le debe y cómo va en el ranking.',
     temas: [
+      { icono:'🔎', titulo:'Buscar un gestor', donde:'Gestores',
+        para:'Dar con uno sin recorrer la lista entera, que además no va en orden alfabético: va por lo que se le debe.',
+        como:'La caja de búsqueda encima de la lista. Vale el nombre o el teléfono, y puedes poner varias palabras en cualquier orden.',
+        ojo:'No hacen falta ni mayúsculas ni tildes: "perez" encuentra a "Andy Pérez". El contador de arriba sigue diciendo cuántos hay en total, no cuántos salieron.',
+        nuevo:'v121' },
       { icono:'＋', titulo:'Agregar un gestor', donde:'Gestores',
         para:'Dar de alta a alguien que va a vender.',
         como:'Escribe su nombre (y su teléfono, que luego sirve para mandarle la clave) y dale a Agregar.',
