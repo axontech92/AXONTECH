@@ -2350,11 +2350,85 @@
   ],
   "vales": [
     {
+      "id": 1788804691192,
+      "ts": "2026-09-07T18:11:31.210Z",
+      "total": "$150 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yoel viltres",
+      "valeNum": 259,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "56075623",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Yoel viltres\n🔸Teléfono Cliente: 56075623\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 14:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788803302681,
+      "ts": "2026-09-07T17:48:22.686Z",
+      "total": "$240 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-07T18:18:23.670Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Yoel",
+      "valeNum": 258,
+      "articulo": "×1 Mikrotik lhg 5ax",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5353100204",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Yoel\n🔸Teléfono Cliente: 5353100204\n🔸Dirección Cliente: 10octubre #1603 entre genaro Sánchez y linea del ferrocarril. Una cuadra antes del cafe\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $240 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 13:48\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "10octubre #1603 entre genaro Sánchez y linea del ferrocarril. Una cuadra antes del cafe",
+      "precioUSD": "$240 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 1,
+          "name": "Mikrotik lhg 5ax"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "isNew": false
+    },
+    {
       "id": 1788803096597,
       "ts": "2026-09-07T17:44:56.603Z",
       "total": "$160 USD + 2000 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-07T18:18:00.875Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Rigo o Kathy",
       "valeNum": 257,
@@ -2368,8 +2442,11 @@
       "precioUSD": "$160 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-07T18:17:24.237Z",
       "mensajeria": "2000",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784476898824,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2384,6 +2461,46 @@
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788802253363,
+      "ts": "2026-09-07T17:30:53.373Z",
+      "total": "$510 USD + 2170 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Margarita",
+      "valeNum": 256,
+      "articulo": "×1 Ubiquiti LiteAP ac (LAP-120) / ×1 Mikrotik hap ax3",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "54954479",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Margarita\n🔸Teléfono Cliente: 54954479\n🔸Dirección Cliente: San Miguel ( Ubicacion )\n🔸Mensajería/ costo: 2170 cup\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n  ×1 Mikrotik hap ax3\n🔸Precio USD/ zelle: $510 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $510 USD + 2170 MN\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 13:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "San Miguel ( Ubicacion )",
+      "precioUSD": "$510 USD",
+      "reservado": false,
+      "ubicacion": "https://maps.me/link/ge0/0mBG3nE6Lm/Lugar_desconocido",
+      "mensajeria": "2170 cup",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509303890,
+          "qty": 1,
+          "name": "Ubiquiti LiteAP ac (LAP-120)"
+        },
+        {
+          "id": 1786509419466,
+          "qty": 1,
+          "name": "Mikrotik hap ax3"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -17344,5 +17461,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T17:46:44.544Z"
+  "timestamp": "2026-09-07T18:18:24.258Z"
 }
