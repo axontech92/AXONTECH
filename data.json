@@ -1990,7 +1990,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 3,
+      "stock": 27,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2354,6 +2354,7 @@
       "ts": "2026-09-07T17:01:18.080Z",
       "total": "$440 USD",
       "carnet": "",
+      "seenTs": "2026-09-07T17:17:38.323Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Criss",
@@ -2366,10 +2367,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Criss\n🔸Teléfono Cliente: 52677370\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $440 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $440 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 13:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$440 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2556,7 +2558,7 @@
       "ts": "2026-09-07T16:15:14.430Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T16:41:18.351Z",
+      "seenTs": "2026-09-07T17:17:46.465Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Juan Carlos",
@@ -2992,7 +2994,7 @@
       "ts": "2026-09-06T17:52:00.000Z",
       "total": "$200 USD + 16500 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T15:04:36.541Z",
+      "seenTs": "2026-09-07T17:17:50.348Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -11516,8 +11518,7 @@
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": true
+      "synced": true
     },
     {
       "id": 1787678879689,
@@ -11640,8 +11641,7 @@
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": true
+      "synced": true
     },
     {
       "id": 1787672694643,
@@ -17308,5 +17308,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T17:04:19.522Z"
+  "timestamp": "2026-09-07T17:18:44.730Z"
 }
