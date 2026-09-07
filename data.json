@@ -2350,10 +2350,48 @@
   ],
   "vales": [
     {
+      "id": 1788805513142,
+      "ts": "2026-09-07T18:25:13.145Z",
+      "total": "$36 USD",
+      "carnet": "",
+      "seenTs": "2026-09-07T18:42:07.224Z",
+      "status": "pending",
+      "vuelto": "64 USD",
+      "cliente": "Carlos alberto",
+      "valeNum": 260,
+      "articulo": "×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1781761257111,
+      "precioMN": "",
+      "telefono": "5356131089",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Jennifer\n\n🔸 Nombre Cliente: Carlos alberto\n🔸Teléfono Cliente: 5356131089\n🔸Dirección Cliente: calle 5ta B entre 64 y 66 playa\n🔸Mensajería/ costo: 6 USD\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: 64 USD\n🔸 Total a pagar: $36 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 14:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "calle 5ta B entre 64 y 66 playa",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "6 USD",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788804691192,
       "ts": "2026-09-07T18:11:31.210Z",
       "total": "$150 USD",
       "carnet": "",
+      "seenTs": "2026-09-07T18:35:34.787Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yoel viltres",
@@ -2370,6 +2408,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2389,7 +2428,7 @@
       "ts": "2026-09-07T17:48:22.686Z",
       "total": "$240 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T18:18:23.670Z",
+      "seenTs": "2026-09-07T18:28:53.487Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Yoel",
@@ -2404,7 +2443,7 @@
       "precioUSD": "$240 USD",
       "reservado": false,
       "ubicacion": null,
-      "assignedTs": "2026-09-07T18:18:47.607Z",
+      "assignedTs": "2026-09-07T18:28:36.288Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
       "mensajeroId": 1784408225928,
@@ -2428,7 +2467,7 @@
       "ts": "2026-09-07T17:44:56.603Z",
       "total": "$160 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T18:18:00.875Z",
+      "seenTs": "2026-09-07T18:27:54.418Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Rigo o Kathy",
@@ -2472,7 +2511,8 @@
       "ts": "2026-09-07T17:30:53.373Z",
       "total": "$510 USD + 2170 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-07T19:00:54.498Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Margarita",
       "valeNum": 256,
@@ -2486,8 +2526,11 @@
       "precioUSD": "$510 USD",
       "reservado": false,
       "ubicacion": "https://maps.me/link/ge0/0mBG3nE6Lm/Lugar_desconocido",
+      "assignedTs": "2026-09-07T19:00:44.750Z",
       "mensajeria": "2170 cup",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2512,7 +2555,7 @@
       "ts": "2026-09-07T17:25:09.559Z",
       "total": "$230 USD + 5000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T17:33:25.655Z",
+      "seenTs": "2026-09-07T18:34:41.936Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Camilo",
@@ -2556,6 +2599,7 @@
       "ts": "2026-09-07T17:21:24.797Z",
       "total": "$150 USD",
       "carnet": "",
+      "seenTs": "2026-09-07T18:35:38.111Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yoel viltres",
@@ -2571,6 +2615,7 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1786858233037,
@@ -2627,7 +2672,7 @@
       "ts": "2026-09-07T16:35:00.000Z",
       "total": "$420 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T17:33:14.951Z",
+      "seenTs": "2026-09-07T18:34:54.675Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Nixon",
@@ -17462,5 +17507,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T18:19:47.730Z"
+  "timestamp": "2026-09-07T19:01:45.730Z"
 }
