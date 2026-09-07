@@ -1537,7 +1537,7 @@
       "name": "Transfer 3 polos 220v",
       "catId": 20,
       "photo": "photos/img_1785079428055.webp",
-      "stock": 0,
+      "stock": 9,
       "imagen": "photos/img_1785079428055.webp",
       "nombre": "Transfer 3 polos 220v",
       "precio": "$70",
@@ -1554,7 +1554,7 @@
       "name": "Transfer 2 polos 110v",
       "catId": 20,
       "photo": "photos/img_1785079508918.webp",
-      "stock": 0,
+      "stock": 10,
       "imagen": "photos/img_1785079508918.webp",
       "nombre": "Transfer 2 polos 110v",
       "precio": "$65",
@@ -17063,5 +17063,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T15:56:04.730Z"
+  "timestamp": "2026-09-07T15:59:37.731Z"
 }
