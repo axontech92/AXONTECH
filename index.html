@@ -369,7 +369,8 @@
       <div class="lbl" style="margin-top:14px;">📊 Mi Resumen</div>
       <div id="gestorHistDashboard"></div>
       <div id="gestorHistPeriodFilter" style="display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap;">
-        <button class="btn btn-blue btn-sm" data-period="month" onclick="setGestorHistPeriod('month')">Este mes</button>
+        <button class="btn btn-blue btn-sm" data-period="ciclo" onclick="setGestorHistPeriod('ciclo')" style="display:none;">Este ciclo</button>
+        <button class="btn btn-ghost btn-sm" data-period="month" onclick="setGestorHistPeriod('month')">Este mes</button>
         <button class="btn btn-ghost btn-sm" data-period="last" onclick="setGestorHistPeriod('last')">Mes pasado</button>
         <button class="btn btn-ghost btn-sm" data-period="all" onclick="setGestorHistPeriod('all')">Todo</button>
       </div>

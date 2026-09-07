@@ -8654,7 +8654,35 @@ function renderPendingCobroSection() {
 // ══════════════════════════════════════════
 
 // Period filter state for gestor dashboard
-let _gestorHistPeriod = 'month'; // 'month' | 'last' | 'all'
+// v121: 'ciclo' es el de casa cuando la competencia va por ciclos. Antes solo
+// había 'month' —el mes NATURAL, del 1 al 30— y la tarjeta se titulaba "Tus
+// puntos del ciclo" contando otra cosa: con el ciclo del 29 de agosto al 28 de
+// septiembre, "Este mes" se dejaba fuera el 29, 30 y 31 de agosto, que son del
+// ciclo. Partía el ciclo en dos por la mitad, que es lo que se reportó.
+let _gestorHistPeriod = 'ciclo'; // 'ciclo' | 'month' | 'last' | 'all'
+// El ciclo anterior al que empezó en `ini`: se retrocede un día y se pregunta
+// por el ciclo de ese día, así no hay que repetir la aritmética de los meses.
+function _cicloAnterior(ini) {
+  const d = new Date(ini + 'T12:00:00');
+  d.setDate(d.getDate() - 1);
+  const finPrev = localDay(d);
+  const ancla = cicloInicioCfg();
+  if (!ancla) {
+    return { from: localDay(new Date(d.getFullYear(), d.getMonth(), 1)), to: finPrev };
+  }
+  const diaAncla = parseInt(ancla.slice(8, 10), 10);
+  let y = d.getFullYear(), m = d.getMonth() + 1;
+  let ip = new Date(y, m - 1, Math.min(diaAncla, _diasDelMes(y, m)));
+  if (localDay(ip) > finPrev) { m--; if (m === 0) { m = 12; y--; }
+    ip = new Date(y, m - 1, Math.min(diaAncla, _diasDelMes(y, m))); }
+  const desde = localDay(ip);
+  // Si ese ciclo empezaría antes del día en que se pusieron en marcha los
+  // ciclos, es que NO hay ciclo anterior. Aquí no vale recortarlo a la fecha de
+  // arranque como se hace con el ciclo en curso: saldría un "ciclo anterior"
+  // que se solapa con el de ahora y las flechas de comparación mentirían.
+  if (desde < ancla) return { from: '', to: '' };
+  return { from: desde, to: finPrev };
+}
 
 function setGestorHistPeriod(p) {
   _gestorHistPeriod = p;
@@ -8672,6 +8700,26 @@ function setGestorHistPeriod(p) {
 function getGestorHistPeriodRange() {
   const now = new Date();
   const todayStr = localDay(now);
+  // v121: el ciclo de verdad, el que anuncia el ranking (29 ago → 28 sept), no
+  // el mes natural. Si la competencia no va por ciclos no hay tal cosa, y se
+  // cae al mes, que es lo que había siempre.
+  if (_gestorHistPeriod === 'ciclo') {
+    if (metaModo() === 'mensual') {
+      const ini = _inicioDelCiclo();
+      const prev = _cicloAnterior(ini);
+      return {
+        from: ini,
+        // Hasta hoy, no hasta el final del ciclo: los días que aún no han
+        // llegado no tienen ventas y así la comparación con el ciclo anterior
+        // no queda coja.
+        to: todayStr,
+        prevFrom: prev.from,
+        prevTo: prev.to,
+        label: 'Este ciclo',
+      };
+    }
+    _gestorHistPeriod = 'month';
+  }
   if (_gestorHistPeriod === 'month') {
     const from = new Date(now.getFullYear(), now.getMonth(), 1);
     const prevFrom = new Date(now.getFullYear(), now.getMonth()-1, 1);
@@ -8785,8 +8833,23 @@ function renderGestorDashboard() {
   const filterWrap = document.getElementById('gestorHistPeriodFilter');
   if (!dash || !activeGestorId) return;
 
+  const range = getGestorHistPeriodRange();   // v121: puede corregir el periodo
+
   // Highlight active period chip
   if (filterWrap) {
+    // v121: el botón del ciclo solo aparece cuando hay ciclos, y lleva escritas
+    // sus fechas: es la única forma de que el gestor sepa que ese número va del
+    // 29 al 28 y no del 1 al 30. Sin ciclos no se enseña y manda "Este mes".
+    const btnCiclo = filterWrap.querySelector('[data-period="ciclo"]');
+    if (btnCiclo) {
+      const hayCiclos = metaModo() === 'mensual';
+      btnCiclo.style.display = hayCiclos ? '' : 'none';
+      if (hayCiclos) {
+        const ini = _inicioDelCiclo(), fin = _finDelCiclo(ini);
+        const f = d => { try { return new Date(d+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'}); } catch(e) { return d; } };
+        btnCiclo.textContent = `Ciclo ${f(ini)} → ${f(fin)}`;
+      }
+    }
     filterWrap.querySelectorAll('[data-period]').forEach(btn => {
       const isActive = btn.dataset.period === _gestorHistPeriod;
       btn.classList.toggle('btn-blue', isActive);
@@ -8795,7 +8858,6 @@ function renderGestorDashboard() {
     });
   }
 
-  const range = getGestorHistPeriodRange();
   const cur = _computeGestorStatsForRange(activeGestorId, range.from, range.to);
   const prev = (range.prevFrom && range.prevTo)
     ? _computeGestorStatsForRange(activeGestorId, range.prevFrom, range.prevTo)
@@ -8908,10 +8970,10 @@ function renderGestorDashboard() {
   ` : `
     <div style="grid-column:1/-1;margin-top:6px;padding:11px 14px;background:var(--surface2);border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">
-        <span style="font-size:12px;font-weight:700;color:var(--text);">⭐ Tus puntos del ciclo</span>
+        <span style="font-size:12px;font-weight:700;color:var(--text);">⭐ ${_tituloPuntos(range.label)}</span>
         <span style="font-size:18px;font-weight:800;color:var(--cyan,#06b6d4);line-height:1;">${cur.pts} <span style="font-size:11px;font-weight:700;">pts</span></span>
       </div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${_pieDelCiclo(activeGestorId)}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">${_pieDelCiclo(activeGestorId, _gestorHistPeriod === 'ciclo')}</div>
     </div>
   `;
 
@@ -13748,15 +13810,25 @@ function _diasQueQuedanDeCiclo() {
     return Math.max(0, Math.ceil(ms / 86400000));
   } catch (e) { return null; }
 }
-function _pieDelCiclo(gid) {
+function _pieDelCiclo(gid, esElCiclo) {
   const partes = [];
   const p = _puestoEnElCiclo(gid);
   if (p.puesto > 0 && p.total > 1) partes.push(`Vas ${p.puesto}.º de ${p.total}`);
-  if (metaModo() === 'mensual') {
+  // Los días que quedan solo tienen sentido si lo que se está mirando ES el
+  // ciclo. Con "Mes pasado" o "Todo" seleccionado sería un dato de otra cosa.
+  if (esElCiclo && metaModo() === 'mensual') {
     const d = _diasQueQuedanDeCiclo();
     if (d !== null) partes.push(d === 0 ? 'el ciclo acaba hoy' : (d === 1 ? 'queda 1 día de ciclo' : `quedan ${d} días de ciclo`));
   }
   return partes.length ? partes.join(' · ') : 'Los puntos se van sumando durante todo el ciclo';
+}
+// El título de la tarjeta dice de QUÉ periodo son esos puntos. Ponía siempre
+// "del ciclo" aunque estuvieras mirando el mes pasado.
+function _tituloPuntos(label) {
+  if (label === 'Este ciclo')  return 'Tus puntos del ciclo';
+  if (label === 'Este mes')    return 'Tus puntos de este mes';
+  if (label === 'Mes pasado')  return 'Tus puntos del mes pasado';
+  return 'Tus puntos en total';
 }
 
 function renderGestorRanking() {
