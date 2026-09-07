@@ -2489,46 +2489,6 @@
       "synced": true
     },
     {
-      "id": 1788813711058,
-      "ts": "2026-09-07T20:41:51.082Z",
-      "total": "$4000 USD",
-      "carnet": "",
-      "seenTs": "2026-09-07T21:37:20.559Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Alejandro",
-      "valeNum": 269,
-      "articulo": "×20 Nanostation loco m5 / ×10 Tplink Archer AX1450 Doble Banda",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "50153177",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Alejandro\n🔸Teléfono Cliente: 50153177\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×20 Nanostation loco m5\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $4000 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $4000 USD\n🔸 Rebaja: −$70 USD\n🔸 Total a pagar: $3930 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:41\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$4000 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1786509569058,
-          "qty": 20,
-          "name": "Nanostation loco m5"
-        },
-        {
-          "id": 1786207539390,
-          "qty": 10,
-          "name": "Tplink Archer AX1450 Doble Banda"
-        }
-      ],
-      "comisionGestor": "$300.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "synced": true,
-      "isNew": false
-    },
-    {
       "id": 1788813481043,
       "ts": "2026-09-07T20:38:01.043Z",
       "total": "$1620 USD",
@@ -18068,5 +18028,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T21:37:22.833Z"
+  "timestamp": "2026-09-07T21:38:31.729Z"
 }
