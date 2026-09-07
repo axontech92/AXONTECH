@@ -2409,6 +2409,7 @@
       "ts": "2026-09-07T20:41:51.082Z",
       "total": "$4000 USD",
       "carnet": "",
+      "seenTs": "2026-09-07T20:54:04.010Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro",
@@ -2424,6 +2425,7 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1786509569058,
@@ -2571,7 +2573,7 @@
       "ts": "2026-09-07T20:19:32.051Z",
       "total": "$660 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T20:48:54.887Z",
+      "seenTs": "2026-09-07T20:53:31.615Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Brayan",
@@ -2618,7 +2620,7 @@
       "ts": "2026-09-07T20:17:03.398Z",
       "total": "$380 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T20:49:04.023Z",
+      "seenTs": "2026-09-07T20:53:46.375Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony",
@@ -2631,7 +2633,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony\n🔸Teléfono Cliente: 5352842022\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 NanoStation 5AC Loco\n  ×2 Adaptador poe UBIQUITI de 0.3A\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $380 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $380 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$380 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "seenByAdmin": true,
@@ -2662,7 +2664,7 @@
       "ts": "2026-09-07T20:14:02.906Z",
       "total": "$168 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T20:47:50.058Z",
+      "seenTs": "2026-09-07T20:53:13.693Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "David",
@@ -2736,7 +2738,7 @@
       "ts": "2026-09-07T20:03:42.385Z",
       "total": "$700 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T20:47:45.525Z",
+      "seenTs": "2026-09-07T20:53:17.986Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rey Carlos",
@@ -18019,5 +18021,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T20:51:43.868Z"
+  "timestamp": "2026-09-07T20:54:12.343Z"
 }
