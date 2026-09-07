@@ -2368,6 +2368,43 @@
   ],
   "vales": [
     {
+      "id": 1788817833791,
+      "ts": "2026-09-07T21:50:33.798Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "seenTs": "2026-09-07T21:50:45.726Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Lagnier",
+      "valeNum": 275,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5352545459",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Lagnier\n🔸Teléfono Cliente: 5352545459\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 18:30\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 17:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788817245287,
       "ts": "2026-09-07T21:40:45.292Z",
       "total": "$90 USD",
@@ -2499,7 +2536,7 @@
       "ts": "2026-09-07T20:57:33.434Z",
       "total": "$167 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:48:06.337Z",
+      "seenTs": "2026-09-07T21:51:06.761Z",
       "status": "pending",
       "vuelto": "7",
       "cliente": "Niurka",
@@ -2699,7 +2736,7 @@
       "ts": "2026-09-07T20:19:32.051Z",
       "total": "$660 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:42:56.671Z",
+      "seenTs": "2026-09-07T21:50:58.148Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Brayan",
@@ -2746,7 +2783,7 @@
       "ts": "2026-09-07T20:17:03.398Z",
       "total": "$380 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:42:57.251Z",
+      "seenTs": "2026-09-07T21:50:31.440Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony",
@@ -2790,8 +2827,8 @@
       "ts": "2026-09-07T20:14:02.906Z",
       "total": "$168 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:42:58.588Z",
-      "status": "pending",
+      "seenTs": "2026-09-07T21:50:33.560Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "David",
       "valeNum": 264,
@@ -2805,8 +2842,10 @@
       "precioUSD": "$160 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-07T21:50:18.254Z",
       "mensajeria": "8 usd",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2865,7 +2904,7 @@
       "ts": "2026-09-07T20:03:42.385Z",
       "total": "$700 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T21:42:59.729Z",
+      "seenTs": "2026-09-07T21:49:26.920Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rey Carlos",
@@ -18109,5 +18148,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T21:48:58.731Z"
+  "timestamp": "2026-09-07T21:51:18.274Z"
 }
