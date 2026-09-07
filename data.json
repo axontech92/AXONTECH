@@ -2372,7 +2372,7 @@
       "ts": "2026-09-07T21:12:52.244Z",
       "total": "$600 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:14:48.942Z",
+      "seenTs": "2026-09-07T21:34:29.474Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Nixon",
@@ -2419,7 +2419,7 @@
       "ts": "2026-09-07T20:57:33.434Z",
       "total": "$167 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:02:00.559Z",
+      "seenTs": "2026-09-07T21:36:44.626Z",
       "status": "pending",
       "vuelto": "7",
       "cliente": "Niurka",
@@ -2456,7 +2456,7 @@
       "ts": "2026-09-07T20:47:30.019Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:33:00.440Z",
+      "seenTs": "2026-09-07T21:34:28.981Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Madelin",
@@ -2486,15 +2486,14 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1788813711058,
       "ts": "2026-09-07T20:41:51.082Z",
       "total": "$4000 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T21:33:01.703Z",
+      "seenTs": "2026-09-07T21:37:20.559Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro",
@@ -3149,7 +3148,7 @@
       "ts": "2026-09-07T17:30:53.373Z",
       "total": "$510 USD + 2170 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T21:32:24.252Z",
+      "seenTs": "2026-09-07T21:33:51.039Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Margarita",
@@ -3751,7 +3750,7 @@
       "ts": "2026-09-06T17:52:00.000Z",
       "total": "$200 USD + 16500 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T20:56:14.695Z",
+      "seenTs": "2026-09-07T21:37:10.665Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -18069,5 +18068,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T21:33:02.671Z"
+  "timestamp": "2026-09-07T21:37:22.833Z"
 }
