@@ -2372,6 +2372,7 @@
       "ts": "2026-09-07T20:47:30.019Z",
       "total": "$230 USD",
       "carnet": "",
+      "seenTs": "2026-09-07T20:51:01.855Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Madelin",
@@ -2384,10 +2385,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Madelin\n🔸Teléfono Cliente: 5353825382\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 16:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$230 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -18017,5 +18019,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T20:50:05.667Z"
+  "timestamp": "2026-09-07T20:51:43.868Z"
 }
