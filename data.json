@@ -2372,7 +2372,7 @@
       "ts": "2026-09-07T22:03:44.252Z",
       "total": "$940 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T22:03:50.689Z",
+      "seenTs": "2026-09-07T22:05:13.490Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2414,8 +2414,8 @@
       "ts": "2026-09-07T22:02:09.588Z",
       "total": "$60 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T22:02:36.679Z",
-      "status": "pending",
+      "seenTs": "2026-09-07T22:09:28.332Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Sergio",
       "valeNum": 276,
@@ -2429,8 +2429,10 @@
       "precioUSD": "$60 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-07T22:09:25.290Z",
       "mensajeria": "3250",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -3023,7 +3025,7 @@
       "ts": "2026-09-07T20:00:25.730Z",
       "total": "$140 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T21:32:06.040Z",
+      "seenTs": "2026-09-07T22:08:24.924Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dangelo Saul",
@@ -18225,5 +18227,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T22:04:54.888Z"
+  "timestamp": "2026-09-07T22:10:25.730Z"
 }
