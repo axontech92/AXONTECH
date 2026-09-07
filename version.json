@@ -1,10 +1,10 @@
 {
-  "version": 165,
-  "versionStr": "v11.1",
-  "build": 165,
-  "hash": "6b9e87456d1abd0c",
-  "hashFull": "6b9e87456d1abd0c",
-  "releasedAt": "2026-09-07 20:12",
+  "version": 166,
+  "versionStr": "v11.2",
+  "build": 166,
+  "hash": "d6117e743d06149a",
+  "hashFull": "d6117e743d06149a",
+  "releasedAt": "2026-09-07 20:25",
   "files": [
     "app.js",
     "app.css",
@@ -14,6 +14,6 @@
     "catalogo.html"
   ],
   "changelog": [
-    "Actualización automática · build 6b9e8745"
+    "Actualización automática · build d6117e74"
   ]
 }
