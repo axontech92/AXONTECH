@@ -2616,7 +2616,7 @@
       "ts": "2026-09-07T20:03:42.385Z",
       "total": "$700 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T20:26:04.267Z",
+      "seenTs": "2026-09-07T20:35:21.309Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rey Carlos",
@@ -2810,7 +2810,7 @@
       "ts": "2026-09-07T18:11:31.210Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T19:37:59.213Z",
+      "seenTs": "2026-09-07T20:35:14.301Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yoel viltres",
@@ -2934,7 +2934,7 @@
       "ts": "2026-09-07T17:30:53.373Z",
       "total": "$510 USD + 2170 MN",
       "carnet": "",
-      "seenTs": "2026-09-07T20:12:33.596Z",
+      "seenTs": "2026-09-07T20:35:56.211Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Margarita",
@@ -3024,7 +3024,7 @@
       "ts": "2026-09-07T17:21:24.797Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T19:37:54.172Z",
+      "seenTs": "2026-09-07T20:35:17.871Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yoel viltres",
@@ -3184,7 +3184,7 @@
       "ts": "2026-09-07T16:15:14.430Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-07T20:33:36.900Z",
+      "seenTs": "2026-09-07T20:35:06.993Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Juan Carlos",
@@ -3595,10 +3595,11 @@
       "precioUSD": "$200 USD",
       "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-06T18:13:29.821Z",
+      "assignedTs": "2026-09-07T20:34:45.170Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
-      "deliveredTs": "2026-09-06T19:03:24.289Z",
+      "confirmedTs": null,
+      "deliveredTs": "2026-09-07T20:35:03.829Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -3616,7 +3617,6 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -17898,5 +17898,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-07T20:34:28.678Z"
+  "timestamp": "2026-09-07T20:36:03.846Z"
 }
