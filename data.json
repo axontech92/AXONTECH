@@ -2298,7 +2298,7 @@
       "name": "Toldo malla para sombra verde obscuro 2x7m",
       "catId": 90,
       "photo": "photos/p-1787962342861-7ae820ed.webp",
-      "stock": 2,
+      "stock": 0,
       "imagen": "photos/p-1787962342861-7ae820ed.webp",
       "nombre": "Toldo malla para sombra verde obscuro 2x7m",
       "precio": "$38",
@@ -3678,47 +3678,42 @@
     },
     {
       "id": 1788794555522,
-      "ts": "2026-09-07T15:22:35.530Z",
-      "total": "$114 USD + 5000 MN",
+      "ts": "2026-09-07T15:22:00.000Z",
+      "total": "$76 USD + 5000 MN",
       "carnet": "",
       "seenTs": "2026-09-08T00:17:07.089Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yane",
       "valeNum": 245,
-      "articulo": "×2 Toldo malla para sombra verde obscuro 2x7m / ×1 Toldo malla para sombra marrón 2×7m",
+      "articulo": "×2 Toldo malla para sombra verde obscuro 2x7m",
       "garantia": "",
       "gestorId": 1781761257102,
       "precioMN": "",
       "telefono": "52843461",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Yane\n🔸Teléfono Cliente: 52843461\n🔸Dirección Cliente: Septima entre 224 y 226 siboney playa\n🔸Mensajería/ costo: 5000\n🔸 Artículos y cantidades:\n  ×2 Toldo malla para sombra verde obscuro 2x7m\n  ×1 Toldo malla para sombra marrón 2×7m\n🔸Precio USD/ zelle: $114 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $114 USD + 5000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 11:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Septima entre 224 y 226 siboney playa",
-      "precioUSD": "$114 USD",
+      "precioUSD": "$76 USD",
       "reservado": true,
       "ubicacion": null,
       "assignedTs": "2026-09-08T00:17:00.913Z",
       "mensajeria": "5000",
       "comFijadaMN": 6,
-      "confirmedTs": null,
-      "deliveredTs": "2026-09-07T20:55:22.001Z",
+      "confirmedTs": "2026-09-08T00:18:39.533Z",
+      "deliveredTs": "2026-09-08T00:18:37.853Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
-      "comFijadaUSD": 3,
+      "comFijadaUSD": 0,
       "valeProductos": [
         {
           "id": 1787962342861,
           "qty": 2,
           "name": "Toldo malla para sombra verde obscuro 2x7m"
-        },
-        {
-          "id": 1787952316385,
-          "qty": 1,
-          "name": "Toldo malla para sombra marrón 2×7m"
         }
       ],
-      "comisionGestor": "$3.00 USD + 6 MN",
+      "comisionGestor": "6 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -18283,5 +18278,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T00:18:00.946Z"
+  "timestamp": "2026-09-08T00:19:40.482Z"
 }
