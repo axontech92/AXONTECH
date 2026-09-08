@@ -2222,7 +2222,7 @@
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
-      "puntos": 1,
+      "puntos": 0.5,
       "comision": "1500 MN",
       "garantia": "Probar en el momento de la compra",
       "descripcion": "•Pesa/ báscula digital inteligente para el control de peso corporal.\n•Soporta hasta 180kg (396lb) .\n• Incorpora 4 sensores para mejor precisión. \n•Base de cristal templado duradero y resistente.\n• Se puede usar con la aplicación en el telefono movil o no según su preferencia. \n• Funciona con 2 baterias AAA( no incluidas)\n• Se conecta con el teléfono mediante una app que brinda datos a cerca del control de su peso corporal y ofrece datos en funcion de ello.",
@@ -2535,7 +2535,7 @@
       "ts": "2026-09-08T15:06:14.593Z",
       "total": "$25 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T15:32:11.902Z",
+      "seenTs": "2026-09-08T16:23:27.843Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Neydis",
@@ -2567,7 +2567,8 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1788879125811,
@@ -18899,5 +18900,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T16:16:40.642Z"
+  "timestamp": "2026-09-08T16:23:31.196Z"
 }
