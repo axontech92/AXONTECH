@@ -701,7 +701,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 101,
+      "stock": 98,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -873,7 +873,7 @@
       "name": "Router Tenda AX12 pro AX3000",
       "catId": 10,
       "photo": "photos/img_1785077900654.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1785077900654.webp",
       "nombre": "Router Tenda AX12 pro AX3000",
       "precio": "$130",
@@ -890,7 +890,7 @@
       "name": "Router Wavlink AC1200 pequeño",
       "catId": 10,
       "photo": "photos/img_1785077980600.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1785077980600.webp",
       "nombre": "Router Wavlink AC1200 pequeño",
       "precio": "$70",
@@ -1186,7 +1186,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 42,
+      "stock": 40,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2367,6 +2367,102 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788827730017,
+      "ts": "2026-09-08T00:35:30.018Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-09-08T00:35:41.295Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Junior",
+      "valeNum": 279,
+      "articulo": "×1 Router Tenda AX12 pro AX3000",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "3",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Junior\n🔸Teléfono Cliente: 3\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 7/9/2026, 20:35:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$130 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T00:36:03.941Z",
+      "mensajeroId": null,
+      "rebajaAdmin": 10,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "rebajaAdminTs": "2026-09-08T00:35:58.372Z",
+      "valeProductos": [
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "rebajaAdminMoneda": "USD",
+      "rebajaAdminMotivo": "Cliente fijo",
+      "synced": true
+    },
+    {
+      "id": 1788827475515,
+      "ts": "2026-09-08T00:31:15.516Z",
+      "total": "$430 USD",
+      "carnet": "",
+      "seenTs": "2026-09-08T00:32:01.506Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Miguel",
+      "valeNum": 278,
+      "articulo": "×3 Adaptador poe UBIQUITI de 0.3A / ×1 Router Wavlink AC1200 pequeño / ×2 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "2",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Miguel\n🔸Teléfono Cliente: 2\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×3 Adaptador poe UBIQUITI de 0.3A\n  ×1 Router Wavlink AC1200 pequeño\n  ×2 Nanostation m2 loco\n🔸Precio USD/ zelle: $430 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $430 USD\n\n*Garantía: \n*Fecha y hora de Venta: 7/9/2026, 20:31:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$430 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T00:34:52.249Z",
+      "mensajeroId": null,
+      "rebajaAdmin": 40,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "rebajaAdminTs": "2026-09-08T00:34:27.820Z",
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 3,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1785077980600,
+          "qty": 1,
+          "name": "Router Wavlink AC1200 pequeño"
+        },
+        {
+          "id": 1786858233037,
+          "qty": 2,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "rebajaAdminMoneda": "USD",
+      "rebajaAdminMotivo": "Cliente fijo",
+      "synced": true
+    },
     {
       "id": 1788823809813,
       "ts": "2026-09-07T23:30:09.824Z",
@@ -3883,7 +3979,7 @@
       "ts": "2026-09-06T17:52:00.000Z",
       "total": "$200 USD + 16500 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T00:11:38.932Z",
+      "seenTs": "2026-09-08T00:35:00.851Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -18201,5 +18297,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T00:23:59.736Z"
+  "timestamp": "2026-09-08T00:37:03.963Z"
 }
