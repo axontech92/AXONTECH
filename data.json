@@ -2420,6 +2420,7 @@
       "ts": "2026-09-08T14:18:17.409Z",
       "total": "$160 USD",
       "carnet": "",
+      "seenTs": "2026-09-08T14:27:44.269Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose",
@@ -2436,6 +2437,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2482,6 +2484,48 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788871493156,
+      "ts": "2026-09-08T12:44:53.170Z",
+      "total": "$430 USD",
+      "carnet": "",
+      "seenTs": "2026-09-08T14:30:48.427Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eliu",
+      "valeNum": 284,
+      "articulo": "×2 Nanostation loco m5 / ×1 Router Tp-link Archer A6",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5358785209",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Eliu\n🔸Teléfono Cliente: 5358785209\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation loco m5\n  ×1 Router Tp-link Archer A6\n🔸Precio USD/ zelle: $430 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $430 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 08:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$430 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 30,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 2,
+          "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1788329740120,
+          "qty": 1,
+          "name": "Router Tp-link Archer A6"
+        }
+      ],
+      "comisionGestor": "$30.00 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -2980,22 +3024,22 @@
     },
     {
       "id": 1788815572230,
-      "ts": "2026-09-07T21:12:00.000Z",
-      "total": "$743 USD",
+      "ts": "2026-09-07T21:12:52.244Z",
+      "total": "$600 USD",
       "carnet": "",
       "seenTs": "2026-09-08T13:25:09.809Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "Nixon",
       "valeNum": 272,
-      "articulo": "×2 Adaptador poe UBIQUITI de 0.3A / ×2 Ubiquiti Litebeam m5 / ×2 NanoStation 5AC Loco / ×1 Mikrotik Router Board 750gr / ×1 Conectores MC4 (10 pares)",
+      "articulo": "×2 Adaptador poe UBIQUITI de 0.3A / ×2 Ubiquiti Litebeam m5 / ×2 NanoStation 5AC Loco",
       "garantia": "",
       "gestorId": 1781761257102,
       "precioMN": "",
       "telefono": "5350329721",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Nixon\n🔸Teléfono Cliente: 5350329721\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Adaptador poe UBIQUITI de 0.3A\n  ×2 Ubiquiti Litebeam m5\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $600 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $600 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 17:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
-      "precioUSD": "$743 USD",
+      "precioUSD": "$600 USD",
       "reservado": true,
       "ubicacion": null,
       "adminNotes": "Para manana",
@@ -3003,7 +3047,7 @@
       "comFijadaMN": 3000,
       "confirmedTs": "2026-09-08T13:32:05.295Z",
       "seenByAdmin": true,
-      "comFijadaUSD": 50,
+      "comFijadaUSD": 40,
       "valeProductos": [
         {
           "id": 1778384646214,
@@ -3019,19 +3063,9 @@
           "id": 1788278326719,
           "qty": 2,
           "name": "NanoStation 5AC Loco"
-        },
-        {
-          "id": 1785079709511,
-          "qty": 1,
-          "name": "Mikrotik Router Board 750gr"
-        },
-        {
-          "id": 1788155775988,
-          "qty": 1,
-          "name": "Conectores MC4 (10 pares)"
         }
       ],
-      "comisionGestor": "$50.00 USD + 3000 MN",
+      "comisionGestor": "$40.00 USD + 3000 MN",
       "recogidaTienda": true,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
@@ -3427,8 +3461,8 @@
       "ts": "2026-09-07T20:03:42.385Z",
       "total": "$700 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T13:40:07.055Z",
-      "status": "pending_payment",
+      "seenTs": "2026-09-08T14:33:23.182Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Rey Carlos",
       "valeNum": 263,
@@ -3446,6 +3480,7 @@
       "assignedTs": "2026-09-07T20:07:33.366Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T14:33:32.357Z",
       "deliveredTs": "2026-09-08T00:14:12.408Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
@@ -3471,7 +3506,7 @@
       "total": "$140 USD + 1000 MN",
       "carnet": "",
       "seenTs": "2026-09-08T14:03:41.496Z",
-      "status": "pending_payment",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dangelo Saul",
       "valeNum": 262,
@@ -3488,6 +3523,7 @@
       "assignedTs": "2026-09-07T20:33:28.661Z",
       "mensajeria": "1000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T14:33:13.196Z",
       "deliveredTs": "2026-09-08T00:12:25.431Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
@@ -18629,5 +18665,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T14:27:26.916Z"
+  "timestamp": "2026-09-08T14:34:33.648Z"
 }
