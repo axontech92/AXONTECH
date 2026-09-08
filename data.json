@@ -1010,7 +1010,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 91,
+      "stock": 90,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2388,6 +2388,43 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788909736314,
+      "ts": "2026-09-08T23:22:16.320Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-08T21:24:36.220Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Carlos",
+      "valeNum": 273,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786123063239,
+      "precioMN": "",
+      "telefono": "63224972",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Harvin\n\n🔸 Nombre Cliente: Carlos\n🔸Teléfono Cliente: 63224972\n🔸Dirección Cliente: San Juan Bosco entre santa Catalina y san mariano\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 16:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "San Juan Bosco entre santa Catalina y san mariano",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-08T21:24:40.855Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
     {
       "id": 1788891495867,
       "ts": "2026-09-08T18:18:15.868Z",
@@ -19135,5 +19172,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T20:35:09.642Z"
+  "timestamp": "2026-09-08T21:25:40.880Z"
 }
