@@ -14704,9 +14704,15 @@ function getGestorRank(gestorId) {
     // v114: puntos del ciclo en curso, igual que la barra de meta. Si el
     // ranking siguiera contando los de siempre, quien ya cerró varias metas se
     // quedaría arriba para siempre y resetear el contador no serviría de nada.
+    // v121: los puntos ya canjeados solo se restan en el modo de META FIJA, que
+    // es el único donde "canjear" significa algo. Aquí se restaban siempre, así
+    // que un gestor que cerró metas en su día seguía apareciendo con menos
+    // puntos de los que tiene aunque ahora se compita por ciclos. Es el mismo
+    // criterio que ya usa getGestorPoints.
+    const _canj = metaModo()==='fija' ? (parseFloat(g.puntosCanjeados)||0) : 0;
     const pts=Math.max(0, confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
       sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0)
-      - (parseFloat(g.puntosCanjeados)||0));
+      - _canj);
     return {id:g.id,pts};
   }).sort((a,b)=>b.pts-a.pts);
   const idx=ranked.findIndex(r=>r.id===gestorId);
@@ -14729,6 +14735,11 @@ function getGestorRank(gestorId) {
 function metaModo() {
   const cfg = getConfig() || {};
   if (cfg.metaModo === 'off' || cfg.metaModo === 'fija' || cfg.metaModo === 'mensual') return cfg.metaModo;
+  // v121: antes de conjeturar por el metaPuntos, se mira si hay un ciclo
+  // configurado. Solo se pone fecha de ciclo cuando se compite por ciclos, así
+  // que eso lo dice mejor que un metaPuntos que puede llevar ahí desde que se
+  // usaba meta fija — y de hecho la conjetura vieja lo confundía justo así.
+  if (typeof cfg.cicloInicio === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(cfg.cicloInicio)) return 'mensual';
   // Sin modo guardado (config de antes de v119): si había meta puesta, era el
   // modo fijo; si no, no había meta.
   return (parseFloat(cfg.metaPuntos) > 0) ? 'fija' : 'off';
@@ -15331,6 +15342,13 @@ function checkGoalReached(gestorId, currentValeId) {
   // v119: cerrar ciclos es cosa del modo 'fija'. En 'mensual' no hay meta que
   // alcanzar —gana el que más lleve al acabar el mes— y en 'off' no hay premio,
   // así que en los dos casos esto no debe tocar nada ni lanzar la animación.
+  // v121: esto es lo único que ESCRIBE a partir del modo —quema los puntos en
+  // puntosCanjeados, y eso no se deshace solo—, así que el modo tiene que estar
+  // bien decidido. Ver la nota en metaModo(): la conjetura vieja daba "fija" con
+  // solo encontrar un metaPuntos guardado, y como el 100 de cuando había meta
+  // fija se queda en el config para siempre, en modo por ciclos se le ponía el
+  // contador a cero a todo el que llegara a 100. Ahora un ciclo configurado
+  // manda sobre esa conjetura, que es lo que faltaba.
   if(metaModo()!=='fija')return;
   const meta=parseFloat(getConfig().metaPuntos);
   if(!meta||meta<=0||!gestorId)return;
@@ -17563,7 +17581,8 @@ const AYUDA_SECCIONES = [
       { icono:'🏆', titulo:'Meta y ranking', donde:'Config › Meta de puntos',
         para:'La competencia entre gestores. Hay tres modos: sin meta, meta fija (llega a X puntos) o mensual (gana el que más tenga en el ciclo).',
         como:'En Config eliges el modo. En mensual puedes escoger el día en que empieza el ciclo: si pones 29, va del 29 al 29.',
-        ojo:'Reiniciar los puntos no borra nada: marca una fecha desde la que se empieza a contar, y se puede deshacer.' },
+        ojo:'Reiniciar los puntos no borra nada: marca una fecha desde la que se empieza a contar, y se puede deshacer. Y ojo con la diferencia entre los dos modos: en meta fija, quien llega a la meta empieza otra vez desde cero (esa es la gracia). En el modo por ciclos NO: los puntos se van sumando hasta que el ciclo acabe, se llegue al número que se llegue.',
+        nuevo:'v121' },
     ],
   },
   {
