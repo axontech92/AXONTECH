@@ -2426,6 +2426,45 @@
       "synced": true
     },
     {
+      "id": 1788906366805,
+      "ts": "2026-09-08T22:26:06.821Z",
+      "total": "$90 USD + 5000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-08T22:26:33.755Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Luis Ernesto",
+      "valeNum": 305,
+      "articulo": "×3 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1784476367598,
+      "precioMN": "",
+      "telefono": "5354873206",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yadira\n\n🔸 Nombre Cliente: Luis Ernesto\n🔸Teléfono Cliente: 5354873206\n🔸Dirección Cliente: 246 entre 31c y 33a, edificio 210, San Agustín\n🔸Mensajería/ costo: 5000\n🔸Hora de entrega: 09:00\n🔸 Artículos y cantidades:\n  ×3 Switch dE 8 puertos\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD + 5000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 18:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "246 entre 31c y 33a, edificio 210, San Agustín",
+      "precioUSD": "$90 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-08T22:26:51.173Z",
+      "mensajeria": "5000",
+      "comFijadaMN": 4500,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 3,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "4500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788905864622,
       "ts": "2026-09-08T22:17:44.624Z",
       "total": "$1600 USD",
@@ -2612,43 +2651,6 @@
       "comisionGestor": "",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "synced": true
-    },
-    {
-      "id": 1788888611094,
-      "ts": "2026-09-08T17:30:11.099Z",
-      "total": "$160 USD",
-      "carnet": "",
-      "seenTs": "2026-09-08T21:47:48.793Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Liz Yanela Montes de Oca",
-      "valeNum": 297,
-      "articulo": "×1 Nanostation loco m5",
-      "garantia": "",
-      "gestorId": 1786136592500,
-      "precioMN": "",
-      "telefono": "52734586",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Liz Yanela Montes de Oca\n🔸Teléfono Cliente: 52734586\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 13:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$160 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786509569058,
-          "qty": 1,
-          "name": "Nanostation loco m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
@@ -2978,7 +2980,7 @@
       "ts": "2026-09-08T14:23:11.188Z",
       "total": "$130 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T14:27:20.465Z",
+      "seenTs": "2026-09-08T23:05:07.597Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Maria Migueli",
@@ -19134,5 +19136,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T22:24:43.642Z"
+  "timestamp": "2026-09-08T23:06:21.642Z"
 }
