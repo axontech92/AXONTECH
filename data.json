@@ -1765,7 +1765,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 39,
+      "stock": 37,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2299,7 +2299,7 @@
       "name": "Router Tp-link Archer A6",
       "catId": 10,
       "photo": "photos/p-1788329740120-3d5fec45.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1788329740120-3d5fec45.webp",
       "nombre": "Router Tp-link Archer A6",
       "precio": "$110",
@@ -2423,6 +2423,40 @@
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
       "stockDecremented": true,
+      "synced": true
+    },
+    {
+      "id": 1788903787443,
+      "ts": "2026-09-08T21:43:07.465Z",
+      "total": "$1600 USD",
+      "carnet": "",
+      "seenTs": "2026-09-08T22:09:48.455Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dachel",
+      "valeNum": 302,
+      "articulo": "×10 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "56936497",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Dachel\n🔸Teléfono Cliente: 56936497\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n🔸Precio USD/ zelle: $1600 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1600 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 17:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1600 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 10,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -3021,8 +3055,8 @@
       "ts": "2026-09-08T12:44:53.170Z",
       "total": "$430 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T19:51:59.519Z",
-      "status": "pending",
+      "seenTs": "2026-09-08T22:10:07.068Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Eliu",
       "valeNum": 284,
@@ -3038,6 +3072,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T22:10:13.797Z",
       "seenByAdmin": true,
       "comFijadaUSD": 30,
       "valeProductos": [
@@ -3054,7 +3089,7 @@
       ],
       "comisionGestor": "$30.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -19135,5 +19170,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T21:48:31.643Z"
+  "timestamp": "2026-09-08T22:11:13.824Z"
 }
