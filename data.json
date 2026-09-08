@@ -3663,6 +3663,7 @@
       "comisionCedida": 10,
       "comisionGestor": "$40.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "comisionCedidaMotivo": "Descuento del total a pagar por el cliente",
@@ -18398,5 +18399,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T01:17:53.249Z"
+  "timestamp": "2026-09-08T01:21:39.214Z"
 }
