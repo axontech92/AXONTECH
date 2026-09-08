@@ -2967,8 +2967,8 @@
       "ts": "2026-09-07T20:57:33.434Z",
       "total": "$167 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T00:13:41.754Z",
-      "status": "pending",
+      "seenTs": "2026-09-08T13:34:19.928Z",
+      "status": "assigned",
       "vuelto": "7",
       "cliente": "Niurka",
       "valeNum": 271,
@@ -2983,8 +2983,10 @@
       "reservado": true,
       "ubicacion": null,
       "adminNotes": "Para manana",
+      "assignedTs": "2026-09-08T13:34:31.572Z",
       "mensajeria": "7$",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -3044,7 +3046,7 @@
       "ts": "2026-09-07T20:38:01.043Z",
       "total": "$1620 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T00:47:18.780Z",
+      "seenTs": "2026-09-08T13:34:58.627Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "5",
@@ -5290,7 +5292,7 @@
       "ts": "2026-09-05T13:18:58.753Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T13:23:34.492Z",
+      "seenTs": "2026-09-08T13:34:38.974Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Erick Cruz Pérez",
@@ -18547,5 +18549,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T13:33:05.642Z"
+  "timestamp": "2026-09-08T13:35:31.587Z"
 }
