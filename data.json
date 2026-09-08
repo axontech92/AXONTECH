@@ -997,7 +997,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 96,
+      "stock": 94,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1752,7 +1752,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 60,
+      "stock": 59,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2032,7 +2032,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2269,7 +2269,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 5,
+      "stock": 3,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2375,6 +2375,43 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788880857017,
+      "ts": "2026-09-08T15:20:57.025Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "seenTs": "2026-09-08T15:28:41.222Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Erik",
+      "valeNum": 290,
+      "articulo": "×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "53602067",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Erik\n🔸Teléfono Cliente: 53602067\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 11:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1788879974584,
       "ts": "2026-09-08T15:06:14.593Z",
@@ -3115,8 +3152,8 @@
       "ts": "2026-09-07T20:57:33.434Z",
       "total": "$167 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T14:16:11.238Z",
-      "status": "assigned",
+      "seenTs": "2026-09-08T15:28:17.754Z",
+      "status": "pending_payment",
       "vuelto": "7",
       "cliente": "Niurka",
       "valeNum": 271,
@@ -3134,6 +3171,7 @@
       "assignedTs": "2026-09-08T13:34:31.572Z",
       "mensajeria": "7$",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-08T15:28:21.694Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -3146,7 +3184,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3374,8 +3412,8 @@
       "ts": "2026-09-07T20:17:03.398Z",
       "total": "$380 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T13:40:00.859Z",
-      "status": "pending",
+      "seenTs": "2026-09-08T15:28:08.720Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yony",
       "valeNum": 265,
@@ -3391,6 +3429,7 @@
       "ubicacion": null,
       "adminNotes": "Para manana",
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-08T15:28:12.017Z",
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -3411,7 +3450,7 @@
       ],
       "comisionGestor": "$30.00 USD + 3000 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -18704,5 +18743,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T15:08:25.642Z"
+  "timestamp": "2026-09-08T15:29:22.643Z"
 }
