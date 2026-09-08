@@ -2543,48 +2543,11 @@
       "synced": true
     },
     {
-      "id": 1788888771562,
-      "ts": "2026-09-08T17:32:51.572Z",
-      "total": "$30 USD",
-      "carnet": "",
-      "seenTs": "2026-09-08T17:35:02.208Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Pablo Ramos",
-      "valeNum": 298,
-      "articulo": "×1 Switch dE 8 puertos",
-      "garantia": "",
-      "gestorId": 1781761257118,
-      "precioMN": "",
-      "telefono": "5353055682",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Danny\n\n🔸 Nombre Cliente: Pablo Ramos\n🔸Teléfono Cliente: 5353055682\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 13:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$30 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 1500,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1778102214012,
-          "qty": 1,
-          "name": "Switch dE 8 puertos"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788888611094,
       "ts": "2026-09-08T17:30:11.099Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T17:30:18.314Z",
+      "seenTs": "2026-09-08T21:47:48.793Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Liz Yanela Montes de Oca",
@@ -19172,5 +19135,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T21:25:40.880Z"
+  "timestamp": "2026-09-08T21:48:31.643Z"
 }
