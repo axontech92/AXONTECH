@@ -379,6 +379,14 @@
       "phone": "+53 5 1778166",
       "initials": "JG",
       "password": "pbkdf2$100000$xtkv6+7dccCK/QxIp6Rrog==$bfb47c5358228507d53ede4afee56eeb8f707c94d16c0f4fbfbc58026438ede7"
+    },
+    {
+      "id": 1788887566844,
+      "name": "Kevin Masso",
+      "initials": "KM",
+      "color": "#1D4ED8",
+      "password": "pbkdf2$100000$OpMIBlGVtZpbvWcUnY+e4g==$c6a8fdfdf780fd39a4897ee4e93fc44f6fe9fb0997e094dfc37d032f9ea5b20d",
+      "phone": "54822230"
     }
   ],
   "mensajeros": [
@@ -3295,7 +3303,7 @@
       "ts": "2026-09-07T21:39:57.134Z",
       "total": "$4000 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T15:56:32.648Z",
+      "seenTs": "2026-09-08T16:49:52.311Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro",
@@ -18980,5 +18988,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T16:48:23.642Z"
+  "timestamp": "2026-09-08T17:13:47.643Z"
 }
