@@ -12932,11 +12932,24 @@ function renderGestorCatalog() {
     const fav = isFavorite(p.id);
     const photoUrl = _resolvePhotoUrl(p.photo);
     const isAgotado = (p.stock || 0) <= 0;
+    // ── v121: lo reservado, también aquí ──────────────────────────────────
+    // Esta lista enseñaba el stock FÍSICO, así que un producto con las tres
+    // unidades apartadas para otros clientes salía como "Disponibles: 3" y el
+    // gestor lo ofrecía. El selector del vale sí lo avisaba —y no le dejaba
+    // escogerlo—, pero para entonces ya se lo había prometido al cliente.
+    // Mismas chapas que allí, para que sea el mismo idioma en las dos partes.
+    const _res = _reservedTotal(p);
+    const _disp = _availableStock(p);
+    const _todoRes = _isFullyReserved(p);
+    const _chapaRes = isAgotado ? ''
+      : _todoRes ? '<span class="reserved-badge reserved-full">🔒 RESERVADO</span>'
+      : (_res > 0 ? `<span class="reserved-badge partial">🔐 ${_res} reservado${_res===1?'':'s'}</span>` : '');
     return `<div style="border:1px solid var(--${exp?'blue':'gray-200'});border-radius:8px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;${isAgotado?'opacity:0.65;':''}">
       <div style="display:flex;align-items:center;gap:10px;padding:8px;">
         ${photoUrl?`<img src="${escapeAttr(photoUrl)}" style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:none;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`:`<div style="width:52px;height:52px;border-radius:6px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📦</div>`}
         <div style="flex:1;min-width:0;cursor:pointer;" onclick="toggleCatalogItem(${p.id})">
-          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}${_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}${isAgotado?' <span style="font-weight:600;font-size:10px;color:var(--red);background:rgba(239,68,68,.1);padding:1px 5px;border-radius:6px;">AGOTADO</span>':''}</div>
+          <div style="font-weight:700;font-size:13px;color:var(--text);">${escapeHTML(p.name)}${_esProductoNuevo(p)?' '+_BADGE_NUEVO:''}${isAgotado?' <span style="font-weight:600;font-size:10px;color:var(--red);background:rgba(239,68,68,.1);padding:1px 5px;border-radius:6px;">AGOTADO</span>':''}${_chapaRes?' '+_chapaRes:''}</div>
+          ${(!isAgotado&&_res>0&&!_todoRes)?`<div style="font-size:10px;color:var(--text-muted);margin-top:1px;">Puedes vender ${_disp} de ${p.stock}</div>`:''}
           ${p.precio?`<div style="color:var(--blue);font-weight:700;font-size:12px;margin-top:2px;">${escapeHTML(p.precio)}</div>`:''}
         </div>
         <button style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:${fav?'#F59E0B':'var(--gray-400)'};flex-shrink:0;" onclick="toggleFavorite(${p.id})" title="Favorito">${fav?'⭐':'☆'}</button>
@@ -12946,7 +12959,8 @@ function renderGestorCatalog() {
       ${exp?`<div style="padding:8px 12px 12px;border-top:1px solid var(--gray-200);background:var(--gray-50);">
         ${p.description?`<div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;white-space:pre-line;line-height:1.5;">${escapeHTML(p.description)}</div>`:''}
         <div style="display:flex;flex-wrap:wrap;gap:5px;font-size:11px;">
-          <span style="background:${!isAgotado?'var(--blue-lt)':'rgba(239,68,68,.1)'};color:${!isAgotado?'var(--blue)':'var(--red)'};padding:3px 9px;border-radius:10px;font-weight:700;">📦 ${!isAgotado?'Disponibles: '+p.stock:'Agotado'}</span>
+          <span style="background:${!isAgotado?'var(--blue-lt)':'rgba(239,68,68,.1)'};color:${!isAgotado?'var(--blue)':'var(--red)'};padding:3px 9px;border-radius:10px;font-weight:700;">📦 ${!isAgotado?'Disponibles: '+_disp:'Agotado'}</span>
+          ${(!isAgotado&&_res>0)?`<span style="background:rgba(180,83,9,.12);color:#b45309;padding:3px 9px;border-radius:10px;font-weight:700;">🔐 ${_res} reservada${_res===1?'':'s'}${_todoRes?' — no queda ninguna libre':' · en almacén hay '+p.stock}</span>`:''}
           ${p.garantia?`<span style="background:var(--gray-100);color:var(--gray-600);padding:3px 9px;border-radius:10px;">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
           ${p.comision?`<span style="background:#f0fdf4;color:var(--green);padding:3px 9px;border-radius:10px;font-weight:600;">Comisión: ${escapeHTML(p.comision)}</span>`:''}
           ${p.puntos?`<span style="background:var(--blue-lt);color:var(--blue);padding:3px 9px;border-radius:10px;">⭐ ${p.puntos} pts</span>`:''}
@@ -17516,7 +17530,8 @@ const AYUDA_SECCIONES = [
       { icono:'🔐', titulo:'Reservar unidades', donde:'Stock › 🔐',
         para:'Apartar mercancía para un cliente sin sacarla del almacén.',
         como:'Botón 🔐 del producto y pon cuántas apartas.',
-        ojo:'Lo reservado no se puede vender en otro vale. El selector de productos solo deja elegir lo que queda disponible.' },
+        ojo:'Lo reservado no se puede vender en otro vale. El selector de productos solo deja elegir lo que queda disponible, y en el 📦 Stock del gestor sale marcado: 🔐 con las unidades apartadas si quedan libres, o 🔒 RESERVADO si están todas. Ahí "Disponibles" son las que de verdad puede vender, no las que hay en el almacén.',
+        nuevo:'v121' },
       { icono:'💎', titulo:'Chapa 💎 NUEVO', donde:'Stock y selector de productos',
         para:'Que se vea de un vistazo lo que acaba de entrar. Sale sola durante 3 días.',
         como:'No hay que hacer nada: al subir un producto se marca solo y se coloca ARRIBA de la lista. Sale en TODAS las listas: el Stock del admin, el 📦 Stock que abre el gestor, el Catálogo, los tres selectores de productos del vale y hasta el catálogo público que le pasas al cliente.',
