@@ -1186,7 +1186,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 41,
+      "stock": 42,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -3226,44 +3226,6 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788804691192,
-      "ts": "2026-09-07T18:11:31.210Z",
-      "total": "$150 USD",
-      "carnet": "",
-      "seenTs": "2026-09-07T22:58:08.566Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "Yoel viltres",
-      "valeNum": 259,
-      "articulo": "×1 Nanostation m2 loco",
-      "garantia": "",
-      "gestorId": 1784477060209,
-      "precioMN": "",
-      "telefono": "56075623",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Yoel viltres\n🔸Teléfono Cliente: 56075623\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 07/09/2026 14:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$150 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "confirmedTs": "2026-09-07T23:02:51.370Z",
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786858233037,
-          "qty": 1,
-          "name": "Nanostation m2 loco"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -18239,5 +18201,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T00:21:59.794Z"
+  "timestamp": "2026-09-08T00:23:59.736Z"
 }
