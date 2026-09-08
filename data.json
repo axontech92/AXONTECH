@@ -993,7 +993,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -2430,8 +2430,8 @@
       "ts": "2026-09-08T18:17:33.708Z",
       "total": "$25 USD + 800 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T18:28:00.216Z",
-      "status": "assigned",
+      "seenTs": "2026-09-08T18:57:47.158Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Raisel",
       "valeNum": 300,
@@ -2448,6 +2448,8 @@
       "assignedTs": "2026-09-08T18:27:08.333Z",
       "mensajeria": "800 cup",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-08T18:57:55.002Z",
+      "deliveredTs": "2026-09-08T18:57:52.618Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2460,7 +2462,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -19157,5 +19159,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T18:35:22.642Z"
+  "timestamp": "2026-09-08T18:58:55.995Z"
 }
