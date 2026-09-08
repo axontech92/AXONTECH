@@ -1674,7 +1674,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 10,
+      "stock": 0,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -1760,7 +1760,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 59,
+      "stock": 39,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -1938,7 +1938,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 39,
+      "stock": 38,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -3384,8 +3384,8 @@
       "ts": "2026-09-07T21:39:00.000Z",
       "total": "$4150 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T17:37:13.805Z",
-      "status": "pending",
+      "seenTs": "2026-09-08T17:56:25.125Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alejandro",
       "valeNum": 274,
@@ -3402,6 +3402,7 @@
       "adminNotes": "Para manana",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T17:56:48.895Z",
       "seenByAdmin": true,
       "comFijadaUSD": 310,
       "valeProductos": [
@@ -3424,7 +3425,7 @@
       "comisionCedida": 70,
       "comisionGestor": "$310.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -19075,5 +19076,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T17:51:41.642Z"
+  "timestamp": "2026-09-08T17:57:48.924Z"
 }
