@@ -1277,7 +1277,7 @@
       "name": "Tp Link Archer ax55, ax3000",
       "catId": 10,
       "photo": "photos/p-1787375561622-74c433ef.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/p-1787375561622-74c433ef.webp",
       "nombre": "Tp Link Archer ax55, ax3000",
       "precio": "$150",
@@ -1294,7 +1294,7 @@
       "name": "Ubiquiti Litebeam m5",
       "catId": 10,
       "photo": "photos/p-1787930017841-5a594c52.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1787930017841-5a594c52.webp",
       "nombre": "Ubiquiti Litebeam m5",
       "precio": "$140",
@@ -2380,7 +2380,8 @@
       "ts": "2026-09-08T16:45:10.155Z",
       "total": "$140 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-08T16:47:19.368Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "x",
       "valeNum": 295,
@@ -2397,8 +2398,9 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-08T16:47:22.639Z",
       "mensajeroId": null,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2409,9 +2411,8 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "synced": true,
-      "isNew": true
+      "stockDecremented": true,
+      "synced": true
     },
     {
       "id": 1788885690276,
@@ -2654,7 +2655,7 @@
       "total": "$150 USD",
       "carnet": "",
       "seenTs": "2026-09-08T16:45:16.609Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Shena",
       "valeNum": 288,
@@ -2670,6 +2671,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-08T16:46:44.541Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2681,7 +2683,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -18978,5 +18980,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T16:46:10.178Z"
+  "timestamp": "2026-09-08T16:48:23.642Z"
 }
