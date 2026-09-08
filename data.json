@@ -4481,6 +4481,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -18410,5 +18411,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T01:32:45.567Z"
+  "timestamp": "2026-09-08T01:35:07.234Z"
 }
