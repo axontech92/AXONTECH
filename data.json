@@ -1463,6 +1463,23 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1786858727482,
+      "name": "Mikrotik mANTBox 15s",
+      "catId": 10,
+      "photo": "photos/p-1786858727482-883d0b7e.webp",
+      "stock": 0,
+      "imagen": "photos/p-1786858727482-883d0b7e.webp",
+      "nombre": "Mikrotik mANTBox 15s",
+      "precio": "380",
+      "puntos": 2,
+      "comision": "$20 USD",
+      "garantia": "",
+      "descripcion": "El MikroTik mANTBox 15s es un equipo inalámbrico para exteriores de alto rendimiento tipo estación base sectorial, diseñado para enlaces punto a multipunto (PtMP) de media distancia en la banda de 5 GHz. Combina una antena sectorial integrada de alta ganancia con un potente router con tecnología RouterOS, ideal para proveer cobertura de red a múltiples clientes (CPE) o conectar grandes áreas.\n​Frecuencia: 5 GHz (5150–5875 MHz).\n​Tecnología: 802.11a/n/ac con soporte para protocolos propietarios de MikroTik (Nstream y NV2 TDMA).\n​Antena integrada: 15 dBi, sectorial de doble polarización (2×2 MIMO).\n​Ancho de haz: 120° en azimut y 10° en elevación.\n​Potencia de transmisión: alta potencia configurable (hasta 31 dBm según la regulación regional).\n​Puertos de red: 1 puerto Ethernet Gigabit (10/100/1000 Mbps) y 1 puerto SFP para fibra óptica (indicado por la \"s\" en el modelo).\n​Alimentación: PoE pasivo de 12 V a 28 V (compatible con 802.3af/at mediante adaptadores).\n​Consumo eléctrico: máximo 11 W.\n​Procesador: Qualcomm Atheros QCA9557 de 720 MHz.\n​Memoria: 128 MB RAM y 16 MB Flash.\n​Sistema operativo: RouterOS con licencia de Nivel 4.\n​Uso exterior: carcasa resistente a la intemperie con soporte de alineación rápida incluido.\n​Temperatura de trabajo: de -40 °C a 70 °C.",
+      "description": "El MikroTik mANTBox 15s es un equipo inalámbrico para exteriores de alto rendimiento tipo estación base sectorial, diseñado para enlaces punto a multipunto (PtMP) de media distancia en la banda de 5 GHz. Combina una antena sectorial integrada de alta ganancia con un potente router con tecnología RouterOS, ideal para proveer cobertura de red a múltiples clientes (CPE) o conectar grandes áreas.\n​Frecuencia: 5 GHz (5150–5875 MHz).\n​Tecnología: 802.11a/n/ac con soporte para protocolos propietarios de MikroTik (Nstream y NV2 TDMA).\n​Antena integrada: 15 dBi, sectorial de doble polarización (2×2 MIMO).\n​Ancho de haz: 120° en azimut y 10° en elevación.\n​Potencia de transmisión: alta potencia configurable (hasta 31 dBm según la regulación regional).\n​Puertos de red: 1 puerto Ethernet Gigabit (10/100/1000 Mbps) y 1 puerto SFP para fibra óptica (indicado por la \"s\" en el modelo).\n​Alimentación: PoE pasivo de 12 V a 28 V (compatible con 802.3af/at mediante adaptadores).\n​Consumo eléctrico: máximo 11 W.\n​Procesador: Qualcomm Atheros QCA9557 de 720 MHz.\n​Memoria: 128 MB RAM y 16 MB Flash.\n​Sistema operativo: RouterOS con licencia de Nivel 4.\n​Uso exterior: carcasa resistente a la intemperie con soporte de alineación rápida incluido.\n​Temperatura de trabajo: de -40 °C a 70 °C.",
+      "precioActual": 380,
+      "comisionMoneda": "USD"
+    },
+    {
       "id": 1777923552923,
       "name": "CARGADOR INTELIGENTE 20A",
       "catId": 20,
@@ -2098,7 +2115,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 25,
+      "stock": 10,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -2234,23 +2251,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1786858727482,
-      "name": "Mikrotik mANTBox 15s",
-      "catId": 10,
-      "photo": "photos/p-1786858727482-883d0b7e.webp",
-      "stock": 0,
-      "imagen": "photos/p-1786858727482-883d0b7e.webp",
-      "nombre": "Mikrotik mANTBox 15s",
-      "precio": "380",
-      "puntos": 2,
-      "comision": "$20 USD",
-      "garantia": "",
-      "descripcion": "El MikroTik mANTBox 15s es un equipo inalámbrico para exteriores de alto rendimiento tipo estación base sectorial, diseñado para enlaces punto a multipunto (PtMP) de media distancia en la banda de 5 GHz. Combina una antena sectorial integrada de alta ganancia con un potente router con tecnología RouterOS, ideal para proveer cobertura de red a múltiples clientes (CPE) o conectar grandes áreas.\n​Frecuencia: 5 GHz (5150–5875 MHz).\n​Tecnología: 802.11a/n/ac con soporte para protocolos propietarios de MikroTik (Nstream y NV2 TDMA).\n​Antena integrada: 15 dBi, sectorial de doble polarización (2×2 MIMO).\n​Ancho de haz: 120° en azimut y 10° en elevación.\n​Potencia de transmisión: alta potencia configurable (hasta 31 dBm según la regulación regional).\n​Puertos de red: 1 puerto Ethernet Gigabit (10/100/1000 Mbps) y 1 puerto SFP para fibra óptica (indicado por la \"s\" en el modelo).\n​Alimentación: PoE pasivo de 12 V a 28 V (compatible con 802.3af/at mediante adaptadores).\n​Consumo eléctrico: máximo 11 W.\n​Procesador: Qualcomm Atheros QCA9557 de 720 MHz.\n​Memoria: 128 MB RAM y 16 MB Flash.\n​Sistema operativo: RouterOS con licencia de Nivel 4.\n​Uso exterior: carcasa resistente a la intemperie con soporte de alineación rápida incluido.\n​Temperatura de trabajo: de -40 °C a 70 °C.",
-      "description": "El MikroTik mANTBox 15s es un equipo inalámbrico para exteriores de alto rendimiento tipo estación base sectorial, diseñado para enlaces punto a multipunto (PtMP) de media distancia en la banda de 5 GHz. Combina una antena sectorial integrada de alta ganancia con un potente router con tecnología RouterOS, ideal para proveer cobertura de red a múltiples clientes (CPE) o conectar grandes áreas.\n​Frecuencia: 5 GHz (5150–5875 MHz).\n​Tecnología: 802.11a/n/ac con soporte para protocolos propietarios de MikroTik (Nstream y NV2 TDMA).\n​Antena integrada: 15 dBi, sectorial de doble polarización (2×2 MIMO).\n​Ancho de haz: 120° en azimut y 10° en elevación.\n​Potencia de transmisión: alta potencia configurable (hasta 31 dBm según la regulación regional).\n​Puertos de red: 1 puerto Ethernet Gigabit (10/100/1000 Mbps) y 1 puerto SFP para fibra óptica (indicado por la \"s\" en el modelo).\n​Alimentación: PoE pasivo de 12 V a 28 V (compatible con 802.3af/at mediante adaptadores).\n​Consumo eléctrico: máximo 11 W.\n​Procesador: Qualcomm Atheros QCA9557 de 720 MHz.\n​Memoria: 128 MB RAM y 16 MB Flash.\n​Sistema operativo: RouterOS con licencia de Nivel 4.\n​Uso exterior: carcasa resistente a la intemperie con soporte de alineación rápida incluido.\n​Temperatura de trabajo: de -40 °C a 70 °C.",
-      "precioActual": 380,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1786893425174,
       "name": "Camara de vigilancia IP inalambrica",
       "catId": 80,
@@ -2289,7 +2289,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 11,
+      "stock": 4,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2417,7 +2417,7 @@
       "ts": "2026-09-08T02:23:39.792Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T13:32:11.434Z",
+      "seenTs": "2026-09-08T13:38:10.006Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jonathan",
@@ -3043,31 +3043,31 @@
     },
     {
       "id": 1788813481043,
-      "ts": "2026-09-07T20:38:01.043Z",
-      "total": "$1620 USD",
+      "ts": "2026-09-07T20:38:00.000Z",
+      "total": "$2760 USD",
       "carnet": "",
       "seenTs": "2026-09-08T13:34:58.627Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "5",
       "valeNum": 269,
-      "articulo": "×7 Router TP-Link Archer C54 Reacondicionado / ×15 Tplink Archer AX1450 Doble Banda",
+      "articulo": "×7 Router TP-Link Archer C54 Reacondicionado / ×15 Tplink Archer AX1450 Doble Banda / ×3 Mikrotik mANTBox 15s",
       "garantia": "",
       "gestorId": 0,
       "precioMN": "",
       "telefono": "5",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: 5\n🔸Teléfono Cliente: 5\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×7 Router TP-Link Archer C54 Reacondicionado\n  ×15 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $1620 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1620 USD\n\n*Garantía: \n*Fecha y hora de Venta: 7/9/2026, 16:38:01\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Tienda Axontech",
-      "precioUSD": "$1620 USD",
+      "precioUSD": "$2760 USD",
       "reservado": true,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-08T13:37:57.346Z",
       "mensajeroId": null,
       "seenByAdmin": true,
-      "comFijadaUSD": 0,
+      "comFijadaUSD": 280,
       "valeProductos": [
         {
           "id": 1787114204179,
@@ -3078,11 +3078,16 @@
           "id": 1786207539390,
           "qty": 15,
           "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1786858727482,
+          "qty": 3,
+          "name": "Mikrotik mANTBox 15s"
         }
       ],
-      "comisionGestor": "",
+      "comisionGestor": "$280.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -3390,7 +3395,7 @@
       "ts": "2026-09-07T20:00:25.730Z",
       "total": "$140 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T00:12:20.949Z",
+      "seenTs": "2026-09-08T13:38:12.647Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Dangelo Saul",
@@ -18549,5 +18554,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T13:35:31.587Z"
+  "timestamp": "2026-09-08T13:38:57.361Z"
 }
