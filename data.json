@@ -610,7 +610,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 4,
+      "stock": 2,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -2601,8 +2601,8 @@
       "ts": "2026-09-09T16:31:04.415Z",
       "total": "$85 USD + 1200 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T18:14:36.542Z",
-      "status": "assigned",
+      "seenTs": "2026-09-09T18:36:00.616Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Miguel",
       "valeNum": 315,
@@ -2620,7 +2620,8 @@
       "assignedTs": "2026-09-09T16:31:22.698Z",
       "mensajeria": "1200",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-09T18:36:14.189Z",
+      "deliveredTs": "2026-09-09T18:36:11.483Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2633,7 +2634,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2759,8 +2760,8 @@
       "ts": "2026-09-09T14:17:20.753Z",
       "total": "$85 USD + 1250 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T14:39:33.439Z",
-      "status": "assigned",
+      "seenTs": "2026-09-09T18:32:36.756Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Diohermis Toirac",
       "valeNum": 312,
@@ -2777,6 +2778,8 @@
       "assignedTs": "2026-09-09T14:39:54.336Z",
       "mensajeria": "1250",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-09T18:32:58.999Z",
+      "deliveredTs": "2026-09-09T18:32:55.159Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
@@ -2789,7 +2792,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -19709,5 +19712,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T18:16:17.951Z"
+  "timestamp": "2026-09-09T18:37:15.016Z"
 }
