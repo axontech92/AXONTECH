@@ -2397,6 +2397,81 @@
   ],
   "vales": [
     {
+      "id": 1788971464414,
+      "ts": "2026-09-09T16:31:04.415Z",
+      "total": "$85 USD + 1200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-09T16:31:13.360Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Miguel",
+      "valeNum": 315,
+      "articulo": "×1 Bateria LUBRIM de 75A",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "5352493372",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: Miguel\n🔸Teléfono Cliente: 5352493372\n🔸Dirección Cliente: Calle 4 #914 entre 37 y 39, nuevo vedado\n🔸Mensajería/ costo: 1200\n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD + 1200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 9/9/2026, 12:31:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 4 #914 entre 37 y 39, nuevo vedado",
+      "precioUSD": "$85 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "1200",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true,
+      "assignedTs": "2026-09-09T16:31:22.698Z"
+    },
+    {
+      "id": 1788969787671,
+      "ts": "2026-09-09T16:03:07.680Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Gabriel moreno",
+      "valeNum": 314,
+      "articulo": "×1 Mikrotik Router Board 750gr",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "79777295919",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Gabriel moreno\n🔸Teléfono Cliente: 79777295919\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik Router Board 750gr\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 12:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785079709511,
+          "qty": 1,
+          "name": "Mikrotik Router Board 750gr"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788968161211,
       "ts": "2026-09-09T15:36:01.212Z",
       "total": "$100 USD",
@@ -2417,6 +2492,7 @@
       "reservado": false,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
+      "assignedTs": "2026-09-09T15:36:28.256Z",
       "mensajeria": "",
       "confirmedTs": null,
       "mensajeroId": 1786823798542,
@@ -2431,8 +2507,7 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
-      "synced": true,
-      "assignedTs": "2026-09-09T15:36:28.256Z"
+      "synced": true
     },
     {
       "id": 1788963494032,
@@ -2554,7 +2629,7 @@
       "ts": "2026-09-09T13:53:47.549Z",
       "total": "87900 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T15:26:59.380Z",
+      "seenTs": "2026-09-09T15:46:24.331Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dariel",
@@ -19462,5 +19537,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T15:37:01.951Z"
+  "timestamp": "2026-09-09T16:32:04.952Z"
 }
