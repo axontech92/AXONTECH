@@ -387,6 +387,14 @@
       "phone": "54822230",
       "initials": "KM",
       "password": "pbkdf2$100000$OpMIBlGVtZpbvWcUnY+e4g==$c6a8fdfdf780fd39a4897ee4e93fc44f6fe9fb0997e094dfc37d032f9ea5b20d"
+    },
+    {
+      "id": 1788962896804,
+      "name": "Hade",
+      "initials": "H",
+      "color": "#2563EB",
+      "password": "pbkdf2$100000$XT2yuUdUDYVIDQbT8YXyiQ==$f148909c80e38c78d23be5562726a4254f0d1faaf33a7d27e3ef0e6d58884bfd",
+      "phone": "5 0556368"
     }
   ],
   "mensajeros": [
@@ -2389,6 +2397,251 @@
   ],
   "vales": [
     {
+      "id": 1788962481117,
+      "ts": "2026-09-09T14:01:21.118Z",
+      "total": "$85 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Diohermis Toirac",
+      "valeNum": 311,
+      "articulo": "×1 Bateria LUBRIM de 75A",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "53301606",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Diohermis Toirac\n🔸Teléfono Cliente: 53301606\n🔸Dirección Cliente: Calzada del cerro 1962 e/ santa Teresa y zaragoza. Iglesia Bautista grande\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 10:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calzada del cerro 1962 e/ santa Teresa y zaragoza. Iglesia Bautista grande",
+      "precioUSD": "$85 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788962327585,
+      "ts": "2026-09-09T13:58:00.000Z",
+      "total": "$70 USD + 1250 MN",
+      "carnet": "",
+      "seenTs": "2026-09-09T14:01:52.530Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Luz Marina",
+      "valeNum": 310,
+      "articulo": "×1 Bateria LUBRIM de 60A",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "55378993",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Luz Marina\n🔸Teléfono Cliente: 55378993\n🔸Dirección Cliente: Que valor tiene una mensajer Calle H # 155 entre Calzada y 9 apto 201. , Plaza    Tel: 7832-1238 ( fijo)       5537-8993( móvil)\n🔸Mensajería/ costo: 1250\n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $85 USD + 1250 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 09:58\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Que valor tiene una mensajer Calle H # 155 entre Calzada y 9 apto 201. , Plaza    Tel: 7832-1238 ( fijo)       5537-8993( móvil)",
+      "precioUSD": "$70USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "1250",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788962027541,
+      "ts": "2026-09-09T13:53:47.549Z",
+      "total": "87900 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dariel",
+      "valeNum": 309,
+      "articulo": "×305 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "85400 MN",
+      "telefono": "5355172796",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Dariel\n🔸Teléfono Cliente: 5355172796\n🔸Dirección Cliente: Calle 6 entre 3 y 5 Miramar\n🔸Mensajería/ costo: 2500 cup\n🔸 Artículos y cantidades:\n  ×305 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 85400 MN\n🔸 Vuelto: \n🔸 Total a pagar: 87900 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 09:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 6 entre 3 y 5 Miramar",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2500 cup",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 305,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788961965253,
+      "ts": "2026-09-09T13:52:45.258Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "20 USD",
+      "cliente": "Edelaine",
+      "valeNum": 309,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
+      "garantia": "",
+      "gestorId": 1781761257111,
+      "precioMN": "",
+      "telefono": "5353583456",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Jennifer\n\n🔸 Nombre Cliente: Edelaine\n🔸Teléfono Cliente: 5353583456\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: 20 USD\n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 09:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788959575752,
+      "ts": "2026-09-09T13:12:55.756Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yahima León O Javier tamayo",
+      "valeNum": 308,
+      "articulo": "×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1786573707656,
+      "precioMN": "",
+      "telefono": "53218782",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Yahima León O Javier tamayo\n🔸Teléfono Cliente: 53218782\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 09:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788957834873,
+      "ts": "2026-09-09T12:43:54.882Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ruslan Jorgen",
+      "valeNum": 307,
+      "articulo": "×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1781761257118,
+      "precioMN": "",
+      "telefono": "5358464332",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Danny\n\n🔸 Nombre Cliente: Ruslan Jorgen\n🔸Teléfono Cliente: 5358464332\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 08:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788956055248,
+      "ts": "2026-09-09T12:14:15.257Z",
+      "total": "$150 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Asiel",
+      "valeNum": 306,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5358098856",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Asiel\n🔸Teléfono Cliente: 5358098856\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 08:14\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788909736314,
       "ts": "2026-09-08T23:22:16.320Z",
       "total": "$20 USD",
@@ -2422,6 +2675,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -2987,7 +3241,7 @@
       "ts": "2026-09-08T14:23:11.188Z",
       "total": "$130 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T00:12:11.537Z",
+      "seenTs": "2026-09-09T13:31:18.805Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Maria Migueli",
@@ -4855,7 +5109,7 @@
       "ts": "2026-09-06T17:52:00.000Z",
       "total": "$200 USD + 16500 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T19:29:47.649Z",
+      "seenTs": "2026-09-09T14:03:34.533Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Carlos Yoel",
@@ -19155,5 +19409,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T00:22:08.642Z"
+  "timestamp": "2026-09-09T14:09:16.952Z"
 }
