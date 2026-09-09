@@ -2435,6 +2435,45 @@
       "synced": true
     },
     {
+      "id": 1788982379411,
+      "ts": "2026-09-09T19:32:59.461Z",
+      "total": "$114 USD + 3800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-09T19:34:20.069Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Fidel",
+      "valeNum": 322,
+      "articulo": "×3 Toldo malla para sombra marrón 2×7m",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5353105623",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Fidel\n🔸Teléfono Cliente: 5353105623\n🔸Dirección Cliente: Entronque de la cujae avenida boyero\n🔸Mensajería/ costo: 3800\n🔸 Artículos y cantidades:\n  ×3 Toldo malla para sombra marrón 2×7m\n🔸Precio USD/ zelle: $114 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $114 USD + 3800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 15:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Entronque de la cujae avenida boyero",
+      "precioUSD": "$114 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-09T19:34:29.245Z",
+      "mensajeria": "3800",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
+      "comFijadaUSD": 9,
+      "valeProductos": [
+        {
+          "id": 1787952316385,
+          "qty": 3,
+          "name": "Toldo malla para sombra marrón 2×7m"
+        }
+      ],
+      "comisionGestor": "$9.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788979258958,
       "ts": "2026-09-09T18:40:58.976Z",
       "total": "$75 USD + 2750 MN",
@@ -2880,9 +2919,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-09T18:55:10.644Z"
+      "synced": true
     },
     {
       "id": 1788962027541,
@@ -3156,7 +3193,7 @@
       "ts": "2026-09-08T21:43:07.465Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T19:15:46.289Z",
+      "seenTs": "2026-09-09T19:19:43.777Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -19741,5 +19778,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T19:16:05.952Z"
+  "timestamp": "2026-09-09T19:35:29.951Z"
 }
