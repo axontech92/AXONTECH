@@ -391,10 +391,10 @@
     {
       "id": 1788962896804,
       "name": "Hade",
-      "initials": "H",
       "color": "#2563EB",
-      "password": "pbkdf2$100000$XT2yuUdUDYVIDQbT8YXyiQ==$f148909c80e38c78d23be5562726a4254f0d1faaf33a7d27e3ef0e6d58884bfd",
-      "phone": "5 0556368"
+      "phone": "5 0556368",
+      "initials": "H",
+      "password": "pbkdf2$100000$XT2yuUdUDYVIDQbT8YXyiQ==$f148909c80e38c78d23be5562726a4254f0d1faaf33a7d27e3ef0e6d58884bfd"
     }
   ],
   "mensajeros": [
@@ -3233,46 +3233,6 @@
       "recogidaTienda": true,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788877391180,
-      "ts": "2026-09-08T14:23:11.188Z",
-      "total": "$130 USD + 700 MN",
-      "carnet": "",
-      "seenTs": "2026-09-09T13:31:18.805Z",
-      "status": "assigned",
-      "vuelto": "",
-      "cliente": "Maria Migueli",
-      "valeNum": 287,
-      "articulo": "×1 Mikrotik Router Board 750gr",
-      "garantia": "",
-      "gestorId": 1781761257108,
-      "precioMN": "",
-      "telefono": "5355922544",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Maria Migueli\n🔸Teléfono Cliente: 5355922544\n🔸Dirección Cliente: Maria Miqueli, calle acosta no.307 e/picota y compostela. Arco de belen Dime mensajería cuánto es?\n🔸Mensajería/ costo: 700 cup\n🔸 Artículos y cantidades:\n  ×1 Mikrotik Router Board 750gr\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD + 700 MN\n\n*Garantía: \n*Fecha y hora de Venta: 08/09/2026 10:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Maria Miqueli, calle acosta no.307 e/picota y compostela. Arco de belen Dime mensajería cuánto es?",
-      "precioUSD": "$130 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "adminNotes": "PARA MAñANA",
-      "assignedTs": "2026-09-08T14:25:04.001Z",
-      "mensajeria": "700 cup",
-      "comFijadaMN": 0,
-      "mensajeroId": 1784476802516,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1785079709511,
-          "qty": 1,
-          "name": "Mikrotik Router Board 750gr"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -19409,5 +19369,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T14:09:16.952Z"
+  "timestamp": "2026-09-09T14:13:45.951Z"
 }
