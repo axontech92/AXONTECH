@@ -1781,7 +1781,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 29,
+      "stock": 19,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -3353,8 +3353,8 @@
       "ts": "2026-09-08T21:43:07.465Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T21:50:33.155Z",
-      "status": "pending",
+      "seenTs": "2026-09-09T22:00:56.626Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dachel",
       "valeNum": 302,
@@ -3369,6 +3369,7 @@
       "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-09T22:01:01.553Z",
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -3379,7 +3380,7 @@
       ],
       "comisionGestor": "$100.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -3387,7 +3388,7 @@
       "ts": "2026-09-08T18:18:15.868Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T19:15:43.115Z",
+      "seenTs": "2026-09-09T22:01:14.470Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noa",
@@ -19945,5 +19946,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T21:55:22.364Z"
+  "timestamp": "2026-09-09T22:02:01.953Z"
 }
