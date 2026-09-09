@@ -2397,10 +2397,49 @@
   ],
   "vales": [
     {
+      "id": 1788968161211,
+      "ts": "2026-09-09T15:36:01.212Z",
+      "total": "$100 USD",
+      "carnet": "",
+      "seenTs": "2026-09-09T15:36:10.224Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 313,
+      "articulo": "×1 Camara de Panel",
+      "garantia": "",
+      "gestorId": 1787703559029,
+      "precioMN": "",
+      "telefono": "0000000000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafelito\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 0000000000\n🔸Dirección Cliente: xxxxxxxxxxxxx\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Camara de Panel\n🔸Precio USD/ zelle: $100 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $100 USD\n\n*Garantía: \n*Fecha y hora de Venta: 9/9/2026, 11:36:01\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "xxxxxxxxxxxxx",
+      "precioUSD": "$100 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": 1786823798542,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1785079567810,
+          "qty": 1,
+          "name": "Camara de Panel"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true,
+      "assignedTs": "2026-09-09T15:36:28.256Z"
+    },
+    {
       "id": 1788963494032,
       "ts": "2026-09-09T14:18:14.052Z",
       "total": "$260 USD",
       "carnet": "",
+      "seenTs": "2026-09-09T15:14:30.662Z",
       "status": "pending",
       "vuelto": "0",
       "cliente": "Marlon Campver Mojena",
@@ -2417,6 +2456,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2437,7 +2477,7 @@
       "total": "$85 USD + 1250 MN",
       "carnet": "",
       "seenTs": "2026-09-09T14:39:33.439Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Diohermis Toirac",
       "valeNum": 312,
@@ -2451,8 +2491,10 @@
       "precioUSD": "$85 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-09T14:39:54.336Z",
       "mensajeria": "1250",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -2473,8 +2515,8 @@
       "ts": "2026-09-09T13:58:00.000Z",
       "total": "$70 USD + 1250 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T14:39:08.822Z",
-      "status": "pending",
+      "seenTs": "2026-09-09T14:40:13.509Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Luz Marina",
       "valeNum": 310,
@@ -2488,8 +2530,10 @@
       "precioUSD": "$70USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-09T14:40:50.134Z",
       "mensajeria": "1250",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -2510,7 +2554,7 @@
       "ts": "2026-09-09T13:53:47.549Z",
       "total": "87900 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T14:34:39.668Z",
+      "seenTs": "2026-09-09T15:26:59.380Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dariel",
@@ -2547,6 +2591,7 @@
       "ts": "2026-09-09T13:52:45.258Z",
       "total": "$180 USD",
       "carnet": "",
+      "seenTs": "2026-09-09T15:18:32.838Z",
       "status": "pending",
       "vuelto": "20 USD",
       "cliente": "Edelaine",
@@ -2563,6 +2608,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2582,6 +2628,7 @@
       "ts": "2026-09-09T13:12:55.756Z",
       "total": "$30 USD",
       "carnet": "",
+      "seenTs": "2026-09-09T15:17:50.842Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yahima León O Javier tamayo",
@@ -2598,6 +2645,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2617,6 +2665,7 @@
       "ts": "2026-09-09T12:43:54.882Z",
       "total": "$30 USD",
       "carnet": "",
+      "seenTs": "2026-09-09T15:17:37.661Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ruslan Jorgen",
@@ -2633,6 +2682,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2652,6 +2702,7 @@
       "ts": "2026-09-09T12:14:15.257Z",
       "total": "$150 USD",
       "carnet": "",
+      "seenTs": "2026-09-09T15:18:13.378Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Asiel",
@@ -2668,6 +2719,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2725,7 +2777,7 @@
       "ts": "2026-09-08T22:26:06.821Z",
       "total": "$90 USD + 5000 MN",
       "carnet": "",
-      "seenTs": "2026-09-08T22:26:33.755Z",
+      "seenTs": "2026-09-09T15:16:32.963Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Luis Ernesto",
@@ -2764,7 +2816,7 @@
       "ts": "2026-09-08T22:17:44.624Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T22:22:53.013Z",
+      "seenTs": "2026-09-09T15:16:01.486Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro",
@@ -2802,7 +2854,7 @@
       "ts": "2026-09-08T21:43:07.465Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T14:36:16.554Z",
+      "seenTs": "2026-09-09T15:27:02.632Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -2836,7 +2888,7 @@
       "ts": "2026-09-08T18:18:15.868Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T14:36:19.983Z",
+      "seenTs": "2026-09-09T15:27:06.568Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noa",
@@ -3578,7 +3630,7 @@
       "ts": "2026-09-07T23:30:09.824Z",
       "total": "$480 USD",
       "carnet": "",
-      "seenTs": "2026-09-08T14:04:06.801Z",
+      "seenTs": "2026-09-09T15:15:53.960Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -19410,5 +19462,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T14:39:48.679Z"
+  "timestamp": "2026-09-09T15:37:01.951Z"
 }
