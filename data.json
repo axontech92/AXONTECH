@@ -2111,7 +2111,7 @@
       "name": "Tp Link Archer ax55, ax3000",
       "catId": 10,
       "photo": "photos/p-1787375561622-74c433ef.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1787375561622-74c433ef.webp",
       "nombre": "Tp Link Archer ax55, ax3000",
       "precio": "$150",
@@ -2971,6 +2971,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3092,6 +3093,7 @@
       ],
       "comisionGestor": "$30.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3517,6 +3519,7 @@
       "comisionCedida": 70,
       "comisionGestor": "$310.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3566,6 +3569,7 @@
       ],
       "comisionGestor": "$40.00 USD + 3000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -19140,5 +19144,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-08T23:26:10.746Z"
+  "timestamp": "2026-09-09T00:08:37.729Z"
 }
