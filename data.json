@@ -1266,7 +1266,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 1160,
+      "stock": 855,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2438,7 +2438,8 @@
       "ts": "2026-09-09T18:40:58.976Z",
       "total": "$75 USD + 2750 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-09T18:44:59.726Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Yuniel",
       "valeNum": 321,
@@ -2450,10 +2451,13 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yuniel\n🔸Teléfono Cliente: 5355056125\n🔸Dirección Cliente: Hotel neptuno y tritón\n🔸Mensajería/ costo: 2750\n🔸Hora de entrega: 15:00\n🔸 Artículos y cantidades:\n  ×1 Soundcore Select 3\n🔸Precio USD/ zelle: $75 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $75 USD + 2750 MN\n\n*Garantía: Probar en la tienda\n*Fecha y hora de Venta: 09/09/2026 14:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Hotel neptuno y tritón",
       "precioUSD": "$75 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-09T18:45:16.980Z",
       "mensajeria": "2750",
       "comFijadaMN": 0,
-      "horaEntrega": "15:00",
+      "mensajeroId": 1788892462364,
+      "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
         {
@@ -2462,11 +2466,10 @@
           "name": "Soundcore Select 3"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2876,8 +2879,8 @@
       "ts": "2026-09-09T13:53:47.549Z",
       "total": "87900 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T18:13:37.571Z",
-      "status": "assigned",
+      "seenTs": "2026-09-09T18:44:23.759Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dariel",
       "valeNum": 309,
@@ -2893,6 +2896,8 @@
       "ubicacion": null,
       "assignedTs": "2026-09-09T14:35:13.683Z",
       "mensajeria": "2500 cup",
+      "confirmedTs": "2026-09-09T18:44:34.157Z",
+      "deliveredTs": "2026-09-09T18:44:32.289Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2904,7 +2909,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3140,7 +3145,7 @@
       "ts": "2026-09-08T21:43:07.465Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T18:13:28.131Z",
+      "seenTs": "2026-09-09T18:44:51.852Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -3174,7 +3179,7 @@
       "ts": "2026-09-08T18:18:15.868Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T15:27:06.568Z",
+      "seenTs": "2026-09-09T18:44:48.205Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noa",
@@ -19715,5 +19720,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T18:41:29.717Z"
+  "timestamp": "2026-09-09T18:45:35.951Z"
 }
