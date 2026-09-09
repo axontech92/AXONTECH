@@ -395,6 +395,14 @@
       "phone": "5 0556368",
       "initials": "H",
       "password": "pbkdf2$100000$XT2yuUdUDYVIDQbT8YXyiQ==$f148909c80e38c78d23be5562726a4254f0d1faaf33a7d27e3ef0e6d58884bfd"
+    },
+    {
+      "id": 1788989995203,
+      "name": "Kendry mensajero",
+      "color": "#7C3AED",
+      "phone": "56071250",
+      "initials": "KM",
+      "password": "pbkdf2$100000$5s8bdMNTSQ2SsY4jrqFlMw==$21d3e088e5165f5562a18ae6ac903cf69741c12847ab05f2cf2ad04d15480a41"
     }
   ],
   "mensajeros": [
@@ -1173,7 +1181,7 @@
       "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "catId": 20,
       "photo": "photos/img_1779208523952.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/img_1779208523952.webp",
       "nombre": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "precio": "$180",
@@ -2396,6 +2404,78 @@
     }
   ],
   "vales": [
+    {
+      "id": 1788990437262,
+      "ts": "2026-09-09T21:47:17.262Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-09-09T21:47:23.662Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 327,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
+      "garantia": "",
+      "gestorId": 1788989995203,
+      "precioMN": "",
+      "telefono": "0000000000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kendry mensajero\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 0000000000\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 9/9/2026, 17:47:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-09T21:47:27.508Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
+      "id": 1788989461506,
+      "ts": "2026-09-09T21:31:01.519Z",
+      "total": "7000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-09T21:44:32.243Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yohan",
+      "valeNum": 326,
+      "articulo": "×25 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786555619210,
+      "precioMN": "7000 MN",
+      "telefono": "5351287663",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Yohan\n🔸Teléfono Cliente: 5351287663\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×25 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 7000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 7000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 17:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 25,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1788988173836,
       "ts": "2026-09-09T21:09:33.915Z",
@@ -19858,5 +19938,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T21:18:08.182Z"
+  "timestamp": "2026-09-09T21:48:27.539Z"
 }
