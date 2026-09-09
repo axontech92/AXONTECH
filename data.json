@@ -1773,7 +1773,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 30,
+      "stock": 29,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2435,6 +2435,46 @@
       "synced": true
     },
     {
+      "id": 1788983172648,
+      "ts": "2026-09-09T19:46:12.659Z",
+      "total": "$160 USD + 2200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-09T20:57:28.369Z",
+      "status": "pending_payment",
+      "vuelto": "No",
+      "cliente": "Lagnier Blanco Alvarez",
+      "valeNum": 323,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5352545459",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Lagnier Blanco Alvarez\n🔸Teléfono Cliente: 5352545459\n🔸Dirección Cliente: Calle 11 #1910/4ta y acosta casino deportivo\n🔸Mensajería/ costo: 2200\n🔸Hora de entrega: 16:45\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $160 USD + 2200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 15:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 11 #1910/4ta y acosta casino deportivo",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-09T19:51:19.451Z",
+      "mensajeria": "2200",
+      "comFijadaMN": 0,
+      "deliveredTs": "2026-09-09T20:57:35.040Z",
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788982379411,
       "ts": "2026-09-09T19:32:59.461Z",
       "total": "$114 USD + 3800 MN",
@@ -3068,43 +3108,6 @@
         }
       ],
       "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1788956055248,
-      "ts": "2026-09-09T12:14:15.257Z",
-      "total": "$150 USD",
-      "carnet": "",
-      "seenTs": "2026-09-09T19:14:54.499Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Asiel",
-      "valeNum": 306,
-      "articulo": "×1 Nanostation m2 loco",
-      "garantia": "",
-      "gestorId": 1784476036044,
-      "precioMN": "",
-      "telefono": "5358098856",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Asiel\n🔸Teléfono Cliente: 5358098856\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 08:14\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$150 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786858233037,
-          "qty": 1,
-          "name": "Nanostation m2 loco"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -19778,5 +19781,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T19:35:29.951Z"
+  "timestamp": "2026-09-09T20:58:35.064Z"
 }
