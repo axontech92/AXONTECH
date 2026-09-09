@@ -1781,7 +1781,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 19,
+      "stock": 18,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2405,6 +2405,78 @@
   ],
   "vales": [
     {
+      "id": 1788992799862,
+      "ts": "2026-09-09T22:26:39.876Z",
+      "total": "$250 USD + 2000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "William Lazaro",
+      "valeNum": 328,
+      "articulo": "×1 Ubiquiti LiteAP ac (LAP-120)",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5358691080",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: William Lazaro\n🔸Teléfono Cliente: 5358691080\n🔸Dirección Cliente: Calle G/1ra y 2da\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n🔸Precio USD/ zelle: $250 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $250 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 18:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle G/1ra y 2da",
+      "precioUSD": "$250 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509303890,
+          "qty": 1,
+          "name": "Ubiquiti LiteAP ac (LAP-120)"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788992644320,
+      "ts": "2026-09-09T22:24:04.326Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-09-09T22:25:52.759Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Alain",
+      "valeNum": 328,
+      "articulo": "×1 Router KUWIFI de linea de 1.150MBPS",
+      "garantia": "",
+      "gestorId": 1784475902029,
+      "precioMN": "",
+      "telefono": "5354132967",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Maykel\n\n🔸 Nombre Cliente: Alain\n🔸Teléfono Cliente: 5354132967\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 09:30\n🔸 Artículos y cantidades:\n  ×1 Router KUWIFI de linea de 1.150MBPS\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 18:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 1,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788990437262,
       "ts": "2026-09-09T21:47:17.262Z",
       "total": "$180 USD",
@@ -2481,8 +2553,8 @@
       "ts": "2026-09-09T21:09:33.915Z",
       "total": "$160 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T21:13:28.942Z",
-      "status": "assigned",
+      "seenTs": "2026-09-09T22:29:00.957Z",
+      "status": "confirmed",
       "vuelto": "no",
       "cliente": "Jenny Herome Ramirez Pabon",
       "valeNum": 325,
@@ -2499,6 +2571,8 @@
       "assignedTs": "2026-09-09T21:13:59.523Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-09T22:29:13.146Z",
+      "deliveredTs": "2026-09-09T22:29:10.956Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2511,9 +2585,11 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-09T22:29:30.243Z"
     },
     {
       "id": 1788987875667,
@@ -2595,7 +2671,7 @@
       "ts": "2026-09-09T19:46:12.659Z",
       "total": "$160 USD + 2200 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T20:57:28.369Z",
+      "seenTs": "2026-09-09T22:29:36.073Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Lagnier Blanco Alvarez",
@@ -19946,5 +20022,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T22:02:01.953Z"
+  "timestamp": "2026-09-09T22:30:30.254Z"
 }
