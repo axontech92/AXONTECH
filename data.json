@@ -560,7 +560,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -2762,7 +2762,7 @@
       "ts": "2026-09-09T14:18:14.052Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T18:13:03.563Z",
+      "seenTs": "2026-09-09T18:55:53.649Z",
       "status": "pending",
       "vuelto": "0",
       "cliente": "Marlon Campver Mojena",
@@ -2840,8 +2840,8 @@
       "ts": "2026-09-09T13:58:00.000Z",
       "total": "$70 USD + 1250 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T14:40:13.509Z",
-      "status": "assigned",
+      "seenTs": "2026-09-09T18:54:52.516Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Luz Marina",
       "valeNum": 310,
@@ -2858,6 +2858,8 @@
       "assignedTs": "2026-09-09T14:40:50.134Z",
       "mensajeria": "1250",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-09T18:55:09.035Z",
+      "deliveredTs": "2026-09-09T18:55:06.833Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
@@ -2870,9 +2872,11 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-09T18:55:10.644Z"
     },
     {
       "id": 1788962027541,
@@ -2993,7 +2997,7 @@
       "ts": "2026-09-09T12:43:54.882Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T15:17:37.661Z",
+      "seenTs": "2026-09-09T18:55:36.757Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ruslan Jorgen",
@@ -19720,5 +19724,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T18:45:35.951Z"
+  "timestamp": "2026-09-09T18:56:10.657Z"
 }
