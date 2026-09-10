@@ -1181,7 +1181,7 @@
       "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "catId": 20,
       "photo": "photos/img_1779208523952.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1779208523952.webp",
       "nombre": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "precio": "$180",
@@ -2405,6 +2405,41 @@
   ],
   "vales": [
     {
+      "id": 1789054984540,
+      "ts": "2026-09-10T15:43:04.545Z",
+      "total": "$260 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Liuse Borroto",
+      "valeNum": 340,
+      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
+      "garantia": "",
+      "gestorId": 1781761257108,
+      "precioMN": "",
+      "telefono": "5353304017",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Liuse Borroto\n🔸Teléfono Cliente: 5353304017\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 10/09/2026 11:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$260 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789053437416,
       "ts": "2026-09-10T15:17:17.436Z",
       "total": "$180 USD",
@@ -2484,7 +2519,7 @@
       "total": "$180 USD",
       "carnet": "",
       "seenTs": "2026-09-10T15:41:46.318Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Raul",
       "valeNum": 336,
@@ -2500,6 +2535,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-10T15:46:34.265Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2511,7 +2547,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2901,9 +2937,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-10T15:13:33.282Z"
+      "synced": true
     },
     {
       "id": 1788992644320,
@@ -20459,5 +20493,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T15:42:50.294Z"
+  "timestamp": "2026-09-10T15:47:34.294Z"
 }
