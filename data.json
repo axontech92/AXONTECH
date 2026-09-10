@@ -599,7 +599,7 @@
       "name": "Switch dE 8 puertos",
       "catId": 10,
       "photo": "photos/img_1778102214012.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1778102214012.webp",
       "nombre": "Switch dE 8 puertos",
       "precio": "$30",
@@ -2409,7 +2409,7 @@
       "ts": "2026-09-10T16:55:35.645Z",
       "total": "$40 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T17:00:58.975Z",
+      "seenTs": "2026-09-10T17:02:51.523Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "XXXX",
@@ -2448,7 +2448,7 @@
       "ts": "2026-09-10T16:53:29.703Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T17:00:59.693Z",
+      "seenTs": "2026-09-10T17:02:46.039Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -2708,7 +2708,7 @@
       "ts": "2026-09-10T14:40:15.182Z",
       "total": "$320 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T16:52:57.521Z",
+      "seenTs": "2026-09-10T17:02:39.283Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Luisito",
@@ -3342,7 +3342,7 @@
       "ts": "2026-09-09T18:40:58.976Z",
       "total": "$75 USD + 2750 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T16:52:57.931Z",
+      "seenTs": "2026-09-10T17:02:33.823Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yuniel",
@@ -3914,8 +3914,8 @@
       "ts": "2026-09-09T12:43:54.882Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T16:08:41.676Z",
-      "status": "pending",
+      "seenTs": "2026-09-10T17:18:09.128Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ruslan Jorgen",
       "valeNum": 307,
@@ -3931,6 +3931,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-10T17:19:33.200Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -3942,7 +3943,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4067,7 +4068,7 @@
       "ts": "2026-09-08T18:18:15.868Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T16:46:48.880Z",
+      "seenTs": "2026-09-10T17:18:01.383Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noa",
@@ -20616,5 +20617,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T17:02:08.757Z"
+  "timestamp": "2026-09-10T17:20:33.294Z"
 }
