@@ -2405,11 +2405,82 @@
   ],
   "vales": [
     {
+      "id": 1789000427870,
+      "ts": "2026-09-10T00:33:47.880Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "0",
+      "cliente": "Stephania",
+      "valeNum": 330,
+      "articulo": "×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1787851412069,
+      "precioMN": "",
+      "telefono": "5355708683",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yoeni\n\n🔸 Nombre Cliente: Stephania\n🔸Teléfono Cliente: 5355708683\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 20:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1788993045271,
+      "ts": "2026-09-09T22:30:45.273Z",
+      "total": "$200 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Odette",
+      "valeNum": 329,
+      "articulo": "×2 Camara de Panel",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "54226539",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Odette\n🔸Teléfono Cliente: 54226539\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Camara de Panel\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 18:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1785079567810,
+          "qty": 2,
+          "name": "Camara de Panel"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1788992799862,
       "ts": "2026-09-09T22:26:39.876Z",
       "total": "$250 USD + 2000 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-09T22:32:23.568Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "William Lazaro",
       "valeNum": 328,
@@ -2423,8 +2494,11 @@
       "precioUSD": "$250 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-09T22:32:38.844Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2444,7 +2518,7 @@
       "ts": "2026-09-09T22:24:04.326Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-09T22:25:52.759Z",
+      "seenTs": "2026-09-10T02:52:32.343Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Alain",
@@ -2514,41 +2588,6 @@
       "synced": true
     },
     {
-      "id": 1788989461506,
-      "ts": "2026-09-09T21:31:01.519Z",
-      "total": "7000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-09T21:44:32.243Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Yohan",
-      "valeNum": 326,
-      "articulo": "×25 Cable de red categoría 6",
-      "garantia": "",
-      "gestorId": 1786555619210,
-      "precioMN": "7000 MN",
-      "telefono": "5351287663",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Yohan\n🔸Teléfono Cliente: 5351287663\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×25 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 7000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 7000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 09/09/2026 17:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787349543585,
-          "qty": 25,
-          "name": "Cable de red categoría 6"
-        }
-      ],
-      "comisionGestor": "",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1788988173836,
       "ts": "2026-09-09T21:09:33.915Z",
       "total": "$160 USD + 2500 MN",
@@ -2587,9 +2626,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-09T22:29:30.243Z"
+      "synced": true
     },
     {
       "id": 1788987875667,
@@ -2671,7 +2708,7 @@
       "ts": "2026-09-09T19:46:12.659Z",
       "total": "$160 USD + 2200 MN",
       "carnet": "",
-      "seenTs": "2026-09-09T22:29:36.073Z",
+      "seenTs": "2026-09-10T02:52:22.872Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Lagnier Blanco Alvarez",
@@ -20022,5 +20059,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-09T22:30:30.254Z"
+  "timestamp": "2026-09-10T02:53:56.573Z"
 }
