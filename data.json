@@ -2640,7 +2640,7 @@
       "ts": "2026-09-10T18:51:14.210Z",
       "total": "32000 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T21:33:45.083Z",
+      "seenTs": "2026-09-10T23:04:56.423Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Luisito",
@@ -2837,7 +2837,7 @@
       "ts": "2026-09-10T16:53:29.703Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T21:33:44.141Z",
+      "seenTs": "2026-09-10T23:04:56.921Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -3088,7 +3088,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3129,7 +3131,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3700,7 +3704,7 @@
       "ts": "2026-09-09T18:40:58.976Z",
       "total": "$75 USD + 2750 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T21:33:35.174Z",
+      "seenTs": "2026-09-10T21:35:26.298Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yuniel",
@@ -4426,7 +4430,7 @@
       "ts": "2026-09-08T18:18:15.868Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T21:33:42.591Z",
+      "seenTs": "2026-09-10T21:35:32.188Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noa",
@@ -20975,5 +20979,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T21:34:32.571Z"
+  "timestamp": "2026-09-10T23:09:11.013Z"
 }
