@@ -2405,6 +2405,45 @@
   ],
   "vales": [
     {
+      "id": 1789063865247,
+      "ts": "2026-09-10T18:11:05.253Z",
+      "total": "$28 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-10T18:12:59.555Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Ignacio",
+      "valeNum": 344,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5358344304",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Ignacio\n🔸Teléfono Cliente: 5358344304\n🔸Dirección Cliente: Conill A no 22 apto 2 entre Conill y 45. Nuevo Vedado.\n🔸Mensajería/ costo: 2000\n🔸Hora de entrega: 14:07\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 10/09/2026 14:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Conill A no 22 apto 2 entre Conill y 45. Nuevo Vedado.",
+      "precioUSD": "$28 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-10T18:13:05.059Z",
+      "mensajeria": "2000",
+      "comFijadaMN": 3,
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "3 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789059335625,
       "ts": "2026-09-10T16:55:35.645Z",
       "total": "$40 USD + 3000 MN",
@@ -20617,5 +20656,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T17:20:33.294Z"
+  "timestamp": "2026-09-10T18:14:05.295Z"
 }
