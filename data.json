@@ -2405,6 +2405,43 @@
   ],
   "vales": [
     {
+      "id": 1789057528345,
+      "ts": "2026-09-10T16:25:28.360Z",
+      "total": "$90 USD",
+      "carnet": "",
+      "seenTs": "2026-09-10T16:27:37.988Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Marco",
+      "valeNum": 341,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5355670915",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Marco\n🔸Teléfono Cliente: 5355670915\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 10/09/2026 12:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$90 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789054984540,
       "ts": "2026-09-10T15:43:04.545Z",
       "total": "$260 USD",
@@ -2594,7 +2631,7 @@
       "ts": "2026-09-10T14:40:15.182Z",
       "total": "$320 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T16:06:32.272Z",
+      "seenTs": "2026-09-10T16:27:50.029Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Luisito",
@@ -3953,7 +3990,7 @@
       "ts": "2026-09-08T18:18:15.868Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T16:06:47.908Z",
+      "seenTs": "2026-09-10T16:27:35.759Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noa",
@@ -20502,5 +20539,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T16:11:03.294Z"
+  "timestamp": "2026-09-10T16:28:47.296Z"
 }
