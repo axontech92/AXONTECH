@@ -2027,7 +2027,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 40,
+      "stock": 39,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2409,8 +2409,8 @@
       "ts": "2026-09-10T16:25:28.360Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T16:27:37.988Z",
-      "status": "pending",
+      "seenTs": "2026-09-10T16:36:16.458Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Marco",
       "valeNum": 341,
@@ -2437,9 +2437,10 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "confirmedTs": "2026-09-10T16:37:30.105Z"
     },
     {
       "id": 1789054984540,
@@ -2750,7 +2751,7 @@
       "ts": "2026-09-10T13:15:13.383Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T16:06:59.277Z",
+      "seenTs": "2026-09-10T16:29:12.014Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pavel",
@@ -20539,5 +20540,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T16:28:47.296Z"
+  "timestamp": "2026-09-10T16:38:30.295Z"
 }
