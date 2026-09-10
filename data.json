@@ -1746,7 +1746,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -2814,8 +2814,8 @@
       "ts": "2026-09-09T22:26:39.876Z",
       "total": "$250 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T13:29:45.306Z",
-      "status": "assigned",
+      "seenTs": "2026-09-10T15:13:24.130Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "William Lazaro",
       "valeNum": 328,
@@ -2832,6 +2832,8 @@
       "assignedTs": "2026-09-09T22:32:38.844Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-10T15:13:32.119Z",
+      "deliveredTs": "2026-09-10T15:13:29.623Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2844,16 +2846,18 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-10T15:13:33.282Z"
     },
     {
       "id": 1788992644320,
       "ts": "2026-09-09T22:24:04.326Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T13:32:26.619Z",
+      "seenTs": "2026-09-10T14:55:00.516Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Alain",
@@ -20410,5 +20414,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T14:54:52.803Z"
+  "timestamp": "2026-09-10T15:14:33.295Z"
 }
