@@ -2027,7 +2027,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 42,
+      "stock": 40,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2404,6 +2404,43 @@
     }
   ],
   "vales": [
+    {
+      "id": 1789014093081,
+      "ts": "2026-09-10T04:21:33.082Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-09-10T04:22:15.532Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 331,
+      "articulo": "×2 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1786162048078,
+      "precioMN": "",
+      "telefono": "0000000000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: David podólogo\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 0000000000\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 10/9/2026, 0:21:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-10T04:22:28.636Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 2,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
     {
       "id": 1789000427870,
       "ts": "2026-09-10T00:33:47.880Z",
@@ -20059,5 +20096,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T04:05:58.953Z"
+  "timestamp": "2026-09-10T04:23:28.666Z"
 }
