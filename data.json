@@ -2405,6 +2405,82 @@
   ],
   "vales": [
     {
+      "id": 1789064672481,
+      "ts": "2026-09-10T18:24:32.504Z",
+      "total": "$180 USD + 5500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-10T18:26:02.876Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Antonio",
+      "valeNum": 346,
+      "articulo": "×1 Inversor Tataliken de 24V 4000W",
+      "garantia": "",
+      "gestorId": 1781761257116,
+      "precioMN": "",
+      "telefono": "5355585778",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Emily\n\n🔸 Nombre Cliente: Antonio\n🔸Teléfono Cliente: 5355585778\n🔸Dirección Cliente: Ave.71 #3005 /30a y 30b,  frente terreno fútbol a lado del judo\n🔸Mensajería/ costo: 5500\n🔸Hora de entrega: 14:24\n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 5500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 10/09/2026 14:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Ave.71 #3005 /30a y 30b,  frente terreno fútbol a lado del judo",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "5500",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1777924118004,
+          "qty": 1,
+          "name": "Inversor Tataliken de 24V 4000W"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789064530720,
+      "ts": "2026-09-10T18:22:10.726Z",
+      "total": "$70 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-10T18:26:30.380Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Jesus",
+      "valeNum": 345,
+      "articulo": "×1 Transfer 3 polos 220v",
+      "garantia": "",
+      "gestorId": 1781761257106,
+      "precioMN": "",
+      "telefono": "53330898",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Lily\n\n🔸 Nombre Cliente: Jesus\n🔸Teléfono Cliente: 53330898\n🔸Dirección Cliente: San benigno #562 e/Santa irene y san bernardino\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 Transfer 3 polos 220v\n🔸Precio USD/ zelle: $70 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $70 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 10/09/2026 14:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "San benigno #562 e/Santa irene y san bernardino",
+      "precioUSD": "$70 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-10T18:26:27.898Z",
+      "mensajeria": "2500",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1785079428055,
+          "qty": 1,
+          "name": "Transfer 3 polos 220v"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789063865247,
       "ts": "2026-09-10T18:11:05.253Z",
       "total": "$28 USD + 2000 MN",
@@ -20656,5 +20732,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T18:14:05.295Z"
+  "timestamp": "2026-09-10T18:27:28.294Z"
 }
