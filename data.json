@@ -3076,23 +3076,23 @@
     },
     {
       "id": 1788968161211,
-      "ts": "2026-09-09T15:36:01.212Z",
-      "total": "$100 USD",
+      "ts": "2026-09-09T15:36:00.000Z",
+      "total": "$125 USD",
       "carnet": "",
       "seenTs": "2026-09-09T19:09:09.527Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "X",
       "valeNum": 313,
-      "articulo": "×1 Camara de Panel",
+      "articulo": "×1 Camara de Panel + camara de 25",
       "garantia": "",
       "gestorId": 1787703559029,
       "precioMN": "",
       "telefono": "0000000000",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafelito\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 0000000000\n🔸Dirección Cliente: xxxxxxxxxxxxx\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Camara de Panel\n🔸Precio USD/ zelle: $100 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $100 USD\n\n*Garantía: \n*Fecha y hora de Venta: 9/9/2026, 11:36:01\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "xxxxxxxxxxxxx",
-      "precioUSD": "$100 USD",
-      "reservado": false,
+      "precioUSD": "$100 + 25 USD",
+      "reservado": true,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
       "assignedTs": "2026-09-09T15:36:28.256Z",
@@ -20059,5 +20059,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-10T02:53:56.573Z"
+  "timestamp": "2026-09-10T04:05:58.953Z"
 }
