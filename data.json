@@ -2405,6 +2405,51 @@
   ],
   "vales": [
     {
+      "id": 1789155503984,
+      "ts": "2026-09-11T19:38:24.012Z",
+      "total": "$1275 USD + 3250 MN",
+      "carnet": "",
+      "seenTs": "2026-09-11T19:39:36.657Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Yasmani",
+      "valeNum": 354,
+      "articulo": "×1 Cargador inteligente VEVOR de 6,12 y24V 35A / ×10 Cargador VEVOR 6v, 12v y 24v,  30A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "56342033",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yasmani\n🔸Teléfono Cliente: 56342033\n🔸Dirección Cliente: Calle cantera y final Parraga\n🔸Mensajería/ costo: 3250 cup\n🔸 Artículos y cantidades:\n  ×1 Cargador inteligente VEVOR de 6,12 y24V 35A\n  ×10 Cargador VEVOR 6v, 12v y 24v,  30A\n🔸Precio USD/ zelle: $1275 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1275 USD + 3250 MN\n🔸 Rebaja: −$55 USD\n🔸 Total a pagar: $1220 USD + 3250 MN\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 15:37\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle cantera y final Parraga",
+      "precioUSD": "$1275 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-11T19:39:52.982Z",
+      "mensajeria": "3250 cup",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
+      "comFijadaUSD": 55,
+      "valeProductos": [
+        {
+          "id": 1786160284390,
+          "qty": 1,
+          "name": "Cargador inteligente VEVOR de 6,12 y24V 35A"
+        },
+        {
+          "id": 1787375387767,
+          "qty": 10,
+          "name": "Cargador VEVOR 6v, 12v y 24v,  30A"
+        }
+      ],
+      "comisionCedida": 55,
+      "comisionGestor": "$55.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789143858197,
       "ts": "2026-09-11T16:24:18.205Z",
       "total": "$260 USD + 4000 MN",
@@ -3724,8 +3769,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4039,8 +4085,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -21413,5 +21460,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-11T19:12:29.991Z"
+  "timestamp": "2026-09-11T19:40:53.006Z"
 }
