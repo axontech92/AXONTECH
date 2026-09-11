@@ -2560,7 +2560,7 @@
       "ts": "2026-09-11T02:29:00.518Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T13:23:41.116Z",
+      "seenTs": "2026-09-11T13:48:11.032Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Fidelky Alcantara",
@@ -3211,8 +3211,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6779,8 +6780,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -21260,5 +21262,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-11T13:48:01.703Z"
+  "timestamp": "2026-09-11T14:18:59.135Z"
 }
