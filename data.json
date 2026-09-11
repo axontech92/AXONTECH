@@ -505,6 +505,11 @@
       "id": 1788892462364,
       "name": "Boris",
       "phone": "5354011986"
+    },
+    {
+      "id": 1789169079737,
+      "name": "Harvin gestor",
+      "phone": "5354748437"
     }
   ],
   "productos": [
@@ -2410,7 +2415,7 @@
       "total": "$80 USD + 600 MN",
       "carnet": "",
       "seenTs": "2026-09-11T23:22:31.378Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "JUAN LUIS",
       "valeNum": 358,
@@ -2425,9 +2430,10 @@
       "reservado": false,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
+      "assignedTs": "2026-09-11T23:24:56.583Z",
       "mensajeria": "600",
       "confirmedTs": null,
-      "mensajeroId": null,
+      "mensajeroId": 1789169079737,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -21583,5 +21589,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-11T23:23:27.057Z"
+  "timestamp": "2026-09-11T23:25:39.742Z"
 }
