@@ -2520,6 +2520,42 @@
       "synced": true
     },
     {
+      "id": 1789094501483,
+      "ts": "2026-09-11T02:41:41.495Z",
+      "total": "$200 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-11T13:47:05.070Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Rolando",
+      "valeNum": 354,
+      "articulo": "×4 ZOSI - Camara de seguridad CCTV",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352915590",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rolando\n🔸Teléfono Cliente: 5352915590\n🔸Dirección Cliente: Calle 75 marianao\n🔸Mensajería/ costo: 2500 cup\n🔸 Artículos y cantidades:\n  ×4 ZOSI - Camara de seguridad CCTV\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 10/09/2026 22:41\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 75 marianao",
+      "precioUSD": "$200 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-11T13:47:01.679Z",
+      "mensajeria": "2500 cup",
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1780344659047,
+          "qty": 4,
+          "name": "ZOSI - Camara de seguridad CCTV"
+        }
+      ],
+      "comisionGestor": "6000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1789093740512,
       "ts": "2026-09-11T02:29:00.518Z",
       "total": "$130 USD",
@@ -2867,7 +2903,7 @@
       "ts": "2026-09-10T18:51:14.210Z",
       "total": "32000 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T23:04:56.423Z",
+      "seenTs": "2026-09-11T13:47:26.214Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Luisito",
@@ -3070,7 +3106,7 @@
       "ts": "2026-09-10T16:53:29.703Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T23:04:56.921Z",
+      "seenTs": "2026-09-11T13:47:14.724Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -3946,7 +3982,7 @@
       "ts": "2026-09-09T18:40:58.976Z",
       "total": "$75 USD + 2750 MN",
       "carnet": "",
-      "seenTs": "2026-09-10T21:35:26.298Z",
+      "seenTs": "2026-09-11T13:47:17.668Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yuniel",
@@ -21224,5 +21260,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-11T13:25:25.195Z"
+  "timestamp": "2026-09-11T13:48:01.703Z"
 }
