@@ -1156,7 +1156,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 35,
+      "stock": 34,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2994,8 +2994,8 @@
       "ts": "2026-09-11T15:53:42.330Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T14:33:09.956Z",
-      "status": "pending",
+      "seenTs": "2026-09-12T15:38:57.751Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Roben",
       "valeNum": 353,
@@ -3010,6 +3010,7 @@
       "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-12T15:39:23.492Z",
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -3020,7 +3021,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -21772,5 +21773,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T15:36:58.977Z"
+  "timestamp": "2026-09-12T15:40:23.825Z"
 }
