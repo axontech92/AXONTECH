@@ -1528,7 +1528,7 @@
       "name": "Router ASUS AX1800",
       "catId": 10,
       "photo": "photos/img_1785078992522.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1785078992522.webp",
       "nombre": "Router ASUS AX1800",
       "precio": "$150",
@@ -2410,6 +2410,113 @@
   ],
   "vales": [
     {
+      "id": 1789179727766,
+      "ts": "2026-09-12T02:22:07.772Z",
+      "total": "$150 USD + 4300 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Leidys",
+      "valeNum": 360,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5350429320",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Leidys\n🔸Teléfono Cliente: 5350429320\n🔸Dirección Cliente: Calle 91 / 220 y 222 # 22031 la lisa\n🔸Mensajería/ costo: 4300\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 4300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 22:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 91 / 220 y 222 # 22031 la lisa",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "4300",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789178479678,
+      "ts": "2026-09-12T02:01:19.692Z",
+      "total": "$10 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "0",
+      "cliente": "Alex Cuspinera",
+      "valeNum": 357,
+      "articulo": "×1 Gorro de buseo",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "5352683688",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Alex Cuspinera\n🔸Teléfono Cliente: 5352683688\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Gorro de buseo\n🔸Precio USD/ zelle: $10 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $10 USD\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 22:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$10 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1780887557334,
+          "qty": 1,
+          "name": "Gorro de buseo"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789169785401,
+      "ts": "2026-09-11T23:36:25.410Z",
+      "total": "$46 USD",
+      "carnet": "",
+      "seenTs": "2026-09-11T23:40:24.321Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Cidelia",
+      "valeNum": 359,
+      "articulo": "×2 Toldo para sombra marrón 2 x 4",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5352916245",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Cidelia\n🔸Teléfono Cliente: 5352916245\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Toldo para sombra marrón 2 x 4\n🔸Precio USD/ zelle: $46 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $46 USD\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 19:35\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$46 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 6,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336859697,
+          "qty": 2,
+          "name": "Toldo para sombra marrón 2 x 4"
+        }
+      ],
+      "comisionGestor": "6 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789168947026,
       "ts": "2026-09-11T23:22:27.027Z",
       "total": "$80 USD + 600 MN",
@@ -2445,6 +2552,44 @@
       "comisionGestor": "6000 MN",
       "recogidaTienda": false,
       "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1789160835684,
+      "ts": "2026-09-11T21:07:15.694Z",
+      "total": "$150 USD",
+      "carnet": "",
+      "seenTs": "2026-09-12T03:56:03.481Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Nestor",
+      "valeNum": 357,
+      "articulo": "×1 Router ASUS AX1800",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5351032526",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Nestor\n🔸Teléfono Cliente: 5351032526\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router ASUS AX1800\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 17:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-12T03:56:32.601Z",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785078992522,
+          "qty": 1,
+          "name": "Router ASUS AX1800"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
@@ -2653,7 +2798,7 @@
       "ts": "2026-09-11T15:09:14.293Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T17:46:31.191Z",
+      "seenTs": "2026-09-12T02:48:14.432Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Armando",
@@ -2728,7 +2873,7 @@
       "ts": "2026-09-11T12:57:25.968Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T17:46:21.837Z",
+      "seenTs": "2026-09-12T03:57:04.606Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yadira",
@@ -3067,7 +3212,7 @@
       "ts": "2026-09-10T19:23:44.008Z",
       "total": "$35 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T17:46:38.782Z",
+      "seenTs": "2026-09-12T03:57:31.374Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos Rojos",
@@ -3097,7 +3242,8 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1789067398667,
@@ -3430,7 +3576,7 @@
       "ts": "2026-09-10T16:53:29.703Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T17:51:32.255Z",
+      "seenTs": "2026-09-11T23:41:26.446Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -3584,7 +3730,7 @@
       "ts": "2026-09-10T14:52:00.000Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T23:10:01.285Z",
+      "seenTs": "2026-09-12T02:48:40.782Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Guillermo",
@@ -4607,7 +4753,7 @@
       "ts": "2026-09-09T15:36:00.000Z",
       "total": "$125 USD",
       "carnet": "",
-      "seenTs": "2026-09-10T19:47:09.023Z",
+      "seenTs": "2026-09-12T02:51:02.921Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "X",
@@ -21590,5 +21736,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-11T23:27:38.683Z"
+  "timestamp": "2026-09-12T03:57:32.633Z"
 }
