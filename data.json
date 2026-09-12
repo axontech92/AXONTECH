@@ -3058,6 +3058,7 @@
       ],
       "comisionGestor": "6000 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -21777,5 +21778,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T04:26:40.630Z"
+  "timestamp": "2026-09-12T04:30:19.929Z"
 }
