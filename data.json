@@ -2734,6 +2734,7 @@
       "confirmedTs": "2026-09-12T03:59:30.490Z",
       "deliveredTs": "2026-09-12T03:59:28.054Z",
       "mensajeroId": 1784476802516,
+      "rebajaAdmin": 0,
       "seenByAdmin": true,
       "comFijadaUSD": 55,
       "valeProductos": [
@@ -2752,6 +2753,7 @@
       "comisionGestor": "$55.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
+      "rebajaAdminMoneda": "USD",
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -21774,5 +21776,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T04:11:47.568Z"
+  "timestamp": "2026-09-12T04:21:58.629Z"
 }
