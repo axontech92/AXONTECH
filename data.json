@@ -860,7 +860,7 @@
       "name": "Router Tenda AX12 pro AX3000",
       "catId": 10,
       "photo": "photos/img_1785077900654.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1785077900654.webp",
       "nombre": "Router Tenda AX12 pro AX3000",
       "precio": "$130",
@@ -2409,6 +2409,48 @@
     }
   ],
   "vales": [
+    {
+      "id": 1789228666443,
+      "ts": "2026-09-12T15:57:00.000Z",
+      "total": "$260 USD",
+      "carnet": "",
+      "seenTs": "2026-09-12T16:03:00.674Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eric Ruiz",
+      "valeNum": 367,
+      "articulo": "×1 Router Tenda AX12 pro AX3000 / ×1 Mikrotik Router Board 750gr",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "50620908",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Eric Ruiz\n🔸Teléfono Cliente: 50620908\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router Tenda AX12 pro AX3000\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/09/2026 11:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$260 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1785077900654,
+          "qty": 1,
+          "name": "Router Tenda AX12 pro AX3000"
+        },
+        {
+          "id": 1785079709511,
+          "qty": 1,
+          "name": "Mikrotik Router Board 750gr"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1789226830533,
       "ts": "2026-09-12T15:27:00.000Z",
@@ -21774,5 +21816,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T15:53:14.778Z"
+  "timestamp": "2026-09-12T16:05:23.047Z"
 }
