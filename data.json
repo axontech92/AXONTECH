@@ -2410,6 +2410,45 @@
   ],
   "vales": [
     {
+      "id": 1789238647430,
+      "ts": "2026-09-12T18:44:07.435Z",
+      "total": "$150 USD + 750 MN",
+      "carnet": "",
+      "seenTs": "2026-09-12T18:47:44.712Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Leonel",
+      "valeNum": 369,
+      "articulo": "×1 Router ASUS AX1800",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5352901738",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Leonel\n🔸Teléfono Cliente: 5352901738\n🔸Dirección Cliente: Mi dirección es calle lamparilla 311 entre aguacate y Compostela\n🔸Mensajería/ costo: 750\n🔸 Artículos y cantidades:\n  ×1 Router ASUS AX1800\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $150 USD + 750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 12/09/2026 14:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Mi dirección es calle lamparilla 311 entre aguacate y Compostela",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-12T18:47:56.610Z",
+      "mensajeria": "750",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785078992522,
+          "qty": 1,
+          "name": "Router ASUS AX1800"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789229489331,
       "ts": "2026-09-12T16:11:29.338Z",
       "total": "$137 USD",
@@ -2553,7 +2592,7 @@
       "ts": "2026-09-12T14:35:21.367Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T14:54:39.319Z",
+      "seenTs": "2026-09-12T18:33:42.236Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yoel viltres",
@@ -2595,7 +2634,7 @@
       "ts": "2026-09-12T14:14:37.525Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T17:48:53.401Z",
+      "seenTs": "2026-09-12T18:33:39.059Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Julio Suarez",
@@ -2711,7 +2750,7 @@
       "ts": "2026-09-12T02:01:19.692Z",
       "total": "$10 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T15:09:43.963Z",
+      "seenTs": "2026-09-12T18:33:46.006Z",
       "status": "pending",
       "vuelto": "0",
       "cliente": "Alex Cuspinera",
@@ -3112,7 +3151,7 @@
       "ts": "2026-09-11T15:09:14.293Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T16:32:19.106Z",
+      "seenTs": "2026-09-12T18:34:01.527Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Armando",
@@ -3227,7 +3266,7 @@
       "ts": "2026-09-11T05:18:18.805Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T15:42:53.695Z",
+      "seenTs": "2026-09-12T18:33:50.584Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Hancel",
@@ -21856,5 +21895,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T17:49:49.826Z"
+  "timestamp": "2026-09-12T18:48:57.355Z"
 }
