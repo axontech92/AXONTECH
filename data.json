@@ -2564,9 +2564,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-12T14:42:51.188Z"
+      "synced": true
     },
     {
       "id": 1789178479678,
@@ -3311,9 +3309,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-12T14:54:34.723Z"
+      "synced": true
     },
     {
       "id": 1789069100832,
@@ -3351,43 +3347,6 @@
       "recogidaTienda": true,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789068223996,
-      "ts": "2026-09-10T19:23:44.008Z",
-      "total": "$35 USD",
-      "carnet": "",
-      "seenTs": "2026-09-12T15:01:29.493Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Carlos Rojos",
-      "valeNum": 350,
-      "articulo": "×1 Ventilador de techo",
-      "garantia": "",
-      "gestorId": 1781761257108,
-      "precioMN": "",
-      "telefono": "5352366030",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Carlos Rojos\n🔸Teléfono Cliente: 5352366030\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Ventilador de techo\n🔸Precio USD/ zelle: $35 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $35 USD\n\n*Garantía: \n*Fecha y hora de Venta: 10/09/2026 15:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$35 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 1500,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1781365135486,
-          "qty": 1,
-          "name": "Ventilador de techo"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -21829,5 +21788,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T15:17:57.105Z"
+  "timestamp": "2026-09-12T15:22:50.579Z"
 }
