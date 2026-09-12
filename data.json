@@ -2410,6 +2410,41 @@
   ],
   "vales": [
     {
+      "id": 1789186176613,
+      "ts": "2026-09-12T04:09:36.628Z",
+      "total": "$190 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Damián",
+      "valeNum": 362,
+      "articulo": "×10 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1784476367598,
+      "precioMN": "",
+      "telefono": "0",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yadira\n\n🔸 Nombre Cliente: Damián\n🔸Teléfono Cliente: 0\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 12:30\n🔸 Artículos y cantidades:\n  ×10 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $190 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/09/2026 00:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 15000,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 10,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "15000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789179727766,
       "ts": "2026-09-12T02:22:07.772Z",
       "total": "$150 USD + 4300 MN",
@@ -21739,5 +21774,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T04:01:05.659Z"
+  "timestamp": "2026-09-12T04:11:47.568Z"
 }
