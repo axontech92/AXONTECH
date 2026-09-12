@@ -2710,10 +2710,10 @@
     },
     {
       "id": 1789155503984,
-      "ts": "2026-09-11T19:38:24.012Z",
+      "ts": "2026-09-11T19:38:00.000Z",
       "total": "$1275 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-12T03:59:15.000Z",
+      "seenTs": "2026-09-12T04:23:17.235Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "Yasmani",
@@ -2728,11 +2728,11 @@
       "precioUSD": "$1275 USD",
       "reservado": false,
       "ubicacion": null,
-      "assignedTs": "2026-09-11T19:39:52.982Z",
+      "assignedTs": "2026-09-12T04:22:45.307Z",
       "mensajeria": "3250 cup",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-09-12T03:59:30.490Z",
-      "deliveredTs": "2026-09-12T03:59:28.054Z",
+      "confirmedTs": "2026-09-12T04:24:59.981Z",
+      "deliveredTs": "2026-09-12T04:24:58.213Z",
       "mensajeroId": 1784476802516,
       "rebajaAdmin": 0,
       "seenByAdmin": true,
@@ -2752,6 +2752,7 @@
       "comisionCedida": 55,
       "comisionGestor": "$55.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "comisionCedidaMoneda": "USD",
@@ -3614,7 +3615,7 @@
       "ts": "2026-09-10T16:53:29.703Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T23:41:26.446Z",
+      "seenTs": "2026-09-12T04:25:16.589Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adrian",
@@ -21776,5 +21777,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T04:21:58.629Z"
+  "timestamp": "2026-09-12T04:26:40.630Z"
 }
