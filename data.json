@@ -2414,7 +2414,7 @@
       "ts": "2026-09-12T23:59:52.359Z",
       "total": "$80 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-12T22:39:48.723Z",
+      "seenTs": "2026-09-12T23:16:24.110Z",
       "status": "pending",
       "vuelto": "20 usd",
       "cliente": "Carlos",
@@ -2451,7 +2451,7 @@
       "ts": "2026-09-12T20:51:03.804Z",
       "total": "5040 MN",
       "carnet": "",
-      "seenTs": "2026-09-12T22:39:41.695Z",
+      "seenTs": "2026-09-12T23:16:00.814Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "William",
@@ -2530,7 +2530,7 @@
       "ts": "2026-09-12T19:08:06.708Z",
       "total": "$38 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-12T19:34:03.970Z",
+      "seenTs": "2026-09-12T23:16:20.442Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yumisleidis",
@@ -2785,43 +2785,6 @@
       "synced": true
     },
     {
-      "id": 1789222477510,
-      "ts": "2026-09-12T14:14:37.525Z",
-      "total": "$260 USD",
-      "carnet": "",
-      "seenTs": "2026-09-12T18:33:39.059Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Julio Suarez",
-      "valeNum": 364,
-      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "5363925877",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Julio Suarez\n🔸Teléfono Cliente: 5363925877\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/09/2026 10:14\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Tienda Axontech",
-      "precioUSD": "$260 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1778104512761,
-          "qty": 1,
-          "name": "Controlador solar PowMr MM100 PRO de 100A"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1789186176613,
       "ts": "2026-09-12T04:09:36.628Z",
       "total": "$190 USD",
@@ -2897,43 +2860,6 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789178479678,
-      "ts": "2026-09-12T02:01:19.692Z",
-      "total": "$10 USD",
-      "carnet": "",
-      "seenTs": "2026-09-12T18:33:46.006Z",
-      "status": "pending",
-      "vuelto": "0",
-      "cliente": "Alex Cuspinera",
-      "valeNum": 357,
-      "articulo": "×1 Gorro de buseo",
-      "garantia": "",
-      "gestorId": 1788962896804,
-      "precioMN": "",
-      "telefono": "5352683688",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Alex Cuspinera\n🔸Teléfono Cliente: 5352683688\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Gorro de buseo\n🔸Precio USD/ zelle: $10 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $10 USD\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 22:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$10 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 1500,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1780887557334,
-          "qty": 1,
-          "name": "Gorro de buseo"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -22050,5 +21976,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T23:07:01.925Z"
+  "timestamp": "2026-09-12T23:17:17.358Z"
 }
