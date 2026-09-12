@@ -2449,7 +2449,8 @@
       "ts": "2026-09-12T02:22:07.772Z",
       "total": "$150 USD + 4300 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-12T13:30:51.885Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Leidys",
       "valeNum": 360,
@@ -2461,10 +2462,13 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Leidys\n🔸Teléfono Cliente: 5350429320\n🔸Dirección Cliente: Calle 91 / 220 y 222 # 22031 la lisa\n🔸Mensajería/ costo: 4300\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 4300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 22:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 91 / 220 y 222 # 22031 la lisa",
       "precioUSD": "$150 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-12T13:30:58.048Z",
       "mensajeria": "4300",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2515,11 +2519,47 @@
       "synced": true
     },
     {
+      "id": 1789177060779,
+      "ts": "2026-09-12T01:37:40.806Z",
+      "total": "31000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-12T13:30:36.997Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Adrian Galban",
+      "valeNum": 360,
+      "articulo": "×100 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "28000 MN",
+      "telefono": "5363123032",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Adrian Galban\n🔸Teléfono Cliente: 5363123032\n🔸Dirección Cliente: 5ta A entre 66 y 64 playa\n🔸Mensajería/ costo: 3000\n🔸Hora de entrega: 09:30\n🔸 Artículos y cantidades:\n  ×100 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 28000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 31000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 21:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "5ta A entre 66 y 64 playa",
+      "precioUSD": "",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-12T13:30:48.400Z",
+      "mensajeria": "3000",
+      "mensajeroId": 1788892462364,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 100,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1789169785401,
       "ts": "2026-09-11T23:36:25.410Z",
       "total": "$46 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T23:40:24.321Z",
+      "seenTs": "2026-09-12T05:38:12.743Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Cidelia",
@@ -3184,7 +3224,7 @@
       "ts": "2026-09-10T20:48:45.942Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-11T19:58:32.457Z",
+      "seenTs": "2026-09-12T05:38:11.270Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Kaan",
@@ -4028,7 +4068,7 @@
       "ts": "2026-09-10T13:15:13.383Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-12T03:58:56.499Z",
+      "seenTs": "2026-09-12T05:37:51.179Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pavel",
@@ -21801,5 +21841,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T05:36:45.062Z"
+  "timestamp": "2026-09-12T13:31:58.826Z"
 }
