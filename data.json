@@ -2167,7 +2167,7 @@
       "name": "Toldo malla para sombra marrón 2×7m",
       "catId": 90,
       "photo": "photos/p-1787952316385-a70dcd86.webp",
-      "stock": 11,
+      "stock": 10,
       "imagen": "photos/p-1787952316385-a70dcd86.webp",
       "nombre": "Toldo malla para sombra",
       "precio": "$38",
@@ -2410,6 +2410,112 @@
   ],
   "vales": [
     {
+      "id": 1789306201821,
+      "ts": "2026-09-13T13:30:01.827Z",
+      "total": "$23 USD + 2400 MN",
+      "carnet": "",
+      "seenTs": "2026-09-13T13:34:34.522Z",
+      "status": "pending",
+      "vuelto": "17",
+      "cliente": "Armando Lauchy",
+      "valeNum": 357,
+      "articulo": "×1 Toldo para sombra marrón 2 x 4",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "59729370",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Armando Lauchy\n🔸Teléfono Cliente: 59729370\n🔸Dirección Cliente: Av 31 entre 18 y 14.  Casa número 1419 Miramar - Playa\n🔸Mensajería/ costo: 2400\n🔸 Artículos y cantidades:\n  ×1 Toldo para sombra marrón 2 x 4\n🔸Precio USD/ zelle: $23 USD\n🔸Precio MN: \n🔸 Vuelto: 17\n🔸 Total a pagar: $23 USD + 2400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 13/09/2026 09:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Av 31 entre 18 y 14.  Casa número 1419 Miramar - Playa",
+      "precioUSD": "$23 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2400",
+      "comFijadaMN": 3,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336859697,
+          "qty": 1,
+          "name": "Toldo para sombra marrón 2 x 4"
+        }
+      ],
+      "comisionGestor": "3 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789267916579,
+      "ts": "2026-09-13T02:51:56.585Z",
+      "total": "$480 USD",
+      "carnet": "",
+      "seenTs": "2026-09-13T13:34:55.178Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Miguel Mendoza",
+      "valeNum": 356,
+      "articulo": "×3 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352450801",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Miguel Mendoza\n🔸Teléfono Cliente: 5352450801\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Nanostation loco m5\n🔸Precio USD/ zelle: $480 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $480 USD\n\n*Garantía: \n*Fecha y hora de Venta: 12/09/2026 22:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$480 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 3,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$30.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1789267869883,
+      "ts": "2026-09-13T02:51:09.891Z",
+      "total": "85400 MN",
+      "carnet": "",
+      "seenTs": "2026-09-13T13:34:52.838Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dany",
+      "valeNum": 355,
+      "articulo": "×305 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "85400 MN",
+      "telefono": "059102156",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Dany\n🔸Teléfono Cliente: 059102156\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×305 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 85400 MN\n🔸 Vuelto: \n🔸 Total a pagar: 85400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 12/09/2026 22:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 305,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789257592356,
       "ts": "2026-09-12T23:59:52.359Z",
       "total": "$80 USD + 1500 MN",
@@ -2486,7 +2592,7 @@
       "ts": "2026-09-12T19:29:15.525Z",
       "total": "$630 USD + 52000 MN",
       "carnet": "",
-      "seenTs": "2026-09-12T19:30:46.567Z",
+      "seenTs": "2026-09-13T13:35:07.894Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Reunel Zamora O Yareimi Mendez",
@@ -2530,8 +2636,8 @@
       "ts": "2026-09-12T19:08:06.708Z",
       "total": "$38 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-12T23:16:20.442Z",
-      "status": "assigned",
+      "seenTs": "2026-09-13T13:34:42.564Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yumisleidis",
       "valeNum": 369,
@@ -2547,6 +2653,7 @@
       "ubicacion": null,
       "assignedTs": "2026-09-12T19:33:07.034Z",
       "mensajeria": "3500",
+      "deliveredTs": "2026-09-13T13:34:48.532Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "valeProductos": [
@@ -2558,7 +2665,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2598,6 +2705,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2636,6 +2744,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2679,6 +2788,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2737,6 +2847,7 @@
       ],
       "comisionGestor": "$30.00 USD + 1500 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2780,6 +2891,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2818,6 +2930,7 @@
       ],
       "comisionGestor": "15000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2859,6 +2972,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2898,6 +3012,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -2935,6 +3050,7 @@
       ],
       "comisionGestor": "6 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -21976,5 +22092,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-12T23:17:17.358Z"
+  "timestamp": "2026-09-13T13:35:49.028Z"
 }
