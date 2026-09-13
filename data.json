@@ -603,7 +603,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -1341,7 +1341,7 @@
       "name": "Router Tp-link Archer A6",
       "catId": 10,
       "photo": "photos/p-1788329740120-3d5fec45.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1788329740120-3d5fec45.webp",
       "nombre": "Router Tp-link Archer A6",
       "precio": "$110",
@@ -2606,7 +2606,7 @@
       "ts": "2026-09-13T16:51:12.750Z",
       "total": "$35 USD",
       "carnet": "",
-      "seenTs": "2026-09-13T17:01:03.639Z",
+      "seenTs": "2026-09-13T21:21:17.725Z",
       "status": "assigned",
       "vuelto": "12",
       "cliente": "Deisy",
@@ -2684,8 +2684,8 @@
       "ts": "2026-09-13T16:01:30.331Z",
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-13T16:06:07.516Z",
-      "status": "pending",
+      "seenTs": "2026-09-13T21:09:46.122Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Lisbet",
       "valeNum": 359,
@@ -2701,6 +2701,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-13T21:20:21.136Z",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2717,7 +2718,7 @@
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -22618,5 +22619,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-13T20:49:56.027Z"
+  "timestamp": "2026-09-13T21:21:21.172Z"
 }
