@@ -1031,7 +1031,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 68,
+      "stock": 67,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2410,12 +2410,49 @@
   ],
   "vales": [
     {
+      "id": 1789339801639,
+      "ts": "2026-09-13T22:50:01.642Z",
+      "total": "$170 USD",
+      "carnet": "",
+      "seenTs": "2026-09-13T22:58:43.379Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Lázaro Pérez",
+      "valeNum": 369,
+      "articulo": "×1 Inversor Tataliken de 12V 3500W",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "58764979",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Lázaro Pérez\n🔸Teléfono Cliente: 58764979\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 12V 3500W\n🔸Precio USD/ zelle: $170 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $170 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/09/2026 18:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$170 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509014605,
+          "qty": 1,
+          "name": "Inversor Tataliken de 12V 3500W"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789335130252,
       "ts": "2026-09-13T21:32:10.255Z",
       "total": "$20 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-13T21:41:35.038Z",
-      "status": "assigned",
+      "seenTs": "2026-09-13T22:58:49.190Z",
+      "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Noel",
       "valeNum": 368,
@@ -2432,6 +2469,7 @@
       "assignedTs": "2026-09-13T21:40:38.044Z",
       "mensajeria": "2500",
       "comFijadaMN": 1500,
+      "deliveredTs": "2026-09-13T22:58:52.595Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2444,7 +2482,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -22551,5 +22589,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-13T21:42:25.028Z"
+  "timestamp": "2026-09-13T22:59:53.028Z"
 }
