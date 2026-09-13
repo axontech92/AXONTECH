@@ -981,7 +981,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 37,
+      "stock": 36,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2414,8 +2414,8 @@
       "ts": "2026-09-13T16:04:28.932Z",
       "total": "$28 USD",
       "carnet": "",
-      "seenTs": "2026-09-13T16:06:21.209Z",
-      "status": "pending",
+      "seenTs": "2026-09-13T16:35:52.164Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "XXXX",
       "valeNum": 360,
@@ -2431,6 +2431,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 3,
+      "confirmedTs": "2026-09-13T16:36:18.831Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2442,7 +2443,7 @@
       ],
       "comisionGestor": "3 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2677,9 +2678,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-13T16:08:21.878Z"
+      "synced": true
     },
     {
       "id": 1789267978967,
@@ -22331,5 +22330,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-13T16:09:21.891Z"
+  "timestamp": "2026-09-13T16:37:18.860Z"
 }
