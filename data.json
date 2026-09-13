@@ -2410,6 +2410,92 @@
   ],
   "vales": [
     {
+      "id": 1789330690192,
+      "ts": "2026-09-13T20:18:10.210Z",
+      "total": "$270 USD + 5600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-13T20:31:02.137Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alvaro",
+      "valeNum": 366,
+      "articulo": "×1 Nanostation loco m5 / ×20 Cable de red categoría 6 / ×1 Router Tp-link Archer A6",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "5600 MN",
+      "telefono": "58602300",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Alvaro\n🔸Teléfono Cliente: 58602300\n🔸Dirección Cliente: Boyeros\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n  ×20 Cable de red categoría 6\n  ×1 Router Tp-link Archer A6\n🔸Precio USD/ zelle: $270 USD\n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $270 USD + 5600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 13/09/2026 16:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Boyeros",
+      "precioUSD": "$270 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 20,
+          "name": "Cable de red categoría 6"
+        },
+        {
+          "id": 1788329740120,
+          "qty": 1,
+          "name": "Router Tp-link Archer A6"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789329958949,
+      "ts": "2026-09-13T20:05:00.000Z",
+      "total": "$130 USD + 4800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-13T20:29:24.932Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Mayelin Gonzalez",
+      "valeNum": 365,
+      "articulo": "×1 Router KUWIFI de linea de 1.150MBPS",
+      "garantia": "",
+      "gestorId": 1781761257111,
+      "precioMN": "",
+      "telefono": "54705101",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Jennifer\n\n🔸 Nombre Cliente: Mayelin Gonzalez\n🔸Teléfono Cliente: 5354705101\n🔸Dirección Cliente: Mi direccion 233A # 21610 / 216 y Final, Fontanar por Etecsa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Router KUWIFI de linea de 1.150MBPS\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/09/2026 16:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "233A # 21610 / 216 y Final, Fontanar por Etecsa",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": "https://maps.google.com/?q=23.020689,-82.412163",
+      "assignedTs": "2026-09-13T20:29:49.027Z",
+      "mensajeria": "4800",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476816825,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 1,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789328456867,
       "ts": "2026-09-13T19:40:56.893Z",
       "total": "$20 USD",
@@ -22538,5 +22624,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-13T20:04:17.464Z"
+  "timestamp": "2026-09-13T20:32:01.028Z"
 }
