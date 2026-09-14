@@ -2456,7 +2456,7 @@
       "total": "$140 USD + 1200 MN",
       "carnet": "",
       "seenTs": "2026-09-14T14:50:09.120Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Rolan",
       "valeNum": 364,
@@ -2470,8 +2470,10 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-14T14:56:29.425Z",
       "mensajeria": "1200",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -22719,5 +22721,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T14:56:27.952Z"
+  "timestamp": "2026-09-14T14:57:29.827Z"
 }
