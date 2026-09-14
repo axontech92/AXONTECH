@@ -313,7 +313,7 @@
       "color": "#7C3AED",
       "phone": "53015718",
       "initials": "F",
-      "password": "7LXDQ4RW"
+      "password": "pbkdf2$100000$2n3m+ARMw/Jw/aHeVmQphA==$8dd678992605d1ed0dcc7402e1e6808969371305cc63663fb071f897dcf383c7"
     },
     {
       "id": 1786573707656,
@@ -2430,8 +2430,8 @@
       "ts": "2026-09-14T17:03:46.280Z",
       "total": "$20 USD + 3900 MN",
       "carnet": "",
-      "seenTs": "2026-09-14T18:05:52.659Z",
-      "status": "pending_payment",
+      "seenTs": "2026-09-14T18:54:59.694Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "WALTER",
       "valeNum": 368,
@@ -2448,6 +2448,7 @@
       "assignedTs": "2026-09-14T17:57:14.771Z",
       "mensajeria": "3900",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-14T18:55:05.990Z",
       "deliveredTs": "2026-09-14T18:05:57.283Z",
       "mensajeroId": 1784476898824,
       "seenByAdmin": true,
@@ -22857,5 +22858,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T18:36:10.914Z"
+  "timestamp": "2026-09-14T18:56:06.898Z"
 }
