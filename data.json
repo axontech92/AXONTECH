@@ -2422,7 +2422,8 @@
       "ts": "2026-09-14T13:08:17.629Z",
       "total": "$140 USD + 1500 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-14T13:29:11.222Z",
+      "status": "assigned",
       "vuelto": "10",
       "cliente": "Rolan",
       "valeNum": 361,
@@ -2434,10 +2435,13 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Rolan\n🔸Teléfono Cliente: 51449630\n🔸Dirección Cliente: Terminal de ómnibus nacional. Plaza\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: 10\n🔸 Total a pagar: $140 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 09:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Terminal de ómnibus nacional. Plaza",
       "precioUSD": "$140 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-14T13:31:04.455Z",
       "mensajeria": "1500",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2578,7 +2582,7 @@
       "ts": "2026-09-13T19:01:38.377Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-13T19:37:07.329Z",
+      "seenTs": "2026-09-14T13:31:34.696Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Andrés Herreros Tabares.",
@@ -2615,7 +2619,7 @@
       "ts": "2026-09-13T18:35:41.368Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-13T19:37:14.630Z",
+      "seenTs": "2026-09-14T13:29:09.540Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Riu Daniel",
@@ -2884,14 +2888,11 @@
         }
       ],
       "comisionGestor": "1500 MN",
-      "commissionPaid": false,
       "recogidaTienda": true,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "commissionPaidTs": null,
-      "commissionEnSobreTs": "2026-09-14T13:26:09.477Z"
+      "synced": true
     },
     {
       "id": 1789306201821,
@@ -3058,7 +3059,7 @@
       "ts": "2026-09-12T19:29:15.525Z",
       "total": "$630 USD + 52000 MN",
       "carnet": "",
-      "seenTs": "2026-09-13T14:10:18.186Z",
+      "seenTs": "2026-09-14T13:31:11.233Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Reunel Zamora O Yareimi Mendez",
@@ -22573,5 +22574,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T13:27:09.514Z"
+  "timestamp": "2026-09-14T13:32:04.472Z"
 }
