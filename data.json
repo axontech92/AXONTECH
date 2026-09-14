@@ -2116,7 +2116,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 325,
+      "stock": 10000,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -22811,5 +22811,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T16:31:04.405Z"
+  "timestamp": "2026-09-14T16:34:01.827Z"
 }
