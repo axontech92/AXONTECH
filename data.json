@@ -411,6 +411,14 @@
       "phone": "52708786",
       "initials": "E",
       "password": "pbkdf2$100000$Fol6moOz3BSSPzf+7Did3A==$f46105fabdf3cbf79fb6074b2e99e2acfe7c03b110859a1c06b9192f0166cd2f"
+    },
+    {
+      "id": 1789399678632,
+      "name": "Axiel",
+      "initials": "A",
+      "color": "#DC2626",
+      "password": "pbkdf2$100000$2nnZa3X0EYaOr+EE8OuowA==$922717115b1b37fde18a745d4acf4ee8e78614bed677a9c12829694f0947ad17",
+      "phone": "5 5023389"
     }
   ],
   "mensajeros": [
@@ -22721,5 +22729,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T14:57:29.827Z"
+  "timestamp": "2026-09-14T15:28:58.828Z"
 }
