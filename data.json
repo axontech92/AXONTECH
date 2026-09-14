@@ -2426,6 +2426,45 @@
   ],
   "vales": [
     {
+      "id": 1789416147949,
+      "ts": "2026-09-14T20:02:27.949Z",
+      "total": "$200 USD",
+      "carnet": "",
+      "seenTs": "2026-09-14T20:02:30.013Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "tienda",
+      "valeNum": 370,
+      "articulo": "×2 Camara de Panel",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: tienda\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Camara de Panel\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 16:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1785079567810,
+          "qty": 2,
+          "name": "Camara de Panel"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1789415717555,
       "ts": "2026-09-14T19:55:17.561Z",
       "total": "$50 USD + 2400 MN (vía transferencia)",
@@ -22874,5 +22913,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T20:02:27.227Z"
+  "timestamp": "2026-09-14T20:03:27.985Z"
 }
