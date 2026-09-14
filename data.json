@@ -2884,12 +2884,14 @@
         }
       ],
       "comisionGestor": "1500 MN",
-      "commissionPaid": true,
+      "commissionPaid": false,
       "recogidaTienda": true,
-      "commissionStatus": "cobrado",
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "commissionPaidTs": null,
+      "commissionEnSobreTs": "2026-09-14T13:26:09.477Z"
     },
     {
       "id": 1789306201821,
@@ -22571,5 +22573,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T13:23:28.513Z"
+  "timestamp": "2026-09-14T13:27:09.514Z"
 }
