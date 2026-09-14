@@ -2431,6 +2431,92 @@
   ],
   "vales": [
     {
+      "id": 1789429181978,
+      "ts": "2026-09-14T23:39:41.993Z",
+      "total": "$278 USD + 5600 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Mailin",
+      "valeNum": 378,
+      "articulo": "×1 Router Tp-link Archer A6 / ×20 Cable de red categoría 6 / ×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "5600 MN",
+      "telefono": "5358442032",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Mailin\n🔸Teléfono Cliente: 5358442032\n🔸Dirección Cliente: 343 e/ 184 y 196 boyero\n🔸Mensajería/ costo: 8 zelle\n🔸 Artículos y cantidades:\n  ×1 Router Tp-link Archer A6\n  ×20 Cable de red categoría 6\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $270 USD\n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $278 USD + 5600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 19:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "343 e/ 184 y 196 boyero",
+      "precioUSD": "$270 USD",
+      "ubicacion": "",
+      "mensajeria": "8 zelle",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1788329740120,
+          "qty": 1,
+          "name": "Router Tp-link Archer A6"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 20,
+          "name": "Cable de red categoría 6"
+        },
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1789429095384,
+      "ts": "2026-09-14T23:38:15.396Z",
+      "total": "$2420 USD + 2500 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Gabriel",
+      "valeNum": 378,
+      "articulo": "×16 Adaptador poe UBIQUITI de 0.3A / ×15 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5353329851",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Gabriel\n🔸Teléfono Cliente: 5353329851\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: 2500 ( de mi comisión)\n🔸 Artículos y cantidades:\n  ×16 Adaptador poe UBIQUITI de 0.3A\n  ×15 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $2420 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2420 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 19:37\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "La cuevita",
+      "precioUSD": "$2420 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2500 ( de mi comisión)",
+      "comFijadaMN": 24000,
+      "comFijadaUSD": 150,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 16,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 15,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$150.00 USD + 24000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789428169599,
       "ts": "2026-09-14T23:22:49.611Z",
       "total": "$840 USD + 2500 MN",
@@ -3186,6 +3272,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3346,6 +3433,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -23287,5 +23375,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T23:37:20.970Z"
+  "timestamp": "2026-09-14T23:39:55.502Z"
 }
