@@ -2256,7 +2256,7 @@
       "name": "mikrotik sxt sq 5ax",
       "catId": 10,
       "photo": "photos/p-1788124513018-46338072.webp",
-      "stock": 41,
+      "stock": 25,
       "imagen": "photos/p-1788124513018-46338072.webp",
       "nombre": "mikrotik sxt sq 5ax",
       "precio": "$160",
@@ -2430,6 +2430,45 @@
     }
   ],
   "vales": [
+    {
+      "id": 1789427557493,
+      "ts": "2026-09-14T23:12:37.494Z",
+      "total": "$260 USD",
+      "carnet": "",
+      "seenTs": "2026-09-14T23:12:40.289Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "3",
+      "valeNum": 375,
+      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "3",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: 3\n🔸Teléfono Cliente: 3\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 19:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$260 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Cambio uno de 60A por este de 100A",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-14T23:13:07.463Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
     {
       "id": 1789427224377,
       "ts": "2026-09-14T23:07:04.401Z",
@@ -2638,7 +2677,7 @@
       "ts": "2026-09-14T20:02:00.000Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-14T23:10:38.236Z",
+      "seenTs": "2026-09-14T23:13:10.080Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "tienda",
@@ -23165,5 +23204,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T23:11:50.545Z"
+  "timestamp": "2026-09-14T23:15:04.914Z"
 }
