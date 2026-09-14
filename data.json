@@ -894,7 +894,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2629,8 +2629,8 @@
       "ts": "2026-09-14T13:56:32.982Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-14T19:51:52.750Z",
-      "status": "pending",
+      "seenTs": "2026-09-14T19:52:15.154Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yanet",
       "valeNum": 363,
@@ -2646,6 +2646,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-14T19:52:17.724Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2657,7 +2658,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4185,7 +4186,7 @@
       "ts": "2026-09-11T05:18:18.805Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-14T13:49:37.125Z",
+      "seenTs": "2026-09-14T19:52:19.790Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Hancel",
@@ -22860,5 +22861,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T19:51:54.611Z"
+  "timestamp": "2026-09-14T19:53:17.914Z"
 }
