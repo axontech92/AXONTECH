@@ -2217,7 +2217,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 3,
+      "stock": 1,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2336,7 +2336,7 @@
       "name": "Router Tp-link Archer A6",
       "catId": 10,
       "photo": "photos/p-1788329740120-3d5fec45.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/p-1788329740120-3d5fec45.webp",
       "nombre": "Router Tp-link Archer A6",
       "precio": "$110",
@@ -22913,5 +22913,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T20:03:27.985Z"
+  "timestamp": "2026-09-14T20:07:36.210Z"
 }
