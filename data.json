@@ -1052,7 +1052,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 67,
+      "stock": 57,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2474,8 +2474,8 @@
       "ts": "2026-09-14T20:13:15.619Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-14T22:03:46.326Z",
-      "status": "pending",
+      "seenTs": "2026-09-14T22:15:33.655Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Rauly",
       "valeNum": 371,
@@ -2491,6 +2491,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 15000,
+      "confirmedTs": "2026-09-14T22:23:23.316Z",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2502,7 +2503,7 @@
       ],
       "comisionGestor": "15000 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -23037,5 +23038,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T22:05:16.914Z"
+  "timestamp": "2026-09-14T22:24:23.340Z"
 }
