@@ -639,7 +639,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -2426,11 +2426,48 @@
   ],
   "vales": [
     {
+      "id": 1789416795609,
+      "ts": "2026-09-14T20:13:15.619Z",
+      "total": "$200 USD",
+      "carnet": "",
+      "seenTs": "2026-09-14T20:16:53.615Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rauly",
+      "valeNum": 371,
+      "articulo": "×10 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "precioMN": "",
+      "telefono": "5353055484",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Rauly\n🔸Teléfono Cliente: 5353055484\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 16:12\n🔸 Artículos y cantidades:\n  ×10 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 16:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 15000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 10,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "15000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789416147949,
       "ts": "2026-09-14T20:02:27.949Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-14T20:02:30.013Z",
+      "seenTs": "2026-09-14T20:37:12.606Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "tienda",
@@ -3387,7 +3424,7 @@
       "ts": "2026-09-12T19:29:15.525Z",
       "total": "$630 USD + 52000 MN",
       "carnet": "",
-      "seenTs": "2026-09-14T20:09:59.693Z",
+      "seenTs": "2026-09-14T20:18:43.682Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Reunel Zamora O Yareimi Mendez",
@@ -22914,5 +22951,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T20:10:57.915Z"
+  "timestamp": "2026-09-14T20:37:56.915Z"
 }
