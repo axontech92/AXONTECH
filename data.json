@@ -2307,7 +2307,7 @@
       "name": "Conectores MC4 (10 pares)",
       "catId": 20,
       "photo": "photos/p-1788155775988-7596cd1a.webp",
-      "stock": 12,
+      "stock": 5,
       "imagen": "photos/p-1788155775988-7596cd1a.webp",
       "nombre": "Conectores MC4 (10 pares)",
       "precio": "$13",
@@ -23115,5 +23115,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T23:00:51.749Z"
+  "timestamp": "2026-09-14T23:02:00.783Z"
 }
