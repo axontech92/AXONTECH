@@ -746,7 +746,7 @@
       "name": "Controlador solar PowMr MM100 PRO de 100A",
       "catId": 20,
       "photo": "photos/img_1778104512761.webp",
-      "stock": 6,
+      "stock": 3,
       "imagen": "photos/img_1778104512761.webp",
       "nombre": "Controlador solar PowMr MM100 PRO de 100A",
       "precio": "$260",
@@ -2239,7 +2239,7 @@
       "name": "Sistema de Alarma",
       "catId": 80,
       "photo": "photos/p-1788025891931-11c057ae.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/p-1788025891931-11c057ae.webp",
       "nombre": "Sistema de Alarma",
       "precio": "180 USD",
@@ -23040,5 +23040,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T22:28:09.164Z"
+  "timestamp": "2026-09-14T22:35:40.936Z"
 }
