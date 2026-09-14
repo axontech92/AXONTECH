@@ -894,7 +894,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2430,8 +2430,8 @@
       "ts": "2026-09-14T17:03:46.280Z",
       "total": "$20 USD + 3900 MN",
       "carnet": "",
-      "seenTs": "2026-09-14T17:57:18.681Z",
-      "status": "assigned",
+      "seenTs": "2026-09-14T18:05:52.659Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "WALTER",
       "valeNum": 368,
@@ -2448,6 +2448,7 @@
       "assignedTs": "2026-09-14T17:57:14.771Z",
       "mensajeria": "3900",
       "comFijadaMN": 1500,
+      "deliveredTs": "2026-09-14T18:05:57.283Z",
       "mensajeroId": 1784476898824,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -2460,7 +2461,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -22856,5 +22857,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T17:59:20.555Z"
+  "timestamp": "2026-09-14T18:06:57.303Z"
 }
