@@ -2426,6 +2426,43 @@
   ],
   "vales": [
     {
+      "id": 1789403341191,
+      "ts": "2026-09-14T16:29:01.198Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-09-14T16:29:56.337Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Luz divina Cisneros torres",
+      "valeNum": 367,
+      "articulo": "×1 Mikrotik Router Board 750gr",
+      "garantia": "",
+      "gestorId": 1786573707656,
+      "precioMN": "",
+      "telefono": "56800408",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Luz divina Cisneros torres\n🔸Teléfono Cliente: 56800408\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik Router Board 750gr\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 12:28\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1785079709511,
+          "qty": 1,
+          "name": "Mikrotik Router Board 750gr"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789400370502,
       "ts": "2026-09-14T15:39:30.528Z",
       "total": "$25 USD + 5000 MN",
@@ -22774,5 +22811,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T16:28:10.828Z"
+  "timestamp": "2026-09-14T16:31:04.405Z"
 }
