@@ -1634,7 +1634,7 @@
       "name": "Camara de Panel",
       "catId": 80,
       "photo": "photos/img_1785079567810.webp",
-      "stock": 8,
+      "stock": 0,
       "imagen": "photos/img_1785079567810.webp",
       "nombre": "Camara de Panel",
       "precio": "$100",
@@ -2431,6 +2431,43 @@
   ],
   "vales": [
     {
+      "id": 1789428040091,
+      "ts": "2026-09-14T23:20:40.091Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "seenTs": "2026-09-14T23:20:58.396Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rolando",
+      "valeNum": 376,
+      "articulo": "×1 Creatina Monohidratada Luckycare® (5000 mg)",
+      "garantia": "",
+      "gestorId": 1786555619210,
+      "precioMN": "",
+      "telefono": "4",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Rolando\n🔸Teléfono Cliente: 4\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Creatina Monohidratada Luckycare® (5000 mg)\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/9/2026, 19:20:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1781377297283,
+          "qty": 1,
+          "name": "Creatina Monohidratada Luckycare® (5000 mg)"
+        }
+      ],
+      "comisionGestor": "1000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1789427557493,
       "ts": "2026-09-14T23:12:37.494Z",
       "total": "$260 USD",
@@ -2678,7 +2715,7 @@
       "total": "$800 USD",
       "carnet": "",
       "seenTs": "2026-09-14T23:13:10.080Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "tienda",
       "valeNum": 370,
@@ -2695,7 +2732,7 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-14T23:20:45.699Z",
       "mensajeroId": null,
       "seenByAdmin": true,
       "comFijadaUSD": 80,
@@ -2708,7 +2745,7 @@
       ],
       "comisionGestor": "$80.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -23204,5 +23241,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T23:15:04.914Z"
+  "timestamp": "2026-09-14T23:21:45.724Z"
 }
