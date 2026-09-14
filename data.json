@@ -2426,10 +2426,50 @@
   ],
   "vales": [
     {
+      "id": 1789400370502,
+      "ts": "2026-09-14T15:39:30.528Z",
+      "total": "$25 USD + 5000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-14T15:40:04.808Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Yesica",
+      "valeNum": 366,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5355585783",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yesica\n🔸Teléfono Cliente: 5355585783\n🔸Dirección Cliente: Cotorro\n🔸Mensajería/ costo: 5000\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD + 5000 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 14/09/2026 11:39\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Cotorro",
+      "precioUSD": "$25 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-14T15:40:14.259Z",
+      "mensajeria": "5000",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789397413895,
       "ts": "2026-09-14T14:50:13.896Z",
       "total": "7000 MN",
       "carnet": "",
+      "seenTs": "2026-09-14T15:34:42.755Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis",
@@ -2445,6 +2485,7 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "1400",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2456,10 +2497,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-09-14T15:34:42.755Z"
+      "synced": true
     },
     {
       "id": 1789397265671,
@@ -22732,5 +22770,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T15:34:59.827Z"
+  "timestamp": "2026-09-14T15:41:14.827Z"
 }
