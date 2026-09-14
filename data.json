@@ -2435,7 +2435,7 @@
       "ts": "2026-09-14T20:41:06.798Z",
       "total": "$300 USD",
       "carnet": "",
-      "seenTs": "2026-09-14T21:22:44.858Z",
+      "seenTs": "2026-09-14T21:25:11.794Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Luis Alberto",
@@ -2582,6 +2582,42 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789414645917,
+      "ts": "2026-09-14T19:37:25.930Z",
+      "total": "$180 USD + 1750 MN",
+      "carnet": "",
+      "seenTs": "2026-09-14T21:35:20.882Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Yaneysi o Raidel",
+      "valeNum": 369,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "51183856",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yaneysi o Raidel\n🔸Teléfono Cliente: 51183856\n🔸Dirección Cliente: Calzada de acostado y 10 de octubre\n🔸Mensajería/ costo: 1750\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 1750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 15:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calzada de acostado y 10 de octubre",
+      "precioUSD": "$180 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-14T21:35:47.805Z",
+      "mensajeria": "1750",
+      "mensajeroId": 1789420092372,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -22996,5 +23032,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T21:23:59.457Z"
+  "timestamp": "2026-09-14T21:36:47.914Z"
 }
