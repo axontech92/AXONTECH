@@ -1052,7 +1052,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 57,
+      "stock": 66,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2435,7 +2435,8 @@
       "ts": "2026-09-14T22:57:59.468Z",
       "total": "$20 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-14T22:59:37.335Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Rolando Domínguez leiva",
       "valeNum": 373,
@@ -2447,10 +2448,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Rolando Domínguez leiva\n🔸Teléfono Cliente: 54270089\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 18:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$20 USD",
-      "ubicacion": "",
+      "reservado": true,
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
-      "horaEntrega": "",
+      "confirmedTs": "2026-09-14T22:59:41.279Z",
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2459,11 +2462,10 @@
           "name": "Adaptador poe UBIQUITI de 0.3A"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -23113,5 +23115,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T22:58:42.914Z"
+  "timestamp": "2026-09-14T23:00:51.749Z"
 }
