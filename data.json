@@ -2418,6 +2418,76 @@
   ],
   "vales": [
     {
+      "id": 1789397413895,
+      "ts": "2026-09-14T14:50:13.896Z",
+      "total": "7000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Luis",
+      "valeNum": 365,
+      "articulo": "×20 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "5600 MN",
+      "telefono": "5355389878",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Luis\n🔸Teléfono Cliente: 5355389878\n🔸Dirección Cliente: Plaza 26 /e 6 y 8\n🔸Mensajería/ costo: 1400\n🔸 Artículos y cantidades:\n  ×20 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: 7000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 10:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Plaza 26 /e 6 y 8",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "1400",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 20,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789397265671,
+      "ts": "2026-09-14T14:47:45.684Z",
+      "total": "$140 USD + 1200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-14T14:50:09.120Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rolan",
+      "valeNum": 364,
+      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "51449630",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rolan\n🔸Teléfono Cliente: 51449630\n🔸Dirección Cliente: Plaza terminal de omnibus\n🔸Mensajería/ costo: 1200\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 1200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 10:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Plaza terminal de omnibus",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "1200",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789394192966,
       "ts": "2026-09-14T13:56:32.982Z",
       "total": "$20 USD",
@@ -3180,7 +3250,7 @@
       "ts": "2026-09-12T19:08:06.708Z",
       "total": "$38 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-14T13:49:20.458Z",
+      "seenTs": "2026-09-14T14:50:08.317Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Yumisleidis",
@@ -22649,5 +22719,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T14:26:35.829Z"
+  "timestamp": "2026-09-14T14:56:27.952Z"
 }
