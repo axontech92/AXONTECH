@@ -1445,7 +1445,7 @@
       "name": "Creatina Monohidratada Luckycare® (5000 mg)",
       "catId": 130,
       "photo": "photos/p-1781377297283-cc909b2a.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/p-1781377297283-cc909b2a.webp",
       "nombre": "Creatina Monohidratada Luckycare® (5000 mg)",
       "precio": "$25",
@@ -23040,5 +23040,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T22:37:25.928Z"
+  "timestamp": "2026-09-14T22:38:44.926Z"
 }
