@@ -2434,10 +2434,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Rolan\n🔸Teléfono Cliente: 51449630\n🔸Dirección Cliente: Terminal de ómnibus nacional. Plaza\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: 10\n🔸 Total a pagar: $140 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 09:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Terminal de ómnibus nacional. Plaza",
       "precioUSD": "$140 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "1500",
       "comFijadaMN": 0,
-      "horaEntrega": "",
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2446,11 +2446,10 @@
           "name": "MikroTik hEX S (2025) – E60iUGS"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2722,6 +2721,7 @@
       ],
       "comisionGestor": "3 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2960,6 +2960,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2998,6 +2999,7 @@
       ],
       "comisionGestor": "$30.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3081,6 +3083,7 @@
       ],
       "comisionGestor": "$30.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3119,6 +3122,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -22557,5 +22561,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T13:16:46.411Z"
+  "timestamp": "2026-09-14T13:18:41.417Z"
 }
