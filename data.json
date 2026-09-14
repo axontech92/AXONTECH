@@ -1861,7 +1861,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 40,
+      "stock": 15,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1917,7 +1917,7 @@
       "name": "Breker digital ajustable",
       "catId": 20,
       "photo": "photos/img_1786594651216.webp",
-      "stock": 2,
+      "stock": 19,
       "imagen": "photos/img_1786594651216.webp",
       "nombre": "Breker digital ajustable",
       "precio": "$20",
@@ -1985,7 +1985,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 31,
+      "stock": 34,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -23040,5 +23040,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T22:41:44.503Z"
+  "timestamp": "2026-09-14T22:43:53.637Z"
 }
