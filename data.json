@@ -2742,43 +2742,6 @@
       "synced": true
     },
     {
-      "id": 1789339801639,
-      "ts": "2026-09-13T22:50:00.000Z",
-      "total": "$180 USD",
-      "carnet": "",
-      "seenTs": "2026-09-14T19:51:28.165Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Lázaro Pérez",
-      "valeNum": 369,
-      "articulo": "×1 Inversor Tataliken de 24V 4000W",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "58764979",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Lázaro Pérez\n🔸Teléfono Cliente: 58764979\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 12V 3500W\n🔸Precio USD/ zelle: $170 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $170 USD\n\n*Garantía: \n*Fecha y hora de Venta: 13/09/2026 18:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$180 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1777924118004,
-          "qty": 1,
-          "name": "Inversor Tataliken de 24V 4000W"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1789335130252,
       "ts": "2026-09-13T21:32:10.255Z",
       "total": "$20 USD + 2500 MN",
@@ -22861,5 +22824,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T19:53:17.914Z"
+  "timestamp": "2026-09-14T19:54:26.914Z"
 }
