@@ -2431,6 +2431,85 @@
   ],
   "vales": [
     {
+      "id": 1789428169599,
+      "ts": "2026-09-14T23:22:49.611Z",
+      "total": "$840 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-14T23:24:47.451Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Darel",
+      "valeNum": 377,
+      "articulo": "×7 Adaptador poe UBIQUITI de 0.3A / ×5 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "52443180",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Darel\n🔸Teléfono Cliente: 52443180\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: 2500 ( de mi comisión)\n🔸Hora de entrega: 09:30\n🔸 Artículos y cantidades:\n  ×7 Adaptador poe UBIQUITI de 0.3A\n  ×5 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $840 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $840 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 19:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "La cuevita",
+      "precioUSD": "$840 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "2500 ( de mi comisión)",
+      "comFijadaMN": 10500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 7,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 5,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$50.00 USD + 10500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789428130292,
+      "ts": "2026-09-14T23:22:10.293Z",
+      "total": "$260 USD",
+      "carnet": "",
+      "seenTs": "2026-09-14T23:22:55.139Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "5",
+      "valeNum": 377,
+      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: 5\n🔸Teléfono Cliente: 5\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/9/2026, 19:22:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$260 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-14T23:22:59.941Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1789428040091,
       "ts": "2026-09-14T23:20:40.091Z",
       "total": "$25 USD",
@@ -2589,45 +2668,6 @@
       "recogidaTienda": true,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789426656039,
-      "ts": "2026-09-14T22:57:36.040Z",
-      "total": "$260 USD",
-      "carnet": "",
-      "seenTs": "2026-09-14T22:57:38.183Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "2",
-      "valeNum": 373,
-      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
-      "garantia": "",
-      "gestorId": 0,
-      "precioMN": "",
-      "telefono": "2",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: 2\n🔸Teléfono Cliente: 2\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 18:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Tienda Axontech",
-      "precioUSD": "$260 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "adminNotes": "Generado por Admin",
-      "mensajeria": "",
-      "comFijadaMN": 0,
-      "confirmedTs": "2026-09-14T22:57:42.424Z",
-      "mensajeroId": null,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1778104512761,
-          "qty": 1,
-          "name": "Controlador solar PowMr MM100 PRO de 100A"
-        }
-      ],
-      "comisionGestor": "",
-      "recogidaTienda": false,
-      "stockDecremented": true,
       "synced": true
     },
     {
@@ -23241,5 +23281,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-14T23:21:45.724Z"
+  "timestamp": "2026-09-14T23:25:49.973Z"
 }
