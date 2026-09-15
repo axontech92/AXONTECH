@@ -63,6 +63,22 @@ const PRODS = [
        articulo:'×1 Cargador', valeProductos:[{id:702, name:'Cargador', qty:1}],
        precioUSD:'', precioMN:'2500 MN', vuelto:'', total:'2500 MN',
        comisionCedida:5, comisionCedidaMoneda:'USD', valeText:''},
+      // Total sin ninguna cifra (vales viejos tipo "Venta Local"): aquí sí no
+      // hay nada de qué restar y se cae al aviso de "a mano" de verdad.
+      {id:7005, valeNum:5, gestorId:1, status:'pending', ts:t, cliente:'Ana',
+       telefono:'55556666', direccion:'Calle 5', mensajeria:'',
+       articulo:'×1 Cargador', valeProductos:[{id:702, name:'Cargador', qty:1}],
+       precioUSD:'', precioMN:'', vuelto:'', total:'Venta Local',
+       comisionCedida:5, comisionCedidaMoneda:'USD', valeText:''},
+      // El caso reportado el 15/09: la rebaja del gestor trae DOS monedas
+      // ($15 USD general + 2000 MN de una línea), pero el total del vale es
+      // solo en USD. La parte en USD sí se puede restar; la de MN, no.
+      {id:7004, valeNum:4, gestorId:1, status:'pending', ts:t, cliente:'Rene',
+       telefono:'64656626', direccion:'Ndjjrkriro', mensajeria:'',
+       articulo:'×4 Bocina JBL', valeProductos:[
+         {id:701, name:'Bocina JBL', qty:4, cedidaMN:2000, cedidaMoneda:'MN'}],
+       precioUSD:'$640 USD', precioMN:'', vuelto:'', total:'$640 USD',
+       comisionCedida:15, comisionCedidaMoneda:'USD', comisionCedidaMotivo:'', valeText:''},
     ]);
     adminTab('vales');
   }, PRODS);
@@ -98,7 +114,22 @@ const PRODS = [
   const d3 = await detalle(7003);
   ok('sale el recuadro igual', d3.hayCaja, d3.cajaTxt.slice(0,160));
   ok('enseña el total tal cual, 2500 MN', /2500\s*MN/.test(d3.monto), d3.monto);
-  ok('y avisa de que hay que restar a mano', /a mano/i.test(d3.cajaTxt), d3.cajaTxt.slice(0,220));
+  ok('y avisa de que no se pudo restar la rebaja en USD',
+     /no se pudo restar/i.test(d3.cajaTxt) && /\$5\s*USD/.test(d3.cajaTxt), d3.cajaTxt.slice(0,260));
+
+  console.log('\n══ 3b· REBAJA MIXTA: SE APLICA LA PARTE QUE SÍ CALZA (bug 15/09) ══');
+  const d4 = await detalle(7004);
+  ok('sale el recuadro', d4.hayCaja, d4.cajaTxt.slice(0,160));
+  ok('resta los $15 USD del total ($640 → $625), no deja el total intacto',
+     /\$625\s*USD/.test(d4.monto), d4.monto);
+  ok('avisa de que los 2000 MN no se pudieron restar',
+     /no se pudo restar/i.test(d4.cajaTxt) && /2000\s*MN/.test(d4.cajaTxt), d4.cajaTxt.slice(0,260));
+
+  console.log('\n══ 3c· TOTAL SIN NINGUNA CIFRA: AHÍ SÍ ES "A MANO" DE VERDAD ══');
+  const d5 = await detalle(7005);
+  ok('sale el recuadro', d5.hayCaja, d5.cajaTxt.slice(0,160));
+  ok('enseña el total tal cual, sin inventar nada', /Venta Local/.test(d5.monto), d5.monto);
+  ok('y avisa de restar a mano', /a mano/i.test(d5.cajaTxt), d5.cajaTxt.slice(0,220));
 
   console.log('\n══ 4· EL MENSAJERO VE LO QUE TIENE QUE COBRAR ══');
   const mens = await p.evaluate(() => {

@@ -7726,9 +7726,20 @@ function _rebajaVale(v) {
   };
   const quedaUSD = Math.max(0, tot.usd - (tot.usd > 0 ? rebUSD : 0));
   const quedaMN  = Math.max(0, tot.mn  - (tot.mn  > 0 ? rebMN  : 0));
-  if ((tot.usd > 0 || tot.mn > 0) && !sueltas.length) {
+  // v125 FIX: esta cuenta YA descarta sola la parte que no calza (si el total
+  // no tiene MN, rebMN ni se resta). Antes, en cuanto UNA parte quedaba suelta
+  // —"$15 USD + 2000 MN" contra un total solo en USD, como en el caso
+  // reportado— se bloqueaba el aCobrarTxt ENTERO por culpa de esa parte, y el
+  // cliente se quedaba sin saber que sí había $15 USD que restar. Ahora se
+  // cobra lo que se puede calcular y solo la parte suelta se avisa aparte.
+  if (tot.usd > 0 || tot.mn > 0) {
     res.aCobrar = quedaUSD;
     res.aCobrarTxt = _fmtMonto(quedaUSD, quedaMN);
+  }
+  if (sueltas.length) {
+    const sUSD = sueltas.reduce((a, pt) => a + (pt.moneda === 'USD' ? pt.importe : 0), 0);
+    const sMN  = sueltas.reduce((a, pt) => a + (pt.moneda === 'MN'  ? pt.importe : 0), 0);
+    res.sueltaTxt = _fmtMonto(sUSD, sMN);
   }
   return res;
 }
@@ -7743,7 +7754,16 @@ function _aCobrarVale(v) {
   const totalTxt = ((v && v.total) || '').toString().trim();
   const r = _rebajaVale(v);
   if (!r) return { txt: totalTxt, rebajado: false, nota: '' };
-  if (r.aCobrarTxt) return { txt: r.aCobrarTxt, rebajado: true, nota: '' };
+  if (r.aCobrarTxt) {
+    // v125: puede haber calculado la cifra Y a la vez quedarle una parte
+    // suelta —p.ej. "$15 USD + 2000 MN" contra un total solo en USD: los $15
+    // ya están restados, pero los 2000 MN no tenían de dónde salir—. Se avisa
+    // de esa parte en vez de callarla.
+    const nota = r.sueltaTxt
+      ? 'No se pudo restar ' + r.sueltaTxt + ': está en una moneda que el total no tiene.'
+      : '';
+    return { txt: r.aCobrarTxt, rebajado: true, nota };
+  }
   // Rebaja en una moneda que el total no tiene: no se inventa la conversión.
   return { txt: totalTxt, rebajado: false,
            nota: 'Resta ' + (r.rebajaTxt || '') + ' a mano: está en otra moneda que el total.' };
@@ -18143,8 +18163,8 @@ const AYUDA_SECCIONES = [
       { icono:'💵', titulo:'Cuánto hay que cobrarle al cliente', donde:'Vales › detalle del vale',
         para:'Que el número que se cobra esté escrito, y no haya que restar de cabeza mirando el total y las rebajas.',
         como:'En el detalle, debajo de los datos, sale siempre el recuadro verde "💵 COBRAR AL CLIENTE" con la cifra ya limpia. También es la que ve el mensajero en su lista.',
-        ojo:'Si el vale lleva rebaja, ahí ya viene restada. Si la rebaja está en una moneda que el total no tiene (rebajar en USD un vale que va todo en MN), la app no se inventa la conversión: enseña el total y te avisa de que ese descuento hay que restarlo a mano.',
-        nuevo:'v124' },
+        ojo:'Si el vale lleva rebaja, ahí ya viene restada. Cuando la rebaja mezcla monedas ($15 USD + 2000 MN) y el total solo tiene una de las dos, se resta la parte que calza y se avisa aparte de la que no pudo aplicarse — no se descarta la cuenta entera por esa parte suelta. Si NINGUNA moneda de la rebaja coincide con el total, ahí sí: enseña el total tal cual y avisa de restarlo a mano.',
+        nuevo:'v125' },
       { icono:'🛵', titulo:'Asignar a un mensajero', donde:'Vales › detalle del vale',
         para:'Mandar la mercancía con alguien y que quede apuntado quién la lleva.',
         como:'Abre el vale, dale a "Asignar a Mensajero", elige a quién y compártele el vale por WhatsApp.',
