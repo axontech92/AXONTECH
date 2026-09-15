@@ -2590,45 +2590,6 @@
       "synced": true
     },
     {
-      "id": 1789475345291,
-      "ts": "2026-09-15T12:29:05.311Z",
-      "total": "17965 mn",
-      "carnet": "",
-      "seenTs": "2026-09-15T14:02:17.962Z",
-      "status": "assigned",
-      "vuelto": "No",
-      "cliente": "José julio(jochy)",
-      "valeNum": 389,
-      "articulo": "×1 Toldo para sombra marrón 2 x 4",
-      "garantia": "",
-      "gestorId": 1781761257109,
-      "precioMN": "",
-      "telefono": "52955876",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: José julio(jochy)\n🔸Teléfono Cliente: 52955876\n🔸Dirección Cliente: Calle 28 entre avenida 26 y calle 47#974\n🔸Mensajería/ costo: 1750 mn\n🔸Hora de entrega: 11:00\n🔸 Artículos y cantidades:\n  ×1 Toldo para sombra marrón 2 x 4\n🔸Precio USD/ zelle: $23 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: 17965 mn\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 08:28\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Calle 28 entre avenida 26 y calle 47#974",
-      "precioUSD": "$23 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "assignedTs": "2026-09-15T13:38:37.546Z",
-      "mensajeria": "1750 mn",
-      "comFijadaMN": 3,
-      "mensajeroId": 1784476782949,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1778336859697,
-          "qty": 1,
-          "name": "Toldo para sombra marrón 2 x 4"
-        }
-      ],
-      "comisionGestor": "3 MN",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1789474967696,
       "ts": "2026-09-15T12:22:47.700Z",
       "total": "$70 USD",
@@ -23789,5 +23750,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T14:34:09.391Z"
+  "timestamp": "2026-09-15T14:38:30.573Z"
 }
