@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 176;
+const APP_VERSION = 177;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 176;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v12.2';
+let _PUBLIC_VERSION_STR = 'v12.3';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'cd5cc72109875bb7';
+let _LOCAL_BUILD_HASH = 'f4ab7772fa7f039d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7753,19 +7753,22 @@ function _rebajaVale(v) {
 function _aCobrarVale(v) {
   const totalTxt = ((v && v.total) || '').toString().trim();
   const r = _rebajaVale(v);
-  if (!r) return { txt: totalTxt, rebajado: false, nota: '' };
+  if (!r) return { txt: totalTxt, rebajado: false, nota: '', sueltaTxt: '' };
   if (r.aCobrarTxt) {
     // v125: puede haber calculado la cifra Y a la vez quedarle una parte
     // suelta —p.ej. "$15 USD + 2000 MN" contra un total solo en USD: los $15
     // ya están restados, pero los 2000 MN no tenían de dónde salir—. Se avisa
     // de esa parte en vez de callarla.
+    // v128: sueltaTxt viaja aparte (no solo metido en la frase) para que se
+    // pueda pintar como su propia línea — "$625 USD" y debajo "− 2000 MN" — en
+    // vez de una frase de aviso perdida entre el texto.
     const nota = r.sueltaTxt
-      ? 'No se pudo restar ' + r.sueltaTxt + ': está en una moneda que el total no tiene.'
+      ? 'No se descontó del total porque está en una moneda que el total no tiene — hay que resolverlo aparte (por ejemplo, de vuelto).'
       : '';
-    return { txt: r.aCobrarTxt, rebajado: true, nota };
+    return { txt: r.aCobrarTxt, rebajado: true, nota, sueltaTxt: r.sueltaTxt || '' };
   }
   // Rebaja en una moneda que el total no tiene: no se inventa la conversión.
-  return { txt: totalTxt, rebajado: false,
+  return { txt: totalTxt, rebajado: false, sueltaTxt: '',
            nota: 'Resta ' + (r.rebajaTxt || '') + ' a mano: está en otra moneda que el total.' };
 }
 
@@ -8095,6 +8098,9 @@ function renderValeDetail(destinoId) {
             <span style="font-size:12px;font-weight:800;color:var(--text);">💵 COBRAR AL CLIENTE</span>
             <span id="valeACobrarMonto" style="font-size:19px;font-weight:900;color:var(--green);text-align:right;">${escapeHTML(_c.txt||'—')}</span>
           </div>
+          ${_c.sueltaTxt?`<div style="display:flex;justify-content:flex-end;margin-top:1px;">
+            <span id="valeACobrarSuelta" style="font-size:15px;font-weight:800;color:var(--orange);">− ${escapeHTML(_c.sueltaTxt)}</span>
+          </div>`:''}
           ${_c.rebajado?`<div style="margin-top:4px;font-size:10px;color:var(--text-muted);">Ya lleva la rebaja restada del precio del vale.</div>`:''}
           ${_c.nota?`<div style="margin-top:5px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_c.nota)}</div>`:''}
           ${String(v.vuelto||'').trim()?`<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b>${escapeHTML(v.vuelto)}</b></div>`:''}
@@ -18150,8 +18156,8 @@ const AYUDA_SECCIONES = [
       { icono:'💵', titulo:'Cuánto hay que cobrarle al cliente', donde:'Vales › detalle del vale',
         para:'Que el número que se cobra esté escrito, y no haya que restar de cabeza mirando el total y las rebajas.',
         como:'En el detalle, debajo de los datos, sale siempre el recuadro verde "💵 COBRAR AL CLIENTE" con la cifra ya limpia. También es la que ve el mensajero en su lista.',
-        ojo:'Si el vale lleva rebaja, ahí ya viene restada. Cuando la rebaja mezcla monedas ($15 USD + 2000 MN) y el total solo tiene una de las dos, se resta la parte que calza y se avisa aparte de la que no pudo aplicarse — no se descarta la cuenta entera por esa parte suelta. Si NINGUNA moneda de la rebaja coincide con el total, ahí sí: enseña el total tal cual y avisa de restarlo a mano.',
-        nuevo:'v125' },
+        ojo:'Si el vale lleva rebaja, ahí ya viene restada. Cuando la rebaja mezcla monedas ($15 USD + 2000 MN) y el total solo tiene una de las dos, se resta la parte que calza —y el número principal baja de verdad— y la parte que no pudo aplicarse sale debajo, como su propia línea en naranja ("$625 USD" y debajo "− 2000 MN"), para que se lea de un vistazo que hay que resolverla aparte. Si NINGUNA moneda de la rebaja coincide con el total, ahí sí: enseña el total tal cual y avisa de restarlo a mano.',
+        nuevo:'v128' },
       { icono:'🛵', titulo:'Asignar a un mensajero', donde:'Vales › detalle del vale',
         para:'Mandar la mercancía con alguien y que quede apuntado quién la lleva.',
         como:'Abre el vale, dale a "Asignar a Mensajero", elige a quién y compártele el vale por WhatsApp.',

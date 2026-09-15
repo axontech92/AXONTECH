@@ -93,6 +93,7 @@ const PRODS = [
       texto: raiz.textContent.replace(/\s+/g, ' '),
       hayCaja: !!box,
       monto: (document.getElementById('valeACobrarMonto') || {}).textContent || '',
+      suelta: (document.getElementById('valeACobrarSuelta') || {}).textContent || '',
       cajaTxt: box ? box.textContent.replace(/\s+/g,' ').trim() : '',
     };
   }, id);
@@ -114,16 +115,22 @@ const PRODS = [
   const d3 = await detalle(7003);
   ok('sale el recuadro igual', d3.hayCaja, d3.cajaTxt.slice(0,160));
   ok('enseña el total tal cual, 2500 MN', /2500\s*MN/.test(d3.monto), d3.monto);
-  ok('y avisa de que no se pudo restar la rebaja en USD',
-     /no se pudo restar/i.test(d3.cajaTxt) && /\$5\s*USD/.test(d3.cajaTxt), d3.cajaTxt.slice(0,260));
+  // v128: la parte suelta ahora es su propia línea, apilada debajo del monto
+  // principal ("2500 MN" y debajo "− $5 USD"), no solo una frase de aviso.
+  ok('y la parte suelta sale como su propia línea, "− $5 USD"',
+     /\$5\s*USD/.test(d3.suelta), d3.suelta);
+  ok('con la nota explicando que hay que resolverlo aparte',
+     /no se descontó/i.test(d3.cajaTxt), d3.cajaTxt.slice(0,260));
 
   console.log('\n══ 3b· REBAJA MIXTA: SE APLICA LA PARTE QUE SÍ CALZA (bug 15/09) ══');
   const d4 = await detalle(7004);
   ok('sale el recuadro', d4.hayCaja, d4.cajaTxt.slice(0,160));
   ok('resta los $15 USD del total ($640 → $625), no deja el total intacto',
      /\$625\s*USD/.test(d4.monto), d4.monto);
-  ok('avisa de que los 2000 MN no se pudieron restar',
-     /no se pudo restar/i.test(d4.cajaTxt) && /2000\s*MN/.test(d4.cajaTxt), d4.cajaTxt.slice(0,260));
+  ok('y los 2000 MN sueltos salen como su propia línea, "− 2000 MN"',
+     /2000\s*MN/.test(d4.suelta), d4.suelta);
+  ok('con la nota explicando que hay que resolverlo aparte',
+     /no se descontó/i.test(d4.cajaTxt), d4.cajaTxt.slice(0,260));
 
   console.log('\n══ 3c· TOTAL SIN NINGUNA CIFRA: AHÍ SÍ ES "A MANO" DE VERDAD ══');
   const d5 = await detalle(7005);
