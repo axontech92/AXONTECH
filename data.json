@@ -2439,38 +2439,43 @@
   "vales": [
     {
       "id": 1789485357256,
-      "ts": "2026-09-15T15:15:57.259Z",
-      "total": "$90 USD",
+      "ts": "2026-09-15T15:15:00.000Z",
+      "total": "$350 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T15:16:06.369Z",
+      "seenTs": "2026-09-15T15:23:55.401Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Ndndkke",
       "valeNum": 395,
-      "articulo": "×3 Switch dE 8 puertos",
+      "articulo": "×3 Switch dE 8 puertos / ×1 Controlador solar PowMr MM100 PRO de 100A",
       "garantia": "",
       "gestorId": 1782489503525,
       "precioMN": "",
       "telefono": "9595959",
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Ndndkke\n🔸Teléfono Cliente: 9595959\n🔸Dirección Cliente: Jdkfkkfk\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×3 Switch dE 8 puertos\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 11:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Jdkfkkfk",
-      "precioUSD": "$90 USD",
+      "precioUSD": "$350 USD",
       "reservado": false,
       "ubicacion": null,
-      "assignedTs": "2026-09-15T15:20:34.170Z",
+      "assignedTs": "2026-09-15T15:21:51.033Z",
       "mensajeria": "",
       "comFijadaMN": 4500,
       "mensajeroId": 1784408225928,
       "seenByAdmin": true,
-      "comFijadaUSD": 0,
+      "comFijadaUSD": 10,
       "valeProductos": [
         {
           "id": 1778102214012,
           "qty": 3,
           "name": "Switch dE 8 puertos"
+        },
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
         }
       ],
-      "comisionGestor": "4500 MN",
+      "comisionGestor": "$10.00 USD + 4500 MN",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -2481,7 +2486,7 @@
       "ts": "2026-09-15T14:03:51.751Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T14:09:14.314Z",
+      "seenTs": "2026-09-15T15:20:51.296Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Andres - Violeta",
@@ -2556,7 +2561,7 @@
       "ts": "2026-09-15T13:11:48.258Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T15:14:16.183Z",
+      "seenTs": "2026-09-15T15:22:32.891Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Suilang",
@@ -2677,7 +2682,7 @@
       "ts": "2026-09-15T02:33:00.000Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T14:45:28.228Z",
+      "seenTs": "2026-09-15T15:22:38.383Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -2797,7 +2802,7 @@
       "ts": "2026-09-15T01:52:05.866Z",
       "total": "$65 USD + 2400 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T14:01:33.191Z",
+      "seenTs": "2026-09-15T15:20:55.769Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Raul Mitjans",
@@ -23752,5 +23757,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T15:21:21.392Z"
+  "timestamp": "2026-09-15T15:25:03.079Z"
 }
