@@ -1059,7 +1059,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 39,
+      "stock": 29,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2439,6 +2439,43 @@
   ],
   "vales": [
     {
+      "id": 1789496149281,
+      "ts": "2026-09-15T18:15:49.287Z",
+      "total": "$90 USD",
+      "carnet": "",
+      "seenTs": "2026-09-15T18:15:59.966Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Nozle",
+      "valeNum": 395,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1784476335609,
+      "precioMN": "",
+      "telefono": "5352131155",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Juan\n\n🔸 Nombre Cliente: Nozle\n🔸Teléfono Cliente: 5352131155\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 15/09/2026 14:14\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$90 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789495992449,
       "ts": "2026-09-15T18:13:12.474Z",
       "total": "$1850 USD",
@@ -2507,8 +2544,8 @@
       "ts": "2026-09-15T17:34:06.926Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T17:42:42.229Z",
-      "status": "pending",
+      "seenTs": "2026-09-15T18:20:45.167Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Angello",
       "valeNum": 392,
@@ -2524,8 +2561,14 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 15000,
+      "confirmedTs": "2026-09-15T18:22:38.906Z",
+      "rebajaAdmin": 1090,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 10
+      },
       "comFijadaUSD": 0,
+      "rebajaAdminTs": "2026-09-15T18:22:24.072Z",
       "valeProductos": [
         {
           "id": 1778384646214,
@@ -2536,7 +2579,9 @@
       "comisionCedida": 2000,
       "comisionGestor": "15000 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
+      "rebajaAdminMoneda": "MN",
+      "rebajaAdminMotivo": "venta al por mayor",
       "comisionCedidaMoneda": "MN",
       "synced": true
     },
@@ -2736,7 +2781,7 @@
       "ts": "2026-09-15T13:11:48.258Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T17:42:45.484Z",
+      "seenTs": "2026-09-15T18:20:44.204Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Suilang",
@@ -3238,7 +3283,7 @@
       "ts": "2026-09-14T23:07:04.401Z",
       "total": "$230 USD + 5600 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T17:44:53.962Z",
+      "seenTs": "2026-09-15T18:19:55.641Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Alvaro",
@@ -23918,5 +23963,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T18:14:58.229Z"
+  "timestamp": "2026-09-15T18:23:38.929Z"
 }
