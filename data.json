@@ -1607,7 +1607,7 @@
       "name": "Transfer 3 polos 220v",
       "catId": 20,
       "photo": "photos/img_1785079428055.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1785079428055.webp",
       "nombre": "Transfer 3 polos 220v",
       "precio": "$70",
@@ -1924,7 +1924,7 @@
       "name": "Breker digital ajustable",
       "catId": 20,
       "photo": "photos/img_1786594651216.webp",
-      "stock": 21,
+      "stock": 22,
       "imagen": "photos/img_1786594651216.webp",
       "nombre": "Breker digital ajustable",
       "precio": "$20",
@@ -2439,6 +2439,43 @@
   ],
   "vales": [
     {
+      "id": 1789512999459,
+      "ts": "2026-09-15T22:56:39.466Z",
+      "total": "$320 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-15T22:57:15.447Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Fidel",
+      "valeNum": 403,
+      "articulo": "×2 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1784475902029,
+      "precioMN": "",
+      "telefono": "55919682",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Maykel\n\n🔸 Nombre Cliente: Fidel\n🔸Teléfono Cliente: 55919682\n🔸Dirección Cliente: Menocal entre Rosell y Don Tomás Félix, Mantilla, Arroyo Naranjo.\n🔸Mensajería/ costo: 3000 cup\n🔸Hora de entrega: 13:30\n🔸 Artículos y cantidades:\n  ×2 Nanostation loco m5\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $320 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 18:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Menocal entre Rosell y Don Tomás Félix, Mantilla, Arroyo Naranjo.",
+      "precioUSD": "$320 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3000 cup",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 2,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789511379837,
       "ts": "2026-09-15T22:29:39.838Z",
       "total": "$230 USD",
@@ -2527,7 +2564,7 @@
       "total": "$70 USD + 3500 MN",
       "carnet": "",
       "seenTs": "2026-09-15T21:11:40.299Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "10 USD",
       "cliente": "Mario Sergio",
       "valeNum": 401,
@@ -2544,8 +2581,13 @@
       "assignedTs": "2026-09-15T21:11:23.310Z",
       "mensajeria": "3500 CUP",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-15T23:18:12.039Z",
+      "deliveredTs": "2026-09-15T23:18:09.155Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1785079428055": 1
+      },
       "comFijadaUSD": 5,
       "valeProductos": [
         {
@@ -2556,7 +2598,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2615,7 +2657,7 @@
       "ts": "2026-09-15T20:21:13.114Z",
       "total": "$230 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T21:10:46.647Z",
+      "seenTs": "2026-09-15T22:37:04.856Z",
       "status": "pending_payment",
       "vuelto": "10",
       "cliente": "Misleysis",
@@ -3172,7 +3214,7 @@
       "ts": "2026-09-15T02:29:09.306Z",
       "total": "$480 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T17:45:48.204Z",
+      "seenTs": "2026-09-15T23:18:53.164Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -3209,7 +3251,7 @@
       "ts": "2026-09-15T02:18:30.403Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T21:10:49.181Z",
+      "seenTs": "2026-09-15T22:37:02.093Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Armando",
@@ -3347,7 +3389,7 @@
       "ts": "2026-09-15T00:22:00.162Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T17:45:50.055Z",
+      "seenTs": "2026-09-15T22:37:25.366Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "José Luis González Naranjo",
@@ -24226,5 +24268,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T22:30:53.378Z"
+  "timestamp": "2026-09-15T23:19:12.627Z"
 }
