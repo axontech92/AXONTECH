@@ -634,7 +634,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2039,7 +2039,7 @@
       "name": "Router Wavlink AC1200 pequeño",
       "catId": 10,
       "photo": "photos/img_1785077980600.webp",
-      "stock": 21,
+      "stock": 20,
       "imagen": "photos/img_1785077980600.webp",
       "nombre": "Router Wavlink AC1200 pequeño",
       "precio": "$70",
@@ -2442,7 +2442,7 @@
       "ts": "2026-09-15T15:15:00.000Z",
       "total": "$350 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T15:23:55.401Z",
+      "seenTs": "2026-09-15T15:37:06.889Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Ndndkke",
@@ -2638,8 +2638,8 @@
       "ts": "2026-09-15T02:33:49.514Z",
       "total": "$90 USD + 5700 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T14:02:46.913Z",
-      "status": "assigned",
+      "seenTs": "2026-09-15T15:37:43.231Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Bryan",
       "valeNum": 387,
@@ -2656,6 +2656,7 @@
       "assignedTs": "2026-09-15T14:02:33.673Z",
       "mensajeria": "5700 cup",
       "comFijadaMN": 1500,
+      "deliveredTs": "2026-09-15T15:37:47.486Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -2673,7 +2674,7 @@
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -23761,5 +23762,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T15:36:47.399Z"
+  "timestamp": "2026-09-15T15:38:47.504Z"
 }
