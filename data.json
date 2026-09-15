@@ -2471,7 +2471,7 @@
       "ts": "2026-09-15T01:48:00.000Z",
       "total": "$2300 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T02:06:59.432Z",
+      "seenTs": "2026-09-15T02:10:11.947Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Gabriel",
@@ -2488,8 +2488,10 @@
       "ubicacion": null,
       "mensajeria": "2500 ( de mi comisión)",
       "comFijadaMN": 15000,
+      "rebajaAdmin": 50,
       "seenByAdmin": true,
       "comFijadaUSD": 200,
+      "rebajaAdminTs": "2026-09-15T02:10:36.824Z",
       "valeProductos": [
         {
           "id": 1785077980600,
@@ -2510,6 +2512,8 @@
       "comisionGestor": "$200.00 USD + 15000 MN",
       "recogidaTienda": false,
       "stockDecremented": false,
+      "rebajaAdminMoneda": "USD",
+      "rebajaAdminMotivo": "cliente fijo",
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2518,6 +2522,7 @@
       "ts": "2026-09-15T00:53:35.372Z",
       "total": "$160 USD + 25000 MN",
       "carnet": "",
+      "seenTs": "2026-09-15T02:10:00.506Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mikel _ Alejandro",
@@ -2534,6 +2539,7 @@
       "ubicacion": null,
       "mensajeria": "25000 cup",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2553,7 +2559,7 @@
       "ts": "2026-09-15T00:40:56.502Z",
       "total": "$800 USD + 1400 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T02:03:38.772Z",
+      "seenTs": "2026-09-15T02:08:43.518Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Walter",
@@ -2592,6 +2598,7 @@
       "ts": "2026-09-15T00:22:00.162Z",
       "total": "$90 USD",
       "carnet": "",
+      "seenTs": "2026-09-15T02:10:00.898Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "José Luis González Naranjo",
@@ -2608,6 +2615,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
         {
@@ -4799,47 +4807,6 @@
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789103898803,
-      "ts": "2026-09-11T05:18:18.805Z",
-      "total": "$1600 USD",
-      "carnet": "",
-      "seenTs": "2026-09-14T20:01:15.189Z",
-      "status": "assigned",
-      "vuelto": "",
-      "cliente": "Hancel",
-      "valeNum": 356,
-      "articulo": "×10 Nanostation loco m5",
-      "garantia": "",
-      "gestorId": 1782489503525,
-      "precioMN": "",
-      "telefono": "5358354217",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Hancel\n🔸Teléfono Cliente: 5358354217\n🔸Dirección Cliente: Guasimal / antilla y Guantánamo\n🔸Mensajería/ costo: 0\n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n🔸Precio USD/ zelle: $1600 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1600 USD\n🔸 Rebaja: −$30 USD\n🔸 Total a pagar: $1570 USD\n\n*Garantía: \n*Fecha y hora de Venta: 11/09/2026 01:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Guasimal / antilla y Guantánamo",
-      "precioUSD": "$1600 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "assignedTs": "2026-09-11T13:24:25.176Z",
-      "mensajeria": "0",
-      "comFijadaMN": 0,
-      "mensajeroId": 1784408225928,
-      "seenByAdmin": true,
-      "comFijadaUSD": 100,
-      "valeProductos": [
-        {
-          "id": 1786509569058,
-          "qty": 10,
-          "name": "Nanostation loco m5"
-        }
-      ],
-      "comisionCedida": 30,
-      "comisionGestor": "$100.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "Socio",
       "synced": true
     },
     {
@@ -23493,5 +23460,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T02:08:01.798Z"
+  "timestamp": "2026-09-15T02:12:22.798Z"
 }
