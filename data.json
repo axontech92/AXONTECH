@@ -1059,7 +1059,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 49,
+      "stock": 39,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1522,7 +1522,7 @@
       "name": "Router Wavlink AC1200 pequeño",
       "catId": 10,
       "photo": "photos/img_1785077980600.webp",
-      "stock": 9,
+      "stock": 1,
       "imagen": "photos/img_1785077980600.webp",
       "nombre": "Router Wavlink AC1200 pequeño",
       "precio": "$70",
@@ -1779,7 +1779,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 11,
+      "stock": 10,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -2332,7 +2332,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 6,
+      "stock": 0,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2438,6 +2438,70 @@
     }
   ],
   "vales": [
+    {
+      "id": 1789495992449,
+      "ts": "2026-09-15T18:13:12.474Z",
+      "total": "$1850 USD",
+      "carnet": "",
+      "seenTs": "2026-09-15T18:13:26.495Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Jose Carlos",
+      "valeNum": 394,
+      "articulo": "×10 Adaptador poe UBIQUITI de 0.3A / ×8 Router Wavlink AC1200 pequeño / ×1 Ubiquiti LiteAP ac (LAP-120) / ×6 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5355051498",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Jose Carlos\n🔸Teléfono Cliente: 5355051498\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Adaptador poe UBIQUITI de 0.3A\n  ×8 Router Wavlink AC1200 pequeño\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n  ×6 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $1850 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1850 USD\n🔸 Rebaja: −$70 USD\n🔸 Total a pagar: $1780 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 14:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1850 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 15000,
+      "confirmedTs": "2026-09-15T18:13:58.207Z",
+      "rebajaAdmin": 90,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 10,
+        "1785077980600": 8,
+        "1786509303890": 1,
+        "1788278326719": 6
+      },
+      "comFijadaUSD": 150,
+      "rebajaAdminTs": "2026-09-15T18:13:51.424Z",
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 10,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1785077980600,
+          "qty": 8,
+          "name": "Router Wavlink AC1200 pequeño"
+        },
+        {
+          "id": 1786509303890,
+          "qty": 1,
+          "name": "Ubiquiti LiteAP ac (LAP-120)"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 6,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionCedida": 70,
+      "comisionGestor": "$150.00 USD + 15000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "rebajaAdminMoneda": "USD",
+      "rebajaAdminMotivo": "Cliente fijo",
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1789493646923,
       "ts": "2026-09-15T17:34:06.926Z",
@@ -2747,9 +2811,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-15T18:09:54.006Z"
+      "synced": true
     },
     {
       "id": 1789439629502,
@@ -2795,9 +2857,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-15T17:43:46.398Z"
+      "synced": true
     },
     {
       "id": 1789439349286,
@@ -23858,5 +23918,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T18:10:54.391Z"
+  "timestamp": "2026-09-15T18:14:58.229Z"
 }
