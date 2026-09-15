@@ -841,7 +841,7 @@
       "stock": 14,
       "imagen": "photos/img_1778104924836.webp",
       "nombre": "ESTACION DE CARGA PORTÁTIL",
-      "precio": "$700 USD",
+      "precio": "$665 USD",
       "puntos": 1,
       "comision": "$15 USD",
       "garantia": "",
@@ -1814,7 +1814,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 16,
+      "stock": 15,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2597,7 +2597,7 @@
       "ts": "2026-09-15T14:03:51.751Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T15:20:51.296Z",
+      "seenTs": "2026-09-15T17:45:43.585Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Andres - Violeta",
@@ -2710,8 +2710,8 @@
       "ts": "2026-09-15T12:42:57.255Z",
       "total": "$160 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T15:20:26.557Z",
-      "status": "assigned",
+      "seenTs": "2026-09-15T18:09:43.915Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Mikel - Alejandro",
       "valeNum": 390,
@@ -2728,8 +2728,13 @@
       "assignedTs": "2026-09-15T13:16:05.397Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-15T18:09:53.157Z",
+      "deliveredTs": "2026-09-15T18:09:50.652Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2740,9 +2745,11 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-15T18:09:54.006Z"
     },
     {
       "id": 1789439629502,
@@ -2797,7 +2804,7 @@
       "ts": "2026-09-15T02:29:09.306Z",
       "total": "$480 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T15:20:41.371Z",
+      "seenTs": "2026-09-15T17:45:48.204Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2834,7 +2841,7 @@
       "ts": "2026-09-15T02:18:30.403Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T14:48:28.880Z",
+      "seenTs": "2026-09-15T17:44:50.979Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Armando",
@@ -2972,7 +2979,7 @@
       "ts": "2026-09-15T00:22:00.162Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T15:51:56.111Z",
+      "seenTs": "2026-09-15T17:45:50.055Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "José Luis González Naranjo",
@@ -3171,7 +3178,7 @@
       "ts": "2026-09-14T23:07:04.401Z",
       "total": "$230 USD + 5600 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T17:03:57.636Z",
+      "seenTs": "2026-09-15T17:44:53.962Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Alvaro",
@@ -23851,5 +23858,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T17:44:46.412Z"
+  "timestamp": "2026-09-15T18:10:54.391Z"
 }
