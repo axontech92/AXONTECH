@@ -661,7 +661,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778384158283,
@@ -925,7 +925,7 @@
       "name": "Transfer 2 polos 110v",
       "catId": 20,
       "photo": "photos/img_1785079508918.webp",
-      "stock": 15,
+      "stock": 14,
       "imagen": "photos/img_1785079508918.webp",
       "nombre": "Transfer 2 polos 110v",
       "precio": "$65",
@@ -986,7 +986,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786509014605,
@@ -1203,7 +1203,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 9980,
+      "stock": 600,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -1211,7 +1211,8 @@
       "comision": "",
       "garantia": "",
       "description": "",
-      "precioActual": 280
+      "precioActual": 280,
+      "comisionMoneda": ""
     },
     {
       "id": 1787375387767,
@@ -2378,7 +2379,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788278326719,
@@ -2873,7 +2874,7 @@
       "total": "$65 USD + 2400 MN",
       "carnet": "",
       "seenTs": "2026-09-15T15:51:46.556Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Raul Mitjans",
       "valeNum": 370,
@@ -2889,8 +2890,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-15T14:01:18.110Z",
       "mensajeria": "2400 CUP",
+      "confirmedTs": "2026-09-15T16:06:01.122Z",
+      "deliveredTs": "2026-09-15T16:05:52.602Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1785079508918": 1
+      },
       "valeProductos": [
         {
           "id": 1785079508918,
@@ -2900,7 +2906,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2908,7 +2914,7 @@
       "ts": "2026-09-15T01:48:00.000Z",
       "total": "$2300 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T15:30:35.506Z",
+      "seenTs": "2026-09-15T16:06:16.682Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Gabriel",
@@ -23831,5 +23837,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T15:52:13.391Z"
+  "timestamp": "2026-09-15T16:07:02.830Z"
 }
