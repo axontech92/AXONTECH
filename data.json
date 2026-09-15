@@ -2060,7 +2060,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 34,
+      "stock": 33,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2439,12 +2439,93 @@
   ],
   "vales": [
     {
+      "id": 1789498101284,
+      "ts": "2026-09-15T18:48:21.289Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-15T18:51:48.651Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Hermes Garcia",
+      "valeNum": 397,
+      "articulo": "×1 Breker digital ajustable",
+      "garantia": "",
+      "gestorId": 1784476335609,
+      "precioMN": "",
+      "telefono": "50995186",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Juan\n\n🔸 Nombre Cliente: Hermes Garcia\n🔸Teléfono Cliente: 50995186\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Breker digital ajustable\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 14:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786594651216,
+          "qty": 1,
+          "name": "Breker digital ajustable"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789496825589,
+      "ts": "2026-09-15T18:27:05.590Z",
+      "total": "$640 USD",
+      "carnet": "",
+      "seenTs": "2026-09-15T18:51:44.416Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Jdjejejr",
+      "valeNum": 396,
+      "articulo": "×4 Router KUWIFI de linea de 1.150MBPS / ×4 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "precioMN": "",
+      "telefono": "64656626",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Jdjejejr\n🔸Teléfono Cliente: 64656626\n🔸Dirección Cliente: Ndjjrkriro\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×4 Router KUWIFI de linea de 1.150MBPS\n  ×4 Switch dE 8 puertos\n🔸Precio USD/ zelle: $640 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $640 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 14:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Ndjjrkriro",
+      "precioUSD": "$640 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 6000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 40,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 4,
+          "cedidaUSD": 15,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        },
+        {
+          "id": 1778102214012,
+          "qty": 4,
+          "cedidaMN": 2000,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "$25 USD + 4000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789496149281,
       "ts": "2026-09-15T18:15:49.287Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T18:15:59.966Z",
-      "status": "pending",
+      "seenTs": "2026-09-15T18:57:28.640Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Nozle",
       "valeNum": 395,
@@ -2471,9 +2552,13 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "stockSalido": {
+        "1787089756274": 1
+      },
+      "confirmedTs": "2026-09-15T18:57:31.882Z"
     },
     {
       "id": 1789495992449,
@@ -2781,7 +2866,7 @@
       "ts": "2026-09-15T13:11:48.258Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T18:20:44.204Z",
+      "seenTs": "2026-09-15T18:26:53.523Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Suilang",
@@ -23963,5 +24048,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T18:23:38.929Z"
+  "timestamp": "2026-09-15T18:58:32.392Z"
 }
