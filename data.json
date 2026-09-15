@@ -2926,6 +2926,7 @@
       "comisionCedida": 2000,
       "comisionGestor": "15000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "rebajaAdminMoneda": "MN",
       "rebajaAdminMotivo": "venta al por mayor",
@@ -24282,5 +24283,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T23:31:32.862Z"
+  "timestamp": "2026-09-15T23:33:29.277Z"
 }
