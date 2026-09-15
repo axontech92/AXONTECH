@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 175;
+const APP_VERSION = 176;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 175;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v12.1';
+let _PUBLIC_VERSION_STR = 'v12.2';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '033e7e0405dcffdf';
+let _LOCAL_BUILD_HASH = 'cd5cc72109875bb7';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -11478,49 +11478,32 @@ function removeProducto(id) {
 
 
 // ══════════════════════════════════════════
-//  VENTAS DIRECTAS — el mostrador  (v124)
+//  VENTAS DIRECTAS — el mostrador  (v124, v127)
 // ══════════════════════════════════════════
-// Lo que se vende en la tienda sin gestor por medio. Descuenta del almacén y
-// entra en las cuentas (ganancia, dueños, costos), pero NO avisa a nadie: ni
-// notificación al gestor, ni "stock agotado", ni mensajero. Solo el admin sabe
-// que esta venta existe.
+// Mercancía que ni siquiera pasa por el almacén: entra y se vende en el mismo
+// momento, así que NO existe como stock en ningún lado. Este apartado es solo
+// el cuaderno de cuentas del admin —qué se vendió y por cuánto—, y por eso NO
+// TOCA el stock de ningún producto: ni lo descuenta al vender, ni lo repone al
+// deshacer. Entra en las cuentas (ganancia, dueños, costos) pero NO avisa a
+// nadie: ni notificación al gestor, ni de stock (no hay stock que avisar), ni
+// mensajero. Solo el admin sabe que esta venta existe.
 //
-// Antes esto era un prompt() escondido en la ficha del producto que además sí
-// mandaba avisos de stock —o sea, los gestores se enteraban— y guardaba
-// `total:'Venta Local'`, un texto sin número con el que ninguna cuenta podía
-// hacer nada. Ahora tiene su propio apartado, se apunta lo que se cobró de
-// verdad, y se puede deshacer devolviendo la mercancía.
+// v127: hasta ahora SÍ descontaba el stock del producto elegido, como si fuera
+// una venta normal de almacén. Eso está mal para este apartado en concreto:
+// esta mercancía nunca se dio de alta como inventario, así que no hay nada que
+// restarle. Se elige un producto del catálogo solo como referencia (precio,
+// garantía, de quién es, costo para la ganancia) — su número de `stock` no se
+// toca para nada, ni al registrar la venta ni al deshacerla.
 const VENTA_DIRECTA_CLIENTE = 'Venta Directa en Tienda';
 const esVentaDirecta = v => !!v && (v.ventaDirecta === true || v.gestorId === 'admin');
 
-// El corazón: crea la venta en silencio. Devuelve el vale creado o null.
+// El corazón: crea la venta en silencio, sin tocar el stock. Devuelve el vale
+// creado o null.
 function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
   const p = productoOf(pid);
   if (!p) { showToast('Ese producto ya no está en el catálogo'); return null; }
   qty = parseInt(qty, 10);
   if (!isFinite(qty) || qty <= 0) { showToast('Cantidad inválida'); return null; }
-  // Contra el stock DISPONIBLE (stock − reservado), igual que los pickers de
-  // vale: lo reservado ya tiene dueño aunque siga en el almacén.
-  const hay = _availableStock(p);
-  if (qty > hay) { showToast('Solo quedan ' + hay + ' sin reservar'); return null; }
-
-  // v126 FIX: iba por patchProducto, que sube el stock ABSOLUTO ("ahora queda
-  // en 8"). Es el mismo agujero que ya se tapó en v96 para los vales
-  // (_descontarStock): si dos teléfonos venden el mismo producto casi a la vez,
-  // cada uno escribe su propio "queda en X" sobre una foto que ya estaba vieja,
-  // y una de las dos ventas se pierde en la nube en vez de restarse. Con el
-  // delta el teléfono manda "quita 2", no un número absoluto, así que el orden
-  // de llegada no importa y las dos ventas se descuentan de verdad.
-  const antes = _numStock(p.stock);
-  const salen = Math.min(qty, antes);       // no manda pedir más de lo que hay
-  const ahora = Math.max(0, antes - salen);
-  const prods = getProductos().slice();
-  const idx = prods.findIndex(x => x && x.id === pid);
-  if (idx !== -1) prods[idx] = { ...prods[idx], stock: ahora };
-  // Silencio: guardarProductosPorDelta puede acabar llamando a los avisos de stock.
-  if (idx !== -1 && salen > 0) {
-    _sinAvisarStock(() => guardarProductosPorDelta(prods, { [pid]: -salen }));
-  }
 
   const ahoraTs = new Date().toISOString();
   const cobrado = String(cobradoTxt || '').trim() || String(p.precio || '').trim();
@@ -11532,15 +11515,17 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
     precioUSD: p.precio || '', precioMN: '',
     vuelto: '', total: cobrado, garantia: p.garantia || '',
     valeProductos: [{ id: p.id, name: p.name, qty }],
-    // Lo que salió de verdad, para que deshacerla devuelva exactamente eso.
-    stockSalido: { [String(p.id)]: salen },
     valeText: 'Venta en tienda',
     status: 'confirmed', mensajeroId: null, confirmedTs: ahoraTs, isNew: false,
     adminNotes: String(nota || '').trim(),
     // Sin gestor no hay comisión que pagar: nace saldada.
     comisionGestor: '', commissionPaid: true, commissionStatus: 'cobrado',
     commissionPaidTs: ahoraTs,
-    stockDecremented: true
+    // v127: explícito en false —no solo ausente— para que ningún camino que
+    // revierta o borre un vale (adminDeleteVale, revertConfirmSale…) intente
+    // devolver stock que nunca se quitó. _valeDescontoStock() mira esta
+    // bandera antes que nada.
+    stockDecremented: false
   };
   const all = getVales(); all.push(vale); saveVales(all);
   // Nace ya confirmada, así que no pasa por patchVale: el costo se congela aquí.
@@ -11571,7 +11556,10 @@ function vdNuevoProducto() {
   openAddProductModal();
 }
 
-// ── El selector de producto y el aviso de stock ────────────────────────────
+// ── El selector de producto ─────────────────────────────────────────────────
+// v127: sin nada de disponibilidad. El producto es solo una referencia
+// (precio, garantía, de quién es, costo) — esta mercancía no vive en el
+// almacén, así que no hay "cuánto queda" que mirar ni que bloquear.
 function _vdLlenarSelector() {
   const sel = document.getElementById('vdProducto');
   if (!sel) return;
@@ -11579,11 +11567,10 @@ function _vdLlenarSelector() {
   const prods = getProductos().slice()
     .filter(p => p && p.name)
     .sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'));
-  sel.innerHTML = '<option value="">— Elige el producto —</option>' + prods.map(p => {
-    const hay = _availableStock(p);
-    return '<option value="' + p.id + '"' + (hay <= 0 ? ' disabled' : '') + '>' +
-           escapeHTML(p.name) + ' · ' + (hay > 0 ? hay + ' disponibles' : 'sin stock') + '</option>';
-  }).join('');
+  sel.innerHTML = '<option value="">— Elige el producto —</option>' + prods.map(p =>
+    '<option value="' + p.id + '">' + escapeHTML(p.name) +
+    (p.precio ? ' · ' + escapeHTML(p.precio) : '') + '</option>'
+  ).join('');
   if (antes && sel.querySelector('option[value="' + antes + '"]')) sel.value = antes;
 }
 function vdRefresca() {
@@ -11591,24 +11578,13 @@ function vdRefresca() {
   const info = document.getElementById('vdStockInfo');
   const cobr = document.getElementById('vdCobrado');
   const aviso = document.getElementById('vdAviso');
+  if (aviso) aviso.style.display = 'none';   // v127: ya no hay stock que avisar
   if (!sel || !info) return;
   const p = productoOf(parseInt(sel.value, 10));
-  if (!p) { info.textContent = ''; if (aviso) aviso.style.display = 'none'; return; }
-  const hay = _availableStock(p);
-  const fisico = _numStock(p.stock);
-  const reservado = Math.max(0, fisico - hay);
-  info.textContent = 'En almacén: ' + fisico + (reservado ? ' · Reservado: ' + reservado : '') +
-                     ' · Se puede vender: ' + hay + (p.precio ? ' · Precio de lista: ' + p.precio : '');
+  if (!p) { info.textContent = ''; return; }
+  info.textContent = p.precio ? 'Precio de lista: ' + p.precio : '';
   // El precio se propone, no se impone: en el mostrador se regatea.
   if (cobr && !cobr.value.trim() && p.precio) cobr.value = String(p.precio);
-  if (aviso) {
-    const q = parseInt((document.getElementById('vdCantidad') || {}).value, 10) || 0;
-    if (q > hay) {
-      aviso.style.display = 'block';
-      aviso.style.color = 'var(--red)';
-      aviso.textContent = '⚠️ Solo quedan ' + hay + ' sin reservar.';
-    } else { aviso.style.display = 'none'; }
-  }
 }
 
 function registrarVentaDirecta() {
@@ -11626,26 +11602,24 @@ function registrarVentaDirecta() {
   if (sel) sel.value = '';
   showToast('Venta registrada ✓ — nadie ha sido avisado');
   _vdLlenarSelector(); vdRefresca(); renderVentasDirectas();
-  try { renderProductGrid(); renderStockCategorias(); } catch(e) {}
   maybeAutoSync();
 }
 
-// Deshacer: devuelve la mercancía y borra la venta. También en silencio.
+// Deshacer: borra la venta del cuaderno. No toca el stock —nunca lo tocó al
+// registrarla, así que tampoco hay nada que devolver al deshacerla.
 function borrarVentaDirecta(id) {
   const v = getVales().find(x => x.id === id);
   if (!v || !esVentaDirecta(v)) return;
-  showConfirmAction('¿Deshacer esta venta?', (v.articulo || '') + ' — la mercancía vuelve al almacén',
+  showConfirmAction('¿Deshacer esta venta?', (v.articulo || '') + ' — se borra del cuaderno de ventas directas',
                     'Deshacer', 'btn-orange', () => {
-    _sinAvisarStock(() => { try { _devolverStockDeVale(v); } catch(e) {} });
     // Mismo camino que adminDeleteVale: marcar el borrado en vuelo para que el
     // poll no lo resucite, y mandar el DELETE de verdad a la nube.
     try { _valesDirectDeleting.add(String(id)); } catch(e) {}
     saveVales(getVales().filter(x => x.id !== id));
     _logAudit('direct_sale_undo', 'vale:' + id);
     statsTabDirty = true;
-    showToast('Venta deshecha · stock devuelto');
+    showToast('Venta deshecha');
     renderVentasDirectas();
-    try { renderProductGrid(); renderStockCategorias(); } catch(e) {}
     try { _doValeSupabaseDelete(v, id); } catch(e) {}
   });
 }
@@ -11715,7 +11689,7 @@ function renderVentasDirectas() {
         ${d.toLocaleDateString('es-ES')} ${timeStr(d.getTime())}${valeNumStr(v) ? ' · ' + escapeHTML(valeNumStr(v)) : ''}
       </div>
       ${v.adminNotes ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
-      <button class="btn btn-ghost btn-sm" style="margin-top:7px;font-size:11px;color:var(--orange);" onclick="borrarVentaDirecta(${v.id})">↩️ Deshacer y devolver al almacén</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:7px;font-size:11px;color:var(--orange);" onclick="borrarVentaDirecta(${v.id})">↩️ Deshacer venta</button>
     </div>`;
   }).join('');
 }
@@ -18322,17 +18296,21 @@ const AYUDA_SECCIONES = [
   },
   {
     id: 'directas', icono: '🏪', titulo: 'Ventas directas',
-    intro: 'Lo que se vende en el mostrador, sin gestor por medio. Solo tú lo ves.',
+    intro: 'El cuaderno de lo que se vende sin pasar por el almacén: entra la mercancía y se vende en el momento. Solo tú lo ves.',
     temas: [
       { icono:'🏪', titulo:'Registrar una venta del mostrador', donde:'Ventas directas',
-        para:'Apuntar lo que se vende en la tienda a alguien que llegó por su cuenta, sin que haya gestor que cobre comisión.',
-        como:'Eliges el producto del catálogo, pones la cantidad y lo que se cobró de verdad, y le das a "Registrar venta". La mercancía sale del almacén en el momento.',
+        para:'Apuntar una venta de mercancía que entró y se fue el mismo día, sin que nunca llegara a darse de alta en el almacén — un cliente que llega, se le vende algo suelto y no hay gestor de por medio.',
+        como:'Eliges el producto del catálogo (solo como referencia: precio, garantía, de quién es), pones la cantidad y lo que se cobró de verdad, y le das a "Registrar venta".',
         ojo:'NO se manda ninguna notificación: ni al gestor, ni al mensajero, ni el aviso de "stock agotado". Esa es la gracia del apartado — de esta venta solo te enteras tú.',
         nuevo:'v124' },
+      { icono:'📦', titulo:'No toca el stock, nunca', donde:'Ventas directas',
+        para:'Esta mercancía no vive en el almacén: entra y se vende en el mismo momento, así que no hay "cuánto queda" que descontarle a nada.',
+        como:'No hay que hacer nada aparte: el producto del catálogo se usa solo para copiar su precio, garantía y de quién es. Su número de stock se queda exactamente igual antes y después de la venta.',
+        ojo:'Por eso el selector no bloquea nada aunque el producto tenga el stock en 0: aquí la disponibilidad del almacén no aplica. Y al deshacer una venta tampoco se "repone" nada — nunca se quitó.',
+        nuevo:'v127' },
       { icono:'☁️', titulo:'La venta sí sube a la nube', donde:'Ventas directas',
-        para:'Que si vendes desde el teléfono y luego abres la app en otro (o cambias de celular), la venta y el stock nuevo sigan ahí — no se queden solo en el aparato donde la registraste.',
+        para:'Que si registras la venta en un teléfono y luego abres la app en otro, siga apareciendo ahí — no se quede solo en el aparato donde la escribiste.',
         como:'No hay que hacer nada aparte: se sube sola, igual que el resto de la app. Solo hace falta conexión en algún momento después de registrarla; si no hay red, sube sola en cuanto vuelva.',
-        ojo:'El stock baja con el mismo mecanismo seguro que usa un vale normal ("quita 3 unidades", no "ahora quedan 5"), así que si vendes en dos teléfonos casi a la vez, las dos ventas se descuentan de verdad y no se pisan entre sí.',
         nuevo:'v126' },
       { icono:'＋', titulo:'Dar de alta un producto desde aquí', donde:'Ventas directas › ＋ Producto nuevo',
         para:'Vender algo que todavía no estaba en el catálogo sin tener que dar dos vueltas.',
@@ -18345,10 +18323,10 @@ const AYUDA_SECCIONES = [
         ojo:'Estas ventas entran en Estadísticas y en el corte de Dueños como cualquier otra, con su costo de compra congelado. En el reparto salen como mercancía de la tienda, no de un gestor.',
         nuevo:'v124' },
       { icono:'↩️', titulo:'Deshacer una venta', donde:'Ventas directas › lista',
-        para:'Cuando te equivocaste de producto o de cantidad, o el cliente devolvió la mercancía.',
-        como:'"Deshacer y devolver al almacén" borra la venta y suma otra vez las unidades.',
-        ojo:'También en silencio: reponer por aquí no manda el aviso de "volvió a haber".',
-        nuevo:'v124' },
+        para:'Cuando te equivocaste de producto, de cantidad o de lo cobrado.',
+        como:'"Deshacer venta" la borra del cuaderno.',
+        ojo:'No toca el almacén: como registrarla tampoco lo tocó, no hay nada que devolverle. También en silencio: deshacer por aquí no manda ningún aviso.',
+        nuevo:'v127' },
     ],
   },
   {

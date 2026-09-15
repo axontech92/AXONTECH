@@ -144,7 +144,7 @@ const PRODS = [
   ok('en su tarjeta pone 115, no 120',
      !/\$120/.test(mens) || /\$115/.test(mens), mens.slice(0, 260));
 
-  console.log('\n══ 5· LA VENTA DIRECTA NO AVISA A NADIE ══');
+  console.log('\n══ 5· LA VENTA DIRECTA NO AVISA A NADIE, Y NO TOCA EL ALMACÉN ══');
   const venta = await p.evaluate(() => {
     saveNotifs([]);
     adminTab('directas');
@@ -164,13 +164,18 @@ const PRODS = [
       qty: v[0] && v[0].valeProductos[0].qty,
       estado: v[0] && v[0].status,
       comision: v[0] && v[0].commissionStatus,
+      stockDecremented: v[0] && v[0].stockDecremented,
       lista: (document.getElementById('vdLista')||{}).textContent.replace(/\s+/g,' '),
       resumen: (document.getElementById('vdResumen')||{}).textContent.replace(/\s+/g,' '),
     };
   });
   ok('ni una sola notificación', venta.notifs === 0, venta.notifs);
   ok('la venta queda apuntada', venta.cuantas === 1 && venta.qty === 2, venta);
-  ok('el almacén baja de 6 a 4', venta.stock === 4, venta.stock);
+  // v127: esta mercancía no vive en el almacén — vender 2 NO le toca el stock
+  // al producto de catálogo elegido, que sigue con sus 6 unidades intactas.
+  ok('el almacén NO se toca: sigue en 6, no baja a 4', venta.stock === 6, venta.stock);
+  ok('el vale queda marcado explícito como que no descontó stock',
+     venta.stockDecremented === false, venta.stockDecremented);
   ok('se guarda lo que se cobró de verdad, no "Venta Local"',
      venta.total === '$210 USD', venta.total);
   ok('y la nota', venta.nota === 'el vecino del 3ro', venta.nota);
@@ -179,20 +184,25 @@ const PRODS = [
   ok('sale en la lista del apartado', /Bocina JBL x2/.test(venta.lista), venta.lista.slice(0,200));
   ok('y en el resumen del período', /210/.test(venta.resumen), venta.resumen.slice(0,200));
 
-  console.log('\n══ 6· VACIAR EL ALMACÉN TAMPOCO AVISA ══');
-  const agota = await p.evaluate(() => {
+  console.log('\n══ 6· SE PUEDE VENDER AUNQUE EL CATÁLOGO MARQUE 0 (esta mercancía no vive ahí) ══');
+  const sinStock = await p.evaluate(() => {
     saveNotifs([]);
+    patchProducto(703, {stock: 0});   // el catálogo ya está en 0 de por sí
+    const antes = getVales().filter(x=>x.ventaDirecta).length;
     document.getElementById('vdProducto').value = '703';
     document.getElementById('vdCantidad').value = '2';
     document.getElementById('vdCobrado').value = '$20 USD';
     registrarVentaDirecta();
-    return { notifs: getNotifs().map(n=>n.type), stock: (getProductos().find(x=>x.id===703)||{}).stock };
+    return { notifs: getNotifs().map(n=>n.type),
+             stock: (getProductos().find(x=>x.id===703)||{}).stock,
+             despues: getVales().filter(x=>x.ventaDirecta).length, antes };
   });
-  ok('el almacén queda en 0', agota.stock === 0, agota);
-  ok('y NO se manda "stock agotado"', agota.notifs.length === 0, agota.notifs);
+  ok('deja registrarla igual, con el catálogo en 0', sinStock.despues === sinStock.antes + 1, sinStock);
+  ok('el catálogo se queda en 0, no se pone en negativo', sinStock.stock === 0, sinStock.stock);
+  ok('y sigue sin avisar nada', sinStock.notifs.length === 0, sinStock.notifs);
 
-  console.log('\n══ 7· NO SE PUEDE VENDER MÁS DE LO QUE HAY ══');
-  const pasado = await p.evaluate(() => {
+  console.log('\n══ 7· NO HAY TOPE DE CANTIDAD: EL ALMACÉN NO APLICA AQUÍ ══');
+  const muchas = await p.evaluate(() => {
     const antes = getVales().filter(x=>x.ventaDirecta).length;
     document.getElementById('vdProducto').value = '702';
     document.getElementById('vdCantidad').value = '99';
@@ -201,13 +211,16 @@ const PRODS = [
     return { antes, despues: getVales().filter(x=>x.ventaDirecta).length,
              stock:(getProductos().find(x=>x.id===702)||{}).stock };
   });
-  ok('no deja registrarla', pasado.antes === pasado.despues, pasado);
-  ok('y el almacén no se toca', pasado.stock === 4, pasado.stock);
+  ok('sí deja registrarla, aunque "99" no quepa en el catálogo',
+     muchas.despues === muchas.antes + 1, muchas);
+  ok('y el almacén del producto de catálogo sigue con sus 4, intacto',
+     muchas.stock === 4, muchas.stock);
 
-  console.log('\n══ 8· LO RESERVADO NO SE PUEDE VENDER EN EL MOSTRADOR ══');
-  const reservado = await p.evaluate(() => {
+  console.log('\n══ 8· UNA RESERVA DE OTRO VALE NO BLOQUEA NADA AQUÍ ══');
+  const conReserva = await p.evaluate(() => {
     // Un vale que ya salió con el mensajero aparta sus unidades aunque el stock
-    // todavía no se haya descontado: esa mercancía va de camino al cliente.
+    // todavía no se haya descontado — esto es del sistema normal de almacén,
+    // ajeno del todo a las ventas directas.
     const t = new Date().toISOString();
     const todos = getVales();
     todos.push({id:7010, valeNum:9, gestorId:1, status:'assigned', mensajeroId:50, ts:t,
@@ -216,8 +229,7 @@ const PRODS = [
                 total:'10000 MN', valeText:''});
     saveVales(todos);
     _refrescarReservas();
-    // 4 en almacén y los 4 apartados → no queda ninguno libre.
-    const disponible = _availableStock(productoOf(702));
+    const disponible = _availableStock(productoOf(702));   // 0: todo reservado
     const antes = getVales().filter(x=>x.ventaDirecta).length;
     document.getElementById('vdProducto').value = '702';
     document.getElementById('vdCantidad').value = '2';
@@ -226,26 +238,28 @@ const PRODS = [
     return { disponible, antes, stock:(getProductos().find(x=>x.id===702)||{}).stock,
              despues:getVales().filter(x=>x.ventaDirecta).length };
   });
-  ok('no queda ninguno libre de los 4', reservado.disponible === 0, reservado);
-  ok('y pedir 2 no cuela', reservado.antes === reservado.despues, reservado);
-  ok('el almacén sigue con sus 4', reservado.stock === 4, reservado);
+  ok('el almacén normal no tenía nada libre', conReserva.disponible === 0, conReserva);
+  ok('pero la venta directa se registra igual, sin mirar eso',
+     conReserva.despues === conReserva.antes + 1, conReserva);
+  ok('y el stock del producto no se mueve', conReserva.stock === 4, conReserva.stock);
 
-  console.log('\n══ 9· DESHACER DEVUELVE LA MERCANCÍA, TAMBIÉN EN SILENCIO ══');
+  console.log('\n══ 9· DESHACER NO TOCA EL ALMACÉN — TAMPOCO LE "DEVUELVE" NADA ══');
   const deshecho = await p.evaluate(async () => {
     saveNotifs([]);
-    // La del Mouse, que dejó el almacén a 0.
+    const stockAntes = (getProductos().find(x=>x.id===703)||{}).stock;
     const v = getVales().filter(x => x.ventaDirecta &&
       (x.valeProductos||[]).some(it => it.id === 703))[0];
     borrarVentaDirecta(v.id);
     document.getElementById('confirmActionOk').click();
     await new Promise(r => setTimeout(r, 250));
-    return { stock:(getProductos().find(x=>x.id===703)||{}).stock,
-             quedan:getVales().filter(x=>x.ventaDirecta).length,
+    return { stockAntes, stockDespues:(getProductos().find(x=>x.id===703)||{}).stock,
+             quedan:getVales().filter(x=>x.ventaDirecta && (x.valeProductos||[]).some(it=>it.id===703)).length,
              notifs:getNotifs().map(n=>n.type) };
   });
-  ok('vuelven las 2 unidades al almacén', deshecho.stock === 2, deshecho);
-  ok('la venta desaparece de la lista', deshecho.quedan === 1, deshecho);
-  ok('y reponer por aquí no manda "volvió a haber"', deshecho.notifs.length === 0, deshecho.notifs);
+  ok('el stock del catálogo no cambia al deshacer (seguía en 0, sigue en 0)',
+     deshecho.stockDespues === deshecho.stockAntes, deshecho);
+  ok('la venta desaparece de la lista', deshecho.quedan === 0, deshecho);
+  ok('y deshacer tampoco manda ningún aviso', deshecho.notifs.length === 0, deshecho.notifs);
 
   console.log('\n══ 10· UN PRODUCTO DADO DE ALTA DESDE AQUÍ NO SE ANUNCIA ══');
   const nuevo = await p.evaluate(() => {

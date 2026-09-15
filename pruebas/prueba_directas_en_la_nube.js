@@ -1,6 +1,7 @@
 // Las ventas directas tienen que llegar a la nube, no quedarse solo en el
-// teléfono que las registró — y el stock tiene que bajar por el camino seguro
-// (RPC de delta), no con un número absoluto que un segundo teléfono pueda pisar.
+// teléfono que las registró — y el producto del catálogo que se elige es solo
+// una referencia: su stock NO se toca para nada, ni en el teléfono que vende
+// ni en la nube ni en un segundo teléfono que sincronice después.
 //
 //   NODE_PATH=$(npm root -g) node pruebas/prueba_directas_en_la_nube.js
 const { chromium } = require('playwright');
@@ -146,15 +147,15 @@ function nubeResponde(url, metodo, cuerpo) {
      filaVale && filaVale.data.total === '$150 USD', filaVale && filaVale.data.total);
   ok('ya confirmada', filaVale && filaVale.data.status === 'confirmed', filaVale && filaVale.data.status);
 
-  console.log('\n══ 3 · EL STOCK BAJA EN LA NUBE POR EL CAMINO SEGURO (delta) ══');
+  console.log('\n══ 3 · EL PRODUCTO DE CATÁLOGO NO SE TOCA EN LA NUBE ══');
   await A.waitForTimeout(2500);
   const filaProd = (NUBE.tablas.productos || {})[950];
-  ok('el producto en la nube queda con 5 (8 − 3)',
-     !!filaProd && parseInt(filaProd.data.stock, 10) === 5, filaProd && filaProd.data);
-  ok('la venta bajó el stock con rpc/aplicar_delta_stock, no con un POST absoluto',
-     PETICIONES.includes('POST rpc/aplicar_delta_stock'), PETICIONES.filter(p=>/productos|delta/.test(p)));
+  ok('el producto en la nube sigue con sus 8, no baja a 5',
+     !!filaProd && parseInt(filaProd.data.stock, 10) === 8, filaProd && filaProd.data);
+  ok('y la venta NO llamó al RPC de delta de stock (esta mercancía no vive en el almacén)',
+     !PETICIONES.includes('POST rpc/aplicar_delta_stock'), PETICIONES.filter(p=>/productos|delta/.test(p)));
 
-  console.log('\n══ 4 · UN SEGUNDO TELÉFONO VE LA MISMA VENTA Y EL MISMO STOCK ══');
+  console.log('\n══ 4 · UN SEGUNDO TELÉFONO VE LA VENTA Y EL MISMO STOCK SIN TOCAR ══');
   const B = await abrir('admin-B');
   await B.waitForTimeout(6000);
   const vistoEnB = await B.evaluate(() => {
@@ -164,7 +165,7 @@ function nubeResponde(url, metodo, cuerpo) {
   });
   ok('el segundo teléfono ve la venta directa', vistoEnB.ventas === 1, vistoEnB);
   ok('con el mismo importe', vistoEnB.total === '$150 USD', vistoEnB.total);
-  ok('y el mismo stock (5)', parseInt(vistoEnB.stock, 10) === 5, vistoEnB.stock);
+  ok('y el mismo stock, sin tocar (8)', parseInt(vistoEnB.stock, 10) === 8, vistoEnB.stock);
 
   console.log('\n══ 5 · DESHACERLA TAMBIÉN VIAJA A LA NUBE ══');
   await A.evaluate(() => {
@@ -178,9 +179,11 @@ function nubeResponde(url, metodo, cuerpo) {
      Object.values(NUBE.tablas.vales||{}).map(v=>v.data && v.data.ventaDirecta));
   await A.waitForTimeout(2500);
   const filaProdTrasDeshacer = (NUBE.tablas.productos || {})[950];
-  ok('y el stock vuelve a 8 en la nube',
+  ok('y el producto sigue con 8 en la nube (deshacer no "repone" lo que nunca se quitó)',
      !!filaProdTrasDeshacer && parseInt(filaProdTrasDeshacer.data.stock, 10) === 8,
      filaProdTrasDeshacer && filaProdTrasDeshacer.data);
+  ok('deshacer tampoco llamó nunca al RPC de delta de stock',
+     !PETICIONES.includes('POST rpc/aplicar_delta_stock'), PETICIONES.filter(p=>/delta/.test(p)));
 
   console.log('\n══ 6 · EL SEGUNDO TELÉFONO TAMBIÉN VE EL DESHACER ══');
   const vistoTrasDeshacer = await esperarA(B, async () => await B.evaluate(() =>
