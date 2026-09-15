@@ -1232,6 +1232,11 @@ let _ultimoPollLento = 0;      // 0 = la primera pasada los trae igualmente
 // arranque seguía en el aire cuando se creaban, y al aterrizar traía la tabla
 // como estaba, sin ellos.
 const _ultimoGuardadoLocal = Object.create(null);
+// v122: cuándo se vio por primera vez que una tabla venía vacía. Un vacío no se
+// aplica hasta verlo dos veces separadas por este rato: preguntarle al servidor
+// cuántas filas tiene no sirve si es el propio servidor el que está fallando.
+const _vacioVistoEn = Object.create(null);
+const _VACIO_CONFIRMAR_MS = 60000;
 async function _doRestPoll() {
   if (_restPollInFlight) return;
   if (!navigator.onLine) return;
@@ -1812,9 +1817,29 @@ async function _doRestPoll() {
                   + (_recienGuardado ? 'se acaba de guardar desde este teléfono'
                      : 'el servidor dice que hay ' + (_n === null ? '¿?' : _n) + ' fila(s)') + ')');
                 _ultimoFetchReal[node] = 0;   // que reintente en la próxima pasada
+                _vacioVistoEn[node] = 0;      // la racha de vacíos se rompe
                 continue;
               }
+              // ── v122: un vacío hay que verlo DOS veces ────────────────────
+              // Preguntar cuántas filas hay se le pregunta al MISMO servidor
+              // que acaba de contestar vacío: si está caído, o mal configurado,
+              // o devuelve [] por un permiso, también dirá cero, y el teléfono
+              // se creía el cuento y borraba su catálogo. Con dos vacíos
+              // separados en el tiempo, un fallo pasajero ya no basta para
+              // vaciar nada. Borrarlo todo a propósito sigue funcionando: entra
+              // en la pasada siguiente, un minuto después.
+              const _primero = _vacioVistoEn[node] || 0;
+              if (!_primero || (Date.now() - _primero) < _VACIO_CONFIRMAR_MS) {
+                if (!_primero) _vacioVistoEn[node] = Date.now();
+                console.warn(`[${node}] la nube dice que está vacía — se espera a que lo repita antes de borrar nada de aquí`);
+                _ultimoFetchReal[node] = 0;
+                continue;
+              }
+              console.warn(`[${node}] la nube insiste en que está vacía — se aplica`);
+              _vacioVistoEn[node] = 0;
             }
+          } else {
+            _vacioVistoEn[node] = 0;   // vino con filas: no hay racha que guardar
           }
           _ultimoFetchReal[node] = Date.now(); _tsVistosSucio = true;
         }
@@ -6006,6 +6031,24 @@ function _proceedGestorPassPrompt(id, g) {
 function doSelectGestor(id) {
   // v65: aquí se llamaba a listenToMyVales(id), eliminada por ser código muerto.
   // Los vales del gestor los sincroniza _doRestPoll() cada 5 s vía REST.
+  // ── v122: si ese gestor ya no existe, se vuelve al selector ───────────────
+  // Unas líneas más abajo se hace `g.photo` sin comprobar nada, así que con un
+  // id que no está en la lista la función reventaba a mitad: activeGestorId ya
+  // estaba puesto, el banner a medio pintar y la app inservible hasta recargar.
+  // Pasa de verdad — el admin borra a un gestor, o le cambia el id, y el
+  // teléfono de esa persona sigue con el suyo guardado— y al recargar entraba
+  // en este camino solo.
+  const _g = gestorOf(id);
+  if (!_g) {
+    activeGestorId = null;
+    // La clave del perfil fijado (PINNED_GESTOR_KEY, más abajo). Se escribe
+    // literal para no depender del orden de evaluación del archivo.
+    try { localStorage.removeItem('axon_pinned_gestor_id'); } catch(e) {}
+    if (typeof changeGestor === 'function') { try { changeGestor(); } catch(e) {} }
+    if (typeof renderGestores === 'function') { try { renderGestores(); } catch(e) {} }
+    showToast('Ese gestor ya no está en la lista — elige tu nombre otra vez');
+    return;
+  }
   activeGestorId=id;
   // v114: se apunta cuál es su último aviso de meta ANTES de empezar a mirar,
   // para que al entrar no le salte la fiesta de una meta de la semana pasada.
@@ -8366,7 +8409,7 @@ function copyAndAssign() {
 //  CONFIRM / PENDING
 // ══════════════════════════════════════════
 // Mensajero marca entrega — pasa directo a pendiente de cobro, descuenta stock, notifica gestor
-function mensajeroEntrega(id) {
+function mensajeroEntrega(id, skipConfirm) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   // Idempotency guard: prevent double stock decrement if button is double-clicked
   // Only 'assigned' vales should be deliverable.
@@ -8374,6 +8417,9 @@ function mensajeroEntrega(id) {
     showToast('Este vale no está asignado o ya fue entregado');
     return;
   }
+  // v122: por aquí sale la mercancía tanto como por confirmSale, y es el camino
+  // más usado. Si no alcanza, se dice antes de tocar el almacén.
+  if(!skipConfirm && _avisarSiFaltaStock(v, ()=>mensajeroEntrega(id, true))) return;
   // Descuenta stock usando el helper _descontarStock (DRY — Ver AUDITORIA-AXONTECH.md MEDIO 28)
   _descontarStock(v);
   _logAudit('vale_delivered', 'vale:' + id);
@@ -8394,6 +8440,8 @@ function mensajeroEntrega(id) {
 function mensajeroPagadoDirecto(id, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
+    // v122: si por aquí va a salir mercancía que no hay, se dice antes.
+    if(_avisarSiFaltaStock(v, ()=>mensajeroPagadoDirecto(id,true))) return;
     showConfirmAction('¿Confirmar venta cobrada?',`${v.cliente||''} · ${v.total||''}`,'Confirmar cobrada','btn-green',()=>mensajeroPagadoDirecto(id,true));
     return;
   }
@@ -8442,6 +8490,8 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
 function mensajeroPagado(id, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
+    // v122: si por aquí va a salir mercancía que no hay, se dice antes.
+    if(_avisarSiFaltaStock(v, ()=>mensajeroPagado(id,true))) return;
     showConfirmAction('¿Confirmar venta cobrada?',`${v.cliente||''} · ${v.total||''}`,'Confirmar cobrada','btn-green',()=>mensajeroPagado(id,true));
     return;
   }
@@ -8503,6 +8553,21 @@ function _faltaStockPara(v) {
   });
   return falta;
 }
+// v122: el mismo aviso, para TODOS los caminos por los que sale mercancía. Al
+// principio solo se puso en confirmSale, y la mercancía sale por cuatro sitios
+// más —el mensajero entrega, el mensajero cobra, el cobro directo—, que además
+// son los que más se usan. Devuelve true si ha plantado el aviso (quien llama
+// debe volver) y false si no hay nada que avisar.
+function _avisarSiFaltaStock(v, seguir) {
+  const falta = _faltaStockPara(v);
+  if (!falta.length) return false;
+  const lineas = falta.map(f =>
+    `• ${escapeHTML(f.nombre)}: el vale pide ${f.pide} y ${f.hay === 0 ? 'no queda ninguna' : 'solo quedan ' + f.hay}`).join('<br>');
+  showConfirmAction('⚠️ No hay stock para este vale',
+    lineas + '<br><br><span style="font-size:11px;color:var(--text-muted);">Puede que otro vale se llevara esas unidades. Si sigues, se descontará solo lo que haya y el almacén no bajará de cero — revisa el inventario después.</span>',
+    'Continuar de todas formas','btn-orange', seguir);
+  return true;
+}
 // Admin confirma venta: descuenta stock + notifica gestor + fija estado de cobro
 function confirmSale(id, paymentStatus, skipConfirm) {
   if(!skipConfirm) {
@@ -8515,15 +8580,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
     // los dos se confirmaron sin una palabra, vendiendo más de lo que había.
     // No se bloquea —a veces la unidad está físicamente y el número es el que
     // está mal— pero no se confirma a ciegas: se dice qué falta.
-    const _falta = _faltaStockPara(v);
-    if (_falta.length) {
-      const _lineas = _falta.map(f =>
-        `• ${escapeHTML(f.nombre)}: el vale pide ${f.pide} y ${f.hay === 0 ? 'no queda ninguna' : 'solo quedan ' + f.hay}`).join('<br>');
-      showConfirmAction('⚠️ No hay stock para este vale',
-        _lineas + '<br><br><span style="font-size:11px;color:var(--text-muted);">Puede que otro vale se llevara esas unidades. Si confirmas, se descontará solo lo que haya y el almacén no bajará de cero — revisa el inventario después.</span>',
-        'Confirmar de todas formas','btn-orange',()=>confirmSale(id,paymentStatus,true));
-      return;
-    }
+    if (_avisarSiFaltaStock(v, ()=>confirmSale(id,paymentStatus,true))) return;
     showConfirmAction(title,sub,paymentStatus==='confirmed'?'Confirmar cobrada':'Confirmar pendiente','btn-blue',()=>confirmSale(id,paymentStatus,true));
     return;
   }
@@ -15917,12 +15974,22 @@ async function loadInitialData() {
     return res.json();
   }).then(data => {
     if (!data) return;
+    // ── v122: al aterrizar, se vuelve a mirar qué hay ─────────────────────
+    // `hasLocalData` se comprobó ANTES de empezar la bajada, y data.json pesa
+    // 1,4 MB: mientras viaja, el sondeo de Supabase ya ha podido traer la lista
+    // de verdad. Si se escribe a ciegas, esa lista buena se sustituye por la
+    // FOTO que lleva el repositorio, que puede ser de hace semanas. Y en el
+    // teléfono del admin es peor: unas líneas más abajo esa foto se SUBE a la
+    // nube con 'set', así que la lista vieja se lleva por delante la buena para
+    // todo el mundo.
+    // Ahora se siembra solo lo que siga vacío, que es lo único que este archivo
+    // vino a hacer.
     _syncCount++;
     try {
-      if (data.gestores) localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-      if (data.mensajeros) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-      if (data.productos) { data.productos.forEach(_normalizeProducto); localStorage.setItem('axon_productos', JSON.stringify(data.productos)); }
-      if (data.categorias) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
+      if (data.gestores   && !getGestores().length)   localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+      if (data.mensajeros && !getMensajeros().length) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
+      if (data.productos  && !getProductos().length)  { data.productos.forEach(_normalizeProducto); localStorage.setItem('axon_productos', JSON.stringify(data.productos)); }
+      if (data.categorias && !getCategorias().length) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
       // Marcar caches como dirty para que el próximo getGestores() relea localStorage.
       _gestoresDirty = true;
       _mensajerosDirty = true;
@@ -15932,14 +15999,13 @@ async function loadInitialData() {
       _syncCount--;
       refreshUI();
     }
-    if (IS_ADMIN) {
-       const localGestores = getGestores();
-       if(localGestores.length > 0) {
-          // Use write queue instead of direct db.ref().set() to enable retries
-          _enqueueSB('gestores', localGestores, 'set');
-          _enqueueSB('mensajeros', getMensajeros(), 'set');
-       }
-    }
+    // v122: aquí se subía la foto del repositorio a la nube en cuanto hubiera
+    // gestores locales —incluidos los que acababan de BAJAR de la nube—, con
+    // 'set', que reemplaza la tabla entera. Un admin abriendo la app en un
+    // teléfono nuevo podía así sustituir la lista buena por la de la foto.
+    // Se quita: la siembra inicial ya la hace el bloque de arranque del admin
+    // (busca "[seed] Supabase vacío"), que antes de escribir PREGUNTA si la
+    // nube está vacía y, si no puede saberlo, no escribe nada.
   }).catch(() => { /* red caída — la app igual arranca con lo que haya */ });
 }
 

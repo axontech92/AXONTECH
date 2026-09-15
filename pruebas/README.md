@@ -1,0 +1,41 @@
+# Pruebas
+
+Recorren la app de verdad en un navegador: se llena el formulario, se toca el
+botón y se mira qué pasó. No hay copias de la lógica — si la app cambia, la
+prueba lo nota.
+
+    NODE_PATH=$(npm root -g) node pruebas/recorrido_vale.js
+
+(playwright está instalado en global, no en el proyecto; de ahí el NODE_PATH.)
+
+Para pasarlas todas:
+
+    for f in pruebas/*.js; do printf "%-32s " "$(basename $f)"; \
+      NODE_PATH=$(npm root -g) node "$f" 2>&1 | tail -1; done
+
+| Archivo | Qué recorre |
+|---|---|
+| `recorrido_vale.js`   | El ciclo entero de un vale: el gestor lo llena y lo manda, el admin lo ve y lo asigna, el mensajero entrega, se cobra, se revierte. Comprueba stock, comisión y puntos en cada paso. |
+| `recorrido_dinero.js` | Rebaja del admin, comisión cedida, corte de dueños, ganancia, y que USD y MN no se sumen nunca. |
+| `recorrido_bordes.js` | Dobles toques, productos borrados, cantidades absurdas, vales unidos, vales sin productos, cancelar, sin conexión. |
+| `recorrido_stock.js`  | Alta y edición de productos, ventana de stock, merma, reservas, buscador, borrar un producto ya vendido. |
+| `recorrido_sync.js`   | Dos teléfonos contra una Supabase de mentira: el gestor manda sin cobertura, vuelve la red, el admin confirma y revierte, y la nube contesta vacío por un fallo. |
+| `prueba_cinco_fallos.js` | Los cinco fallos reportados el 15/09 (texto de WhatsApp, moneda de la comisión, stock excedido, reversión). |
+
+## Cosas que hay que saber para escribir pruebas aquí
+
+- **`data.json`** es la foto que el repositorio lleva para sembrar un teléfono
+  nuevo: ~100 productos y 52 gestores reales. Si la prueba no la neutraliza,
+  aterriza a mitad y pisa el escenario. Ver `recorrido_sync.js`.
+- **El gestor no escribe la tabla `vales`**: manda su vale por el RPC
+  `upsert_vale_from_gestor`, que fusiona en el servidor y preserva los campos
+  del admin. Una nube de mentira tiene que implementarlo o parecerá que el vale
+  no sube.
+- **El stock tampoco se escribe con un número absoluto**: va por
+  `rpc/aplicar_delta_stock` ("quita 2"), para que dos teléfonos vendiendo a la
+  vez no se pisen.
+- **La tasa** sale de `tasa.json` (que el servidor de pruebas sirve de verdad) o
+  del config. Para probar "sin tasa" hay que limpiar también `axon_tasa_usd`.
+- **`_LOCAL_WINS_WINDOW_MS`**: durante 60 s desde su último cambio local, el
+  teléfono defiende su versión del vale frente a la nube. Una reversión del
+  admin puede tardar hasta ese minuto en verse en el teléfono del gestor.
