@@ -3182,7 +3182,7 @@ function _ensurePendingValesEnqueued() {
   const REENQUEUE_ADMIN_PRESERVE = [
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
     'seenByAdmin','seenTs','commissionStatus','commissionPaid',
-    'stockDecremented','hiddenFromHistory','hiddenTs',
+    'stockDecremented','stockSalido','hiddenFromHistory','hiddenTs',
     'unidoA'   // v120 — la unión de vales la decide el admin
   ];
   const updates = {};
@@ -3396,6 +3396,12 @@ const saveVales = v => {
     // se quedaba descontado para siempre. Se envía siempre —también en false—
     // porque "ya se devolvió" es un dato tan necesario como "está descontado".
     slim.stockDecremented = !!x.stockDecremented;
+    // v122: y cuántas unidades salieron DE VERDAD de cada producto. Va por el
+    // mismo motivo que la bandera de arriba: si no sube, otro teléfono que
+    // revierta el vale no sabe qué reponer y devuelve lo que pedía el vale, que
+    // no siempre es lo que salió. Se envía también cuando es null —"ya se
+    // devolvió"— para que no se quede pegado.
+    if (x.stockSalido !== undefined) slim.stockSalido = x.stockSalido;
     // v92: la marca de reserva la pone el admin. Sin esto pasaría lo de siempre:
     // se guarda en el móvil, sube sin ella y el siguiente poll la borra — y con
     // ella se irían las unidades apartadas del stock.
@@ -3463,7 +3469,7 @@ const saveVales = v => {
   const ADMIN_PRESERVE_FIELDS = [
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
     'seenByAdmin','seenTs','commissionStatus','commissionPaid',
-    'stockDecremented','hiddenFromHistory','hiddenTs',
+    'stockDecremented','stockSalido','hiddenFromHistory','hiddenTs',
     'unidoA'   // v120 — la unión de vales la decide el admin
   ];
   function slimValeGestor(x) {
@@ -3605,10 +3611,17 @@ function _normalizeProducto(p) {
   if (p.puntos == null || p.puntos === '') p.puntos = 1;
   else { const _n = parseFloat(p.puntos); p.puntos = isFinite(_n) && _n > 0 ? _n : 0; }
   // comisionMoneda default
-  if (p.comision && !p.comisionMoneda) {
+  // v122: se vuelve a deducir del texto CADA vez que el texto lo dice. Antes
+  // solo se rellenaba si el campo faltaba, así que se quedaba pegado: un
+  // producto que tuvo la comisión en MN y luego se cambió a "$3 USD" conservaba
+  // comisionMoneda:'MN' para siempre —saveProduct nunca lo tocaba y
+  // patchProducto fusiona— y los paneles de comisiones lo seguían contando como
+  // pesos. Lo escrito en la comisión manda sobre el campo viejo.
+  if (p.comision) {
     const c = String(p.comision).toUpperCase();
     if (c.includes('MN') || c.includes('CUP')) p.comisionMoneda = 'MN';
-    else p.comisionMoneda = 'USD';
+    else if (c.includes('USD') || c.includes('$')) p.comisionMoneda = 'USD';
+    else if (!p.comisionMoneda) p.comisionMoneda = 'USD';
   }
   return p;
 }
@@ -5130,22 +5143,36 @@ function _descontarStock(v) {
   if (v && v.unidoA != null) return false;
   const prods = getProductos().slice();
   const deltas = {};
+  // ── v122: se apunta lo que REALMENTE salió, producto por producto ─────────
+  // La resta se recorta para no dejar el almacén en negativo: si quedaba 1 y el
+  // vale pedía 2, sale 1. Hasta ahora eso no se apuntaba en ninguna parte y el
+  // vale quedaba marcado como "stock descontado" a secas, así que al revertirlo
+  // se devolvían las 2 que decía el vale en vez de la 1 que salió — y aparecía
+  // en el almacén una unidad que nunca existió. Con `stockSalido` la devolución
+  // sabe exactamente qué tiene que reponer.
+  const salido = {};
   let stockChanged = false;
   (v.valeProductos || []).forEach(({id:pid, qty}) => {
     const idx = prods.findIndex(p => p.id === pid);
     if (idx === -1) return;
-    const oldStock = prods[idx].stock || 0;
-    const newStock = Math.max(0, oldStock - qty);
+    const oldStock = _numStock(prods[idx].stock);
+    const pedidas = Math.max(0, parseInt(qty, 10) || 0);
+    const newStock = Math.max(0, oldStock - pedidas);
+    const salen = oldStock - newStock;
     // Lo que se manda es lo que REALMENTE sale del almacén: si había 1 y se
     // venden 2, se resta 1, no 2. Así el servidor no acaba en negativo por un
     // teléfono que tenía un número inflado.
-    deltas[pid] = (deltas[pid] || 0) - (oldStock - newStock);
+    deltas[pid] = (deltas[pid] || 0) - salen;
+    salido[String(pid)] = (salido[String(pid)] || 0) + salen;
     prods[idx] = {...prods[idx], stock: newStock};
-    stockChanged = true;
-    addNotif('sale_product', prods[idx].name, pid, `${qty}|${newStock}`, v.gestorId);
+    if (salen > 0) stockChanged = true;
+    addNotif('sale_product', prods[idx].name, pid, `${pedidas}|${newStock}`, v.gestorId);
     _avisarCambioStock(pid, prods[idx].name, oldStock, newStock);
   });
   if (stockChanged) guardarProductosPorDelta(prods, deltas);
+  // Se apunta en el vale aunque no haya salido nada: "salieron cero" es un dato,
+  // y es justo el que hacía falta para no devolver de más al revertir.
+  if (v && v.id != null) { try { patchVale(v.id, { stockSalido: salido }); } catch(e) {} }
   return stockChanged;
 }
 
@@ -7890,7 +7917,7 @@ function renderValeDetail(destinoId) {
     </div>
     <div class="lbl">Vale completo</div>
     <div class="card" style="padding:10px 12px;">
-      <div class="vale-preview" style="font-size:11px;">${escapeHTML(v.valeText||'')}</div>
+      <div class="vale-preview" style="font-size:11px;">${escapeHTML(v.valeText || (typeof regenerateValeText==='function' ? regenerateValeText(v) : ''))}</div>
       <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.querySelector('#valeDetail .vale-preview').textContent).then(()=>showToast('Copiado ✓'))">📋 Copiar vale</button>
     </div>`;
 }
@@ -8213,6 +8240,13 @@ function saveEditVale() {
     return;
   }
   changes.valeProductos=editValeProductos;
+  // ── v122: el texto que se manda por WhatsApp se vuelve a escribir ──────────
+  // valeText se escribía UNA vez, al crear el vale, y de ahí sale el mensaje que
+  // se comparte. Al editar el vale —añadir un producto, poner el vuelto, cambiar
+  // el precio— el texto se quedaba con lo de antes, así que el cliente recibía
+  // un vale sin el producto nuevo y sin el vuelto. Se borra para que
+  // regenerateValeText lo rehaga con lo que el vale tiene AHORA.
+  changes.valeText = '';
   // v81: si cambian los productos, la comisión congelada se vuelve a fijar con
   // los nuevos. Si no, el vale seguiría valiendo lo que valían los productos
   // que ya no tiene.
@@ -8240,11 +8274,24 @@ function buildShareText(v,m) {
   const g=gestorOf(v.gestorId);
   const numLine=valeNumStr(v)?`${valeNumStr(v)}
 `:'';
+  // ── v122: los artículos salen de los PRODUCTOS del vale ───────────────────
+  // Iba `v.articulo`, que es el campo de texto libre. Al añadirle un producto al
+  // vale desde el admin, ese campo no siempre se reescribe, así que el mensajero
+  // recibía el vale sin el producto nuevo. La lista de productos es la que sabe
+  // de verdad qué lleva el vale; el texto libre queda de respaldo para los vales
+  // que no tengan productos vinculados.
+  const _items = (v.valeProductos || []).filter(p => p && (p.name || productoOf(p.id)));
+  const _arts = _items.length
+    ? _items.map(p => `×${p.qty} ${p.name || (productoOf(p.id)||{}).name || ('#'+p.id)}`).join(' / ')
+    : (v.articulo || '');
   return [numLine+'Bienvenido a "AXONTECH" 🔥','','VALE DE ENTREGA','',
     `🔸Promotor: ${g?g.name:'—'}`,`🛵Mensajero: ${m?m.name:'—'}`,'',
     `🔸 Nombre Cliente: ${v.cliente||''}`,`🔸Teléfono Cliente: ${v.telefono||''}`,
     `🔸Dirección Cliente: ${v.direccion||''}`,`🔸Mensajería/ costo: ${v.mensajeria||''}`,
-    `🔸 Artículo y cantidad: ${v.articulo||''}`,
+    `🔸 Artículo y cantidad: ${_arts}`,
+    // v122: el vuelto es dinero que el mensajero tiene que llevar encima. No
+    // estaba en este texto, así que salía a la calle sin saberlo.
+    ...(String(v.vuelto||'').trim() ? [`🔸 Vuelto: ${v.vuelto}`] : []),
     // v79: el mensajero cobra lo que dice este texto, así que tiene que llevar
     // la rebaja del gestor. Antes iba el precio de lista y cobraba de más.
     ...(function(){
@@ -8439,12 +8486,44 @@ function mensajeroPagado(id, skipConfirm) {
   maybeAutoSync();
   showToast('Venta confirmada y cobrada ✅');
 }
+// ── v122: ¿alcanza el almacén para este vale? ──────────────────────────────
+// Devuelve la lista de productos que no llegan, con lo que pide el vale y lo que
+// queda. Vacía = alcanza. Se mira el stock FÍSICO, no el disponible: lo apartado
+// para otros clientes es un aviso aparte y no debe impedir confirmar una venta
+// que ya se hizo. Un vale unido no descuenta nada, así que nunca falta nada.
+function _faltaStockPara(v) {
+  if (!v || v.unidoA != null || v.stockDecremented) return [];
+  const falta = [];
+  (v.valeProductos || []).forEach(({id:pid, qty}) => {
+    const p = productoOf(pid);
+    if (!p) return;                       // producto borrado: no hay nada que comprobar
+    const pide = Math.max(0, parseInt(qty, 10) || 0);
+    const hay = _numStock(p.stock);
+    if (pide > hay) falta.push({ nombre: p.name || ('#' + pid), pide, hay });
+  });
+  return falta;
+}
 // Admin confirma venta: descuenta stock + notifica gestor + fija estado de cobro
 function confirmSale(id, paymentStatus, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
     const title=paymentStatus==='confirmed'?'¿Confirmar venta cobrada?':'¿Confirmar — cobro pendiente?';
     const sub=paymentStatus==='confirmed'?`${v.cliente||''} · ${v.total||''}`:`${v.cliente||''}`;
+    // ── v122: avisar cuando no hay mercancía para este vale ──────────────────
+    // Pasó de verdad: un teléfono sin cobertura hizo un vale de 1 unidad y otro,
+    // con conexión, se llevó todo lo que quedaba. Los dos llegaron al admin y
+    // los dos se confirmaron sin una palabra, vendiendo más de lo que había.
+    // No se bloquea —a veces la unidad está físicamente y el número es el que
+    // está mal— pero no se confirma a ciegas: se dice qué falta.
+    const _falta = _faltaStockPara(v);
+    if (_falta.length) {
+      const _lineas = _falta.map(f =>
+        `• ${escapeHTML(f.nombre)}: el vale pide ${f.pide} y ${f.hay === 0 ? 'no queda ninguna' : 'solo quedan ' + f.hay}`).join('<br>');
+      showConfirmAction('⚠️ No hay stock para este vale',
+        _lineas + '<br><br><span style="font-size:11px;color:var(--text-muted);">Puede que otro vale se llevara esas unidades. Si confirmas, se descontará solo lo que haya y el almacén no bajará de cero — revisa el inventario después.</span>',
+        'Confirmar de todas formas','btn-orange',()=>confirmSale(id,paymentStatus,true));
+      return;
+    }
     showConfirmAction(title,sub,paymentStatus==='confirmed'?'Confirmar cobrada':'Confirmar pendiente','btn-blue',()=>confirmSale(id,paymentStatus,true));
     return;
   }
@@ -9619,6 +9698,7 @@ function regenerateValeText(v) {
     `🔸Teléfono Cliente: ${v.telefono||''}`,
     `🔸Dirección Cliente: ${v.direccion||''}`,
     `🔸Mensajería/ costo: ${v.mensajeria||''}`,
+    ...(v.horaEntrega ? [`🔸Hora de entrega: ${v.horaEntrega}`] : []),
     `🔸 Artículos y cantidades:`,prodLines,
     `🔸Precio USD/ zelle: ${v.precioUSD||''}`,
     `🔸Precio MN: ${v.precioMN||''}`,
@@ -11034,6 +11114,10 @@ async function saveProduct() {
     puntos:parseFloat(document.getElementById('pm-puntos').value)||0,
     garantia:document.getElementById('pm-garantia').value.trim(),
     comision:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);const cur=document.getElementById('pm-comision-currency').value;return amt>0?(cur==='MN'?`${amt} MN`:`$${amt} USD`):''})(),
+    // v122: la moneda de la comisión se guarda con el producto. Sin esto se
+    // quedaba la de la vez anterior —patchProducto fusiona— y una comisión
+    // cambiada de MN a USD se seguía sumando en pesos.
+    comisionMoneda:(()=>{const amt=parseFloat(document.getElementById('pm-comision-amount').value);return amt>0?(document.getElementById('pm-comision-currency').value==='MN'?'MN':'USD'):''})(),
     photo:document.getElementById('pm-foto').value.trim(),
     catId:catVal?parseInt(catVal):null,
   };
@@ -15498,19 +15582,32 @@ function _devolverStockDeVale(v) {
   const prods = getProductos().slice();
   const deltas = {};
   let cambio = false;
+  // v122: se devuelve lo que SALIÓ, no lo que el vale pedía. Son cosas distintas
+  // en cuanto dos vales se comen el mismo stock: el segundo pide 5, salen 2 —lo
+  // que quedaba— y devolver 5 al revertirlo inventaba tres unidades. Los vales
+  // de antes de v122 no llevan el apunte, y para esos se sigue usando la
+  // cantidad del vale, que es lo único que hay.
+  const _salido = (v && v.stockSalido && typeof v.stockSalido === 'object') ? v.stockSalido : null;
   (v.valeProductos || []).forEach(({id:pid, qty}) => {
     const idx = prods.findIndex(p => p && p.id === pid);
-    if (idx === -1 || !qty) return;
+    if (idx === -1) return;
+    const uds = _salido
+      ? Math.max(0, parseInt(_salido[String(pid)], 10) || 0)
+      : Math.max(0, parseInt(qty, 10) || 0);
+    if (!uds) return;
     const antes = _numStock(prods[idx].stock);
-    const ahora = Math.max(0, antes + qty);
+    const ahora = Math.max(0, antes + uds);
     prods[idx] = {...prods[idx], stock: ahora};
-    deltas[pid] = (deltas[pid] || 0) + qty;
+    deltas[pid] = (deltas[pid] || 0) + uds;
     cambio = true;
     // v121: si estaba agotado y vuelve a haber, es una reposición como otra
     // cualquiera y el gestor tiene que enterarse. Antes por aquí no salía nada.
     _avisarCambioStock(pid, prods[idx].name, antes, ahora);
   });
   if (cambio) guardarProductosPorDelta(prods, deltas);
+  // Ya se devolvió: el apunte no debe quedarse, o una segunda reversión
+  // devolvería otra vez lo mismo.
+  if (_salido && v && v.id != null) { try { patchVale(v.id, { stockSalido: null }); } catch(e) {} }
   return true;
 }
 
@@ -17508,7 +17605,13 @@ const AYUDA_SECCIONES = [
       { icono:'↩️', titulo:'Revertir una venta', donde:'Vales › detalle del vale',
         para:'Deshacer un cobro: el vale vuelve atrás y la mercancía vuelve al almacén.',
         como:'Botón de revertir en un vale ya cobrado o entregado.',
-        ojo:'También borra los avisos de "venta cobrada" que le llegaron al gestor, para que no vea algo que ya no es.' },
+        ojo:'También borra los avisos de "venta cobrada" que le llegaron al gestor, para que no vea algo que ya no es. Devuelve las unidades que SALIERON de verdad: si al confirmar solo quedaban 2 de las 5 que pedía el vale, se devuelven 2, no 5.',
+        nuevo:'v122' },
+      { icono:'⚠️', titulo:'Dos vales por la misma mercancía', donde:'Al confirmar un vale',
+        para:'Que no se venda más de lo que hay. Pasa cuando un gestor hace el vale sin cobertura y otro, con conexión, se lleva las últimas unidades: los dos llegan y los dos parecen buenos.',
+        como:'Al confirmar, si el almacén no alcanza, sale un aviso naranja que dice qué producto es, cuánto pide el vale y cuánto queda.',
+        ojo:'No te lo impide —a veces la unidad está físicamente y el número es el que está mal—, pero ya no se confirma a ciegas. Si sigues adelante se descuenta solo lo que haya y el almacén no baja de cero; revisa el inventario después.',
+        nuevo:'v122' },
     ],
   },
   {
