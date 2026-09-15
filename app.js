@@ -17239,10 +17239,23 @@ function tasaMargen() {
 // de la fuente, y el margen se suma al mostrarla: si se guardara ya sumado,
 // cambiar el margen obligaría a rehacer la cuenta sobre un número ya tocado y
 // al segundo cambio nadie sabría cuál era el original.
+// ── v122: la tasa siempre de 5 en 5 ────────────────────────────────────────
+// En la calle nadie cambia a 682: se cambia a 680 o a 685. Que la app enseñe un
+// número con pico obliga a redondear a mano en cada venta, y cada quien redondea
+// a su manera. El pico sube a partir de 3, que es como se hace:
+//   680 → 680 · 681 → 680 · 682 → 680 · 683 → 685 · 684 → 685 · 685 → 685
+function _redondearA5(n) {
+  if (!isFinite(n)) return n;
+  const signo = n < 0 ? -1 : 1;
+  const x = Math.abs(n);
+  const base = Math.floor(x / 5) * 5;
+  const pico = x - base;
+  return signo * (pico >= 3 ? base + 5 : base);
+}
 function tasaUSDFinal() {
   const t = tasaUSD();
   if (!t) return null;
-  const v = Math.round((t.valor + tasaMargen()) * 100) / 100;
+  const v = _redondearA5(t.valor + tasaMargen());
   return v > 0 ? v : null;
 }
 
@@ -17439,9 +17452,14 @@ function renderTasaModal() {
   const vieja = t && (Date.now() - (t.ts || 0)) > TASA_VIEJA_MS;
   // El desglose (tasa real + margen) solo lo ve el admin: al gestor le sirve el
   // número al que vende, y meterle dos cifras solo invita a equivocarse.
-  const desglose = (esAdmin && t && margen) ? `
+  // v122: y el redondeo a 5, que si no parece que el margen no se aplicó — con
+  // elToque en 682 y +10, se enseña 690 y no 692.
+  const _crudo = t ? (t.valor + margen) : null;
+  const _seRedondeo = (_crudo !== null && fin !== null && Math.abs(_crudo - fin) > 0.001);
+  const desglose = (esAdmin && t && (margen || _seRedondeo)) ? `
       <div style="font-size:11px;color:var(--gray-400);margin-top:6px;border-top:1px dashed var(--border);padding-top:6px;">
-        elToque: <b>${escapeHTML(String(t.valor))}</b> · tu ajuste: <b style="color:${margen > 0 ? 'var(--green)' : 'var(--orange)'};">${margen > 0 ? '+' : ''}${escapeHTML(String(margen))}</b>
+        ${margen ? `elToque: <b>${escapeHTML(String(t.valor))}</b> · tu ajuste: <b style="color:${margen > 0 ? 'var(--green)' : 'var(--orange)'};">${margen > 0 ? '+' : ''}${escapeHTML(String(margen))}</b>` : `elToque: <b>${escapeHTML(String(t.valor))}</b>`}
+        ${_seRedondeo ? `<br>= ${escapeHTML(String(Math.round(_crudo * 100) / 100))} → redondeado de 5 en 5: <b>${escapeHTML(String(fin))}</b>` : ''}
       </div>` : '';
   c.innerHTML = `
     <div class="modal-title">💵 Tasa del dólar</div>
@@ -17462,13 +17480,13 @@ function renderTasaModal() {
       <input type="number" inputmode="decimal" id="tasaMargenInput" value="${escapeHTML(String(margen))}" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px;color:var(--text);">
       <button class="btn btn-blue" onclick="guardarTasaMargen()">Aplicar</button>
     </div>
-    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Ejemplo: si elToque marca 665 y pones 10, todos verán 675.</div>
+    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Ejemplo: si elToque marca 665 y pones 10, todos verán 675. El resultado siempre acaba en 0 o en 5.</div>
     <div class="lbl" style="margin:12px 0 4px;">Poner la tasa a mano</div>
     <div style="display:flex;gap:6px;">
       <input type="number" inputmode="decimal" id="tasaManualInput" placeholder="${t ? escapeHTML(String(t.valor)) : 'Ej: 440'}" style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:14px;color:var(--text);">
       <button class="btn btn-green" onclick="guardarTasaManual()">Guardar</button>
     </div>
-    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Escribe aquí la tasa <b>sin</b> el ajuste — el ajuste se le suma después.</div>` : ''}
+    <div style="font-size:10px;color:var(--gray-400);margin-top:4px;">Escribe aquí la tasa <b>sin</b> el ajuste — el ajuste se le suma después, y el resultado se redondea de 5 en 5.</div>` : ''}
     <button class="btn btn-ghost btn-full" style="margin-top:12px;" onclick="closeTasaModal()">Cerrar</button>`;
 }
 // `valor` viene del campo de Config; sin argumento se lee el del modal.
@@ -17812,7 +17830,13 @@ const AYUDA_SECCIONES = [
       { icono:'💱', titulo:'Tasa del dólar', donde:'Config / chip de la tasa',
         para:'Convertir entre USD y MN en los paneles que lo necesitan.',
         como:'Se actualiza sola cada 3 horas: un trabajo de GitHub la baja y la app la lee de ahí. También la puedes poner a mano en "Ver / poner la tasa", y entonces manda la tuya.',
-        ojo:'La app la vuelve a mirar cada 30 minutos. Si acabas de ver que cambió y quieres el número YA, entra en "Ver / poner la tasa" y dale a "🔄 Actualizar ahora". La tasa puesta a mano no se pierde ni la pisa la automática. La clave de la API de elToque va en GitHub (Settings › Secrets › Actions, con el nombre ELTOQUE_API_KEY), no en la app: desde el navegador esa API no se puede llamar.' },
+        ojo:'La app la vuelve a mirar cada 30 minutos. Si acabas de ver que cambió y quieres el número YA, entra en "Ver / poner la tasa" y dale a "🔄 Actualizar ahora". La tasa puesta a mano no se pierde ni la pisa la automática. La clave de la API de elToque va en GitHub (Settings › Secrets › Actions, con el nombre ELTOQUE_API_KEY), no en la app: desde el navegador esa API no se puede llamar.',
+        nuevo:'v122' },
+      { icono:'🔢', titulo:'La tasa va de 5 en 5', donde:'Chip de la tasa y todas las cuentas',
+        para:'Que el número sea el que se usa en la calle. Nadie cambia a 682: se cambia a 680 o a 685.',
+        como:'Sale solo. El pico sube a partir de 3: 681 y 682 bajan a 680; 683 y 684 suben a 685.',
+        ojo:'Se redondea DESPUÉS de sumarle tu ajuste, así que con elToque en 682 y +10 se enseña 690, no 692 — en "Ver / poner la tasa" tienes el desglose. Y las conversiones de MN a USD usan ese mismo número redondeado, para que lo que enseña la app y lo que se cobra sean lo mismo.',
+        nuevo:'v122' },
       { icono:'➕', titulo:'Sumar a la tasa (el margen)', donde:'Config › Sumar a la tasa',
         para:'Que los gestores vean una tasa distinta de la del mercado. Si elToque marca 665 y pones 10, todos ven 675.',
         como:'Escribe el número y dale al botón "Aplicar" de esa MISMA fila. Puede ser negativo. Déjalo vacío para quitarlo.',
