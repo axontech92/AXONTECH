@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 174;
+const APP_VERSION = 175;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 174;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v12.0';
+let _PUBLIC_VERSION_STR = 'v12.1';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '6e0f46ba18769060';
+let _LOCAL_BUILD_HASH = '033e7e0405dcffdf';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -11504,10 +11504,23 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
   const hay = _availableStock(p);
   if (qty > hay) { showToast('Solo quedan ' + hay + ' sin reservar'); return null; }
 
+  // v126 FIX: iba por patchProducto, que sube el stock ABSOLUTO ("ahora queda
+  // en 8"). Es el mismo agujero que ya se tapó en v96 para los vales
+  // (_descontarStock): si dos teléfonos venden el mismo producto casi a la vez,
+  // cada uno escribe su propio "queda en X" sobre una foto que ya estaba vieja,
+  // y una de las dos ventas se pierde en la nube en vez de restarse. Con el
+  // delta el teléfono manda "quita 2", no un número absoluto, así que el orden
+  // de llegada no importa y las dos ventas se descuentan de verdad.
   const antes = _numStock(p.stock);
-  const ahora = Math.max(0, antes - qty);
-  // Silencio: patchProducto puede acabar llamando a los avisos de stock.
-  _sinAvisarStock(() => patchProducto(pid, { stock: ahora }));
+  const salen = Math.min(qty, antes);       // no manda pedir más de lo que hay
+  const ahora = Math.max(0, antes - salen);
+  const prods = getProductos().slice();
+  const idx = prods.findIndex(x => x && x.id === pid);
+  if (idx !== -1) prods[idx] = { ...prods[idx], stock: ahora };
+  // Silencio: guardarProductosPorDelta puede acabar llamando a los avisos de stock.
+  if (idx !== -1 && salen > 0) {
+    _sinAvisarStock(() => guardarProductosPorDelta(prods, { [pid]: -salen }));
+  }
 
   const ahoraTs = new Date().toISOString();
   const cobrado = String(cobradoTxt || '').trim() || String(p.precio || '').trim();
@@ -11520,7 +11533,7 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
     vuelto: '', total: cobrado, garantia: p.garantia || '',
     valeProductos: [{ id: p.id, name: p.name, qty }],
     // Lo que salió de verdad, para que deshacerla devuelva exactamente eso.
-    stockSalido: { [String(p.id)]: qty },
+    stockSalido: { [String(p.id)]: salen },
     valeText: 'Venta en tienda',
     status: 'confirmed', mensajeroId: null, confirmedTs: ahoraTs, isNew: false,
     adminNotes: String(nota || '').trim(),
@@ -18316,6 +18329,11 @@ const AYUDA_SECCIONES = [
         como:'Eliges el producto del catálogo, pones la cantidad y lo que se cobró de verdad, y le das a "Registrar venta". La mercancía sale del almacén en el momento.',
         ojo:'NO se manda ninguna notificación: ni al gestor, ni al mensajero, ni el aviso de "stock agotado". Esa es la gracia del apartado — de esta venta solo te enteras tú.',
         nuevo:'v124' },
+      { icono:'☁️', titulo:'La venta sí sube a la nube', donde:'Ventas directas',
+        para:'Que si vendes desde el teléfono y luego abres la app en otro (o cambias de celular), la venta y el stock nuevo sigan ahí — no se queden solo en el aparato donde la registraste.',
+        como:'No hay que hacer nada aparte: se sube sola, igual que el resto de la app. Solo hace falta conexión en algún momento después de registrarla; si no hay red, sube sola en cuanto vuelva.',
+        ojo:'El stock baja con el mismo mecanismo seguro que usa un vale normal ("quita 3 unidades", no "ahora quedan 5"), así que si vendes en dos teléfonos casi a la vez, las dos ventas se descuentan de verdad y no se pisan entre sí.',
+        nuevo:'v126' },
       { icono:'＋', titulo:'Dar de alta un producto desde aquí', donde:'Ventas directas › ＋ Producto nuevo',
         para:'Vender algo que todavía no estaba en el catálogo sin tener que dar dos vueltas.',
         como:'Le das al botón, rellenas la ficha como siempre y al guardarla queda ya elegida en el selector, lista para registrar la venta.',

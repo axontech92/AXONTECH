@@ -24,6 +24,7 @@ Para pasarlas todas:
 | `prueba_tasa_de_5.js` | La tasa siempre acaba en 0 o en 5, con el pico subiendo a partir de 3. |
 | `prueba_ajuste_por_linea.js` | El gestor baja su comisión en un producto y el admin rebaja el precio de otro, cada uno en su moneda. Cuentas y las dos pantallas. |
 | `prueba_cobrar_y_directas.js` | Que el vale diga siempre lo que se le cobra al cliente (con rebaja, sin ella y con las monedas cruzadas), y el apartado de ventas directas del admin, que no avisa a nadie. |
+| `prueba_directas_en_la_nube.js` | Que una venta directa (y el deshacerla) viaje de verdad a la nube — no solo al teléfono que la registró —, con el stock bajando por el RPC de delta, contra una Supabase de mentira y dos teléfonos. |
 
 ## Cosas que hay que saber para escribir pruebas aquí
 
