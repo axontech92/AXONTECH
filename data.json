@@ -2513,45 +2513,6 @@
       "synced": true
     },
     {
-      "id": 1789480144969,
-      "ts": "2026-09-15T13:49:04.977Z",
-      "total": "$640 USD + 1200 MN",
-      "carnet": "",
-      "seenTs": "2026-09-15T13:56:15.800Z",
-      "status": "assigned",
-      "vuelto": "60 $",
-      "cliente": "Horacio",
-      "valeNum": 392,
-      "articulo": "×4 Nanostation loco m5",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "precioMN": "",
-      "telefono": "50305198",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Horacio\n🔸Teléfono Cliente: 50305198\n🔸Dirección Cliente: Terminal de villa nueva\n🔸Mensajería/ costo: 1200 cup\n🔸Hora de entrega: 10:00\n🔸 Artículos y cantidades:\n  ×4 Nanostation loco m5\n🔸Precio USD/ zelle: $640 USD\n🔸Precio MN: \n🔸 Vuelto: 60 $\n🔸 Total a pagar: $640 USD + 1200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 09:48\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Terminal de villa nueva",
-      "precioUSD": "$640 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "assignedTs": "2026-09-15T13:56:12.032Z",
-      "mensajeria": "1200 cup",
-      "comFijadaMN": 0,
-      "mensajeroId": 1784476779247,
-      "seenByAdmin": true,
-      "comFijadaUSD": 40,
-      "valeProductos": [
-        {
-          "id": 1786509569058,
-          "qty": 4,
-          "name": "Nanostation loco m5"
-        }
-      ],
-      "comisionGestor": "$40.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1789477908255,
       "ts": "2026-09-15T13:11:48.258Z",
       "total": "$200 USD",
@@ -2753,7 +2714,7 @@
       "ts": "2026-09-15T02:33:00.000Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T14:14:32.116Z",
+      "seenTs": "2026-09-15T14:33:10.591Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -23828,5 +23789,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T14:20:36.391Z"
+  "timestamp": "2026-09-15T14:34:09.391Z"
 }
