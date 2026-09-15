@@ -1216,6 +1216,19 @@ function _flattenValesFromSB(rawItems) {
   for (const v of oldFormatMap.values()) flat.push(v);
   return flat;
 }
+// ── v123: la línea, tal y como viaja a la nube ──────────────────────────────
+// Se manda el id y la cantidad —el nombre se busca por id al leer, para no
+// pagar bytes— y ADEMÁS los ajustes de esa línea, que son dinero: lo que el
+// gestor cedió ahí y lo que el admin le rebajó. Sin esto, el ajuste se hacía en
+// un teléfono y desaparecía en cuanto el vale bajaba en otro.
+function _lineaParaLaNube(p) {
+  const s = { id: p && p.id, qty: p && p.qty };
+  ['cedidaUSD','cedidaMN','rebajaUSD','rebajaMN'].forEach(k => {
+    const n = parseFloat(p && p[k]);
+    if (isFinite(n) && n > 0) s[k] = Math.round(n * 100) / 100;
+  });
+  return s;
+}
 let _restPollTimer = null;
 let _restPollInFlight = false;
 const _REST_POLL_MS = 5000;
@@ -3214,7 +3227,7 @@ function _ensurePendingValesEnqueued() {
   mine.forEach(v => {
     const slim = {};
     GESTOR_REENQUEUE_FIELDS.forEach(f => { if (v[f] !== undefined) slim[f] = v[f]; });
-    slim.valeProductos = (v.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
+    slim.valeProductos = (v.valeProductos || []).map(_lineaParaLaNube);
     if (v.valeText) slim.valeText = v.valeText; // preservar si existe (vales viejos)
     if (v.deliveredTs) slim.deliveredTs = v.deliveredTs; // mensajero puede marcar entrega
     // v54: NUNCA incluir campos del admin en el re-encolado del gestor.
@@ -3390,7 +3403,7 @@ const saveVales = v => {
       garantia: x.garantia,
       comisionGestor: x.comisionGestor,
       // valeProductos sin 'name' — se busca por id al leer
-      valeProductos: (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty })),
+      valeProductos: (x.valeProductos || []).map(_lineaParaLaNube),
       status: x.status,
       mensajeroId: x.mensajeroId,
       assignedTs: x.assignedTs,   // v39: sync assignment timestamp
@@ -3501,7 +3514,7 @@ const saveVales = v => {
     const slim = {};
     GESTOR_WRITABLE_FIELDS.forEach(f => { if (x[f] !== undefined) slim[f] = x[f]; });
     // valeProductos sin name — se busca por id al leer
-    slim.valeProductos = (x.valeProductos || []).map(p => ({ id: p.id, qty: p.qty }));
+    slim.valeProductos = (x.valeProductos || []).map(_lineaParaLaNube);
     // Solo incluir valeText si ya existía en local (vales viejos)
     if (x.valeText && prevMap.get(`${x.gestorId}/${x.id}`)?.valeText) {
       slim.valeText = x.valeText;
@@ -7590,6 +7603,33 @@ function _partesMonetarias(txt) {
   return { usd, mn };
 }
 // Escribe un importe en el mismo formato que usa la app.
+// ── v123: las líneas SIN sus ajustes ───────────────────────────────────────
+// La comisión congelada (comFijadaUSD/MN) tiene que guardar lo que daba el
+// catálogo, NO lo que quedó después de ceder: la cesión se vuelve a restar cada
+// vez que se lee el vale, así que congelar lo ya rebajado lo restaría dos veces.
+const _lineasSinAjustes = items => (items || []).map(it => ({ id: it && it.id, qty: it && it.qty }));
+
+// ── v123: la comisión que da UNA línea del vale, en sus dos monedas ─────────
+// Es lo que da el catálogo por esa cantidad, SIN restarle nada. Es el número
+// contra el que se compara cuando el gestor escribe lo que quiere cobrar.
+function _comisionBaseLinea(it) {
+  if (!it) return { usd: 0, mn: 0 };
+  try {
+    const r = getValeCommissionParts({ valeProductos: [{ id: it.id, qty: it.qty }] });
+    return { usd: Math.max(0, r.totalUSD || 0), mn: Math.max(0, r.totalMN || 0) };
+  } catch (e) { return { usd: 0, mn: 0 }; }
+}
+// La moneda en la que va la comisión de esa línea. Un producto cobra en una o
+// en otra, no en las dos, así que basta con mirar cuál trae.
+const _monedaComisionLinea = it => (_comisionBaseLinea(it).mn > 0 ? 'MN' : 'USD');
+// Lo que el gestor se queda de esa línea después de lo que haya cedido en ella.
+function _comisionNetaLinea(it) {
+  const b = _comisionBaseLinea(it);
+  return {
+    usd: Math.max(0, b.usd - (parseFloat(it && it.cedidaUSD) || 0)),
+    mn:  Math.max(0, b.mn  - (parseFloat(it && it.cedidaMN)  || 0)),
+  };
+}
 function _fmtMonto(usd, mn) {
   const p = [];
   if (usd > 0) p.push('$' + (Math.round(usd * 100) / 100).toFixed(2).replace(/\.00$/, '') + ' USD');
@@ -7609,26 +7649,40 @@ function _rebajaVale(v) {
   //  · la del ADMIN sale del margen del negocio — la comisión del gestor no se toca
   // Las dos bajan lo que paga el cliente, así que para el total se suman; para
   // todo lo demás se llevan por separado.
+  // v123: cada actor puede tener hasta dos importes por moneda —lo general y lo
+  // afinado producto a producto—, así que se recorre en vez de mirar un campo.
   const partes = [];
-  const cedida = Math.max(0, parseFloat(v.comisionCedida || 0) || 0);
-  if (cedida > 0) partes.push({
-    quien: 'gestor',
-    importe: cedida,
-    moneda: ((v.comisionCedidaMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD',
-    motivo: v.comisionCedidaMotivo || ''
-  });
-  const reba = Math.max(0, parseFloat(v.rebajaAdmin || 0) || 0);
-  if (reba > 0) partes.push({
-    quien: 'admin',
-    importe: reba,
-    moneda: ((v.rebajaAdminMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD',
-    motivo: v.rebajaAdminMotivo || ''
-  });
+  const _mete = (quien, m, motivo) => {
+    if (m.usd > 0) partes.push({ quien, importe: m.usd, moneda: 'USD', motivo: motivo || '' });
+    if (m.mn  > 0) partes.push({ quien, importe: m.mn,  moneda: 'MN',  motivo: motivo || '' });
+  };
+  _mete('gestor', _montoEnSuMoneda(v.comisionCedida, v.comisionCedidaMoneda), v.comisionCedidaMotivo);
+  _mete('gestor', _sumaLineas(v, 'cedida'), 'ajuste por producto');
+  _mete('admin',  _montoEnSuMoneda(v.rebajaAdmin, v.rebajaAdminMoneda), v.rebajaAdminMotivo);
+  _mete('admin',  _sumaLineas(v, 'rebaja'), 'ajuste por producto');
   if (!partes.length) return null;
 
+
   partes.forEach(pt => { pt.txt = fmtEn(pt.importe, pt.moneda); });
-  const gestor = partes.find(pt => pt.quien === 'gestor') || null;
-  const admin  = partes.find(pt => pt.quien === 'admin')  || null;
+  // v123: cada actor puede tener varias partes (lo general y lo de cada línea,
+  // y cada una en su moneda). Se juntan en una sola entrada para quien solo
+  // quiere enseñar "el gestor rebajó tanto" — antes se cogía la primera y el
+  // resto no se veía.
+  const _junta = quien => {
+    const mias = partes.filter(pt => pt.quien === quien);
+    if (!mias.length) return null;
+    const usd = mias.reduce((a, pt) => a + (pt.moneda === 'USD' ? pt.importe : 0), 0);
+    const mn  = mias.reduce((a, pt) => a + (pt.moneda === 'MN'  ? pt.importe : 0), 0);
+    return {
+      quien, partes: mias,
+      importe: usd || mn,
+      moneda: (mn > 0 && !usd) ? 'MN' : 'USD',
+      motivo: [...new Set(mias.map(pt => pt.motivo).filter(Boolean))].join(' · '),
+      txt: _fmtMonto(usd, mn),
+    };
+  };
+  const gestor = _junta('gestor');
+  const admin  = _junta('admin');
 
   // v83: cada rebaja se descuenta de SU moneda. Los totales suelen venir mixtos
   // ("$230 USD + 2500 MN": el producto en USD y la mensajería en MN), así que
@@ -7650,8 +7704,9 @@ function _rebajaVale(v) {
     // Compatibilidad con el resto del código: rebajaTxt es lo que se rebaja en
     // total y aCobrarTxt lo que hay que cobrar.
     rebajaTxt: _fmtMonto(rebUSD, rebMN),
-    motivo: partes.map(pt => pt.motivo).filter(Boolean).join(' · '),
-    cedida,
+    motivo: [...new Set(partes.map(pt => pt.motivo).filter(Boolean))].join(' · '),
+    // v123: en las dos monedas, que sumarlas sería mentir.
+    cedida: _cedidoTotal(v),
     aCobrar: null, aCobrarTxt: null
   };
   const quedaUSD = Math.max(0, tot.usd - (tot.usd > 0 ? rebUSD : 0));
@@ -7677,7 +7732,65 @@ function openRebajaAdminModal(id) {
   document.getElementById('rebajaAdminMoneda').value = ((v.rebajaAdminMoneda || 'USD') + '').toUpperCase() === 'MN' ? 'MN' : 'USD';
   document.getElementById('rebajaAdminMotivo').value = v.rebajaAdminMotivo || '';
   document.getElementById('rebajaAdminModal').classList.add('show');
+  _pintarRebajaLineas(v);
   rebajaAdminRefresca();
+}
+
+// ── v123: una casilla de rebaja por cada producto del vale ──────────────────
+// El precio de cada línea sale del catálogo por la cantidad. Lo que se escriba
+// aquí se le quita a ESA línea, en la moneda de ESE producto, y el corte de
+// dueños lo descuenta de esa mercancía en concreto — sin repartos a ojo.
+function _pintarRebajaLineas(v) {
+  const c = document.getElementById('rebajaAdminLineas');
+  if (!c) return;
+  const items = (v && v.valeProductos) || [];
+  if (!items.length) {
+    c.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Este vale no tiene productos del catálogo vinculados.</div>';
+    return;
+  }
+  c.innerHTML = items.map((it, idx) => {
+    const p = productoOf(it.id);
+    const uds = parseInt(it.qty, 10) || 0;
+    const pv = _montoMonedas(p ? p.precio : '');
+    const mon = pv.mn > 0 ? 'MN' : 'USD';
+    const precio = (mon === 'MN' ? pv.mn : pv.usd) * uds;
+    const yaVal = parseFloat(mon === 'MN' ? it.rebajaMN : it.rebajaUSD) || 0;
+    const nombre = p ? (p.name || ('#' + it.id)) : ('Producto #' + it.id + ' (borrado)');
+    if (!(precio > 0)) {
+      return `<div style="font-size:11px;color:var(--text-muted);">×${uds} ${escapeHTML(nombre)} — sin precio en el catálogo, no se puede rebajar aquí</div>`;
+    }
+    return `<div style="display:flex;align-items:center;gap:6px;min-width:0;">
+      <span style="font-size:11px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">×${uds} ${escapeHTML(nombre)}</span>
+      <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">de ${mon === 'MN' ? Math.round(precio) : precio} ${mon}</span>
+      <input type="number" inputmode="decimal" min="0" max="${precio}" step="any" value="${yaVal || ''}" placeholder="0"
+             onchange="cambiarRebajaLinea(${idx}, this.value)"
+             style="width:88px;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 6px;font-size:13px;font-weight:700;color:var(--text);">
+    </div>`;
+  }).join('');
+}
+function cambiarRebajaLinea(idx, valor) {
+  const v = getVales().find(x => x.id === _rebajaAdminValeId);
+  if (!v) return;
+  const items = (v.valeProductos || []).slice();
+  const it = items[idx];
+  if (!it) return;
+  const p = productoOf(it.id);
+  const uds = parseInt(it.qty, 10) || 0;
+  const pv = _montoMonedas(p ? p.precio : '');
+  const mon = pv.mn > 0 ? 'MN' : 'USD';
+  const precio = (mon === 'MN' ? pv.mn : pv.usd) * uds;
+  let n = parseFloat(valor);
+  if (!isFinite(n) || n < 0) n = 0;
+  if (n > precio) { n = precio; showToast('No se puede rebajar más de lo que vale esa línea'); }
+  const nuevo = { ...it };
+  if (mon === 'MN') { nuevo.rebajaMN = n || undefined; delete nuevo.rebajaUSD; }
+  else              { nuevo.rebajaUSD = n || undefined; delete nuevo.rebajaMN; }
+  items[idx] = nuevo;
+  patchVale(v.id, { valeProductos: items });
+  const vv = getVales().find(x => x.id === _rebajaAdminValeId);
+  _pintarRebajaLineas(vv);
+  rebajaAdminRefresca();
+  renderValeDetail();
 }
 function closeRebajaAdminModal() {
   const m = document.getElementById('rebajaAdminModal');
@@ -8295,7 +8408,7 @@ function saveEditVale() {
   // que ya no tiene.
   if (productsChanged) {
     try {
-      const _r = getValeCommissionParts({valeProductos: editValeProductos || []});
+      const _r = getValeCommissionParts({valeProductos: _lineasSinAjustes(editValeProductos)});
       if (_r.totalUSD !== null || _r.totalMN !== null) {
         changes.comFijadaUSD = _r.totalUSD || 0;
         changes.comFijadaMN  = _r.totalMN  || 0;
@@ -10059,7 +10172,7 @@ function sendVale() {
     // para que no se lea a sí mismo.
     ...(function(){
       try {
-        const _r = getValeCommissionParts({valeProductos: currentValeProductos || []});
+        const _r = getValeCommissionParts({valeProductos: _lineasSinAjustes(currentValeProductos)});
         if (_r.totalUSD === null && _r.totalMN === null) return {};   // no computable: mejor no congelar nada
         return { comFijadaUSD: _r.totalUSD || 0, comFijadaMN: _r.totalMN || 0 };
       } catch(e) { return {}; }
@@ -10306,8 +10419,16 @@ function parsePrecioNum(str) {
   return matches ? matches.reduce((sum, m) => sum + parseFloat(m), 0) : 0;
 }
 function confirmPickerSelection() {
+  // v123: si ya se había ajustado la comisión de una línea, al volver a abrir el
+  // selector no se pierde. Solo se descarta si el producto sale de la selección.
+  const _antes = {};
+  (currentValeProductos || []).forEach(it => { if (it && it.id != null) _antes[String(it.id)] = it; });
   const items=Object.entries(pickerSelected).map(([id,qty])=>{
-    const p=productoOf(parseInt(id));return{id:parseInt(id),name:p?p.name:id,qty};
+    const p=productoOf(parseInt(id));
+    const it={id:parseInt(id),name:p?p.name:id,qty};
+    const prev=_antes[String(parseInt(id))];
+    if (prev) ['cedidaUSD','cedidaMN'].forEach(k => { if (prev[k] > 0) it[k] = prev[k]; });
+    return it;
   });
   selectedProductsUI=items;currentValeProductos=items;
   renderSelectedProductsUI();
@@ -10370,12 +10491,77 @@ function renderSelectedProductsUI() {
   if(!c) return;
   if(!selectedProductsUI.length){c.style.display='none';return;}
   c.style.display='block';
-  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">`+
-    selectedProductsUI.map(i=>`<div style="display:flex;align-items:center;gap:8px;min-width:0;">
-      <span style="font-weight:800;color:var(--blue);flex-shrink:0;font-size:13px;">×${i.qty}</span>
-      <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${escapeHTML(i.name)}</span>
-    </div>`).join('')+
+  // ── v123: cada producto con SU comisión, editable ─────────────────────────
+  // Antes había una sola casilla de comisión para todo el vale, y con varias
+  // líneas eso no alcanza: "en los 10 nanos bajo 50 de los 100 y en los POE
+  // bajo 4000 de los 10000" son dos ajustes, en dos monedas. Ahora cada línea
+  // enseña lo que da de comisión y se puede escribir encima lo que se quiere
+  // cobrar; la diferencia es lo que el gestor cede, y baja lo que paga el
+  // cliente en esa misma moneda.
+  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:8px;">`+
+    selectedProductsUI.map((i, idx)=>{
+      const base = _comisionBaseLinea(i);
+      const mon  = base.mn > 0 ? 'MN' : 'USD';
+      const baseN = mon === 'MN' ? base.mn : base.usd;
+      const neta  = _comisionNetaLinea(i);
+      const netaN = mon === 'MN' ? neta.mn : neta.usd;
+      const cedido = Math.round((baseN - netaN) * 100) / 100;
+      return `<div style="display:flex;flex-direction:column;gap:3px;min-width:0;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+        <span style="font-weight:800;color:var(--blue);flex-shrink:0;font-size:13px;">×${i.qty}</span>
+        <span style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${escapeHTML(i.name)}</span>
+      </div>
+      ${baseN > 0 ? `<div style="display:flex;align-items:center;gap:6px;padding-left:22px;">
+        <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">Tu comisión:</span>
+        <input type="number" inputmode="decimal" min="0" max="${baseN}" step="any"
+               value="${netaN}" data-linea="${idx}"
+               onfocus="this.select();" onchange="cambiarComisionLinea(${idx}, this.value)"
+               style="width:86px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:12px;font-weight:700;color:var(--text);">
+        <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">${mon} de ${mon==='MN'?Math.round(baseN):baseN}</span>
+        ${cedido > 0 ? `<span style="font-size:10px;color:var(--orange);font-weight:700;white-space:nowrap;">−${mon==='MN'?Math.round(cedido):cedido} al cliente</span>` : ''}
+      </div>` : ''}
+    </div>`;}).join('')+
     `</div><button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 10px;" onclick="openProductPicker()">✏️ Editar selección</button>`;
+}
+
+// ── v123: el gestor escribe lo que quiere cobrar por esa línea ──────────────
+// Se guarda la DIFERENCIA (lo cedido), no el importe: así, si mañana cambia la
+// comisión del catálogo, lo que el gestor decidió ceder sigue significando lo
+// mismo. Se topa entre 0 y la comisión entera — ceder más de lo que se gana no
+// existe, y "cobrar más de lo que da el producto" tampoco.
+function cambiarComisionLinea(idx, valor) {
+  const it = currentValeProductos[idx];
+  if (!it) return;
+  const base = _comisionBaseLinea(it);
+  const mon = base.mn > 0 ? 'MN' : 'USD';
+  const baseN = mon === 'MN' ? base.mn : base.usd;
+  let quiere = parseFloat(valor);
+  if (!isFinite(quiere) || quiere < 0) quiere = 0;
+  if (quiere > baseN) { quiere = baseN; showToast('No puedes cobrar más de lo que da ese producto'); }
+  const cedido = Math.round((baseN - quiere) * 100) / 100;
+  if (mon === 'MN') { it.cedidaMN = cedido; delete it.cedidaUSD; }
+  else              { it.cedidaUSD = cedido; delete it.cedidaMN; }
+  // selectedProductsUI y currentValeProductos son el MISMO array (ver
+  // confirmPickerSelection), así que no hay nada que copiar. Se deja dicho por
+  // si algún día dejan de serlo.
+  if (selectedProductsUI !== currentValeProductos) selectedProductsUI[idx] = it;
+  renderSelectedProductsUI();
+  _recalcularComisionFormulario();
+}
+
+// La casilla de comisión del formulario enseña la SUMA de las líneas ya
+// ajustadas. Antes la escribía el picker una sola vez y luego se quedaba vieja
+// en cuanto se tocaba algo.
+function _recalcularComisionFormulario() {
+  const el = document.getElementById('vf-comisionGestor');
+  if (!el) return;
+  let usd = 0, mn = 0;
+  (currentValeProductos || []).forEach(it => {
+    const n = _comisionNetaLinea(it);
+    usd += n.usd; mn += n.mn;
+  });
+  el.value = (usd > 0 || mn > 0) ? _fmtMonto(usd, mn) : '';
+  if (typeof onFormInput === 'function') { try { onFormInput(); } catch(e) {} }
 }
 
 // ══════════════════════════════════════════
@@ -11951,19 +12137,63 @@ function _ventaVale(v) {
 //
 // Cada rebaja se resta de SU moneda: rebajar $20 en un vale de "$450 + 2500 MN"
 // no puede tocar los pesos. Y nunca por debajo de cero.
+// ── v123: afinar el dinero PRODUCTO A PRODUCTO ─────────────────────────────
+// Hasta ahora había una sola cesión del gestor y una sola rebaja del admin para
+// todo el vale. Con un vale de varias líneas eso no alcanza: "en los 10 nanos
+// bajo 50 de los 100, y en los POE bajo 4000 de los 10000 MN" son dos ajustes
+// distintos, en dos monedas distintas, sobre dos productos distintos.
+//
+// Cada línea del vale puede llevar ahora lo suyo:
+//   cedidaUSD / cedidaMN  → lo que el gestor renuncia de SU comisión en esa línea
+//   rebajaUSD / rebajaMN  → lo que el admin le quita al precio de esa línea
+// Son totales de la línea, no por unidad: si son 10 nanos, el número es lo que
+// se baja por los diez.
+//
+// Los campos de "todo el vale" siguen existiendo y se SUMAN a estos: quien
+// quiera seguir haciéndolo de un plumazo, puede.
+function _sumaLineas(v, campo) {
+  let usd = 0, mn = 0;
+  ((v && v.valeProductos) || []).forEach(it => {
+    if (!it) return;
+    usd += Math.max(0, parseFloat(it[campo + 'USD']) || 0);
+    mn  += Math.max(0, parseFloat(it[campo + 'MN'])  || 0);
+  });
+  return { usd: Math.round(usd * 100) / 100, mn: Math.round(mn * 100) / 100 };
+}
+// Un importe de "todo el vale", que va en una sola moneda, puesto en las dos.
+function _montoEnSuMoneda(importe, moneda) {
+  const n = Math.max(0, parseFloat(importe || 0) || 0);
+  return (String(moneda || 'USD')).toUpperCase() === 'MN' ? { usd: 0, mn: n } : { usd: n, mn: 0 };
+}
+// Lo que el gestor cede en total: lo general más lo de cada línea.
+function _cedidoTotal(v) {
+  if (!v) return { usd: 0, mn: 0 };
+  const g = _montoEnSuMoneda(v.comisionCedida, v.comisionCedidaMoneda);
+  const l = _sumaLineas(v, 'cedida');
+  return { usd: Math.round((g.usd + l.usd) * 100) / 100, mn: Math.round((g.mn + l.mn) * 100) / 100 };
+}
+// Y lo que rebaja el admin, igual.
+function _rebajadoTotal(v) {
+  if (!v) return { usd: 0, mn: 0 };
+  const g = _montoEnSuMoneda(v.rebajaAdmin, v.rebajaAdminMoneda);
+  const l = _sumaLineas(v, 'rebaja');
+  return { usd: Math.round((g.usd + l.usd) * 100) / 100, mn: Math.round((g.mn + l.mn) * 100) / 100 };
+}
+const _hayAjustesPorLinea = v => {
+  const c = _sumaLineas(v, 'cedida'), r = _sumaLineas(v, 'rebaja');
+  return !!(c.usd || c.mn || r.usd || r.mn);
+};
+
 function _ventaCobradaVale(v) {
   const base = _ventaVale(v);
   if (!v) return base;
   let usd = base.usd, mn = base.mn;
-  const quita = (importe, moneda) => {
-    const n = Math.max(0, parseFloat(importe || 0) || 0);
-    if (!n) return;
-    if ((String(moneda || 'USD')).toUpperCase() === 'MN') mn = Math.max(0, mn - n);
-    else usd = Math.max(0, usd - n);
-  };
-  quita(v.rebajaAdmin, v.rebajaAdminMoneda);
-  quita(v.comisionCedida, v.comisionCedidaMoneda);
-  return { usd, mn };
+  // v123: lo general y lo de cada línea, juntos. Nunca por debajo de cero, y
+  // cada moneda por su lado: una rebaja en pesos no se come los dólares.
+  const quita = m => { usd = Math.max(0, usd - m.usd); mn = Math.max(0, mn - m.mn); };
+  quita(_rebajadoTotal(v));
+  quita(_cedidoTotal(v));
+  return { usd: Math.round(usd * 100) / 100, mn: Math.round(mn * 100) / 100 };
 }
 
 // ── COLUMNAS CONFIGURABLES ──
@@ -12278,7 +12508,8 @@ function _lineasPorDueno(vales) {
     // los dueños, porque la rebaja hay que repartirla entre ellas y para eso
     // hace falta saber cuánto suma el vale entero. Ver el bloque de abajo.
     const _lineasVale = [];
-    (v.valeProductos || []).forEach(({ id, qty }) => {
+    (v.valeProductos || []).forEach((_it) => {
+      const { id, qty } = _it || {};
       const p = productoOf(id);
       const dueno = duenoPorId(duenoIdDe(id));
       const clave = dueno ? String(dueno.id) : _SIN_DUENO;
@@ -12294,10 +12525,23 @@ function _lineasPorDueno(vales) {
       let comUSD = 0, comMN = 0;
       if (!esTienda && p) {
         try {
-          const r = getValeCommissionParts({ valeProductos: [{ id, qty: unidades }] });
+          // v123: la línea se pasa ENTERA para que su cesión propia se descuente
+          // de su propia comisión. Antes se recreaba con solo {id, qty} y el
+          // ajuste que el gestor había hecho en ese producto se perdía aquí.
+          const r = getValeCommissionParts({ valeProductos: [{ ...(_it || {}), id, qty: unidades }] });
           comUSD = r.totalUSD || 0; comMN = r.totalMN || 0;
         } catch(e) {}
       }
+      // v123: y la rebaja que el admin le puso a ESTA línea sale de ESTA línea,
+      // sin repartos: se sabe exactamente de qué mercancía se descontó.
+      const _rebLinea = {
+        usd: Math.max(0, parseFloat(_it && _it.rebajaUSD) || 0),
+        mn:  Math.max(0, parseFloat(_it && _it.rebajaMN)  || 0),
+      };
+      const _cedLinea = {
+        usd: Math.max(0, parseFloat(_it && _it.cedidaUSD) || 0),
+        mn:  Math.max(0, parseFloat(_it && _it.cedidaMN)  || 0),
+      };
       _lineasVale.push({
         clave, dueno,
         ts: v.ts, valeId: v.id, valeNum: (typeof valeNumStr === 'function' ? valeNumStr(v) : ''),
@@ -12305,7 +12549,10 @@ function _lineasPorDueno(vales) {
         gestor: esTienda ? 'Tienda (admin)' : (g ? g.name : '—'), esTienda,
         gestorId: esTienda ? null : v.gestorId, comEstado,
         producto: p ? (p.name || p.nombre || ('#' + id)) : ('Producto #' + id + ' (borrado)'),
-        qty: unidades, ventaUSD, ventaMN, comUSD, comMN,
+        qty: unidades,
+        ventaUSD: Math.max(0, ventaUSD - _rebLinea.usd - _cedLinea.usd),
+        ventaMN:  Math.max(0, ventaMN  - _rebLinea.mn  - _cedLinea.mn),
+        comUSD, comMN,
         sinPrecio: !pv.usd && !pv.mn, tieneRebaja,
       });
     });
@@ -13728,20 +13975,27 @@ function getValeCommissionParts(v) {
   // ranking, los totales por periodo— pasan todas por esta función. Restándolo
   // en un solo punto, todas muestran ya la cifra rebajada y no pueden discrepar
   // entre ellas.
-  const _cedida = Math.max(0, parseFloat(v.comisionCedida || 0) || 0);
-  if (_cedida > 0 && computable && parts.length) {
-    const _monedaCedida = (v.comisionCedidaMoneda || 'USD').toUpperCase() === 'MN' ? 'MN' : 'USD';
+  // v123: lo cedido son ahora dos cosas que se suman — lo que se puso para todo
+  // el vale y lo que se afinó producto a producto. Se restan las dos, cada una
+  // en su moneda, y se enseñan por separado para que se vea de dónde sale cada
+  // rebaja.
+  const _cedGeneral = _montoEnSuMoneda(v && v.comisionCedida, v && v.comisionCedidaMoneda);
+  const _cedLineas  = _sumaLineas(v, 'cedida');
+  const _quitaCed = (m, etiqueta) => {
+    if (!(m.usd > 0 || m.mn > 0) || !computable || !parts.length) return;
     // Nunca por debajo de cero: ceder más de lo que se gana no tiene sentido, y
     // el formulario ya lo topa, pero el dato puede venir de otro dispositivo.
-    if (_monedaCedida === 'MN') totalMN = Math.max(0, totalMN - _cedida);
-    else totalUSD = Math.max(0, totalUSD - _cedida);
+    totalUSD = Math.max(0, totalUSD - m.usd);
+    totalMN  = Math.max(0, totalMN  - m.mn);
     parts.push({
-      label: 'Cedido por el gestor',
-      com: _monedaCedida === 'MN' ? ('−' + Math.round(_cedida) + ' MN') : ('−$' + _cedida.toFixed(2) + ' USD'),
-      currency: _monedaCedida,
+      label: etiqueta,
+      com: '−' + _fmtMonto(m.usd, m.mn),
+      currency: m.mn > 0 && !m.usd ? 'MN' : 'USD',
       cedido: true
     });
-  }
+  };
+  _quitaCed(_cedGeneral, 'Cedido por el gestor');
+  _quitaCed(_cedLineas,  'Cedido por producto');
   return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
     // Backward compat: total + currency for single-currency vales.
     // IMPORTANTE: si hay comisión mixta USD+MN, devolver null en total — que el
@@ -17756,6 +18010,16 @@ const AYUDA_SECCIONES = [
         para:'Mandarle su clave para que entre en la app.',
         como:'Al crearlo o al resetearla sale la ventana con la clave. Si ya la perdiste, toca el candado 🔒 y te ofrece generar una nueva y enviarla.',
         ojo:'Las claves se guardan encriptadas a propósito: así una copia de la base de datos no reparte las claves de todos. Ni tú puedes leerlas. Generar una nueva deja fuera al gestor hasta que le mandes la nueva.' },
+      { icono:'✂️', titulo:'Bajar la comisión de un producto', donde:'Al llenar el vale',
+        para:'Hacerle precio al cliente en UN producto concreto, no en todo el vale. "En los 10 nanos bajo 50 de los 100, y en los POE bajo 4000 de los 10000."',
+        como:'Al escoger los productos, cada uno sale con su comisión al lado. Escribe encima lo que quieres cobrar por esa línea y listo.',
+        ojo:'Lo que dejas de cobrar se le descuenta al cliente en ESA misma moneda: si bajas 50 USD en los nanos, el cliente paga 50 USD menos; si bajas 4000 MN en los POE, paga 4000 MN menos. No puedes cobrar más de lo que da el producto. El campo de "ceder comisión" para todo el vale sigue ahí y se suma a esto.',
+        nuevo:'v123' },
+      { icono:'🏷️', titulo:'Rebajar un producto del vale', donde:'Vales › 🏷️ Rebajar este vale',
+        para:'Que el descuento se sepa de qué mercancía salió. Con varias líneas, un solo número no dice nada — y el corte de Dueños necesita saberlo para pagarle a cada cual lo suyo.',
+        como:'En la ventana de rebajar, arriba sale una casilla por cada producto del vale con su precio. Escribe lo que le quitas a esa línea.',
+        ojo:'Esta rebaja sale del negocio: la comisión del gestor no se toca. Y en Dueños se le descuenta al dueño de ESE producto, sin repartos a ojo. La rebaja para el vale entero sigue debajo y se suma.',
+        nuevo:'v123' },
       { icono:'💰', titulo:'Comisiones', donde:'Gestores › tarjeta del gestor',
         para:'Ver y pagar lo que le debes a cada uno.',
         como:'Toca "💰 Comisiones" en su tarjeta. Cada vale se puede marcar "En sobre" (apartado) o "Cobrado" (ya pagado).',

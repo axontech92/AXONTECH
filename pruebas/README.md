@@ -22,6 +22,7 @@ Para pasarlas todas:
 | `recorrido_sync.js`   | Dos teléfonos contra una Supabase de mentira: el gestor manda sin cobertura, vuelve la red, el admin confirma y revierte, y la nube contesta vacío por un fallo. |
 | `prueba_cinco_fallos.js` | Los cinco fallos reportados el 15/09 (texto de WhatsApp, moneda de la comisión, stock excedido, reversión). |
 | `prueba_tasa_de_5.js` | La tasa siempre acaba en 0 o en 5, con el pico subiendo a partir de 3. |
+| `prueba_ajuste_por_linea.js` | El gestor baja su comisión en un producto y el admin rebaja el precio de otro, cada uno en su moneda. Cuentas y las dos pantallas. |
 
 ## Cosas que hay que saber para escribir pruebas aquí
 

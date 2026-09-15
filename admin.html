@@ -865,7 +865,13 @@
       </div>
     </div>
 
-    <div class="lbl" style="margin:0 0 6px;">Rebaja del negocio</div>
+    <!-- v123: rebajar producto a producto. Con un vale de varias líneas, un solo
+         número no dice de qué mercancía se descontó — y el corte de dueños
+         necesita saberlo para pagarle a cada cual lo suyo. -->
+    <div class="lbl" style="margin:0 0 6px;">Rebajar un producto en concreto</div>
+    <div id="rebajaAdminLineas" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
+
+    <div class="lbl" style="margin:0 0 6px;">O rebajar el vale entero</div>
     <div style="display:flex;gap:6px;">
       <input type="number" inputmode="decimal" id="rebajaAdminInput" min="0" step="0.5" placeholder="0"
              oninput="rebajaAdminRefresca()"
