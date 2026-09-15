@@ -1796,7 +1796,7 @@
       "name": "Mikrotik hap ax3",
       "catId": 10,
       "photo": "photos/img_1786509419466.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1786509419466.webp",
       "nombre": "Mikrotik hap ax3",
       "precio": "$260",
@@ -1814,7 +1814,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 15,
+      "stock": 14,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -1868,7 +1868,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 15,
+      "stock": 14,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2128,7 +2128,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 580,
+      "stock": 510,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2349,7 +2349,7 @@
       "name": "Router Tp-link Archer A6",
       "catId": 10,
       "photo": "photos/p-1788329740120-3d5fec45.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1788329740120-3d5fec45.webp",
       "nombre": "Router Tp-link Archer A6",
       "precio": "$110",
@@ -2439,39 +2439,85 @@
   ],
   "vales": [
     {
-      "id": 1789507692176,
-      "ts": "2026-09-15T21:28:12.187Z",
-      "total": "$140 USD",
+      "id": 1789511379837,
+      "ts": "2026-09-15T22:29:39.838Z",
+      "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-15T21:29:27.615Z",
-      "status": "pending",
+      "seenTs": "2026-09-15T22:29:50.324Z",
+      "status": "confirmed",
       "vuelto": "",
-      "cliente": "Andy Garcia",
-      "valeNum": 400,
-      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS",
+      "cliente": "carlito",
+      "valeNum": 402,
+      "articulo": "×1 Mikrotik hap ax3",
       "garantia": "",
-      "gestorId": 1784476335609,
+      "gestorId": 0,
       "precioMN": "",
-      "telefono": "5353636102",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Juan\n\n🔸 Nombre Cliente: Andy Garcia\n🔸Teléfono Cliente: 5353636102\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 17:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "telefono": "53027445",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: carlito\n🔸Teléfono Cliente: 53027445\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Mikrotik hap ax3\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/9/2026, 18:29:39\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-15T22:29:53.348Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1786509419466": 1
+      },
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786509419466,
+          "qty": 1,
+          "name": "Mikrotik hap ax3"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
+      "id": 1789508458967,
+      "ts": "2026-09-15T21:40:58.976Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "seenTs": "2026-09-15T22:20:00.131Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Hany Karla",
+      "valeNum": 401,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5356797613",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Hany Karla\n🔸Teléfono Cliente: 5356797613\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 17:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
-      "precioUSD": "$140 USD",
+      "precioUSD": "$160 USD",
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-15T22:25:23.760Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
-          "id": 1788015580929,
+          "id": 1786509569058,
           "qty": 1,
-          "name": "MikroTik hEX S (2025) – E60iUGS"
+          "name": "Nanostation loco m5"
         }
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2519,8 +2565,8 @@
       "ts": "2026-09-15T20:25:00.000Z",
       "total": "$110 USD + 21600 MN",
       "carnet": "",
-      "seenTs": "2026-09-15T20:26:09.799Z",
-      "status": "assigned",
+      "seenTs": "2026-09-15T22:29:59.976Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "X",
       "valeNum": 399,
@@ -2539,8 +2585,13 @@
       "mensajeria": "2000",
       "comFijadaMN": 0,
       "confirmedTs": null,
+      "deliveredTs": "2026-09-15T21:35:31.454Z",
       "mensajeroId": 1784408225928,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 70,
+        "1788329740120": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2556,7 +2607,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2565,7 +2616,7 @@
       "total": "$230 USD + 1800 MN",
       "carnet": "",
       "seenTs": "2026-09-15T21:10:46.647Z",
-      "status": "assigned",
+      "status": "pending_payment",
       "vuelto": "10",
       "cliente": "Misleysis",
       "valeNum": 398,
@@ -2582,8 +2633,12 @@
       "assignedTs": "2026-09-15T20:26:01.045Z",
       "mensajeria": "1800",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-15T21:35:32.582Z",
       "mensajeroId": 1784408225928,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2594,7 +2649,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2944,43 +2999,6 @@
       "comisionGestor": "",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "synced": true
-    },
-    {
-      "id": 1789481031745,
-      "ts": "2026-09-15T14:03:51.751Z",
-      "total": "$160 USD",
-      "carnet": "",
-      "seenTs": "2026-09-15T17:45:43.585Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Andres - Violeta",
-      "valeNum": 394,
-      "articulo": "×1 Nanostation loco m5",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "5352841786",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Andres - Violeta\n🔸Teléfono Cliente: 5352841786\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 15/09/2026 10:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$160 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786509569058,
-          "qty": 1,
-          "name": "Nanostation loco m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
@@ -24208,5 +24226,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T21:32:01.391Z"
+  "timestamp": "2026-09-15T22:30:53.378Z"
 }
