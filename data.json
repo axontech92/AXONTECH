@@ -632,7 +632,7 @@
       "name": "Switch dE 8 puertos",
       "catId": 10,
       "photo": "photos/img_1778102214012.webp",
-      "stock": 0,
+      "stock": 6,
       "imagen": "photos/img_1778102214012.webp",
       "nombre": "Switch dE 8 puertos",
       "precio": "$30",
@@ -906,7 +906,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 3,
+      "stock": 7,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2263,7 +2263,7 @@
       "name": "mikrotik sxt sq 5ax",
       "catId": 10,
       "photo": "photos/p-1788124513018-46338072.webp",
-      "stock": 25,
+      "stock": 40,
       "imagen": "photos/p-1788124513018-46338072.webp",
       "nombre": "mikrotik sxt sq 5ax",
       "precio": "$160",
@@ -23827,5 +23827,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-15T14:10:23.392Z"
+  "timestamp": "2026-09-15T14:13:44.823Z"
 }
