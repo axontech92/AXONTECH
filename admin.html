@@ -97,6 +97,7 @@
     <button class="anav-btn" id="anav-catalog" onclick="adminTab('catalog')">🛍️ Catálogo</button>
     <button class="anav-btn" id="anav-gestores" onclick="adminTab('gestores')">👥 Gestores</button>
     <button class="anav-btn" id="anav-mensajeros" onclick="adminTab('mensajeros')">🛵 Mensajeros<span id="mensajeroBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;"></span></button>
+    <button class="anav-btn" id="anav-directas" onclick="adminTab('directas')">🏪 Ventas directas</button>
     <button class="anav-btn" id="anav-duenos" onclick="adminTab('duenos')">🧑‍💼 Dueños</button>
     <button class="anav-btn" id="anav-stats" onclick="adminTab('stats')">📊 Estadísticas</button>
     <button class="anav-btn" id="anav-historial" onclick="adminTab('historial')">📋 Historial</button>
@@ -368,6 +369,66 @@
       </div>
     </div>
     <div id="historialList"></div>
+  </div>
+
+  <!-- ════════ VENTAS DIRECTAS PANEL ════════ -->
+  <div id="adminDirectasPanel" class="admin-panel">
+    <div class="lbl" style="margin-top:0;">🏪 Ventas directas (solo tú las ves)</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+      Lo que se vende en el mostrador, sin gestor por medio. Se descuenta del almacén y entra en las cuentas,
+      pero <b>no manda ninguna notificación</b>: ni al gestor, ni al mensajero, ni de stock agotado.
+    </p>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px;">Registrar una venta</div>
+
+      <div style="margin-bottom:9px;">
+        <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px;">Producto del catálogo</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <select id="vdProducto" onchange="vdRefresca()" style="flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px;color:var(--text);">
+            <option value="">— Elige el producto —</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="vdNuevoProducto()" title="Guardar un producto nuevo y venderlo">＋ Producto nuevo</button>
+        </div>
+        <div id="vdStockInfo" style="font-size:11px;color:var(--text-muted);margin-top:4px;"></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:8px;margin-bottom:9px;">
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px;">Cantidad</label>
+          <input type="number" id="vdCantidad" min="1" step="1" value="1" inputmode="numeric" oninput="vdRefresca()"
+                 style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px;color:var(--text);">
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px;">Lo que se cobró</label>
+          <input type="text" id="vdCobrado" placeholder="$120 USD  ·  12000 MN"
+                 style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px;color:var(--text);">
+        </div>
+      </div>
+
+      <div style="margin-bottom:9px;">
+        <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:4px;">Nota (opcional — para acordarte de quién fue)</label>
+        <input type="text" id="vdNota" maxlength="120" placeholder="Ej: el vecino del 3ro, pagó en efectivo"
+               style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:13px;color:var(--text);">
+      </div>
+
+      <div id="vdAviso" style="display:none;font-size:11px;font-weight:700;margin-bottom:8px;"></div>
+      <button class="btn btn-green btn-full" onclick="registrarVentaDirecta()">🏪 Registrar venta — sin avisar a nadie</button>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+      <div class="lbl" style="margin-top:0;">Lo vendido</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <select id="vdPeriodo" onchange="renderVentasDirectas()" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:12px;color:var(--text);">
+          <option value="hoy">Hoy</option>
+          <option value="7">Últimos 7 días</option>
+          <option value="mes" selected>Este mes</option>
+          <option value="todo">Todo</option>
+        </select>
+      </div>
+    </div>
+    <div id="vdResumen" style="margin-bottom:10px;"></div>
+    <div id="vdLista"></div>
   </div>
 
   <!-- ════════ ESTAFA PANEL ════════ -->

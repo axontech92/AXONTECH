@@ -3440,6 +3440,10 @@ const saveVales = v => {
     // no siempre es lo que salió. Se envía también cuando es null —"ya se
     // devolvió"— para que no se quede pegado.
     if (x.stockSalido !== undefined) slim.stockSalido = x.stockSalido;
+    // v124: la marca de venta directa. Sin ella, al volver de la nube la venta
+    // del mostrador dejaría de salir en su apartado (se reconocería solo por el
+    // gestorId, que es una pista, no un dato).
+    if (x.ventaDirecta) slim.ventaDirecta = true;
     // v92: la marca de reserva la pone el admin. Sin esto pasaría lo de siempre:
     // se guarda en el móvil, sube sin ella y el siguiente poll la borra — y con
     // ella se irían las unidades apartadas del stock.
@@ -5289,7 +5293,17 @@ function addNotif(type, productName, productId, extra, gestorId, evt) {
 // Ahora todos pasan por aquí, y por aquí los números se leen con parseInt, sea
 // lo que sea lo que haya guardado.
 function _numStock(v) { const n = parseInt(v, 10); return isFinite(n) ? n : 0; }
+// v124: las ventas directas del mostrador no avisan a nadie —ese es el trato—,
+// así que mientras se registran (o se deshacen) se silencian los avisos de
+// stock. Es un interruptor de un solo sitio para no tener que repetir la regla
+// en cada camino que toca el almacén.
+let _stockSinAvisar = 0;
+function _sinAvisarStock(fn) {
+  _stockSinAvisar++;
+  try { return fn(); } finally { _stockSinAvisar--; }
+}
 function _avisarCambioStock(id, nombre, antes, ahora) {
+  if (_stockSinAvisar > 0) return;
   const a = _numStock(antes), b = _numStock(ahora);
   if (a === b) return;
   if (a === 0 && b > 0) addNotif('restocked', nombre, id, 'stock: ' + b);
@@ -5713,7 +5727,7 @@ function logoutAdmin() {
 // ══════════════════════════════════════════
 function adminTab(tab) {
   currentAdminTab=tab;
-  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa','ayuda'].forEach(t=>{
+  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa','directas','ayuda'].forEach(t=>{
     const btn=document.getElementById('anav-'+t);if(btn)btn.classList.toggle('active',t===tab);
     const pid='admin'+t.charAt(0).toUpperCase()+t.slice(1)+'Panel';
     const el=document.getElementById(pid);
@@ -5731,6 +5745,7 @@ function adminTab(tab) {
   if(tab==='duenos'){renderDuenos();}
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
+  if(tab==='directas'){_vdLlenarSelector();vdRefresca();renderVentasDirectas();}
   if(tab==='ayuda'){renderAyuda();}
 }
 
@@ -6624,7 +6639,7 @@ function renderMensajeroVales() {
           <div class="mv-head"><span class="mv-time">${timeStr(porEntregar?v.ts:(v.deliveredTs||v.ts))}</span>${chapa}</div>
           <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.telefono||'—')}</div>
           <div style="font-size:11px;color:var(--gray-400);">📍 ${escapeHTML(v.direccion||'Sin dirección')}</div>
-          <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${escapeHTML(v.total||'—')}${v.vuelto?` · Vuelto: ${escapeHTML(v.vuelto)}`:''}</div>
+          <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${escapeHTML(_aCobrarVale(v).txt||'—')}${v.vuelto?` · Vuelto: ${escapeHTML(v.vuelto)}`:''}</div>
           ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
           <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
           ${acciones}
@@ -7718,6 +7733,22 @@ function _rebajaVale(v) {
   return res;
 }
 
+// ── v124: lo que hay que cobrarle al cliente, siempre ───────────────────────
+// El detalle enseñaba el total y las rebajas, pero el número final solo salía
+// cuando el vale llevaba rebaja. Sin rebaja había que restar de cabeza —o peor,
+// cobrar el total de lista sin darse cuenta. Esta función responde siempre:
+//   · txt   → lo que se cobra, ya con todo restado
+//   · nota  → por qué no se pudo restar, cuando no se pudo
+function _aCobrarVale(v) {
+  const totalTxt = ((v && v.total) || '').toString().trim();
+  const r = _rebajaVale(v);
+  if (!r) return { txt: totalTxt, rebajado: false, nota: '' };
+  if (r.aCobrarTxt) return { txt: r.aCobrarTxt, rebajado: true, nota: '' };
+  // Rebaja en una moneda que el total no tiene: no se inventa la conversión.
+  return { txt: totalTxt, rebajado: false,
+           nota: 'Resta ' + (r.rebajaTxt || '') + ' a mano: está en otra moneda que el total.' };
+}
+
 // ── v82: rebaja aplicada por el admin (fase 2) ──────────────────────────────
 // A diferencia de la del gestor, esta sale del margen del negocio: la comisión
 // del gestor no se toca. Las dos bajan lo que paga el cliente y se suman para el
@@ -8035,15 +8066,18 @@ function renderValeDetail(destinoId) {
             <span style="color:var(--text-muted);">🏷️ Del negocio <span style="font-size:9px;opacity:.8;">(tu margen)</span></span>
             <span style="color:var(--blue);font-weight:700;">− ${escapeHTML(_r.admin.txt)}</span>
           </div>`:''}
-          <div style="margin-bottom:6px;"></div>
-          ${_r.aCobrarTxt
-            ? `<div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(245,158,11,.3);padding-top:7px;">
-                 <span style="font-size:12px;font-weight:800;">COBRAR AL CLIENTE</span>
-                 <span style="font-size:17px;font-weight:800;color:var(--green);">${escapeHTML(_r.aCobrarTxt)}</span>
-               </div>`
-            : `<div style="border-top:1px solid rgba(245,158,11,.3);padding-top:7px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ Resta la rebaja a mano: el total del vale está en otra moneda.</div>`}
           ${_r.motivo?`<div style="margin-top:7px;font-size:11px;color:var(--text-muted);">Motivo: ${escapeHTML(_r.motivo)}</div>`:''}
           <button class="btn btn-ghost btn-sm btn-full" style="margin-top:9px;font-size:11px;" onclick="openRebajaAdminModal(${v.id})">🏷️ Cambiar la rebaja del negocio</button>
+        </div>`;})()}
+      ${(()=>{const _c=_aCobrarVale(v);if(!_c.txt&&!_c.nota)return '';return `
+        <div id="valeACobrar" style="margin-top:10px;padding:12px 13px;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.4);border-radius:11px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+            <span style="font-size:12px;font-weight:800;color:var(--text);">💵 COBRAR AL CLIENTE</span>
+            <span id="valeACobrarMonto" style="font-size:19px;font-weight:900;color:var(--green);text-align:right;">${escapeHTML(_c.txt||'—')}</span>
+          </div>
+          ${_c.rebajado?`<div style="margin-top:4px;font-size:10px;color:var(--text-muted);">Ya lleva la rebaja restada del precio del vale.</div>`:''}
+          ${_c.nota?`<div style="margin-top:5px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_c.nota)}</div>`:''}
+          ${String(v.vuelto||'').trim()?`<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b>${escapeHTML(v.vuelto)}</b></div>`:''}
         </div>`;})()}
       ${!_rebajaVale(v)?`<button class="btn btn-ghost btn-full btn-sm" style="margin-top:9px;color:var(--blue);" onclick="openRebajaAdminModal(${v.id})">🏷️ Rebajar este vale</button>`:''}
       ${v.recogidaTienda?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;display:flex;align-items:center;gap:6px;">
@@ -11317,7 +11351,10 @@ async function migrarFotosAGitHub() {
   );
 }
 
-function closeProductModal(){document.getElementById('productModal').classList.remove('show');editingProductId=null;}
+function closeProductModal(){document.getElementById('productModal').classList.remove('show');editingProductId=null;
+  // Si se cerró sin guardar, la espera de "Ventas directas" no debe quedarse
+  // viva: silenciaría el aviso del siguiente producto que se diera de alta.
+  _vdEsperandoProducto=false;}
 // ── v119: distintivo de producto nuevo ─────────────────────────────────────
 // No hacía falta migrar nada: el id de un producto ES el momento en que se
 // creó (Date.now()), así que los 98 que ya existen quedan fechados solos. Los
@@ -11390,10 +11427,22 @@ async function saveProduct() {
     setCosto(newId,costoEscrito);
     setDuenoProducto(newId,duenoElegido);
     const list=getProductos().slice();list.push({id:newId,creadoTs:newId,...prod});guardarProductos(list,[newId]);
-    addNotif('new_product',prod.name,newId,prod.precio||'');
+    // v124: si el producto se está dando de alta desde "Ventas directas", no se
+    // anuncia. Ese apartado es del admin y solo del admin: avisar de la novedad
+    // sería contar justo lo que no se quiere contar.
+    if(_vdEsperandoProducto) _vdProductoNuevo = newId;
+    else addNotif('new_product',prod.name,newId,prod.precio||'');
     showToast('Producto agregado ✓');
   }
+  const _paraDirecta=_vdEsperandoProducto&&_vdProductoNuevo;
   closeProductModal();renderProductGrid();renderStockCategorias();maybeAutoSync();
+  if(_paraDirecta){
+    _vdLlenarSelector();
+    const sel=document.getElementById('vdProducto');
+    if(sel) sel.value=String(_vdProductoNuevo);
+    _vdProductoNuevo=null;
+    vdRefresca();
+  }
 }
 function removeProducto(id) {
   const p=productoOf(id);
@@ -11408,52 +11457,234 @@ function removeProducto(id) {
 }
 
 
-function venderDirecto(id) {
-  const p=productoOf(id);if(!p)return;
-  const q = prompt(`¿Cuántas unidades de ${p.name} se vendieron directamente en la tienda?`, '1');
-  if(q === null) return;
-  const qty = parseInt(q, 10);
-  if(isNaN(qty) || qty <= 0) return showToast('Cantidad inválida');
-  // Comparar contra el stock DISPONIBLE (stock - reserved), no el stock físico total —
-  // igual que hacen los pickers de vale. Antes esto permitía "vender directo en tienda"
-  // unidades que ya estaban reservadas para otro cliente.
-  if(qty > _availableStock(p)) return showToast('Stock insuficiente (hay unidades reservadas)');
+// ══════════════════════════════════════════
+//  VENTAS DIRECTAS — el mostrador  (v124)
+// ══════════════════════════════════════════
+// Lo que se vende en la tienda sin gestor por medio. Descuenta del almacén y
+// entra en las cuentas (ganancia, dueños, costos), pero NO avisa a nadie: ni
+// notificación al gestor, ni "stock agotado", ni mensajero. Solo el admin sabe
+// que esta venta existe.
+//
+// Antes esto era un prompt() escondido en la ficha del producto que además sí
+// mandaba avisos de stock —o sea, los gestores se enteraban— y guardaba
+// `total:'Venta Local'`, un texto sin número con el que ninguna cuenta podía
+// hacer nada. Ahora tiene su propio apartado, se apunta lo que se cobró de
+// verdad, y se puede deshacer devolviendo la mercancía.
+const VENTA_DIRECTA_CLIENTE = 'Venta Directa en Tienda';
+const esVentaDirecta = v => !!v && (v.ventaDirecta === true || v.gestorId === 'admin');
 
-  // Deduct stock
-  const newStock = p.stock - qty;
-  patchProducto(id, {stock: newStock});
-  
-  if(newStock===0 && p.stock>0) addNotif('out_of_stock',p.name,id,'stock agotado');
-  else if(newStock>0 && newStock<=LOW_STOCK_THRESHOLD && p.stock>LOW_STOCK_THRESHOLD) addNotif('low_stock',p.name,id,`quedan ${newStock}`);
-  
-  // Create vale record for stats
-  const vale={
-    id:Date.now(),valeNum:getNextValeNum(),gestorId:'admin',ts:new Date().toISOString(),
-    cliente:'Venta Directa en Tienda',telefono:'',direccion:'Tienda Física',
-    mensajeria:'',articulo:`${p.name} x${qty}`,
-    precioUSD:p.precio,precioMN:'',
-    vuelto:'',total:'Venta Local',garantia:p.garantia||'',
-    valeProductos:[{id:p.id,name:p.name,qty}],valeText:'Venta en tienda',
-    status:'confirmed',mensajeroId:null,confirmedTs:new Date().toISOString(),isNew:false,adminNotes:'Venta directa sin gestor',
-    commissionPaid:true,commissionStatus:'cobrado',commissionPaidTs:new Date().toISOString(),
-    stockDecremented:true
+// El corazón: crea la venta en silencio. Devuelve el vale creado o null.
+function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
+  const p = productoOf(pid);
+  if (!p) { showToast('Ese producto ya no está en el catálogo'); return null; }
+  qty = parseInt(qty, 10);
+  if (!isFinite(qty) || qty <= 0) { showToast('Cantidad inválida'); return null; }
+  // Contra el stock DISPONIBLE (stock − reservado), igual que los pickers de
+  // vale: lo reservado ya tiene dueño aunque siga en el almacén.
+  const hay = _availableStock(p);
+  if (qty > hay) { showToast('Solo quedan ' + hay + ' sin reservar'); return null; }
+
+  const antes = _numStock(p.stock);
+  const ahora = Math.max(0, antes - qty);
+  // Silencio: patchProducto puede acabar llamando a los avisos de stock.
+  _sinAvisarStock(() => patchProducto(pid, { stock: ahora }));
+
+  const ahoraTs = new Date().toISOString();
+  const cobrado = String(cobradoTxt || '').trim() || String(p.precio || '').trim();
+  const vale = {
+    id: Date.now(), valeNum: getNextValeNum(), gestorId: 'admin', ts: ahoraTs,
+    ventaDirecta: true,
+    cliente: VENTA_DIRECTA_CLIENTE, telefono: '', direccion: 'Tienda Física',
+    mensajeria: '', articulo: p.name + ' x' + qty,
+    precioUSD: p.precio || '', precioMN: '',
+    vuelto: '', total: cobrado, garantia: p.garantia || '',
+    valeProductos: [{ id: p.id, name: p.name, qty }],
+    // Lo que salió de verdad, para que deshacerla devuelva exactamente eso.
+    stockSalido: { [String(p.id)]: qty },
+    valeText: 'Venta en tienda',
+    status: 'confirmed', mensajeroId: null, confirmedTs: ahoraTs, isNew: false,
+    adminNotes: String(nota || '').trim(),
+    // Sin gestor no hay comisión que pagar: nace saldada.
+    comisionGestor: '', commissionPaid: true, commissionStatus: 'cobrado',
+    commissionPaidTs: ahoraTs,
+    stockDecremented: true
   };
-  const all=getVales();all.push(vale);saveVales(all);
-  // v114: esta venta nace ya confirmada, así que no pasa por patchVale y hay
-  // que congelarle el costo aquí.
+  const all = getVales(); all.push(vale); saveVales(all);
+  // Nace ya confirmada, así que no pasa por patchVale: el costo se congela aquí.
   try { _congelarCostoVale(vale); } catch(e) {}
-  // No direct db.ref().set() — saveVales already enqueues via the write queue.
-  // Direct db.ref() calls bypassed the retry queue and could lose data on network failure.
-  _logAudit('direct_sale', 'product:' + id + ' qty:' + qty);
+  _logAudit('direct_sale', 'product:' + pid + ' qty:' + qty);
+  statsTabDirty = true;
+  return vale;
+}
 
-  // Feedback inmediato al admin
-  showToast('Venta directa registrada ✓');
-  statsTabDirty=true;
+// Botón de la ficha del producto (Catálogo / Stock). Sigue existiendo, pero
+// ahora manda al apartado en vez de preguntar por un prompt() del navegador.
+function venderDirecto(id) {
+  const p = productoOf(id); if (!p) return;
+  adminTab('directas');
+  const sel = document.getElementById('vdProducto');
+  if (sel) { sel.value = String(id); }
+  const cant = document.getElementById('vdCantidad');
+  if (cant) cant.value = '1';
+  vdRefresca();
+  try { (document.getElementById('vdCantidad') || {}).focus?.(); } catch(e) {}
+}
 
-  // Diferir el render del catálogo (puede ser pesado si hay muchos productos)
-  setTimeout(() => {
-    try { renderProductGrid(); } catch(e) { console.error('venderDirecto deferred render:', e); }
-  }, 0);
+// Dar de alta un producto sin salir del apartado: al guardarlo queda elegido y
+// listo para venderlo, y no se anuncia en el catálogo de los gestores.
+let _vdEsperandoProducto = false, _vdProductoNuevo = null;
+function vdNuevoProducto() {
+  _vdEsperandoProducto = true; _vdProductoNuevo = null;
+  openAddProductModal();
+}
+
+// ── El selector de producto y el aviso de stock ────────────────────────────
+function _vdLlenarSelector() {
+  const sel = document.getElementById('vdProducto');
+  if (!sel) return;
+  const antes = sel.value;
+  const prods = getProductos().slice()
+    .filter(p => p && p.name)
+    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'));
+  sel.innerHTML = '<option value="">— Elige el producto —</option>' + prods.map(p => {
+    const hay = _availableStock(p);
+    return '<option value="' + p.id + '"' + (hay <= 0 ? ' disabled' : '') + '>' +
+           escapeHTML(p.name) + ' · ' + (hay > 0 ? hay + ' disponibles' : 'sin stock') + '</option>';
+  }).join('');
+  if (antes && sel.querySelector('option[value="' + antes + '"]')) sel.value = antes;
+}
+function vdRefresca() {
+  const sel = document.getElementById('vdProducto');
+  const info = document.getElementById('vdStockInfo');
+  const cobr = document.getElementById('vdCobrado');
+  const aviso = document.getElementById('vdAviso');
+  if (!sel || !info) return;
+  const p = productoOf(parseInt(sel.value, 10));
+  if (!p) { info.textContent = ''; if (aviso) aviso.style.display = 'none'; return; }
+  const hay = _availableStock(p);
+  const fisico = _numStock(p.stock);
+  const reservado = Math.max(0, fisico - hay);
+  info.textContent = 'En almacén: ' + fisico + (reservado ? ' · Reservado: ' + reservado : '') +
+                     ' · Se puede vender: ' + hay + (p.precio ? ' · Precio de lista: ' + p.precio : '');
+  // El precio se propone, no se impone: en el mostrador se regatea.
+  if (cobr && !cobr.value.trim() && p.precio) cobr.value = String(p.precio);
+  if (aviso) {
+    const q = parseInt((document.getElementById('vdCantidad') || {}).value, 10) || 0;
+    if (q > hay) {
+      aviso.style.display = 'block';
+      aviso.style.color = 'var(--red)';
+      aviso.textContent = '⚠️ Solo quedan ' + hay + ' sin reservar.';
+    } else { aviso.style.display = 'none'; }
+  }
+}
+
+function registrarVentaDirecta() {
+  const sel = document.getElementById('vdProducto');
+  const pid = parseInt((sel && sel.value) || '', 10);
+  if (!isFinite(pid)) return showToast('Elige el producto del catálogo');
+  const qty = parseInt((document.getElementById('vdCantidad') || {}).value, 10);
+  const cobrado = ((document.getElementById('vdCobrado') || {}).value || '').trim();
+  const nota = ((document.getElementById('vdNota') || {}).value || '').trim();
+  const v = _crearVentaDirecta(pid, qty, cobrado, nota);
+  if (!v) return;
+  ['vdCantidad','vdCobrado','vdNota'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = id === 'vdCantidad' ? '1' : '';
+  });
+  if (sel) sel.value = '';
+  showToast('Venta registrada ✓ — nadie ha sido avisado');
+  _vdLlenarSelector(); vdRefresca(); renderVentasDirectas();
+  try { renderProductGrid(); renderStockCategorias(); } catch(e) {}
+  maybeAutoSync();
+}
+
+// Deshacer: devuelve la mercancía y borra la venta. También en silencio.
+function borrarVentaDirecta(id) {
+  const v = getVales().find(x => x.id === id);
+  if (!v || !esVentaDirecta(v)) return;
+  showConfirmAction('¿Deshacer esta venta?', (v.articulo || '') + ' — la mercancía vuelve al almacén',
+                    'Deshacer', 'btn-orange', () => {
+    _sinAvisarStock(() => { try { _devolverStockDeVale(v); } catch(e) {} });
+    // Mismo camino que adminDeleteVale: marcar el borrado en vuelo para que el
+    // poll no lo resucite, y mandar el DELETE de verdad a la nube.
+    try { _valesDirectDeleting.add(String(id)); } catch(e) {}
+    saveVales(getVales().filter(x => x.id !== id));
+    _logAudit('direct_sale_undo', 'vale:' + id);
+    statsTabDirty = true;
+    showToast('Venta deshecha · stock devuelto');
+    renderVentasDirectas();
+    try { renderProductGrid(); renderStockCategorias(); } catch(e) {}
+    try { _doValeSupabaseDelete(v, id); } catch(e) {}
+  });
+}
+
+function _vdRango() {
+  const modo = ((document.getElementById('vdPeriodo') || {}).value) || 'mes';
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  if (modo === 'todo') return { desde: 0, label: 'de siempre' };
+  if (modo === 'hoy')  return { desde: hoy.getTime(), label: 'de hoy' };
+  if (modo === '7')    return { desde: hoy.getTime() - 6 * 864e5, label: 'de los últimos 7 días' };
+  const m = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  return { desde: m.getTime(), label: 'de este mes' };
+}
+
+function renderVentasDirectas() {
+  const lista = document.getElementById('vdLista');
+  const resumen = document.getElementById('vdResumen');
+  if (!lista) return;
+  const { desde, label } = _vdRango();
+  const ventas = getVales()
+    .filter(esVentaDirecta)
+    .filter(v => new Date(v.confirmedTs || v.ts).getTime() >= desde)
+    .sort((a, b) => new Date(b.confirmedTs || b.ts) - new Date(a.confirmedTs || a.ts));
+
+  // Las dos monedas por separado, que sumarlas sería mentir.
+  let usd = 0, mn = 0, uds = 0, costoUSD = 0, costoConocido = true;
+  ventas.forEach(v => {
+    const t = _partesMonetarias(v.total || '');
+    usd += t.usd; mn += t.mn;
+    (v.valeProductos || []).forEach(it => { uds += Math.max(0, parseInt(it && it.qty, 10) || 0); });
+    const c = costoFijadoDe(v.id);
+    if (c === null) costoConocido = false; else costoUSD += c;
+  });
+
+  if (resumen) {
+    resumen.innerHTML = ventas.length ? `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Entró ${escapeHTML(label)}</div>
+          <div style="font-size:17px;font-weight:900;color:var(--green);margin-top:3px;">${escapeHTML(_fmtMonto(usd, mn))}</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Ventas / unidades</div>
+          <div style="font-size:17px;font-weight:900;margin-top:3px;">${ventas.length} · ${uds} u.</div>
+        </div>
+        <div style="flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Costó la mercancía</div>
+          <div style="font-size:17px;font-weight:900;color:var(--orange);margin-top:3px;">${costoUSD > 0 ? escapeHTML(_fmtMonto(costoUSD, 0)) : '—'}</div>
+          ${!costoConocido ? `<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">Falta el precio de compra de alguna</div>` : ''}
+        </div>
+      </div>` : '';
+  }
+
+  if (!ventas.length) {
+    lista.innerHTML = `<div style="background:var(--surface);border:1px dashed var(--border);border-radius:10px;padding:22px;text-align:center;font-size:12px;color:var(--text-muted);">
+      Todavía no hay ventas directas ${escapeHTML(label)}.</div>`;
+    return;
+  }
+  lista.innerHTML = ventas.map(v => {
+    const d = new Date(v.confirmedTs || v.ts);
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+        <div style="font-size:13px;font-weight:700;">${escapeHTML(v.articulo || '—')}</div>
+        <div style="font-size:14px;font-weight:900;color:var(--green);white-space:nowrap;">${escapeHTML(v.total || '—')}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
+        ${d.toLocaleDateString('es-ES')} ${timeStr(d.getTime())}${valeNumStr(v) ? ' · ' + escapeHTML(valeNumStr(v)) : ''}
+      </div>
+      ${v.adminNotes ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
+      <button class="btn btn-ghost btn-sm" style="margin-top:7px;font-size:11px;color:var(--orange);" onclick="borrarVentaDirecta(${v.id})">↩️ Deshacer y devolver al almacén</button>
+    </div>`;
+  }).join('');
 }
 // ── v70: ajuste de stock con modal propio ───────────────────────────────────
 // Antes esto era un prompt() del navegador que pedía el valor ABSOLUTO: con 5
@@ -17909,6 +18140,11 @@ const AYUDA_SECCIONES = [
         para:'Ver los vales que mandaron los gestores y que todavía no has cerrado.',
         como:'Toca el nombre de un gestor para desplegar sus vales, y un vale para abrir su detalle a la derecha.',
         ojo:'El contador rojo son los que aún no has abierto, no los que faltan por cobrar.' },
+      { icono:'💵', titulo:'Cuánto hay que cobrarle al cliente', donde:'Vales › detalle del vale',
+        para:'Que el número que se cobra esté escrito, y no haya que restar de cabeza mirando el total y las rebajas.',
+        como:'En el detalle, debajo de los datos, sale siempre el recuadro verde "💵 COBRAR AL CLIENTE" con la cifra ya limpia. También es la que ve el mensajero en su lista.',
+        ojo:'Si el vale lleva rebaja, ahí ya viene restada. Si la rebaja está en una moneda que el total no tiene (rebajar en USD un vale que va todo en MN), la app no se inventa la conversión: enseña el total y te avisa de que ese descuento hay que restarlo a mano.',
+        nuevo:'v124' },
       { icono:'🛵', titulo:'Asignar a un mensajero', donde:'Vales › detalle del vale',
         para:'Mandar la mercancía con alguien y que quede apuntado quién la lleva.',
         como:'Abre el vale, dale a "Asignar a Mensajero", elige a quién y compártele el vale por WhatsApp.',
@@ -18049,6 +18285,32 @@ const AYUDA_SECCIONES = [
         como:'En Config eliges el modo. En mensual puedes escoger el día en que empieza el ciclo: si pones 29, va del 29 al 29.',
         ojo:'Reiniciar los puntos no borra nada: marca una fecha desde la que se empieza a contar, y se puede deshacer. Y ojo con la diferencia entre los dos modos: en meta fija, quien llega a la meta empieza otra vez desde cero (esa es la gracia). En el modo por ciclos NO: los puntos se van sumando hasta que el ciclo acabe, se llegue al número que se llegue.',
         nuevo:'v121' },
+    ],
+  },
+  {
+    id: 'directas', icono: '🏪', titulo: 'Ventas directas',
+    intro: 'Lo que se vende en el mostrador, sin gestor por medio. Solo tú lo ves.',
+    temas: [
+      { icono:'🏪', titulo:'Registrar una venta del mostrador', donde:'Ventas directas',
+        para:'Apuntar lo que se vende en la tienda a alguien que llegó por su cuenta, sin que haya gestor que cobre comisión.',
+        como:'Eliges el producto del catálogo, pones la cantidad y lo que se cobró de verdad, y le das a "Registrar venta". La mercancía sale del almacén en el momento.',
+        ojo:'NO se manda ninguna notificación: ni al gestor, ni al mensajero, ni el aviso de "stock agotado". Esa es la gracia del apartado — de esta venta solo te enteras tú.',
+        nuevo:'v124' },
+      { icono:'＋', titulo:'Dar de alta un producto desde aquí', donde:'Ventas directas › ＋ Producto nuevo',
+        para:'Vender algo que todavía no estaba en el catálogo sin tener que dar dos vueltas.',
+        como:'Le das al botón, rellenas la ficha como siempre y al guardarla queda ya elegida en el selector, lista para registrar la venta.',
+        ojo:'Un producto dado de alta por esta vía tampoco se anuncia a los gestores. Si quieres que lo vean como novedad, créalo desde Catálogo.',
+        nuevo:'v124' },
+      { icono:'💰', titulo:'El precio que se pone', donde:'Ventas directas › "Lo que se cobró"',
+        para:'Que las cuentas salgan con lo que entró de verdad, no con el precio de lista.',
+        como:'Se propone el precio del catálogo, pero se puede cambiar: en el mostrador se regatea. Vale en las dos monedas ("$120 USD", "12000 MN" o las dos).',
+        ojo:'Estas ventas entran en Estadísticas y en el corte de Dueños como cualquier otra, con su costo de compra congelado. En el reparto salen como mercancía de la tienda, no de un gestor.',
+        nuevo:'v124' },
+      { icono:'↩️', titulo:'Deshacer una venta', donde:'Ventas directas › lista',
+        para:'Cuando te equivocaste de producto o de cantidad, o el cliente devolvió la mercancía.',
+        como:'"Deshacer y devolver al almacén" borra la venta y suma otra vez las unidades.',
+        ojo:'También en silencio: reponer por aquí no manda el aviso de "volvió a haber".',
+        nuevo:'v124' },
     ],
   },
   {

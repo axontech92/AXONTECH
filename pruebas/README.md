@@ -23,6 +23,7 @@ Para pasarlas todas:
 | `prueba_cinco_fallos.js` | Los cinco fallos reportados el 15/09 (texto de WhatsApp, moneda de la comisión, stock excedido, reversión). |
 | `prueba_tasa_de_5.js` | La tasa siempre acaba en 0 o en 5, con el pico subiendo a partir de 3. |
 | `prueba_ajuste_por_linea.js` | El gestor baja su comisión en un producto y el admin rebaja el precio de otro, cada uno en su moneda. Cuentas y las dos pantallas. |
+| `prueba_cobrar_y_directas.js` | Que el vale diga siempre lo que se le cobra al cliente (con rebaja, sin ella y con las monedas cruzadas), y el apartado de ventas directas del admin, que no avisa a nadie. |
 
 ## Cosas que hay que saber para escribir pruebas aquí
 
@@ -41,3 +42,7 @@ Para pasarlas todas:
 - **`_LOCAL_WINS_WINDOW_MS`**: durante 60 s desde su último cambio local, el
   teléfono defiende su versión del vale frente a la nube. Una reversión del
   admin puede tardar hasta ese minuto en verse en el teléfono del gestor.
+- **Un vale `pending` no aparta stock por sí solo.** Reserva si lleva
+  `reservado:true` o si ya está `assigned` con mensajero (`_valeReservaActiva`).
+  Una prueba que dé por hecho que un vale pendiente reserva medirá el stock
+  disponible mal.
