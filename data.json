@@ -2683,7 +2683,7 @@
       "ts": "2026-09-15T20:25:00.000Z",
       "total": "$110 USD + 21600 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T13:18:40.973Z",
+      "seenTs": "2026-09-16T13:43:50.847Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "X",
@@ -2733,7 +2733,7 @@
       "ts": "2026-09-15T20:21:13.114Z",
       "total": "$230 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T13:18:29.281Z",
+      "seenTs": "2026-09-16T13:44:14.618Z",
       "status": "pending_payment",
       "vuelto": "10",
       "cliente": "Misleysis",
@@ -3169,7 +3169,7 @@
       "ts": "2026-09-15T13:11:48.258Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T13:18:14.802Z",
+      "seenTs": "2026-09-16T13:44:22.333Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Suilang",
@@ -3326,43 +3326,6 @@
         }
       ],
       "comisionGestor": "$30.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789438710392,
-      "ts": "2026-09-15T02:18:30.403Z",
-      "total": "$260 USD",
-      "carnet": "",
-      "seenTs": "2026-09-16T13:18:36.247Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Armando",
-      "valeNum": 385,
-      "articulo": "×1 Mikrotik hap ax3",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5363805713",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Armando\n🔸Teléfono Cliente: 5363805713\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik hap ax3\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 14/09/2026 22:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$260 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786509419466,
-          "qty": 1,
-          "name": "Mikrotik hap ax3"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -24357,5 +24320,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T13:19:49.395Z"
+  "timestamp": "2026-09-16T13:45:11.111Z"
 }
