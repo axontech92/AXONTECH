@@ -2128,7 +2128,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 510,
+      "stock": 470,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2487,7 +2487,8 @@
       "ts": "2026-09-16T17:03:42.868Z",
       "total": "11200 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-16T17:24:55.748Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Raul",
       "valeNum": 405,
@@ -2502,6 +2503,11 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-16T17:25:00.543Z",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 40
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2511,12 +2517,9 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false,
-      "seenByAdmin": true,
-      "seenTs": "2026-09-16T17:24:55.748Z"
+      "synced": true
     },
     {
       "id": 1789572217293,
@@ -24341,5 +24344,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T17:24:56.468Z"
+  "timestamp": "2026-09-16T17:26:01.395Z"
 }
