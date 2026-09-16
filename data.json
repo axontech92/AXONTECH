@@ -1821,7 +1821,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 0,
+      "reserved": 2,
       "descripcion": "El Ubiquiti NanoStation loco M5 (LocoM5) es un equipo inalámbrico para exteriores diseñado para enlaces de larga distancia y como CPE (cliente inalámbrico). Es muy utilizado para conectar casas, edificios o cámaras IP mediante enlaces de 5 GHz\n\n- Frecuencia: 5 GHz (5470–5825 MHz).\n- Tecnología: 802.11a/n con protocolo propietario airMAX TDMA.\n- Antena integrada: 13 dBi, doble polarización (2×2 MIMO).\n- Ancho de haz: aproximadamente 45°.\n- Potencia de transmisión: hasta 23 dBm.\n- Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n- Alimentación: PoE pasivo de 24 V.\n- Consumo eléctrico: máximo 5.5 W.\n- Procesador: Atheros MIPS 400 MHz.\n- Memoria: 32 MB RAM y 8 MB Flash.\n- Uso exterior: carcasa resistente a UV.\n- Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
       "description": "El Ubiquiti NanoStation loco M5 (LocoM5) es un equipo inalámbrico para exteriores diseñado para enlaces de larga distancia y como CPE (cliente inalámbrico). Es muy utilizado para conectar casas, edificios o cámaras IP mediante enlaces de 5 GHz\n\n- Frecuencia: 5 GHz (5470–5825 MHz).\n- Tecnología: 802.11a/n con protocolo propietario airMAX TDMA.\n- Antena integrada: 13 dBi, doble polarización (2×2 MIMO).\n- Ancho de haz: aproximadamente 45°.\n- Potencia de transmisión: hasta 23 dBm.\n- Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n- Alimentación: PoE pasivo de 24 V.\n- Consumo eléctrico: máximo 5.5 W.\n- Procesador: Atheros MIPS 400 MHz.\n- Memoria: 32 MB RAM y 8 MB Flash.\n- Uso exterior: carcasa resistente a UV.\n- Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
       "precioActual": 160,
@@ -2439,6 +2439,87 @@
   ],
   "vales": [
     {
+      "id": 1789588939253,
+      "ts": "2026-09-16T20:02:19.266Z",
+      "total": "$390 USD",
+      "carnet": "",
+      "seenTs": "2026-09-16T20:08:54.196Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Enrrique",
+      "valeNum": 410,
+      "articulo": "×1 Nanostation loco m5 / ×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5353219877",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Enrrique\n🔸Teléfono Cliente: 5353219877\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $390 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $390 USD\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 16:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$390 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789587149590,
+      "ts": "2026-09-16T19:32:29.593Z",
+      "total": "$260 USD + 5300 MN",
+      "carnet": "",
+      "seenTs": "2026-09-16T19:37:09.399Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Carlos Dilarte",
+      "valeNum": 409,
+      "articulo": "×1 Controlador solar PowMr MM100 PRO de 100A",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "52937012",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Carlos Dilarte\n🔸Teléfono Cliente: 52937012\n🔸Dirección Cliente: Calle 15, # 30618 / 306 y 308 El Roble, Santa Fe, Playa\n🔸Mensajería/ costo: 5300\n🔸 Artículos y cantidades:\n  ×1 Controlador solar PowMr MM100 PRO de 100A\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $260 USD + 5300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 15:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 15, # 30618 / 306 y 308 El Roble, Santa Fe, Playa",
+      "precioUSD": "$260 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-16T19:40:42.950Z",
+      "mensajeria": "5300",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104512761,
+          "qty": 1,
+          "name": "Controlador solar PowMr MM100 PRO de 100A"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789583051758,
       "ts": "2026-09-16T18:24:11.786Z",
       "total": "$480 USD",
@@ -2481,9 +2562,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-16T19:10:21.451Z"
+      "synced": true
     },
     {
       "id": 1789580213155,
@@ -2707,7 +2786,7 @@
       "ts": "2026-09-16T11:35:49.921Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T19:10:27.876Z",
+      "seenTs": "2026-09-16T21:02:58.554Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Deymer Díaz Novo",
@@ -2818,9 +2897,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-16T19:09:43.485Z"
+      "synced": true
     },
     {
       "id": 1789511379837,
@@ -3496,7 +3573,7 @@
       "ts": "2026-09-15T02:29:09.306Z",
       "total": "$480 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T19:11:14.601Z",
+      "seenTs": "2026-09-16T20:08:52.962Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -24488,5 +24565,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T19:18:24.022Z"
+  "timestamp": "2026-09-16T21:09:11.023Z"
 }
