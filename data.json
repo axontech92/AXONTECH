@@ -1059,7 +1059,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 24,
+      "stock": 23,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1814,7 +1814,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 13,
+      "stock": 8,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2439,6 +2439,97 @@
   ],
   "vales": [
     {
+      "id": 1789583051758,
+      "ts": "2026-09-16T18:24:11.786Z",
+      "total": "$480 USD",
+      "carnet": "87112521222",
+      "seenTs": "2026-09-16T19:09:58.164Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Yoel Hernández Mendoza",
+      "valeNum": 408,
+      "articulo": "×3 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1788887566844,
+      "precioMN": "",
+      "telefono": "5352394143",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Yoel Hernández Mendoza\n🔸Teléfono Cliente: 5352394143\n🔸Dirección Cliente: Consulado/Anima y Trocadero,Hotel el lido\n🔸Mensajería/ costo: Gratis\n🔸Hora de entrega: 15:40\n🔸 Artículos y cantidades:\n  ×3 Nanostation loco m5\n🔸Precio USD/ zelle: $480 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $480 USD\n🔸 Rebaja: −$10 USD\n🔸 Total a pagar: $470 USD\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 14:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Consulado/Anima y Trocadero,Hotel el lido",
+      "precioUSD": "$480 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-16T18:38:50.528Z",
+      "mensajeria": "Gratis",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-16T19:10:20.831Z",
+      "deliveredTs": "2026-09-16T19:10:18.089Z",
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 3
+      },
+      "comFijadaUSD": 30,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 3,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionCedida": 10,
+      "comisionGestor": "$30.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-16T19:10:21.451Z"
+    },
+    {
+      "id": 1789580213155,
+      "ts": "2026-09-16T17:36:53.159Z",
+      "total": "$20 USD + 1200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-16T19:09:46.626Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Camilo",
+      "valeNum": 407,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786573707656,
+      "precioMN": "",
+      "telefono": "5352845655",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Camilo\n🔸Teléfono Cliente: 5352845655\n🔸Dirección Cliente: Calle 9 # 212 entre J y K vedado\n🔸Mensajería/ costo: 1200 cup\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 1200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 13:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 9 # 212 entre J y K vedado",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-16T17:51:43.256Z",
+      "mensajeria": "1200 cup",
+      "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-16T19:09:54.039Z",
+      "deliveredTs": "2026-09-16T19:09:51.506Z",
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 1
+      },
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789579842663,
       "ts": "2026-09-16T17:30:42.664Z",
       "total": "$25 USD",
@@ -2616,7 +2707,7 @@
       "ts": "2026-09-16T11:35:49.921Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T13:56:38.258Z",
+      "seenTs": "2026-09-16T19:10:27.876Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Deymer Díaz Novo",
@@ -2690,8 +2781,8 @@
       "ts": "2026-09-15T22:56:39.466Z",
       "total": "$320 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T16:53:49.957Z",
-      "status": "assigned",
+      "seenTs": "2026-09-16T19:09:35.125Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Fidel",
       "valeNum": 403,
@@ -2708,8 +2799,13 @@
       "assignedTs": "2026-09-16T16:52:30.030Z",
       "mensajeria": "3000 cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-16T19:09:42.134Z",
+      "deliveredTs": "2026-09-16T19:09:39.896Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 2
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2720,9 +2816,11 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-16T19:09:43.485Z"
     },
     {
       "id": 1789511379837,
@@ -2954,7 +3052,7 @@
       "ts": "2026-09-15T18:48:21.289Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T14:02:17.085Z",
+      "seenTs": "2026-09-16T19:11:19.136Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Hermes Garcia",
@@ -2984,7 +3082,8 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1789496149281,
@@ -3398,7 +3497,7 @@
       "ts": "2026-09-15T02:29:09.306Z",
       "total": "$480 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T14:00:43.762Z",
+      "seenTs": "2026-09-16T19:11:14.601Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -3701,7 +3800,7 @@
       "ts": "2026-09-14T23:07:04.401Z",
       "total": "$230 USD + 5600 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T13:57:29.911Z",
+      "seenTs": "2026-09-16T19:10:32.493Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Alvaro",
@@ -24390,5 +24489,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T17:32:04.395Z"
+  "timestamp": "2026-09-16T19:11:21.463Z"
 }
