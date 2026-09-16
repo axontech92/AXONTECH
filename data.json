@@ -1059,7 +1059,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 29,
+      "stock": 24,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2443,8 +2443,8 @@
       "ts": "2026-09-16T17:17:18.409Z",
       "total": "$100 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T14:09:54.284Z",
-      "status": "assigned",
+      "seenTs": "2026-09-16T15:35:40.557Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Leonel García",
       "valeNum": 403,
@@ -2461,8 +2461,13 @@
       "assignedTs": "2026-09-16T14:10:16.067Z",
       "mensajeria": "1300",
       "comFijadaMN": 7500,
+      "confirmedTs": "2026-09-16T15:35:50.038Z",
+      "deliveredTs": "2026-09-16T15:35:47.336Z",
       "mensajeroId": 1789169079737,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 5
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2472,6 +2477,47 @@
         }
       ],
       "comisionGestor": "7500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-16T15:35:51.767Z"
+    },
+    {
+      "id": 1789572217293,
+      "ts": "2026-09-16T15:23:37.306Z",
+      "total": "$160 USD + 1500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-16T15:24:59.867Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Alejandro",
+      "valeNum": 404,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "58993252",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Alejandro\n🔸Teléfono Cliente: 58993252\n🔸Dirección Cliente: C entre línea y 11\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 11:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "C entre línea y 11",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-16T15:24:00.739Z",
+      "mensajeria": "1500",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -24241,5 +24287,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T15:19:53.395Z"
+  "timestamp": "2026-09-16T15:36:51.782Z"
 }
