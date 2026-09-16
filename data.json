@@ -2487,8 +2487,8 @@
       "ts": "2026-09-16T21:27:03.436Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T22:13:21.527Z",
-      "status": "pending",
+      "seenTs": "2026-09-16T22:41:01.188Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Eric William",
       "valeNum": 413,
@@ -2502,8 +2502,10 @@
       "precioUSD": "$30 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-16T22:41:48.099Z",
       "mensajeria": "",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -24688,5 +24690,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T22:40:15.021Z"
+  "timestamp": "2026-09-16T22:42:48.125Z"
 }
