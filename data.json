@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2439,12 +2439,93 @@
   ],
   "vales": [
     {
+      "id": 1789594856032,
+      "ts": "2026-09-16T21:40:56.047Z",
+      "total": "$470 USD + 600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-16T21:53:29.405Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Manuel Ricardo",
+      "valeNum": 415,
+      "articulo": "×2 Nanostation loco m5 / ×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5351142362",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Manuel Ricardo\n🔸Teléfono Cliente: 5351142362\n🔸Dirección Cliente: Carlos tercero Frente a la logia\n🔸Mensajería/ costo: 600 cup\n🔸Hora de entrega: 00:00\n🔸 Artículos y cantidades:\n  ×2 Nanostation loco m5\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $470 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $470 USD + 600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 17:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Carlos tercero Frente a la logia",
+      "precioUSD": "$470 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "600 cup",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 30,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 2,
+          "cedidaUSD": 10,
+          "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "cedidaUSD": 5,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$15 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789594023424,
+      "ts": "2026-09-16T21:27:03.436Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "seenTs": "2026-09-16T21:49:59.443Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eric William",
+      "valeNum": 413,
+      "articulo": "×1 Switch dE 8 puertos",
+      "garantia": "",
+      "gestorId": 1788887566844,
+      "precioMN": "",
+      "telefono": "5353862129",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Eric William\n🔸Teléfono Cliente: 5353862129\n🔸Dirección Cliente: Calle 304 y 1ra b santa fe playa  La panaderia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 17:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 304 y 1ra b santa fe playa  La panaderia",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778102214012,
+          "qty": 1,
+          "name": "Switch dE 8 puertos"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789593864126,
       "ts": "2026-09-16T21:24:24.196Z",
       "total": "$260 USD + 2400 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T21:26:18.951Z",
-      "status": "pending",
+      "seenTs": "2026-09-16T21:53:29.901Z",
+      "status": "assigned",
       "vuelto": "40$",
       "cliente": "Michel",
       "valeNum": 412,
@@ -2458,7 +2539,9 @@
       "precioUSD": "$260 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-16T21:53:39.433Z",
       "mensajeria": "2400",
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -2477,7 +2560,7 @@
       "ts": "2026-09-16T21:16:40.286Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T21:18:08.355Z",
+      "seenTs": "2026-09-16T21:54:21.331Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Gabi",
@@ -2516,7 +2599,7 @@
       "ts": "2026-09-16T20:02:19.266Z",
       "total": "$390 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T21:14:01.066Z",
+      "seenTs": "2026-09-16T21:48:28.317Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Enrrique",
@@ -24642,5 +24725,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T21:27:17.021Z"
+  "timestamp": "2026-09-16T21:54:39.457Z"
 }
