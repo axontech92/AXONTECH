@@ -2443,7 +2443,8 @@
       "ts": "2026-09-17T16:52:39.545Z",
       "total": "$4507 USD + 2800 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-17T17:06:23.889Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Yudith",
       "valeNum": 30,
@@ -2455,9 +2456,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yudith\n🔸Teléfono Cliente: 5358647585\n🔸Dirección Cliente: Calle 61 / 236 y 240  # 23603   . San Agustín\n🔸Mensajería/ costo: 7USD -4500\n🔸 Artículos y cantidades:\n  ×10 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 2800 MN\n🔸 Vuelto: \n🔸 Total a pagar: $4507 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 12:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 61 / 236 y 240  # 23603   . San Agustín",
       "precioUSD": "",
-      "ubicacion": "",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-17T17:06:21.631Z",
       "mensajeria": "7USD -4500",
-      "horaEntrega": "",
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2465,11 +2469,10 @@
           "name": "Cable de red categoría 6"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "",
       "recogidaTienda": false,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2477,7 +2480,7 @@
       "ts": "2026-09-17T16:52:21.364Z",
       "total": "$960 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T16:52:50.974Z",
+      "seenTs": "2026-09-17T17:00:30.381Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David",
@@ -2517,7 +2520,7 @@
       "ts": "2026-09-17T16:25:16.619Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T16:33:11.362Z",
+      "seenTs": "2026-09-17T17:00:53.738Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mustafa Yussuf",
@@ -2675,7 +2678,7 @@
       "ts": "2026-09-17T01:57:15.929Z",
       "total": "31650 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T16:24:54.832Z",
+      "seenTs": "2026-09-17T16:57:52.792Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Cristian",
@@ -2712,7 +2715,7 @@
       "ts": "2026-09-16T23:55:24.170Z",
       "total": "$300 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T15:59:59.553Z",
+      "seenTs": "2026-09-17T17:00:34.914Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2788,7 +2791,7 @@
       "ts": "2026-09-16T21:40:56.047Z",
       "total": "$470 USD + 600 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T15:57:58.595Z",
+      "seenTs": "2026-09-17T17:00:24.241Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Manuel Ricardo",
@@ -2962,7 +2965,7 @@
       "ts": "2026-09-16T19:32:29.593Z",
       "total": "$260 USD + 5300 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T15:57:16.740Z",
+      "seenTs": "2026-09-17T16:57:54.251Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Carlos Dilarte",
@@ -25058,5 +25061,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T16:53:47.696Z"
+  "timestamp": "2026-09-17T17:07:22.392Z"
 }
