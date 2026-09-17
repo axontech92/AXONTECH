@@ -632,7 +632,7 @@
       "name": "Switch dE 8 puertos",
       "catId": 10,
       "photo": "photos/img_1778102214012.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1778102214012.webp",
       "nombre": "Switch dE 8 puertos",
       "precio": "$30",
@@ -2597,7 +2597,7 @@
       "ts": "2026-09-16T23:55:24.170Z",
       "total": "$300 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T15:03:40.859Z",
+      "seenTs": "2026-09-17T15:59:59.553Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2717,8 +2717,8 @@
       "ts": "2026-09-16T21:27:03.436Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T23:02:15.432Z",
-      "status": "assigned",
+      "seenTs": "2026-09-17T16:00:08.270Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Eric William",
       "valeNum": 413,
@@ -2730,13 +2730,18 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Eric William\n🔸Teléfono Cliente: 5353862129\n🔸Dirección Cliente: Calle 304 y 1ra b santa fe playa  La panaderia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Switch dE 8 puertos\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 17:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 304 y 1ra b santa fe playa  La panaderia",
       "precioUSD": "$30 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "assignedTs": "2026-09-16T22:41:48.099Z",
       "mensajeria": "",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-17T16:00:15.700Z",
+      "deliveredTs": "2026-09-17T16:00:14.469Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778102214012": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2747,7 +2752,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3195,7 +3200,7 @@
       "ts": "2026-09-16T02:07:41.198Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T15:47:13.222Z",
+      "seenTs": "2026-09-17T16:00:19.883Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yumaikel Flores",
@@ -3502,7 +3507,7 @@
       "ts": "2026-09-15T18:48:21.289Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T19:11:19.136Z",
+      "seenTs": "2026-09-17T16:00:25.502Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Hermes Garcia",
@@ -3946,7 +3951,7 @@
       "ts": "2026-09-15T02:29:09.306Z",
       "total": "$480 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T15:03:26.440Z",
+      "seenTs": "2026-09-17T16:00:03.608Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -24938,5 +24943,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T15:58:49.543Z"
+  "timestamp": "2026-09-17T16:01:17.392Z"
 }
