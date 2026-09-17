@@ -1887,7 +1887,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 30,
+      "stock": 29,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$150",
@@ -2439,12 +2439,49 @@
   ],
   "vales": [
     {
+      "id": 1789662316612,
+      "ts": "2026-09-17T16:25:16.619Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "seenTs": "2026-09-17T16:33:11.362Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Mustafa Yussuf",
+      "valeNum": 29,
+      "articulo": "×1 Creatina Monohidratada Luckycare® (5000 mg)",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "5351473026",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Mustafa Yussuf\n🔸Teléfono Cliente: 5351473026\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Creatina Monohidratada Luckycare® (5000 mg)\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 12:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781377297283,
+          "qty": 1,
+          "name": "Creatina Monohidratada Luckycare® (5000 mg)"
+        }
+      ],
+      "comisionGestor": "1000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789660598850,
       "ts": "2026-09-17T15:56:38.853Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T15:56:57.647Z",
-      "status": "pending",
+      "seenTs": "2026-09-17T16:32:13.081Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Carleys",
       "valeNum": 30,
@@ -2460,7 +2497,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-17T16:32:17.342Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786510034029": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2471,7 +2512,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2560,7 +2601,7 @@
       "ts": "2026-09-17T01:57:15.929Z",
       "total": "31650 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T15:57:12.685Z",
+      "seenTs": "2026-09-17T16:24:54.832Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Cristian",
@@ -24943,5 +24984,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T16:01:17.392Z"
+  "timestamp": "2026-09-17T16:33:17.369Z"
 }
