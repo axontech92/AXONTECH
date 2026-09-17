@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2438,6 +2438,80 @@
     }
   ],
   "vales": [
+    {
+      "id": 1789663959538,
+      "ts": "2026-09-17T16:52:39.545Z",
+      "total": "$4507 USD + 2800 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yudith",
+      "valeNum": 30,
+      "articulo": "×10 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "2800 MN",
+      "telefono": "5358647585",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yudith\n🔸Teléfono Cliente: 5358647585\n🔸Dirección Cliente: Calle 61 / 236 y 240  # 23603   . San Agustín\n🔸Mensajería/ costo: 7USD -4500\n🔸 Artículos y cantidades:\n  ×10 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 2800 MN\n🔸 Vuelto: \n🔸 Total a pagar: $4507 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 12:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 61 / 236 y 240  # 23603   . San Agustín",
+      "precioUSD": "",
+      "ubicacion": "",
+      "mensajeria": "7USD -4500",
+      "horaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 10,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1789663941350,
+      "ts": "2026-09-17T16:52:21.364Z",
+      "total": "$960 USD + 1000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-17T16:52:50.974Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "David",
+      "valeNum": 30,
+      "articulo": "×6 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5351528817",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: David\n🔸Teléfono Cliente: 5351528817\n🔸Dirección Cliente: Calzada de 10 de octubre entre josefina y genaro sanchez edificio 1569 apt 1 antes de llegar al cafè colon\n🔸Mensajería/ costo: 1000\n🔸 Artículos y cantidades:\n  ×6 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $960 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $960 USD + 1000 MN\n🔸 Rebaja: −$30 USD\n🔸 Total a pagar: $930 USD + 1000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 12:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calzada de 10 de octubre entre josefina y genaro sanchez edificio 1569 apt 1 antes de llegar al cafè colon",
+      "precioUSD": "$960 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-17T16:52:47.676Z",
+      "mensajeria": "1000",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
+      "seenByAdmin": true,
+      "comFijadaUSD": 60,
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 6,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionCedida": 30,
+      "comisionGestor": "$60.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1789662316612,
       "ts": "2026-09-17T16:25:16.619Z",
@@ -24984,5 +25058,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T16:34:21.392Z"
+  "timestamp": "2026-09-17T16:53:47.696Z"
 }
