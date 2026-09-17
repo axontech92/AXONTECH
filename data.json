@@ -2439,6 +2439,43 @@
   ],
   "vales": [
     {
+      "id": 1789668438086,
+      "ts": "2026-09-17T18:07:18.091Z",
+      "total": "$125 USD",
+      "carnet": "",
+      "seenTs": "2026-09-17T18:07:55.119Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Aylin",
+      "valeNum": 31,
+      "articulo": "×1 Cargador inteligente VEVOR de 6,12 y24V 35A",
+      "garantia": "",
+      "gestorId": 1781761257108,
+      "precioMN": "",
+      "telefono": "5354322564",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Aylin\n🔸Teléfono Cliente: 5354322564\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Cargador inteligente VEVOR de 6,12 y24V 35A\n🔸Precio USD/ zelle: $125 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $125 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 14:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$125 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1786160284390,
+          "qty": 1,
+          "name": "Cargador inteligente VEVOR de 6,12 y24V 35A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789663959538,
       "ts": "2026-09-17T16:52:39.545Z",
       "total": "$4507 USD + 2800 MN",
@@ -2480,7 +2517,7 @@
       "ts": "2026-09-17T16:52:21.364Z",
       "total": "$960 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T17:00:30.381Z",
+      "seenTs": "2026-09-17T17:09:05.789Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David",
@@ -2678,7 +2715,7 @@
       "ts": "2026-09-17T01:57:15.929Z",
       "total": "31650 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T16:57:52.792Z",
+      "seenTs": "2026-09-17T18:04:46.045Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Cristian",
@@ -2965,7 +3002,7 @@
       "ts": "2026-09-16T19:32:29.593Z",
       "total": "$260 USD + 5300 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T16:57:54.251Z",
+      "seenTs": "2026-09-17T17:10:42.478Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Carlos Dilarte",
@@ -25061,5 +25098,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T17:07:22.392Z"
+  "timestamp": "2026-09-17T18:09:52.393Z"
 }
