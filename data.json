@@ -1042,7 +1042,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -2439,6 +2439,43 @@
   ],
   "vales": [
     {
+      "id": 1789602924169,
+      "ts": "2026-09-16T23:55:24.170Z",
+      "total": "$300 USD",
+      "carnet": "",
+      "seenTs": "2026-09-17T00:16:56.030Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Amalia",
+      "valeNum": 416,
+      "articulo": "×2 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5350213325",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Amalia\n🔸Teléfono Cliente: 5350213325\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2 loco\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD\n\n*Garantía: \n*Fecha y hora de Venta: 16/09/2026 19:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$300 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 2,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789600416337,
       "ts": "2026-09-16T23:13:36.348Z",
       "total": "$160 USD",
@@ -2473,6 +2510,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -2597,6 +2635,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -2678,6 +2717,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2723,6 +2763,7 @@
       "comisionCedida": 10,
       "comisionGestor": "$30.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2896,6 +2937,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2940,6 +2982,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2949,8 +2992,8 @@
       "ts": "2026-09-16T11:35:49.921Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-16T22:52:46.563Z",
-      "status": "pending",
+      "seenTs": "2026-09-17T00:05:17.258Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Deymer Díaz Novo",
       "valeNum": 404,
@@ -2966,7 +3009,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-17T00:05:20.234Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384507302": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2977,7 +3024,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3058,6 +3105,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -24728,5 +24776,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-16T23:56:01.022Z"
+  "timestamp": "2026-09-17T00:26:04.503Z"
 }
