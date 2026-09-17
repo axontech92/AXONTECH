@@ -2439,11 +2439,47 @@
   ],
   "vales": [
     {
+      "id": 1789654116035,
+      "ts": "2026-09-17T14:08:36.046Z",
+      "total": "$160 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-17T14:43:00.320Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Navia",
+      "valeNum": 416,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5353695643",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Navia\n🔸Teléfono Cliente: 5353695643\n🔸Dirección Cliente: Mariana 54 entre progreso y don tomas\n🔸Mensajería/ costo: 2500 cup\n🔸Hora de entrega: 11:00\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 10:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Mariana 54 entre progreso y don tomas",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-17T14:43:35.147Z",
+      "mensajeria": "2500 cup",
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1789610235925,
       "ts": "2026-09-17T01:57:15.929Z",
       "total": "31650 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T13:06:58.243Z",
+      "seenTs": "2026-09-17T13:38:20.810Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Cristian",
@@ -2556,7 +2592,7 @@
       "ts": "2026-09-16T21:40:56.047Z",
       "total": "$470 USD + 600 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T13:07:57.176Z",
+      "seenTs": "2026-09-17T14:43:27.448Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Manuel Ricardo",
@@ -2681,7 +2717,7 @@
       "ts": "2026-09-16T21:16:40.286Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-16T22:54:24.109Z",
+      "seenTs": "2026-09-17T13:43:53.121Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Gabi",
@@ -2720,7 +2756,7 @@
       "ts": "2026-09-16T19:32:29.593Z",
       "total": "$260 USD + 5300 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T13:07:17.473Z",
+      "seenTs": "2026-09-17T14:43:36.911Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Carlos Dilarte",
@@ -24816,5 +24852,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T13:08:14.202Z"
+  "timestamp": "2026-09-17T14:44:35.393Z"
 }
