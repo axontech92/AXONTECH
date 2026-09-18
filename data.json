@@ -1814,7 +1814,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 13,
+      "stock": 11,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -1868,7 +1868,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 13,
+      "stock": 12,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1992,7 +1992,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 32,
+      "stock": 31,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2680,7 +2680,7 @@
       "ts": "2026-09-18T15:31:57.350Z",
       "total": "$400 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T20:39:30.137Z",
+      "seenTs": "2026-09-18T22:10:52.198Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Omar",
@@ -2722,8 +2722,8 @@
       "ts": "2026-09-18T13:18:27.434Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T20:24:00.868Z",
-      "status": "pending",
+      "seenTs": "2026-09-18T22:04:07.155Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Leo",
       "valeNum": 39,
@@ -2739,7 +2739,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-18T22:04:11.589Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2750,7 +2754,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3501,8 +3505,8 @@
       "ts": "2026-09-16T21:40:56.047Z",
       "total": "$470 USD + 600 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T20:27:33.709Z",
-      "status": "assigned",
+      "seenTs": "2026-09-18T22:23:24.021Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Manuel Ricardo",
       "valeNum": 415,
@@ -3519,8 +3523,14 @@
       "assignedTs": "2026-09-18T12:54:35.816Z",
       "mensajeria": "600 cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-18T22:23:27.922Z",
+      "deliveredTs": "2026-09-18T22:23:26.632Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 2,
+        "1786858233037": 1
+      },
       "comFijadaUSD": 30,
       "valeProductos": [
         {
@@ -3538,7 +3548,7 @@
       ],
       "comisionGestor": "$15 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -25769,5 +25779,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T20:41:03.997Z"
+  "timestamp": "2026-09-18T22:24:28.998Z"
 }
