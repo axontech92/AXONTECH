@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2680,7 +2680,7 @@
       "ts": "2026-09-18T15:31:57.350Z",
       "total": "$400 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T15:32:30.228Z",
+      "seenTs": "2026-09-18T20:39:30.137Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Omar",
@@ -2846,7 +2846,7 @@
       "ts": "2026-09-17T23:01:02.215Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T20:24:03.644Z",
+      "seenTs": "2026-09-18T20:39:45.706Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "Yomi",
@@ -2863,7 +2863,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
-      "confirmedTs": "2026-09-18T20:26:58.075Z",
+      "confirmedTs": "2026-09-18T20:40:03.338Z",
       "seenByAdmin": true,
       "stockSalido": {
         "1778384646214": 1
@@ -25769,5 +25769,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T20:38:24.998Z"
+  "timestamp": "2026-09-18T20:41:03.997Z"
 }
