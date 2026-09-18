@@ -1868,7 +1868,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2439,6 +2439,47 @@
   ],
   "vales": [
     {
+      "id": 1789750475936,
+      "ts": "2026-09-18T16:54:35.939Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-18T17:10:52.597Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Damian",
+      "valeNum": 43,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5353614666",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Damian\n🔸Teléfono Cliente: 5353614666\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 12:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-18T17:10:56.581Z",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 1
+      },
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789747013178,
       "ts": "2026-09-18T15:56:53.182Z",
       "total": "$50 USD + 700 MN",
@@ -2643,7 +2684,7 @@
       "ts": "2026-09-18T02:29:39.802Z",
       "total": "8500 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T16:17:57.290Z",
+      "seenTs": "2026-09-18T16:27:36.300Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Penelope",
@@ -2918,7 +2959,7 @@
       "ts": "2026-09-17T18:29:08.345Z",
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T16:16:34.172Z",
+      "seenTs": "2026-09-18T16:50:04.005Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -2955,7 +2996,7 @@
       "ts": "2026-09-17T18:07:18.091Z",
       "total": "$125 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T16:19:16.916Z",
+      "seenTs": "2026-09-18T17:11:37.701Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Aylin",
@@ -25595,5 +25636,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T16:20:42.152Z"
+  "timestamp": "2026-09-18T17:11:57.152Z"
 }
