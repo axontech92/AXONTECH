@@ -1779,7 +1779,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 10,
+      "stock": 12,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -1814,7 +1814,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 3,
+      "stock": 13,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -25636,5 +25636,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T17:11:57.152Z"
+  "timestamp": "2026-09-18T17:17:41.153Z"
 }
