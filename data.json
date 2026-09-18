@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1248,7 +1248,7 @@
       "name": "ZOSI - Camara de seguridad CCTV",
       "catId": 80,
       "photo": "photos/p-1780344659047-5feab86d.webp",
-      "stock": 19,
+      "stock": 18,
       "imagen": "photos/p-1780344659047-5feab86d.webp",
       "nombre": "ZOSI - Camara de seguridad CCTV",
       "precio": "$50",
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2128,7 +2128,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 85,
+      "stock": 65,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2439,6 +2439,80 @@
   ],
   "vales": [
     {
+      "id": 1789755433265,
+      "ts": "2026-09-18T18:17:13.269Z",
+      "total": "$260 USD",
+      "carnet": "",
+      "seenTs": "2026-09-18T18:28:52.903Z",
+      "status": "pending",
+      "vuelto": "260 usd/ 0",
+      "cliente": "Yasmani Díaz",
+      "valeNum": 45,
+      "articulo": "×1 Mikrotik hap ax3",
+      "garantia": "",
+      "gestorId": 1786567980127,
+      "precioMN": "",
+      "telefono": "56342033",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Faby\n\n🔸 Nombre Cliente: Yasmani Díaz\n🔸Teléfono Cliente: 56342033\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik hap ax3\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: 260 usd/ 0\n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 14:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$260 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509419466,
+          "qty": 1,
+          "name": "Mikrotik hap ax3"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789754267274,
+      "ts": "2026-09-18T17:57:47.277Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-09-18T18:03:52.967Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Jonathan",
+      "valeNum": 44,
+      "articulo": "×1 Ubiquiti Litebeam m5",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5352375485",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Jonathan\n🔸Teléfono Cliente: 5352375485\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 13:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787930017841,
+          "qty": 1,
+          "name": "Ubiquiti Litebeam m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789750475936,
       "ts": "2026-09-18T16:54:35.939Z",
       "total": "$230 USD",
@@ -2484,8 +2558,8 @@
       "ts": "2026-09-18T15:56:53.182Z",
       "total": "$50 USD + 700 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T16:01:50.512Z",
-      "status": "assigned",
+      "seenTs": "2026-09-18T17:43:36.250Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Hamsel",
       "valeNum": 42,
@@ -2502,8 +2576,13 @@
       "assignedTs": "2026-09-18T16:02:51.845Z",
       "mensajeria": "700 cuo",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-18T17:43:41.843Z",
+      "deliveredTs": "2026-09-18T17:43:40.414Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1780344659047": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2514,7 +2593,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2523,7 +2602,7 @@
       "ts": "2026-09-18T15:55:26.682Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T16:01:48.081Z",
+      "seenTs": "2026-09-18T17:41:32.779Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yasmel",
@@ -2684,8 +2763,8 @@
       "ts": "2026-09-18T02:29:39.802Z",
       "total": "8500 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T16:27:36.300Z",
-      "status": "assigned",
+      "seenTs": "2026-09-18T17:43:28.565Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Penelope",
       "valeNum": 37,
@@ -2701,8 +2780,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-18T12:54:45.029Z",
       "mensajeria": "2500 cup",
+      "confirmedTs": "2026-09-18T17:43:32.370Z",
+      "deliveredTs": "2026-09-18T17:43:30.893Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 20
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2712,7 +2796,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2795,7 +2879,7 @@
       "ts": "2026-09-17T21:21:21.929Z",
       "total": "$230 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T12:59:13.646Z",
+      "seenTs": "2026-09-18T17:41:11.539Z",
       "status": "assigned",
       "vuelto": "20 usd",
       "cliente": "Yasel o Vivian",
@@ -3545,7 +3629,7 @@
       "ts": "2026-09-16T19:32:29.593Z",
       "total": "$260 USD + 5300 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T12:55:14.294Z",
+      "seenTs": "2026-09-18T17:41:19.557Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Carlos Dilarte",
@@ -25636,5 +25720,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T17:38:37.159Z"
+  "timestamp": "2026-09-18T18:29:54.719Z"
 }
