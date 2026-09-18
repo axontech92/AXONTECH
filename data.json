@@ -906,7 +906,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2598,8 +2598,8 @@
       "ts": "2026-09-18T11:23:00.000Z",
       "total": "$20 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T13:12:49.196Z",
-      "status": "assigned",
+      "seenTs": "2026-09-18T16:16:38.724Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Gómez",
       "valeNum": 38,
@@ -2613,11 +2613,17 @@
       "precioUSD": "$20 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "pagado por trsnaferencia 14400 cup",
       "assignedTs": "2026-09-18T13:12:46.833Z",
       "mensajeria": "2500",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-18T16:16:42.949Z",
+      "deliveredTs": "2026-09-18T16:16:40.994Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778336689684": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2628,7 +2634,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2912,7 +2918,7 @@
       "ts": "2026-09-17T18:29:08.345Z",
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T12:59:31.480Z",
+      "seenTs": "2026-09-18T16:16:34.172Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -2949,7 +2955,7 @@
       "ts": "2026-09-17T18:07:18.091Z",
       "total": "$125 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T12:55:37.384Z",
+      "seenTs": "2026-09-18T16:16:37.467Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Aylin",
@@ -25589,5 +25595,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T16:03:58.153Z"
+  "timestamp": "2026-09-18T16:17:43.858Z"
 }
