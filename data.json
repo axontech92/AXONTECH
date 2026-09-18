@@ -1677,7 +1677,7 @@
       "name": "Cargador inteligente VEVOR de 6,12 y24V 35A",
       "catId": 20,
       "photo": "photos/p-1786160284390-28622650.webp",
-      "stock": 37,
+      "stock": 36,
       "imagen": "photos/p-1786160284390-28622650.webp",
       "nombre": "Cargador inteligente VEVOR de 6,12 y24V 35A",
       "precio": "$125",
@@ -3047,8 +3047,8 @@
       "ts": "2026-09-17T18:07:18.091Z",
       "total": "$125 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T18:32:10.971Z",
-      "status": "pending",
+      "seenTs": "2026-09-18T19:10:40.344Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Aylin",
       "valeNum": 31,
@@ -3064,7 +3064,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-18T19:10:43.709Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786160284390": 1
+      },
       "comFijadaUSD": 5,
       "valeProductos": [
         {
@@ -3075,7 +3079,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -25687,5 +25691,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T19:10:16.687Z"
+  "timestamp": "2026-09-18T19:11:44.715Z"
 }
