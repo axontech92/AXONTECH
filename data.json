@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1452,7 +1452,7 @@
       "name": "Creatina Monohidratada Luckycare® (5000 mg)",
       "catId": 130,
       "photo": "photos/p-1781377297283-cc909b2a.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/p-1781377297283-cc909b2a.webp",
       "nombre": "Creatina Monohidratada Luckycare® (5000 mg)",
       "precio": "$25",
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2439,6 +2439,161 @@
   ],
   "vales": [
     {
+      "id": 1789747013178,
+      "ts": "2026-09-18T15:56:53.182Z",
+      "total": "$50 USD + 700 MN",
+      "carnet": "",
+      "seenTs": "2026-09-18T16:01:50.512Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Hamsel",
+      "valeNum": 42,
+      "articulo": "×1 ZOSI - Camara de seguridad CCTV",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "053854838",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Hamsel\n🔸Teléfono Cliente: 053854838\n🔸Dirección Cliente: Hotel paca\n🔸Mensajería/ costo: 700 cuo\n🔸 Artículos y cantidades:\n  ×1 ZOSI - Camara de seguridad CCTV\n🔸Precio USD/ zelle: $50 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $50 USD + 700 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 11:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Hotel paca",
+      "precioUSD": "$50 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-18T16:02:51.845Z",
+      "mensajeria": "700 cuo",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1780344659047,
+          "qty": 1,
+          "name": "ZOSI - Camara de seguridad CCTV"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789746926678,
+      "ts": "2026-09-18T15:55:26.682Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-18T16:01:48.081Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yasmel",
+      "valeNum": 41,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786136089310,
+      "precioMN": "",
+      "telefono": "5353172338",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mariluna\n\n🔸 Nombre Cliente: Yasmel\n🔸Teléfono Cliente: 5353172338\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 11:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789745517334,
+      "ts": "2026-09-18T15:31:57.350Z",
+      "total": "$400 USD",
+      "carnet": "",
+      "seenTs": "2026-09-18T15:32:30.228Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Omar",
+      "valeNum": 40,
+      "articulo": "×1 Inversor Tataliken de 24V 4000W / ×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5353339902",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Omar\n🔸Teléfono Cliente: 5353339902\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n  ×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A\n🔸Precio USD/ zelle: $400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 11:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$400 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1777924118004,
+          "qty": 1,
+          "name": "Inversor Tataliken de 24V 4000W"
+        },
+        {
+          "id": 1779562612951,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789737507418,
+      "ts": "2026-09-18T13:18:27.434Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-18T15:32:23.375Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Leo",
+      "valeNum": 39,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5355614194",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Leo\n🔸Teléfono Cliente: 5355614194\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 09:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789730593875,
       "ts": "2026-09-18T11:23:00.000Z",
       "total": "$20 USD + 2500 MN",
@@ -2453,6 +2608,7 @@
       "gestorId": 1781761257108,
       "precioMN": "",
       "telefono": "59215217",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Gómez\n🔸Teléfono Cliente: 59215217\n🔸Dirección Cliente: Calle Comezaña no 73 entre 22 y 23. LAwton.\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/9/2026, 7:23:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle Comezaña no 73 entre 22 y 23. LAwton.",
       "precioUSD": "$20 USD",
       "reservado": true,
@@ -2474,7 +2630,6 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Gómez\n🔸Teléfono Cliente: 59215217\n🔸Dirección Cliente: Calle Comezaña no 73 entre 22 y 23. LAwton.\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/9/2026, 7:23:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -2519,7 +2674,7 @@
       "ts": "2026-09-17T23:01:02.215Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T12:55:29.920Z",
+      "seenTs": "2026-09-18T13:45:26.736Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yomi",
@@ -2877,8 +3032,8 @@
       "ts": "2026-09-17T16:25:16.619Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T12:55:24.683Z",
-      "status": "pending",
+      "seenTs": "2026-09-18T16:02:55.147Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Mustafa Yussuf",
       "valeNum": 29,
@@ -2894,7 +3049,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1000,
+      "confirmedTs": "2026-09-18T16:02:58.083Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1781377297283": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2905,7 +3064,7 @@
       ],
       "comisionGestor": "1000 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -25430,5 +25589,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T13:13:47.152Z"
+  "timestamp": "2026-09-18T16:03:58.153Z"
 }
