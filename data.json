@@ -2598,7 +2598,7 @@
       "ts": "2026-09-18T11:23:00.000Z",
       "total": "$20 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T16:16:38.724Z",
+      "seenTs": "2026-09-18T16:19:18.101Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "Gómez",
@@ -2613,12 +2613,12 @@
       "precioUSD": "$20 USD",
       "reservado": true,
       "ubicacion": null,
-      "adminNotes": "pagado por trsnaferencia 14400 cup",
-      "assignedTs": "2026-09-18T13:12:46.833Z",
+      "adminNotes": "",
+      "assignedTs": "2026-09-18T16:19:11.134Z",
       "mensajeria": "2500",
       "comFijadaMN": 1500,
-      "confirmedTs": "2026-09-18T16:16:42.949Z",
-      "deliveredTs": "2026-09-18T16:16:40.994Z",
+      "confirmedTs": "2026-09-18T16:19:40.471Z",
+      "deliveredTs": "2026-09-18T16:19:38.932Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "stockSalido": {
@@ -2643,7 +2643,7 @@
       "ts": "2026-09-18T02:29:39.802Z",
       "total": "8500 MN",
       "carnet": "",
-      "seenTs": "2026-09-18T12:59:29.436Z",
+      "seenTs": "2026-09-18T16:17:57.290Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Penelope",
@@ -2955,7 +2955,7 @@
       "ts": "2026-09-17T18:07:18.091Z",
       "total": "$125 USD",
       "carnet": "",
-      "seenTs": "2026-09-18T16:16:37.467Z",
+      "seenTs": "2026-09-18T16:19:16.916Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Aylin",
@@ -25595,5 +25595,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-18T16:17:43.858Z"
+  "timestamp": "2026-09-18T16:20:42.152Z"
 }
