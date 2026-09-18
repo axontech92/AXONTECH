@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2439,11 +2439,87 @@
   ],
   "vales": [
     {
+      "id": 1789730593875,
+      "ts": "2026-09-18T11:23:00.000Z",
+      "total": "$20 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-18T13:12:49.196Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Gómez",
+      "valeNum": 38,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1781761257108,
+      "precioMN": "",
+      "telefono": "59215217",
+      "direccion": "Calle Comezaña no 73 entre 22 y 23. LAwton.",
+      "precioUSD": "$20 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-18T13:12:46.833Z",
+      "mensajeria": "2500",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Gómez\n🔸Teléfono Cliente: 59215217\n🔸Dirección Cliente: Calle Comezaña no 73 entre 22 y 23. LAwton.\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/9/2026, 7:23:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "synced": true
+    },
+    {
+      "id": 1789698579767,
+      "ts": "2026-09-18T02:29:39.802Z",
+      "total": "8500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-18T12:59:29.436Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Penelope",
+      "valeNum": 37,
+      "articulo": "×20 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "5600 MN",
+      "telefono": "5354187832",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Penelope\n🔸Teléfono Cliente: 5354187832\n🔸Dirección Cliente: Calle 6ta entre Embyl y parque oeste #13222 alta habana\n🔸Mensajería/ costo: 2500 cup\n🔸 Artículos y cantidades:\n  ×20 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: 8500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 22:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 6ta entre Embyl y parque oeste #13222 alta habana",
+      "precioUSD": "",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-18T12:54:45.029Z",
+      "mensajeria": "2500 cup",
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 20,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789686062194,
       "ts": "2026-09-17T23:01:02.215Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T23:01:23.447Z",
+      "seenTs": "2026-09-18T12:55:29.920Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yomi",
@@ -2456,7 +2532,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Yomi\n🔸Teléfono Cliente: 5358059153\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 17/09/2026 19:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$20 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
@@ -2480,7 +2556,7 @@
       "ts": "2026-09-17T22:38:09.385Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T23:01:40.335Z",
+      "seenTs": "2026-09-18T12:59:12.103Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Neo",
@@ -2517,7 +2593,7 @@
       "ts": "2026-09-17T21:21:21.929Z",
       "total": "$230 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T22:54:11.034Z",
+      "seenTs": "2026-09-18T12:59:13.646Z",
       "status": "assigned",
       "vuelto": "20 usd",
       "cliente": "Yasel o Vivian",
@@ -2670,6 +2746,7 @@
       "comisionCedida": 500,
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "MN",
       "comisionCedidaMotivo": "Asegurar la venta",
@@ -2680,7 +2757,7 @@
       "ts": "2026-09-17T18:29:08.345Z",
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T22:37:39.248Z",
+      "seenTs": "2026-09-18T12:59:31.480Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -2717,7 +2794,7 @@
       "ts": "2026-09-17T18:07:18.091Z",
       "total": "$125 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T22:54:14.908Z",
+      "seenTs": "2026-09-18T12:55:37.384Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Aylin",
@@ -2800,7 +2877,7 @@
       "ts": "2026-09-17T16:25:16.619Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T22:50:45.721Z",
+      "seenTs": "2026-09-18T12:55:24.683Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mustafa Yussuf",
@@ -2869,6 +2946,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2993,6 +3071,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3083,8 +3162,8 @@
       "ts": "2026-09-16T21:40:56.047Z",
       "total": "$470 USD + 600 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T22:37:41.241Z",
-      "status": "pending",
+      "seenTs": "2026-09-18T12:59:33.984Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel Ricardo",
       "valeNum": 415,
@@ -3098,8 +3177,10 @@
       "precioUSD": "$470 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-18T12:54:35.816Z",
       "mensajeria": "600 cup",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 30,
       "valeProductos": [
@@ -3248,6 +3329,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3257,7 +3339,7 @@
       "ts": "2026-09-16T19:32:29.593Z",
       "total": "$260 USD + 5300 MN",
       "carnet": "",
-      "seenTs": "2026-09-17T22:54:33.103Z",
+      "seenTs": "2026-09-18T12:55:14.294Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Carlos Dilarte",
@@ -3611,7 +3693,7 @@
       "ts": "2026-09-16T02:07:41.198Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-17T22:50:41.615Z",
+      "seenTs": "2026-09-18T12:55:42.184Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yumaikel Flores",
@@ -4060,8 +4142,9 @@
       ],
       "comisionCedida": 2000,
       "comisionGestor": "15000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "rebajaAdminMoneda": "MN",
       "rebajaAdminMotivo": "venta al por mayor",
@@ -4457,8 +4540,9 @@
         }
       ],
       "comisionGestor": "$200.00 USD + 15000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "rebajaAdminMoneda": "USD",
       "rebajaAdminMotivo": "cliente fijo",
@@ -4506,8 +4590,9 @@
         }
       ],
       "comisionGestor": "$50.00 USD + 10500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4584,8 +4669,9 @@
         }
       ],
       "comisionGestor": "1000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -4679,8 +4765,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4718,8 +4805,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4760,8 +4848,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5250,8 +5339,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5292,8 +5382,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5412,8 +5503,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5454,8 +5546,9 @@
         }
       ],
       "comisionGestor": "3 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5539,8 +5632,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5578,8 +5672,9 @@
         }
       ],
       "comisionGestor": "$3.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5698,8 +5793,9 @@
         }
       ],
       "comisionGestor": "3 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5949,8 +6045,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6297,8 +6394,9 @@
         }
       ],
       "comisionGestor": "6 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6625,8 +6723,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6859,8 +6958,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6981,8 +7081,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7188,8 +7289,9 @@
         }
       ],
       "comisionGestor": "3 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -10769,8 +10871,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11557,8 +11660,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11596,8 +11700,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11935,8 +12040,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -12175,8 +12281,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -13793,8 +13900,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -25322,5 +25430,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-17T23:23:58.097Z"
+  "timestamp": "2026-09-18T13:13:47.152Z"
 }
