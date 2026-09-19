@@ -428,7 +428,7 @@
       "color": "#D97706",
       "phone": "59518306",
       "initials": "E",
-      "password": "pbkdf2$100000$kqSYIZq4DQP1WJBtoFsAcw==$103cfb37598711948b2bba4bb74e1a14f784f1906c137eb741750deecdbdc1de"
+      "password": "pbkdf2$100000$wNeyKH1J+BTREM502xPaZg==$24ff59a89c22b434866e12d315a75ac29d99fe6e895b4a5a1c1ff61f93b70b2a"
     }
   ],
   "mensajeros": [
@@ -26268,5 +26268,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T20:13:49.348Z"
+  "timestamp": "2026-09-19T20:17:24.273Z"
 }
