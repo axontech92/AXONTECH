@@ -428,7 +428,7 @@
       "color": "#D97706",
       "phone": "59518306",
       "initials": "E",
-      "password": "pbkdf2$100000$9pWbJpSzVyYZOBvK+4UR0w==$a9fc083778a8016d8f2da2e52d37d5bbcbd92e1defcc4255ecc98d40bb210799"
+      "password": "pbkdf2$100000$kqSYIZq4DQP1WJBtoFsAcw==$103cfb37598711948b2bba4bb74e1a14f784f1906c137eb741750deecdbdc1de"
     }
   ],
   "mensajeros": [
@@ -2446,6 +2446,46 @@
     }
   ],
   "vales": [
+    {
+      "id": 1789846818216,
+      "ts": "2026-09-19T19:40:18.221Z",
+      "total": "$80 USD",
+      "carnet": "",
+      "seenTs": "2026-09-19T19:42:02.146Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Gabriel Sanchez Nuñez",
+      "valeNum": 60,
+      "articulo": "×1 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "53520892",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Gabriel Sanchez Nuñez\n🔸Teléfono Cliente: 53520892\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 15:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$80 USD",
+      "reservado": false,
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 1,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
     {
       "id": 1789840770773,
       "ts": "2026-09-19T17:59:30.780Z",
@@ -26187,5 +26227,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T19:31:42.577Z"
+  "timestamp": "2026-09-19T20:02:48.577Z"
 }
