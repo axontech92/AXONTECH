@@ -2452,8 +2452,8 @@
       "ts": "2026-09-19T21:26:57.838Z",
       "total": "$140 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T21:29:33.002Z",
-      "status": "pending",
+      "seenTs": "2026-09-19T21:32:28.938Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Dana",
       "valeNum": 63,
@@ -2467,8 +2467,10 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-19T21:32:27.098Z",
       "mensajeria": "1300",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2482,6 +2484,40 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789852630647,
+      "ts": "2026-09-19T21:17:10.661Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-19T21:31:53.207Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Jesús deportes",
+      "valeNum": 40,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1786555619210,
+      "precioMN": "",
+      "telefono": "54817937",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Jesús deportes\n🔸Teléfono Cliente: 54817937\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 17:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -26352,5 +26388,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T21:30:35.347Z"
+  "timestamp": "2026-09-19T21:33:27.347Z"
 }
