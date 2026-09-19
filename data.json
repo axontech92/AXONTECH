@@ -2448,6 +2448,80 @@
   ],
   "vales": [
     {
+      "id": 1789852124449,
+      "ts": "2026-09-19T21:08:44.450Z",
+      "total": "$400 USD",
+      "carnet": "",
+      "seenTs": "2026-09-19T21:09:01.898Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "dachel",
+      "valeNum": 62,
+      "articulo": "×5 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "0000000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: dachel\n🔸Teléfono Cliente: 0000000\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×5 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 17:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$400 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 5,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1789851067693,
+      "ts": "2026-09-19T20:51:07.702Z",
+      "total": "$80 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-19T21:08:57.017Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Gabriel Sanchez Nuñez",
+      "valeNum": 61,
+      "articulo": "×1 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "53520892",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Gabriel Sanchez Nuñez\n🔸Teléfono Cliente: 53520892\n🔸Dirección Cliente: Vía Blanca e/ Primelles y Churruca\n🔸Mensajería/ costo: 2000\n🔸Hora de entrega: 11:00\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 16:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Vía Blanca e/ Primelles y Churruca",
+      "precioUSD": "$80 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 1,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789850791698,
       "ts": "2026-09-19T20:46:31.704Z",
       "total": "$115 USD",
@@ -2489,7 +2563,7 @@
       "ts": "2026-09-19T20:06:05.691Z",
       "total": "$25 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T20:12:51.577Z",
+      "seenTs": "2026-09-19T20:47:50.817Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Eduardo Silva Ruiz",
@@ -2519,43 +2593,6 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789846818216,
-      "ts": "2026-09-19T19:40:18.221Z",
-      "total": "$80 USD",
-      "carnet": "",
-      "seenTs": "2026-09-19T20:23:11.531Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Gabriel Sanchez Nuñez",
-      "valeNum": 60,
-      "articulo": "×1 Tplink Archer AX1450 Doble Banda",
-      "garantia": "",
-      "gestorId": 1788962896804,
-      "precioMN": "",
-      "telefono": "53520892",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Gabriel Sanchez Nuñez\n🔸Teléfono Cliente: 53520892\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 15:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$80 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786207539390,
-          "qty": 1,
-          "name": "Tplink Archer AX1450 Doble Banda"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2928,8 +2965,13 @@
       "assignedTs": "2026-09-19T17:32:06.722Z",
       "mensajeria": "1500",
       "comFijadaMN": 3000,
+      "confirmedTs": "2026-09-19T20:47:47.685Z",
+      "deliveredTs": "2026-09-19T20:47:46.035Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778102214012": 2
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2942,22 +2984,14 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false,
-      "stockSalido": {
-        "1778102214012": 2
-      },
-      "deliveredTs": "2026-09-19T20:47:46.035Z",
-      "confirmedTs": "2026-09-19T20:47:47.685Z",
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-19T20:47:48.221Z"
+      "synced": true
     },
     {
       "id": 1789780032046,
       "ts": "2026-09-19T01:07:12.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T20:11:40.121Z",
+      "seenTs": "2026-09-19T20:47:59.800Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rogelio Piña",
@@ -26277,5 +26311,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T20:48:48.348Z"
+  "timestamp": "2026-09-19T21:10:03.300Z"
 }
