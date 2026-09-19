@@ -2443,7 +2443,7 @@
       "ts": "2026-09-19T16:36:04.109Z",
       "total": "9360 MN + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:15:00.460Z",
+      "seenTs": "2026-09-19T17:15:56.799Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Leonides Magaly",
@@ -2613,7 +2613,7 @@
       "ts": "2026-09-19T14:09:25.229Z",
       "total": "$25 USD + 5500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:15:39.761Z",
+      "seenTs": "2026-09-19T17:18:17.637Z",
       "status": "assigned",
       "vuelto": "25$",
       "cliente": "Libia",
@@ -2693,7 +2693,7 @@
       "ts": "2026-09-19T02:10:06.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T15:31:14.238Z",
+      "seenTs": "2026-09-19T17:21:05.117Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Hever",
@@ -2795,43 +2795,6 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789772608268,
-      "ts": "2026-09-18T23:03:28.274Z",
-      "total": "$280 USD + 1000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-19T17:06:31.896Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Dangelo saul arrieta cremades",
-      "valeNum": 48,
-      "articulo": "×2 Ubiquiti Litebeam m5",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "59094488",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Dangelo saul arrieta cremades\n🔸Teléfono Cliente: 59094488\n🔸Dirección Cliente: Santa Rosa 106/ fernadina y san Joaquín\n🔸Mensajería/ costo: 1000\n🔸 Artículos y cantidades:\n  ×2 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $280 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $280 USD + 1000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 19:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Santa Rosa 106/ fernadina y san Joaquín",
-      "precioUSD": "$280 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "1000",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 20,
-      "valeProductos": [
-        {
-          "id": 1787930017841,
-          "qty": 2,
-          "name": "Ubiquiti Litebeam m5"
-        }
-      ],
-      "comisionGestor": "$20.00 USD",
-      "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3119,48 +3082,6 @@
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789745517334,
-      "ts": "2026-09-18T15:31:57.350Z",
-      "total": "$400 USD",
-      "carnet": "",
-      "seenTs": "2026-09-19T15:31:17.428Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Omar",
-      "valeNum": 40,
-      "articulo": "×1 Inversor Tataliken de 24V 4000W / ×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5353339902",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Omar\n🔸Teléfono Cliente: 5353339902\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Inversor Tataliken de 24V 4000W\n  ×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A\n🔸Precio USD/ zelle: $400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 11:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$400 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 20,
-      "valeProductos": [
-        {
-          "id": 1777924118004,
-          "qty": 1,
-          "name": "Inversor Tataliken de 24V 4000W"
-        },
-        {
-          "id": 1779562612951,
-          "qty": 1,
-          "name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A"
-        }
-      ],
-      "comisionGestor": "$20.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -26194,5 +26115,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T17:15:55.826Z"
+  "timestamp": "2026-09-19T17:21:58.348Z"
 }
