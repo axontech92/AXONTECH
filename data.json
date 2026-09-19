@@ -2727,11 +2727,11 @@
     },
     {
       "id": 1789781550951,
-      "ts": "2026-09-19T01:32:30.956Z",
-      "total": "$60 USD",
+      "ts": "2026-09-19T01:32:00.000Z",
+      "total": "$60 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:15:02.154Z",
-      "status": "pending",
+      "seenTs": "2026-09-19T17:32:10.263Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Henry",
       "valeNum": 50,
@@ -2740,13 +2740,15 @@
       "gestorId": 1786573707656,
       "precioMN": "",
       "telefono": "5352670203",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Henry\n🔸Teléfono Cliente: 5352670203\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Switch dE 8 puertos\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 21:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Henry\n🔸Teléfono Cliente: 5352670203\n🔸Dirección Cliente: Cerro. Palatino. Calle 1ra #216/ Fomento y Albear. Cerca del paradero de Palatino, la Empresa de Aguas de La Habana y La Finca de los monos\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×2 Switch dE 8 puertos\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/9/2026, 21:32:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Cerro. Palatino. Calle 1ra #216/ Fomento y Albear. Cerca del paradero de Palatino, la Empresa de Aguas de La Habana y La Finca de los monos",
       "precioUSD": "$60 USD",
       "reservado": true,
       "ubicacion": null,
-      "mensajeria": "Sin envío",
+      "assignedTs": "2026-09-19T17:32:06.722Z",
+      "mensajeria": "1500",
       "comFijadaMN": 3000,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2757,7 +2759,7 @@
         }
       ],
       "comisionGestor": "3000 MN",
-      "recogidaTienda": true,
+      "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -26115,5 +26117,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T17:21:58.348Z"
+  "timestamp": "2026-09-19T17:33:06.747Z"
 }
