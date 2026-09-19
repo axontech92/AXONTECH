@@ -1469,7 +1469,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 6,
+      "stock": 1,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -1728,7 +1728,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 17,
+      "stock": 7,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -2315,7 +2315,7 @@
       "name": "Conectores MC4 (10 pares)",
       "catId": 20,
       "photo": "photos/p-1788155775988-7596cd1a.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1788155775988-7596cd1a.webp",
       "nombre": "Conectores MC4 (10 pares)",
       "precio": "$13",
@@ -2443,8 +2443,8 @@
       "ts": "2026-09-19T17:59:30.780Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T17:59:56.100Z",
-      "status": "pending",
+      "seenTs": "2026-09-19T18:51:43.220Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Amalia",
       "valeNum": 58,
@@ -2460,7 +2460,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-19T18:51:46.382Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786207539390": 10
+      },
       "comFijadaUSD": 100,
       "valeProductos": [
         {
@@ -2471,7 +2475,7 @@
       ],
       "comisionGestor": "$100.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2480,7 +2484,7 @@
       "ts": "2026-09-19T17:55:48.603Z",
       "total": "$40 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:59:01.285Z",
+      "seenTs": "2026-09-19T18:51:49.487Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David",
@@ -2519,8 +2523,8 @@
       "ts": "2026-09-19T16:36:04.109Z",
       "total": "9360 MN + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:15:56.799Z",
-      "status": "assigned",
+      "seenTs": "2026-09-19T18:52:02.568Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Leonides Magaly",
       "valeNum": 57,
@@ -2536,8 +2540,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-19T17:14:55.805Z",
       "mensajeria": "3000",
+      "confirmedTs": "2026-09-19T18:52:07.497Z",
+      "deliveredTs": "2026-09-19T18:52:05.991Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788155775988": 1
+      },
       "valeProductos": [
         {
           "id": 1788155775988,
@@ -2547,7 +2556,7 @@
       ],
       "comisionGestor": "1000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2774,7 +2783,7 @@
       "ts": "2026-09-19T02:10:06.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T17:56:46.848Z",
+      "seenTs": "2026-09-19T18:33:29.191Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Hever",
@@ -2811,7 +2820,7 @@
       "ts": "2026-09-19T01:32:00.000Z",
       "total": "$60 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:50:35.264Z",
+      "seenTs": "2026-09-19T18:52:13.630Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Henry",
@@ -2850,7 +2859,7 @@
       "ts": "2026-09-19T01:07:12.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T13:06:21.535Z",
+      "seenTs": "2026-09-19T18:52:12.318Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rogelio Piña",
@@ -2887,8 +2896,8 @@
       "ts": "2026-09-18T20:33:32.646Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T17:58:20.446Z",
-      "status": "pending",
+      "seenTs": "2026-09-19T18:51:38.605Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Amalia",
       "valeNum": 47,
@@ -2904,7 +2913,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 7500,
+      "confirmedTs": "2026-09-19T18:51:41.510Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1784726857748": 5
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2915,7 +2928,7 @@
       ],
       "comisionGestor": "7500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4466,7 +4479,7 @@
       "ts": "2026-09-16T02:07:41.198Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T17:15:04.114Z",
+      "seenTs": "2026-09-19T18:52:15.411Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yumaikel Flores",
@@ -26203,5 +26216,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T18:00:59.348Z"
+  "timestamp": "2026-09-19T18:53:08.249Z"
 }
