@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2484,7 +2484,7 @@
       "ts": "2026-09-19T17:55:48.603Z",
       "total": "$40 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T18:51:49.487Z",
+      "seenTs": "2026-09-19T19:20:10.887Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David",
@@ -2779,43 +2779,6 @@
       "synced": true
     },
     {
-      "id": 1789783806034,
-      "ts": "2026-09-19T02:10:06.048Z",
-      "total": "$30 USD",
-      "carnet": "",
-      "seenTs": "2026-09-19T18:33:29.191Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Hever",
-      "valeNum": 51,
-      "articulo": "×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5353205257",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Hever\n🔸Teléfono Cliente: 5353205257\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 22:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$30 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 1500,
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1784726857748,
-          "qty": 1,
-          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1789781550951,
       "ts": "2026-09-19T01:32:00.000Z",
       "total": "$60 USD + 1500 MN",
@@ -2859,7 +2822,7 @@
       "ts": "2026-09-19T01:07:12.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T18:52:12.318Z",
+      "seenTs": "2026-09-19T18:58:04.233Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rogelio Piña",
@@ -26216,5 +26179,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T18:53:08.249Z"
+  "timestamp": "2026-09-19T19:20:49.110Z"
 }
