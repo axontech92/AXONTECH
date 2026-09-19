@@ -107,13 +107,6 @@
       "password": "97ZN3D"
     },
     {
-      "id": 1781761257115,
-      "name": "Edward",
-      "color": "#1D4ED8",
-      "initials": "E",
-      "password": "pbkdf2$100000$vGSz/C23XlWUYFxA9EgopQ==$8024aa9cf838f8b9a44cb657dfd30763088388aa67435eb33502ccd0b9a8d79e"
-    },
-    {
       "id": 1781761257116,
       "name": "Emily",
       "color": "#2563EB",
@@ -429,6 +422,14 @@
       "phone": "59518306",
       "initials": "E",
       "password": "pbkdf2$100000$wNeyKH1J+BTREM502xPaZg==$24ff59a89c22b434866e12d315a75ac29d99fe6e895b4a5a1c1ff61f93b70b2a"
+    },
+    {
+      "id": 1789849418892,
+      "name": "Edward",
+      "color": "#D97706",
+      "phone": "",
+      "initials": "E",
+      "password": "pbkdf2$100000$OoK4PDb0HJOe28rmJoKHgg==$46089477d7b35380fdeaeaeeac19ff5a106b687270c56e01edc721ddfd4e939f"
     }
   ],
   "mensajeros": [
@@ -2490,7 +2491,7 @@
       "ts": "2026-09-19T19:40:18.221Z",
       "total": "$80 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T20:09:30.145Z",
+      "seenTs": "2026-09-19T20:23:11.531Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Gabriel Sanchez Nuñez",
@@ -26268,5 +26269,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T20:17:24.273Z"
+  "timestamp": "2026-09-19T20:24:32.843Z"
 }
