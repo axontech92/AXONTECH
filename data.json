@@ -429,7 +429,7 @@
       "color": "#D97706",
       "phone": "",
       "initials": "E",
-      "password": "pbkdf2$100000$OoK4PDb0HJOe28rmJoKHgg==$46089477d7b35380fdeaeaeeac19ff5a106b687270c56e01edc721ddfd4e939f"
+      "password": "pbkdf2$100000$7xZ2eIc6X5CvZzeV5as0+w==$06668e1bdb374ba1acc48618f79df4c4681ab1f936e5a40ebcbc75e3e26aee52"
     }
   ],
   "mensajeros": [
@@ -26269,5 +26269,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T20:24:32.843Z"
+  "timestamp": "2026-09-19T20:30:25.349Z"
 }
