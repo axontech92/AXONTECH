@@ -2448,11 +2448,50 @@
   ],
   "vales": [
     {
+      "id": 1789851067693,
+      "ts": "2026-09-20T20:51:00.000Z",
+      "total": "$80 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-19T21:37:48.423Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Gabriel Sanchez Nuñez",
+      "valeNum": 61,
+      "articulo": "×1 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "53520892",
+      "direccion": "Vía Blanca e/ Primelles y Churruca",
+      "precioUSD": "$80 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-19T21:36:32.688Z",
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 1,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Gabriel Sanchez Nuñez\n🔸Teléfono Cliente: 53520892\n🔸Dirección Cliente: Vía Blanca e/ Primelles y Churruca\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 20/9/2026, 16:51:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "synced": true
+    },
+    {
       "id": 1789853217828,
       "ts": "2026-09-19T21:26:57.838Z",
       "total": "$140 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T21:32:28.938Z",
+      "seenTs": "2026-09-19T21:36:12.166Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dana",
@@ -2491,7 +2530,7 @@
       "ts": "2026-09-19T21:17:10.661Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T21:31:53.207Z",
+      "seenTs": "2026-09-19T21:37:30.396Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jesús deportes",
@@ -2525,7 +2564,7 @@
       "ts": "2026-09-19T21:08:44.450Z",
       "total": "$400 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T21:09:01.898Z",
+      "seenTs": "2026-09-19T21:36:09.718Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "dachel",
@@ -2555,43 +2594,6 @@
       "comisionGestor": "$50.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
-      "synced": true
-    },
-    {
-      "id": 1789851067693,
-      "ts": "2026-09-19T20:51:07.702Z",
-      "total": "$80 USD + 2000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-19T21:08:57.017Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Gabriel Sanchez Nuñez",
-      "valeNum": 61,
-      "articulo": "×1 Tplink Archer AX1450 Doble Banda",
-      "garantia": "",
-      "gestorId": 1788962896804,
-      "precioMN": "",
-      "telefono": "53520892",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Gabriel Sanchez Nuñez\n🔸Teléfono Cliente: 53520892\n🔸Dirección Cliente: Vía Blanca e/ Primelles y Churruca\n🔸Mensajería/ costo: 2000\n🔸Hora de entrega: 11:00\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 16:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Vía Blanca e/ Primelles y Churruca",
-      "precioUSD": "$80 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "2000",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786207539390,
-          "qty": 1,
-          "name": "Tplink Archer AX1450 Doble Banda"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
@@ -2640,7 +2642,7 @@
       "ts": "2026-09-19T20:06:05.691Z",
       "total": "$25 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T20:47:50.817Z",
+      "seenTs": "2026-09-19T21:37:35.869Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Eduardo Silva Ruiz",
@@ -3068,7 +3070,7 @@
       "ts": "2026-09-19T01:07:12.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T20:47:59.800Z",
+      "seenTs": "2026-09-19T21:36:16.390Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rogelio Piña",
@@ -26388,5 +26390,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T21:33:27.347Z"
+  "timestamp": "2026-09-19T21:38:27.917Z"
 }
