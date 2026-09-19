@@ -2439,6 +2439,43 @@
   ],
   "vales": [
     {
+      "id": 1789840548598,
+      "ts": "2026-09-19T17:55:48.603Z",
+      "total": "$40 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-19T17:56:48.008Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "David",
+      "valeNum": 57,
+      "articulo": "×2 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "51528817",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: David\n🔸Teléfono Cliente: 51528817\n🔸Dirección Cliente: Calzada de 10 de octubre e/ Genaro Sánchez y Josefina edificio 1569 apto 1 antes de llegar al café Colón\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×2 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $40 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $40 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 13:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calzada de 10 de octubre e/ Genaro Sánchez y Josefina edificio 1569 apto 1 antes de llegar al café Colón",
+      "precioUSD": "$40 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 3000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 2,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "3000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789835764103,
       "ts": "2026-09-19T16:36:04.109Z",
       "total": "9360 MN + 3000 MN",
@@ -2698,7 +2735,7 @@
       "ts": "2026-09-19T02:10:06.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T17:21:05.117Z",
+      "seenTs": "2026-09-19T17:56:46.848Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Hever",
@@ -2811,7 +2848,7 @@
       "ts": "2026-09-18T20:33:32.646Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T15:30:25.044Z",
+      "seenTs": "2026-09-19T17:55:58.565Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -26127,5 +26164,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T17:51:59.348Z"
+  "timestamp": "2026-09-19T17:58:00.129Z"
 }
