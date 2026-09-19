@@ -2443,8 +2443,8 @@
       "ts": "2026-09-19T16:36:04.109Z",
       "total": "9360 MN + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:11:14.755Z",
-      "status": "pending",
+      "seenTs": "2026-09-19T17:15:00.460Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Leonides Magaly",
       "valeNum": 57,
@@ -2458,7 +2458,9 @@
       "precioUSD": "$13 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-19T17:14:55.805Z",
       "mensajeria": "3000",
+      "mensajeroId": 1784476816825,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -2611,7 +2613,7 @@
       "ts": "2026-09-19T14:09:25.229Z",
       "total": "$25 USD + 5500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T17:10:55.283Z",
+      "seenTs": "2026-09-19T17:15:39.761Z",
       "status": "assigned",
       "vuelto": "25$",
       "cliente": "Libia",
@@ -2728,7 +2730,7 @@
       "ts": "2026-09-19T01:32:30.956Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T15:29:45.147Z",
+      "seenTs": "2026-09-19T17:15:02.154Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Henry",
@@ -4455,7 +4457,7 @@
       "ts": "2026-09-16T02:07:41.198Z",
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T15:30:10.739Z",
+      "seenTs": "2026-09-19T17:15:04.114Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yumaikel Flores",
@@ -26192,5 +26194,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T17:13:01.348Z"
+  "timestamp": "2026-09-19T17:15:55.826Z"
 }
