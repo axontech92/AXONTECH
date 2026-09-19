@@ -2128,7 +2128,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 65,
+      "stock": 45,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2665,8 +2665,8 @@
       "ts": "2026-09-18T20:15:18.522Z",
       "total": "7500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T12:56:08.713Z",
-      "status": "pending",
+      "seenTs": "2026-09-19T13:02:13.081Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alejandro",
       "valeNum": 46,
@@ -2680,8 +2680,15 @@
       "precioUSD": "",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-19T13:02:09.608Z",
       "mensajeria": "1500 cup",
+      "confirmedTs": "2026-09-19T13:02:17.315Z",
+      "deliveredTs": "2026-09-19T13:02:15.519Z",
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 20
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2691,7 +2698,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -3274,7 +3281,7 @@
       "ts": "2026-09-17T18:29:08.345Z",
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T12:19:18.175Z",
+      "seenTs": "2026-09-19T13:03:03.533Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -25961,5 +25968,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T12:57:15.349Z"
+  "timestamp": "2026-09-19T13:03:18.348Z"
 }
