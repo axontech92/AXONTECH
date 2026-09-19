@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 177;
+const APP_VERSION = 178;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 177;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v12.3';
+let _PUBLIC_VERSION_STR = 'v12.4';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'f4ab7772fa7f039d';
+let _LOCAL_BUILD_HASH = 'd56e25612cfbd923';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -7248,10 +7248,17 @@ function saveEditGestor() {
 }
 
 function resetGestorPass(id) {
-  const list=getGestores();const i=list.findIndex(g=>g.id===id);if(i===-1)return;
+  if(!gestorOf(id))return;
   const np=genPassword().trim().toUpperCase();
   _hashGestorPass(np).then(hash => {
-    list[i].password=hash;guardarGestores(list, [id]);
+    // v129 FIX: mismo motivo que en addGestor — releer justo antes de escribir,
+    // no antes del await del hash, para no pisar un cambio ajeno que haya
+    // llegado mientras el PBKDF2 calculaba.
+    const list=getGestores().slice();
+    const i=list.findIndex(g=>g.id===id);
+    if(i===-1){ showToast('Ese gestor ya no existe'); return; }
+    list[i]={...list[i], password:hash};
+    guardarGestores(list, [id]);
     _logAudit('gestor_pass_reset', 'gestor:' + id);
     gestoresTabDirty=true;
     renderAdminGestoresList();maybeAutoSync();
@@ -7380,12 +7387,22 @@ function addGestor() {
   const name=inp.value.trim();if(!name)return;
   const phone=(document.getElementById('newGestorPhoneInput')?.value||'').trim();
   const initials=name.split(/\s+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const list=getGestores();
-  if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
-  const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
+  if(getGestores().some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const password=genPassword().trim().toUpperCase();
+  inp.value='';
   _hashGestorPass(password).then(hash => {
+    // v129 FIX: antes `list` se leía ANTES de este await (el hash de PBKDF2 es
+    // async, ~50-200ms). Si en esa ventana llegaba un sondeo de Supabase o se
+    // borraba/editaba OTRO gestor, esta función seguía escribiendo sobre la
+    // copia vieja: guardarGestores(list,...) pisaba local ese cambio ajeno (se
+    // corregía solo en el siguiente sondeo, pero mientras tanto el teléfono
+    // mentía). Releer aquí, justo antes de escribir, evita esa ventana.
+    const list=getGestores().slice();
+    if(list.some(g=>g.name.toLowerCase()===name.toLowerCase())){
+      showToast('Ya existe ese gestor — no se creó por duplicado'); return;
+    }
     const nuevoId=Date.now();
+    const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
     list.push({id:nuevoId,name,initials,color,password:hash,phone});
     guardarGestores(list, [nuevoId]);
     const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
@@ -7395,7 +7412,6 @@ function addGestor() {
     showToast('Gestor agregado ✓');
     mostrarClaveGestor(nuevoId, password);   // v119 — ver mostrarClaveGestor
   }).catch(() => { showToast('No se pudo encriptar la clave, reintenta'); });
-  inp.value='';
 }
 // ══════════════════════════════════════════
 //  ADMIN GESTORES FILTER (inbox)
