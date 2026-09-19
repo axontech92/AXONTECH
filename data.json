@@ -950,7 +950,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1721,7 +1721,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786207539390,
@@ -2223,7 +2223,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2665,7 +2665,7 @@
       "ts": "2026-09-18T20:15:18.522Z",
       "total": "7500 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T12:19:07.660Z",
+      "seenTs": "2026-09-19T12:56:08.713Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro",
@@ -2678,7 +2678,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Alejandro\n🔸Teléfono Cliente: 058993252\n🔸Dirección Cliente: Calle c entre lienea y 11 vedado\n🔸Mensajería/ costo: 1500 cup\n🔸 Artículos y cantidades:\n  ×20 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: 7500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 18/09/2026 16:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle c entre lienea y 11 vedado",
       "precioUSD": "",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "1500 cup",
       "seenByAdmin": true,
@@ -25961,5 +25961,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T12:25:22.561Z"
+  "timestamp": "2026-09-19T12:57:15.349Z"
 }
