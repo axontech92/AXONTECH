@@ -2447,11 +2447,48 @@
   ],
   "vales": [
     {
+      "id": 1789848365686,
+      "ts": "2026-09-19T20:06:05.691Z",
+      "total": "$25 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-19T20:10:15.051Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Eduardo Silva Ruiz",
+      "valeNum": 59,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1784475902029,
+      "precioMN": "",
+      "telefono": "5353827760",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Maykel\n\n🔸 Nombre Cliente: Eduardo Silva Ruiz\n🔸Teléfono Cliente: 5353827760\n🔸Dirección Cliente: María Auxiliadora #284, entre Lordes y Alegría Punto de referencia: Funeraria Mauline, viniendo por 10 de Octubre hasta el final., Víbora Park.\n🔸Mensajería/ costo: 2500\n🔸Hora de entrega: 16:10\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $25 USD + 2500 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 19/09/2026 16:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "María Auxiliadora #284, entre Lordes y Alegría Punto de referencia: Funeraria Mauline, viniendo por 10 de Octubre hasta el final., Víbora Park.",
+      "precioUSD": "$25 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "2500",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789846818216,
       "ts": "2026-09-19T19:40:18.221Z",
       "total": "$80 USD",
       "carnet": "",
-      "seenTs": "2026-09-19T19:42:02.146Z",
+      "seenTs": "2026-09-19T20:09:30.145Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Gabriel Sanchez Nuñez",
@@ -2464,11 +2501,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Gabriel Sanchez Nuñez\n🔸Teléfono Cliente: 53520892\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $80 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $80 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 15:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$80 USD",
-      "reservado": false,
-      "ubicacion": "",
+      "reservado": true,
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "horaEntrega": "",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2478,12 +2514,10 @@
           "name": "Tplink Archer AX1450 Doble Banda"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2532,7 +2566,7 @@
       "ts": "2026-09-19T17:55:48.603Z",
       "total": "$40 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-19T19:20:10.887Z",
+      "seenTs": "2026-09-19T20:10:11.641Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "David",
@@ -26227,5 +26261,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-19T20:02:48.577Z"
+  "timestamp": "2026-09-19T20:10:51.348Z"
 }
