@@ -1907,7 +1907,7 @@
       "stock": 42,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
-      "precio": "$150",
+      "precio": "$130",
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
@@ -2131,7 +2131,7 @@
       "stock": 8,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
-      "precio": "$120",
+      "precio": "$110",
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
@@ -2951,8 +2951,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1789865800161,
@@ -26979,5 +26978,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-20T19:03:16.892Z"
+  "timestamp": "2026-09-20T19:23:43.890Z"
 }
