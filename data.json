@@ -1877,7 +1877,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 9,
+      "stock": 7,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2194,7 +2194,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 0,
+      "reserved": 2,
       "descripcion": "El Ubiquiti LiteBeam M5 (LBE-M5-23) es una antena direccional para enlaces inalámbricos de 5 GHz, pensada principalmente para llevar Internet de un punto a otro a distancia. \n\nCaracterísticas principales:\n📡 Frecuencia: 5 GHz\n📶 Ganancia: 23 dBi\n🔗 Ideal para enlaces punto a punto (PtP)\n📡 Tecnología airMAX TDMA\n🔌 1 puerto Ethernet 10/100 Mbps\n⚡ Alimentación: PoE pasivo 24 V\n🔋 Consumo máximo: alrededor de 7 W\n🌧️ Diseñado para instalación exterior\n📏 Alcance: depende mucho de la línea de vista, interferencias y configuración.",
       "description": "El Ubiquiti LiteBeam M5 (LBE-M5-23) es una antena direccional para enlaces inalámbricos de 5 GHz, pensada principalmente para llevar Internet de un punto a otro a distancia. \n\nCaracterísticas principales:\n📡 Frecuencia: 5 GHz\n📶 Ganancia: 23 dBi\n🔗 Ideal para enlaces punto a punto (PtP)\n📡 Tecnología airMAX TDMA\n🔌 1 puerto Ethernet 10/100 Mbps\n⚡ Alimentación: PoE pasivo 24 V\n🔋 Consumo máximo: alrededor de 7 W\n🌧️ Diseñado para instalación exterior\n📏 Alcance: depende mucho de la línea de vista, interferencias y configuración.",
       "precioActual": 150,
@@ -2452,7 +2452,7 @@
       "ts": "2026-09-20T21:26:00.000Z",
       "total": "$140 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-20T17:26:03.563Z",
+      "seenTs": "2026-09-20T17:28:31.822Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Dana",
@@ -2527,6 +2527,48 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789926242343,
+      "ts": "2026-09-20T17:44:02.344Z",
+      "total": "$460 USD",
+      "carnet": "",
+      "seenTs": "2026-09-20T17:44:08.174Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 76,
+      "articulo": "×2 Nanostation m2",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $460 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/9/2026, 13:44:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$460 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-20T17:44:22.461Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 2
+      },
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 2,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -26916,5 +26958,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-20T17:26:57.377Z"
+  "timestamp": "2026-09-20T17:45:22.487Z"
 }
