@@ -2456,6 +2456,76 @@
   ],
   "vales": [
     {
+      "id": 1789940858436,
+      "ts": "2026-09-20T21:47:38.442Z",
+      "total": "$150 USD + 1800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-20T21:52:35.508Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "XXXX",
+      "valeNum": 77,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "052730165",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: XXXX\n🔸Teléfono Cliente: 052730165\n🔸Dirección Cliente: Dolores y 16 lawton\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 17:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Dolores y 16 lawton",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-20T21:52:42.890Z",
+      "mensajeria": "1800",
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1789940631569,
+      "ts": "2026-09-20T21:43:51.591Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-20T21:52:28.935Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rudi",
+      "valeNum": 78,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "54124646",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Rudi\n🔸Teléfono Cliente: 54124646\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 17:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1789853217828,
       "ts": "2026-09-20T21:26:00.000Z",
       "total": "$140 USD + 1300 MN",
@@ -27024,5 +27094,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-20T21:39:43.892Z"
+  "timestamp": "2026-09-20T21:53:43.892Z"
 }
