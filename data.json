@@ -1737,7 +1737,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 6,
+      "stock": 1,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -3003,8 +3003,8 @@
       "ts": "2026-09-19T21:08:44.450Z",
       "total": "$400 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T13:36:34.007Z",
-      "status": "pending",
+      "seenTs": "2026-09-20T16:42:38.274Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "dachel",
       "valeNum": 62,
@@ -3020,9 +3020,12 @@
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-20T16:42:44.108Z",
       "mensajeroId": null,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786207539390": 5
+      },
       "valeProductos": [
         {
           "id": 1786207539390,
@@ -3032,7 +3035,7 @@
       ],
       "comisionGestor": "$50.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -26855,5 +26858,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-20T16:40:19.051Z"
+  "timestamp": "2026-09-20T16:43:44.140Z"
 }
