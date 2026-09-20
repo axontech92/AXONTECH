@@ -1967,7 +1967,7 @@
       "name": "Panel de Césped Artificial 25cm x 25cm",
       "catId": 90,
       "photo": "photos/p-1786816725748-a0ff89bd.webp",
-      "stock": 142,
+      "stock": 136,
       "imagen": "photos/p-1786816725748-a0ff89bd.webp",
       "nombre": "Panel de Césped Artificial 25cm x 25cm",
       "precio": "$4",
@@ -2290,7 +2290,7 @@
       "name": "Pesa / báscula digital inteligente",
       "catId": 130,
       "photo": "photos/p-1788152657796-9215b5a4.webp",
-      "stock": 19,
+      "stock": 18,
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
@@ -2452,7 +2452,7 @@
       "ts": "2026-09-20T21:26:00.000Z",
       "total": "$140 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-20T15:10:24.442Z",
+      "seenTs": "2026-09-20T17:26:03.563Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Dana",
@@ -2495,7 +2495,7 @@
       "ts": "2026-09-20T20:51:00.000Z",
       "total": "$80 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-20T14:21:03.527Z",
+      "seenTs": "2026-09-20T17:26:06.931Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Gabriel Sanchez Nuñez",
@@ -2524,6 +2524,45 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789924671558,
+      "ts": "2026-09-20T17:17:51.560Z",
+      "total": "$20 USD + 2800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-20T17:26:11.767Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Jennifer",
+      "valeNum": 75,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "55054048",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Jennifer\n🔸Teléfono Cliente: 55054048\n🔸Dirección Cliente: Pilar # 284 e/ Justo y Carlos, Párraga, Arroyo Naranjo\n🔸Mensajería/ costo: 2800\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 13:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Pilar # 284 e/ Justo y Carlos, Párraga, Arroyo Naranjo",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-20T17:25:37.958Z",
+      "mensajeria": "2800",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784408225928,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -2622,8 +2661,8 @@
       "ts": "2026-09-20T15:29:11.512Z",
       "total": "$24 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-20T15:36:00.853Z",
-      "status": "assigned",
+      "seenTs": "2026-09-20T17:25:42.130Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Gisele",
       "valeNum": 73,
@@ -2640,8 +2679,13 @@
       "assignedTs": "2026-09-20T15:36:33.786Z",
       "mensajeria": "3500",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-20T17:25:52.299Z",
+      "deliveredTs": "2026-09-20T17:25:52.299Z",
       "mensajeroId": 1788892462364,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786816725748": 6
+      },
       "comFijadaUSD": 3,
       "valeProductos": [
         {
@@ -2652,7 +2696,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2661,8 +2705,8 @@
       "ts": "2026-09-20T14:11:13.802Z",
       "total": "$25 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-20T15:11:41.642Z",
-      "status": "assigned",
+      "seenTs": "2026-09-20T17:25:47.912Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dulce Maria",
       "valeNum": 72,
@@ -2679,8 +2723,13 @@
       "assignedTs": "2026-09-20T15:11:59.113Z",
       "mensajeria": "2000 cup",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-20T17:25:56.626Z",
+      "deliveredTs": "2026-09-20T17:25:56.626Z",
       "mensajeroId": 1788892462364,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788152657796": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2691,7 +2740,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2741,7 +2790,7 @@
       "ts": "2026-09-20T12:29:35.252Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T15:45:48.167Z",
+      "seenTs": "2026-09-20T17:26:10.564Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Damaris",
@@ -2778,7 +2827,7 @@
       "ts": "2026-09-20T12:17:21.188Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T15:12:17.919Z",
+      "seenTs": "2026-09-20T17:26:13.760Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Lesly Cintra",
@@ -2812,7 +2861,7 @@
       "ts": "2026-09-20T01:56:21.788Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T15:00:47.223Z",
+      "seenTs": "2026-09-20T17:26:04.724Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Cuky",
@@ -3533,7 +3582,7 @@
       "ts": "2026-09-19T01:07:12.048Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T15:11:31.960Z",
+      "seenTs": "2026-09-20T17:26:08.809Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rogelio Piña",
@@ -26867,5 +26916,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-20T17:10:11.378Z"
+  "timestamp": "2026-09-20T17:26:57.377Z"
 }
