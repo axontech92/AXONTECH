@@ -2535,7 +2535,7 @@
       "total": "$140 USD",
       "carnet": "",
       "seenTs": "2026-09-20T15:35:18.039Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Ariel",
       "valeNum": 74,
@@ -2549,8 +2549,10 @@
       "precioUSD": "$140 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-20T15:35:55.754Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2610,7 +2612,8 @@
       "ts": "2026-09-20T15:29:11.512Z",
       "total": "$24 USD + 3500 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-20T15:36:00.853Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Gisele",
       "valeNum": 73,
@@ -2624,8 +2627,11 @@
       "precioUSD": "$24 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-20T15:36:33.786Z",
       "mensajeria": "3500",
       "comFijadaMN": 0,
+      "mensajeroId": 1788892462364,
+      "seenByAdmin": true,
       "comFijadaUSD": 3,
       "valeProductos": [
         {
@@ -2829,7 +2835,7 @@
       "ts": "2026-09-20T00:56:40.166Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T13:36:32.658Z",
+      "seenTs": "2026-09-20T15:37:06.270Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yosvany",
@@ -4290,8 +4296,9 @@
       ],
       "comisionCedida": 30,
       "comisionGestor": "$60.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7714,8 +7721,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -9261,8 +9269,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14224,8 +14233,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14555,8 +14565,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -14637,8 +14648,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -26829,5 +26841,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-20T15:35:47.378Z"
+  "timestamp": "2026-09-20T15:37:57.377Z"
 }
