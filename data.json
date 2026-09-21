@@ -2154,7 +2154,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 65,
+      "stock": 25,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2501,12 +2501,86 @@
   ],
   "vales": [
     {
+      "id": 1790021037836,
+      "ts": "2026-09-21T20:03:57.843Z",
+      "total": "$90 USD",
+      "carnet": "",
+      "seenTs": "2026-09-21T20:04:51.022Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yanisbel Martha Garfias Cruz",
+      "valeNum": 96,
+      "articulo": "×1 Controlador solar mppt de 48/60/72 V y 1200 W",
+      "garantia": "Probar el equipo al momento de la compra",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "52662469",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Yanisbel Martha Garfias Cruz\n🔸Teléfono Cliente: 52662469\n🔸Dirección Cliente: Playa\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Controlador solar mppt de 48/60/72 V y 1200 W\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD\n\n*Garantía: Probar el equipo al momento de la compra\n*Fecha y hora de Venta: 21/09/2026 16:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Playa",
+      "precioUSD": "$90 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1787089756274,
+          "qty": 1,
+          "name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790020226664,
+      "ts": "2026-09-21T19:50:26.680Z",
+      "total": "$28 USD + 1300 MN (total 21,800)",
+      "carnet": "",
+      "seenTs": "2026-09-21T19:52:39.002Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Tai",
+      "valeNum": 95,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257116,
+      "precioMN": "",
+      "telefono": "5358877983",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Emily\n\n🔸 Nombre Cliente: Tai\n🔸Teléfono Cliente: 5358877983\n🔸Dirección Cliente: Es calle 35 entre 2 y 4 casa 12 plaza\n🔸Mensajería/ costo: 1300\n🔸Hora de entrega: 15:49\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD + 1300 MN (total 21,800)\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 15:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Es calle 35 entre 2 y 4 casa 12 plaza",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": "📍 23.125438, -82.39173 \"Lugar desconocido\" La Habana, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/wmBG8S4pvA/Lugar_desconocido",
+      "mensajeria": "1300",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 3,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790019634242,
       "ts": "2026-09-21T19:40:34.243Z",
       "total": "14000 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T19:46:59.524Z",
-      "status": "assigned",
+      "seenTs": "2026-09-21T21:02:19.113Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lazaro",
       "valeNum": 94,
@@ -2522,8 +2596,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-21T19:47:06.543Z",
       "mensajeria": "2800",
+      "confirmedTs": "2026-09-21T21:02:37.610Z",
+      "deliveredTs": "2026-09-21T21:02:35.048Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 40
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2533,9 +2612,11 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-21T21:02:38.600Z"
     },
     {
       "id": 1790009720914,
@@ -3121,7 +3202,7 @@
       "ts": "2026-09-21T01:03:08.086Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T19:07:35.299Z",
+      "seenTs": "2026-09-21T20:05:06.117Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eudis",
@@ -27796,5 +27877,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T19:48:06.624Z"
+  "timestamp": "2026-09-21T21:03:38.615Z"
 }
