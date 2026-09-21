@@ -967,7 +967,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1739,7 +1739,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2241,7 +2241,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2497,6 +2497,7 @@
       "ts": "2026-09-21T14:03:35.943Z",
       "total": "$500 USD + 1250 MN",
       "carnet": "",
+      "seenTs": "2026-09-21T14:34:20.921Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
@@ -2512,6 +2513,9 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "1250",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 30,
       "valeProductos": [
         {
           "id": 1778336689684,
@@ -2527,6 +2531,7 @@
       "comisionGestor": "$30.00 USD + 1500 MN",
       "recogidaTienda": false,
       "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
@@ -2617,9 +2622,10 @@
       "direccion": "Recogida en tienda",
       "precioUSD": "$200 USD",
       "reservado": false,
-      "ubicacion": null,
+      "ubicacion": "",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "horaEntrega": "",
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2628,10 +2634,12 @@
           "name": "📡 TP-Link Archer BE230"
         }
       ],
+      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2639,6 +2647,7 @@
       "ts": "2026-09-21T13:26:45.910Z",
       "total": "$28 USD",
       "carnet": "",
+      "seenTs": "2026-09-21T14:33:46.252Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yandis López",
@@ -2651,9 +2660,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Yandis López\n🔸Teléfono Cliente: 5353083979\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 09:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$28 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1786161303797,
@@ -2746,7 +2756,7 @@
       "ts": "2026-09-21T01:03:08.086Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T02:36:16.183Z",
+      "seenTs": "2026-09-21T14:33:57.681Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eudis",
@@ -2759,7 +2769,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Eudis\n🔸Teléfono Cliente: 5351419167\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 KIT de 4 camaras Zosi (sin disco duro)\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 21:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$230 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -2856,53 +2866,11 @@
       "synced": true
     },
     {
-      "id": 1789946198842,
-      "ts": "2026-09-20T23:16:38.844Z",
-      "total": "$540 USD",
-      "carnet": "",
-      "seenTs": "2026-09-20T23:16:53.683Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Annier Reyes Solo",
-      "valeNum": 80,
-      "articulo": "×3 mikrotik sxt sq 5ax / ×3 SWITCH DE 5 PUERTOS",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "59072435",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Annier Reyes Solo\n🔸Teléfono Cliente: 59072435\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 mikrotik sxt sq 5ax\n  ×3 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $540 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $540 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 19:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$540 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 4500,
-      "seenByAdmin": true,
-      "comFijadaUSD": 30,
-      "valeProductos": [
-        {
-          "id": 1788124513018,
-          "qty": 3,
-          "name": "mikrotik sxt sq 5ax"
-        },
-        {
-          "id": 1778336689684,
-          "qty": 3,
-          "name": "SWITCH DE 5 PUERTOS"
-        }
-      ],
-      "comisionGestor": "$30.00 USD + 4500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1789942999283,
       "ts": "2026-09-20T22:23:19.294Z",
       "total": "$140 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-20T22:50:16.149Z",
+      "seenTs": "2026-09-21T14:34:03.132Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dangelo",
@@ -2936,7 +2904,7 @@
       "ts": "2026-09-20T22:19:54.893Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T22:45:22.778Z",
+      "seenTs": "2026-09-21T14:33:49.530Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amanda",
@@ -2949,7 +2917,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Amanda\n🔸Teléfono Cliente: 5352019253\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 18:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$20 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
@@ -2973,7 +2941,7 @@
       "ts": "2026-09-20T22:16:32.217Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T22:45:20.873Z",
+      "seenTs": "2026-09-21T14:33:51.316Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Heidy",
@@ -2986,7 +2954,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Heidy\n🔸Teléfono Cliente: 5353345692\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 00:00\n🔸 Artículos y cantidades:\n  ×1 Mikrotik SXT sq lite 2\n🔸Precio USD/ zelle: $110 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $110 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 17:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$110 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -3563,7 +3531,7 @@
       "ts": "2026-09-20T01:56:21.788Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-20T22:45:10.680Z",
+      "seenTs": "2026-09-21T14:34:14.134Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Cuky",
@@ -3576,7 +3544,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Cuky\n🔸Teléfono Cliente: 5355514413\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n🔸Precio USD/ zelle: $250 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $250 USD\n\n*Garantía: \n*Fecha y hora de Venta: 19/09/2026 21:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$250 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -27627,5 +27595,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T14:24:43.624Z"
+  "timestamp": "2026-09-21T14:35:16.422Z"
 }
