@@ -2497,7 +2497,7 @@
       "ts": "2026-09-21T14:53:39.624Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:54:42.770Z",
+      "seenTs": "2026-09-21T14:59:16.488Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adriana Migueles",
@@ -2955,7 +2955,7 @@
       "ts": "2026-09-20T22:23:19.294Z",
       "total": "$140 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T14:40:02.572Z",
+      "seenTs": "2026-09-21T14:59:10.912Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dangelo",
@@ -3620,7 +3620,7 @@
       "ts": "2026-09-20T01:56:21.788Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:40:06.763Z",
+      "seenTs": "2026-09-21T14:59:09.771Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Cuky",
@@ -27688,5 +27688,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T14:56:04.624Z"
+  "timestamp": "2026-09-21T15:00:07.625Z"
 }
