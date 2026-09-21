@@ -931,7 +931,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -975,7 +975,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1747,7 +1747,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786207539390,
@@ -2249,7 +2249,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2290,7 +2290,7 @@
       "name": "mikrotik sxt sq 5ax",
       "catId": 10,
       "photo": "photos/p-1788124513018-46338072.webp",
-      "stock": 33,
+      "stock": 30,
       "imagen": "photos/p-1788124513018-46338072.webp",
       "nombre": "mikrotik sxt sq 5ax",
       "precio": "$160",
@@ -2741,8 +2741,8 @@
       "ts": "2026-09-21T14:03:35.943Z",
       "total": "$500 USD + 1250 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T15:12:23.588Z",
-      "status": "assigned",
+      "seenTs": "2026-09-21T16:50:12.213Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Annier Reyes Solo",
       "valeNum": 86,
@@ -2759,8 +2759,14 @@
       "assignedTs": "2026-09-21T15:22:41.649Z",
       "mensajeria": "1250",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-21T16:50:26.860Z",
+      "deliveredTs": "2026-09-21T16:50:25.144Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778336689684": 1,
+        "1788124513018": 3
+      },
       "comFijadaUSD": 30,
       "valeProductos": [
         {
@@ -2776,7 +2782,7 @@
       ],
       "comisionGestor": "$30.00 USD + 1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3093,7 +3099,7 @@
       "ts": "2026-09-20T22:19:54.893Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T16:23:59.232Z",
+      "seenTs": "2026-09-21T16:50:43.807Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amanda",
@@ -3208,7 +3214,7 @@
       "ts": "2026-09-20T21:43:51.591Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:44:05.978Z",
+      "seenTs": "2026-09-21T16:50:34.214Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rudi",
@@ -27756,5 +27762,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T16:42:19.625Z"
+  "timestamp": "2026-09-21T16:51:28.624Z"
 }
