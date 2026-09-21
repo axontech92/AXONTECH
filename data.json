@@ -1737,7 +1737,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 33,
+      "stock": 32,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -1747,7 +1747,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2290,7 +2290,7 @@
       "name": "mikrotik sxt sq 5ax",
       "catId": 10,
       "photo": "photos/p-1788124513018-46338072.webp",
-      "stock": 30,
+      "stock": 17,
       "imagen": "photos/p-1788124513018-46338072.webp",
       "nombre": "mikrotik sxt sq 5ax",
       "precio": "$160",
@@ -2552,8 +2552,8 @@
       "ts": "2026-09-21T16:18:47.240Z",
       "total": "$28 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T16:22:37.380Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T19:12:01.996Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Rodney Garcia",
       "valeNum": 92,
@@ -2569,7 +2569,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 3,
+      "confirmedTs": "2026-09-21T19:12:18.680Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2580,7 +2584,7 @@
       ],
       "comisionGestor": "3 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2729,7 +2733,11 @@
       "adminNotes": "verde oscuro",
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-21T19:03:26.903Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786160676965": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2742,11 +2750,7 @@
       "recogidaTienda": true,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "stockSalido": {
-        "1786160676965": 1
-      },
-      "confirmedTs": "2026-09-21T19:03:26.903Z"
+      "synced": true
     },
     {
       "id": 1790001759886,
@@ -3042,8 +3046,8 @@
       "ts": "2026-09-21T01:53:36.822Z",
       "total": "$2080 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T18:56:23.391Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T19:12:26.512Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Rudy",
       "valeNum": 80,
@@ -3055,10 +3059,14 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rudy\n🔸Teléfono Cliente: 5354124646\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×13 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $2080 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2080 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 21:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$2080 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-21T19:12:29.713Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788124513018": 13
+      },
       "valeProductos": [
         {
           "id": 1788124513018,
@@ -3068,7 +3076,7 @@
       ],
       "comisionGestor": "$130.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -3076,7 +3084,7 @@
       "ts": "2026-09-21T01:03:08.086Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T18:08:16.512Z",
+      "seenTs": "2026-09-21T19:07:35.299Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eudis",
@@ -3230,40 +3238,6 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "synced": true
-    },
-    {
-      "id": 1789940631569,
-      "ts": "2026-09-20T21:43:51.591Z",
-      "total": "$20 USD",
-      "carnet": "",
-      "seenTs": "2026-09-21T18:23:21.257Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Rudi",
-      "valeNum": 78,
-      "articulo": "×1 SWITCH DE 5 PUERTOS",
-      "garantia": "",
-      "gestorId": 1786116024697,
-      "precioMN": "",
-      "telefono": "54124646",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Rudi\n🔸Teléfono Cliente: 54124646\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 17:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$20 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1778336689684,
-          "qty": 1,
-          "name": "SWITCH DE 5 PUERTOS"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "synced": true
     },
     {
@@ -3754,7 +3728,7 @@
       "ts": "2026-09-20T01:56:21.788Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T16:23:46.392Z",
+      "seenTs": "2026-09-21T19:12:40.256Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Cuky",
@@ -27785,5 +27759,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T19:04:27.625Z"
+  "timestamp": "2026-09-21T19:13:35.803Z"
 }
