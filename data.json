@@ -1084,7 +1084,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 23,
+      "stock": 24,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2501,47 +2501,6 @@
   ],
   "vales": [
     {
-      "id": 1790039874999,
-      "ts": "2026-09-22T01:17:55.002Z",
-      "total": "$20 USD + 1800 MN",
-      "carnet": "",
-      "seenTs": "2026-09-21T22:15:12.849Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "Daimi Molina",
-      "valeNum": 94,
-      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
-      "garantia": "",
-      "gestorId": 1786123063239,
-      "precioMN": "",
-      "telefono": "52147858",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Harvin\n\n🔸 Nombre Cliente: Daimi Molina\n🔸Teléfono Cliente: 52147858\n🔸Dirección Cliente: Luis esteves entre destrampes y Figueroa\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 18:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Luis esteves entre destrampes y Figueroa",
-      "precioUSD": "$20 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "1800",
-      "comFijadaMN": 1500,
-      "confirmedTs": "2026-09-21T22:15:41.654Z",
-      "seenByAdmin": true,
-      "stockSalido": {
-        "1778384646214": 1
-      },
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1778384646214,
-          "qty": 1,
-          "name": "Adaptador poe UBIQUITI de 0.3A"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": false,
-      "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1790026706839,
       "ts": "2026-09-21T21:38:26.848Z",
       "total": "$20 USD",
@@ -2620,7 +2579,7 @@
       "ts": "2026-09-21T19:50:26.680Z",
       "total": "$28 USD + 1300 MN (total 21,800)",
       "carnet": "",
-      "seenTs": "2026-09-21T22:19:00.868Z",
+      "seenTs": "2026-09-21T22:38:16.343Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Tai",
@@ -27893,5 +27852,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T22:27:29.624Z"
+  "timestamp": "2026-09-21T22:59:37.403Z"
 }
