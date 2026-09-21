@@ -2204,7 +2204,7 @@
       "name": "Ubiquiti Litebeam m5",
       "catId": 10,
       "photo": "photos/p-1787930017841-5a594c52.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1787930017841-5a594c52.webp",
       "nombre": "Ubiquiti Litebeam m5",
       "precio": "$140",
@@ -2505,8 +2505,8 @@
       "ts": "2026-09-21T23:25:35.479Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T23:25:43.492Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T23:27:07.653Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "22",
       "valeNum": 96,
@@ -2518,13 +2518,16 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: 22\n🔸Teléfono Cliente: 2\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/9/2026, 19:25:35\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Tienda Axontech",
       "precioUSD": "$140 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-21T23:27:10.269Z",
       "mensajeroId": null,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787930017841": 1
+      },
       "valeProductos": [
         {
           "id": 1787930017841,
@@ -2533,8 +2536,10 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "commissionStatus": "cobrado",
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -27983,5 +27988,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T23:26:35.503Z"
+  "timestamp": "2026-09-21T23:28:54.625Z"
 }
