@@ -1720,7 +1720,7 @@
       "name": "Hamaca con mosquitero",
       "catId": 90,
       "photo": "photos/p-1786160676965-b34f4749.webp",
-      "stock": 17,
+      "stock": 16,
       "imagen": "photos/p-1786160676965-b34f4749.webp",
       "nombre": "Hamaca con mosquitero",
       "precio": "$20",
@@ -2711,8 +2711,8 @@
       "ts": "2026-09-21T14:53:39.624Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:59:16.488Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T19:02:27.123Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Adriana Migueles",
       "valeNum": 88,
@@ -2740,9 +2740,13 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "stockSalido": {
+        "1786160676965": 1
+      },
+      "confirmedTs": "2026-09-21T19:03:26.903Z"
     },
     {
       "id": 1790001759886,
@@ -3038,7 +3042,7 @@
       "ts": "2026-09-21T01:53:36.822Z",
       "total": "$2080 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T18:12:20.098Z",
+      "seenTs": "2026-09-21T18:56:23.391Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rudy",
@@ -3184,43 +3188,6 @@
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789942592213,
-      "ts": "2026-09-20T22:16:32.217Z",
-      "total": "$110 USD",
-      "carnet": "",
-      "seenTs": "2026-09-21T16:23:20.785Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Heidy",
-      "valeNum": 78,
-      "articulo": "×1 Mikrotik SXT sq lite 2",
-      "garantia": "",
-      "gestorId": 1788962896804,
-      "precioMN": "",
-      "telefono": "5353345692",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Heidy\n🔸Teléfono Cliente: 5353345692\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 00:00\n🔸 Artículos y cantidades:\n  ×1 Mikrotik SXT sq lite 2\n🔸Precio USD/ zelle: $110 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $110 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 17:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$110 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1787265463792,
-          "qty": 1,
-          "name": "Mikrotik SXT sq lite 2"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -27818,5 +27785,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T18:24:11.625Z"
+  "timestamp": "2026-09-21T19:04:27.625Z"
 }
