@@ -2498,7 +2498,7 @@
       "total": "4300 MN",
       "carnet": "",
       "seenTs": "2026-09-21T15:44:07.593Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Carlos A jimenez",
       "valeNum": 89,
@@ -2512,7 +2512,9 @@
       "precioUSD": "",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-21T15:46:53.287Z",
       "mensajeria": "1500",
+      "mensajeroId": 1787161412838,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -27653,5 +27655,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T15:45:23.625Z"
+  "timestamp": "2026-09-21T15:47:53.624Z"
 }
