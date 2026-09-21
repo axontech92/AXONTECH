@@ -444,7 +444,7 @@
       "name": "Yandi yankaizen",
       "initials": "YY",
       "color": "#BE185D",
-      "password": "pbkdf2$100000$b+j84CRg8qE2mEBUUaBDpg==$4475b30042e6af0035c7833d17998fbc75206e33cda1eec139e3f73acf19804b",
+      "password": "pbkdf2$100000$pCtn6zXf4HxLGdnLgzFVgw==$9f2f7c854d55c030c607bff14583ed3f6a9cdb4568ae18b3419f6fa79bff08a3",
       "phone": "53083979"
     }
   ],
@@ -10433,5 +10433,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T15:49:18.905Z"
+  "timestamp": "2026-09-21T15:51:03.719Z"
 }
