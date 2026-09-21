@@ -2697,7 +2697,7 @@
       "ts": "2026-09-21T14:42:39.889Z",
       "total": "168000 cup",
       "carnet": "",
-      "seenTs": "2026-09-21T16:22:58.963Z",
+      "seenTs": "2026-09-21T16:24:54.874Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "XXXX",
@@ -2712,11 +2712,11 @@
       "precioUSD": "$230 USD",
       "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-21T15:25:08.937Z",
+      "assignedTs": "2026-09-21T16:24:49.145Z",
       "mensajeria": "1250 cup",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-09-21T16:23:05.514Z",
-      "deliveredTs": "2026-09-21T16:23:03.703Z",
+      "confirmedTs": "2026-09-21T16:25:05.146Z",
+      "deliveredTs": "2026-09-21T16:25:03.703Z",
       "mensajeroId": 1788892462364,
       "seenByAdmin": true,
       "stockSalido": {
@@ -2734,9 +2734,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-21T16:23:06.539Z"
+      "synced": true
     },
     {
       "id": 1789999415942,
@@ -27757,5 +27755,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T16:24:44.414Z"
+  "timestamp": "2026-09-21T16:26:06.625Z"
 }
