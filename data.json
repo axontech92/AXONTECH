@@ -2546,7 +2546,7 @@
       "ts": "2026-09-21T21:38:26.848Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T22:16:36.736Z",
+      "seenTs": "2026-09-21T22:19:51.771Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ricardo",
@@ -2620,7 +2620,7 @@
       "ts": "2026-09-21T19:50:26.680Z",
       "total": "$28 USD + 1300 MN (total 21,800)",
       "carnet": "",
-      "seenTs": "2026-09-21T22:09:26.645Z",
+      "seenTs": "2026-09-21T22:19:00.868Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Tai",
@@ -3051,8 +3051,9 @@
       "ts": "2026-09-21T13:53:28.835Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T21:04:19.993Z",
+      "seenTs": "2026-09-21T22:16:42.501Z",
       "status": "pending",
+      "unidoA": 1789998787887,
       "vuelto": "",
       "cliente": "Eslohan Erice",
       "valeNum": 85,
@@ -3088,7 +3089,7 @@
       "ts": "2026-09-21T13:53:07.897Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T21:04:22.878Z",
+      "seenTs": "2026-09-21T22:20:52.188Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eslohan Erice",
@@ -27926,5 +27927,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T22:16:41.687Z"
+  "timestamp": "2026-09-21T22:24:32.942Z"
 }
