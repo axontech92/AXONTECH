@@ -1737,7 +1737,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 32,
+      "stock": 31,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2501,6 +2501,79 @@
   ],
   "vales": [
     {
+      "id": 1790039874999,
+      "ts": "2026-09-22T01:17:55.002Z",
+      "total": "$20 USD + 1800 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Daimi Molina",
+      "valeNum": 94,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786123063239,
+      "precioMN": "",
+      "telefono": "52147858",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Harvin\n\n🔸 Nombre Cliente: Daimi Molina\n🔸Teléfono Cliente: 52147858\n🔸Dirección Cliente: Luis esteves entre destrampes y Figueroa\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 18:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Luis esteves entre destrampes y Figueroa",
+      "precioUSD": "$20 USD",
+      "ubicacion": "",
+      "mensajeria": "1800",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1790026706839,
+      "ts": "2026-09-21T21:38:26.848Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-21T22:10:14.293Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ricardo",
+      "valeNum": 94,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "5358181581",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Ricardo\n🔸Teléfono Cliente: 5358181581\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 14:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790021037836,
       "ts": "2026-09-21T20:03:57.843Z",
       "total": "$90 USD",
@@ -2542,8 +2615,8 @@
       "ts": "2026-09-21T19:50:26.680Z",
       "total": "$28 USD + 1300 MN (total 21,800)",
       "carnet": "",
-      "seenTs": "2026-09-21T19:52:39.002Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T22:09:26.645Z",
+      "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Tai",
       "valeNum": 95,
@@ -2557,9 +2630,15 @@
       "precioUSD": "$28 USD",
       "reservado": false,
       "ubicacion": "📍 23.125438, -82.39173 \"Lugar desconocido\" La Habana, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/wmBG8S4pvA/Lugar_desconocido",
+      "assignedTs": "2026-09-21T22:09:17.601Z",
       "mensajeria": "1300",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-21T22:09:44.677Z",
+      "mensajeroId": 1784408225928,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "comFijadaUSD": 3,
       "valeProductos": [
         {
@@ -2570,7 +2649,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -27842,5 +27921,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T21:33:19.277Z"
+  "timestamp": "2026-09-21T22:10:44.708Z"
 }
