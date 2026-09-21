@@ -2421,7 +2421,7 @@
       "name": "Hex Poe Lite(RB750gr2)",
       "catId": 10,
       "photo": "photos/p-1789945684800-999454fb.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/p-1789945684800-999454fb.webp",
       "nombre": "Hex Poe Lite(RB750gr2)",
       "precio": "110",
@@ -2493,10 +2493,226 @@
   ],
   "vales": [
     {
+      "id": 1789999415942,
+      "ts": "2026-09-21T14:03:35.943Z",
+      "total": "$500 USD + 1250 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Annier Reyes Solo",
+      "valeNum": 86,
+      "articulo": "×1 SWITCH DE 5 PUERTOS / ×3 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "59072435",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Annier Reyes Solo\n🔸Teléfono Cliente: 59072435\n🔸Dirección Cliente: Terminal de Ómnibus: villa nueva\n🔸Mensajería/ costo: 1250\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n  ×3 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $500 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $500 USD + 1250 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 10:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Terminal de Ómnibus: villa nueva",
+      "precioUSD": "$500 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "1250",
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        },
+        {
+          "id": 1788124513018,
+          "qty": 3,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionGestor": "$30.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1789998808821,
+      "ts": "2026-09-21T13:53:28.835Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eslohan Erice",
+      "valeNum": 85,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786573707656,
+      "precioMN": "",
+      "telefono": "5363715620",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Eslohan Erice\n🔸Teléfono Cliente: 5363715620\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 09:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789998787887,
+      "ts": "2026-09-21T13:53:07.897Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eslohan Erice",
+      "valeNum": 85,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1788887566844,
+      "precioMN": "",
+      "telefono": "5352375545",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Eslohan Erice\n🔸Teléfono Cliente: 5352375545\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 09:52\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789998609890,
+      "ts": "2026-09-21T13:50:09.892Z",
+      "total": "$200 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Leomar",
+      "valeNum": 84,
+      "articulo": "×1 📡 TP-Link Archer BE230",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5354400800",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Leomar\n🔸Teléfono Cliente: 5354400800\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 09:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788560867958,
+          "qty": 1,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1789997205904,
+      "ts": "2026-09-21T13:26:45.910Z",
+      "total": "$28 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yandis López",
+      "valeNum": 84,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "5353083979",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Yandis López\n🔸Teléfono Cliente: 5353083979\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 09:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1789990692407,
+      "ts": "2026-09-21T11:38:12.433Z",
+      "total": "$110 USD",
+      "carnet": "",
+      "seenTs": "2026-09-21T14:19:46.324Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Dachel",
+      "valeNum": 84,
+      "articulo": "×1 Hex Poe Lite(RB750gr2)",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "56936497",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Dachel\n🔸Teléfono Cliente: 56936497\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Hex Poe Lite(RB750gr2)\n🔸Precio USD/ zelle: $110 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $110 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 07:37\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$110 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-21T14:23:43.104Z",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1789945684800": 1
+      },
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1789945684800,
+          "qty": 1,
+          "name": "Hex Poe Lite(RB750gr2)"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1789955616817,
       "ts": "2026-09-21T01:53:36.822Z",
       "total": "$2080 USD",
       "carnet": "",
+      "seenTs": "2026-09-21T14:24:25.553Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rudy",
@@ -2509,9 +2725,10 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rudy\n🔸Teléfono Cliente: 5354124646\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×13 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $2080 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2080 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 21:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$2080 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "Sin envío",
-      "horaEntrega": "",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1788124513018,
@@ -2521,6 +2738,7 @@
       ],
       "comisionGestor": "$130.00 USD",
       "recogidaTienda": true,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -3338,40 +3556,6 @@
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1789906641186,
-      "ts": "2026-09-20T12:17:21.188Z",
-      "total": "$140 USD",
-      "carnet": "",
-      "seenTs": "2026-09-20T21:38:16.796Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Lesly Cintra",
-      "valeNum": 69,
-      "articulo": "×1 Ubiquiti Litebeam m5",
-      "garantia": "",
-      "gestorId": 1788287295982,
-      "precioMN": "",
-      "telefono": "50557012",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Lesly Cintra\n🔸Teléfono Cliente: 50557012\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $140 USD\n🔸 Rebaja: −$5 USD\n🔸 Total a pagar: $135 USD\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 08:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$140 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787930017841,
-          "qty": 1,
-          "name": "Ubiquiti Litebeam m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "synced": true
     },
     {
@@ -27443,5 +27627,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T13:23:04.979Z"
+  "timestamp": "2026-09-21T14:24:43.624Z"
 }
