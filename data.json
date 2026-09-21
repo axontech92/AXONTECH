@@ -975,7 +975,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1747,7 +1747,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786207539390,
@@ -2249,7 +2249,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2539,10 +2539,10 @@
     },
     {
       "id": 1790004702362,
-      "ts": "2026-09-21T15:31:42.370Z",
+      "ts": "2026-09-21T15:31:00.000Z",
       "total": "4300 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T15:44:07.593Z",
+      "seenTs": "2026-09-21T15:55:02.964Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Carlos A jimenez",
@@ -2552,7 +2552,6 @@
       "gestorId": 1788962896804,
       "precioMN": "2800 MN",
       "telefono": "5359529792",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Carlos A jimenez\n🔸Teléfono Cliente: 5359529792\n🔸Dirección Cliente: Calle coco edificio 150/San benigno y Encarnación\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×10 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 2800 MN\n🔸 Vuelto: \n🔸 Total a pagar: 4300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 11:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle coco edificio 150/San benigno y Encarnación",
       "precioUSD": "",
       "reservado": true,
@@ -2568,10 +2567,11 @@
           "name": "Cable de red categoría 6"
         }
       ],
-      "comisionGestor": "$3.00 USD",
+      "comisionGestor": "0",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Carlos A jimenez\n🔸Teléfono Cliente: 5359529792\n🔸Dirección Cliente: Calle coco edificio 150/San benigno y Encarnación\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×10 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 2800 MN\n🔸 Vuelto: \n🔸 Total a pagar: 4300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/9/2026, 11:31:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -3075,7 +3075,7 @@
       "ts": "2026-09-20T22:16:32.217Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:33:51.316Z",
+      "seenTs": "2026-09-21T15:54:59.383Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Heidy",
@@ -27700,5 +27700,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T15:53:11.624Z"
+  "timestamp": "2026-09-21T15:57:18.625Z"
 }
