@@ -2505,6 +2505,7 @@
       "ts": "2026-09-21T23:14:19.511Z",
       "total": "$150 USD",
       "carnet": "",
+      "seenTs": "2026-09-21T23:23:50.463Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Wiebke Vicet",
@@ -2518,10 +2519,10 @@
       "direccion": "Recogida en tienda",
       "precioUSD": "$150 USD",
       "reservado": false,
-      "ubicacion": "",
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "horaEntrega": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2617,7 +2618,7 @@
       "ts": "2026-09-21T20:03:57.843Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T20:04:51.022Z",
+      "seenTs": "2026-09-21T23:23:55.905Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yanisbel Martha Garfias Cruz",
@@ -2821,6 +2822,7 @@
       ],
       "comisionGestor": "3 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -27944,5 +27946,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T23:22:26.091Z"
+  "timestamp": "2026-09-21T23:24:21.126Z"
 }
