@@ -2535,8 +2535,8 @@
       "ts": "2026-09-21T14:42:39.889Z",
       "total": "168000 cup",
       "carnet": "",
-      "seenTs": "2026-09-21T15:10:58.247Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T15:24:57.282Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "XXXX",
       "valeNum": 87,
@@ -2550,8 +2550,10 @@
       "precioUSD": "$230 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-21T15:25:08.937Z",
       "mensajeria": "1250 cup",
       "comFijadaMN": 0,
+      "mensajeroId": 1788892462364,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -27690,5 +27692,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T15:23:41.676Z"
+  "timestamp": "2026-09-21T15:26:08.962Z"
 }
