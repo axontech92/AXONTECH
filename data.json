@@ -2154,7 +2154,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 45,
+      "stock": 35,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2669,8 +2669,8 @@
       "ts": "2026-09-21T15:31:00.000Z",
       "total": "4300 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T16:23:58.571Z",
-      "status": "assigned",
+      "seenTs": "2026-09-21T18:23:07.409Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Carlos A jimenez",
       "valeNum": 89,
@@ -2686,8 +2686,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-21T15:46:53.287Z",
       "mensajeria": "1500",
+      "confirmedTs": "2026-09-21T18:23:10.837Z",
+      "deliveredTs": "2026-09-21T18:23:09.273Z",
       "mensajeroId": 1787161412838,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 10
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2697,7 +2702,7 @@
       ],
       "comisionGestor": "0",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3033,7 +3038,7 @@
       "ts": "2026-09-21T01:53:36.822Z",
       "total": "$2080 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T17:14:35.093Z",
+      "seenTs": "2026-09-21T18:12:20.098Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rudy",
@@ -3067,7 +3072,7 @@
       "ts": "2026-09-21T01:03:08.086Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T16:23:49.761Z",
+      "seenTs": "2026-09-21T18:08:16.512Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eudis",
@@ -3265,7 +3270,7 @@
       "ts": "2026-09-20T21:43:51.591Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T17:13:34.128Z",
+      "seenTs": "2026-09-21T18:23:21.257Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rudi",
@@ -27813,5 +27818,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T18:05:51.112Z"
+  "timestamp": "2026-09-21T18:24:11.625Z"
 }
