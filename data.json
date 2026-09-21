@@ -1737,7 +1737,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 34,
+      "stock": 33,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -1894,7 +1894,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2501,6 +2501,43 @@
   ],
   "vales": [
     {
+      "id": 1790007527236,
+      "ts": "2026-09-21T16:18:47.240Z",
+      "total": "$28 USD",
+      "carnet": "",
+      "seenTs": "2026-09-21T16:22:37.380Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rodney Garcia",
+      "valeNum": 92,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1784476335609,
+      "precioMN": "",
+      "telefono": "54110252",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Juan\n\n🔸 Nombre Cliente: Rodney Garcia\n🔸Teléfono Cliente: 54110252\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 12:18\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$28 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 3,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "3 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790007113999,
       "ts": "2026-09-21T16:11:54.003Z",
       "total": "$28 USD",
@@ -2548,7 +2585,7 @@
       "ts": "2026-09-21T15:47:02.339Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T15:52:09.580Z",
+      "seenTs": "2026-09-21T16:23:52.955Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noe",
@@ -2585,7 +2622,7 @@
       "ts": "2026-09-21T15:31:00.000Z",
       "total": "4300 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T15:55:02.964Z",
+      "seenTs": "2026-09-21T16:23:58.571Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Carlos A jimenez",
@@ -2660,8 +2697,8 @@
       "ts": "2026-09-21T14:42:39.889Z",
       "total": "168000 cup",
       "carnet": "",
-      "seenTs": "2026-09-21T15:24:57.282Z",
-      "status": "assigned",
+      "seenTs": "2026-09-21T16:22:58.963Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "XXXX",
       "valeNum": 87,
@@ -2678,8 +2715,13 @@
       "assignedTs": "2026-09-21T15:25:08.937Z",
       "mensajeria": "1250 cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-21T16:23:05.514Z",
+      "deliveredTs": "2026-09-21T16:23:03.703Z",
       "mensajeroId": 1788892462364,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2690,9 +2732,11 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-21T16:23:06.539Z"
     },
     {
       "id": 1789999415942,
@@ -2743,7 +2787,7 @@
       "ts": "2026-09-21T13:53:28.835Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:36:06.171Z",
+      "seenTs": "2026-09-21T16:23:56.312Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eslohan Erice",
@@ -2859,8 +2903,8 @@
       "ts": "2026-09-21T13:26:45.910Z",
       "total": "$28 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T15:27:14.989Z",
-      "status": "pending",
+      "seenTs": "2026-09-21T16:22:48.977Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yandis López",
       "valeNum": 84,
@@ -2875,7 +2919,11 @@
       "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-21T16:22:51.148Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "valeProductos": [
         {
           "id": 1786161303797,
@@ -2885,7 +2933,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2934,7 +2982,7 @@
       "ts": "2026-09-21T01:53:36.822Z",
       "total": "$2080 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T15:10:53.461Z",
+      "seenTs": "2026-09-21T16:24:10.985Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rudy",
@@ -2968,7 +3016,7 @@
       "ts": "2026-09-21T01:03:08.086Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:33:57.681Z",
+      "seenTs": "2026-09-21T16:23:49.761Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eudis",
@@ -3043,45 +3091,11 @@
       "synced": true
     },
     {
-      "id": 1789942999283,
-      "ts": "2026-09-20T22:23:19.294Z",
-      "total": "$140 USD + 1000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-21T14:59:10.912Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Dangelo",
-      "valeNum": 75,
-      "articulo": "×1 Ubiquiti Litebeam m5",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "59094488",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Dangelo\n🔸Teléfono Cliente: 59094488\n🔸Dirección Cliente: Santa rosa 106/fernadina y san Joaquín\n🔸Mensajería/ costo: 1000\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti Litebeam m5\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 1000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 20/09/2026 18:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Santa rosa 106/fernadina y san Joaquín",
-      "precioUSD": "$140 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "1000",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787930017841,
-          "qty": 1,
-          "name": "Ubiquiti Litebeam m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "synced": true
-    },
-    {
       "id": 1789942794887,
       "ts": "2026-09-20T22:19:54.893Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:33:49.530Z",
+      "seenTs": "2026-09-21T16:23:59.232Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amanda",
@@ -3118,7 +3132,7 @@
       "ts": "2026-09-20T22:16:32.217Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T15:54:59.383Z",
+      "seenTs": "2026-09-21T16:23:20.785Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Heidy",
@@ -3155,7 +3169,7 @@
       "ts": "2026-09-20T21:47:38.442Z",
       "total": "$150 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-21T15:10:57.141Z",
+      "seenTs": "2026-09-21T16:24:12.042Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "XXXX",
@@ -3712,7 +3726,7 @@
       "ts": "2026-09-20T01:56:21.788Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T14:59:09.771Z",
+      "seenTs": "2026-09-21T16:23:46.392Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Cuky",
@@ -27743,5 +27757,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T16:15:46.146Z"
+  "timestamp": "2026-09-21T16:24:44.414Z"
 }
