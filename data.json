@@ -2529,6 +2529,43 @@
   ],
   "vales": [
     {
+      "id": 1790110954704,
+      "ts": "2026-09-22T21:02:34.705Z",
+      "total": "$2400 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T21:02:53.050Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dachel",
+      "valeNum": 125,
+      "articulo": "×15 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "56936497",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Dachel\n🔸Teléfono Cliente: 56936497\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×15 Nanostation loco m5\n🔸Precio USD/ zelle: $2400 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 17:01\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$2400 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 150,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 15,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$150.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790109342115,
       "ts": "2026-09-22T20:35:42.127Z",
       "total": "$110 USD",
@@ -29979,5 +30016,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:01:38.096Z"
+  "timestamp": "2026-09-22T21:03:57.281Z"
 }
