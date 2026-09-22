@@ -1903,7 +1903,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 14,
+      "stock": 27,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -30147,5 +30147,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:36:57.303Z"
+  "timestamp": "2026-09-22T21:39:44.256Z"
 }
