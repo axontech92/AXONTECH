@@ -2529,6 +2529,119 @@
   ],
   "vales": [
     {
+      "id": 1790107922764,
+      "ts": "2026-09-22T20:12:02.785Z",
+      "total": "$120 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T20:13:15.837Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yoan",
+      "valeNum": 123,
+      "articulo": "×2 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "56584185",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Yoan\n🔸Teléfono Cliente: 56584185\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $120 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 16:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$120 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 2,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790107919285,
+      "ts": "2026-09-22T20:11:59.289Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T20:13:20.683Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "ALINA RAQUEL TORRES GÓMEZ",
+      "valeNum": 122,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1788887566844,
+      "precioMN": "",
+      "telefono": "5351430175",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: ALINA RAQUEL TORRES GÓMEZ\n🔸Teléfono Cliente: 5351430175\n🔸Dirección Cliente: calzada de puentes grandes edificio 24 apartamento 10 entre santa rosita y cervantez\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 16:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "calzada de puentes grandes edificio 24 apartamento 10 entre santa rosita y cervantez",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-22T20:13:36.295Z",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790107762947,
+      "ts": "2026-09-22T20:09:22.951Z",
+      "total": "$28 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T20:10:50.180Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Lazara",
+      "valeNum": 122,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5354986785",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Lazara\n🔸Teléfono Cliente: 5354986785\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 16:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 3,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "3 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790105036662,
       "ts": "2026-09-22T19:23:56.670Z",
       "total": "$410 USD + 2500 MN",
@@ -29815,5 +29928,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T20:09:03.303Z"
+  "timestamp": "2026-09-22T20:14:37.303Z"
 }
