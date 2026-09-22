@@ -2474,7 +2474,7 @@
       "name": "Litebeam 5ac gen 2",
       "catId": 10,
       "photo": "photos/p-1790083590722-5625ae9b.webp",
-      "stock": 30,
+      "stock": 29,
       "imagen": "photos/p-1790083590722-5625ae9b.webp",
       "nombre": "Litebeam 5ac gen 2",
       "precio": "180",
@@ -2528,6 +2528,122 @@
   ],
   "vales": [
     {
+      "id": 1790088314577,
+      "ts": "2026-09-22T14:45:14.584Z",
+      "total": "$320 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:45:21.351Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ruben",
+      "valeNum": 107,
+      "articulo": "×2 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "58447206",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Ruben\n🔸Teléfono Cliente: 58447206\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation loco m5\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$320 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 2,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790088278357,
+      "ts": "2026-09-22T14:44:38.389Z",
+      "total": "$160 USD + 4200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:44:51.384Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alvaro",
+      "valeNum": 106,
+      "articulo": "×1 Nanostation loco m5 / ×15 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "4200 MN",
+      "telefono": "58602300",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Alvaro\n🔸Teléfono Cliente: 58602300\n🔸Dirección Cliente: Boyeros\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n  ×15 Cable de red categoría 6\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: 4200 MN\n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 4200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Boyeros",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 15,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790088117432,
+      "ts": "2026-09-22T14:41:57.435Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:45:13.440Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Andy",
+      "valeNum": 105,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1788536314540,
+      "precioMN": "",
+      "telefono": "55703903",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Andy Mensajero\n\n🔸 Nombre Cliente: Andy\n🔸Teléfono Cliente: 55703903\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 11:30\n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:41\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790087453586,
       "ts": "2026-09-22T14:30:53.597Z",
       "total": "$1200 USD + 2500 MN",
@@ -2547,6 +2663,7 @@
       "precioUSD": "$1200 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "PARA MANANA 23/9/2026",
       "mensajeria": "2500",
       "seenByAdmin": true,
       "valeProductos": [
@@ -2903,8 +3020,8 @@
       "ts": "2026-09-22T13:42:18.996Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T13:42:28.587Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T14:46:04.152Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Jonathan",
       "valeNum": 101,
@@ -2920,7 +3037,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T14:51:37.049Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1790083590722": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2931,7 +3052,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -28765,5 +28886,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T14:36:30.945Z"
+  "timestamp": "2026-09-22T14:52:37.082Z"
 }
