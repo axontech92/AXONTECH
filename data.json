@@ -1282,7 +1282,7 @@
       "name": "ZOSI - Camara de seguridad CCTV",
       "catId": 80,
       "photo": "photos/p-1780344659047-5feab86d.webp",
-      "stock": 18,
+      "stock": 17,
       "imagen": "photos/p-1780344659047-5feab86d.webp",
       "nombre": "ZOSI - Camara de seguridad CCTV",
       "precio": "$50",
@@ -2796,8 +2796,8 @@
       "ts": "2026-09-22T19:59:18.453Z",
       "total": "$50 USD + 5000 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T20:20:46.553Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T21:12:01.006Z",
+      "status": "pending_payment",
       "vuelto": "43",
       "cliente": "Ana griselda",
       "valeNum": 122,
@@ -2813,8 +2813,12 @@
       "ubicacion": null,
       "assignedTs": "2026-09-22T20:20:56.828Z",
       "mensajeria": "5000",
+      "deliveredTs": "2026-09-22T21:12:07.573Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1780344659047": 1
+      },
       "valeProductos": [
         {
           "id": 1780344659047,
@@ -2824,7 +2828,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -30091,5 +30095,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:10:16.074Z"
+  "timestamp": "2026-09-22T21:13:08.303Z"
 }
