@@ -2529,6 +2529,43 @@
   ],
   "vales": [
     {
+      "id": 1790111316349,
+      "ts": "2026-09-22T21:08:36.351Z",
+      "total": "$800 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T21:09:11.969Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Pedro",
+      "valeNum": 126,
+      "articulo": "×5 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "precioMN": "",
+      "telefono": "5358354217",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 5358354217\n🔸Dirección Cliente: 6/ 3ra y orosia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×5 Nanostation loco m5\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $800 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 17:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "6/ 3ra y orosia",
+      "precioUSD": "$800 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 5,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790110954704,
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
@@ -2548,6 +2585,7 @@
       "precioUSD": "$2400 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "PARA VIERNES 25/9/2026",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
       "seenByAdmin": true,
@@ -2560,6 +2598,43 @@
         }
       ],
       "comisionGestor": "$150.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790110709575,
+      "ts": "2026-09-22T20:58:29.580Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T21:09:40.090Z",
+      "status": "pending",
+      "vuelto": "75",
+      "cliente": "Jorge Vélez",
+      "valeNum": 123,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5356256941",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Jorge Vélez\n🔸Teléfono Cliente: 5356256941\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: 75\n🔸 Total a pagar: $25 USD\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 22/09/2026 16:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -30016,5 +30091,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:03:57.281Z"
+  "timestamp": "2026-09-22T21:10:16.074Z"
 }
