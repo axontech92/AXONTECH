@@ -695,7 +695,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778384158283,
@@ -994,7 +994,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 30,
+      "stock": 29,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -1004,7 +1004,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786509014605,
@@ -2417,7 +2417,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2878,8 +2878,8 @@
       "ts": "2026-09-22T16:28:43.854Z",
       "total": "$28 USD + 4200 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T19:11:41.894Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T19:44:36.158Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Rafael",
       "valeNum": 112,
@@ -2896,8 +2896,13 @@
       "assignedTs": "2026-09-22T16:30:18.683Z",
       "mensajeria": "4200",
       "comFijadaMN": 3,
+      "confirmedTs": "2026-09-22T19:44:44.466Z",
+      "deliveredTs": "2026-09-22T19:44:41.979Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2908,7 +2913,7 @@
       ],
       "comisionGestor": "3 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3209,6 +3214,7 @@
       "gestorId": 1782489503525,
       "precioMN": "",
       "telefono": "5358354217",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 5358354217\n🔸Dirección Cliente: 6/ 3ra y orosia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n  ×8 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $2080 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2080 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/9/2026, 12:00:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "6/ 3ra y orosia",
       "precioUSD": "$2080 USD",
       "reservado": true,
@@ -3229,11 +3235,10 @@
           "name": "Router TP-Link Archer C54 Reacondicionado"
         }
       ],
-      "comisionGestor": "$180.00 USD",
+      "comisionGestor": "$150.00 USD",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 5358354217\n🔸Dirección Cliente: 6/ 3ra y orosia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n  ×8 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $2080 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2080 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/9/2026, 12:00:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -29804,5 +29809,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T19:43:14.379Z"
+  "timestamp": "2026-09-22T19:45:45.302Z"
 }
