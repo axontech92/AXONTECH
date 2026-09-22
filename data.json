@@ -1849,7 +1849,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 33,
+      "stock": 31,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2529,11 +2529,50 @@
   ],
   "vales": [
     {
+      "id": 1790103849546,
+      "ts": "2026-09-22T19:04:09.550Z",
+      "total": "$25 USD + 1800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T19:11:44.910Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Darío",
+      "valeNum": 120,
+      "articulo": "×1 Linterna de cabeza superpotente",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "52976333",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Darío\n🔸Teléfono Cliente: 52976333\n🔸Dirección Cliente: Calle La Torre #47/ 35 y San Antonio. Nuevo Vedado. A 2 cuadras del Cine Acapulco\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Linterna de cabeza superpotente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $25 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 15:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle La Torre #47/ 35 y San Antonio. Nuevo Vedado. A 2 cuadras del Cine Acapulco",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-22T19:09:49.418Z",
+      "mensajeria": "1800",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384507302,
+          "qty": 1,
+          "name": "Linterna de cabeza superpotente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790100013405,
       "ts": "2026-09-22T18:00:13.415Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T18:35:41.159Z",
+      "seenTs": "2026-09-22T19:01:06.386Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ale Informático",
@@ -2644,7 +2683,7 @@
       "ts": "2026-09-22T17:17:00.188Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T17:34:59.748Z",
+      "seenTs": "2026-09-22T19:11:43.781Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Norberto",
@@ -2764,7 +2803,7 @@
       "ts": "2026-09-22T16:28:43.854Z",
       "total": "$28 USD + 4200 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T17:44:03.368Z",
+      "seenTs": "2026-09-22T19:11:41.894Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Rafael",
@@ -3004,7 +3043,7 @@
       "ts": "2026-09-22T16:00:59.278Z",
       "total": "$2200 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T18:06:52.541Z",
+      "seenTs": "2026-09-22T19:00:32.099Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pedro",
@@ -3288,8 +3327,8 @@
       "ts": "2026-09-22T14:45:14.584Z",
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T17:30:36.422Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T19:10:37.599Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ruben",
       "valeNum": 107,
@@ -3305,7 +3344,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T19:11:18.429Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 2
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -3316,7 +3359,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -29681,5 +29724,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T18:58:31.899Z"
+  "timestamp": "2026-09-22T19:12:18.461Z"
 }
