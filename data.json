@@ -1004,7 +1004,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786509014605,
@@ -1805,7 +1805,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -2577,7 +2577,7 @@
       "ts": "2026-09-22T19:16:50.153Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T19:40:44.717Z",
+      "seenTs": "2026-09-22T19:59:12.051Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rey",
@@ -2611,8 +2611,8 @@
       "ts": "2026-09-22T19:04:09.550Z",
       "total": "$25 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T19:48:27.299Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T20:07:54.018Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Darío",
       "valeNum": 120,
@@ -2629,8 +2629,13 @@
       "assignedTs": "2026-09-22T19:09:49.418Z",
       "mensajeria": "1800",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-22T20:08:02.449Z",
+      "deliveredTs": "2026-09-22T20:08:00.913Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384507302": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2641,7 +2646,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3329,7 +3334,7 @@
       "ts": "2026-09-22T15:30:14.170Z",
       "total": "$900 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T16:34:43.750Z",
+      "seenTs": "2026-09-22T20:07:35.143Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Eduardo",
@@ -29810,5 +29815,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T19:56:50.304Z"
+  "timestamp": "2026-09-22T20:09:03.303Z"
 }
