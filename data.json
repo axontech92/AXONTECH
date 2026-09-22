@@ -1849,7 +1849,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 30,
+      "stock": 20,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2129,7 +2129,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 30,
+      "stock": 22,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2570,8 +2570,8 @@
       "ts": "2026-09-22T22:37:01.958Z",
       "total": "$2080 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T22:37:17.987Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T23:41:08.293Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Pedro",
       "valeNum": 126,
@@ -2588,9 +2588,12 @@
       "adminNotes": "pagado 1000 por zelle",
       "mensajeria": "",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-22T23:41:11.146Z",
       "seenByAdmin": true,
-      "stockSalido": null,
+      "stockSalido": {
+        "1786509569058": 10,
+        "1787114204179": 8
+      },
       "comFijadaUSD": 180,
       "valeProductos": [
         {
@@ -2607,7 +2610,7 @@
       ],
       "comisionGestor": "$150 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2702,7 +2705,7 @@
       "ts": "2026-09-22T21:08:36.351Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T22:31:15.212Z",
+      "seenTs": "2026-09-22T23:41:16.190Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pedro",
@@ -30221,5 +30224,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T23:36:14.191Z"
+  "timestamp": "2026-09-22T23:42:11.303Z"
 }
