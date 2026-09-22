@@ -2528,6 +2528,43 @@
   ],
   "vales": [
     {
+      "id": 1790094323947,
+      "ts": "2026-09-22T16:25:23.977Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T16:25:47.729Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Abraham",
+      "valeNum": 112,
+      "articulo": "×1 Litebeam 5ac gen 2",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "53704707",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Abraham\n🔸Teléfono Cliente: 53704707\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Litebeam 5ac gen 2\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1790083590722,
+          "qty": 1,
+          "name": "Litebeam 5ac gen 2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790094157016,
       "ts": "2026-09-22T16:22:37.016Z",
       "total": "$60 USD",
@@ -2845,7 +2882,7 @@
       "ts": "2026-09-22T15:30:14.170Z",
       "total": "$900 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T15:31:30.498Z",
+      "seenTs": "2026-09-22T16:26:40.659Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Eduardo",
@@ -29287,5 +29324,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T16:25:17.747Z"
+  "timestamp": "2026-09-22T16:27:34.006Z"
 }
