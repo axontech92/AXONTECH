@@ -1849,7 +1849,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 34,
+      "stock": 33,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2163,7 +2163,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 260,
+      "stock": 245,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2699,8 +2699,12 @@
       "assignedTs": "2026-09-22T17:13:53.618Z",
       "mensajeria": "10 usd",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-22T18:37:13.057Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2713,11 +2717,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "stockSalido": {
-        "1786509569058": 1
-      },
-      "deliveredTs": "2026-09-22T18:37:13.057Z"
+      "synced": true
     },
     {
       "id": 1790096174782,
@@ -3325,8 +3325,8 @@
       "ts": "2026-09-22T14:44:38.389Z",
       "total": "$160 USD + 4200 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T17:43:45.163Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T18:48:25.960Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alvaro",
       "valeNum": 106,
@@ -3343,8 +3343,14 @@
       "assignedTs": "2026-09-22T17:28:36.217Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T18:49:09.277Z",
+      "deliveredTs": "2026-09-22T18:48:35.843Z",
       "mensajeroId": 1784476940847,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 1,
+        "1787349543585": 15
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3360,7 +3366,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -29672,5 +29678,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T18:38:13.303Z"
+  "timestamp": "2026-09-22T18:50:10.611Z"
 }
