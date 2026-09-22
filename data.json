@@ -2316,7 +2316,7 @@
       "name": "Pesa / báscula digital inteligente",
       "catId": 130,
       "photo": "photos/p-1788152657796-9215b5a4.webp",
-      "stock": 17,
+      "stock": 16,
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
@@ -2647,8 +2647,8 @@
       "ts": "2026-09-22T20:58:29.580Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T21:09:40.090Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T21:45:17.996Z",
+      "status": "confirmed",
       "vuelto": "75",
       "cliente": "Jorge Vélez",
       "valeNum": 123,
@@ -2664,7 +2664,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-22T21:45:20.701Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788152657796": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2675,7 +2679,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -30152,5 +30156,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:43:19.967Z"
+  "timestamp": "2026-09-22T21:46:20.734Z"
 }
