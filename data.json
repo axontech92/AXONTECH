@@ -2095,7 +2095,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 35,
+      "stock": 34,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2528,12 +2528,51 @@
   ],
   "vales": [
     {
+      "id": 1790093263889,
+      "ts": "2026-09-22T16:07:43.903Z",
+      "total": "$180 USD + 900 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T16:09:48.950Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Daniel morales",
+      "valeNum": 110,
+      "articulo": "×1 Litebeam 5ac gen 2",
+      "garantia": "",
+      "gestorId": 1786573707656,
+      "precioMN": "",
+      "telefono": "50372088",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Daniel morales\n🔸Teléfono Cliente: 50372088\n🔸Dirección Cliente: Terminal lista espera Villanueva\n🔸Mensajería/ costo: 900\n🔸 Artículos y cantidades:\n  ×1 Litebeam 5ac gen 2\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD + 900 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Terminal lista espera Villanueva",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-22T16:10:05.295Z",
+      "mensajeria": "900",
+      "comFijadaMN": 0,
+      "mensajeroId": 1789420092372,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1790083590722,
+          "qty": 1,
+          "name": "Litebeam 5ac gen 2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790093029306,
       "ts": "2026-09-22T16:03:49.308Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T16:06:18.681Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T16:09:14.461Z",
+      "status": "assigned",
       "vuelto": "20 USD",
       "cliente": "Luis Felipe",
       "valeNum": 109,
@@ -2547,8 +2586,10 @@
       "precioUSD": "$180 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-22T16:09:23.161Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -3870,8 +3911,8 @@
       "ts": "2026-09-21T20:03:57.843Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T13:49:28.027Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T16:13:01.477Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yanisbel Martha Garfias Cruz",
       "valeNum": 96,
@@ -3887,7 +3928,11 @@
       "ubicacion": null,
       "mensajeria": "",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T16:13:08.674Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787089756274": 1
+      },
       "comFijadaUSD": 5,
       "valeProductos": [
         {
@@ -3898,7 +3943,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -29195,5 +29240,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T16:06:43.006Z"
+  "timestamp": "2026-09-22T16:14:09.005Z"
 }
