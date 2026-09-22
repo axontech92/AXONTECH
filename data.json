@@ -2847,9 +2847,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-22T16:38:13.544Z"
+      "synced": true
     },
     {
       "id": 1790092524538,
@@ -3123,7 +3121,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4421,8 +4421,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -29380,5 +29381,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T16:44:59.006Z"
+  "timestamp": "2026-09-22T16:47:22.006Z"
 }
