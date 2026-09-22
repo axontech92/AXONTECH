@@ -291,7 +291,7 @@
       "color": "#1D4ED8",
       "phone": "54359866",
       "initials": "C",
-      "password": "5LQ8Y59G"
+      "password": "pbkdf2$100000$q2BSNUsxm+HaFDa+fYk0wA==$dbf8322c3b3524fc82a8c29ac641732a21bdd7f4c3bdcb1705b5f49c0e6772b4"
     },
     {
       "id": 1786555619210,
@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1756,7 +1756,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2529,6 +2529,41 @@
   ],
   "vales": [
     {
+      "id": 1790117027447,
+      "ts": "2026-09-22T22:43:47.448Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Michel",
+      "valeNum": 127,
+      "articulo": "×1 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1781761257104,
+      "precioMN": "",
+      "telefono": "53617594",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Betty\n\n🔸 Nombre Cliente: Michel\n🔸Teléfono Cliente: 53617594\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 18:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 1,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790116621957,
       "ts": "2026-09-22T22:37:01.958Z",
       "total": "$2080 USD",
@@ -2572,7 +2607,9 @@
         }
       ],
       "comisionGestor": "$150 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2661,9 +2698,7 @@
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "cobroMensajeroPend": false,
-      "cobroMensajeroTs": "2026-09-22T22:10:04.728Z"
+      "synced": true
     },
     {
       "id": 1790111316349,
@@ -30226,5 +30261,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T22:38:39.303Z"
+  "timestamp": "2026-09-22T22:51:40.413Z"
 }
