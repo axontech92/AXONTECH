@@ -2129,7 +2129,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 34,
+      "stock": 32,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -3381,8 +3381,8 @@
       "ts": "2026-09-22T16:06:20.524Z",
       "total": "$120 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T18:26:30.793Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T21:50:22.160Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Tunnel Alvarez",
       "valeNum": 108,
@@ -3398,7 +3398,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T21:53:17.381Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787114204179": 2
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -3409,7 +3413,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -30156,5 +30160,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:46:20.734Z"
+  "timestamp": "2026-09-22T21:54:17.411Z"
 }
