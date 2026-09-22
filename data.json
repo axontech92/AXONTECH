@@ -2528,11 +2528,48 @@
   ],
   "vales": [
     {
+      "id": 1790092524538,
+      "ts": "2026-09-22T15:55:24.550Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T15:57:35.828Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Jose",
+      "valeNum": 108,
+      "articulo": "×1 Litebeam 5ac gen 2",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "53795777",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Jose\n🔸Teléfono Cliente: 53795777\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Litebeam 5ac gen 2\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 11:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1790083590722,
+          "qty": 1,
+          "name": "Litebeam 5ac gen 2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790091217444,
       "ts": "2026-09-22T15:33:37.460Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T15:42:49.393Z",
+      "seenTs": "2026-09-22T15:44:37.357Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dario Perez Gonzalez",
@@ -3244,7 +3281,7 @@
       "ts": "2026-09-22T13:30:29.412Z",
       "total": "$130 USD + 4100 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T13:31:44.422Z",
+      "seenTs": "2026-09-22T15:52:12.202Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Jorge Castro Guzman",
@@ -28999,5 +29036,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T15:43:41.005Z"
+  "timestamp": "2026-09-22T15:58:43.773Z"
 }
