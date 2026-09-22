@@ -150,7 +150,7 @@
       "color": "#0891B2",
       "phone": "54410879",
       "initials": "KM",
-      "password": "89B6FYVR"
+      "password": "pbkdf2$100000$nscPnrti2mHe23dwTbvT8g==$fc6872ba9ba70953ccaeb107cdef9af6ea6b11c51bc628387a359cdb9a5309fd"
     },
     {
       "id": 1784476036044,
@@ -2474,7 +2474,7 @@
       "name": "Litebeam 5ac gen 2",
       "catId": 10,
       "photo": "photos/p-1790083590722-5625ae9b.webp",
-      "stock": 28,
+      "stock": 26,
       "imagen": "photos/p-1790083590722-5625ae9b.webp",
       "nombre": "Litebeam 5ac gen 2",
       "precio": "180",
@@ -2532,7 +2532,7 @@
       "ts": "2026-09-22T15:33:37.460Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T15:35:07.275Z",
+      "seenTs": "2026-09-22T15:42:49.393Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dario Perez Gonzalez",
@@ -3204,7 +3204,7 @@
       "total": "$360 USD",
       "carnet": "",
       "seenTs": "2026-09-22T15:37:06.774Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Mercurio redes",
       "valeNum": 100,
@@ -3220,7 +3220,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T15:42:40.698Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1790083590722": 2
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -3231,7 +3235,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -28995,5 +28999,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T15:38:03.189Z"
+  "timestamp": "2026-09-22T15:43:41.005Z"
 }
