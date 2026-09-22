@@ -2506,7 +2506,8 @@
       "ts": "2026-09-22T12:49:18.992Z",
       "total": "$28 USD + 4700 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-22T13:16:54.783Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Álvaro",
       "valeNum": 98,
@@ -2520,8 +2521,11 @@
       "precioUSD": "$28 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-22T13:17:25.135Z",
       "mensajeria": "4700",
       "comFijadaMN": 3,
+      "mensajeroId": 1784476816825,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2541,7 +2545,8 @@
       "ts": "2026-09-22T11:28:18.109Z",
       "total": "$150 USD + 2000 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-22T13:17:29.805Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Betsy",
       "valeNum": 97,
@@ -2555,8 +2560,11 @@
       "precioUSD": "$150 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-22T13:17:51.548Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2615,6 +2623,7 @@
       "ts": "2026-09-21T23:48:52.954Z",
       "total": "$94 250cup",
       "carnet": "",
+      "seenTs": "2026-09-22T13:16:50.972Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Fausto",
@@ -2631,6 +2640,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2847,7 +2857,7 @@
       "ts": "2026-09-21T20:03:57.843Z",
       "total": "$90 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T23:23:55.905Z",
+      "seenTs": "2026-09-22T13:16:40.572Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yanisbel Martha Garfias Cruz",
@@ -28209,5 +28219,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T13:16:28.006Z"
+  "timestamp": "2026-09-22T13:18:26.006Z"
 }
