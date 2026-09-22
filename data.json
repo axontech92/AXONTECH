@@ -1860,7 +1860,7 @@
       "name": "Mikrotik lhg 5ax",
       "catId": 10,
       "photo": "photos/img_1786509644554.webp",
-      "stock": 0,
+      "stock": 6,
       "imagen": "photos/img_1786509644554.webp",
       "nombre": "Mikrotik lhg 5ax",
       "precio": "$240",
@@ -2584,7 +2584,7 @@
       "ts": "2026-09-22T01:50:54.818Z",
       "total": "$20 USD + 4250 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T13:09:54.423Z",
+      "seenTs": "2026-09-22T13:19:04.850Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Darlin Tamayo Suárez",
@@ -2820,7 +2820,7 @@
       "ts": "2026-09-21T21:38:26.848Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T23:31:19.225Z",
+      "seenTs": "2026-09-22T13:18:49.547Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ricardo",
@@ -2894,7 +2894,7 @@
       "ts": "2026-09-21T19:50:26.680Z",
       "total": "$28 USD + 1300 MN (total 21,800)",
       "carnet": "",
-      "seenTs": "2026-09-21T22:38:16.343Z",
+      "seenTs": "2026-09-22T13:18:53.042Z",
       "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Tai",
@@ -3148,7 +3148,7 @@
       "ts": "2026-09-21T15:47:02.339Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T16:23:52.955Z",
+      "seenTs": "2026-09-22T13:18:44.768Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Noe",
@@ -28219,5 +28219,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T13:18:26.006Z"
+  "timestamp": "2026-09-22T13:21:46.007Z"
 }
