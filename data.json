@@ -2129,7 +2129,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 40,
+      "stock": 39,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2686,8 +2686,8 @@
       "ts": "2026-09-22T16:03:49.308Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T16:33:55.487Z",
-      "status": "pending_payment",
+      "seenTs": "2026-09-22T16:37:52.175Z",
+      "status": "confirmed",
       "vuelto": "20 USD",
       "cliente": "Luis Felipe",
       "valeNum": 109,
@@ -2704,6 +2704,7 @@
       "assignedTs": "2026-09-22T16:09:23.161Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T16:37:55.816Z",
       "deliveredTs": "2026-09-22T16:31:18.144Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
@@ -2808,8 +2809,8 @@
       "ts": "2026-09-22T16:00:43.307Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T16:03:12.323Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T16:37:59.949Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "ALINA RAQUEL TORRES GÓMEZ",
       "valeNum": 108,
@@ -2826,8 +2827,13 @@
       "assignedTs": "2026-09-22T16:03:23.436Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T16:38:12.119Z",
+      "deliveredTs": "2026-09-22T16:38:04.256Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787114204179": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2838,9 +2844,11 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "cobroMensajeroPend": false,
+      "cobroMensajeroTs": "2026-09-22T16:38:13.544Z"
     },
     {
       "id": 1790092524538,
@@ -3604,7 +3612,7 @@
       "ts": "2026-09-22T13:30:29.412Z",
       "total": "$130 USD + 4100 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T16:15:05.871Z",
+      "seenTs": "2026-09-22T16:38:17.474Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Jorge Castro Guzman",
@@ -29371,5 +29379,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T16:36:35.005Z"
+  "timestamp": "2026-09-22T16:39:14.006Z"
 }
