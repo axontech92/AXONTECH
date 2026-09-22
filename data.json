@@ -447,6 +447,14 @@
       "phone": "+5353083979",
       "initials": "YY",
       "password": "pbkdf2$100000$s0Fpboue2UqM7FaWER5xPg==$6d22f112e6d56a86cdc186cfcbcf29a91ea840b13e7c004e349106f8137d696a"
+    },
+    {
+      "id": 1790085521628,
+      "name": "Yasmani",
+      "initials": "Y",
+      "color": "#1D4ED8",
+      "password": "pbkdf2$100000$kcOR+HfWtdmPNqiAbSc4PQ==$71f361a24b4b498a954751632aa44a588b29fdf92db5ad4f757c957b99e71f77",
+      "phone": "5 8316575"
     }
   ],
   "mensajeros": [
@@ -2611,8 +2619,10 @@
       "precioUSD": "$320 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-22T13:55:40.018Z",
       "mensajeria": "Gratis",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
@@ -2626,9 +2636,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "mensajeroId": 1784476786977,
-      "assignedTs": "2026-09-22T13:55:40.018Z"
+      "synced": true
     },
     {
       "id": 1790084538995,
@@ -28531,5 +28539,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T13:55:47.005Z"
+  "timestamp": "2026-09-22T13:59:42.006Z"
 }
