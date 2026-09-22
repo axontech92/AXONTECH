@@ -436,6 +436,7 @@
       "name": "Anthony",
       "color": "#0891B2",
       "phone": "5 9530884",
+      "photo": "data:image/webp;base64,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",
       "initials": "A",
       "password": "pbkdf2$100000$Mryx3ttcSs+SxBp8SyQVNQ==$d4115be3c85d0c049f3ac4f8500a3850bbe1f8537346daf162afd1ab22c6d6e1"
     },
@@ -1084,7 +1085,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 23,
+      "stock": 17,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2501,6 +2502,192 @@
   ],
   "vales": [
     {
+      "id": 1790081358989,
+      "ts": "2026-09-22T12:49:18.992Z",
+      "total": "$28 USD + 4700 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Álvaro",
+      "valeNum": 98,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "54292187",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Álvaro\n🔸Teléfono Cliente: 54292187\n🔸Dirección Cliente: Edificio 932 apt 27 zona 1 alamar frente por frente al falcon\n🔸Mensajería/ costo: 4700\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD + 4700 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 08:48\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Edificio 932 apt 27 zona 1 alamar frente por frente al falcon",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "4700",
+      "comFijadaMN": 3,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "3 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790076498107,
+      "ts": "2026-09-22T11:28:18.109Z",
+      "total": "$150 USD + 2000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Betsy",
+      "valeNum": 97,
+      "articulo": "×1 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "58652545",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Betsy\n🔸Teléfono Cliente: 58652545\n🔸Dirección Cliente: Calzada 10 de octubre %san Lázaro y Bellavista frente al agro mercado.  Ésto es las aficinas de la Asamblea de Dios.\n🔸Mensajería/ costo: 2000\n🔸Hora de entrega: 10:00\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 07:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calzada 10 de octubre %san Lázaro y Bellavista frente al agro mercado.  Ésto es las aficinas de la Asamblea de Dios.",
+      "precioUSD": "$150 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790041854808,
+      "ts": "2026-09-22T01:50:54.818Z",
+      "total": "$20 USD + 4250 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T13:09:54.423Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Darlin Tamayo Suárez",
+      "valeNum": 99,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "53305999",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Darlin Tamayo Suárez\n🔸Teléfono Cliente: 53305999\n🔸Dirección Cliente: Lisa.....\n🔸Mensajería/ costo: 4250\n🔸Hora de entrega: 14:00\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD + 4250 MN\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 21:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Lisa.....",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": "https://maps.app.goo.gl/KwL5ZgpvZWQqBTmDA",
+      "mensajeria": "4250",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "mensajeroId": 1784476802516,
+      "assignedTs": "2026-09-22T13:12:50.700Z"
+    },
+    {
+      "id": 1790034532950,
+      "ts": "2026-09-21T23:48:52.954Z",
+      "total": "$94 250cup",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Fausto",
+      "valeNum": 98,
+      "articulo": "×1 Router KUWIFI de linea de 1.150MBPS",
+      "garantia": "",
+      "gestorId": 1781761257104,
+      "precioMN": "",
+      "telefono": "53324630",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Betty\n\n🔸 Nombre Cliente: Fausto\n🔸Teléfono Cliente: 53324630\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Router KUWIFI de linea de 1.150MBPS\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $94 250cup\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 19:48\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 1,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790033449652,
+      "ts": "2026-09-21T23:30:49.652Z",
+      "total": "$120 USD",
+      "carnet": "",
+      "seenTs": "2026-09-21T23:30:51.938Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "3",
+      "valeNum": 97,
+      "articulo": "×6 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "3",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: 3\n🔸Teléfono Cliente: 3\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×6 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $120 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 19:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$120 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-21T23:30:54.777Z",
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 6
+      },
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 6,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1790033135479,
       "ts": "2026-09-21T23:25:35.479Z",
       "total": "$140 USD",
@@ -2623,7 +2810,7 @@
       "ts": "2026-09-21T21:38:26.848Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-21T22:19:51.771Z",
+      "seenTs": "2026-09-21T23:31:19.225Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ricardo",
@@ -2825,6 +3012,40 @@
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790009641431,
+      "ts": "2026-09-21T16:54:01.432Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T13:09:51.177Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ebelize",
+      "valeNum": 87,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "059387324",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Ebelize\n🔸Teléfono Cliente: 059387324\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 21/09/2026 12:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -27988,5 +28209,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-21T23:28:54.625Z"
+  "timestamp": "2026-09-22T13:13:51.007Z"
 }
