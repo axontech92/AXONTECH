@@ -1903,7 +1903,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 15,
+      "stock": 14,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2835,8 +2835,8 @@
       "ts": "2026-09-22T14:09:49.338Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T14:09:57.944Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T15:18:35.549Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alberto",
       "valeNum": 104,
@@ -2863,9 +2863,13 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "stockSalido": {
+        "1786509790425": 1
+      },
+      "confirmedTs": "2026-09-22T15:18:40.354Z"
     },
     {
       "id": 1790086068518,
@@ -28942,5 +28946,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T15:16:15.005Z"
+  "timestamp": "2026-09-22T15:19:41.007Z"
 }
