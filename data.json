@@ -299,7 +299,7 @@
       "color": "#2563EB",
       "phone": "54393080",
       "initials": "M",
-      "password": "YVTT9SE3"
+      "password": "pbkdf2$100000$IDAW3a6Y/c6gfYlZYXudlA==$dc4b5eb6b94a7730ec5793f9a0de0aa3097035301462e4387adc11fcb62fd305"
     },
     {
       "id": 1786567980127,
@@ -451,10 +451,10 @@
     {
       "id": 1790085521628,
       "name": "Yasmani",
-      "initials": "Y",
       "color": "#1D4ED8",
-      "password": "pbkdf2$100000$kcOR+HfWtdmPNqiAbSc4PQ==$71f361a24b4b498a954751632aa44a588b29fdf92db5ad4f757c957b99e71f77",
-      "phone": "5 8316575"
+      "phone": "5 8316575",
+      "initials": "Y",
+      "password": "pbkdf2$100000$kcOR+HfWtdmPNqiAbSc4PQ==$71f361a24b4b498a954751632aa44a588b29fdf92db5ad4f757c957b99e71f77"
     }
   ],
   "mensajeros": [
@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -1756,7 +1756,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1786207539390,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2527,6 +2527,232 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790086814012,
+      "ts": "2026-09-22T14:20:14.027Z",
+      "total": "$240 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:21:16.199Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Anna",
+      "valeNum": 103,
+      "articulo": "×1 Litebeam 5ac gen 2 / ×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1784477060209,
+      "precioMN": "",
+      "telefono": "59309819",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Eloydis\n\n🔸 Nombre Cliente: Anna\n🔸Teléfono Cliente: 59309819\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Litebeam 5ac gen 2\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$240 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1790083590722,
+          "qty": 1,
+          "name": "Litebeam 5ac gen 2"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790086796068,
+      "ts": "2026-09-22T14:19:56.069Z",
+      "total": "$420 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:21:32.338Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yony",
+      "valeNum": 104,
+      "articulo": "×5 Router TP-Link Archer C54 Reacondicionado / ×6 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352066094",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony\n🔸Teléfono Cliente: 5352066094\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 Router TP-Link Archer C54 Reacondicionado\n  ×6 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $420 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $420 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$420 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 5,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 6,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "$50.00 USD + 9000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1790086673946,
+      "ts": "2026-09-22T14:17:53.974Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:21:25.033Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "XXXX",
+      "valeNum": 103,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "053726221",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: XXXX\n🔸Teléfono Cliente: 053726221\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 22/09/2026 10:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1790086189335,
+      "ts": "2026-09-22T14:09:49.338Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:09:57.944Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alberto",
+      "valeNum": 104,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1790085521628,
+      "precioMN": "",
+      "telefono": "58316575",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yasmani\n\n🔸 Nombre Cliente: Alberto\n🔸Teléfono Cliente: 58316575\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790086068518,
+      "ts": "2026-09-22T14:07:48.520Z",
+      "total": "8400 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:18:14.616Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alejandro",
+      "valeNum": 102,
+      "articulo": "×30 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "8400 MN",
+      "telefono": "5352631974",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Alejandro\n🔸Teléfono Cliente: 5352631974\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×30 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 8400 MN\n🔸 Vuelto: \n🔸 Total a pagar: 8400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:07\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 30,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790086034988,
+      "ts": "2026-09-22T14:07:14.997Z",
+      "total": "$110 USD + 2170 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T14:14:15.295Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Margarita",
+      "valeNum": 104,
+      "articulo": "×1 Hex Poe Lite(RB750gr2)",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "54954479",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Margarita\n🔸Teléfono Cliente: 54954479\n🔸Dirección Cliente: Calle San lazaro #9024 interior entre 2da y 5ta . Luyano Moderno.\n🔸Mensajería/ costo: 2170\n🔸 Artículos y cantidades:\n  ×1 Hex Poe Lite(RB750gr2)\n🔸Precio USD/ zelle: $110 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $110 USD + 2170 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle San lazaro #9024 interior entre 2da y 5ta . Luyano Moderno.",
+      "precioUSD": "$110 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-22T14:11:48.375Z",
+      "mensajeria": "2170",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1789945684800,
+          "qty": 1,
+          "name": "Hex Poe Lite(RB750gr2)"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790085258455,
       "ts": "2026-09-22T13:54:18.464Z",
@@ -2827,45 +3053,11 @@
       "synced": true
     },
     {
-      "id": 1790081301456,
-      "ts": "2026-09-22T12:48:21.477Z",
-      "total": "7000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-22T13:30:08.383Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Alejandro",
-      "valeNum": 98,
-      "articulo": "×25 Cable de red categoría 6",
-      "garantia": "",
-      "gestorId": 1781761257100,
-      "precioMN": "7000 MN",
-      "telefono": "5352631974",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Alejandro\n🔸Teléfono Cliente: 5352631974\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×25 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 7000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 7000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 08:47\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787349543585,
-          "qty": 25,
-          "name": "Cable de red categoría 6"
-        }
-      ],
-      "comisionGestor": "",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "synced": true
-    },
-    {
       "id": 1790076498107,
       "ts": "2026-09-22T11:28:18.109Z",
       "total": "$150 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T13:30:11.930Z",
+      "seenTs": "2026-09-22T14:14:00.071Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Betsy",
@@ -28539,5 +28731,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T13:59:42.006Z"
+  "timestamp": "2026-09-22T14:22:35.946Z"
 }
