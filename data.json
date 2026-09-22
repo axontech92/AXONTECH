@@ -1849,7 +1849,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 20,
+      "stock": 30,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2129,7 +2129,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 22,
+      "stock": 30,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -3592,54 +3592,6 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790092859274,
-      "ts": "2026-09-22T16:00:00.000Z",
-      "total": "$2080 USD",
-      "carnet": "",
-      "seenTs": "2026-09-22T22:31:59.658Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "Pedro",
-      "valeNum": 109,
-      "articulo": "×10 Nanostation loco m5 / ×8 Router TP-Link Archer C54 Reacondicionado",
-      "garantia": "",
-      "gestorId": 1782489503525,
-      "precioMN": "",
-      "telefono": "5358354217",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 5358354217\n🔸Dirección Cliente: 6/ 3ra y orosia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n  ×8 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $2080 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2080 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/9/2026, 12:00:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "6/ 3ra y orosia",
-      "precioUSD": "$2080 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "adminNotes": "pagado 1000 por zelle y 30 de rebaja de julito",
-      "mensajeria": "",
-      "comFijadaMN": 0,
-      "confirmedTs": "2026-09-22T22:34:18.688Z",
-      "seenByAdmin": true,
-      "stockSalido": {
-        "1786509569058": 10,
-        "1787114204179": 8
-      },
-      "comFijadaUSD": 180,
-      "valeProductos": [
-        {
-          "id": 1786509569058,
-          "qty": 10,
-          "name": "Nanostation loco m5"
-        },
-        {
-          "id": 1787114204179,
-          "qty": 8,
-          "name": "Router TP-Link Archer C54 Reacondicionado"
-        }
-      ],
-      "comisionGestor": "$150.00 USD",
       "recogidaTienda": false,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
@@ -30225,5 +30177,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T22:35:18.719Z"
+  "timestamp": "2026-09-22T22:36:36.509Z"
 }
