@@ -753,7 +753,7 @@
       "name": "Router KUWIFI de linea de 1.150MBPS",
       "catId": 10,
       "photo": "photos/p-1778104287395-885659f8.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/p-1778104287395-885659f8.webp",
       "nombre": "Router KUWIFI de linea de 1.150MBPS",
       "precio": "$130",
@@ -3481,8 +3481,8 @@
       "ts": "2026-09-22T13:30:29.412Z",
       "total": "$130 USD + 4100 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T15:52:12.202Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T16:15:05.871Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Jorge Castro Guzman",
       "valeNum": 99,
@@ -3499,8 +3499,12 @@
       "assignedTs": "2026-09-22T13:32:59.340Z",
       "mensajeria": "4100",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-22T16:15:11.681Z",
       "mensajeroId": 1787161412838,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778104287395": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3511,7 +3515,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -29240,5 +29244,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T16:14:09.005Z"
+  "timestamp": "2026-09-22T16:16:12.005Z"
 }
