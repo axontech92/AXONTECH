@@ -2528,6 +2528,159 @@
   ],
   "vales": [
     {
+      "id": 1790093029306,
+      "ts": "2026-09-22T16:03:49.308Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "20 USD",
+      "cliente": "Luis Felipe",
+      "valeNum": 109,
+      "articulo": "×1 Litebeam 5ac gen 2",
+      "garantia": "",
+      "gestorId": 1788887566844,
+      "precioMN": "",
+      "telefono": "5351358858",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Luis Felipe\n🔸Teléfono Cliente: 5351358858\n🔸Dirección Cliente: Parque Curita\n🔸Mensajería/ costo: \n🔸Hora de entrega: 12:15\n🔸 Artículos y cantidades:\n  ×1 Litebeam 5ac gen 2\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: 20 USD\n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:03\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Parque Curita",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1790083590722,
+          "qty": 1,
+          "name": "Litebeam 5ac gen 2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790092859274,
+      "ts": "2026-09-22T16:00:59.278Z",
+      "total": "$2200 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T16:02:53.607Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Pedro",
+      "valeNum": 109,
+      "articulo": "×10 Nanostation loco m5 / ×10 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "precioMN": "",
+      "telefono": "5358354217",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Pedro\n🔸Teléfono Cliente: 5358354217\n🔸Dirección Cliente: 6/ 3ra y orosia\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n  ×10 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $2200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $2200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "6/ 3ra y orosia",
+      "precioUSD": "$2200 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 200,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 10,
+          "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1787114204179,
+          "qty": 10,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$200.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790092848205,
+      "ts": "2026-09-22T16:00:48.208Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T16:02:51.134Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Cristian",
+      "valeNum": 110,
+      "articulo": "×1 Litebeam 5ac gen 2",
+      "garantia": "",
+      "gestorId": 1786136592500,
+      "precioMN": "",
+      "telefono": "5355763400",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Cristian\n🔸Teléfono Cliente: 5355763400\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Litebeam 5ac gen 2\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1790083590722,
+          "qty": 1,
+          "name": "Litebeam 5ac gen 2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790092843298,
+      "ts": "2026-09-22T16:00:43.307Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T16:03:12.323Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "ALINA RAQUEL TORRES GÓMEZ",
+      "valeNum": 108,
+      "articulo": "×1 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1788887566844,
+      "precioMN": "",
+      "telefono": "5351430175",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: ALINA RAQUEL TORRES GÓMEZ\n🔸Teléfono Cliente: 5351430175\n🔸Dirección Cliente: calzada de puentes grandes edificio 24 apartamento 10 entre santa rosita y cervantez\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "calzada de puentes grandes edificio 24 apartamento 10 entre santa rosita y cervantez",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-22T16:03:23.436Z",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 1,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790092524538,
       "ts": "2026-09-22T15:55:24.550Z",
       "total": "$180 USD",
@@ -2569,7 +2722,7 @@
       "ts": "2026-09-22T15:33:37.460Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T15:44:37.357Z",
+      "seenTs": "2026-09-22T16:03:54.049Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dario Perez Gonzalez",
@@ -29036,5 +29189,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T15:58:43.773Z"
+  "timestamp": "2026-09-22T16:04:23.465Z"
 }
