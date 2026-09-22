@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1076,7 +1076,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -1756,7 +1756,7 @@
       "descripcion": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "description": "Capacidad de la batería: 5000mAh.\n •Rango de presión del aire: 3-150 psi de Salida.\n•Longitud de la manguera: 20 cm.\n•Flujo de aire: 50L/min •Dimensiones: 13.7*8.9*4.75cm (0.42kg) \n•Funciones: Medición de Inflación/Iluminación/Carga Automática y Parada/Cinco •Modos de Inflado Aplicable a: Coches/Motocicletas/Bicicletas/Balsas/Pelotas.\n* Los tres tipos de boquillas de aire no están diseñados específicamente para bicicletas. Por favor,\nverifique cuidadosamente.\n* Luz LED incorporada en blanco y rojo ofreciendo 3 modos (iluminación, alarma y SOS) .",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1786207539390,
@@ -2027,7 +2027,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 23,
+      "stock": 22,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2529,6 +2529,80 @@
   ],
   "vales": [
     {
+      "id": 1790100013405,
+      "ts": "2026-09-22T18:00:13.415Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-22T18:01:10.831Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ale Informático",
+      "valeNum": 119,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5354835061",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Ale Informático\n🔸Teléfono Cliente: 5354835061\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 13:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790099734147,
+      "ts": "2026-09-22T17:55:34.153Z",
+      "total": "12600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-22T18:00:13.164Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Gabriel",
+      "valeNum": 118,
+      "articulo": "×40 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786136592500,
+      "precioMN": "11200 MN",
+      "telefono": "5356353441",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Gabriel\n🔸Teléfono Cliente: 5356353441\n🔸Dirección Cliente: San Quintín 673 entre esperanza y armonía\n🔸Mensajería/ costo: 1400\n🔸 Artículos y cantidades:\n  ×40 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 11200 MN\n🔸 Vuelto: \n🔸 Total a pagar: 12600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 13:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "San Quintín 673 entre esperanza y armonía",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-22T18:00:21.745Z",
+      "mensajeria": "1400",
+      "mensajeroId": 1788282079191,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 40,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790098465403,
       "ts": "2026-09-22T17:34:25.411Z",
       "total": "$240 USD",
@@ -2607,7 +2681,7 @@
       "ts": "2026-09-22T17:10:49.104Z",
       "total": "$170 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T17:14:23.005Z",
+      "seenTs": "2026-09-22T17:55:12.679Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Andy Perez Fuentes",
@@ -2723,7 +2797,7 @@
       "ts": "2026-09-22T16:28:43.854Z",
       "total": "$28 USD + 4200 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T16:30:09.302Z",
+      "seenTs": "2026-09-22T17:44:03.368Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Rafael",
@@ -2878,6 +2952,42 @@
       "synced": true
     },
     {
+      "id": 1790093180502,
+      "ts": "2026-09-22T16:06:20.524Z",
+      "total": "$120 USD",
+      "carnet": "",
+      "vuelto": "",
+      "cliente": "Tunnel Alvarez",
+      "valeNum": 108,
+      "articulo": "×2 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5358186138",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Tunnel Alvarez\n🔸Teléfono Cliente: 5358186138\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $120 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 12:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$120 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 2,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "status": "pending",
+      "synced": true
+    },
+    {
       "id": 1790093029306,
       "ts": "2026-09-22T16:03:49.308Z",
       "total": "$180 USD",
@@ -2926,7 +3036,7 @@
       "ts": "2026-09-22T16:00:59.278Z",
       "total": "$2200 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T16:02:53.607Z",
+      "seenTs": "2026-09-22T18:06:52.541Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pedro",
@@ -3247,7 +3357,7 @@
       "ts": "2026-09-22T14:44:38.389Z",
       "total": "$160 USD + 4200 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T17:28:28.389Z",
+      "seenTs": "2026-09-22T17:43:45.163Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Alvaro",
@@ -3858,8 +3968,8 @@
       "ts": "2026-09-22T13:30:18.556Z",
       "total": "$25 USD + 1600 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T13:33:03.333Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T18:14:00.418Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Mary",
       "valeNum": 99,
@@ -3875,8 +3985,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-22T13:34:41.078Z",
       "mensajeria": "1600",
+      "confirmedTs": "2026-09-22T18:14:22.341Z",
+      "deliveredTs": "2026-09-22T18:14:20.325Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384507302": 1
+      },
       "valeProductos": [
         {
           "id": 1778384507302,
@@ -3886,7 +4001,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -3938,8 +4053,8 @@
       "ts": "2026-09-22T11:28:18.109Z",
       "total": "$150 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T14:14:00.071Z",
-      "status": "assigned",
+      "seenTs": "2026-09-22T18:14:29.858Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Betsy",
       "valeNum": 97,
@@ -3956,8 +4071,13 @@
       "assignedTs": "2026-09-22T13:17:51.548Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-22T18:14:46.377Z",
+      "deliveredTs": "2026-09-22T18:14:38.194Z",
       "mensajeroId": 1784476791178,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786858233037": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3968,7 +4088,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3977,7 +4097,7 @@
       "ts": "2026-09-22T01:50:54.818Z",
       "total": "$20 USD + 4250 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T17:09:23.309Z",
+      "seenTs": "2026-09-22T17:43:58.242Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Darlin Tamayo Suárez",
@@ -4430,7 +4550,7 @@
       "ts": "2026-09-21T16:54:01.432Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T17:34:56.178Z",
+      "seenTs": "2026-09-22T17:43:57.177Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ebelize",
@@ -29584,5 +29704,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T17:36:26.856Z"
+  "timestamp": "2026-09-22T18:15:47.081Z"
 }
