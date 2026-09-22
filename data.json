@@ -2155,7 +2155,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 25,
+      "stock": 305,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2591,8 +2591,10 @@
       "precioUSD": "$20 USD",
       "reservado": false,
       "ubicacion": "https://maps.app.goo.gl/KwL5ZgpvZWQqBTmDA",
+      "assignedTs": "2026-09-22T13:12:50.700Z",
       "mensajeria": "4250",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2606,9 +2608,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "mensajeroId": 1784476802516,
-      "assignedTs": "2026-09-22T13:12:50.700Z"
+      "synced": true
     },
     {
       "id": 1790034532950,
@@ -28209,5 +28209,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T13:13:51.007Z"
+  "timestamp": "2026-09-22T13:16:28.006Z"
 }
