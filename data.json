@@ -2848,8 +2848,8 @@
       "ts": "2026-09-22T19:59:18.453Z",
       "total": "$50 USD + 5000 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T21:12:01.006Z",
-      "status": "pending_payment",
+      "seenTs": "2026-09-22T21:56:06.305Z",
+      "status": "confirmed",
       "vuelto": "43",
       "cliente": "Ana griselda",
       "valeNum": 122,
@@ -2865,6 +2865,7 @@
       "ubicacion": null,
       "assignedTs": "2026-09-22T20:20:56.828Z",
       "mensajeria": "5000",
+      "confirmedTs": "2026-09-22T21:56:36.599Z",
       "deliveredTs": "2026-09-22T21:12:07.573Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
@@ -3298,7 +3299,7 @@
       "ts": "2026-09-22T16:22:37.016Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T21:29:39.201Z",
+      "seenTs": "2026-09-22T21:56:59.298Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eloydis",
@@ -30160,5 +30161,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T21:54:17.411Z"
+  "timestamp": "2026-09-22T21:57:38.303Z"
 }
