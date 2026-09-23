@@ -19,7 +19,7 @@
       "name": "Brianna",
       "color": "#7C3AED",
       "initials": "B",
-      "password": "WTWUNH"
+      "password": "pbkdf2$100000$5H7wH6xxdjqSgbxemaU6PA==$79282da93dac14402f218eb065ce9efe73d1add51219fd140bc86d046544886b"
     },
     {
       "id": 1781761257102,
@@ -2529,10 +2529,48 @@
   ],
   "vales": [
     {
+      "id": 1790168222937,
+      "ts": "2026-09-23T12:57:02.939Z",
+      "total": "$25 USD + 8000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T13:01:19.997Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Ailin",
+      "valeNum": 100,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "59675118",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Ailin\n🔸Teléfono Cliente: 59675118\n🔸Dirección Cliente: Calle 412 entre 25 y final #2511. Peñas Altas, guanabo.\n🔸Mensajería/ costo: 8000\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $25 USD + 8000 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 23/09/2026 08:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 412 entre 25 y final #2511. Peñas Altas, guanabo.",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "8000",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790168066734,
       "ts": "2026-09-23T12:54:26.737Z",
       "total": "$25 USD",
       "carnet": "",
+      "seenTs": "2026-09-23T13:01:29.843Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Ivonne",
@@ -2549,6 +2587,7 @@
       "ubicacion": "750",
       "mensajeria": "",
       "comFijadaMN": 1500,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2568,7 +2607,7 @@
       "ts": "2026-09-23T12:51:57.412Z",
       "total": "$69 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T12:52:09.468Z",
+      "seenTs": "2026-09-23T13:14:54.145Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Adys",
@@ -2605,6 +2644,7 @@
       "ts": "2026-09-23T11:18:04.570Z",
       "total": "$460 USD",
       "carnet": "",
+      "seenTs": "2026-09-23T13:01:00.259Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexander Arias",
@@ -2621,6 +2661,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2640,6 +2681,7 @@
       "ts": "2026-09-23T02:10:02.283Z",
       "total": "$230 USD",
       "carnet": "",
+      "seenTs": "2026-09-23T13:14:23.223Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Julio",
@@ -2656,6 +2698,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2675,7 +2718,8 @@
       "ts": "2026-09-23T02:00:56.081Z",
       "total": "7300 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-23T13:13:04.048Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Yudith",
       "valeNum": 131,
@@ -2689,7 +2733,10 @@
       "precioUSD": "",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-23T13:14:06.352Z",
       "mensajeria": "4500",
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2708,6 +2755,7 @@
       "ts": "2026-09-23T00:53:56.012Z",
       "total": "28000 MN",
       "carnet": "",
+      "seenTs": "2026-09-23T13:14:10.426Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jorge",
@@ -2723,6 +2771,7 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -3460,7 +3509,7 @@
       "ts": "2026-09-22T18:00:13.415Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T21:59:24.428Z",
+      "seenTs": "2026-09-23T13:14:34.473Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ale Informático",
@@ -3539,7 +3588,7 @@
       "ts": "2026-09-22T17:34:25.411Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T20:19:46.237Z",
+      "seenTs": "2026-09-23T13:14:26.459Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -4976,7 +5025,7 @@
       "ts": "2026-09-22T01:50:54.818Z",
       "total": "$20 USD + 4250 MN",
       "carnet": "",
-      "seenTs": "2026-09-22T22:14:31.318Z",
+      "seenTs": "2026-09-23T13:01:06.747Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Darlin Tamayo Suárez",
@@ -5181,7 +5230,7 @@
       "ts": "2026-09-21T21:38:26.848Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T20:19:59.211Z",
+      "seenTs": "2026-09-23T13:14:29.055Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ricardo",
@@ -5397,7 +5446,7 @@
       "ts": "2026-09-21T16:54:01.432Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T22:14:34.335Z",
+      "seenTs": "2026-09-23T13:14:14.730Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ebelize",
@@ -30555,5 +30604,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T12:55:48.782Z"
+  "timestamp": "2026-09-23T13:15:06.380Z"
 }
