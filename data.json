@@ -2474,7 +2474,7 @@
       "name": "Litebeam 5ac gen 2",
       "catId": 10,
       "photo": "photos/p-1790083590722-5625ae9b.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/p-1790083590722-5625ae9b.webp",
       "nombre": "Litebeam 5ac gen 2",
       "precio": "180",
@@ -2533,8 +2533,8 @@
       "ts": "2026-09-22T23:54:39.511Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T23:55:07.358Z",
-      "status": "pending",
+      "seenTs": "2026-09-22T23:59:18.707Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lui",
       "valeNum": 128,
@@ -2550,9 +2550,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-22T23:59:20.460Z",
       "seenByAdmin": true,
-      "stockSalido": null,
+      "stockSalido": {
+        "1790083590722": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2563,7 +2565,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -30283,5 +30285,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-22T23:56:31.818Z"
+  "timestamp": "2026-09-23T00:00:20.491Z"
 }
