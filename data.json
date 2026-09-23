@@ -2529,6 +2529,41 @@
   ],
   "vales": [
     {
+      "id": 1790174576097,
+      "ts": "2026-09-23T14:42:56.199Z",
+      "total": "9600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T14:44:38.467Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Amaury",
+      "valeNum": 104,
+      "articulo": "×30 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "8400 MN",
+      "telefono": "63623732",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Amaury\n🔸Teléfono Cliente: 63623732\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×30 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 8400 MN\n🔸 Vuelto: \n🔸 Total a pagar: 9600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 10:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 30,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790174267277,
       "ts": "2026-09-23T14:37:47.277Z",
       "pago": {
@@ -2585,8 +2620,8 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T14:30:06.646Z",
-      "status": "pending",
+      "seenTs": "2026-09-23T14:41:13.565Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Tony",
       "valeNum": 102,
@@ -2600,8 +2635,10 @@
       "precioUSD": "$200 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-23T14:44:35.508Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "mensajeroId": 1788892462364,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2754,7 +2791,7 @@
       "ts": "2026-09-23T12:51:57.412Z",
       "total": "$69 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T13:26:45.413Z",
+      "seenTs": "2026-09-23T14:44:39.885Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Adys",
@@ -3259,7 +3296,7 @@
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T13:18:02.997Z",
+      "seenTs": "2026-09-23T14:44:41.149Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -30768,5 +30805,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T14:41:01.759Z"
+  "timestamp": "2026-09-23T14:45:35.782Z"
 }
