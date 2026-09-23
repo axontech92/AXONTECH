@@ -121,8 +121,16 @@ def _valor_de_moneda(o):
     return None
 
 
-def extraer_de_json(j, prof=0):
-    """Busca el valor del USD sin dar por hecho una estructura exacta.
+# v130: el euro. elToque lo publica en la misma respuesta que el dólar, con la
+# clave ECU (su nombre para el euro); otras fuentes lo llaman EUR.
+ALIAS_MONEDA = {
+    'USD': ('USD', 'usd', 'Usd'),
+    'EUR': ('ECU', 'EUR', 'ecu', 'eur', 'Ecu', 'Eur'),
+}
+
+
+def extraer_de_json(j, prof=0, moneda='USD'):
+    """Busca el valor del USD (o de `moneda`) sin dar por hecho una estructura exacta.
 
     Estas webs cambian de formato sin avisar. Casar una forma concreta
     significaría romperse en silencio el día del cambio; buscar por las claves
@@ -130,21 +138,22 @@ def extraer_de_json(j, prof=0):
     """
     if j is None or prof > 6:
         return None
+    alias = ALIAS_MONEDA.get(moneda, (moneda,))
     if isinstance(j, list):
         # El dato más reciente suele ir al final.
         for item in reversed(j):
-            v = extraer_de_json(item, prof + 1)
+            v = extraer_de_json(item, prof + 1, moneda)
             if v:
                 return v
         return None
     if not isinstance(j, dict):
         return None
     cur = str(j.get('currency') or j.get('cur') or j.get('moneda') or '').upper()
-    if cur == 'USD':
+    if cur in {a.upper() for a in alias}:
         v = _valor_de_moneda(j)
         if v:
             return v
-    for k in ('USD', 'usd', 'Usd'):
+    for k in alias:
         if k in j:
             n = _num(j[k])
             if n:
@@ -152,12 +161,12 @@ def extraer_de_json(j, prof=0):
             if isinstance(j[k], dict):
                 # Ya sabemos que este objeto ES el del dólar: el número que lleve
                 # dentro vale aunque no vuelva a etiquetarse como USD.
-                v = _valor_de_moneda(j[k]) or extraer_de_json(j[k], prof + 1)
+                v = _valor_de_moneda(j[k]) or extraer_de_json(j[k], prof + 1, moneda)
                 if v:
                     return v
     for k in CONTENEDORES:
         if j.get(k) is not None:
-            v = extraer_de_json(j[k], prof + 1)
+            v = extraer_de_json(j[k], prof + 1, moneda)
             if v:
                 return v
     return None
@@ -439,9 +448,11 @@ def main():
         log(f'    → HTTP {estado}, {len(cuerpo)} bytes')
 
         valor = None
+        parseado = None
         if tipo in ('json', 'auto'):
             try:
-                valor = extraer_de_json(json.loads(cuerpo))
+                parseado = json.loads(cuerpo)
+                valor = extraer_de_json(parseado)
             except Exception as e:
                 if tipo == 'json':
                     log(f'    ✗ no es JSON válido: {e}')
@@ -480,6 +491,26 @@ def main():
                 'ts': int(datetime.now(timezone.utc).timestamp() * 1000),
                 'actualizado': datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'),
             }
+            # v130: el euro, si la misma respuesta lo trae. Solo de datos (JSON),
+            # nunca raspado del texto, y con una cordura propia: un euro vale
+            # algo más que un dólar, no la mitad ni el triple.
+            eur = extraer_de_json(parseado, moneda='EUR') if parseado is not None else None
+            if eur and valor_redondeado * 0.85 <= eur <= valor_redondeado * 1.6:
+                datos['eur'] = round(eur, 2)
+                datos['eurTs'] = datos['ts']
+                log(f'    ✅ euro: {datos["eur"]} CUP por 1 EUR')
+            else:
+                # Sin euro nuevo se conserva el anterior con SU fecha: la app
+                # enseña cuándo es, en vez de quedarse sin nada.
+                try:
+                    with open(SALIDA, encoding='utf-8') as f:
+                        viejo = json.load(f)
+                    if viejo.get('eur'):
+                        datos['eur'] = viejo['eur']
+                        datos['eurTs'] = viejo.get('eurTs') or viejo.get('ts')
+                except Exception:
+                    pass
+                log(f'    · euro: no vino en esta respuesta ({eur!r})')
             with open(SALIDA, 'w', encoding='utf-8') as f:
                 json.dump(datos, f, ensure_ascii=False, indent=2)
                 f.write('\n')

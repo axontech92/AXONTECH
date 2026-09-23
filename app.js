@@ -3099,6 +3099,8 @@ document.addEventListener('visibilitychange', () => {
   // La tasa se reintenta al volver; actualizarTasaUSD() se frena sola si el
   // dato tiene menos de 3 h, así que esto no dispara peticiones de más.
   if (typeof actualizarTasaUSD === 'function') actualizarTasaUSD(false);
+  // v130: el euro solo lo usa el admin, al apuntar cómo pagó el cliente.
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN && typeof actualizarTasaEUR === 'function') actualizarTasaEUR(false);
   // Solo actuar si hay trabajo pendiente o Supabase parece desconectado
   if (_sbWriteQueue.length === 0 && _countPendingSyncVales() === 0 && _sbConnected) {
     _updateSyncIndicator();
@@ -3221,7 +3223,8 @@ function _ensurePendingValesEnqueued() {
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
     'seenByAdmin','seenTs','commissionStatus','commissionPaid',
     'stockDecremented','stockSalido','hiddenFromHistory','hiddenTs',
-    'unidoA'   // v120 — la unión de vales la decide el admin
+    'unidoA',  // v120 — la unión de vales la decide el admin
+    'pago'     // v130 — cómo pagó el cliente, también del admin
   ];
   const updates = {};
   mine.forEach(v => {
@@ -3444,6 +3447,9 @@ const saveVales = v => {
     // del mostrador dejaría de salir en su apartado (se reconocería solo por el
     // gestorId, que es una pista, no un dato).
     if (x.ventaDirecta) slim.ventaDirecta = true;
+    // v130: cómo pagó el cliente. Lo apunta el admin; sin esto se quedaría en su
+    // teléfono y el siguiente sondeo lo borraría.
+    if (x.pago) slim.pago = x.pago;
     // v92: la marca de reserva la pone el admin. Sin esto pasaría lo de siempre:
     // se guarda en el móvil, sube sin ella y el siguiente poll la borra — y con
     // ella se irían las unidades apartadas del stock.
@@ -3512,7 +3518,8 @@ const saveVales = v => {
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
     'seenByAdmin','seenTs','commissionStatus','commissionPaid',
     'stockDecremented','stockSalido','hiddenFromHistory','hiddenTs',
-    'unidoA'   // v120 — la unión de vales la decide el admin
+    'unidoA',  // v120 — la unión de vales la decide el admin
+    'pago'     // v130 — cómo pagó el cliente, también del admin
   ];
   function slimValeGestor(x) {
     const slim = {};
@@ -4447,6 +4454,20 @@ function patchVale(id, changes) {
     // vale — ver la nota en _congelarCostoVale().
     if (changes.status === 'confirmed' && all[i].status !== 'confirmed') {
       try { _congelarCostoVale(all[i]); } catch(e) { console.warn('[costos] no se pudo congelar:', e && e.message); }
+    }
+    // v130: y cómo pagó el cliente. Si el admin no lo apuntó, se da por hecho
+    // que pagó como dice el vale — pero con las tasas de HOY congeladas, para
+    // que la caja de este día no cambie cuando mañana cambie el dólar.
+    if (changes.status === 'confirmed' && !all[i].pago && !changes.pago &&
+        typeof IS_ADMIN !== 'undefined' && IS_ADMIN && typeof pagoDeVale === 'function') {
+      try {
+        const _p = pagoDeVale({ ...all[i], ...changes });
+        if (_p && (_p.usd > 0 || _p.mn > 0)) {
+          delete _p.porDefecto;
+          _p.ts = new Date().toISOString();
+          changes.pago = _p;
+        }
+      } catch(e) { console.warn('[pago] no se pudo congelar:', e && e.message); }
     }
     all[i]={...all[i],...changes};
     // v39: Mark this vale as locally patched (for time-based local-wins in merge)
@@ -7788,6 +7809,215 @@ function _aCobrarVale(v) {
            nota: 'Resta ' + (r.rebajaTxt || '') + ' a mano: está en otra moneda que el total.' };
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+//  v130 · CÓMO PAGÓ EL CLIENTE
+// ══════════════════════════════════════════════════════════════════════════
+// El vale dice cuánto se cobra; esto apunta CON QUÉ se cobró: dólares en
+// efectivo, Zelle, euros o MN — o una mezcla. Sirve para saber al final del día
+// qué dinero hay en la mano y qué en cuentas, que con todo contado "en USD" no
+// se sabía.
+//
+// Forma, dentro del vale: pago = {usd, zelle, eur, mn, mnAuto, tasaMN, eurUSD, ts}
+//   · usd / zelle      → dólares (el Zelle vale 1 a 1 con el efectivo)
+//   · eur              → euros; se pasan a USD con eurUSD (tasas de elToque)
+//   · mn               → pesos; se pasan a USD con tasaMN, que es la MISMA tasa
+//                        que ve todo el mundo (elToque + el ajuste de Config, de
+//                        5 en 5)
+//   · mnAuto           → el MN lo calcula la app como "lo que falta"; en cuanto
+//                        el admin lo escribe a mano, deja de tocarlo
+//   · tasaMN / eurUSD  → las tasas CONGELADAS del momento en que se apuntó,
+//                        igual que el costo: si mañana sube el dólar, lo que
+//                        se cobró ayer sigue valiendo lo mismo
+const PAGO_METODOS = [
+  { k:'usd',   icono:'💵', nombre:'USD efectivo', mon:'USD' },
+  { k:'zelle', icono:'🏦', nombre:'Zelle',        mon:'USD' },
+  { k:'eur',   icono:'💶', nombre:'Euro',         mon:'EUR' },
+  { k:'mn',    icono:'🇨🇺', nombre:'MN',           mon:'MN'  },
+];
+const _num0 = x => { const n = parseFloat(x); return isFinite(n) && n > 0 ? n : 0; };
+// Lo que hay que cobrar, en sus dos monedas y ya con las rebajas.
+function _deudaVale(v) {
+  const c = _aCobrarVale(v);
+  const p = _partesMonetarias(c.txt || '');
+  return { usd: p.usd, mn: p.mn };
+}
+// El MN que falta: lo que el vale pide en MN, más lo que falta en dólares
+// pasado a MN. Si se paga de más en dólares, baja el MN.
+function _mnQueFalta(v, pago) {
+  const d = _deudaVale(v);
+  const tasa = pago.tasaMN;
+  const usdPagado = _num0(pago.usd) + _num0(pago.zelle) + (pago.eurUSD ? _num0(pago.eur) * pago.eurUSD : 0);
+  const faltaUSD = d.usd - usdPagado;
+  if (Math.abs(faltaUSD) < 0.005) return Math.max(0, Math.round(d.mn));
+  if (!tasa) return Math.max(0, Math.round(d.mn));
+  return Math.max(0, _redondearA5(d.mn + faltaUSD * tasa));
+}
+// El pago tal y como está, o el de por defecto: lo que dice el vale — los
+// dólares en efectivo, el MN en MN — con las tasas de ahora.
+function pagoDeVale(v) {
+  if (v && v.pago && typeof v.pago === 'object') return { ...v.pago };
+  const d = _deudaVale(v);
+  return { usd: Math.round(d.usd * 100) / 100, zelle: 0, eur: 0, mn: Math.round(d.mn), mnAuto: true,
+           tasaMN: tasaUSDFinal(), eurUSD: eurEnUSD(), ts: null, porDefecto: true };
+}
+// Cuadre: todo pasado a USD. null = no se puede saber (falta una tasa).
+function cuadrePago(v, pago) {
+  pago = pago || pagoDeVale(v);
+  const d = _deudaVale(v);
+  const tasa = pago.tasaMN;
+  if ((d.mn > 0 || _num0(pago.mn) > 0) && !tasa) return null;
+  if (_num0(pago.eur) > 0 && !pago.eurUSD) return null;
+  const debe  = d.usd + (d.mn > 0 ? d.mn / tasa : 0);
+  const pagado = _num0(pago.usd) + _num0(pago.zelle) + _num0(pago.eur) * (pago.eurUSD || 0) + (_num0(pago.mn) > 0 ? _num0(pago.mn) / tasa : 0);
+  const dif = Math.round((pagado - debe) * 100) / 100;
+  return { debe, pagado, dif, difMN: tasa ? _redondearA5(Math.abs(dif) * tasa) : null };
+}
+// Guardar. Las tasas se congelan la PRIMERA vez que se apunta el pago; se
+// pueden refrescar a mano ("usar las de hoy") mientras la venta no esté cerrada.
+function _guardarPagoVale(id, pago) {
+  const v = getVales().find(x => x.id === id);
+  if (!v) return;
+  const limpio = {
+    usd: Math.round(_num0(pago.usd) * 100) / 100, zelle: Math.round(_num0(pago.zelle) * 100) / 100,
+    eur: Math.round(_num0(pago.eur) * 100) / 100, mn: Math.round(_num0(pago.mn)),
+    mnAuto: !!pago.mnAuto, tasaMN: pago.tasaMN || null, eurUSD: pago.eurUSD || null,
+    ts: new Date().toISOString()
+  };
+  patchVale(id, { pago: limpio });
+}
+function cambiarPago(id, campo, valor) {
+  const v = getVales().find(x => x.id === id);
+  if (!v) return;
+  const pago = pagoDeVale(v);
+  delete pago.porDefecto;
+  pago[campo] = _num0(valor);
+  if (campo === 'mn') pago.mnAuto = false;           // escrito a mano: se respeta
+  else if (pago.mnAuto) pago.mn = _mnQueFalta(v, pago);
+  _guardarPagoVale(id, pago);
+  _repintarPagoVale(id);
+}
+// "El resto en MN": vuelve a dejar que la app calcule el MN que falta.
+function pagoRestoEnMN(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const pago = pagoDeVale(v); delete pago.porDefecto;
+  if (!pago.tasaMN) { showToast('Sin tasa del dólar no se puede calcular el MN'); return; }
+  pago.mnAuto = true; pago.mn = _mnQueFalta(v, pago);
+  _guardarPagoVale(id, pago); _repintarPagoVale(id);
+}
+// "Todo en MN": el cliente paga el vale entero en pesos.
+function pagoTodoEnMN(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const pago = pagoDeVale(v); delete pago.porDefecto;
+  if (!pago.tasaMN) { showToast('Sin tasa del dólar no se puede calcular el MN'); return; }
+  pago.usd = 0; pago.zelle = 0; pago.eur = 0; pago.mnAuto = true; pago.mn = _mnQueFalta(v, pago);
+  _guardarPagoVale(id, pago); _repintarPagoVale(id);
+}
+// "Como dice el vale": vuelve al de por defecto.
+function pagoComoElVale(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const d = _deudaVale(v);
+  const pago = pagoDeVale(v); delete pago.porDefecto;
+  pago.usd = Math.round(d.usd * 100) / 100; pago.zelle = 0; pago.eur = 0; pago.mn = Math.round(d.mn); pago.mnAuto = true;
+  _guardarPagoVale(id, pago); _repintarPagoVale(id);
+}
+function pagoTasasDeHoy(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const pago = pagoDeVale(v); delete pago.porDefecto;
+  pago.tasaMN = tasaUSDFinal(); pago.eurUSD = eurEnUSD();
+  if (pago.mnAuto) pago.mn = _mnQueFalta(v, pago);
+  _guardarPagoVale(id, pago); _repintarPagoVale(id);
+}
+function _repintarPagoVale(id) {
+  const el = document.getElementById('valePago');
+  const v = getVales().find(x => x.id === id);
+  if (el && v) el.outerHTML = _htmlPagoVale(v);
+}
+function _htmlPagoVale(v) {
+  if (!v || v.status === 'cancelled') return '';
+  const pago = pagoDeVale(v);
+  const d = _deudaVale(v);
+  if (!(d.usd > 0) && !(d.mn > 0)) return '';          // "Venta Local" y parecidos: nada que cuadrar
+  const cu = cuadrePago(v, pago);
+  const cerrado = v.status === 'confirmed';
+  const tasaHoy = tasaUSDFinal(), eurHoy = eurEnUSD();
+  const tasasViejas = pago.ts && ((tasaHoy && pago.tasaMN !== tasaHoy) || (eurHoy && pago.eurUSD && pago.eurUSD !== eurHoy));
+  const fila = m => {
+    const val = _num0(pago[m.k]);
+    const equiv = m.k === 'eur' && val > 0
+      ? (pago.eurUSD ? `≈ $${(val * pago.eurUSD).toFixed(2)}` : '<span style="color:var(--orange);">sin tasa del euro</span>')
+      : m.k === 'mn' && val > 0 && pago.tasaMN ? `≈ $${(val / pago.tasaMN).toFixed(2)}` : '';
+    const auto = m.k === 'mn' ? (pago.mnAuto ? '<span style="font-size:9px;color:var(--text-muted);">calculado</span>' : '<span style="font-size:9px;color:var(--orange);">a mano</span>') : '';
+    return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">
+      <span style="width:104px;font-size:12px;flex-shrink:0;">${m.icono} ${m.nombre}</span>
+      <input type="number" inputmode="decimal" min="0" step="any" value="${val || ''}" placeholder="0"
+             id="pago-${m.k}" onfocus="this.select()" onchange="cambiarPago(${v.id}, '${m.k}', this.value)"
+             style="width:96px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:5px 8px;font-size:13px;font-weight:700;color:var(--text);">
+      <span style="font-size:11px;color:var(--text-muted);width:30px;">${m.mon}</span>
+      <span style="font-size:10px;color:var(--text-muted);">${equiv} ${auto}</span>
+    </div>`;
+  };
+  let estado;
+  if (!cu) estado = `<span style="color:var(--orange);">⚠️ Falta una tasa para cuadrarlo</span>`;
+  else if (Math.abs(cu.dif) < 0.5) estado = `<span style="color:var(--green);">✅ Cuadra</span>`;
+  else if (cu.dif < 0) estado = `<span style="color:var(--red);">⚠️ Falta $${Math.abs(cu.dif).toFixed(2)} USD${cu.difMN ? ` (≈ ${cu.difMN} MN)` : ''}</span>`;
+  else estado = `<span style="color:var(--blue);">↗ Sobra $${cu.dif.toFixed(2)} USD${cu.difMN ? ` — de vuelto ≈ ${cu.difMN} MN` : ''}</span>`;
+  return `<div id="valePago" style="margin-top:10px;padding:12px 13px;background:var(--surface);border:1px solid var(--border);border-radius:11px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+      <span style="font-size:12px;font-weight:800;">💳 ¿CÓMO PAGÓ?</span>
+      <span style="font-size:10px;color:var(--text-muted);">1 USD = ${pago.tasaMN || '—'} MN${pago.eurUSD ? ` · 1 EUR = $${pago.eurUSD}` : ''}${pago.ts ? ' · congeladas' : ''}</span>
+    </div>
+    ${PAGO_METODOS.map(fila).join('')}
+    <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:7px;font-size:12px;font-weight:700;" id="pagoEstado">${estado}</div>
+    ${pago.porDefecto ? `<div style="font-size:10px;color:var(--text-muted);margin-top:3px;">Aún sin apuntar: se da por hecho que pagó como dice el vale.</div>` : ''}
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;" onclick="pagoComoElVale(${v.id})">Como dice el vale</button>
+      <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;" onclick="pagoTodoEnMN(${v.id})">Todo en MN</button>
+      <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;" onclick="pagoRestoEnMN(${v.id})">El resto en MN</button>
+      ${tasasViejas && !cerrado ? `<button class="btn btn-ghost btn-sm" style="font-size:10px;padding:3px 9px;color:var(--orange);" onclick="pagoTasasDeHoy(${v.id})">↺ Usar las tasas de hoy</button>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── v130: la caja del período ───────────────────────────────────────────────
+// Suma, de las ventas CONFIRMADAS, lo que entró por cada forma de pago. Las
+// monedas no se mezclan: los dólares en efectivo, el Zelle, los euros y el MN
+// son dinero en sitios distintos. El "≈ USD" de abajo usa la tasa CONGELADA de
+// cada venta, no la de hoy.
+function totalesCaja(vales) {
+  const t = { usd:0, zelle:0, eur:0, mn:0, equivUSD:0, ventas:0, sinApuntar:0, sinTasa:0 };
+  (vales || []).filter(v => v && v.status === 'confirmed').forEach(v => {
+    const d = _deudaVale(v);
+    if (!(d.usd > 0) && !(d.mn > 0) && !v.pago) return;
+    const p = pagoDeVale(v);
+    if (p.porDefecto) t.sinApuntar++;
+    t.ventas++;
+    t.usd += _num0(p.usd); t.zelle += _num0(p.zelle); t.eur += _num0(p.eur); t.mn += _num0(p.mn);
+    const cu = cuadrePago(v, p);
+    if (cu) t.equivUSD += cu.pagado; else t.sinTasa++;
+  });
+  ['usd','zelle','eur','equivUSD'].forEach(k => t[k] = Math.round(t[k] * 100) / 100);
+  t.mn = Math.round(t.mn);
+  return t;
+}
+function renderCaja(vales) {
+  const el = document.getElementById('statsCaja');
+  if (!el) return;
+  const t = totalesCaja(vales);
+  if (!t.ventas) { el.innerHTML = '<div class="es"><div class="es-text">Sin ventas confirmadas en el período</div></div>'; return; }
+  const tarjeta = (icono, nombre, valor, color) => `<div class="stat-card"><div class="stat-num" style="color:${color};font-size:18px;">${valor}</div><div class="stat-lbl">${icono} ${nombre}</div></div>`;
+  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;">
+      ${tarjeta('💵','USD efectivo', '$' + t.usd.toFixed(2).replace(/\.00$/,''), 'var(--green)')}
+      ${tarjeta('🏦','Zelle', '$' + t.zelle.toFixed(2).replace(/\.00$/,''), 'var(--blue)')}
+      ${tarjeta('💶','Euro', '€' + t.eur.toFixed(2).replace(/\.00$/,''), 'var(--blue)')}
+      ${tarjeta('🇨🇺','MN', t.mn.toLocaleString('es-ES') + ' MN', 'var(--orange)')}
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5;">
+      ${t.ventas} venta(s) · todo junto ≈ <b>$${t.equivUSD.toFixed(2)} USD</b> con la tasa de cada día
+      ${t.sinApuntar ? `<br>⚠️ ${t.sinApuntar} sin forma de pago apuntada: se cuentan como dice el vale (dólares en USD, MN en MN).` : ''}
+      ${t.sinTasa ? `<br>⚠️ ${t.sinTasa} sin tasa para pasarlas a USD: no entran en el "todo junto".` : ''}
+    </div>`;
+}
+
 // ── v82: rebaja aplicada por el admin (fase 2) ──────────────────────────────
 // A diferencia de la del gestor, esta sale del margen del negocio: la comisión
 // del gestor no se toca. Las dos bajan lo que paga el cliente y se suman para el
@@ -8121,6 +8351,7 @@ function renderValeDetail(destinoId) {
           ${_c.nota?`<div style="margin-top:5px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_c.nota)}</div>`:''}
           ${String(v.vuelto||'').trim()?`<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b>${escapeHTML(v.vuelto)}</b></div>`:''}
         </div>`;})()}
+      ${_htmlPagoVale(v)}
       ${!_rebajaVale(v)?`<button class="btn btn-ghost btn-full btn-sm" style="margin-top:9px;color:var(--blue);" onclick="openRebajaAdminModal(${v.id})">🏷️ Rebajar este vale</button>`:''}
       ${v.recogidaTienda?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;display:flex;align-items:center;gap:6px;">
         <span style="font-size:14px;">🏪</span>
@@ -13358,6 +13589,7 @@ function renderStats() {
   // en el historial… y desaparecía del único sitio donde se mira qué se ha
   // vendido y quién lo vendió. Aquí sí tiene que salir, con su propia tarjeta.
   renderGanancia(vales);   // v114
+  try { renderCaja(vales); } catch(e) { console.warn('[caja]', e && e.message); }   // v130
   const gestores=getGestores().slice();
   if (vales.some(esValeDeLaTienda)) gestores.push(GESTOR_TIENDA);
   document.getElementById('statsGestorList').innerHTML=gestores.length?
@@ -17848,6 +18080,58 @@ function tasaUSDFinal() {
   return v > 0 ? v : null;
 }
 
+// ── v130: la tasa del euro ──────────────────────────────────────────────────
+// La baja el mismo trabajo de GitHub que la del dólar (elToque la publica en la
+// misma respuesta, como "ECU") y la deja en tasa.json como `eur`. Aquí solo se
+// usa para una cosa: pasar a dólares lo que un cliente paga en euros. Por eso
+// NO lleva el margen de Config: el margen es lo que el negocio le suma al dólar
+// para vender, no una propiedad de cuánto vale un euro frente a un dólar.
+function _tasaEURLocal() { try { return JSON.parse(localStorage.getItem('axon_tasa_eur') || 'null'); } catch(e) { return null; } }
+function tasaEUR() {
+  const cfg = getConfig() || {};
+  const local = _tasaEURLocal();
+  const compartida = cfg.tasaEUR ? { valor: cfg.tasaEUR, ts: cfg.tasaEURTs || 0 } : null;
+  if (local && compartida) return (local.ts || 0) >= (compartida.ts || 0) ? local : compartida;
+  return local || compartida || null;
+}
+function _aplicarTasaEUR(valor, ts) {
+  const v = _tasaValida(parseFloat(valor));
+  if (!v) return null;
+  const o = { valor: Math.round(v * 100) / 100, ts: ts || Date.now() };
+  _safeSetLS('axon_tasa_eur', JSON.stringify(o));
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) {
+    const cfg = getConfig() || {};
+    if (cfg.tasaEUR !== o.valor || cfg.tasaEURTs !== o.ts) saveConfig({ ...cfg, tasaEUR: o.valor, tasaEURTs: o.ts });
+  }
+  return o;
+}
+// Cuántos USD es 1 EUR, con las dos tasas de elToque sin margen.
+function eurEnUSD() {
+  const e = tasaEUR(), u = tasaUSD();
+  if (!e || !u || !(u.valor > 0) || !(e.valor > 0)) return null;
+  return Math.round((e.valor / u.valor) * 10000) / 10000;
+}
+let _tasaEURBuscando = false, _tasaEURIntentoTs = 0;
+async function actualizarTasaEUR(forzar) {
+  const t = tasaEUR();
+  if (_tasaEURBuscando) return t;
+  if (!forzar && Date.now() - _tasaEURIntentoTs < TASA_REFRESCO_MS) return t;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return t;
+  _tasaEURBuscando = true; _tasaEURIntentoTs = Date.now();
+  try {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 9000);
+    let r;
+    try { r = await fetch('./tasa.json?t=' + Date.now(), { signal: ctrl.signal, cache: 'no-store' }); }
+    finally { clearTimeout(to); }
+    if (!r || !r.ok) return t;
+    const j = await r.json();
+    if (j && j.eur) return _aplicarTasaEUR(j.eur, j.eurTs || j.ts) || t;
+    return t;
+  } catch(e) { return t; }
+  finally { _tasaEURBuscando = false; }
+}
+
 function _tasaFechaTxt(ts) {
   if (!ts) return 'sin fecha';
   const d = new Date(ts), min = Math.round((Date.now() - ts) / 60000);
@@ -18114,6 +18398,7 @@ function initGestorPage() {
   renderGestorNotifs();
   renderGestorRanking();
   renderTasaBadge(); actualizarTasaUSD(false);
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) actualizarTasaEUR(false);   // v130
   const bc = document.getElementById('btnCatalogo');
   if (bc) bc.style.display = 'inline-flex';
   // Triple-tap on AX logo → go to admin page
@@ -18136,6 +18421,7 @@ function initAdminPage() {
   updateAdminBadge(); updateMensajeroBadge();
   renderAuditLog();
   renderTasaBadge(); actualizarTasaUSD(false);
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) actualizarTasaEUR(false);   // v130
   if (adminActive) {
     activateAdminMode();
     _resetSessionTimer();
@@ -18249,6 +18535,11 @@ const AYUDA_SECCIONES = [
         como:'En el detalle, debajo de los datos, sale siempre el recuadro verde "💵 COBRAR AL CLIENTE" con la cifra ya limpia. También es la que ve el mensajero en su lista.',
         ojo:'Si el vale lleva rebaja, ahí ya viene restada. Cuando la rebaja mezcla monedas ($15 USD + 2000 MN) y el total solo tiene una de las dos, se resta la parte que calza —y el número principal baja de verdad— y la parte que no pudo aplicarse sale debajo, como su propia línea en naranja ("$625 USD" y debajo "− 2000 MN"), para que se lea de un vistazo que hay que resolverla aparte. Si NINGUNA moneda de la rebaja coincide con el total, ahí sí: enseña el total tal cual y avisa de restarlo a mano.',
         nuevo:'v128' },
+      { icono:'💳', titulo:'Cómo pagó el cliente (USD, Zelle, euro, MN)', donde:'Vales › detalle del vale › 💳 ¿Cómo pagó?',
+        para:'Saber al final del día qué dinero hay en la mano y qué en cuentas: no es lo mismo cobrar $100 en efectivo que por Zelle, en euros o en pesos.',
+        como:'Debajo de "COBRAR AL CLIENTE" sale una casilla por cada forma de pago. Viene rellena como dice el vale (los dólares en USD efectivo). Si pagó distinto, cambia las cifras: el MN se calcula solo con lo que falte, a la tasa que ven todos (elToque + tu ajuste de Config, de 5 en 5). Hay botones para "Todo en MN" y "El resto en MN". Abajo dice si cuadra, si falta o si sobra (y cuánto dar de vuelto).',
+        ojo:'El Zelle cuenta 1 a 1 con el dólar. El euro se pasa a dólares con la tasa del euro de elToque, que se baja sola junto con la del dólar. Las tasas se congelan al apuntar el pago —o al confirmar la venta si no lo apuntaste—: si mañana sube el dólar, lo cobrado hoy sigue valiendo lo mismo. Si escribes el MN a mano, la app deja de recalcularlo ("a mano"); "El resto en MN" lo vuelve a poner en automático.',
+        nuevo:'v130' },
       { icono:'🛵', titulo:'Asignar a un mensajero', donde:'Vales › detalle del vale',
         para:'Mandar la mercancía con alguien y que quede apuntado quién la lleva.',
         como:'Abre el vale, dale a "Asignar a Mensajero", elige a quién y compártele el vale por WhatsApp.',
@@ -18460,6 +18751,11 @@ const AYUDA_SECCIONES = [
         para:'Sin esto no se puede saber cuánto ganas: solo cuánto vendiste.',
         como:'Escribe el costo de cada producto en la columna "Costo u." de la tabla.',
         ojo:'El costo se congela al confirmar la venta. Si mañana subes el precio de compra, las ventas de ayer siguen valiendo lo que valían.' },
+      { icono:'💳', titulo:'Caja por forma de pago', donde:'Estadísticas › 💳 Caja',
+        para:'Cuadrar la caja: cuánto entró en el período en dólares en efectivo, por Zelle, en euros y en MN, cada cosa por su lado.',
+        como:'Elige las fechas arriba. Cuenta solo ventas confirmadas.',
+        ojo:'Las monedas no se suman entre sí. El "todo junto ≈ USD" de abajo usa la tasa congelada de cada venta, no la de hoy. Las ventas en las que no apuntaste cómo pagó se cuentan como dice el vale, y se avisa cuántas son.',
+        nuevo:'v130' },
       { icono:'📈', titulo:'Ganancia del período', donde:'Estadísticas',
         para:'Lo que de verdad quedó: lo que entró, menos lo que costó la mercancía, menos las comisiones.',
         como:'Elige las fechas arriba.',
