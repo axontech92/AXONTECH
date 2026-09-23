@@ -2544,7 +2544,7 @@
       "total": "$25 USD + 1800 MN",
       "carnet": "",
       "seenTs": "2026-09-23T15:32:17.613Z",
-      "status": "pending_payment",
+      "status": "confirmed",
       "vuelto": "0",
       "cliente": "Yamirka",
       "valeNum": 91,
@@ -2561,7 +2561,7 @@
       "assignedTs": "2026-09-23T15:32:45.660Z",
       "mensajeria": "1800",
       "comFijadaMN": 1500,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-23T16:14:07.769Z",
       "deliveredTs": "2026-09-23T15:32:54.282Z",
       "mensajeroId": 1787161412838,
       "seenByAdmin": true,
@@ -2978,43 +2978,6 @@
       ],
       "comisionGestor": "9 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790162284565,
-      "ts": "2026-09-23T11:18:04.570Z",
-      "total": "$460 USD",
-      "carnet": "",
-      "seenTs": "2026-09-23T15:23:22.777Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Alexander Arias",
-      "valeNum": 134,
-      "articulo": "×2 Nanostation m2",
-      "garantia": "",
-      "gestorId": 1781761257102,
-      "precioMN": "",
-      "telefono": "5351142362",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Alexander Arias\n🔸Teléfono Cliente: 5351142362\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $460 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 07:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$460 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 20,
-      "valeProductos": [
-        {
-          "id": 1786509790425,
-          "qty": 2,
-          "name": "Nanostation m2"
-        }
-      ],
-      "comisionGestor": "$20.00 USD",
-      "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4666,41 +4629,6 @@
       "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790087453586,
-      "ts": "2026-09-22T14:30:53.597Z",
-      "total": "$1200 USD + 2500 MN",
-      "carnet": "",
-      "seenTs": "2026-09-23T15:23:49.002Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Gabriel",
-      "valeNum": 104,
-      "articulo": "×20 Router TP-Link Archer C54 Reacondicionado",
-      "garantia": "",
-      "gestorId": 1781761257103,
-      "precioMN": "",
-      "telefono": "5353329851",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Gabriel\n🔸Teléfono Cliente: 5353329851\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×20 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $1200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1200 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 10:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "La cuevita",
-      "precioUSD": "$1200 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "adminNotes": "PARA VIERNES 25/9/2026",
-      "mensajeria": "2500",
-      "seenByAdmin": true,
-      "valeProductos": [
-        {
-          "id": 1787114204179,
-          "qty": 20,
-          "name": "Router TP-Link Archer C54 Reacondicionado"
-        }
-      ],
-      "comisionGestor": "$200.00 USD",
-      "recogidaTienda": false,
-      "stockDecremented": false,
       "synced": true
     },
     {
@@ -30914,5 +30842,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T15:59:02.274Z"
+  "timestamp": "2026-09-23T16:15:08.274Z"
 }
