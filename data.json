@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2529,11 +2529,85 @@
   ],
   "vales": [
     {
+      "id": 1790183418707,
+      "ts": "2026-09-23T17:10:18.711Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-23T17:10:42.646Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Omar",
+      "valeNum": 97,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "053581854",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Omar\n🔸Teléfono Cliente: 053581854\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 13:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790183199199,
+      "ts": "2026-09-23T17:06:39.212Z",
+      "total": "$240 USD",
+      "carnet": "",
+      "seenTs": "2026-09-23T17:07:05.512Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Enrrique",
+      "valeNum": 96,
+      "articulo": "×1 Mikrotik lhg 5ax",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5353219877",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Enrrique\n🔸Teléfono Cliente: 5353219877\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 13:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$240 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 1,
+          "name": "Mikrotik lhg 5ax"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790182588048,
       "ts": "2026-09-23T16:56:28.052Z",
       "total": "$230 USD + 2800 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T16:59:09.063Z",
+      "seenTs": "2026-09-23T17:02:43.046Z",
       "status": "assigned",
       "vuelto": "20",
       "cliente": "Thiago",
@@ -2827,7 +2901,7 @@
       "ts": "2026-09-23T14:53:56.396Z",
       "total": "$70usd",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:25.037Z",
+      "seenTs": "2026-09-23T17:10:08.671Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Iván Castellanos",
@@ -2951,7 +3025,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T14:41:13.565Z",
+      "seenTs": "2026-09-23T17:10:29.105Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Tony",
@@ -4803,8 +4877,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -31073,5 +31148,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T17:00:59.315Z"
+  "timestamp": "2026-09-23T17:46:46.573Z"
 }
