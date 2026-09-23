@@ -2529,6 +2529,82 @@
   ],
   "vales": [
     {
+      "id": 1790181721251,
+      "ts": "2026-09-23T16:42:01.257Z",
+      "total": "$260 USD + 2300 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T16:45:46.946Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Raikeline",
+      "valeNum": 94,
+      "articulo": "×1 Mikrotik hap ax3",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "535270308",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Raikeline\n🔸Teléfono Cliente: 535270308\n🔸Dirección Cliente: Calle D e/ Goucuria y 5ta A. Ampliación del Sevillano, Arroyo Naranjo\n🔸Mensajería/ costo: 2300\n🔸 Artículos y cantidades:\n  ×1 Mikrotik hap ax3\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $260 USD + 2300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 12:41\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle D e/ Goucuria y 5ta A. Ampliación del Sevillano, Arroyo Naranjo",
+      "precioUSD": "$260 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-23T16:46:20.825Z",
+      "mensajeria": "2300",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509419466,
+          "qty": 1,
+          "name": "Mikrotik hap ax3"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790181168312,
+      "ts": "2026-09-23T16:32:48.317Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-23T16:37:07.972Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yony Nuevo",
+      "valeNum": 93,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352066094",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony Nuevo\n🔸Teléfono Cliente: 5352066094\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 12:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790180188762,
       "ts": "2026-09-23T16:16:28.779Z",
       "total": "$420 USD",
@@ -2749,7 +2825,7 @@
       "ts": "2026-09-23T14:42:56.199Z",
       "total": "9600 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:16.146Z",
+      "seenTs": "2026-09-23T16:37:12.265Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amaury",
@@ -3022,7 +3098,7 @@
       "ts": "2026-09-23T12:51:57.412Z",
       "total": "$69 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:16.990Z",
+      "seenTs": "2026-09-23T16:37:13.114Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Adys",
@@ -4187,7 +4263,7 @@
       "ts": "2026-09-22T16:22:37.016Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T02:08:44.736Z",
+      "seenTs": "2026-09-23T16:20:08.118Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eloydis",
@@ -30916,5 +30992,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T16:17:42.682Z"
+  "timestamp": "2026-09-23T16:47:20.851Z"
 }
