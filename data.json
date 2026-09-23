@@ -1042,7 +1042,7 @@
       "name": "KIT de 4 camaras Zosi (sin disco duro)",
       "catId": 80,
       "photo": "photos/img_1778384314795.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778384314795.webp",
       "nombre": "KIT de 4 camaras Zosi (sin disco duro)",
       "precio": "$230",
@@ -2529,6 +2529,49 @@
   ],
   "vales": [
     {
+      "id": 1790190649916,
+      "ts": "2026-09-23T19:10:49.919Z",
+      "total": "$270 USD",
+      "carnet": "",
+      "seenTs": "2026-09-23T20:17:16.180Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Oniel",
+      "valeNum": 100,
+      "articulo": "×1 Hex Poe Lite(RB750gr2) / ×1 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5358040159",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Oniel\n🔸Teléfono Cliente: 5358040159\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Hex Poe Lite(RB750gr2)\n  ×1 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $270 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $270 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 15:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$270 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1789945684800,
+          "qty": 1,
+          "name": "Hex Poe Lite(RB750gr2)"
+        },
+        {
+          "id": 1788124513018,
+          "qty": 1,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "isNew": false
+    },
+    {
       "id": 1790189523017,
       "ts": "2026-09-23T18:52:03.018Z",
       "total": "$180 USD",
@@ -2681,10 +2724,20 @@
     {
       "id": 1790182588048,
       "ts": "2026-09-23T16:56:28.052Z",
+      "pago": {
+        "mn": 2800,
+        "ts": "2026-09-23T20:16:58.844Z",
+        "eur": 0,
+        "usd": 230,
+        "zelle": 0,
+        "eurUSD": 1.1389,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$230 USD + 2800 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T17:02:43.046Z",
-      "status": "assigned",
+      "seenTs": "2026-09-23T20:16:41.917Z",
+      "status": "confirmed",
       "vuelto": "20",
       "cliente": "Thiago",
       "valeNum": 95,
@@ -2701,8 +2754,13 @@
       "assignedTs": "2026-09-23T16:59:42.623Z",
       "mensajeria": "2800",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-23T20:16:58.844Z",
+      "deliveredTs": "2026-09-23T20:16:58.844Z",
       "mensajeroId": 1789420092372,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384314795": 1
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2713,7 +2771,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2722,7 +2780,7 @@
       "ts": "2026-09-23T16:42:01.257Z",
       "total": "$260 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T16:50:26.645Z",
+      "seenTs": "2026-09-23T20:17:08.217Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Raikeline",
@@ -4311,7 +4369,7 @@
       "ts": "2026-09-22T17:17:00.188Z",
       "total": "$275 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:28.797Z",
+      "seenTs": "2026-09-23T20:17:07.785Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Norberto",
@@ -31299,5 +31357,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T18:59:57.493Z"
+  "timestamp": "2026-09-23T20:17:59.781Z"
 }
