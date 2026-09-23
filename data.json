@@ -974,7 +974,7 @@
       "name": "Toldo para sombra marrón 2 x 4",
       "catId": 40,
       "photo": "photos/p-1778336859697-c6406584.webp",
-      "stock": 22,
+      "stock": 19,
       "imagen": "photos/p-1778336859697-c6406584.webp",
       "nombre": "Toldo para sombra",
       "precio": "$23",
@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -2163,7 +2163,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 205,
+      "stock": 195,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2529,11 +2529,50 @@
   ],
   "vales": [
     {
+      "id": 1790182588048,
+      "ts": "2026-09-23T16:56:28.052Z",
+      "total": "$230 USD + 2800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T16:59:09.063Z",
+      "status": "assigned",
+      "vuelto": "20",
+      "cliente": "Thiago",
+      "valeNum": 95,
+      "articulo": "×1 KIT de 4 camaras Zosi (sin disco duro)",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5355842912",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Thiago\n🔸Teléfono Cliente: 5355842912\n🔸Dirección Cliente: Poey calle h entre 6ta y 5ta. Arroyo naranjo\n🔸Mensajería/ costo: 2800\n🔸 Artículos y cantidades:\n  ×1 KIT de 4 camaras Zosi (sin disco duro)\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: 20\n🔸 Total a pagar: $230 USD + 2800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 12:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Poey calle h entre 6ta y 5ta. Arroyo naranjo",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-23T16:59:42.623Z",
+      "mensajeria": "2800",
+      "comFijadaMN": 0,
+      "mensajeroId": 1789420092372,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1778384314795,
+          "qty": 1,
+          "name": "KIT de 4 camaras Zosi (sin disco duro)"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790181721251,
       "ts": "2026-09-23T16:42:01.257Z",
       "total": "$260 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T16:45:46.946Z",
+      "seenTs": "2026-09-23T16:50:26.645Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Raikeline",
@@ -3096,10 +3135,20 @@
     {
       "id": 1790167917402,
       "ts": "2026-09-23T12:51:57.412Z",
+      "pago": {
+        "mn": 1500,
+        "ts": "2026-09-23T16:59:54.242Z",
+        "eur": 0,
+        "usd": 69,
+        "zelle": 0,
+        "eurUSD": 1.1406,
+        "mnAuto": true,
+        "tasaMN": 725
+      },
       "total": "$69 USD + 1500 MN",
       "carnet": "",
       "seenTs": "2026-09-23T16:37:13.114Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Adys",
       "valeNum": 99,
@@ -3116,8 +3165,13 @@
       "assignedTs": "2026-09-23T13:15:36.539Z",
       "mensajeria": "1500 cup",
       "comFijadaMN": 9,
+      "confirmedTs": "2026-09-23T16:59:54.242Z",
+      "deliveredTs": "2026-09-23T16:59:54.242Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778336859697": 3
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -3128,7 +3182,7 @@
       ],
       "comisionGestor": "9 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3172,10 +3226,20 @@
     {
       "id": 1790128856079,
       "ts": "2026-09-23T02:00:56.081Z",
+      "pago": {
+        "mn": 7300,
+        "ts": "2026-09-23T16:59:58.406Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1406,
+        "mnAuto": true,
+        "tasaMN": 725
+      },
       "total": "7300 MN",
       "carnet": "",
       "seenTs": "2026-09-23T15:23:32.425Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yudith",
       "valeNum": 131,
@@ -3191,8 +3255,13 @@
       "ubicacion": null,
       "assignedTs": "2026-09-23T13:14:06.352Z",
       "mensajeria": "4500",
+      "confirmedTs": "2026-09-23T16:59:58.406Z",
+      "deliveredTs": "2026-09-23T16:59:58.406Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 10
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -3202,7 +3271,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3746,8 +3815,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3926,8 +3996,9 @@
         }
       ],
       "comisionGestor": "$30.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5028,8 +5099,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7314,8 +7386,9 @@
         }
       ],
       "comisionGestor": "$100.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7713,8 +7786,9 @@
         }
       ],
       "comisionGestor": "7500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -7755,8 +7829,9 @@
         }
       ],
       "comisionGestor": "3000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -8188,8 +8263,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -8695,8 +8771,9 @@
         }
       ],
       "comisionGestor": "$20.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -8735,8 +8812,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -9405,8 +9483,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -9907,8 +9986,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -9996,8 +10076,9 @@
         }
       ],
       "comisionGestor": "$30.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -30992,5 +31073,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T16:47:20.851Z"
+  "timestamp": "2026-09-23T17:00:59.315Z"
 }
