@@ -1203,7 +1203,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 175,
+      "stock": 75,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -1321,7 +1321,7 @@
       "name": "📡 TP-Link Archer BE230",
       "catId": 10,
       "photo": "photos/p-1788560867958-06577344.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/p-1788560867958-06577344.webp",
       "nombre": "📡 TP-Link Archer BE230",
       "precio": "$200",
@@ -2763,7 +2763,7 @@
       "ts": "2026-09-23T17:06:39.212Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T17:07:05.512Z",
+      "seenTs": "2026-09-23T21:33:40.804Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Enrrique",
@@ -2944,7 +2944,7 @@
       "ts": "2026-09-23T16:16:28.779Z",
       "total": "$420 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T16:16:40.157Z",
+      "seenTs": "2026-09-23T21:34:32.087Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2959,6 +2959,7 @@
       "precioUSD": "$420 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "PARA MANANA 24/9/2026",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
       "seenByAdmin": true,
@@ -2981,7 +2982,7 @@
       "ts": "2026-09-23T16:16:17.282Z",
       "total": "$780 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T16:16:28.843Z",
+      "seenTs": "2026-09-23T21:33:54.327Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -2996,6 +2997,7 @@
       "precioUSD": "$780 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "PARA VIERNES 25/9/2026",
       "mensajeria": "2500 (de mi comisión)",
       "comFijadaMN": 0,
       "seenByAdmin": true,
@@ -3160,7 +3162,7 @@
       "ts": "2026-09-23T14:42:56.199Z",
       "total": "9600 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T16:37:12.265Z",
+      "seenTs": "2026-09-23T21:25:17.650Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amaury",
@@ -3247,8 +3249,8 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T17:10:29.105Z",
-      "status": "assigned",
+      "seenTs": "2026-09-23T21:38:09.832Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
       "valeNum": 102,
@@ -3265,8 +3267,12 @@
       "assignedTs": "2026-09-23T14:44:35.508Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-23T21:38:13.736Z",
       "mensajeroId": 1788892462364,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788560867958": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3277,7 +3283,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3502,7 +3508,7 @@
       "ts": "2026-09-23T02:10:02.283Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:54.096Z",
+      "seenTs": "2026-09-23T21:37:49.457Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Julio",
@@ -3589,10 +3595,20 @@
     {
       "id": 1790124836010,
       "ts": "2026-09-23T00:53:56.012Z",
+      "pago": {
+        "mn": 28000,
+        "ts": "2026-09-23T21:36:07.456Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1389,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "28000 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:36.870Z",
-      "status": "pending",
+      "seenTs": "2026-09-23T21:34:56.163Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Jorge",
       "valeNum": 130,
@@ -3607,7 +3623,11 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-23T21:36:07.456Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 100
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -3617,7 +3637,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4406,7 +4426,7 @@
       "ts": "2026-09-22T17:34:25.411Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:56.074Z",
+      "seenTs": "2026-09-23T21:38:00.430Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -4624,7 +4644,7 @@
       "ts": "2026-09-22T16:25:23.977Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:42.762Z",
+      "seenTs": "2026-09-23T21:38:27.525Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Abraham",
@@ -31431,5 +31451,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T21:21:56.782Z"
+  "timestamp": "2026-09-23T21:39:13.781Z"
 }
