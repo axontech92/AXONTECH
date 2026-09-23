@@ -2163,7 +2163,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 195,
+      "stock": 175,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2529,6 +2529,91 @@
   ],
   "vales": [
     {
+      "id": 1790196012766,
+      "ts": "2026-09-23T20:40:12.769Z",
+      "total": "$320 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Oniel",
+      "valeNum": 102,
+      "articulo": "×2 mikrotik sxt sq 5ax",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5358040159",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Oniel\n🔸Teléfono Cliente: 5358040159\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 mikrotik sxt sq 5ax\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 16:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$320 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 2,
+          "name": "mikrotik sxt sq 5ax"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1790195829595,
+      "ts": "2026-09-23T20:37:09.597Z",
+      "pago": {
+        "mn": 5600,
+        "ts": "2026-09-23T20:39:16.312Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1389,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
+      "total": "5600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T20:39:08.679Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Yasiel René Hernández Román",
+      "valeNum": 101,
+      "articulo": "×20 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786539281210,
+      "precioMN": "5600 MN",
+      "telefono": "50361320",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Yasiel René Hernández Román\n🔸Teléfono Cliente: 50361320\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×20 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: 5600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 16:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-23T20:39:16.311Z",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 20
+      },
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 20,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790190649916,
       "ts": "2026-09-23T19:10:49.919Z",
       "total": "$270 USD",
@@ -2568,8 +2653,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1790189523017,
@@ -2780,7 +2864,7 @@
       "ts": "2026-09-23T16:42:01.257Z",
       "total": "$260 USD + 2300 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T20:17:08.217Z",
+      "seenTs": "2026-09-23T20:39:30.563Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Raikeline",
@@ -31357,5 +31441,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T20:17:59.781Z"
+  "timestamp": "2026-09-23T20:40:16.353Z"
 }
