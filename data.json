@@ -1076,7 +1076,7 @@
       "name": "Linterna de cabeza superpotente",
       "catId": 40,
       "photo": "photos/img_1778384507302.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1778384507302.webp",
       "nombre": "Linterna de cabeza superpotente",
       "precio": "$25",
@@ -2531,9 +2531,20 @@
     {
       "id": 1790177525074,
       "ts": "2026-09-23T15:32:05.078Z",
+      "pago": {
+        "mn": 1800,
+        "ts": "2026-09-23T15:32:30.339Z",
+        "eur": 0,
+        "usd": 25,
+        "zelle": 0,
+        "eurUSD": 1.1406,
+        "mnAuto": true,
+        "tasaMN": 725
+      },
       "total": "$25 USD + 1800 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-23T15:32:17.613Z",
+      "status": "pending_payment",
       "vuelto": "0",
       "cliente": "Yamirka",
       "valeNum": 91,
@@ -2545,10 +2556,18 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Maykel\n\n🔸 Nombre Cliente: Yamirka\n🔸Teléfono Cliente: 5352747802\n🔸Dirección Cliente: Trabajo 26 entre 43 y 45 playa es la Dirección Municipal de Vivienda\n🔸Mensajería/ costo: 1800\n🔸Hora de entrega: 01:00\n🔸 Artículos y cantidades:\n  ×1 Linterna de cabeza superpotente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $25 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 11:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Trabajo 26 entre 43 y 45 playa es la Dirección Municipal de Vivienda",
       "precioUSD": "$25 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-23T15:32:45.660Z",
       "mensajeria": "1800",
       "comFijadaMN": 1500,
-      "horaEntrega": "01:00",
+      "confirmedTs": null,
+      "deliveredTs": "2026-09-23T15:32:54.282Z",
+      "mensajeroId": 1787161412838,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1778384507302": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2557,11 +2576,10 @@
           "name": "Linterna de cabeza superpotente"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -30924,5 +30942,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T15:32:13.911Z"
+  "timestamp": "2026-09-23T15:33:54.307Z"
 }
