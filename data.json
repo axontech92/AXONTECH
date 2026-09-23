@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2529,11 +2529,87 @@
   ],
   "vales": [
     {
+      "id": 1790173469819,
+      "ts": "2026-09-23T14:24:29.834Z",
+      "total": "$200 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T14:30:06.646Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Tony",
+      "valeNum": 102,
+      "articulo": "×1 📡 TP-Link Archer BE230",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5355607310",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Tony\n🔸Teléfono Cliente: 5355607310\n🔸Dirección Cliente: Calle nacional entre calle corta y lililoy #13515, Aldabó\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 10:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle nacional entre calle corta y lililoy #13515, Aldabó",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3000",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788560867958,
+          "qty": 1,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790173439821,
+      "ts": "2026-09-23T14:23:59.846Z",
+      "total": "$230 USD + 1500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T14:27:33.060Z",
+      "status": "assigned",
+      "vuelto": "70 USD (EN BUEN ESTADO⚠️)",
+      "cliente": "Alejandro Salazar Calderin",
+      "valeNum": 101,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5354835061",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Alejandro Salazar Calderin\n🔸Teléfono Cliente: 5354835061\n🔸Dirección Cliente: Calle 9 entre I y H, Plaza de la Revolución\n🔸Mensajería/ costo: 1500\n🔸Hora de entrega: 11:00\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: 70 USD (EN BUEN ESTADO⚠️)\n🔸 Total a pagar: $230 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 10:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 9 entre I y H, Plaza de la Revolución",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": "https://maps.app.goo.gl/uv1WWvPrR8xqNGfD6?g_st=ac",
+      "assignedTs": "2026-09-23T14:30:01.678Z",
+      "mensajeria": "1500",
+      "comFijadaMN": 0,
+      "mensajeroId": 1788282079191,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790168222937,
       "ts": "2026-09-23T12:57:02.939Z",
       "total": "$25 USD + 8000 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T13:22:30.259Z",
+      "seenTs": "2026-09-23T13:26:39.484Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Ailin",
@@ -2572,7 +2648,7 @@
       "ts": "2026-09-23T12:54:26.737Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T13:18:24.202Z",
+      "seenTs": "2026-09-23T13:26:38.623Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Ivonne",
@@ -2609,7 +2685,7 @@
       "ts": "2026-09-23T12:51:57.412Z",
       "total": "$69 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T13:23:16.391Z",
+      "seenTs": "2026-09-23T13:26:45.413Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Adys",
@@ -2648,7 +2724,7 @@
       "ts": "2026-09-23T11:18:04.570Z",
       "total": "$460 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T13:23:52.619Z",
+      "seenTs": "2026-09-23T13:26:24.364Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexander Arias",
@@ -3794,7 +3870,7 @@
       "ts": "2026-09-22T16:25:23.977Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T13:18:07.813Z",
+      "seenTs": "2026-09-23T13:26:27.361Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Abraham",
@@ -4352,7 +4428,7 @@
       "ts": "2026-09-22T14:30:53.597Z",
       "total": "$1200 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T13:23:56.217Z",
+      "seenTs": "2026-09-23T13:26:32.329Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Gabriel",
@@ -30623,5 +30699,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T13:24:38.025Z"
+  "timestamp": "2026-09-23T14:31:01.706Z"
 }
