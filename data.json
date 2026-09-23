@@ -2438,7 +2438,7 @@
       "name": "Hex Poe Lite(RB750gr2)",
       "catId": 10,
       "photo": "photos/p-1789945684800-999454fb.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1789945684800-999454fb.webp",
       "nombre": "Hex Poe Lite(RB750gr2)",
       "precio": "110",
@@ -2528,6 +2528,216 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790167917402,
+      "ts": "2026-09-23T12:51:57.412Z",
+      "total": "$69 USD + 1500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-23T12:52:09.468Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Adys",
+      "valeNum": 99,
+      "articulo": "×3 Toldo para sombra marrón 2 x 4",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352173545",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Adys\n🔸Teléfono Cliente: 5352173545\n🔸Dirección Cliente: Calle A entre 13 y 15 vedado #309\n🔸Mensajería/ costo: 1500 cup\n🔸Hora de entrega: 14:00\n🔸 Artículos y cantidades:\n  ×3 Toldo para sombra marrón 2 x 4\n🔸Precio USD/ zelle: $69 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $69 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 08:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle A entre 13 y 15 vedado #309",
+      "precioUSD": "$69 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "1500 cup",
+      "comFijadaMN": 9,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336859697,
+          "qty": 3,
+          "name": "Toldo para sombra marrón 2 x 4"
+        }
+      ],
+      "comisionGestor": "9 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790162284565,
+      "ts": "2026-09-23T11:18:04.570Z",
+      "total": "$460 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alexander Arias",
+      "valeNum": 134,
+      "articulo": "×2 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5351142362",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Alexander Arias\n🔸Teléfono Cliente: 5351142362\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $460 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/09/2026 07:17\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$460 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 2,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790129402273,
+      "ts": "2026-09-23T02:10:02.283Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Julio",
+      "valeNum": 132,
+      "articulo": "×1 KIT de 4 camaras Zosi (sin disco duro)",
+      "garantia": "",
+      "gestorId": 1788962896804,
+      "precioMN": "",
+      "telefono": "5845622",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hade\n\n🔸 Nombre Cliente: Julio\n🔸Teléfono Cliente: 5845622\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 KIT de 4 camaras Zosi (sin disco duro)\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 22:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1778384314795,
+          "qty": 1,
+          "name": "KIT de 4 camaras Zosi (sin disco duro)"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790128856079,
+      "ts": "2026-09-23T02:00:56.081Z",
+      "total": "7300 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yudith",
+      "valeNum": 131,
+      "articulo": "×10 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "2800 MN",
+      "telefono": "50819000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yudith\n🔸Teléfono Cliente: 50819000\n🔸Dirección Cliente: Calle 61 / 236 y 240  # 23603  yudith  . San Agustín\n🔸Mensajería/ costo: 4500\n🔸Hora de entrega: 11:00\n🔸 Artículos y cantidades:\n  ×10 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 2800 MN\n🔸 Vuelto: \n🔸 Total a pagar: 7300 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 22:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 61 / 236 y 240  # 23603  yudith  . San Agustín",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "4500",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 10,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790124836010,
+      "ts": "2026-09-23T00:53:56.012Z",
+      "total": "28000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Jorge",
+      "valeNum": 130,
+      "articulo": "×100 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "28000 MN",
+      "telefono": "53923504",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Jorge\n🔸Teléfono Cliente: 53923504\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×100 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 28000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 28000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 20:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 100,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790124196773,
+      "ts": "2026-09-23T00:43:16.780Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-09-23T12:52:40.133Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Félix",
+      "valeNum": 129,
+      "articulo": "×1 Router KUWIFI de linea de 1.150MBPS",
+      "garantia": "",
+      "gestorId": 1781761257111,
+      "precioMN": "",
+      "telefono": "55392169",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Jennifer\n\n🔸 Nombre Cliente: Félix\n🔸Teléfono Cliente: 55392169\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 18:30\n🔸 Artículos y cantidades:\n  ×1 Router KUWIFI de linea de 1.150MBPS\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 22/09/2026 20:43\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 1,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790121279508,
       "ts": "2026-09-22T23:54:39.511Z",
@@ -2750,7 +2960,7 @@
       "ts": "2026-09-22T21:08:36.351Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T23:41:16.190Z",
+      "seenTs": "2026-09-23T02:08:55.850Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pedro",
@@ -2868,8 +3078,8 @@
       "ts": "2026-09-22T20:35:42.127Z",
       "total": "$110 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T23:29:00.601Z",
-      "status": "pending",
+      "seenTs": "2026-09-23T12:51:43.253Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Michel",
       "valeNum": 124,
@@ -2897,9 +3107,23 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "stockSalido": {
+        "1789945684800": 1
+      },
+      "confirmedTs": "2026-09-23T12:51:58.906Z",
+      "pago": {
+        "usd": 110,
+        "zelle": 0,
+        "eur": 0,
+        "mn": 0,
+        "mnAuto": true,
+        "tasaMN": 725,
+        "eurUSD": 1.1406,
+        "ts": "2026-09-23T12:51:58.906Z"
+      }
     },
     {
       "id": 1790107922764,
@@ -3491,7 +3715,7 @@
       "ts": "2026-09-22T16:22:37.016Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-22T22:29:09.005Z",
+      "seenTs": "2026-09-23T02:08:44.736Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eloydis",
@@ -30310,5 +30534,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-23T00:11:36.302Z"
+  "timestamp": "2026-09-23T12:52:58.945Z"
 }
