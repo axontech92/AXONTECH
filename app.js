@@ -8221,7 +8221,10 @@ function openEditValeModal(id) {
   const elUSD=document.getElementById('ev-precioUSD');if(elUSD)elUSD.value=v.precioUSD||'';
   const elMN=document.getElementById('ev-precioMN');if(elMN)elMN.value=v.precioMN||'';
   // Load valeProductos
-  editValeProductos=v.valeProductos?[...v.valeProductos]:[];
+  // v130: copia de cada línea, no solo del array. La comisión por línea se
+  // edita aquí encima (cedidaUSD/MN), y sin copiar el objeto se tocaba el vale
+  // guardado antes de darle a "Guardar" — y "Cancelar" ya no lo deshacía.
+  editValeProductos=(v.valeProductos||[]).map(it=>({...it}));
   editValePickerSelected={};
   editValeProductos.forEach(p=>{editValePickerSelected[p.id]=p.qty;});
   renderEditValeSelectedProducts();
@@ -8279,11 +8282,64 @@ function renderEditValeSelectedProducts() {
   if(!c)return;
   if(!editValeProductos.length){c.style.display='none';return;}
   c.style.display='block';
-  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:6px;">`+
-    editValeProductos.map(i=>`<div style="display:flex;align-items:center;gap:6px;">
-      <span style="font-weight:800;color:var(--blue);font-size:12px;">×${i.qty}</span>
-      <span style="font-size:11px;">${escapeHTML(i.name)}</span>
-    </div>`).join('')+`</div>`;
+  // v130: la comisión del gestor, línea a línea y editable — igual que en su
+  // formulario (v123). Antes aquí solo salían los nombres, y la única forma de
+  // "bajarle la comisión" era la casilla de texto de abajo, que ninguna cuenta
+  // lee: se cambiaba el texto y ni bajaba la comisión ni el precio al cliente.
+  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:6px;">`+
+    editValeProductos.map((i,idx)=>{
+      const base=_comisionBaseLinea(i);
+      const mon=base.mn>0?'MN':'USD';
+      const baseN=mon==='MN'?base.mn:base.usd;
+      const neta=_comisionNetaLinea(i);
+      const netaN=mon==='MN'?neta.mn:neta.usd;
+      const cedido=Math.round((baseN-netaN)*100)/100;
+      const nombre=i.name||(productoOf(i.id)||{}).name||('#'+i.id);
+      return `<div style="display:flex;flex-direction:column;gap:3px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-weight:800;color:var(--blue);font-size:12px;">×${i.qty}</span>
+        <span style="font-size:11px;">${escapeHTML(nombre)}</span>
+      </div>
+      ${baseN>0?`<div style="display:flex;align-items:center;gap:6px;padding-left:20px;flex-wrap:wrap;">
+        <span style="font-size:10px;color:var(--text-muted);">Comisión del gestor:</span>
+        <input type="number" inputmode="decimal" min="0" max="${baseN}" step="any" value="${netaN}"
+               class="ev-comLinea" data-linea="${idx}" onfocus="this.select();"
+               onchange="cambiarComisionLineaAdmin(${idx}, this.value)"
+               style="width:80px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:12px;font-weight:700;color:var(--text);">
+        <span style="font-size:10px;color:var(--text-muted);">${mon} de ${mon==='MN'?Math.round(baseN):baseN}</span>
+        ${cedido>0?`<span style="font-size:10px;color:var(--orange);font-weight:700;">−${mon==='MN'?Math.round(cedido):cedido} ${mon} al cliente</span>`:''}
+      </div>`:''}
+    </div>`;}).join('')+`</div>`;
+  _recalcularComisionEditVale();
+}
+// v130: lo mismo que cambiarComisionLinea del gestor, sobre el vale que el
+// admin está editando. Se guarda la DIFERENCIA (lo cedido): la comisión baja y
+// el cliente paga eso menos, en la misma moneda — _rebajaVale lo recoge solo.
+function cambiarComisionLineaAdmin(idx, valor) {
+  const it=editValeProductos[idx];
+  if(!it)return;
+  const base=_comisionBaseLinea(it);
+  const mon=base.mn>0?'MN':'USD';
+  const baseN=mon==='MN'?base.mn:base.usd;
+  let quiere=parseFloat(valor);
+  if(!isFinite(quiere)||quiere<0)quiere=0;
+  if(quiere>baseN){quiere=baseN;showToast('No se puede dar más comisión de la que da ese producto');}
+  const cedido=Math.round((baseN-quiere)*100)/100;
+  if(mon==='MN'){it.cedidaMN=cedido;delete it.cedidaUSD;}
+  else          {it.cedidaUSD=cedido;delete it.cedidaMN;}
+  renderEditValeSelectedProducts();
+}
+// La casilla "Comisión gestor" del modal pasa a ser la SUMA de lo que queda en
+// cada línea: un resultado, no un dato que se pueda escribir y no sirva de nada.
+function _recalcularComisionEditVale() {
+  const el=document.getElementById('ev-comisionGestor');
+  if(!el)return;
+  el.readOnly=editValeProductos.length>0;
+  el.title=el.readOnly?'Se calcula de la comisión de cada producto (arriba)':'';
+  if(!editValeProductos.length)return;
+  let usd=0,mn=0;
+  editValeProductos.forEach(it=>{const n=_comisionNetaLinea(it);usd+=n.usd;mn+=n.mn;});
+  el.value=(usd>0||mn>0)?_fmtMonto(usd,mn):'';
 }
 function openEditValeProductPicker() {
   if(!getProductos().length){showToast('No hay productos cargados');return;}
@@ -8379,8 +8435,15 @@ function renderEditValePickerSelected() {
   </div>`).join('');
 }
 function confirmEditValePickerSelection() {
+  // v130: una línea que ya estaba conserva sus ajustes (comisión cedida,
+  // rebaja del negocio). Antes volver a abrir el selector los borraba todos.
+  const _antes=new Map(editValeProductos.map(it=>[String(it.id),it]));
   const items=Object.entries(editValePickerSelected).map(([id,qty])=>{
-    const p=productoOf(parseInt(id));return{id:parseInt(id),name:p?p.name:id,qty};
+    const p=productoOf(parseInt(id));
+    const prev=_antes.get(String(id))||{};
+    const it={id:parseInt(id),name:p?p.name:id,qty};
+    ['cedidaUSD','cedidaMN','rebajaUSD','rebajaMN'].forEach(k=>{if(prev[k]!=null)it[k]=prev[k];});
+    return it;
   });
   editValeProductos=items;
   const elArt=document.getElementById('ev-articulo');if(elArt)elArt.value=items.map(i=>`×${i.qty} ${i.name}`).join(' / ');
@@ -8458,7 +8521,12 @@ function saveEditVale() {
   // del picker (se inicializa desde v.valeProductos al abrir el modal) — antes,
   // si el admin quitaba todos los productos del vale, el array quedaba vacío y
   // este `if` lo ignoraba, dejando silenciosamente los productos viejos guardados.
-  const productsChanged = JSON.stringify(editValeProductos) !== JSON.stringify(v.valeProductos||[]);
+  // v130: "cambiaron los productos" es cambiar QUÉ lleva el vale y CUÁNTO — no
+  // la comisión de una línea. Antes se comparaba la línea entera, así que bajar
+  // la comisión del gestor en un vale ya cobrado lo tomaba por un cambio de
+  // productos, lo bloqueaba por el stock y no guardaba la rebaja.
+  const _idQty = arr => JSON.stringify((arr||[]).map(it => [String(it && it.id), parseInt(it && it.qty,10)||0]));
+  const productsChanged = _idQty(editValeProductos) !== _idQty(v.valeProductos);
   if (productsChanged && v.stockDecremented) {
     // Este vale ya tiene el stock descontado del inventario (pending_payment o
     // confirmed). Cambiar aquí los productos/cantidades no ajusta el stock —
@@ -9979,12 +10047,19 @@ let _ticketAfterSend = false;
 function _rebajaFormulario() {
   const el = document.getElementById('vf-comisionCedida');
   const cedida = Math.max(0, parseFloat((el && el.value) || 0) || 0);
-  if (!cedida) return null;
   const selMon = document.getElementById('vf-comisionCedidaMoneda');
+  // v130 FIX: antes solo se miraba la casilla general de cesión. La rebaja
+  // producto a producto (v123: "tu comisión" en cada línea) no llegaba aquí, y
+  // el ticket del cliente salía con el precio entero aunque el gestor hubiera
+  // bajado su comisión en una línea. Se pasan también las líneas: _rebajaVale
+  // ya sabe sumarlas (cedidaUSD / cedidaMN de cada una).
+  const lineas = (typeof currentValeProductos !== 'undefined' && Array.isArray(currentValeProductos))
+    ? currentValeProductos : [];
   return _rebajaVale({
     comisionCedida: cedida,
     comisionCedidaMoneda: (selMon && selMon.value === 'MN') ? 'MN' : 'USD',
     comisionCedidaMotivo: fVal('vf-cesionMotivo'),
+    valeProductos: lineas,
     total: fVal('vf-total')
   });
 }
@@ -18278,8 +18353,13 @@ const AYUDA_SECCIONES = [
       { icono:'✂️', titulo:'Bajar la comisión de un producto', donde:'Al llenar el vale',
         para:'Hacerle precio al cliente en UN producto concreto, no en todo el vale. "En los 10 nanos bajo 50 de los 100, y en los POE bajo 4000 de los 10000."',
         como:'Al escoger los productos, cada uno sale con su comisión al lado. Escribe encima lo que quieres cobrar por esa línea y listo.',
-        ojo:'Lo que dejas de cobrar se le descuenta al cliente en ESA misma moneda: si bajas 50 USD en los nanos, el cliente paga 50 USD menos; si bajas 4000 MN en los POE, paga 4000 MN menos. No puedes cobrar más de lo que da el producto. El campo de "ceder comisión" para todo el vale sigue ahí y se suma a esto.',
-        nuevo:'v123' },
+        ojo:'Lo que dejas de cobrar se le descuenta al cliente en ESA misma moneda: si bajas 50 USD en los nanos, el cliente paga 50 USD menos; si bajas 4000 MN en los POE, paga 4000 MN menos. No puedes cobrar más de lo que da el producto. El campo de "ceder comisión" para todo el vale sigue ahí y se suma a esto. El ticket y el mensaje de WhatsApp para el cliente ya salen con el descuento puesto.',
+        nuevo:'v130' },
+      { icono:'✂️', titulo:'Bajarle la comisión al gestor desde el admin', donde:'Vales › ✏️ Editar vale',
+        para:'Cuando el gestor acordó un precio con el cliente pero no lo puso al hacer el vale, o hay que corregirlo después.',
+        como:'Abre el vale, dale a Editar: debajo de cada producto sale "Comisión del gestor" con lo que da. Escribe lo que le queda y guarda.',
+        ojo:'Funciona igual que si lo hubiera hecho el gestor: su comisión baja y el cliente paga esa diferencia menos, en la misma moneda. La casilla "Comisión gestor" de abajo ya no se escribe a mano — antes se podía, pero ninguna cuenta la leía, y por eso "bajarla" no hacía nada. Se puede hacer también en un vale ya cobrado: el stock no se toca.',
+        nuevo:'v130' },
       { icono:'🏷️', titulo:'Rebajar un producto del vale', donde:'Vales › 🏷️ Rebajar este vale',
         para:'Que el descuento se sepa de qué mercancía salió. Con varias líneas, un solo número no dice nada — y el corte de Dueños necesita saberlo para pagarle a cada cual lo suyo.',
         como:'En la ventana de rebajar, arriba sale una casilla por cada producto del vale con su precio. Escribe lo que le quitas a esa línea.',
