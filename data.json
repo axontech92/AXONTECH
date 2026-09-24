@@ -1268,7 +1268,7 @@
       "name": "Conectores MC4 en  \"Y\" para paneles solares",
       "catId": 20,
       "photo": "photos/p-1788155221143-2be6777c.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/p-1788155221143-2be6777c.webp",
       "nombre": "Conecectores MC4 en  \"Y\" para paneles solares",
       "precio": "$28",
@@ -1285,7 +1285,7 @@
       "name": "Conectores MC4 (10 pares)",
       "catId": 20,
       "photo": "photos/p-1788155775988-7596cd1a.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1788155775988-7596cd1a.webp",
       "nombre": "Conectores MC4 (10 pares)",
       "precio": "$13",
@@ -2621,7 +2621,7 @@
       "ts": "2026-09-24T16:33:26.374Z",
       "total": "$160 USD + 2700 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T16:38:44.392Z",
+      "seenTs": "2026-09-24T16:44:16.964Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Beatriz",
@@ -2658,7 +2658,7 @@
       "ts": "2026-09-24T16:13:48.749Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T16:30:25.782Z",
+      "seenTs": "2026-09-24T16:44:26.257Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Emilio",
@@ -2891,10 +2891,20 @@
     {
       "id": 1790261423460,
       "ts": "2026-09-24T14:50:23.477Z",
+      "pago": {
+        "mn": 2500,
+        "ts": "2026-09-24T16:43:29.572Z",
+        "eur": 0,
+        "usd": 41,
+        "zelle": 0,
+        "eurUSD": 1.1337,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$41 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T16:03:23.502Z",
-      "status": "assigned",
+      "seenTs": "2026-09-24T16:43:23.425Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yaritza",
       "valeNum": 100,
@@ -2910,8 +2920,14 @@
       "ubicacion": null,
       "assignedTs": "2026-09-24T14:57:45.100Z",
       "mensajeria": "2500",
+      "confirmedTs": "2026-09-24T16:43:29.572Z",
+      "deliveredTs": "2026-09-24T16:43:28.067Z",
       "mensajeroId": 1787161412838,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788155221143": 1,
+        "1788155775988": 1
+      },
       "valeProductos": [
         {
           "id": 1788155221143,
@@ -2926,7 +2942,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3088,7 +3104,7 @@
       "ts": "2026-09-24T12:48:36.962Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T16:39:19.309Z",
+      "seenTs": "2026-09-24T16:44:23.130Z",
       "status": "pending",
       "vuelto": "10",
       "cliente": "Samy",
@@ -3728,7 +3744,7 @@
       "ts": "2026-09-23T16:16:28.779Z",
       "total": "$420 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T16:30:11.252Z",
+      "seenTs": "2026-09-24T16:44:27.782Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -32049,5 +32065,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T16:41:43.298Z"
+  "timestamp": "2026-09-24T16:44:30.326Z"
 }
