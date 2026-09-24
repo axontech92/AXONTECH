@@ -2529,6 +2529,48 @@
   ],
   "vales": [
     {
+      "id": 1790261423460,
+      "ts": "2026-09-24T14:50:23.477Z",
+      "total": "$41 USD + 2500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-24T14:57:55.997Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Yaritza",
+      "valeNum": 100,
+      "articulo": "×1 Conectores MC4 en  \"Y\" para paneles solares / ×1 Conectores MC4 (10 pares)",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "precioMN": "",
+      "telefono": "58181907",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Yaritza\n🔸Teléfono Cliente: 58181907\n🔸Dirección Cliente: Mensajería hasta calle 18 entre 1ra y 3ra. Miramar\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 Conectores MC4 en  \"Y\" para paneles solares\n  ×1 Conectores MC4 (10 pares)\n🔸Precio USD/ zelle: $41 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $41 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 10:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Mensajería hasta calle 18 entre 1ra y 3ra. Miramar",
+      "precioUSD": "$41 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-24T14:57:45.100Z",
+      "mensajeria": "2500",
+      "mensajeroId": 1787161412838,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1788155221143,
+          "qty": 1,
+          "name": "Conectores MC4 en  \"Y\" para paneles solares"
+        },
+        {
+          "id": 1788155775988,
+          "qty": 1,
+          "name": "Conectores MC4 (10 pares)"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790260982355,
       "ts": "2026-09-24T14:43:02.358Z",
       "total": "$110 USD + 1500 MN",
@@ -31581,5 +31623,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T14:48:04.375Z"
+  "timestamp": "2026-09-24T14:58:45.745Z"
 }
