@@ -2163,7 +2163,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 695,
+      "stock": 693,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2736,10 +2736,20 @@
     {
       "id": 1790277582012,
       "ts": "2026-09-24T19:19:42.017Z",
+      "pago": {
+        "mn": 560,
+        "ts": "2026-09-24T22:54:30.794Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1448,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "560 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T20:22:06.864Z",
-      "status": "pending",
+      "seenTs": "2026-09-24T22:54:20.775Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Fabio(también quiere puntas de cable de red)deben de ser dos",
       "valeNum": 111,
@@ -2754,7 +2764,11 @@
       "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-24T22:54:30.794Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 2
+      },
       "valeProductos": [
         {
           "id": 1787349543585,
@@ -2764,7 +2778,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2929,7 +2943,7 @@
       "ts": "2026-09-24T16:36:37.968Z",
       "total": "189 800 cup",
       "carnet": "",
-      "seenTs": "2026-09-24T19:31:31.699Z",
+      "seenTs": "2026-09-24T22:54:34.967Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexander Perez",
@@ -3554,7 +3568,7 @@
       "ts": "2026-09-24T03:04:25.862Z",
       "total": "$460 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T19:32:11.394Z",
+      "seenTs": "2026-09-24T22:54:11.329Z",
       "status": "pending",
       "vuelto": "???",
       "cliente": "Yoel",
@@ -3801,7 +3815,7 @@
       "ts": "2026-09-23T21:36:18.930Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T22:08:10.954Z",
+      "seenTs": "2026-09-24T22:53:56.950Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -4276,7 +4290,7 @@
       "ts": "2026-09-23T16:16:17.282Z",
       "total": "$780 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T19:31:29.944Z",
+      "seenTs": "2026-09-24T22:54:46.586Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -4474,7 +4488,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T20:08:25.130Z",
+      "seenTs": "2026-09-24T22:54:48.639Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
@@ -5187,7 +5201,7 @@
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T22:08:12.972Z",
+      "seenTs": "2026-09-24T22:54:05.092Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -32564,5 +32578,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T22:53:10.239Z"
+  "timestamp": "2026-09-24T22:55:30.825Z"
 }
