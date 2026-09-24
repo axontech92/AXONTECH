@@ -1116,7 +1116,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 13,
+      "stock": 12,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2693,6 +2693,7 @@
       "gestorId": 1781761257101,
       "precioMN": "",
       "telefono": "5351708298",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Robert\n🔸Teléfono Cliente: 5351708298\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 Nanostation m2 loco\n🔸Precio USD/ zelle: $750 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/9/2026, 11:40:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$750 USD",
       "reservado": true,
@@ -2716,7 +2717,6 @@
       "recogidaTienda": true,
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Robert\n🔸Teléfono Cliente: 5351708298\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 Nanostation m2 loco\n🔸Precio USD/ zelle: $750 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/9/2026, 11:40:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -3086,10 +3086,20 @@
     {
       "id": 1790207992667,
       "ts": "2026-09-23T23:59:52.683Z",
+      "pago": {
+        "mn": 7500,
+        "ts": "2026-09-24T16:24:51.104Z",
+        "eur": 0,
+        "usd": 150,
+        "zelle": 0,
+        "eurUSD": 1.1337,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$150 USD + 7500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T16:16:29.345Z",
-      "status": "assigned",
+      "seenTs": "2026-09-24T16:24:02.042Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Raul Mena",
       "valeNum": 106,
@@ -3106,8 +3116,13 @@
       "assignedTs": "2026-09-24T13:16:24.524Z",
       "mensajeria": "7500 cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-24T16:24:51.103Z",
+      "deliveredTs": "2026-09-24T16:24:49.742Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786858233037": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3118,7 +3133,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -31960,5 +31975,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T16:23:44.869Z"
+  "timestamp": "2026-09-24T16:25:51.744Z"
 }
