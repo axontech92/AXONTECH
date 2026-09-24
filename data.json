@@ -2533,6 +2533,7 @@
       "ts": "2026-09-24T12:48:36.962Z",
       "total": "$25 USD",
       "carnet": "",
+      "seenTs": "2026-09-24T13:21:32.680Z",
       "status": "pending",
       "vuelto": "10",
       "cliente": "Samy",
@@ -2549,6 +2550,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1000,
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2568,7 +2570,7 @@
       "ts": "2026-09-24T03:04:25.862Z",
       "total": "$460 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T04:06:41.008Z",
+      "seenTs": "2026-09-24T13:24:50.542Z",
       "status": "pending",
       "vuelto": "???",
       "cliente": "Yoel",
@@ -2748,7 +2750,7 @@
       "ts": "2026-09-23T21:49:16.837Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T04:07:28.289Z",
+      "seenTs": "2026-09-24T13:23:17.699Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Rey Carlos",
@@ -3377,7 +3379,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-23T23:09:10.394Z",
+      "seenTs": "2026-09-24T13:27:21.584Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
@@ -3683,8 +3685,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3733,8 +3736,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4085,7 +4089,7 @@
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-23T15:23:19.436Z",
+      "seenTs": "2026-09-24T13:24:18.157Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -31453,5 +31457,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T13:17:24.744Z"
+  "timestamp": "2026-09-24T13:30:29.744Z"
 }
