@@ -2456,7 +2456,7 @@
       "name": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ",
       "catId": 10,
       "photo": "photos/p-1789945881104-42e3d673.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/p-1789945881104-42e3d673.webp",
       "nombre": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ",
       "precio": "320",
@@ -2533,7 +2533,7 @@
       "ts": "2026-09-24T19:25:23.253Z",
       "total": "$240 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T19:33:02.699Z",
+      "seenTs": "2026-09-24T19:53:50.792Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Danny",
@@ -2656,10 +2656,20 @@
     {
       "id": 1790272093945,
       "ts": "2026-09-24T17:48:13.953Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-24T19:53:47.657Z",
+        "eur": 0,
+        "usd": 320,
+        "zelle": 0,
+        "eurUSD": 1.1528,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T19:33:08.972Z",
-      "status": "pending",
+      "seenTs": "2026-09-24T19:52:30.884Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Zaily Batista",
       "valeNum": 109,
@@ -2675,7 +2685,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-24T19:53:47.657Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1789945881104": 1
+      },
       "comFijadaUSD": 15,
       "valeProductos": [
         {
@@ -2686,7 +2700,7 @@
       ],
       "comisionGestor": "$15.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2825,7 +2839,7 @@
       "ts": "2026-09-24T16:33:00.000Z",
       "total": "$160 USD + 2700 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T19:32:41.181Z",
+      "seenTs": "2026-09-24T19:53:54.731Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Beatriz",
@@ -2864,7 +2878,7 @@
       "ts": "2026-09-24T16:13:48.749Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T19:33:23.362Z",
+      "seenTs": "2026-09-24T19:53:52.066Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Emilio",
@@ -3376,7 +3390,7 @@
       "ts": "2026-09-24T10:15:50.388Z",
       "total": "$65 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T19:32:27.078Z",
+      "seenTs": "2026-09-24T19:54:07.245Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Leonel Iriarte",
@@ -3608,7 +3622,7 @@
       "ts": "2026-09-23T21:49:16.837Z",
       "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T19:32:59.729Z",
+      "seenTs": "2026-09-24T19:54:04.841Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Rey Carlos",
@@ -3645,7 +3659,7 @@
       "ts": "2026-09-23T21:36:18.930Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T19:32:24.483Z",
+      "seenTs": "2026-09-24T19:54:23.072Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -32400,5 +32414,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T19:34:21.239Z"
+  "timestamp": "2026-09-24T19:54:47.698Z"
 }
