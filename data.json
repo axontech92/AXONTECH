@@ -2027,7 +2027,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 12,
+      "stock": 11,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2402,7 +2402,7 @@
       "name": "📡 TP-Link Archer BE230",
       "catId": 10,
       "photo": "photos/p-1788560867958-06577344.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/p-1788560867958-06577344.webp",
       "nombre": "📡 TP-Link Archer BE230",
       "precio": "$200",
@@ -2529,12 +2529,59 @@
   ],
   "vales": [
     {
+      "id": 1790287979285,
+      "ts": "2026-09-24T22:12:59.288Z",
+      "total": "$28 USD",
+      "carnet": "",
+      "seenTs": "2026-09-24T22:52:13.304Z",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Joymen",
+      "valeNum": 114,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5355143896",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Joymen\n🔸Teléfono Cliente: 5355143896\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 18:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 3,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790285351002,
       "ts": "2026-09-24T21:29:11.003Z",
+      "pago": {
+        "mn": 3000,
+        "ts": "2026-09-24T22:52:09.171Z",
+        "eur": 0,
+        "usd": 340,
+        "zelle": 0,
+        "eurUSD": 1.1448,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$340 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T21:36:20.418Z",
-      "status": "assigned",
+      "seenTs": "2026-09-24T22:35:45.202Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "osman",
       "valeNum": 113,
@@ -2552,9 +2599,14 @@
       "assignedTs": "2026-09-24T21:29:29.722Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-24T22:52:09.170Z",
+      "deliveredTs": "2026-09-24T22:52:07.911Z",
       "mensajeroId": 1784476816825,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786858233037": 1,
+        "1788560867958": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2570,7 +2622,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -2914,7 +2966,7 @@
       "ts": "2026-09-24T16:33:00.000Z",
       "total": "$160 USD + 2700 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T21:47:19.013Z",
+      "seenTs": "2026-09-24T22:22:13.033Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Beatriz",
@@ -3465,7 +3517,7 @@
       "ts": "2026-09-24T10:15:50.388Z",
       "total": "$65 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T20:07:39.333Z",
+      "seenTs": "2026-09-24T22:52:16.865Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Leonel Iriarte",
@@ -3749,7 +3801,7 @@
       "ts": "2026-09-23T21:36:18.930Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T21:42:21.281Z",
+      "seenTs": "2026-09-24T22:08:10.954Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -5135,7 +5187,7 @@
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T21:42:09.199Z",
+      "seenTs": "2026-09-24T22:08:12.972Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -32512,5 +32564,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T21:50:44.320Z"
+  "timestamp": "2026-09-24T22:53:10.239Z"
 }
