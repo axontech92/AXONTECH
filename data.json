@@ -2529,6 +2529,45 @@
   ],
   "vales": [
     {
+      "id": 1790282813694,
+      "ts": "2026-09-24T20:46:53.698Z",
+      "total": "$25 USD + 750 MN",
+      "carnet": "",
+      "seenTs": "2026-09-24T20:52:34.589Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Consuelo Díaz",
+      "valeNum": 112,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5356554310",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Consuelo Díaz\n🔸Teléfono Cliente: 5356554310\n🔸Dirección Cliente: San francisco # 452 entre zanjas y valle\n🔸Mensajería/ costo: 750\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $25 USD + 750 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 24/09/2026 16:46\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "San francisco # 452 entre zanjas y valle",
+      "precioUSD": "$25 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-24T20:52:31.554Z",
+      "mensajeria": "750",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476816825,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790277923241,
       "ts": "2026-09-24T19:25:23.253Z",
       "pago": {
@@ -2815,7 +2854,7 @@
       "ts": "2026-09-24T16:33:00.000Z",
       "total": "$160 USD + 2700 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T20:07:11.233Z",
+      "seenTs": "2026-09-24T20:50:06.128Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Beatriz",
@@ -2854,7 +2893,7 @@
       "ts": "2026-09-24T16:13:48.749Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T20:12:47.138Z",
+      "seenTs": "2026-09-24T20:32:33.232Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Emilio",
@@ -3649,7 +3688,7 @@
       "ts": "2026-09-23T21:36:18.930Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T20:01:29.032Z",
+      "seenTs": "2026-09-24T20:41:32.714Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -32407,5 +32446,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T20:24:51.014Z"
+  "timestamp": "2026-09-24T20:53:32.238Z"
 }
