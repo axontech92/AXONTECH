@@ -2584,7 +2584,7 @@
       "ts": "2026-09-24T17:48:13.953Z",
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T17:51:52.837Z",
+      "seenTs": "2026-09-24T17:54:26.995Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Zaily Batista",
@@ -2621,8 +2621,8 @@
       "ts": "2026-09-24T17:41:34.201Z",
       "total": "$20 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T17:51:55.232Z",
-      "status": "pending",
+      "seenTs": "2026-09-24T17:54:29.119Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Lesny el músico,  preguntar por Lesny el del estudio de música",
       "valeNum": 108,
@@ -2636,8 +2636,10 @@
       "precioUSD": "$20 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-24T17:53:38.559Z",
       "mensajeria": "3000 cup",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2773,7 +2775,7 @@
       "ts": "2026-09-24T16:13:48.749Z",
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T17:51:18.853Z",
+      "seenTs": "2026-09-24T17:54:30.799Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Emilio",
@@ -3873,7 +3875,7 @@
       "ts": "2026-09-23T16:16:28.779Z",
       "total": "$420 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T17:50:44.187Z",
+      "seenTs": "2026-09-24T17:54:32.768Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -32194,5 +32196,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T17:52:13.549Z"
+  "timestamp": "2026-09-24T17:54:38.591Z"
 }
