@@ -2529,6 +2529,51 @@
   ],
   "vales": [
     {
+      "id": 1790285351002,
+      "ts": "2026-09-24T21:29:11.003Z",
+      "total": "$340 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-24T21:29:32.036Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "osman",
+      "valeNum": 113,
+      "articulo": "×1 Nanostation m2 loco / ×1 📡 TP-Link Archer BE230",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "55054889",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: osman\n🔸Teléfono Cliente: 55054889\n🔸Dirección Cliente: 39/98 y100 # 9817 Marianao\n\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $340 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $340 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 17:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "39/98 y100 # 9817 Marianao",
+      "precioUSD": "$340 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "assignedTs": "2026-09-24T21:29:29.722Z",
+      "mensajeria": "3000",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": 1784476816825,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        },
+        {
+          "id": 1788560867958,
+          "qty": 1,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1790282813694,
       "ts": "2026-09-24T20:46:53.698Z",
       "pago": {
@@ -32461,5 +32506,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T21:27:32.240Z"
+  "timestamp": "2026-09-24T21:30:30.242Z"
 }
