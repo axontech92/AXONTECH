@@ -1659,7 +1659,7 @@
       "name": "Transfer 2 polos 110v",
       "catId": 20,
       "photo": "photos/img_1785079508918.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1785079508918.webp",
       "nombre": "Transfer 2 polos 110v",
       "precio": "$65",
@@ -1959,7 +1959,7 @@
       "name": "Breker digital ajustable",
       "catId": 20,
       "photo": "photos/img_1786594651216.webp",
-      "stock": 22,
+      "stock": 20,
       "imagen": "photos/img_1786594651216.webp",
       "nombre": "Breker digital ajustable",
       "precio": "$20",
@@ -2660,7 +2660,7 @@
       "ts": "2026-09-24T17:02:42.338Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T17:08:43.981Z",
+      "seenTs": "2026-09-24T18:07:45.548Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Daimon ponce",
@@ -2699,7 +2699,7 @@
       "ts": "2026-09-24T16:36:37.968Z",
       "total": "189 800 cup",
       "carnet": "",
-      "seenTs": "2026-09-24T16:45:09.625Z",
+      "seenTs": "2026-09-24T18:07:43.482Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexander Perez",
@@ -2966,10 +2966,20 @@
     {
       "id": 1790262656140,
       "ts": "2026-09-24T15:10:56.157Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-24T18:07:36.722Z",
+        "eur": 0,
+        "usd": 105,
+        "zelle": 0,
+        "eurUSD": 1.1528,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$105 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T16:44:53.660Z",
-      "status": "pending",
+      "seenTs": "2026-09-24T18:07:29.961Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Leonel Navarro",
       "valeNum": 101,
@@ -2985,7 +2995,12 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 3000,
+      "confirmedTs": "2026-09-24T18:07:36.722Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1785079508918": 1,
+        "1786594651216": 2
+      },
       "comFijadaUSD": 5,
       "valeProductos": [
         {
@@ -3001,7 +3016,7 @@
       ],
       "comisionGestor": "$5.00 USD + 3000 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3913,7 +3928,7 @@
       "ts": "2026-09-23T16:16:17.282Z",
       "total": "$780 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T16:44:59.194Z",
+      "seenTs": "2026-09-24T18:07:42.355Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -32196,5 +32211,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T17:54:38.591Z"
+  "timestamp": "2026-09-24T18:08:37.745Z"
 }
