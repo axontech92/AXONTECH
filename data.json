@@ -2027,7 +2027,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 19,
+      "stock": 18,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2913,10 +2913,20 @@
     {
       "id": 1790259331350,
       "ts": "2026-09-24T14:15:31.352Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-24T16:09:55.238Z",
+        "eur": 0,
+        "usd": 150,
+        "zelle": 0,
+        "eurUSD": 1.1337,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$150 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T16:03:13.883Z",
-      "status": "pending",
+      "seenTs": "2026-09-24T16:08:31.944Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Marlon",
       "valeNum": 99,
@@ -2928,10 +2938,14 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Marlon\n🔸Teléfono Cliente: 53546464\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n🔸Precio USD/ zelle: $150 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $150 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 10:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$150 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-24T16:09:55.237Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786858233037": 1
+      },
       "valeProductos": [
         {
           "id": 1786858233037,
@@ -2941,7 +2955,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -31895,5 +31909,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T16:08:23.367Z"
+  "timestamp": "2026-09-24T16:10:55.745Z"
 }
