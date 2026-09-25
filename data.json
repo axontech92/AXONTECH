@@ -664,7 +664,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778384158283,
@@ -2402,7 +2402,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788025891931,
@@ -2539,7 +2539,7 @@
       "ts": "2026-09-25T19:26:09.825Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T19:41:27.532Z",
+      "seenTs": "2026-09-25T19:47:18.803Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Zaily Batista",
@@ -2552,13 +2552,16 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Zaily Batista\n🔸Teléfono Cliente: 5353865692\n🔸Dirección Cliente: San Nicolas e/ San Rafael y San Miguel\n🔸Mensajería/ costo: Con mensajero yo.\n🔸 Artículos y cantidades:\n  ×2 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 15:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "San Nicolas e/ San Rafael y San Miguel",
       "precioUSD": "$60 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
-      "assignedTs": "2026-09-25T19:27:42.549Z",
+      "assignedTs": "2026-09-25T19:48:16.396Z",
       "mensajeria": "Con mensajero yo.",
       "comFijadaMN": 3000,
-      "mensajeroId": 1790364015435,
+      "confirmedTs": null,
+      "deliveredTs": "2026-09-25T19:47:39.094Z",
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": null,
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2617,20 +2620,20 @@
     },
     {
       "id": 1790363188983,
-      "ts": "2026-09-25T19:06:29.002Z",
-      "total": "$160 USD",
+      "ts": "2026-09-25T19:06:00.000Z",
+      "total": "$160 USD + 5600 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T19:36:41.864Z",
+      "seenTs": "2026-09-25T19:46:33.108Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Xxxx o Daimi o Damni",
       "valeNum": 112,
-      "articulo": "×1 Nanostation loco m5",
+      "articulo": "×1 Nanostation loco m5 / ×20 Cable de red categoría 6",
       "garantia": "",
       "gestorId": 1781761257102,
-      "precioMN": "",
+      "precioMN": "5600 MN",
       "telefono": "5354194976",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Xxxx o Daimi o Damni\n🔸Teléfono Cliente: 5354194976\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 15:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Xxxx o Daimi o Damni\n🔸Teléfono Cliente: 5354194976\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n  ×20 Cable de red categoría 6\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: 5600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 5600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/9/2026, 15:06:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$160 USD",
       "reservado": false,
@@ -2644,9 +2647,14 @@
           "id": 1786509569058,
           "qty": 1,
           "name": "Nanostation loco m5"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 20,
+          "name": "Cable de red categoría 6"
         }
       ],
-      "comisionGestor": "$10.00 USD",
+      "comisionGestor": "$10 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -3042,7 +3050,7 @@
       "ts": "2026-09-25T16:37:30.135Z",
       "total": "$420 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T17:46:39.373Z",
+      "seenTs": "2026-09-25T19:47:10.877Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -6121,7 +6129,7 @@
       "ts": "2026-09-23T21:36:00.000Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T16:09:50.408Z",
+      "seenTs": "2026-09-25T19:48:21.129Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -34928,5 +34936,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T19:42:58.688Z"
+  "timestamp": "2026-09-25T19:49:16.434Z"
 }
