@@ -2534,6 +2534,7 @@
       "ts": "2026-09-25T17:33:03.390Z",
       "total": "$240 USD",
       "carnet": "",
+      "seenTs": "2026-09-25T17:42:39.748Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dario Pérez González",
@@ -2546,10 +2547,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Dario Pérez González\n🔸Teléfono Cliente: 50768459874\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n  ×1 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $240 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 13:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$240 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2616,7 +2618,7 @@
       "ts": "2026-09-25T17:27:10.851Z",
       "total": "$620 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T17:32:45.714Z",
+      "seenTs": "2026-09-25T17:42:30.858Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eliecer",
@@ -2629,7 +2631,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Eliecer\n🔸Teléfono Cliente: 5353700199\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n  ×2 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $620 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $620 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 13:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$620 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -34638,5 +34640,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T17:39:28.122Z"
+  "timestamp": "2026-09-25T17:43:41.859Z"
 }
