@@ -2529,6 +2529,44 @@
   ],
   "vales": [
     {
+      "id": 1790297659126,
+      "ts": "2026-09-25T00:54:19.126Z",
+      "total": "$130 USD + 6500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-25T00:54:21.663Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "yenisleidis",
+      "valeNum": 119,
+      "articulo": "×1 Router KUWIFI de linea de 1.150MBPS//no se le puede cobrar la mensajeria,la tienda la paga x un error el dia de ayer",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "63686419",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: yenisleidis\n🔸Teléfono Cliente: 63686419\n🔸Dirección Cliente: Carretera 183 # 4455 en alto cangrejera Yeni\n\n🔸Mensajería/ costo: 6500\n🔸 Artículos y cantidades:\n  ×1 Router KUWIFI de linea de 1.150MBPS\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $130 USD + 6500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 20:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Carretera 183 # 4455 en alto cangrejera Yeni",
+      "precioUSD": "$130 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "assignedTs": "2026-09-25T00:54:51.998Z",
+      "mensajeria": "6500",
+      "confirmedTs": null,
+      "mensajeroId": 1784476779247,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1778104287395,
+          "qty": 1,
+          "name": "Router KUWIFI de linea de 1.150MBPS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1790297400627,
       "ts": "2026-09-25T00:50:00.636Z",
       "total": "$230 USD",
@@ -3704,7 +3742,7 @@
       "ts": "2026-09-24T03:04:00.000Z",
       "total": "$460 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T00:49:48.169Z",
+      "seenTs": "2026-09-25T00:54:21.210Z",
       "status": "pending",
       "vuelto": "???",
       "cliente": "Yoel",
@@ -32724,5 +32762,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T00:51:49.239Z"
+  "timestamp": "2026-09-25T00:55:52.027Z"
 }
