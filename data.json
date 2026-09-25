@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2529,6 +2529,118 @@
   ],
   "vales": [
     {
+      "id": 1790345732692,
+      "ts": "2026-09-25T14:15:32.699Z",
+      "total": "$800 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T14:18:18.967Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Carlos David Dìaz Verdecia",
+      "valeNum": 134,
+      "articulo": "×10 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "precioMN": "",
+      "telefono": "5351528817",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Carlos David Dìaz Verdecia\n🔸Teléfono Cliente: 5351528817\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $800 USD\n🔸 Rebaja: −$50 USD\n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$800 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 10,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionCedida": 50,
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790345561829,
+      "ts": "2026-09-25T14:12:41.844Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T14:18:23.873Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Daniel morales",
+      "valeNum": 133,
+      "articulo": "×3 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786573707656,
+      "precioMN": "",
+      "telefono": "50372088",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Daniel morales\n🔸Teléfono Cliente: 50372088\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$60 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 4500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 3,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "4500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790345120759,
+      "ts": "2026-09-25T14:05:20.770Z",
+      "total": "$20 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T14:10:22.794Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Cristian Magdaleno",
+      "valeNum": 132,
+      "articulo": "×1 SWITCH DE 5 PUERTOS",
+      "garantia": "",
+      "gestorId": 1786555619210,
+      "precioMN": "",
+      "telefono": "5363132650",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Cristian Magdaleno\n🔸Teléfono Cliente: 5363132650\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$20 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1778336689684,
+          "qty": 1,
+          "name": "SWITCH DE 5 PUERTOS"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790344999123,
       "ts": "2026-09-25T14:03:19.127Z",
       "total": "$730 USD",
@@ -2662,7 +2774,7 @@
       "ts": "2026-09-25T13:54:01.541Z",
       "total": "$1280 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:54:19.451Z",
+      "seenTs": "2026-09-25T14:18:30.943Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Señora de CIEGO DE AVILA",
@@ -33277,5 +33389,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T14:05:25.686Z"
+  "timestamp": "2026-09-25T14:19:26.016Z"
 }
