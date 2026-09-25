@@ -2534,8 +2534,8 @@
       "ts": "2026-09-25T18:28:09.118Z",
       "total": "$140 USD + 1750 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T18:28:20.921Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T18:41:55.647Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Yuliet",
       "valeNum": 114,
@@ -2549,8 +2549,10 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-25T18:41:42.626Z",
       "mensajeria": "1750",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476816825,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -4080,7 +4082,7 @@
       "ts": "2026-09-25T13:49:57.380Z",
       "total": "$1500 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:54:54.012Z",
+      "seenTs": "2026-09-25T18:37:15.599Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -34779,5 +34781,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T18:36:56.686Z"
+  "timestamp": "2026-09-25T18:42:42.659Z"
 }
