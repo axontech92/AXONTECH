@@ -572,6 +572,11 @@
       "id": 1789480826649,
       "name": "Noslen",
       "phone": "5355359829"
+    },
+    {
+      "id": 1790364015435,
+      "name": "sanjoni",
+      "phone": "5354836482"
     }
   ],
   "productos": [
@@ -2530,6 +2535,48 @@
   ],
   "vales": [
     {
+      "id": 1790363830567,
+      "ts": "2026-09-25T19:17:10.578Z",
+      "total": "$950 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T19:20:20.828Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Amalia",
+      "valeNum": 113,
+      "articulo": "×10 Tplink Archer AX1450 Doble Banda / ×5 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5350213325",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Amalia\n🔸Teléfono Cliente: 5350213325\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n  ×5 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $950 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $950 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 15:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$950 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 7500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 10,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1784726857748,
+          "qty": 5,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$100.00 USD + 7500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790363188983,
       "ts": "2026-09-25T19:06:29.002Z",
       "total": "$160 USD",
@@ -2569,6 +2616,7 @@
       "ts": "2026-09-25T18:47:08.237Z",
       "total": "$160 USD + 500 MN",
       "carnet": "",
+      "seenTs": "2026-09-25T19:18:07.818Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Betty preguntar por Betty en la cuadra",
@@ -2584,6 +2632,7 @@
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "500 cup",
+      "seenByAdmin": true,
       "valeProductos": [
         {
           "id": 1786509569058,
@@ -4165,7 +4214,7 @@
       "ts": "2026-09-25T13:49:00.000Z",
       "total": "$700 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T19:14:13.905Z",
+      "seenTs": "2026-09-25T19:18:36.110Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -34822,5 +34871,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T19:17:21.687Z"
+  "timestamp": "2026-09-25T19:21:15.440Z"
 }
