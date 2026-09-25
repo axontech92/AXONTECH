@@ -2539,7 +2539,7 @@
       "ts": "2026-09-25T19:26:09.825Z",
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T19:52:51.164Z",
+      "seenTs": "2026-09-25T19:56:00.074Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Zaily Batista",
@@ -2680,8 +2680,8 @@
       "ts": "2026-09-25T18:47:08.237Z",
       "total": "$160 USD + 500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T19:53:10.720Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T19:55:52.969Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Betty preguntar por Betty en la cuadra",
       "valeNum": 111,
@@ -2695,7 +2695,9 @@
       "precioUSD": "$160 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-25T19:55:46.594Z",
       "mensajeria": "500 cup",
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "valeProductos": [
         {
@@ -34956,5 +34958,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T19:54:22.686Z"
+  "timestamp": "2026-09-25T19:56:46.629Z"
 }
