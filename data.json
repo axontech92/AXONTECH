@@ -1947,7 +1947,7 @@
       "puntos": 1,
       "comision": "$10 USD",
       "garantia": "",
-      "reserved": 0,
+      "reserved": 2,
       "descripcion": "Nanostation m5 Version Internacional:\n\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora.\n- Rango de frecuencia: 5.745-5.825 Ghz, Ganancia 16 dBi, Consumo de energía máximo 8W.\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente.",
       "description": "Nanostation m5 Version Internacional:\n\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora.\n- Rango de frecuencia: 5.745-5.825 Ghz, Ganancia 16 dBi, Consumo de energía máximo 8W.\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente.",
       "precioActual": 230,
@@ -33224,5 +33224,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T13:58:11.913Z"
+  "timestamp": "2026-09-25T14:03:25.686Z"
 }
