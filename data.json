@@ -2529,6 +2529,43 @@
   ],
   "vales": [
     {
+      "id": 1790297400627,
+      "ts": "2026-09-25T00:50:00.636Z",
+      "total": "$230 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T00:50:40.703Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yanelys",
+      "valeNum": 118,
+      "articulo": "×1 KIT de 4 camaras Zosi (sin disco duro)",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5352799791",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Yanelys\n🔸Teléfono Cliente: 5352799791\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 16:00\n🔸 Artículos y cantidades:\n  ×1 KIT de 4 camaras Zosi (sin disco duro)\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 20:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$230 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1778384314795,
+          "qty": 1,
+          "name": "KIT de 4 camaras Zosi (sin disco duro)"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790297044530,
       "ts": "2026-09-25T00:44:04.530Z",
       "pago": {
@@ -3667,7 +3704,7 @@
       "ts": "2026-09-24T03:04:00.000Z",
       "total": "$460 USD",
       "carnet": "",
-      "seenTs": "2026-09-24T23:15:04.980Z",
+      "seenTs": "2026-09-25T00:49:48.169Z",
       "status": "pending",
       "vuelto": "???",
       "cliente": "Yoel",
@@ -32687,5 +32724,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T00:46:19.524Z"
+  "timestamp": "2026-09-25T00:51:49.239Z"
 }
