@@ -1849,7 +1849,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 68,
+      "stock": 53,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2129,7 +2129,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 62,
+      "stock": 47,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2529,12 +2529,109 @@
   ],
   "vales": [
     {
+      "id": 1790344197368,
+      "ts": "2026-09-25T13:49:57.380Z",
+      "total": "$1500 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T13:51:47.982Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Amalia",
+      "valeNum": 99,
+      "articulo": "×10 Tplink Archer AX1450 Doble Banda / ×5 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5350213325",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Amalia\n🔸Teléfono Cliente: 5350213325\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n  ×5 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $1500 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1500 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 09:49\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1500 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 150,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 10,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 5,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$150.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790343622050,
+      "ts": "2026-09-25T13:40:22.071Z",
+      "total": "$500 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yony viejo",
+      "valeNum": 127,
+      "articulo": "×3 Router TP-Link Archer C54 Reacondicionado / ×2 NanoStation 5AC Loco / ×2 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352842022",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony viejo\n🔸Teléfono Cliente: 5352842022\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Router TP-Link Archer C54 Reacondicionado\n  ×2 NanoStation 5AC Loco\n  ×2 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $500 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $500 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 09:39\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$500 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 3000,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 3,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 2,
+          "name": "NanoStation 5AC Loco"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 2,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "$50.00 USD + 3000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790343208684,
       "ts": "2026-09-25T13:33:28.685Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T13:51:17.644Z",
+        "eur": 0,
+        "usd": 900,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$900 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:34:14.338Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T13:51:13.820Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dachel",
       "valeNum": 126,
@@ -2550,7 +2647,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T13:51:17.644Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787114204179": 15
+      },
       "comFijadaUSD": 150,
       "valeProductos": [
         {
@@ -2561,7 +2662,7 @@
       ],
       "comisionGestor": "$150.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2570,7 +2671,7 @@
       "ts": "2026-09-25T13:30:18.684Z",
       "total": "$860 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:31:50.459Z",
+      "seenTs": "2026-09-25T13:51:40.641Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony nuevo",
@@ -5606,10 +5707,20 @@
     {
       "id": 1790110954704,
       "ts": "2026-09-22T21:02:34.705Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T13:51:11.185Z",
+        "eur": 0,
+        "usd": 2400,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:31:54.263Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T13:51:00.943Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dachel",
       "valeNum": 125,
@@ -5626,7 +5737,11 @@
       "adminNotes": "PARA VIERNES 25/9/2026",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T13:51:11.185Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 15
+      },
       "comFijadaUSD": 150,
       "valeProductos": [
         {
@@ -5637,7 +5752,7 @@
       ],
       "comisionGestor": "$150.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -32989,5 +33104,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T13:37:21.686Z"
+  "timestamp": "2026-09-25T13:52:31.687Z"
 }
