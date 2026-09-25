@@ -1171,7 +1171,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 6,
+      "stock": 1,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2532,10 +2532,20 @@
     {
       "id": 1790355113112,
       "ts": "2026-09-25T16:51:53.123Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T17:06:15.482Z",
+        "eur": 0,
+        "usd": 750,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:55:21.088Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T17:06:12.082Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dachel",
       "valeNum": 110,
@@ -2551,7 +2561,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T17:06:15.482Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786858233037": 5
+      },
       "comFijadaUSD": 50,
       "valeProductos": [
         {
@@ -2562,7 +2576,7 @@
       ],
       "comisionGestor": "$50.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2821,7 +2835,7 @@
       },
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:01:47.148Z",
+      "seenTs": "2026-09-25T17:04:50.405Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "Lazaro",
@@ -2838,7 +2852,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-09-25T16:02:14.670Z",
+      "confirmedTs": "2026-09-25T17:05:05.861Z",
       "seenByAdmin": true,
       "stockSalido": {
         "1786858233037": 5
@@ -2938,7 +2952,7 @@
       "ts": "2026-09-25T15:42:19.623Z",
       "total": "$160 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T16:53:21.855Z",
+      "seenTs": "2026-09-25T17:06:17.809Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Liliana",
@@ -2980,7 +2994,7 @@
       "ts": "2026-09-25T15:34:02.956Z",
       "total": "$230 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T16:02:48.073Z",
+      "seenTs": "2026-09-25T17:02:13.917Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Ray",
@@ -3315,7 +3329,7 @@
       },
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:29:20.096Z",
+      "seenTs": "2026-09-25T17:05:18.220Z",
       "status": "confirmed",
       "vuelto": "",
       "cliente": "Violets",
@@ -3332,7 +3346,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-09-25T16:29:29.249Z",
+      "confirmedTs": "2026-09-25T17:05:34.639Z",
       "seenByAdmin": true,
       "stockSalido": {
         "1786510211408": 1
@@ -3682,7 +3696,7 @@
       "ts": "2026-09-25T14:03:19.127Z",
       "total": "$730 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:36:11.489Z",
+      "seenTs": "2026-09-25T17:02:11.222Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Riu Daniel",
@@ -34506,5 +34520,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T17:01:30.263Z"
+  "timestamp": "2026-09-25T17:07:15.686Z"
 }
