@@ -2529,6 +2529,48 @@
   ],
   "vales": [
     {
+      "id": 1790343018657,
+      "ts": "2026-09-25T13:30:18.684Z",
+      "total": "$860 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T13:31:50.459Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yony nuevo",
+      "valeNum": 125,
+      "articulo": "×5 Router TP-Link Archer C54 Reacondicionado / ×7 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5352066094",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony nuevo\n🔸Teléfono Cliente: 5352066094\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 Router TP-Link Archer C54 Reacondicionado\n  ×7 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $860 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $860 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 09:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$860 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 120,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 5,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        },
+        {
+          "id": 1786207539390,
+          "qty": 7,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$120.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790335536804,
       "ts": "2026-09-25T11:25:36.806Z",
       "total": "$110 USD",
@@ -2607,6 +2649,7 @@
       "ts": "2026-09-25T02:32:24.717Z",
       "total": "$230 USD",
       "carnet": "",
+      "seenTs": "2026-09-25T13:31:58.717Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Sergio B",
@@ -2619,10 +2662,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Sergio B\n🔸Teléfono Cliente: 5353872323\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 22:31\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$230 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2679,7 +2723,7 @@
       "ts": "2026-09-25T00:54:19.126Z",
       "total": "$130 USD + 6500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T13:19:20.840Z",
+      "seenTs": "2026-09-25T13:32:08.503Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "yenisleidis",
@@ -2848,7 +2892,7 @@
       "ts": "2026-09-24T23:13:05.068Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T00:56:59.290Z",
+      "seenTs": "2026-09-25T13:32:25.701Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dayron",
@@ -3098,7 +3142,7 @@
       "ts": "2026-09-24T18:45:25.677Z",
       "total": "94 900 mn + 6500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T13:19:23.782Z",
+      "seenTs": "2026-09-25T13:32:11.469Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yenisleidy",
@@ -3922,7 +3966,7 @@
       "ts": "2026-09-24T03:04:00.000Z",
       "total": "$460 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:19:33.869Z",
+      "seenTs": "2026-09-25T13:32:15.647Z",
       "status": "pending",
       "vuelto": "???",
       "cliente": "Yoel",
@@ -4171,7 +4215,7 @@
       "ts": "2026-09-23T21:36:00.000Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T01:07:35.489Z",
+      "seenTs": "2026-09-25T13:31:51.265Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -4848,7 +4892,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T00:57:05.788Z",
+      "seenTs": "2026-09-25T13:32:22.830Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
@@ -5561,7 +5605,7 @@
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T01:07:38.613Z",
+      "seenTs": "2026-09-25T13:31:54.263Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -32942,5 +32986,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T13:28:12.687Z"
+  "timestamp": "2026-09-25T13:33:01.686Z"
 }
