@@ -2650,7 +2650,7 @@
       "ts": "2026-09-25T17:30:36.890Z",
       "total": "$210 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T18:44:11.351Z",
+      "seenTs": "2026-09-25T18:54:14.868Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yesy",
@@ -4127,7 +4127,7 @@
       "ts": "2026-09-25T13:40:22.071Z",
       "total": "$500 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:05:13.351Z",
+      "seenTs": "2026-09-25T18:49:12.183Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony viejo",
@@ -4309,43 +4309,6 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790309556383,
-      "ts": "2026-09-25T04:12:36.385Z",
-      "total": "$28 USD",
-      "carnet": "",
-      "seenTs": "2026-09-25T18:25:13.042Z",
-      "status": "pending",
-      "vuelto": "No",
-      "cliente": "Yoel",
-      "valeNum": 122,
-      "articulo": "×1 Compresor/Inflador de neumáticos",
-      "garantia": "",
-      "gestorId": 1781761257101,
-      "precioMN": "",
-      "telefono": "5353006740",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Yoel\n🔸Teléfono Cliente: 5353006740\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 00:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$28 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 3,
-      "valeProductos": [
-        {
-          "id": 1786161303797,
-          "qty": 1,
-          "name": "Compresor/Inflador de neumáticos"
-        }
-      ],
-      "comisionGestor": "$3.00 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -34783,5 +34746,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T18:46:19.686Z"
+  "timestamp": "2026-09-25T18:54:52.245Z"
 }
