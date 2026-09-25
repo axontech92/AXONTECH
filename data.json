@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2299,7 +2299,7 @@
       "name": "mikrotik sxt sq 5ax",
       "catId": 10,
       "photo": "photos/p-1788124513018-46338072.webp",
-      "stock": 12,
+      "stock": 11,
       "imagen": "photos/p-1788124513018-46338072.webp",
       "nombre": "mikrotik sxt sq 5ax",
       "precio": "$160",
@@ -4299,8 +4299,8 @@
       "ts": "2026-09-24T16:33:00.000Z",
       "total": "$160 USD + 2700 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:16:29.222Z",
-      "status": "assigned",
+      "seenTs": "2026-09-25T15:31:35.937Z",
+      "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Beatriz",
       "valeNum": 105,
@@ -4317,8 +4317,12 @@
       "assignedTs": "2026-09-24T17:42:04.372Z",
       "mensajeria": "2700",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-25T15:31:43.888Z",
       "mensajeroId": 1784476782949,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788124513018": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -4329,7 +4333,7 @@
       ],
       "comisionGestor": "$10 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -33932,5 +33936,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:25:42.904Z"
+  "timestamp": "2026-09-25T15:32:44.686Z"
 }
