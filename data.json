@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2529,11 +2529,46 @@
   ],
   "vales": [
     {
+      "id": 1790293941874,
+      "ts": "2026-09-24T23:52:21.894Z",
+      "total": "8400 MN + 1600 puntas si pide 8",
+      "carnet": "",
+      "seenTs": "2026-09-25T00:06:53.865Z",
+      "status": "pending",
+      "vuelto": "Es para mañana en la mañana",
+      "cliente": "Angel(también desea puntas de 4 a 8 puntas)",
+      "valeNum": 116,
+      "articulo": "×30 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "precioMN": "8400 MN",
+      "telefono": "5353608767",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Angel(también desea puntas de 4 a 8 puntas)\n🔸Teléfono Cliente: 5353608767\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×30 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 8400 MN\n🔸 Vuelto: Es para mañana en la mañana\n🔸 Total a pagar: 8400 MN + 1600 puntas si pide 8\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 19:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 30,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790291585060,
       "ts": "2026-09-24T23:13:05.068Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T23:13:20.429Z",
+      "seenTs": "2026-09-24T23:22:16.546Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dayron",
@@ -2614,6 +2649,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2728,6 +2764,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2782,6 +2819,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2933,6 +2971,7 @@
       ],
       "comisionGestor": "$15.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2987,6 +3026,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -2996,7 +3036,7 @@
       "ts": "2026-09-24T16:36:37.968Z",
       "total": "189 800 cup",
       "carnet": "",
-      "seenTs": "2026-09-24T22:54:34.967Z",
+      "seenTs": "2026-09-24T23:22:10.623Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexander Perez",
@@ -3203,6 +3243,7 @@
       ],
       "comisionGestor": "$50 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3425,6 +3466,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3476,6 +3518,7 @@
       ],
       "comisionGestor": "3000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3575,6 +3618,7 @@
       ],
       "comisionGestor": "1000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3631,6 +3675,7 @@
       "gestorId": 1786138222992,
       "precioMN": "",
       "telefono": "5355265951",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yoel\n🔸Teléfono Cliente: 5355265951\n🔸Dirección Cliente: Buenas noches. Está reserva es para un cliente que viene de Oriente y llega pasado-mañana en la noche, por lo tanto la entrega será el sabado. ¿Es posible ? Es la segunda vez que el compra con nosotros y me pide si por favor se lo pueden reservar. Cuando el llegue mañana me darán la dirección de dónde estará para que le hagan la mensajería\n🔸Mensajería/ costo: ????\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: ???\n🔸 Total a pagar: $460 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/9/2026, 23:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Buenas noches. Está reserva es para un cliente que viene de Oriente y llega pasado-mañana en la noche, por lo tanto la entrega será el sabado. ¿Es posible ? Es la segunda vez que el compra con nosotros y me pide si por favor se lo pueden reservar. Cuando el llegue mañana me darán la dirección de dónde estará para que le hagan la mensajería",
       "precioUSD": "$460 USD",
       "reservado": true,
@@ -3650,7 +3695,6 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yoel\n🔸Teléfono Cliente: 5355265951\n🔸Dirección Cliente: Buenas noches. Está reserva es para un cliente que viene de Oriente y llega pasado-mañana en la noche, por lo tanto la entrega será el sabado. ¿Es posible ? Es la segunda vez que el compra con nosotros y me pide si por favor se lo pueden reservar. Cuando el llegue mañana me darán la dirección de dónde estará para que le hagan la mensajería\n🔸Mensajería/ costo: ????\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: ???\n🔸 Total a pagar: $460 USD\n\n*Garantía: \n*Fecha y hora de Venta: 23/9/2026, 23:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -3703,6 +3747,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4334,6 +4379,7 @@
       ],
       "comisionGestor": "$70.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4343,7 +4389,7 @@
       "ts": "2026-09-23T16:16:17.282Z",
       "total": "$780 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T22:54:46.586Z",
+      "seenTs": "2026-09-24T23:22:12.493Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -4541,7 +4587,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T23:00:08.384Z",
+      "seenTs": "2026-09-24T23:22:17.824Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
@@ -32631,5 +32677,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-24T23:17:14.239Z"
+  "timestamp": "2026-09-25T00:20:58.443Z"
 }
