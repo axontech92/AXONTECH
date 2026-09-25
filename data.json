@@ -2572,7 +2572,7 @@
       "total": "$230 USD + 3000 MN",
       "carnet": "",
       "seenTs": "2026-09-25T15:52:22.596Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Juan Ramón Ginarte Pacheco",
       "valeNum": 103,
@@ -2586,8 +2586,10 @@
       "precioUSD": "$230 USD",
       "reservado": true,
       "ubicacion": "https://maps.app.goo.gl/syKMLF7QxGr1qzCbA",
+      "assignedTs": "2026-09-25T15:53:50.563Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2650,7 +2652,7 @@
       "ts": "2026-09-25T15:34:02.956Z",
       "total": "$230 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:38:16.728Z",
+      "seenTs": "2026-09-25T15:54:22.269Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Ray",
@@ -3053,7 +3055,7 @@
       "ts": "2026-09-25T14:49:10.460Z",
       "total": "$4400 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:14:19.040Z",
+      "seenTs": "2026-09-25T15:54:06.128Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -3068,6 +3070,7 @@
       "precioUSD": "$4400 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "para manana",
       "mensajeria": "Sin envío",
       "comFijadaMN": 30000,
       "seenByAdmin": true,
@@ -3861,7 +3864,7 @@
       "ts": "2026-09-25T00:50:00.636Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:36:14.830Z",
+      "seenTs": "2026-09-25T15:53:55.497Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yanelys",
@@ -34092,5 +34095,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:53:41.688Z"
+  "timestamp": "2026-09-25T15:54:50.595Z"
 }
