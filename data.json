@@ -1763,7 +1763,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 34,
+      "stock": 27,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -2129,7 +2129,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 47,
+      "stock": 42,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2570,8 +2570,8 @@
       "ts": "2026-09-25T14:57:49.123Z",
       "total": "$220 USD + 2250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:05:30.888Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T15:07:46.889Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Lismaray",
       "valeNum": 100,
@@ -2585,8 +2585,10 @@
       "precioUSD": "$220 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-25T15:06:03.851Z",
       "mensajeria": "2250",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784408225928,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
@@ -3208,10 +3210,20 @@
     {
       "id": 1790343018657,
       "ts": "2026-09-25T13:30:18.684Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T15:06:51.610Z",
+        "eur": 0,
+        "usd": 860,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$860 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:05:23.175Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T15:06:07.487Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yony nuevo",
       "valeNum": 125,
@@ -3227,7 +3239,12 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T15:06:51.610Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786207539390": 7,
+        "1787114204179": 5
+      },
       "comFijadaUSD": 120,
       "valeProductos": [
         {
@@ -3243,7 +3260,7 @@
       ],
       "comisionGestor": "$120.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -33677,5 +33694,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:05:50.687Z"
+  "timestamp": "2026-09-25T15:07:51.651Z"
 }
