@@ -1460,6 +1460,24 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1788278326719,
+      "name": "NanoStation 5AC Loco",
+      "catId": 10,
+      "photo": "photos/p-1788278326719-85eac473.webp",
+      "stock": 62,
+      "imagen": "photos/p-1788278326719-85eac473.webp",
+      "nombre": "NanoStation 5AC Loco",
+      "precio": "140 USD",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "precioActual": 140,
+      "comisionMoneda": "USD"
+    },
+    {
       "id": 1777923552923,
       "name": "CARGADOR INTELIGENTE 20A",
       "catId": 20,
@@ -2417,24 +2435,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1788278326719,
-      "name": "NanoStation 5AC Loco",
-      "catId": 10,
-      "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 62,
-      "imagen": "photos/p-1788278326719-85eac473.webp",
-      "nombre": "NanoStation 5AC Loco",
-      "precio": "140 USD",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "reserved": 1,
-      "descripcion": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
-      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
-      "precioActual": 140,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1788329740120,
       "name": "Router Tp-link Archer A6",
       "catId": 10,
@@ -2530,11 +2530,46 @@
   ],
   "vales": [
     {
+      "id": 1790351205342,
+      "ts": "2026-09-25T15:46:45.352Z",
+      "total": "$230 USD + 3000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Juan Ramón Ginarte Pacheco",
+      "valeNum": 103,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1784476036044,
+      "precioMN": "",
+      "telefono": "5354388360",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Juan Ramón Ginarte Pacheco\n🔸Teléfono Cliente: 5354388360\n🔸Dirección Cliente: Carretera del lucero entre 4ta y lindero barrio la solita mantilla arroyo naranjo Punto de referencia la Fregadora de carro\n🔸Mensajería/ costo: 3000\n🔸Hora de entrega: 00:30\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $230 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 11:46\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Carretera del lucero entre 4ta y lindero barrio la solita mantilla arroyo naranjo Punto de referencia la Fregadora de carro",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": "https://maps.app.goo.gl/syKMLF7QxGr1qzCbA",
+      "mensajeria": "3000",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790350939599,
       "ts": "2026-09-25T15:42:19.623Z",
       "total": "$160 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:43:23.350Z",
+      "seenTs": "2026-09-25T15:48:01.389Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Liliana",
@@ -2936,27 +2971,27 @@
     {
       "id": 1790347850820,
       "ts": "2026-09-25T14:50:00.000Z",
-      "total": "$340 USD",
+      "total": "$200 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:42:19.428Z",
+      "seenTs": "2026-09-25T15:48:10.065Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Tunnel Alvarez",
       "valeNum": 137,
-      "articulo": "×3 Adaptador poe UBIQUITI de 0.3A / ×2 NanoStation 5AC Loco",
+      "articulo": "×3 Adaptador poe UBIQUITI de 0.3A / ×1 NanoStation 5AC Loco",
       "garantia": "",
       "gestorId": 1786116024697,
       "precioMN": "",
       "telefono": "5358186138",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Tunnel Alvarez\n🔸Teléfono Cliente: 5358186138\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Adaptador poe UBIQUITI de 0.3A\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $340 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $340 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/9/2026, 10:50:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Tunnel Alvarez\n🔸Teléfono Cliente: 5358186138\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Adaptador poe UBIQUITI de 0.3A\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/9/2026, 10:50:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
-      "precioUSD": "$340 USD",
+      "precioUSD": "$200 USD",
       "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 4500,
       "seenByAdmin": true,
-      "comFijadaUSD": 20,
+      "comFijadaUSD": 10,
       "valeProductos": [
         {
           "id": 1778384646214,
@@ -2965,11 +3000,11 @@
         },
         {
           "id": 1788278326719,
-          "qty": 2,
+          "qty": 1,
           "name": "NanoStation 5AC Loco"
         }
       ],
-      "comisionGestor": "$20 USD + 4500 MN",
+      "comisionGestor": "$10 USD + 4500 MN",
       "recogidaTienda": true,
       "stockDecremented": false,
       "synced": true
@@ -5905,7 +5940,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T13:36:49.371Z",
+      "seenTs": "2026-09-25T15:44:45.862Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
@@ -34018,5 +34053,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:44:20.686Z"
+  "timestamp": "2026-09-25T15:48:19.622Z"
 }
