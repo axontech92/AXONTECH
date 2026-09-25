@@ -1509,7 +1509,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 19,
+      "stock": 17,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 50,
+      "stock": 45,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2539,7 +2539,7 @@
       "ts": "2026-09-25T21:07:03.553Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T21:17:17.704Z",
+      "seenTs": "2026-09-25T21:24:46.584Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro David Figueredo",
@@ -2613,10 +2613,20 @@
     {
       "id": 1790364369815,
       "ts": "2026-09-25T19:26:09.825Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T21:25:20.797Z",
+        "eur": 0,
+        "usd": 60,
+        "zelle": 0,
+        "eurUSD": 1.1438,
+        "mnAuto": true,
+        "tasaMN": 740
+      },
       "total": "$60 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T19:56:00.074Z",
-      "status": "assigned",
+      "seenTs": "2026-09-25T21:25:15.760Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Zaily Batista",
       "valeNum": 114,
@@ -2633,11 +2643,13 @@
       "assignedTs": "2026-09-25T19:53:07.301Z",
       "mensajeria": "Con mensajero yo.",
       "comFijadaMN": 3000,
-      "confirmedTs": null,
-      "deliveredTs": "2026-09-25T19:47:39.094Z",
+      "confirmedTs": "2026-09-25T21:25:20.797Z",
+      "deliveredTs": "2026-09-25T21:25:19.300Z",
       "mensajeroId": 1790364015435,
       "seenByAdmin": true,
-      "stockSalido": null,
+      "stockSalido": {
+        "1784726857748": 2
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -2648,7 +2660,7 @@
       ],
       "comisionGestor": "3000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2657,7 +2669,7 @@
       "ts": "2026-09-25T19:17:10.578Z",
       "total": "$950 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T19:26:40.099Z",
+      "seenTs": "2026-09-25T21:25:41.415Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -3158,7 +3170,7 @@
       "ts": "2026-09-25T16:37:00.000Z",
       "pago": {
         "mn": 0,
-        "ts": "2026-09-25T20:16:53.075Z",
+        "ts": "2026-09-25T21:24:27.957Z",
         "eur": 0,
         "usd": 140,
         "zelle": 0,
@@ -4398,10 +4410,20 @@
     {
       "id": 1790344197368,
       "ts": "2026-09-25T13:49:00.000Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T21:25:29.446Z",
+        "eur": 0,
+        "usd": 700,
+        "zelle": 0,
+        "eurUSD": 1.1438,
+        "mnAuto": true,
+        "tasaMN": 740
+      },
       "total": "$700 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T20:07:36.684Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T21:25:25.326Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Amalia",
       "valeNum": 99,
@@ -4418,7 +4440,11 @@
       "adminNotes": "para manana",
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T21:25:29.446Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788278326719": 5
+      },
       "comFijadaUSD": 50,
       "valeProductos": [
         {
@@ -4429,7 +4455,7 @@
       ],
       "comisionGestor": "$50 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -35062,5 +35088,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T21:23:20.353Z"
+  "timestamp": "2026-09-25T21:26:29.489Z"
 }
