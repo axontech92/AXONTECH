@@ -2539,7 +2539,7 @@
       "ts": "2026-09-25T21:07:03.553Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T21:24:46.584Z",
+      "seenTs": "2026-09-25T21:28:49.095Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro David Figueredo",
@@ -3260,7 +3260,7 @@
       "ts": "2026-09-25T16:26:04.982Z",
       "total": "$90 USD + 5250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T18:06:43.453Z",
+      "seenTs": "2026-09-25T21:28:41.912Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Ludmila Acosta",
@@ -3309,7 +3309,7 @@
       },
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:56:56.154Z",
+      "seenTs": "2026-09-25T21:27:39.087Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Migue",
@@ -4136,7 +4136,7 @@
       "ts": "2026-09-25T14:15:32.699Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T17:51:41.956Z",
+      "seenTs": "2026-09-25T21:29:34.142Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos David Dìaz Verdecia",
@@ -4149,7 +4149,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Carlos David Dìaz Verdecia\n🔸Teléfono Cliente: 5351528817\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $800 USD\n🔸 Rebaja: −$50 USD\n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$800 USD",
-      "reservado": true,
+      "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -4906,7 +4906,7 @@
       "ts": "2026-09-24T23:52:21.894Z",
       "total": "8400 MN + 1600 puntas si pide 8",
       "carnet": "",
-      "seenTs": "2026-09-25T17:27:01.568Z",
+      "seenTs": "2026-09-25T21:28:36.203Z",
       "status": "pending",
       "vuelto": "Es para mañana en la mañana",
       "cliente": "Angel(también desea puntas de 4 a 8 puntas)",
@@ -35088,5 +35088,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T21:26:29.489Z"
+  "timestamp": "2026-09-25T21:30:38.686Z"
 }
