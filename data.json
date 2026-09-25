@@ -2535,11 +2535,50 @@
   ],
   "vales": [
     {
+      "id": 1790364369815,
+      "ts": "2026-09-25T19:26:09.825Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T19:27:52.564Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Zaily Batista",
+      "valeNum": 114,
+      "articulo": "×2 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5353865692",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Zaily Batista\n🔸Teléfono Cliente: 5353865692\n🔸Dirección Cliente: San Nicolas e/ San Rafael y San Miguel\n🔸Mensajería/ costo: Con mensajero yo.\n🔸 Artículos y cantidades:\n  ×2 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 15:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "San Nicolas e/ San Rafael y San Miguel",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-25T19:27:42.549Z",
+      "mensajeria": "Con mensajero yo.",
+      "comFijadaMN": 3000,
+      "mensajeroId": 1790364015435,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 2,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "3000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790363830567,
       "ts": "2026-09-25T19:17:10.578Z",
       "total": "$950 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T19:20:20.828Z",
+      "seenTs": "2026-09-25T19:26:40.099Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2581,6 +2620,7 @@
       "ts": "2026-09-25T19:06:29.002Z",
       "total": "$160 USD",
       "carnet": "",
+      "seenTs": "2026-09-25T19:24:52.092Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Xxxx o Daimi o Damni",
@@ -2597,6 +2637,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -34871,5 +34912,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T19:21:15.440Z"
+  "timestamp": "2026-09-25T19:28:42.585Z"
 }
