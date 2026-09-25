@@ -700,7 +700,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 52,
+      "stock": 51,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1391,7 +1391,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 54,
+      "stock": 53,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2530,6 +2530,46 @@
   ],
   "vales": [
     {
+      "id": 1790355113112,
+      "ts": "2026-09-25T16:51:53.123Z",
+      "total": "$750 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T16:53:13.541Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dachel",
+      "valeNum": 110,
+      "articulo": "×5 Nanostation m2 loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "056936497",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Dachel\n🔸Teléfono Cliente: 056936497\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 Nanostation m2 loco\n🔸Precio USD/ zelle: $750 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 12:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$750 USD",
+      "reservado": true,
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 5,
+          "name": "Nanostation m2 loco"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1790354515968,
       "ts": "2026-09-25T16:41:00.000Z",
       "pago": {
@@ -2684,8 +2724,8 @@
       "ts": "2026-09-25T16:26:04.982Z",
       "total": "$90 USD + 5250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T16:44:41.478Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T16:52:46.384Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Ludmila Acosta",
       "valeNum": 107,
@@ -2697,10 +2737,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Danny\n\n🔸 Nombre Cliente: Ludmila Acosta\n🔸Teléfono Cliente: 5350557684\n🔸Dirección Cliente: 📍 \"Edificio\" Punta Brava, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/0mBGxZBgm2/Edificio\n🔸Mensajería/ costo: 5250 cup\n🔸 Artículos y cantidades:\n  ×3 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $90 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $90 USD + 5250 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 12:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "📍 \"Edificio\" Punta Brava, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/0mBGxZBgm2/Edificio",
       "precioUSD": "$90 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": "📍 \"Edificio\" Punta Brava, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/0mBGxZBgm2/Edificio",
+      "assignedTs": "2026-09-25T16:53:08.793Z",
       "mensajeria": "5250 cup",
       "comFijadaMN": 4500,
+      "mensajeroId": 1784476802516,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -2721,7 +2763,7 @@
       "ts": "2026-09-25T16:20:33.507Z",
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:44:47.054Z",
+      "seenTs": "2026-09-25T16:53:17.636Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Migue",
@@ -2734,7 +2776,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Migue\n🔸Teléfono Cliente: 5352450801\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation loco m5\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 12:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$320 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -2885,7 +2927,7 @@
       "ts": "2026-09-25T15:42:19.623Z",
       "total": "$160 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:48:01.389Z",
+      "seenTs": "2026-09-25T16:53:21.855Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Liliana",
@@ -3454,10 +3496,20 @@
     {
       "id": 1790346638754,
       "ts": "2026-09-25T14:30:38.761Z",
+      "pago": {
+        "mn": 1800,
+        "ts": "2026-09-25T16:52:38.912Z",
+        "eur": 0,
+        "usd": 160,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$160 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:08:49.171Z",
-      "status": "assigned",
+      "seenTs": "2026-09-25T16:52:23.644Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Dandy Capetillo",
       "valeNum": 135,
@@ -3471,11 +3523,18 @@
       "precioUSD": "$160 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "117 600 cup",
       "assignedTs": "2026-09-25T15:04:50.143Z",
       "mensajeria": "1800",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-25T16:52:38.912Z",
+      "deliveredTs": "2026-09-25T16:52:37.716Z",
       "mensajeroId": 1787161412838,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 1,
+        "1788278326719": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3491,7 +3550,7 @@
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -34434,5 +34493,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T16:48:20.674Z"
+  "timestamp": "2026-09-25T16:54:20.686Z"
 }
