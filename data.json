@@ -2027,7 +2027,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 12,
+      "stock": 11,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2402,7 +2402,7 @@
       "name": "📡 TP-Link Archer BE230",
       "catId": 10,
       "photo": "photos/p-1788560867958-06577344.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/p-1788560867958-06577344.webp",
       "nombre": "📡 TP-Link Archer BE230",
       "precio": "$200",
@@ -2529,6 +2529,65 @@
   ],
   "vales": [
     {
+      "id": 1790297044530,
+      "ts": "2026-09-25T00:44:04.530Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T00:44:52.966Z",
+        "eur": 0,
+        "usd": 340,
+        "zelle": 0,
+        "eurUSD": 1.1448,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
+      "total": "$340 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T00:44:48.352Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "osman",
+      "valeNum": 117,
+      "articulo": "×1 Nanostation m2 loco / ×1 📡 TP-Link Archer BE230////descontar 10 usd de la comision del gestor",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "0000000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: osman\n🔸Teléfono Cliente: 0000000\n🔸Dirección Cliente: 39/98 y100 # 9817 Marianao\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $340 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $340 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 20:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "39/98 y100 # 9817 Marianao",
+      "precioUSD": "$340 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "assignedTs": "2026-09-25T00:44:46.188Z",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-25T00:44:52.965Z",
+      "deliveredTs": "2026-09-25T00:44:51.509Z",
+      "mensajeroId": 1784476816825,
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1786858233037": 1,
+        "1788560867958": 1
+      },
+      "valeProductos": [
+        {
+          "id": 1786858233037,
+          "qty": 1,
+          "name": "Nanostation m2 loco"
+        },
+        {
+          "id": 1788560867958,
+          "qty": 1,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
       "id": 1790293941874,
       "ts": "2026-09-24T23:52:21.894Z",
       "total": "8400 MN + 1600 puntas si pide 8",
@@ -2568,7 +2627,7 @@
       "ts": "2026-09-24T23:13:05.068Z",
       "total": "$130 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-24T23:22:16.546Z",
+      "seenTs": "2026-09-25T00:46:16.027Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dayron",
@@ -3857,7 +3916,7 @@
       "ts": "2026-09-23T21:36:18.930Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T00:39:50.989Z",
+      "seenTs": "2026-09-25T00:45:29.536Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -5247,7 +5306,7 @@
       "ts": "2026-09-22T21:02:34.705Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T00:40:02.262Z",
+      "seenTs": "2026-09-25T00:45:27.309Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dachel",
@@ -32628,5 +32687,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T00:43:22.958Z"
+  "timestamp": "2026-09-25T00:46:19.524Z"
 }
