@@ -1854,7 +1854,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 48,
+      "stock": 46,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2534,6 +2534,125 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790377050439,
+      "ts": "2026-09-25T22:57:30.452Z",
+      "total": "$800 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T23:07:27.747Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Mirel",
+      "valeNum": 115,
+      "articulo": "×10 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5355756907",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Mirel\n🔸Teléfono Cliente: 5355756907\n🔸Dirección Cliente: Terminal de omnibus\n🔸Mensajería/ costo: De mi comisión\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $800 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 18:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Terminal de omnibus",
+      "precioUSD": "$800 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "De mi comisión",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 10,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790376729765,
+      "ts": "2026-09-25T22:52:09.784Z",
+      "total": "$1120 USD + 2000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-25T23:08:24.427Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Carlos David",
+      "valeNum": 114,
+      "articulo": "×2 Mikrotik lhg 5ax / ×8 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "51528817",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Carlos David\n🔸Teléfono Cliente: 51528817\n🔸Dirección Cliente: 10 de octubre reparto sevillano calazada de 10 de octubre entre josefina y genaro sanchez  edificio 1569 apto 1\n🔸Mensajería/ costo: 2000 cuo\n🔸 Artículos y cantidades:\n  ×2 Mikrotik lhg 5ax\n  ×8 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $1120 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1120 USD + 2000 MN\n🔸 Rebaja: −$40 USD\n🔸 Total a pagar: $1080 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 18:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "10 de octubre reparto sevillano calazada de 10 de octubre entre josefina y genaro sanchez  edificio 1569 apto 1",
+      "precioUSD": "$1120 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000 cuo",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 2,
+          "name": "Mikrotik lhg 5ax"
+        },
+        {
+          "id": 1786207539390,
+          "qty": 8,
+          "cedidaUSD": 40,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790376263474,
+      "ts": "2026-09-25T22:44:23.491Z",
+      "total": "$310 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T23:07:38.698Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "La taty",
+      "valeNum": 114,
+      "articulo": "×1 Tplink Archer AX1450 Doble Banda / ×1 Nanostation m5",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5353451288",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: La taty\n🔸Teléfono Cliente: 5353451288\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n  ×1 Nanostation m5\n🔸Precio USD/ zelle: $310 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $310 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 18:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$310 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 1,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1786510211408,
+          "qty": 1,
+          "name": "Nanostation m5"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
     {
       "id": 1790372295698,
       "ts": "2026-09-25T21:38:15.714Z",
@@ -3362,8 +3481,8 @@
       },
       "total": "$320 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T21:27:39.087Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T23:08:17.894Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Migue",
       "valeNum": 106,
@@ -3379,9 +3498,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-25T23:08:21.527Z",
       "seenByAdmin": true,
-      "stockSalido": null,
+      "stockSalido": {
+        "1786509569058": 2
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -3392,7 +3513,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3808,6 +3929,7 @@
       "precioUSD": "$1600 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "para el martes",
       "mensajeria": "1200",
       "comFijadaMN": 15000,
       "seenByAdmin": true,
@@ -4531,7 +4653,7 @@
       "ts": "2026-09-25T13:40:22.071Z",
       "total": "$500 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T18:49:12.183Z",
+      "seenTs": "2026-09-25T23:08:56.103Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony viejo",
@@ -7043,7 +7165,7 @@
       "ts": "2026-09-23T14:24:29.834Z",
       "total": "$200 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T20:30:34.976Z",
+      "seenTs": "2026-09-25T22:30:36.890Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Tony",
@@ -35156,5 +35278,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T22:29:53.687Z"
+  "timestamp": "2026-09-25T23:09:21.688Z"
 }
