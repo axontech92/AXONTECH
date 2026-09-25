@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -1940,7 +1940,7 @@
       "name": "Nanostation m5",
       "catId": 10,
       "photo": "photos/img_1786510211408.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1786510211408.webp",
       "nombre": "Nanostation m5",
       "precio": "$230",
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -3096,10 +3096,20 @@
     {
       "id": 1790348062116,
       "ts": "2026-09-25T14:54:22.127Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T16:29:29.249Z",
+        "eur": 0,
+        "usd": 230,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T14:57:49.564Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T16:29:20.096Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Violets",
       "valeNum": 99,
@@ -3115,7 +3125,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T16:29:29.249Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786510211408": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3126,7 +3140,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -34232,5 +34246,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T16:27:31.834Z"
+  "timestamp": "2026-09-25T16:30:29.283Z"
 }
