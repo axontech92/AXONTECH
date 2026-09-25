@@ -2530,6 +2530,48 @@
   ],
   "vales": [
     {
+      "id": 1790349311599,
+      "ts": "2026-09-25T15:15:11.607Z",
+      "total": "$220 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T15:16:03.147Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rigo",
+      "valeNum": 99,
+      "articulo": "×1 Tplink Archer AX1450 Doble Banda / ×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5353483235",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Rigo\n🔸Teléfono Cliente: 5353483235\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Tplink Archer AX1450 Doble Banda\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $220 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $220 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 11:14\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$220 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 1,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790349229040,
       "ts": "2026-09-25T15:13:49.047Z",
       "total": "110 USD",
@@ -2819,6 +2861,40 @@
       "synced": true
     },
     {
+      "id": 1790346838379,
+      "ts": "2026-09-25T14:33:58.384Z",
+      "total": "$130 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T15:15:54.895Z",
+      "status": "pending",
+      "vuelto": "0",
+      "cliente": "Adrián Gómez Hernández",
+      "valeNum": 116,
+      "articulo": "×1 Mikrotik SXTsq 5 lite",
+      "garantia": "",
+      "gestorId": 1784475902029,
+      "precioMN": "",
+      "telefono": "52471377",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Maykel\n\n🔸 Nombre Cliente: Adrián Gómez Hernández\n🔸Teléfono Cliente: 52471377\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 05:30\n🔸 Artículos y cantidades:\n  ×1 Mikrotik SXTsq 5 lite\n🔸Precio USD/ zelle: $130 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $130 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$130 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786510034029,
+          "qty": 1,
+          "name": "Mikrotik SXTsq 5 lite"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1790346638754,
       "ts": "2026-09-25T14:30:38.761Z",
       "total": "$160 USD + 1800 MN",
@@ -2979,7 +3055,7 @@
       "ts": "2026-09-25T14:03:19.127Z",
       "total": "$730 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T14:04:21.313Z",
+      "seenTs": "2026-09-25T15:16:27.242Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Riu Daniel",
@@ -4139,7 +4215,7 @@
       "ts": "2026-09-24T16:33:00.000Z",
       "total": "$160 USD + 2700 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T13:35:17.752Z",
+      "seenTs": "2026-09-25T15:16:29.222Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Beatriz",
@@ -33772,5 +33848,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:15:14.687Z"
+  "timestamp": "2026-09-25T15:17:14.686Z"
 }
