@@ -2787,7 +2787,7 @@
       "ts": "2026-09-25T16:37:30.135Z",
       "total": "$420 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T17:38:26.076Z",
+      "seenTs": "2026-09-25T17:46:39.373Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto",
@@ -2824,8 +2824,8 @@
       "ts": "2026-09-25T16:33:11.688Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:44:52.680Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T17:49:43.082Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Omar García Batista",
       "valeNum": 108,
@@ -2839,8 +2839,10 @@
       "precioUSD": "$160 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-25T17:49:49.595Z",
       "mensajeria": "",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476940847,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -34640,5 +34642,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T17:43:41.859Z"
+  "timestamp": "2026-09-25T17:50:49.686Z"
 }
