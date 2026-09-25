@@ -1028,7 +1028,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -1100,7 +1100,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 22,
+      "stock": 21,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2530,6 +2530,46 @@
   ],
   "vales": [
     {
+      "id": 1790357230839,
+      "ts": "2026-09-25T17:27:10.851Z",
+      "total": "$620 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eliecer",
+      "valeNum": 112,
+      "articulo": "×2 Nanostation m2 / ×2 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "5353700199",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Eliecer\n🔸Teléfono Cliente: 5353700199\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n  ×2 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $620 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $620 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 13:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$620 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 40,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 2,
+          "name": "Nanostation m2"
+        },
+        {
+          "id": 1786207539390,
+          "qty": 2,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$40.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790355113112,
       "ts": "2026-09-25T16:51:53.123Z",
       "pago": {
@@ -2872,49 +2912,22 @@
       "synced": true
     },
     {
-      "id": 1790351331860,
-      "ts": "2026-09-25T15:48:51.866Z",
-      "total": "$230 USD",
-      "carnet": "",
-      "seenTs": "2026-09-25T15:51:43.844Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Yesy",
-      "valeNum": 104,
-      "articulo": "×1 Nanostation m5",
-      "garantia": "",
-      "gestorId": 1786539281210,
-      "precioMN": "",
-      "telefono": "59743358",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Yesy\n🔸Teléfono Cliente: 59743358\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m5\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 11:48\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$230 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "valeProductos": [
-        {
-          "id": 1786510211408,
-          "qty": 1,
-          "name": "Nanostation m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1790351205342,
       "ts": "2026-09-25T15:46:45.352Z",
+      "pago": {
+        "mn": 3000,
+        "ts": "2026-09-25T17:26:37.280Z",
+        "eur": 0,
+        "usd": 230,
+        "zelle": 0,
+        "eurUSD": 1.1438,
+        "mnAuto": true,
+        "tasaMN": 740
+      },
       "total": "$230 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T17:08:11.890Z",
-      "status": "assigned",
+      "seenTs": "2026-09-25T17:26:29.483Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Juan Ramón Ginarte Pacheco",
       "valeNum": 103,
@@ -2931,8 +2944,13 @@
       "assignedTs": "2026-09-25T15:53:50.563Z",
       "mensajeria": "3000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T17:26:37.279Z",
+      "deliveredTs": "2026-09-25T17:26:35.827Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2943,7 +2961,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2952,7 +2970,7 @@
       "ts": "2026-09-25T15:42:19.623Z",
       "total": "$160 USD + 3250 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T17:08:40.434Z",
+      "seenTs": "2026-09-25T17:17:39.902Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Liliana",
@@ -3032,7 +3050,7 @@
       "ts": "2026-09-25T15:22:40.449Z",
       "total": "$820 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:43:17.182Z",
+      "seenTs": "2026-09-25T17:26:49.854Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -3116,7 +3134,7 @@
       "ts": "2026-09-25T15:15:11.607Z",
       "total": "$220 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:16:03.147Z",
+      "seenTs": "2026-09-25T17:26:51.481Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rigo",
@@ -3661,7 +3679,7 @@
       "ts": "2026-09-25T14:05:20.770Z",
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T14:10:22.794Z",
+      "seenTs": "2026-09-25T17:27:11.225Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Cristian Magdaleno",
@@ -3674,7 +3692,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Miguel\n\n🔸 Nombre Cliente: Cristian Magdaleno\n🔸Teléfono Cliente: 5363132650\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 SWITCH DE 5 PUERTOS\n🔸Precio USD/ zelle: $20 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $20 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$20 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
@@ -4274,7 +4292,7 @@
       "ts": "2026-09-25T00:50:00.636Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:53:55.497Z",
+      "seenTs": "2026-09-25T17:26:40.387Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yanelys",
@@ -4370,7 +4388,7 @@
       "ts": "2026-09-24T23:52:21.894Z",
       "total": "8400 MN + 1600 puntas si pide 8",
       "carnet": "",
-      "seenTs": "2026-09-25T15:09:32.115Z",
+      "seenTs": "2026-09-25T17:27:01.568Z",
       "status": "pending",
       "vuelto": "Es para mañana en la mañana",
       "cliente": "Angel(también desea puntas de 4 a 8 puntas)",
@@ -4909,10 +4927,20 @@
     {
       "id": 1790266428737,
       "ts": "2026-09-24T16:13:48.749Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T17:28:05.342Z",
+        "eur": 0,
+        "usd": 250,
+        "zelle": 0,
+        "eurUSD": 1.1438,
+        "mnAuto": true,
+        "tasaMN": 740
+      },
       "total": "$250 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T16:04:12.939Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T17:27:34.406Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Emilio",
       "valeNum": 104,
@@ -4928,7 +4956,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T17:28:05.342Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509303890": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -4939,7 +4971,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -34522,5 +34554,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T17:11:24.109Z"
+  "timestamp": "2026-09-25T17:29:05.380Z"
 }
