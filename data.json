@@ -2530,6 +2530,42 @@
   ],
   "vales": [
     {
+      "id": 1790350442952,
+      "ts": "2026-09-25T15:34:02.956Z",
+      "total": "$230 USD + 1500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-25T15:38:16.728Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Ray",
+      "valeNum": 101,
+      "articulo": "×1 Nanostation m2",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "52009705",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Ray\n🔸Teléfono Cliente: 52009705\n🔸Dirección Cliente: Acierto #640 / Calzada de Luyano y Herrera\n🔸Mensajería/ costo: 1500\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $230 USD + 1500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 11:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Acierto #640 / Calzada de Luyano y Herrera",
+      "precioUSD": "$230 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-25T15:39:22.600Z",
+      "mensajeria": "1500",
+      "mensajeroId": 1784476782949,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 1,
+          "name": "Nanostation m2"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1790349760431,
       "ts": "2026-09-25T15:22:40.449Z",
       "total": "$820 USD + 2500 MN",
@@ -2857,30 +2893,32 @@
     },
     {
       "id": 1790347850820,
-      "ts": "2026-09-25T14:50:50.828Z",
-      "total": "$320 USD",
+      "ts": "2026-09-25T14:50:00.000Z",
+      "total": "$340 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:36:35.313Z",
+      "seenTs": "2026-09-25T15:39:27.348Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Tunnel Alvarez",
       "valeNum": 137,
-      "articulo": "×2 Adaptador poe UBIQUITI de 0.3A / ×2 NanoStation 5AC Loco",
+      "articulo": "×3 Adaptador poe UBIQUITI de 0.3A / ×2 NanoStation 5AC Loco",
       "garantia": "",
       "gestorId": 1786116024697,
       "precioMN": "",
       "telefono": "5358186138",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Tunnel Alvarez\n🔸Teléfono Cliente: 5358186138\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Adaptador poe UBIQUITI de 0.3A\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $320 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $320 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Tunnel Alvarez\n🔸Teléfono Cliente: 5358186138\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Adaptador poe UBIQUITI de 0.3A\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $340 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $340 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/9/2026, 10:50:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
-      "precioUSD": "$320 USD",
+      "precioUSD": "$340 USD",
       "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "comFijadaMN": 4500,
       "seenByAdmin": true,
+      "comFijadaUSD": 20,
       "valeProductos": [
         {
           "id": 1778384646214,
-          "qty": 2,
+          "qty": 3,
           "name": "Adaptador poe UBIQUITI de 0.3A"
         },
         {
@@ -2889,10 +2927,11 @@
           "name": "NanoStation 5AC Loco"
         }
       ],
-      "comisionGestor": "$20.00 USD + 3000 MN",
+      "comisionGestor": "$20 USD + 4500 MN",
       "recogidaTienda": true,
       "stockDecremented": false,
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1790347750432,
@@ -3027,7 +3066,7 @@
       "ts": "2026-09-25T14:15:32.699Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T15:33:43.858Z",
+      "seenTs": "2026-09-25T15:38:28.521Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos David Dìaz Verdecia",
@@ -33938,5 +33977,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:37:12.166Z"
+  "timestamp": "2026-09-25T15:40:22.698Z"
 }
