@@ -984,7 +984,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2027,7 +2027,7 @@
       "name": "Nanostation m2 loco",
       "catId": 10,
       "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 11,
+      "stock": 12,
       "imagen": "photos/p-1786858233037-c26e7f82.webp",
       "nombre": "Nanostation m2 loco",
       "precio": "$150",
@@ -2258,7 +2258,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2402,7 +2402,7 @@
       "name": "📡 TP-Link Archer BE230",
       "catId": 10,
       "photo": "photos/p-1788560867958-06577344.webp",
-      "stock": 6,
+      "stock": 7,
       "imagen": "photos/p-1788560867958-06577344.webp",
       "nombre": "📡 TP-Link Archer BE230",
       "precio": "$200",
@@ -2652,66 +2652,6 @@
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790285351002,
-      "ts": "2026-09-24T21:29:11.003Z",
-      "pago": {
-        "mn": 3000,
-        "ts": "2026-09-24T22:52:09.171Z",
-        "eur": 0,
-        "usd": 340,
-        "zelle": 0,
-        "eurUSD": 1.1448,
-        "mnAuto": true,
-        "tasaMN": 735
-      },
-      "total": "$340 USD + 3000 MN",
-      "carnet": "",
-      "seenTs": "2026-09-24T22:35:45.202Z",
-      "status": "confirmed",
-      "vuelto": "",
-      "cliente": "osman",
-      "valeNum": 113,
-      "articulo": "×1 Nanostation m2 loco / ×1 📡 TP-Link Archer BE230",
-      "garantia": "",
-      "gestorId": 0,
-      "precioMN": "",
-      "telefono": "55054889",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: osman\n🔸Teléfono Cliente: 55054889\n🔸Dirección Cliente: 39/98 y100 # 9817 Marianao\n\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 Nanostation m2 loco\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $340 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $340 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 17:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "39/98 y100 # 9817 Marianao",
-      "precioUSD": "$340 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "adminNotes": "Generado por Admin",
-      "assignedTs": "2026-09-24T21:29:29.722Z",
-      "mensajeria": "3000",
-      "comFijadaMN": 0,
-      "confirmedTs": "2026-09-24T22:52:09.170Z",
-      "deliveredTs": "2026-09-24T22:52:07.911Z",
-      "mensajeroId": 1784476816825,
-      "seenByAdmin": true,
-      "stockSalido": {
-        "1786858233037": 1,
-        "1788560867958": 1
-      },
-      "comFijadaUSD": 0,
-      "valeProductos": [
-        {
-          "id": 1786858233037,
-          "qty": 1,
-          "name": "Nanostation m2 loco"
-        },
-        {
-          "id": 1788560867958,
-          "qty": 1,
-          "name": "📡 TP-Link Archer BE230"
-        }
-      ],
-      "comisionGestor": "",
-      "recogidaTienda": false,
-      "stockDecremented": true,
       "synced": true
     },
     {
@@ -32688,5 +32628,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T00:40:55.947Z"
+  "timestamp": "2026-09-25T00:43:22.958Z"
 }
