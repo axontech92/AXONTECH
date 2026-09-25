@@ -2529,6 +2529,48 @@
   ],
   "vales": [
     {
+      "id": 1790348987924,
+      "ts": "2026-09-25T15:09:47.927Z",
+      "total": "$1600 USD + 1200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-25T15:12:18.364Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Liosbanis Alvarez Figueredo",
+      "valeNum": 136,
+      "articulo": "×10 NanoStation 5AC Loco / ×10 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786136592500,
+      "precioMN": "",
+      "telefono": "5356341141",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Liosbanis Alvarez Figueredo\n🔸Teléfono Cliente: 5356341141\n🔸Dirección Cliente: Terminal de Ómnibus, Plaza\n🔸Mensajería/ costo: 1200\n🔸 Artículos y cantidades:\n  ×10 NanoStation 5AC Loco\n  ×10 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $1600 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1600 USD + 1200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 11:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Terminal de Ómnibus, Plaza",
+      "precioUSD": "$1600 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "1200",
+      "comFijadaMN": 15000,
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 10,
+          "name": "NanoStation 5AC Loco"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 10,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "$100.00 USD + 15000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790348630012,
       "ts": "2026-09-25T15:03:50.016Z",
       "total": "$230 USD",
@@ -2745,7 +2787,7 @@
       "ts": "2026-09-25T14:30:38.761Z",
       "total": "$160 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:04:15.664Z",
+      "seenTs": "2026-09-25T15:08:49.171Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dandy Capetillo",
@@ -3565,7 +3607,7 @@
       "ts": "2026-09-24T23:52:21.894Z",
       "total": "8400 MN + 1600 puntas si pide 8",
       "carnet": "",
-      "seenTs": "2026-09-25T13:36:25.068Z",
+      "seenTs": "2026-09-25T15:09:32.115Z",
       "status": "pending",
       "vuelto": "Es para mañana en la mañana",
       "cliente": "Angel(también desea puntas de 4 a 8 puntas)",
@@ -33694,5 +33736,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T15:07:51.651Z"
+  "timestamp": "2026-09-25T15:13:20.075Z"
 }
