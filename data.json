@@ -615,7 +615,7 @@
       "name": "Router KUWIFI de linea de 1.150MBPS",
       "catId": 10,
       "photo": "photos/p-1778104287395-885659f8.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/p-1778104287395-885659f8.webp",
       "nombre": "Router KUWIFI de linea de 1.150MBPS",
       "precio": "$130",
@@ -2353,7 +2353,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 42,
+      "stock": 29,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -4134,10 +4134,20 @@
     {
       "id": 1790297659126,
       "ts": "2026-09-25T00:54:19.126Z",
+      "pago": {
+        "mn": 6500,
+        "ts": "2026-09-25T16:46:41.984Z",
+        "eur": 0,
+        "usd": 130,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$130 USD + 6500 MN",
       "carnet": "",
       "seenTs": "2026-09-25T16:45:09.282Z",
-      "status": "assigned",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "yenisleidis",
       "valeNum": 119,
@@ -4151,12 +4161,16 @@
       "precioUSD": "$130 USD",
       "reservado": true,
       "ubicacion": null,
-      "adminNotes": "Generado por Admin",
+      "adminNotes": "94700 cup",
       "assignedTs": "2026-09-25T00:54:51.998Z",
       "mensajeria": "6500",
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-25T16:46:41.983Z",
+      "deliveredTs": "2026-09-25T16:46:40.326Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778104287395": 1
+      },
       "valeProductos": [
         {
           "id": 1778104287395,
@@ -4166,7 +4180,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -6090,10 +6104,20 @@
     {
       "id": 1790180177267,
       "ts": "2026-09-23T16:16:17.282Z",
+      "pago": {
+        "mn": 2500,
+        "ts": "2026-09-25T16:47:20.094Z",
+        "eur": 0,
+        "usd": 780,
+        "zelle": 0,
+        "eurUSD": 1.1291,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$780 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T15:36:15.217Z",
-      "status": "assigned",
+      "seenTs": "2026-09-25T16:47:07.197Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Darel",
       "valeNum": 92,
@@ -6111,8 +6135,13 @@
       "assignedTs": "2026-09-25T15:36:12.134Z",
       "mensajeria": "2500 (de mi comisión)",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-25T16:47:20.094Z",
+      "deliveredTs": "2026-09-25T16:47:18.408Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787114204179": 13
+      },
       "comFijadaUSD": 130,
       "valeProductos": [
         {
@@ -6123,7 +6152,7 @@
       ],
       "comisionGestor": "$130.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -34405,5 +34434,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T16:45:55.507Z"
+  "timestamp": "2026-09-25T16:48:20.674Z"
 }
