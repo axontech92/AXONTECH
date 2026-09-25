@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 51,
+      "stock": 50,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -3169,7 +3169,7 @@
       "total": "$140 USD",
       "carnet": "",
       "seenTs": "2026-09-25T21:21:24.666Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ernesto",
       "valeNum": 109,
@@ -3185,9 +3185,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-25T21:22:20.301Z",
       "seenByAdmin": true,
-      "stockSalido": null,
+      "stockSalido": {
+        "1788278326719": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3198,7 +3200,7 @@
       ],
       "comisionGestor": "$10 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -35060,5 +35062,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T21:22:17.034Z"
+  "timestamp": "2026-09-25T21:23:20.353Z"
 }
