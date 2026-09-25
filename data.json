@@ -2529,6 +2529,82 @@
   ],
   "vales": [
     {
+      "id": 1790344584215,
+      "ts": "2026-09-25T13:56:24.230Z",
+      "total": "$280 USD + 4500 MN",
+      "carnet": "",
+      "seenTs": "2026-09-25T13:56:31.810Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Ariel",
+      "valeNum": 130,
+      "articulo": "×2 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5354753689",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Ariel\n🔸Teléfono Cliente: 5354753689\n🔸Dirección Cliente: Calle 99#2236 entre 22 y 24 centro cotorro\n🔸Mensajería/ costo: 4500 cup\n🔸 Artículos y cantidades:\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $280 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $280 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 09:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 99#2236 entre 22 y 24 centro cotorro",
+      "precioUSD": "$280 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-25T13:57:11.884Z",
+      "mensajeria": "4500 cup",
+      "comFijadaMN": 0,
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 2,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790344526796,
+      "ts": "2026-09-25T13:55:26.799Z",
+      "total": "$700 USD",
+      "carnet": "",
+      "seenTs": "2026-09-25T13:56:20.993Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Erenesto",
+      "valeNum": 129,
+      "articulo": "×5 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "527718107493",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Erenesto\n🔸Teléfono Cliente: 527718107493\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $700 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $700 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 09:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$700 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 50,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 5,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790344441528,
       "ts": "2026-09-25T13:54:01.541Z",
       "total": "$1280 USD",
@@ -2617,6 +2693,7 @@
       "ts": "2026-09-25T13:40:22.071Z",
       "total": "$500 USD",
       "carnet": "",
+      "seenTs": "2026-09-25T13:55:53.443Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony viejo",
@@ -2629,10 +2706,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yony viejo\n🔸Teléfono Cliente: 5352842022\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Router TP-Link Archer C54 Reacondicionado\n  ×2 NanoStation 5AC Loco\n  ×2 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $500 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $500 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 09:39\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$500 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 3000,
+      "seenByAdmin": true,
       "comFijadaUSD": 50,
       "valeProductos": [
         {
@@ -2713,7 +2791,7 @@
       "ts": "2026-09-25T13:30:18.684Z",
       "total": "$860 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T13:51:40.641Z",
+      "seenTs": "2026-09-25T13:56:07.368Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yony nuevo",
@@ -4361,7 +4439,7 @@
       "ts": "2026-09-23T21:36:00.000Z",
       "total": "$420 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-25T13:31:51.265Z",
+      "seenTs": "2026-09-25T13:56:15.933Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -33146,5 +33224,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T13:55:22.686Z"
+  "timestamp": "2026-09-25T13:58:11.913Z"
 }
