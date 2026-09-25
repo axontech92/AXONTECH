@@ -940,7 +940,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2530,6 +2530,73 @@
   ],
   "vales": [
     {
+      "id": 1790363188983,
+      "ts": "2026-09-25T19:06:29.002Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Xxxx o Daimi o Damni",
+      "valeNum": 112,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "5354194976",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Xxxx o Daimi o Damni\n🔸Teléfono Cliente: 5354194976\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 15:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790362028224,
+      "ts": "2026-09-25T18:47:08.237Z",
+      "total": "$160 USD + 500 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Betty preguntar por Betty en la cuadra",
+      "valeNum": 111,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "",
+      "telefono": "58139547",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Betty preguntar por Betty en la cuadra\n🔸Teléfono Cliente: 58139547\n🔸Dirección Cliente: Misión 561 % Alambique y San Nicolás  2do piso\n🔸Mensajería/ costo: 500 cup\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 14:46\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Misión 561 % Alambique y San Nicolás  2do piso",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "500 cup",
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
       "id": 1790360889114,
       "ts": "2026-09-25T18:28:09.118Z",
       "total": "$140 USD + 1750 MN",
@@ -3895,10 +3962,20 @@
     {
       "id": 1790345120759,
       "ts": "2026-09-25T14:05:20.770Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-25T19:06:58.192Z",
+        "eur": 0,
+        "usd": 20,
+        "zelle": 0,
+        "eurUSD": 1.1438,
+        "mnAuto": true,
+        "tasaMN": 740
+      },
       "total": "$20 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T17:27:11.225Z",
-      "status": "pending",
+      "seenTs": "2026-09-25T19:06:45.944Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Cristian Magdaleno",
       "valeNum": 132,
@@ -3914,7 +3991,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-25T19:06:58.191Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778336689684": 1
+      },
       "comFijadaUSD": 0,
       "valeProductos": [
         {
@@ -3925,7 +4006,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -34746,5 +34827,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-25T18:54:52.245Z"
+  "timestamp": "2026-09-25T19:07:58.688Z"
 }
