@@ -989,7 +989,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2578,7 +2578,7 @@
       "ts": "2026-09-26T23:00:35.213Z",
       "total": "$750 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T23:08:19.095Z",
+      "seenTs": "2026-09-26T23:35:18.896Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alex",
@@ -2591,7 +2591,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Alex\n🔸Teléfono Cliente: 53253275\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 18:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$800 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -2652,7 +2652,7 @@
       "ts": "2026-09-26T22:36:36.024Z",
       "total": "$1480 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T23:08:15.449Z",
+      "seenTs": "2026-09-26T23:35:26.672Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "damian",
@@ -2960,6 +2960,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3347,6 +3348,7 @@
       ],
       "comisionGestor": "$50.00 USD + 7500 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4776,6 +4778,7 @@
       ],
       "comisionGestor": "$20 USD + 3000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4830,6 +4833,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4991,6 +4995,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6874,6 +6879,7 @@
       ],
       "comisionGestor": "$80 USD + 12000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6992,6 +6998,7 @@
       ],
       "comisionGestor": "$50.00 USD + 3000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -37601,5 +37608,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T23:33:27.470Z"
+  "timestamp": "2026-09-26T23:39:13.821Z"
 }
