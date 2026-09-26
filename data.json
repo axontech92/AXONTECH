@@ -2535,11 +2535,63 @@
   ],
   "vales": [
     {
+      "id": 1790461308770,
+      "ts": "2026-09-26T22:21:48.771Z",
+      "total": "$1450 USD",
+      "carnet": "",
+      "seenTs": "2026-09-26T22:22:18.827Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Riu Daniel",
+      "valeNum": 145,
+      "articulo": "×5 Adaptador poe UBIQUITI de 0.3A / ×5 Tplink Archer AX1450 Doble Banda / ×1 Ubiquiti LiteAP ac (LAP-120) / ×5 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5352028013",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Riu Daniel\n🔸Teléfono Cliente: 5352028013\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×5 Adaptador poe UBIQUITI de 0.3A\n  ×5 Tplink Archer AX1450 Doble Banda\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n  ×5 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $1450 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1450 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 18:21\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1450 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 7500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 110,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 5,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1786207539390,
+          "qty": 5,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        },
+        {
+          "id": 1786509303890,
+          "qty": 1,
+          "name": "Ubiquiti LiteAP ac (LAP-120)"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 5,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$110.00 USD + 7500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790457611412,
       "ts": "2026-09-26T21:20:11.422Z",
       "total": "$140 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T22:05:29.052Z",
+      "seenTs": "2026-09-26T22:24:36.658Z",
       "status": "pending",
       "vuelto": "no",
       "cliente": "Gilberto López Hernández",
@@ -6491,59 +6543,6 @@
       "recogidaTienda": true,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790344999123,
-      "ts": "2026-09-25T14:03:19.127Z",
-      "total": "$730 USD",
-      "carnet": "",
-      "seenTs": "2026-09-26T21:50:47.286Z",
-      "status": "pending",
-      "vuelto": "No",
-      "cliente": "Riu Daniel",
-      "valeNum": 131,
-      "articulo": "×2 NanoStation 5AC Loco / ×2 Adaptador poe UBIQUITI de 0.3A / ×1 Ubiquiti LiteAP ac (LAP-120) / ×2 Tplink Archer AX1450 Doble Banda",
-      "garantia": "",
-      "gestorId": 1781761257101,
-      "precioMN": "",
-      "telefono": "5352028013",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Riu Daniel\n🔸Teléfono Cliente: 5352028013\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 NanoStation 5AC Loco\n  ×2 Adaptador poe UBIQUITI de 0.3A\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n  ×2 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $730 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $730 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$730 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "adminNotes": "para el lunes",
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 3000,
-      "seenByAdmin": true,
-      "comFijadaUSD": 50,
-      "valeProductos": [
-        {
-          "id": 1788278326719,
-          "qty": 2,
-          "name": "NanoStation 5AC Loco"
-        },
-        {
-          "id": 1778384646214,
-          "qty": 2,
-          "name": "Adaptador poe UBIQUITI de 0.3A"
-        },
-        {
-          "id": 1786509303890,
-          "qty": 1,
-          "name": "Ubiquiti LiteAP ac (LAP-120)"
-        },
-        {
-          "id": 1786207539390,
-          "qty": 2,
-          "name": "Tplink Archer AX1450 Doble Banda"
-        }
-      ],
-      "comisionGestor": "$50.00 USD + 3000 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -37373,5 +37372,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T22:06:33.696Z"
+  "timestamp": "2026-09-26T22:25:04.695Z"
 }
