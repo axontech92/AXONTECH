@@ -2539,7 +2539,7 @@
       "ts": "2026-09-26T17:20:41.899Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T17:25:22.931Z",
+      "seenTs": "2026-09-26T17:28:33.744Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis Enrique Bauta Tamayo",
@@ -2618,7 +2618,7 @@
       "ts": "2026-09-26T17:02:00.569Z",
       "total": "$2100 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T17:21:06.371Z",
+      "seenTs": "2026-09-26T17:28:02.240Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mirel",
@@ -2655,7 +2655,7 @@
       "ts": "2026-09-26T16:59:54.836Z",
       "total": "$160 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T17:01:06.318Z",
+      "seenTs": "2026-09-26T17:27:55.375Z",
       "status": "pending",
       "vuelto": "40$",
       "cliente": "Roxana",
@@ -36456,5 +36456,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T17:26:57.696Z"
+  "timestamp": "2026-09-26T17:29:39.620Z"
 }
