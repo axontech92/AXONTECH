@@ -1270,7 +1270,7 @@
       "name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A",
       "catId": 20,
       "photo": "photos/img_1779562612951.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1779562612951.webp",
       "nombre": "CONTROLADOR SOLAR POWMR M100 PRO de 80A",
       "precio": "$220",
@@ -2535,11 +2535,59 @@
   ],
   "vales": [
     {
+      "id": 1790452446927,
+      "ts": "2026-09-26T19:54:06.956Z",
+      "total": "22600 MN",
+      "carnet": "",
+      "seenTs": "2026-09-26T19:54:41.196Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Xxxx",
+      "valeNum": 142,
+      "articulo": "×70 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "19600 MN",
+      "telefono": "5353080852",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Xxxx\n🔸Teléfono Cliente: 5353080852\n🔸Dirección Cliente: Calle 90 entre 41 y 43 #4115 interior marianao\n🔸Mensajería/ costo: 3000 cupp\n🔸 Artículos y cantidades:\n  ×70 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 19600 MN\n🔸 Vuelto: \n🔸 Total a pagar: 22600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 15:53\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 90 entre 41 y 43 #4115 interior marianao",
+      "precioUSD": "",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-26T19:54:49.046Z",
+      "mensajeria": "3000 cupp",
+      "mensajeroId": 1788892462364,
+      "seenByAdmin": true,
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 70,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790452367246,
       "ts": "2026-09-26T19:52:47.248Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T19:54:37.871Z",
+        "eur": 0,
+        "usd": 220,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$220 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:54:34.008Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lazaro Luis",
       "valeNum": 142,
@@ -2551,10 +2599,15 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Lazaro Luis\n🔸Teléfono Cliente: 52546127\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A\n🔸Precio USD/ zelle: $220 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $220 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 15:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$220 USD",
-      "ubicacion": "",
+      "reservado": true,
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "horaEntrega": "",
+      "confirmedTs": "2026-09-26T19:54:37.871Z",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1779562612951": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2563,11 +2616,10 @@
           "name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2704,7 +2756,7 @@
       "ts": "2026-09-26T19:06:52.304Z",
       "total": "$46 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:50:37.690Z",
+      "seenTs": "2026-09-26T19:54:52.208Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rachel",
@@ -8312,7 +8364,7 @@
       "ts": "2026-09-23T21:36:00.000Z",
       "total": "$740 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:50:43.478Z",
+      "seenTs": "2026-09-26T19:54:57.218Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -37149,5 +37201,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T19:53:45.694Z"
+  "timestamp": "2026-09-26T19:55:49.694Z"
 }
