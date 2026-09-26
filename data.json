@@ -2539,6 +2539,7 @@
       "ts": "2026-09-26T18:33:19.856Z",
       "total": "$28 USD + 2500 MN",
       "carnet": "",
+      "seenTs": "2026-09-26T18:42:53.625Z",
       "status": "pending",
       "vuelto": "12",
       "cliente": "Leo",
@@ -2551,10 +2552,11 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Leo\n🔸Teléfono Cliente: 5355614194\n🔸Dirección Cliente: calle bazo #1 entre Pereira y ambron. Regla\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: 12\n🔸 Total a pagar: $28 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 14:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "calle bazo #1 entre Pereira y ambron. Regla",
       "precioUSD": "$28 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 3,
       "valeProductos": [
         {
@@ -3622,7 +3624,7 @@
       "ts": "2026-09-26T15:09:19.632Z",
       "total": "$28 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T16:22:49.707Z",
+      "seenTs": "2026-09-26T18:43:07.332Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Raul de Armas",
@@ -4173,7 +4175,7 @@
       "ts": "2026-09-25T21:07:03.553Z",
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T15:55:20.540Z",
+      "seenTs": "2026-09-26T18:43:45.391Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alejandro David Figueredo",
@@ -36794,5 +36796,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T18:42:02.711Z"
+  "timestamp": "2026-09-26T18:44:00.080Z"
 }
