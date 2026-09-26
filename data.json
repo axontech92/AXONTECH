@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 49,
+      "stock": 44,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1854,7 +1854,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 45,
+      "stock": 44,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -1908,7 +1908,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 18,
+      "stock": 16,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2134,7 +2134,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 28,
+      "stock": 23,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 45,
+      "stock": 42,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2535,10 +2535,48 @@
   ],
   "vales": [
     {
+      "id": 1790429788556,
+      "ts": "2026-09-26T13:36:28.557Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "seenTs": "2026-09-26T13:46:06.617Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alexander",
+      "valeNum": 119,
+      "articulo": "×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257109,
+      "precioMN": "",
+      "telefono": "53353781",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: Alexander\n🔸Teléfono Cliente: 53353781\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 09:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 1,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790427921824,
       "ts": "2026-09-26T13:05:21.826Z",
       "total": "$28 USD",
       "carnet": "",
+      "seenTs": "2026-09-26T13:44:28.223Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Marcos",
@@ -2555,6 +2593,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 3,
       "valeProductos": [
         {
@@ -2608,27 +2647,27 @@
     },
     {
       "id": 1790390557216,
-      "ts": "2026-09-26T02:42:37.217Z",
-      "total": "$260 USD",
+      "ts": "2026-09-26T02:42:00.000Z",
+      "total": "$300 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T04:02:48.107Z",
+      "seenTs": "2026-09-26T13:37:06.099Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
       "valeNum": 115,
-      "articulo": "×2 Mikrotik SXTsq 5 lite",
+      "articulo": "×2 Mikrotik SXTsq 5 lite / ×2 Adaptador poe UBIQUITI de 0.3A",
       "garantia": "",
       "gestorId": 1781761257102,
       "precioMN": "",
       "telefono": "5350213325",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Amalia\n🔸Teléfono Cliente: 5350213325\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Mikrotik SXTsq 5 lite\n🔸Precio USD/ zelle: $260 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $260 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 22:41\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Amalia\n🔸Teléfono Cliente: 5350213325\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Mikrotik SXTsq 5 lite\n  ×2 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $300 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $300 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/9/2026, 22:42:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
-      "precioUSD": "$260 USD",
+      "precioUSD": "$300 USD",
       "reservado": true,
       "ubicacion": null,
       "adminNotes": "para manana",
       "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
+      "comFijadaMN": 3000,
       "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
@@ -2636,9 +2675,14 @@
           "id": 1786510034029,
           "qty": 2,
           "name": "Mikrotik SXTsq 5 lite"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 2,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
         }
       ],
-      "comisionGestor": "$20.00 USD",
+      "comisionGestor": "$20 USD + 3000 MN",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
@@ -2649,8 +2693,8 @@
       "ts": "2026-09-26T02:38:30.155Z",
       "total": "$160 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T13:02:18.782Z",
-      "status": "assigned",
+      "seenTs": "2026-09-26T14:19:21.382Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Javier Cuñado",
       "valeNum": 114,
@@ -2667,8 +2711,12 @@
       "assignedTs": "2026-09-26T04:04:04.655Z",
       "mensajeria": "4000",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-26T14:19:25.598Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2679,7 +2727,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2784,7 +2832,7 @@
       "ts": "2026-09-25T22:57:30.452Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T04:06:54.124Z",
+      "seenTs": "2026-09-26T14:19:51.389Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mirel",
@@ -2814,7 +2862,8 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1790376263474,
@@ -2860,7 +2909,7 @@
       "ts": "2026-09-25T21:38:15.714Z",
       "total": "$80 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T02:50:06.397Z",
+      "seenTs": "2026-09-26T13:43:46.359Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Danai xxx",
@@ -3044,7 +3093,7 @@
       "ts": "2026-09-25T19:17:10.578Z",
       "total": "$950 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T02:29:14.247Z",
+      "seenTs": "2026-09-26T13:43:50.444Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -4026,8 +4075,8 @@
       "ts": "2026-09-25T15:22:40.449Z",
       "total": "$820 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T04:06:55.847Z",
-      "status": "assigned",
+      "seenTs": "2026-09-26T14:19:37.458Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Darel",
       "valeNum": 100,
@@ -4045,8 +4094,14 @@
       "assignedTs": "2026-09-26T04:09:52.071Z",
       "mensajeria": "2500 (de mi comisión)",
       "comFijadaMN": 7500,
+      "deliveredTs": "2026-09-26T14:19:42.293Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 5,
+        "1787114204179": 5,
+        "1788278326719": 3
+      },
       "comFijadaUSD": 80,
       "valeProductos": [
         {
@@ -4067,7 +4122,7 @@
       ],
       "comisionGestor": "$80.00 USD + 7500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -6441,49 +6496,22 @@
       "synced": true
     },
     {
-      "id": 1790244950379,
-      "ts": "2026-09-24T10:15:50.388Z",
-      "total": "$65 USD",
-      "carnet": "",
-      "seenTs": "2026-09-26T02:26:17.264Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Leonel Iriarte",
-      "valeNum": 124,
-      "articulo": "×1 Transfer 2 polos 110v",
-      "garantia": "",
-      "gestorId": 1781761257109,
-      "precioMN": "",
-      "telefono": "52104938",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: Leonel Iriarte\n🔸Teléfono Cliente: 52104938\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Transfer 2 polos 110v\n🔸Precio USD/ zelle: $65 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $65 USD\n\n*Garantía: \n*Fecha y hora de Venta: 24/09/2026 06:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$65 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 5,
-      "valeProductos": [
-        {
-          "id": 1785079508918,
-          "qty": 1,
-          "name": "Transfer 2 polos 110v"
-        }
-      ],
-      "comisionGestor": "$5.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1790219065859,
       "ts": "2026-09-24T03:04:00.000Z",
+      "pago": {
+        "mn": 2000,
+        "ts": "2026-09-26T14:19:12.940Z",
+        "eur": 0,
+        "usd": 460,
+        "zelle": 0,
+        "eurUSD": 1.1435,
+        "mnAuto": true,
+        "tasaMN": 730
+      },
       "total": "$460 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T13:29:40.934Z",
-      "status": "assigned",
+      "seenTs": "2026-09-26T14:19:06.419Z",
+      "status": "confirmed",
       "vuelto": "???",
       "cliente": "Yoel",
       "valeNum": 107,
@@ -6492,6 +6520,7 @@
       "gestorId": 1786138222992,
       "precioMN": "",
       "telefono": "5355265951",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yoel\n🔸Teléfono Cliente: 5355265951\n🔸Dirección Cliente: la ponchera de via blanca\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: ???\n🔸 Total a pagar: $460 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/9/2026, 23:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "la ponchera de via blanca",
       "precioUSD": "$460 USD",
       "reservado": true,
@@ -6500,8 +6529,13 @@
       "assignedTs": "2026-09-26T13:29:35.976Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T14:19:12.939Z",
+      "deliveredTs": "2026-09-26T14:19:11.246Z",
       "mensajeroId": 1784476786977,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 2
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -6512,9 +6546,8 @@
       ],
       "comisionGestor": "$20 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Yoel\n🔸Teléfono Cliente: 5355265951\n🔸Dirección Cliente: la ponchera de via blanca\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: \n🔸 Vuelto: ???\n🔸 Total a pagar: $460 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 23/9/2026, 23:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -35569,5 +35602,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T13:30:36.695Z"
+  "timestamp": "2026-09-26T14:20:42.696Z"
 }
