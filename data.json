@@ -291,7 +291,7 @@
       "color": "#1D4ED8",
       "phone": "54359866",
       "initials": "C",
-      "password": "pbkdf2$100000$q2BSNUsxm+HaFDa+fYk0wA==$dbf8322c3b3524fc82a8c29ac641732a21bdd7f4c3bdcb1705b5f49c0e6772b4"
+      "password": "pbkdf2$100000$MxYHDQo/xghvKTYTVu0WBA==$baf133831bf4618d59f781e8c5fcc58defc09315ea0e4b1ce562e29772483655"
     },
     {
       "id": 1786555619210,
@@ -2534,6 +2534,42 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790437149259,
+      "ts": "2026-09-26T15:39:09.274Z",
+      "total": "$140 USD + 4500 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ariel",
+      "valeNum": 124,
+      "articulo": "×1 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5354753689",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Ariel\n🔸Teléfono Cliente: 5354753689\n🔸Dirección Cliente: Calle 99#2236 entre 22 y 24 centro cotorro\n🔸Mensajería/ costo: 4500\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 11:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 99#2236 entre 22 y 24 centro cotorro",
+      "precioUSD": "$140 USD",
+      "ubicacion": "",
+      "mensajeria": "4500",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 1,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
     {
       "id": 1790436894068,
       "ts": "2026-09-26T15:34:54.085Z",
@@ -35966,5 +36002,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T15:37:52.695Z"
+  "timestamp": "2026-09-26T15:40:08.695Z"
 }
