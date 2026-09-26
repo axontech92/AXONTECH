@@ -2535,6 +2535,46 @@
   ],
   "vales": [
     {
+      "id": 1790441133527,
+      "ts": "2026-09-26T16:45:33.540Z",
+      "total": "$460 USD + 22600 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alexia Diaz",
+      "valeNum": 127,
+      "articulo": "×2 Nanostation m2 / ×70 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257102,
+      "precioMN": "19600 MN",
+      "telefono": "055234184",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Alexia Diaz\n🔸Teléfono Cliente: 055234184\n🔸Dirección Cliente: Secundaria de la cuevita, san Miguel\n🔸Mensajería/ costo: 3000 cup\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n  ×70 Cable de red categoría 6\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: 19600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $460 USD + 22600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 12:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Secundaria de la cuevita, san Miguel",
+      "precioUSD": "$460 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3000 cup",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 20,
+      "valeProductos": [
+        {
+          "id": 1786509790425,
+          "qty": 2,
+          "name": "Nanostation m2"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 70,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790440889586,
       "ts": "2026-09-26T16:41:29.604Z",
       "total": "$800 USD",
@@ -2915,8 +2955,8 @@
       "ts": "2026-09-26T15:39:09.274Z",
       "total": "$140 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T16:44:28.494Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T16:45:54.782Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Ariel",
       "valeNum": 124,
@@ -2930,8 +2970,10 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T16:45:36.458Z",
       "mensajeria": "4500",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -7453,7 +7495,7 @@
       "ts": "2026-09-23T21:36:00.000Z",
       "total": "$740 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T16:15:29.162Z",
+      "seenTs": "2026-09-26T16:44:56.752Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -36287,5 +36329,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T16:44:55.484Z"
+  "timestamp": "2026-09-26T16:46:36.497Z"
 }
