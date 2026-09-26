@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 52,
+      "stock": 48,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2270,7 +2270,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 79,
+      "stock": 68,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -3095,10 +3095,20 @@
     {
       "id": 1790444012632,
       "ts": "2026-09-26T17:33:00.000Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T20:51:47.972Z",
+        "eur": 0,
+        "usd": 1460,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$1460 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:14:11.838Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T20:51:35.011Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "X",
       "valeNum": 133,
@@ -3115,9 +3125,13 @@
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
       "comFijadaMN": 4500,
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-26T20:51:47.972Z",
       "mensajeroId": null,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 3,
+        "1788278326719": 10
+      },
       "comFijadaUSD": 100,
       "valeProductos": [
         {
@@ -3133,7 +3147,7 @@
       ],
       "comisionGestor": "$100 USD + 4500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -3562,8 +3576,8 @@
       "ts": "2026-09-26T15:55:59.107Z",
       "total": "$80 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T16:30:02.003Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T20:52:27.778Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Henry",
       "valeNum": 127,
@@ -3577,8 +3591,10 @@
       "precioUSD": "$80 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T20:52:43.748Z",
       "mensajeria": "Gratis",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476791178,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -3699,7 +3715,7 @@
       "ts": "2026-09-26T15:46:30.213Z",
       "total": "$50 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:03:04.412Z",
+      "seenTs": "2026-09-26T20:51:31.295Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Josué",
@@ -4068,10 +4084,20 @@
     {
       "id": 1790436676171,
       "ts": "2026-09-26T15:31:16.178Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T20:52:21.487Z",
+        "eur": 0,
+        "usd": 160,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:24:42.540Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T20:52:10.351Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yanier",
       "valeNum": 122,
@@ -4087,7 +4113,12 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-26T20:52:21.486Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 1,
+        "1788278326719": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -4103,7 +4134,7 @@
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4503,10 +4534,20 @@
     {
       "id": 1790382392347,
       "ts": "2026-09-26T00:26:32.357Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T20:52:02.973Z",
+        "eur": 0,
+        "usd": 140,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$140 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T17:00:14.426Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T20:51:55.712Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Rilke Espinosa",
       "valeNum": 113,
@@ -4522,7 +4563,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T20:52:02.972Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788015580929": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -4533,7 +4578,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -37277,5 +37322,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T20:51:29.020Z"
+  "timestamp": "2026-09-26T20:53:44.694Z"
 }
