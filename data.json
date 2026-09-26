@@ -2535,6 +2535,45 @@
   ],
   "vales": [
     {
+      "id": 1790433662110,
+      "ts": "2026-09-26T14:41:02.114Z",
+      "total": "$35 USD + 800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-26T14:41:56.670Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Elsie",
+      "valeNum": 120,
+      "articulo": "×1 Ventilador de techo",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5352586897",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Elsie\n🔸Teléfono Cliente: 5352586897\n🔸Dirección Cliente: Maloja 577 e/ Oquendo y Márquez González\n🔸Mensajería/ costo: 800\n🔸 Artículos y cantidades:\n  ×1 Ventilador de techo\n🔸Precio USD/ zelle: $35 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $35 USD + 800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 10:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Maloja 577 e/ Oquendo y Márquez González",
+      "precioUSD": "$35 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-26T14:41:50.000Z",
+      "mensajeria": "800",
+      "comFijadaMN": 1500,
+      "mensajeroId": 1784476786977,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1781365135486,
+          "qty": 1,
+          "name": "Ventilador de techo"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790433478494,
       "ts": "2026-09-26T14:37:58.495Z",
       "total": "$20 USD + 4000 MN",
@@ -35691,5 +35730,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T14:40:59.694Z"
+  "timestamp": "2026-09-26T14:42:50.695Z"
 }
