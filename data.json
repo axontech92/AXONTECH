@@ -2854,6 +2854,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3062,7 +3063,7 @@
       "ts": "2026-09-26T19:06:52.304Z",
       "total": "$46 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T23:08:02.652Z",
+      "seenTs": "2026-09-26T23:23:58.672Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Rachel",
@@ -37578,5 +37579,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T23:23:24.611Z"
+  "timestamp": "2026-09-26T23:24:24.987Z"
 }
