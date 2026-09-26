@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 82,
+      "stock": 61,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1768,7 +1768,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 34,
+      "stock": 33,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -1854,7 +1854,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 98,
+      "stock": 97,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -1908,7 +1908,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 16,
+      "stock": 14,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2168,7 +2168,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2703,
+      "stock": 2633,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 109,
+      "stock": 88,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2590,8 +2590,8 @@
       "ts": "2026-09-26T19:06:52.304Z",
       "total": "$46 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:08:50.503Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:33:48.791Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Rachel",
       "valeNum": 138,
@@ -2603,10 +2603,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rachel\n🔸Teléfono Cliente: 55002015\n🔸Dirección Cliente: mi direccion es calzada de managua #1839 / Cuartel y Amargura .Calvario , Arroyo Naranjo\n🔸Mensajería/ costo: 3800\n🔸 Artículos y cantidades:\n  ×2 Toldo para sombra marrón 2 x 4\n🔸Precio USD/ zelle: $46 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $46 USD + 3800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 15:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "mi direccion es calzada de managua #1839 / Cuartel y Amargura .Calvario , Arroyo Naranjo",
       "precioUSD": "$46 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T19:33:16.076Z",
       "mensajeria": "3800",
       "comFijadaMN": 0,
+      "mensajeroId": 1788892462364,
       "seenByAdmin": true,
       "comFijadaUSD": 6,
       "valeProductos": [
@@ -2787,10 +2789,20 @@
     {
       "id": 1790444003256,
       "ts": "2026-09-26T17:33:23.266Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T19:33:31.598Z",
+        "eur": 0,
+        "usd": 800,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$800 zelle",
       "carnet": "",
-      "seenTs": "2026-09-26T18:26:47.356Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:33:28.386Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Luis Enrrique",
       "valeNum": 133,
@@ -2806,7 +2818,12 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 7500,
+      "confirmedTs": "2026-09-26T19:33:31.598Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 5,
+        "1788278326719": 5
+      },
       "comFijadaUSD": 50,
       "valeProductos": [
         {
@@ -2822,7 +2839,7 @@
       ],
       "comisionGestor": "$50.00 USD + 7500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2873,10 +2890,20 @@
     {
       "id": 1790443241825,
       "ts": "2026-09-26T17:20:41.899Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T19:33:22.257Z",
+        "eur": 0,
+        "usd": 2400,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:59:32.607Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:33:18.206Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Luis Enrique Bauta Tamayo",
       "valeNum": 132,
@@ -2892,7 +2919,12 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 22500,
+      "confirmedTs": "2026-09-26T19:33:22.257Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 15,
+        "1788278326719": 15
+      },
       "comFijadaUSD": 150,
       "valeProductos": [
         {
@@ -2908,17 +2940,27 @@
       ],
       "comisionGestor": "$150.00 USD + 22500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
       "id": 1790443121988,
       "ts": "2026-09-26T17:18:41.994Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T19:33:01.830Z",
+        "eur": 0,
+        "usd": 160,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T17:25:53.250Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:32:59.044Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lesly",
       "valeNum": 132,
@@ -2934,7 +2976,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T19:33:01.829Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509569058": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2945,7 +2991,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2989,10 +3035,20 @@
     {
       "id": 1790441994806,
       "ts": "2026-09-26T16:59:54.836Z",
+      "pago": {
+        "mn": 3500,
+        "ts": "2026-09-26T19:34:04.345Z",
+        "eur": 0,
+        "usd": 160,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$160 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:59:33.638Z",
-      "status": "assigned",
+      "seenTs": "2026-09-26T19:33:49.457Z",
+      "status": "confirmed",
       "vuelto": "40$",
       "cliente": "Roxana",
       "valeNum": 130,
@@ -3009,8 +3065,14 @@
       "assignedTs": "2026-09-26T18:10:59.216Z",
       "mensajeria": "3500",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-26T19:34:04.345Z",
+      "deliveredTs": "2026-09-26T19:34:02.257Z",
       "mensajeroId": 1788892462364,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778384646214": 1,
+        "1788278326719": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3026,17 +3088,27 @@
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
     {
       "id": 1790441133527,
       "ts": "2026-09-26T16:45:33.540Z",
+      "pago": {
+        "mn": 22600,
+        "ts": "2026-09-26T19:33:39.222Z",
+        "eur": 0,
+        "usd": 460,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$460 USD + 22600 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:26:48.031Z",
-      "status": "assigned",
+      "seenTs": "2026-09-26T19:33:33.812Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Alexia Diaz",
       "valeNum": 127,
@@ -3053,8 +3125,14 @@
       "assignedTs": "2026-09-26T16:47:24.683Z",
       "mensajeria": "3000 cup",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T19:33:39.222Z",
+      "deliveredTs": "2026-09-26T19:33:37.669Z",
       "mensajeroId": 1784476802516,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786509790425": 2,
+        "1787349543585": 70
+      },
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -3070,7 +3148,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4243,7 +4321,7 @@
       "ts": "2026-09-25T22:44:23.491Z",
       "total": "$310 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:11:35.344Z",
+      "seenTs": "2026-09-26T19:30:01.340Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "La taty",
@@ -4280,10 +4358,20 @@
     {
       "id": 1790372295698,
       "ts": "2026-09-25T21:38:15.714Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T19:33:45.957Z",
+        "eur": 0,
+        "usd": 80,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$80 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:10:42.797Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:33:41.808Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Danai xxx",
       "valeNum": 113,
@@ -4299,7 +4387,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T19:33:45.957Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786207539390": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -4310,7 +4402,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -5431,7 +5523,7 @@
       "ts": "2026-09-25T15:22:00.000Z",
       "total": "$1620 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:11:37.207Z",
+      "seenTs": "2026-09-26T19:30:02.486Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Darel",
@@ -5616,7 +5708,7 @@
       "ts": "2026-09-25T15:09:47.927Z",
       "total": "$1600 USD + 1200 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:22:41.041Z",
+      "seenTs": "2026-09-26T19:29:29.314Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Liosbanis Alvarez Figueredo",
@@ -36940,5 +37032,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T19:27:46.695Z"
+  "timestamp": "2026-09-26T19:35:05.115Z"
 }
