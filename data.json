@@ -2663,7 +2663,7 @@
       "ts": "2026-09-26T15:48:07.614Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T15:48:45.135Z",
+      "seenTs": "2026-09-26T16:11:53.523Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "RAFAEL PEREZ",
@@ -2804,7 +2804,7 @@
       "ts": "2026-09-26T15:39:09.274Z",
       "total": "$140 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T15:48:01.651Z",
+      "seenTs": "2026-09-26T16:12:00.788Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ariel",
@@ -2817,7 +2817,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Ariel\n🔸Teléfono Cliente: 5354753689\n🔸Dirección Cliente: Calle 99#2236 entre 22 y 24 centro cotorro\n🔸Mensajería/ costo: 4500\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 4500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 11:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 99#2236 entre 22 y 24 centro cotorro",
       "precioUSD": "$140 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "4500",
       "comFijadaMN": 0,
@@ -5113,7 +5113,7 @@
       "ts": "2026-09-25T14:49:10.460Z",
       "total": "$4400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T15:35:09.438Z",
+      "seenTs": "2026-09-26T16:12:11.332Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -36224,5 +36224,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T16:11:40.695Z"
+  "timestamp": "2026-09-26T16:13:06.694Z"
 }
