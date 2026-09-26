@@ -1398,7 +1398,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 110,
+      "stock": 109,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2787,7 +2787,7 @@
       "ts": "2026-09-26T17:20:41.899Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:10:45.086Z",
+      "seenTs": "2026-09-26T18:59:32.607Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis Enrique Bauta Tamayo",
@@ -2903,7 +2903,7 @@
       "ts": "2026-09-26T16:59:54.836Z",
       "total": "$160 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:10:48.546Z",
+      "seenTs": "2026-09-26T18:59:33.638Z",
       "status": "assigned",
       "vuelto": "40$",
       "cliente": "Roxana",
@@ -3283,7 +3283,7 @@
       "ts": "2026-09-26T15:46:30.213Z",
       "total": "$50 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:22:15.701Z",
+      "seenTs": "2026-09-26T18:57:40.122Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Josué",
@@ -3375,10 +3375,20 @@
     {
       "id": 1790437149259,
       "ts": "2026-09-26T15:39:09.274Z",
+      "pago": {
+        "mn": 4500,
+        "ts": "2026-09-26T18:59:44.690Z",
+        "eur": 0,
+        "usd": 140,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$140 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T17:26:11.676Z",
-      "status": "assigned",
+      "seenTs": "2026-09-26T18:59:36.853Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ariel",
       "valeNum": 124,
@@ -3395,8 +3405,13 @@
       "assignedTs": "2026-09-26T16:45:36.458Z",
       "mensajeria": "4500",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T18:59:44.690Z",
+      "deliveredTs": "2026-09-26T18:59:43.274Z",
       "mensajeroId": 1784476779247,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788278326719": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3407,7 +3422,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -6085,7 +6100,7 @@
       "ts": "2026-09-25T13:54:01.541Z",
       "total": "$1280 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:11:09.120Z",
+      "seenTs": "2026-09-26T18:59:47.600Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Señora de CIEGO DE AVILA",
@@ -36833,5 +36848,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T18:56:10.694Z"
+  "timestamp": "2026-09-26T19:00:45.695Z"
 }
