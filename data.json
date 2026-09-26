@@ -1751,7 +1751,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 26,
+      "stock": 25,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2535,6 +2535,42 @@
   ],
   "vales": [
     {
+      "id": 1790452367246,
+      "ts": "2026-09-26T19:52:47.248Z",
+      "total": "$220 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Lazaro Luis",
+      "valeNum": 142,
+      "articulo": "×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A",
+      "garantia": "",
+      "gestorId": 1786539281210,
+      "precioMN": "",
+      "telefono": "52546127",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Lazaro Luis\n🔸Teléfono Cliente: 52546127\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR POWMR M100 PRO de 80A\n🔸Precio USD/ zelle: $220 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $220 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 15:51\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$220 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1779562612951,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1790451608328,
       "ts": "2026-09-26T19:40:08.342Z",
       "total": "$25 USD + 750 MN",
@@ -2668,7 +2704,7 @@
       "ts": "2026-09-26T19:06:52.304Z",
       "total": "$46 USD + 3800 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:49:02.804Z",
+      "seenTs": "2026-09-26T19:50:37.690Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Rachel",
@@ -6018,7 +6054,7 @@
       "ts": "2026-09-25T14:49:10.460Z",
       "total": "$4400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T19:35:26.680Z",
+      "seenTs": "2026-09-26T19:50:39.792Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -6362,7 +6398,7 @@
       "ts": "2026-09-25T13:54:01.541Z",
       "total": "$1280 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T19:35:31.493Z",
+      "seenTs": "2026-09-26T19:50:40.801Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Señora de CIEGO DE AVILA",
@@ -8276,7 +8312,7 @@
       "ts": "2026-09-23T21:36:00.000Z",
       "total": "$740 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:35:33.662Z",
+      "seenTs": "2026-09-26T19:50:43.478Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Manuel ricardo",
@@ -37113,5 +37149,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T19:49:21.549Z"
+  "timestamp": "2026-09-26T19:53:45.694Z"
 }
