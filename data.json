@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 83,
+      "stock": 82,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1768,7 +1768,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 35,
+      "stock": 34,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 111,
+      "stock": 110,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2539,6 +2539,7 @@
       "ts": "2026-09-26T17:54:47.575Z",
       "total": "$140 USD",
       "carnet": "95042229469",
+      "seenTs": "2026-09-26T18:05:41.763Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ariann Vega García",
@@ -2555,6 +2556,7 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2611,7 +2613,7 @@
       "ts": "2026-09-26T17:33:23.266Z",
       "total": "$800 zelle",
       "carnet": "",
-      "seenTs": "2026-09-26T17:58:52.972Z",
+      "seenTs": "2026-09-26T18:05:43.787Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis Enrrique",
@@ -2653,7 +2655,7 @@
       "ts": "2026-09-26T17:20:41.899Z",
       "total": "$2400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T17:58:22.112Z",
+      "seenTs": "2026-09-26T18:06:16.129Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis Enrique Bauta Tamayo",
@@ -2769,7 +2771,7 @@
       "ts": "2026-09-26T16:59:54.836Z",
       "total": "$160 USD + 3500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T17:53:08.699Z",
+      "seenTs": "2026-09-26T18:06:19.180Z",
       "status": "pending",
       "vuelto": "40$",
       "cliente": "Roxana",
@@ -3032,8 +3034,8 @@
       "ts": "2026-09-26T15:48:07.614Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:02:08.168Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T18:06:23.611Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "RAFAEL PEREZ",
       "valeNum": 126,
@@ -3070,10 +3072,25 @@
       ],
       "comisionGestor": "$20.00 USD + 1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true,
-      "isNew": false
+      "stockSalido": {
+        "1778384646214": 1,
+        "1788278326719": 1,
+        "1786207539390": 1
+      },
+      "confirmedTs": "2026-09-26T18:06:29.869Z",
+      "pago": {
+        "usd": 240,
+        "zelle": 0,
+        "eur": 0,
+        "mn": 0,
+        "mnAuto": true,
+        "tasaMN": 745,
+        "eurUSD": 1.1429,
+        "ts": "2026-09-26T18:06:29.869Z"
+      }
     },
     {
       "id": 1790437642049,
@@ -36605,5 +36622,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T18:02:09.654Z"
+  "timestamp": "2026-09-26T18:07:30.695Z"
 }
