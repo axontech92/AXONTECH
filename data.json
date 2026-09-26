@@ -690,7 +690,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -989,7 +989,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2535,6 +2535,57 @@
   ],
   "vales": [
     {
+      "id": 1790450784042,
+      "ts": "2026-09-26T19:26:24.047Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T19:26:46.095Z",
+        "eur": 0,
+        "usd": 85,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
+      "total": "$85 USD",
+      "carnet": "",
+      "seenTs": "2026-09-26T19:26:41.319Z",
+      "status": "confirmed",
+      "vuelto": "0",
+      "cliente": "Javier",
+      "valeNum": 139,
+      "articulo": "×1 Bateria LUBRIM de 75A",
+      "garantia": "",
+      "gestorId": 1784475902029,
+      "precioMN": "",
+      "telefono": "5352762104",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Maykel\n\n🔸 Nombre Cliente: Javier\n🔸Teléfono Cliente: 5352762104\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Hora de entrega: 15:30\n🔸 Artículos y cantidades:\n  ×1 Bateria LUBRIM de 75A\n🔸Precio USD/ zelle: $85 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $85 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 15:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$85 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T19:26:46.095Z",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1778103783319": 1
+      },
+      "comFijadaUSD": 5,
+      "valeProductos": [
+        {
+          "id": 1778103783319,
+          "qty": 1,
+          "name": "Bateria LUBRIM de 75A"
+        }
+      ],
+      "comisionGestor": "$5.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790449612281,
       "ts": "2026-09-26T19:06:52.304Z",
       "total": "$46 USD + 3800 MN",
@@ -2650,7 +2701,7 @@
       "ts": "2026-09-26T18:14:18.351Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T19:13:36.069Z",
+      "seenTs": "2026-09-26T19:19:55.552Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Marcos",
@@ -3527,7 +3578,7 @@
       "ts": "2026-09-26T15:34:29.807Z",
       "total": "$160 USD + 1800 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T19:13:36.837Z",
+      "seenTs": "2026-09-26T19:19:56.210Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Dandy Capetillo",
@@ -36889,5 +36940,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T19:14:31.694Z"
+  "timestamp": "2026-09-26T19:27:46.695Z"
 }
