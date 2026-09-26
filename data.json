@@ -1313,7 +1313,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 9,
+      "stock": 8,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2609,10 +2609,20 @@
     {
       "id": 1790445287564,
       "ts": "2026-09-26T17:54:47.575Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T18:41:02.673Z",
+        "eur": 0,
+        "usd": 140,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$140 USD",
       "carnet": "95042229469",
       "seenTs": "2026-09-26T18:39:53.106Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ariann Vega García",
       "valeNum": 134,
@@ -2628,7 +2638,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T18:41:02.672Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788015580929": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -2639,7 +2653,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -36780,5 +36794,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T18:40:54.647Z"
+  "timestamp": "2026-09-26T18:42:02.711Z"
 }
