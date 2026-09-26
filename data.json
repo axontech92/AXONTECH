@@ -1124,7 +1124,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 34,
+      "stock": 33,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$130",
@@ -2535,6 +2535,41 @@
   ],
   "vales": [
     {
+      "id": 1790447599853,
+      "ts": "2026-09-26T18:33:19.856Z",
+      "total": "$28 USD + 2500 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "12",
+      "cliente": "Leo",
+      "valeNum": 136,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5355614194",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Leo\n🔸Teléfono Cliente: 5355614194\n🔸Dirección Cliente: calle bazo #1 entre Pereira y ambron. Regla\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: 12\n🔸 Total a pagar: $28 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 14:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "calle bazo #1 entre Pereira y ambron. Regla",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2500",
+      "comFijadaMN": 0,
+      "comFijadaUSD": 3,
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790446458342,
       "ts": "2026-09-26T18:14:18.351Z",
       "total": "$230 USD",
@@ -2613,7 +2648,7 @@
       "ts": "2026-09-26T17:33:23.266Z",
       "total": "$800 zelle",
       "carnet": "",
-      "seenTs": "2026-09-26T18:10:39.320Z",
+      "seenTs": "2026-09-26T18:26:47.356Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Luis Enrrique",
@@ -2859,7 +2894,7 @@
       "ts": "2026-09-26T16:45:33.540Z",
       "total": "$460 USD + 22600 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:10:41.220Z",
+      "seenTs": "2026-09-26T18:26:48.031Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Alexia Diaz",
@@ -3531,7 +3566,7 @@
       "ts": "2026-09-26T15:31:16.178Z",
       "total": "$160 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T16:30:05.388Z",
+      "seenTs": "2026-09-26T18:24:42.540Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yanier",
@@ -3787,10 +3822,20 @@
     {
       "id": 1790392147349,
       "ts": "2026-09-26T03:09:07.355Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-26T18:35:06.204Z",
+        "eur": 0,
+        "usd": 130,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$130 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T16:29:32.359Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T18:35:03.957Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yan Carlos Padilla",
       "valeNum": 117,
@@ -3806,7 +3851,11 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T18:35:06.203Z",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786510034029": 1
+      },
       "comFijadaUSD": 10,
       "valeProductos": [
         {
@@ -3817,7 +3866,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -36731,5 +36780,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T18:23:17.695Z"
+  "timestamp": "2026-09-26T18:36:06.241Z"
 }
