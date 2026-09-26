@@ -3283,8 +3283,8 @@
       "ts": "2026-09-26T15:46:30.213Z",
       "total": "$50 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T18:57:40.122Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T19:03:04.412Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Josué",
       "valeNum": 125,
@@ -3298,8 +3298,10 @@
       "precioUSD": "$50 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T19:02:59.735Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476786977,
       "seenByAdmin": true,
       "comFijadaUSD": 5,
       "valeProductos": [
@@ -3804,7 +3806,7 @@
       "ts": "2026-09-26T13:36:28.557Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T18:12:42.576Z",
+      "seenTs": "2026-09-26T19:02:46.459Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alexander",
@@ -36848,5 +36850,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T19:00:45.695Z"
+  "timestamp": "2026-09-26T19:04:00.695Z"
 }
