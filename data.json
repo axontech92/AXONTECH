@@ -2611,7 +2611,7 @@
       "ts": "2026-09-26T17:54:47.575Z",
       "total": "$140 USD",
       "carnet": "95042229469",
-      "seenTs": "2026-09-26T18:05:41.763Z",
+      "seenTs": "2026-09-26T18:39:53.106Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ariann Vega García",
@@ -2624,7 +2624,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Ariann Vega García\n🔸Teléfono Cliente: 5353460843\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 13:54\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$140 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -36780,5 +36780,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T18:36:06.241Z"
+  "timestamp": "2026-09-26T18:40:54.647Z"
 }
