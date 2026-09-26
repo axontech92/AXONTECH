@@ -2539,7 +2539,8 @@
       "ts": "2026-09-26T16:45:33.540Z",
       "total": "$460 USD + 22600 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-26T16:47:27.314Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Alexia Diaz",
       "valeNum": 127,
@@ -2551,10 +2552,13 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Sanjoni\n\n🔸 Nombre Cliente: Alexia Diaz\n🔸Teléfono Cliente: 055234184\n🔸Dirección Cliente: Secundaria de la cuevita, san Miguel\n🔸Mensajería/ costo: 3000 cup\n🔸 Artículos y cantidades:\n  ×2 Nanostation m2\n  ×70 Cable de red categoría 6\n🔸Precio USD/ zelle: $460 USD\n🔸Precio MN: 19600 MN\n🔸 Vuelto: \n🔸 Total a pagar: $460 USD + 22600 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 12:45\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Secundaria de la cuevita, san Miguel",
       "precioUSD": "$460 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T16:47:24.683Z",
       "mensajeria": "3000 cup",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476802516,
+      "seenByAdmin": true,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -2579,7 +2583,7 @@
       "ts": "2026-09-26T16:41:29.604Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T16:43:47.104Z",
+      "seenTs": "2026-09-26T16:47:08.830Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alex",
@@ -36329,5 +36333,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T16:46:36.497Z"
+  "timestamp": "2026-09-26T16:48:25.695Z"
 }
