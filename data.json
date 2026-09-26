@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 48,
+      "stock": 41,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2539,7 +2539,7 @@
       "ts": "2026-09-26T21:20:11.422Z",
       "total": "$140 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T21:25:15.524Z",
+      "seenTs": "2026-09-26T22:05:29.052Z",
       "status": "pending",
       "vuelto": "no",
       "cliente": "Gilberto López Hernández",
@@ -2552,7 +2552,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Turiño\n\n🔸 Nombre Cliente: Gilberto López Hernández\n🔸Teléfono Cliente: 5355199384\n🔸Dirección Cliente: Rio 15116 altos/ 10 y rio reparto mañana\n🔸Mensajería/ costo: 2500\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: no\n🔸 Total a pagar: $140 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 17:19\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Rio 15116 altos/ 10 y rio reparto mañana",
       "precioUSD": "$140 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": "https://maps.app.goo.gl/mDeypoJRsCKvuo1u9?g_st=ac",
       "mensajeria": "2500",
       "comFijadaMN": 0,
@@ -2576,7 +2576,7 @@
       "ts": "2026-09-26T20:23:04.649Z",
       "total": "$30 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T20:50:57.835Z",
+      "seenTs": "2026-09-26T21:34:46.570Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rey",
@@ -4299,7 +4299,7 @@
       "ts": "2026-09-26T14:36:22.173Z",
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T20:50:40.644Z",
+      "seenTs": "2026-09-26T21:50:46.095Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Roberto",
@@ -6499,7 +6499,7 @@
       "ts": "2026-09-25T14:03:19.127Z",
       "total": "$730 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T20:50:42.567Z",
+      "seenTs": "2026-09-26T21:50:47.286Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Riu Daniel",
@@ -37373,5 +37373,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T21:33:46.653Z"
+  "timestamp": "2026-09-26T22:06:33.696Z"
 }
