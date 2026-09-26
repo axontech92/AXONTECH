@@ -2535,11 +2535,48 @@
   ],
   "vales": [
     {
+      "id": 1790382392347,
+      "ts": "2026-09-26T00:26:32.357Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-09-26T00:26:54.462Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rilke Espinosa",
+      "valeNum": 113,
+      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1781761257108,
+      "precioMN": "",
+      "telefono": "5363975130",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Hilario\n\n🔸 Nombre Cliente: Rilke Espinosa\n🔸Teléfono Cliente: 5363975130\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 20:26\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790378073543,
       "ts": "2026-09-25T23:14:33.546Z",
       "total": "$880 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T00:25:00.891Z",
+      "seenTs": "2026-09-26T00:28:10.083Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Carlos David",
@@ -2575,7 +2612,8 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "isNew": false
     },
     {
       "id": 1790377050439,
@@ -3992,7 +4030,7 @@
       "ts": "2026-09-25T15:03:50.016Z",
       "total": "$230 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T22:20:37.596Z",
+      "seenTs": "2026-09-26T00:27:12.734Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dariel",
@@ -4352,44 +4390,6 @@
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": false,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790345732692,
-      "ts": "2026-09-25T14:15:32.699Z",
-      "total": "$800 USD",
-      "carnet": "",
-      "seenTs": "2026-09-25T22:23:51.559Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Carlos David Dìaz Verdecia",
-      "valeNum": 134,
-      "articulo": "×10 Tplink Archer AX1450 Doble Banda",
-      "garantia": "",
-      "gestorId": 1782489503525,
-      "precioMN": "",
-      "telefono": "5351528817",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Carlos David Dìaz Verdecia\n🔸Teléfono Cliente: 5351528817\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $800 USD\n🔸 Rebaja: −$50 USD\n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 10:15\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$800 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "seenByAdmin": true,
-      "comFijadaUSD": 100,
-      "valeProductos": [
-        {
-          "id": 1786207539390,
-          "qty": 10,
-          "name": "Tplink Archer AX1450 Doble Banda"
-        }
-      ],
-      "comisionCedida": 50,
-      "comisionGestor": "$100.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -35327,5 +35327,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T00:26:05.798Z"
+  "timestamp": "2026-09-26T00:28:10.608Z"
 }
