@@ -2134,7 +2134,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 23,
+      "stock": 65,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -2534,6 +2534,126 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790436869801,
+      "ts": "2026-09-26T15:34:29.807Z",
+      "total": "$160 USD + 1800 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Dandy Capetillo",
+      "valeNum": 123,
+      "articulo": "×1 Adaptador poe UBIQUITI de 0.3A / ×1 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1786136592500,
+      "precioMN": "",
+      "telefono": "5354324821",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Dandy Capetillo\n🔸Teléfono Cliente: 5354324821\n🔸Dirección Cliente: Guadalupe #56 e/Orta y pasaje García Juanelo por la virgen del camino San Miguel\n🔸Mensajería/ costo: 1800\n🔸 Artículos y cantidades:\n  ×1 Adaptador poe UBIQUITI de 0.3A\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD + 1800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 11:33\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Guadalupe #56 e/Orta y pasaje García Juanelo por la virgen del camino San Miguel",
+      "precioUSD": "$160 USD",
+      "ubicacion": "",
+      "mensajeria": "1800",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        },
+        {
+          "id": 1788278326719,
+          "qty": 1,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
+      "id": 1790436814841,
+      "ts": "2026-09-26T15:33:34.842Z",
+      "total": "$1800 USD",
+      "carnet": "",
+      "seenTs": "2026-09-26T15:33:53.646Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "lawton",
+      "valeNum": 122,
+      "articulo": "×30 Router TP-Link Archer C54 Reacondicionado",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: lawton\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×30 Router TP-Link Archer C54 Reacondicionado\n🔸Precio USD/ zelle: $1800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1800 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/9/2026, 11:33:34\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$1800 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": null,
+      "mensajeroId": null,
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1787114204179,
+          "qty": 30,
+          "name": "Router TP-Link Archer C54 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1790436676171,
+      "ts": "2026-09-26T15:31:16.178Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yanier",
+      "valeNum": 122,
+      "articulo": "×1 NanoStation 5AC Loco / ×1 Adaptador poe UBIQUITI de 0.3A",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "63921583",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Yanier\n🔸Teléfono Cliente: 63921583\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n  ×1 Adaptador poe UBIQUITI de 0.3A\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 11:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$160 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "comFijadaUSD": 10,
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 1,
+          "name": "NanoStation 5AC Loco"
+        },
+        {
+          "id": 1778384646214,
+          "qty": 1,
+          "name": "Adaptador poe UBIQUITI de 0.3A"
+        }
+      ],
+      "comisionGestor": "$10.00 USD + 1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790435359626,
       "ts": "2026-09-26T15:09:19.632Z",
@@ -35768,5 +35888,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T15:30:00.578Z"
+  "timestamp": "2026-09-26T15:34:34.882Z"
 }
