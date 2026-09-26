@@ -989,7 +989,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1778383966832,
@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2576,7 +2576,7 @@
       "ts": "2026-09-26T02:42:37.217Z",
       "total": "$260 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T03:07:22.377Z",
+      "seenTs": "2026-09-26T04:02:48.107Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -2614,8 +2614,8 @@
       "ts": "2026-09-26T02:38:30.155Z",
       "total": "$160 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T02:50:08.988Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T04:02:49.993Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Javier Cuñado",
       "valeNum": 114,
@@ -2629,8 +2629,10 @@
       "precioUSD": "$160 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T04:04:04.655Z",
       "mensajeria": "4000",
       "comFijadaMN": 0,
+      "mensajeroId": 1784476779247,
       "seenByAdmin": true,
       "comFijadaUSD": 10,
       "valeProductos": [
@@ -2747,7 +2749,7 @@
       "ts": "2026-09-25T22:57:30.452Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T02:26:36.189Z",
+      "seenTs": "2026-09-26T04:04:48.763Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Mirel",
@@ -2784,7 +2786,7 @@
       "ts": "2026-09-25T22:44:23.491Z",
       "total": "$310 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T02:27:35.960Z",
+      "seenTs": "2026-09-26T03:45:02.639Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "La taty",
@@ -3989,7 +3991,7 @@
       "ts": "2026-09-25T15:22:40.449Z",
       "total": "$820 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T02:27:41.371Z",
+      "seenTs": "2026-09-26T04:04:54.360Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Darel",
@@ -4397,7 +4399,7 @@
       "ts": "2026-09-25T14:49:10.460Z",
       "total": "$4400 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T02:55:44.357Z",
+      "seenTs": "2026-09-26T03:26:22.199Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -35528,5 +35530,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T03:21:45.528Z"
+  "timestamp": "2026-09-26T04:05:04.699Z"
 }
