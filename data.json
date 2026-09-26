@@ -1047,7 +1047,7 @@
       "name": "KIT de 4 camaras Zosi (sin disco duro)",
       "catId": 80,
       "photo": "photos/img_1778384314795.webp",
-      "stock": 0,
+      "stock": 1,
       "imagen": "photos/img_1778384314795.webp",
       "nombre": "KIT de 4 camaras Zosi (sin disco duro)",
       "precio": "$230",
@@ -3146,7 +3146,7 @@
       "ts": "2026-09-25T17:33:03.390Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T00:40:39.754Z",
+      "seenTs": "2026-09-26T00:43:18.023Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Dario Pérez González",
@@ -4514,7 +4514,7 @@
       "ts": "2026-09-25T14:03:19.127Z",
       "total": "$730 USD",
       "carnet": "",
-      "seenTs": "2026-09-25T21:32:54.168Z",
+      "seenTs": "2026-09-26T00:41:35.262Z",
       "status": "pending",
       "vuelto": "No",
       "cliente": "Riu Daniel",
@@ -5073,7 +5073,7 @@
       "total": "$230 USD",
       "carnet": "",
       "seenTs": "2026-09-25T23:34:19.030Z",
-      "status": "confirmed",
+      "status": "pending",
       "vuelto": "",
       "cliente": "Yanelys",
       "valeNum": 118,
@@ -5089,11 +5089,9 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
-      "confirmedTs": "2026-09-25T23:34:21.764Z",
+      "confirmedTs": null,
       "seenByAdmin": true,
-      "stockSalido": {
-        "1778384314795": 1
-      },
+      "stockSalido": null,
       "comFijadaUSD": 20,
       "valeProductos": [
         {
@@ -5104,7 +5102,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": true,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -35369,5 +35367,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T00:41:28.890Z"
+  "timestamp": "2026-09-26T00:44:11.031Z"
 }
