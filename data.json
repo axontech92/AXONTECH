@@ -2620,8 +2620,8 @@
       "ts": "2026-09-26T16:33:58.016Z",
       "total": "$25 USD + 1500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T16:39:32.083Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T16:53:21.474Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Damian",
       "valeNum": 130,
@@ -2635,8 +2635,10 @@
       "precioUSD": "$25 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T16:52:49.523Z",
       "mensajeria": "1500",
       "comFijadaMN": 1500,
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
       "comFijadaUSD": 0,
       "valeProductos": [
@@ -36333,5 +36335,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T16:48:25.695Z"
+  "timestamp": "2026-09-26T16:53:49.694Z"
 }
