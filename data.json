@@ -1751,7 +1751,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 24,
+      "stock": 23,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2535,6 +2535,42 @@
   ],
   "vales": [
     {
+      "id": 1790454184637,
+      "ts": "2026-09-26T20:23:04.649Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rey",
+      "valeNum": 143,
+      "articulo": "×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257109,
+      "precioMN": "",
+      "telefono": "55596572",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Thalia\n\n🔸 Nombre Cliente: Rey\n🔸Teléfono Cliente: 55596572\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 16:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "comFijadaUSD": 0,
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 1,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1790452446927,
       "ts": "2026-09-26T19:54:06.956Z",
       "total": "22600 MN",
@@ -2834,10 +2870,20 @@
     {
       "id": 1790447599853,
       "ts": "2026-09-26T18:33:19.856Z",
+      "pago": {
+        "mn": 2500,
+        "ts": "2026-09-26T20:22:34.859Z",
+        "eur": 0,
+        "usd": 28,
+        "zelle": 0,
+        "eurUSD": 1.1429,
+        "mnAuto": true,
+        "tasaMN": 745
+      },
       "total": "$28 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-26T20:20:07.852Z",
-      "status": "pending",
+      "seenTs": "2026-09-26T20:22:30.400Z",
+      "status": "confirmed",
       "vuelto": "12",
       "cliente": "Leo",
       "valeNum": 136,
@@ -2851,9 +2897,16 @@
       "precioUSD": "$28 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-26T20:22:25.896Z",
       "mensajeria": "2500",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-26T20:22:34.859Z",
+      "deliveredTs": "2026-09-26T20:22:33.211Z",
+      "mensajeroId": 1784476782949,
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "comFijadaUSD": 3,
       "valeProductos": [
         {
@@ -2864,7 +2917,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -37139,5 +37192,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-26T20:21:05.695Z"
+  "timestamp": "2026-09-26T20:23:35.719Z"
 }
