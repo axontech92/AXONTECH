@@ -989,7 +989,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2168,7 +2168,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2503,
+      "stock": 2463,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2552,11 +2552,56 @@
   ],
   "vales": [
     {
+      "id": 1790530381104,
+      "ts": "2026-09-27T17:33:01.113Z",
+      "total": "$30 USD + 7800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-27T17:38:37.104Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Brian Gonzalez",
+      "valeNum": 151,
+      "articulo": "×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado / ×4 Puntas de cable de red",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "800 MN",
+      "telefono": "53468841",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Brian Gonzalez\n🔸Teléfono Cliente: 53468841\n🔸Dirección Cliente: Calle 6 No.1509 e/ 15 y 17 Bejucal (la única casa de jardín de la cuadra)📍 22.930153, -82.389312 \"Lugar desconocido\" Bejucal, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/wmBGW4ZfnW/Lugar_desconocido\n🔸Mensajería/ costo: 7000\n🔸 Artículos y cantidades:\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n  ×4 Puntas de cable de red\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: 800 MN\n🔸 Vuelto: \n🔸 Total a pagar: $30 USD + 7800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 13:32\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 6 No.1509 e/ 15 y 17 Bejucal (la única casa de jardín de la cuadra)📍 22.930153, -82.389312 \"Lugar desconocido\" Bejucal, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/wmBGW4ZfnW/Lugar_desconocido",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "7000",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 1,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        },
+        {
+          "id": 1790529394586,
+          "qty": 4,
+          "name": "Puntas de cable de red"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790529697315,
       "ts": "2026-09-27T17:21:37.319Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T17:25:18.901Z",
+      "seenTs": "2026-09-27T17:33:04.297Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pichi",
@@ -2878,7 +2923,7 @@
       "ts": "2026-09-27T15:03:05.550Z",
       "total": "10400 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T17:16:42.131Z",
+      "seenTs": "2026-09-27T17:38:39.229Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Lise",
@@ -2916,10 +2961,20 @@
     {
       "id": 1790520672480,
       "ts": "2026-09-27T14:51:12.493Z",
+      "pago": {
+        "mn": 16200,
+        "ts": "2026-09-27T17:38:58.180Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1216,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "16200 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T17:16:43.523Z",
-      "status": "assigned",
+      "seenTs": "2026-09-27T17:38:40.415Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Erikc",
       "valeNum": 139,
@@ -2933,12 +2988,18 @@
       "precioUSD": "",
       "reservado": false,
       "ubicacion": null,
+      "adminNotes": "con 2 puntas 400 cup",
       "assignedTs": "2026-09-27T15:04:31.045Z",
       "mensajeria": "5000",
+      "confirmedTs": "2026-09-27T17:38:58.180Z",
+      "deliveredTs": "2026-09-27T17:38:56.840Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 40
+      },
       "fechaEntrega": "2026-09-27",
       "valeProductos": [
         {
@@ -2949,7 +3010,7 @@
       ],
       "comisionGestor": "",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -41093,5 +41154,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T17:27:33.049Z"
+  "timestamp": "2026-09-27T17:40:00.048Z"
 }
