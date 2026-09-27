@@ -5400,6 +5400,44 @@ function _sinAvisarStock(fn) {
   _stockSinAvisar++;
   try { return fn(); } finally { _stockSinAvisar--; }
 }
+// ── v132: avisar a los gestores cuando cambia lo que VENDEN ─────────────────
+// Hasta ahora editar un producto solo avisaba si cambiaba el stock. Un cambio
+// de precio o de comisión —lo que el gestor le dice al cliente y lo que cobra
+// él— no le llegaba a nadie: se enteraba al hacer el vale, o no se enteraba.
+// Se avisa de lo que el gestor necesita para vender: nombre, precio, comisión,
+// puntos y garantía. NO de la foto, la descripción o la categoría (ruido), y
+// nunca del costo ni del dueño, que son solo del admin.
+function _textoComision(p) {
+  const c = String((p && p.comision) || '').trim();
+  if (!c) return '';
+  if (/%|USD|MN|CUP/i.test(c)) return c;
+  return c + ' ' + (((p && p.comisionMoneda) || 'USD').toUpperCase() === 'MN' ? 'MN' : 'USD');
+}
+function _cambiosQueVenLosGestores(antes, ahora) {
+  if (!antes || !ahora) return [];
+  const t = v => String(v == null ? '' : v).trim();
+  const cambios = [];
+  const par = (campo, a, b) => { if (t(a) !== t(b)) cambios.push({ campo, antes: t(a) || '—', ahora: t(b) || '—' }); };
+  par('Nombre',   antes.name, ahora.name);
+  par('Precio',   antes.precio, ahora.precio);
+  // Por importe y moneda, no por el texto: los productos viejos guardan "5" y
+  // el formulario lo reescribe como "$5 USD" — eso no es un cambio.
+  const claveCom = x => { const c = _textoComision(x); if (!c) return '';
+    const n = parsePrecioNum(c); return (c.includes('%') ? '%' : (/MN|CUP/i.test(c) ? 'MN' : 'USD')) + ':' + n; };
+  if (claveCom(antes) !== claveCom(ahora))
+    cambios.push({ campo: 'Comisión', antes: _textoComision(antes) || '—', ahora: _textoComision(ahora) || '—' });
+  const pa = parseFloat(antes.puntos) || 0, pb = parseFloat(ahora.puntos) || 0;
+  if (pa !== pb) cambios.push({ campo: 'Puntos', antes: String(pa), ahora: String(pb) });
+  par('Garantía', antes.garantia, ahora.garantia);
+  return cambios;
+}
+function _avisarCambioProducto(id, antes, ahora) {
+  const cambios = _cambiosQueVenLosGestores(antes, ahora);
+  if (!cambios.length) return false;
+  const extra = cambios.map(c => `${c.campo}: ${c.antes} → ${c.ahora}`).join(' · ');
+  addNotif('product_changed', (ahora && ahora.name) || (antes && antes.name) || 'Producto', id, extra);
+  return true;
+}
 function _avisarCambioStock(id, nombre, antes, ahora) {
   if (_stockSinAvisar > 0) return;
   const a = _numStock(antes), b = _numStock(ahora);
@@ -5601,7 +5639,7 @@ function renderGestorNotifs() {
   const sec = document.getElementById('gestorNotifsSection');
   const personalSec = document.getElementById('gestorPersonalNotifsSection');
   
-  const icons = {new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',vale_seen:'👁️',vale_delivered:'📦',vale_pending:'💰',ranking_top3:'🏆',vale_unido:'🔗',vale_desunido:'🔓'};
+  const icons = {product_changed:'✏️',new_product:'✨',out_of_stock:'❌',low_stock:'⚠️',restocked:'✅',vale_confirmed:'🎉',sale_product:'🛒',vale_assigned:'🛵',vale_seen:'👁️',vale_delivered:'📦',vale_pending:'💰',ranking_top3:'🏆',vale_unido:'🔗',vale_desunido:'🔓'};
   
   const renderItem = (n, isPersonal) => {
     const icon=icons[n.type]||'📢';
@@ -5649,6 +5687,14 @@ function renderGestorNotifs() {
       msg=`<b>Stock bajo:</b> ${safeName} <span style="color:var(--yellow);">(${safeExtra})</span>`;
     } else if(n.type==='restocked'){
       msg=`<b>Repuesto:</b> ${safeName} <span style="color:var(--green);">(${safeExtra})</span>`;
+    } else if(n.type==='product_changed'){
+      // v132: "Precio: $100 USD → $90 USD · Comisión: …", una línea por cambio.
+      const lineas=(n.extra||'').split(' · ').filter(Boolean).map(l=>{
+        const m=/^([^:]+):\s*(.*?)\s*→\s*(.*)$/.exec(l);
+        if(!m) return `<div>${escapeHTML(l)}</div>`;
+        return `<div><span style="color:var(--gray-400);">${escapeHTML(m[1])}:</span> <s style="opacity:.6;">${escapeHTML(m[2])}</s> → <b>${escapeHTML(m[3])}</b></div>`;
+      }).join('');
+      msg=`<b>Cambió:</b> ${safeName}<div style="font-size:11px;margin-top:2px;line-height:1.45;">${lineas}</div>`;
     } else if(n.type==='new_product'){
       msg=`<b>Nuevo producto:</b> ${safeName}${safeExtra?` · ${safeExtra}`:``}`;
     } else if(n.type==='ranking_top3'){
@@ -11856,6 +11902,7 @@ async function saveProduct() {
     setDuenoProducto(editingProductId,duenoElegido);
     patchProducto(editingProductId,prod);
     if(old) _avisarCambioStock(editingProductId, prod.name, old.stock, prod.stock);
+    if(old) _avisarCambioProducto(editingProductId, old, {...old, ...prod});   // v132
     showToast('Producto actualizado ✓');
   } else {
     const newId=Date.now();
@@ -18685,6 +18732,11 @@ const AYUDA_SECCIONES = [
     id: 'stock', icono: '📦', titulo: 'Stock',
     intro: 'El almacén: lo que hay, lo que se apartó y lo que se perdió.',
     temas: [
+      { icono:'✏️', titulo:'Avisar a los gestores de un cambio en un producto', donde:'Stock › ✏️ editar producto',
+        para:'Que el gestor se entere de que cambió el precio o su comisión ANTES de darle un precio al cliente, y no al hacer el vale.',
+        como:'No hay que hacer nada: al guardar la ficha, si cambió el nombre, el precio, la comisión, los puntos o la garantía, a todos los gestores les llega "✏️ Cambió: …" en su bandeja, con lo de antes tachado y lo nuevo al lado. Si tienen la app instalada, también les salta el aviso en el teléfono.',
+        ojo:'No se avisa de la foto, la descripción ni la categoría (sería ruido), y nunca del costo ni del dueño, que son solo tuyos. Guardar sin cambiar nada no avisa. Un cambio de stock sigue avisando como siempre (agotado, repuesto, stock bajo).',
+        nuevo:'v132' },
       { icono:'＋', titulo:'Nuevo producto', donde:'Stock',
         para:'Dar de alta algo para vender.',
         como:'"+ Nuevo producto". Ponle nombre, precio, comisión, puntos, foto y de quién es.',
@@ -18993,6 +19045,9 @@ const _PUSH_TIPOS = {
   new_product:  { titulo: '💎 Producto nuevo',      accion: 'Ya se puede vender' },
   out_of_stock: { titulo: '❌ Producto agotado',    accion: 'No lo ofrezcas hasta que se reponga' },
   restocked:    { titulo: '📦 Producto repuesto',   accion: 'Vuelve a estar disponible' },
+  // v132: precio, comisión, puntos, garantía o nombre. Se avisa igual que un
+  // producto nuevo: el gestor tiene que saberlo ANTES de darle un precio al cliente.
+  product_changed: { titulo: '✏️ Cambió un producto', accion: 'Revísalo antes de ofrecerlo' },
 };
 const _PUSH_VISTOS_KEY = 'axon_push_vistos';
 // Solo se avisa de lo que pasó hace poco. Sin este freno, la primera vez que un
