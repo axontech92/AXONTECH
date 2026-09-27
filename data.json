@@ -963,7 +963,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 19,
+      "stock": 18,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2820,10 +2820,20 @@
     {
       "id": 1790532338577,
       "ts": "2026-09-27T18:05:38.579Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-27T20:06:41.384Z",
+        "eur": 0,
+        "usd": 28,
+        "zelle": 0,
+        "eurUSD": 1.1216,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$28 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T19:53:31.651Z",
-      "status": "pending",
+      "seenTs": "2026-09-27T20:00:09.213Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Cándido",
       "valeNum": 154,
@@ -2839,9 +2849,13 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-27T20:06:41.384Z",
       "horaEntrega": "",
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "comFijadaUSD": 3,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2853,7 +2867,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -2862,7 +2876,7 @@
       "ts": "2026-09-27T18:01:44.094Z",
       "total": "$50 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T18:19:36.318Z",
+      "seenTs": "2026-09-27T20:06:44.699Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Alberto",
@@ -4228,7 +4242,7 @@
       "ts": "2026-09-26T22:21:48.771Z",
       "total": "$1450 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T15:38:58.354Z",
+      "seenTs": "2026-09-27T20:06:50.605Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Riu Daniel",
@@ -41613,5 +41627,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T19:55:09.006Z"
+  "timestamp": "2026-09-27T20:07:41.435Z"
 }
