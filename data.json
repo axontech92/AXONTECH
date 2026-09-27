@@ -2535,6 +2535,44 @@
   ],
   "vales": [
     {
+      "id": 1790524841414,
+      "ts": "2026-09-27T16:00:41.416Z",
+      "total": "$28 USD + 4700 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "22",
+      "cliente": "Deisy",
+      "valeNum": 146,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5355178673",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Deisy\n🔸Teléfono Cliente: 5355178673\n🔸Dirección Cliente: La coronela, Lisa. Ubicación\n🔸Mensajería/ costo: 4700\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: 22\n🔸 Total a pagar: $28 USD + 4700 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 11:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "La coronela, Lisa. Ubicación",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "4700",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "comFijadaUSD": 3,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790523779156,
       "ts": "2026-09-27T15:42:59.174Z",
       "total": "11900 MN",
@@ -4291,8 +4329,9 @@
         }
       ],
       "comisionGestor": "$100 USD + 4500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "synced": true
     },
@@ -4789,8 +4828,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5383,8 +5423,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -20269,8 +20310,9 @@
         }
       ],
       "comisionGestor": "15000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -23002,8 +23044,9 @@
         }
       ],
       "comisionGestor": "4500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -40819,5 +40862,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T15:52:58.858Z"
+  "timestamp": "2026-09-27T16:04:46.682Z"
 }
