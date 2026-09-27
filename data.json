@@ -989,7 +989,7 @@
       "descripcion": "[HOGAR]\n•Toldo para sombra tipo malla color beige  con argollas para fijar. \n•Medida 3m de  largo x 2m de ancho.",
       "description": "[HOGAR]\n•Toldo para sombra tipo malla color marrón  con argollas para fijar. \n•Medida 4m de  largo x 2m de ancho.",
       "precioActual": 20,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1778383966832,
@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2321,7 +2321,7 @@
       "name": "Pesa / báscula digital inteligente",
       "catId": 130,
       "photo": "photos/p-1788152657796-9215b5a4.webp",
-      "stock": 9,
+      "stock": 8,
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
@@ -2534,6 +2534,82 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790523033382,
+      "ts": "2026-09-27T15:30:33.403Z",
+      "total": "$25 USD + 3000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "15",
+      "cliente": "Osican",
+      "valeNum": 144,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5359161723",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Osican\n🔸Teléfono Cliente: 5359161723\n🔸Dirección Cliente: Calle 47#8812/88y88b detrás de la panadería cuba Italia de 51\n🔸Mensajería/ costo: 3000 cup\n🔸Entrega: dom 27/09 · 11:58\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: 15\n🔸 Total a pagar: $25 USD + 3000 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 27/09/2026 11:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 47#8812/88y88b detrás de la panadería cuba Italia de 51",
+      "precioUSD": "$25 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3000 cup",
+      "comFijadaMN": 1500,
+      "horaEntrega": "11:58",
+      "notasGestor": "",
+      "comFijadaUSD": 0,
+      "fechaEntrega": "2026-09-27",
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790522899895,
+      "ts": "2026-09-27T15:28:19.899Z",
+      "total": "$750 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Alex",
+      "valeNum": 143,
+      "articulo": "×10 Tplink Archer AX1450 Doble Banda",
+      "garantia": "",
+      "gestorId": 1786539281210,
+      "precioMN": "",
+      "telefono": "53253275",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cristian\n\n🔸 Nombre Cliente: Alex\n🔸Teléfono Cliente: 53253275\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×10 Tplink Archer AX1450 Doble Banda\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $750 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 11:27\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$800 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "Tiene un descuento de 5usd por equipo de mi comision",
+      "comFijadaUSD": 100,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786207539390,
+          "qty": 10,
+          "name": "Tplink Archer AX1450 Doble Banda"
+        }
+      ],
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790521845181,
       "ts": "2026-09-27T15:10:45.191Z",
@@ -3014,10 +3090,20 @@
     {
       "id": 1790516662718,
       "ts": "2026-09-27T13:44:22.720Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-27T15:31:53.152Z",
+        "eur": 0,
+        "usd": 25,
+        "zelle": 0,
+        "eurUSD": 1.1407,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$25 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T13:53:30.734Z",
-      "status": "pending",
+      "seenTs": "2026-09-27T15:31:47.397Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Eimarx Rodríguez",
       "valeNum": 132,
@@ -3033,9 +3119,13 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-27T15:31:53.152Z",
       "horaEntrega": "",
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1788152657796": 1
+      },
       "comFijadaUSD": 0,
       "fechaEntrega": "",
       "valeProductos": [
@@ -3047,7 +3137,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -5440,8 +5530,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1790429788556,
@@ -40760,5 +40849,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T15:22:40.290Z"
+  "timestamp": "2026-09-27T15:32:54.047Z"
 }
