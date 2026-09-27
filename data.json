@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 49,
+      "stock": 47,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -2134,7 +2134,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 30,
+      "stock": 25,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$60",
@@ -3723,20 +3723,19 @@
     },
     {
       "id": 1790517886797,
-      "ts": "2026-09-27T14:04:46.801Z",
+      "ts": "2026-09-27T14:04:00.000Z",
       "total": "$140 USD",
       "carnet": "",
       "seenTs": "2026-09-27T22:40:03.358Z",
       "status": "pending",
       "vuelto": "",
-      "cliente": "Teknova",
+      "cliente": "pedro moreno",
       "valeNum": 135,
       "articulo": "×1 NanoStation 5AC Loco",
       "garantia": "",
       "gestorId": 1786573707656,
       "precioMN": "",
       "telefono": "55652004",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: Teknova\n🔸Teléfono Cliente: 55652004\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 10:04\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$140 USD",
       "reservado": true,
@@ -3755,10 +3754,11 @@
           "name": "NanoStation 5AC Loco"
         }
       ],
-      "comisionGestor": "$10.00 USD",
+      "comisionGestor": "$10 USD",
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: pedro moreno\n🔸Teléfono Cliente: 55652004\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/9/2026, 10:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -41572,5 +41572,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T22:41:06.240Z"
+  "timestamp": "2026-09-27T22:49:08.793Z"
 }
