@@ -667,23 +667,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1778336689684,
-      "name": "SWITCH DE 5 PUERTOS",
-      "catId": 10,
-      "photo": "photos/img_1778336689684.webp",
-      "stock": 5,
-      "imagen": "photos/img_1778336689684.webp",
-      "nombre": "SWITCH DE 5 PUERTOS",
-      "precio": "$20 USD",
-      "puntos": 0.5,
-      "comision": "1500 MN",
-      "garantia": "",
-      "descripcion": "[SWITCHES]\nSwitch de 5 puertos ethernet de 1 gigabite.",
-      "description": "[SWITCHES]\nSwitch de 5 puertos ethernet de 1 gigabite.",
-      "precioActual": 20,
-      "comisionMoneda": "MN"
-    },
-    {
       "id": 1778336859697,
       "name": "Toldo para sombra marrón 2 x 4",
       "catId": 40,
@@ -1427,6 +1410,60 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1778384646214,
+      "name": "Adaptador poe UBIQUITI de 0.3A",
+      "catId": 10,
+      "photo": "photos/img_1778384646214.webp",
+      "stock": 51,
+      "imagen": "photos/img_1778384646214.webp",
+      "nombre": "Adaptador poe UBIQUITI de 0.3A",
+      "precio": "$20",
+      "puntos": 0.5,
+      "comision": "1500 MN",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "[ACCESORIOS]\nAdaptador PoE UBIQUITI de 24V.\n\n✅ 0.3A",
+      "description": "[ACCESORIOS]\nAdaptador PoE UBIQUITI de 24V.\n\n✅ 0.3A",
+      "precioActual": 20,
+      "reservedVales": 10,
+      "comisionMoneda": "MN"
+    },
+    {
+      "id": 1788278326719,
+      "name": "NanoStation 5AC Loco",
+      "catId": 10,
+      "photo": "photos/p-1788278326719-85eac473.webp",
+      "stock": 69,
+      "imagen": "photos/p-1788278326719-85eac473.webp",
+      "nombre": "NanoStation 5AC Loco",
+      "precio": "140 USD",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
+      "precioActual": 140,
+      "comisionMoneda": "USD"
+    },
+    {
+      "id": 1787114204179,
+      "name": "Router TP-Link Archer C54 Reacondicionado",
+      "catId": 10,
+      "photo": "photos/p-1787114204179-dabd97ce.webp",
+      "stock": 30,
+      "imagen": "photos/p-1787114204179-dabd97ce.webp",
+      "nombre": "Router TP-Link Archer C54 Reacondicionado",
+      "precio": "$60",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "descripcion": "Router Wi-Fi TP-Link Archer C54 Reacondicionado\n\n✔️ Wi-Fi de doble banda AC1200.\n✔️ Velocidad de hasta 300 Mbps en 2.4 GHz y 867 Mbps en 5 GHz.\n✔️ Cuatro antenas externas para una mayor cobertura y una conexión más estable.\n✔️ Compatible con IPv6.\n✔️ Modos de funcionamiento: Router, Punto de Acceso (Access Point), Extensor de Alcance y WISP.\n✔️ Tecnología MU-MIMO para una mejor conexión con múltiples dispositivos al mismo tiempo.\n✔️ Control parental y red para invitados.\n✔️ Fácil configuración y administración mediante la aplicación TP-Link Tether.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar ligeros detalles estéticos o haber sido previamente devuelto, pero se encuentra en perfectas condiciones de uso y ofrece un rendimiento completamente funcional.",
+      "description": "Router Wi-Fi TP-Link Archer C54 Reacondicionado\n\n✔️ Wi-Fi de doble banda AC1200.\n✔️ Velocidad de hasta 300 Mbps en 2.4 GHz y 867 Mbps en 5 GHz.\n✔️ Cuatro antenas externas para una mayor cobertura y una conexión más estable.\n✔️ Compatible con IPv6.\n✔️ Modos de funcionamiento: Router, Punto de Acceso (Access Point), Extensor de Alcance y WISP.\n✔️ Tecnología MU-MIMO para una mejor conexión con múltiples dispositivos al mismo tiempo.\n✔️ Control parental y red para invitados.\n✔️ Fácil configuración y administración mediante la aplicación TP-Link Tether.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar ligeros detalles estéticos o haber sido previamente devuelto, pero se encuentra en perfectas condiciones de uso y ofrece un rendimiento completamente funcional.",
+      "precioActual": 60,
+      "comisionMoneda": "USD"
+    },
+    {
       "id": 1777923552923,
       "name": "CARGADOR INTELIGENTE 20A",
       "catId": 20,
@@ -1718,6 +1755,23 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1778336689684,
+      "name": "SWITCH DE 5 PUERTOS",
+      "catId": 10,
+      "photo": "photos/img_1778336689684.webp",
+      "stock": 5,
+      "imagen": "photos/img_1778336689684.webp",
+      "nombre": "SWITCH DE 5 PUERTOS",
+      "precio": "$20 USD",
+      "puntos": 0.5,
+      "comision": "1500 MN",
+      "garantia": "",
+      "descripcion": "[SWITCHES]\nSwitch de 5 puertos ethernet de 1 gigabite.",
+      "description": "[SWITCHES]\nSwitch de 5 puertos ethernet de 1 gigabite.",
+      "precioActual": 20,
+      "comisionMoneda": "MN"
+    },
+    {
       "id": 1778336789459,
       "name": "AC1200 WIFI ROUTER",
       "catId": 10,
@@ -1817,25 +1871,6 @@
       "descripcion": "[ILUMINACIÓN]\nLinterna de cabeza :\n* Largo alcance\n* Luz blanca superbrillante de 30w de potencia.\n* Viene con 3 baterias de litio recargables.\n* Angulo de iluminación ajustable. \n* Carga con cable tipo c y funcion powerbank.\n* Cuenta con luz tracera opcional parpadeante  para que te vean en la obscuridad.\n* Autonomia maxima de 5 a 12 horas segun el uso.",
       "description": "[ILUMINACIÓN]\nLinterna de cabeza :\n* Largo alcance\n* Luz blanca superbrillante de 30w de potencia.\n* Viene con 3 baterias de litio recargables.\n* Angulo de iluminación ajustable. \n* Carga con cable tipo c y funcion powerbank.\n* Cuenta con luz tracera opcional parpadeante  para que te vean en la obscuridad.\n* Autonomia maxima de 5 a 12 horas segun el uso.",
       "precioActual": 30,
-      "comisionMoneda": "MN"
-    },
-    {
-      "id": 1778384646214,
-      "name": "Adaptador poe UBIQUITI de 0.3A",
-      "catId": 10,
-      "photo": "photos/img_1778384646214.webp",
-      "stock": 46,
-      "imagen": "photos/img_1778384646214.webp",
-      "nombre": "Adaptador poe UBIQUITI de 0.3A",
-      "precio": "$20",
-      "puntos": 0.5,
-      "comision": "1500 MN",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "[ACCESORIOS]\nAdaptador PoE UBIQUITI de 24V.\n\n✅ 0.3A",
-      "description": "[ACCESORIOS]\nAdaptador PoE UBIQUITI de 24V.\n\n✅ 0.3A",
-      "precioActual": 20,
-      "reservedVales": 10,
       "comisionMoneda": "MN"
     },
     {
@@ -2353,23 +2388,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1787114204179,
-      "name": "Router TP-Link Archer C54 Reacondicionado",
-      "catId": 10,
-      "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 25,
-      "imagen": "photos/p-1787114204179-dabd97ce.webp",
-      "nombre": "Router TP-Link Archer C54 Reacondicionado",
-      "precio": "$60",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "descripcion": "Router Wi-Fi TP-Link Archer C54 Reacondicionado\n\n✔️ Wi-Fi de doble banda AC1200.\n✔️ Velocidad de hasta 300 Mbps en 2.4 GHz y 867 Mbps en 5 GHz.\n✔️ Cuatro antenas externas para una mayor cobertura y una conexión más estable.\n✔️ Compatible con IPv6.\n✔️ Modos de funcionamiento: Router, Punto de Acceso (Access Point), Extensor de Alcance y WISP.\n✔️ Tecnología MU-MIMO para una mejor conexión con múltiples dispositivos al mismo tiempo.\n✔️ Control parental y red para invitados.\n✔️ Fácil configuración y administración mediante la aplicación TP-Link Tether.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar ligeros detalles estéticos o haber sido previamente devuelto, pero se encuentra en perfectas condiciones de uso y ofrece un rendimiento completamente funcional.",
-      "description": "Router Wi-Fi TP-Link Archer C54 Reacondicionado\n\n✔️ Wi-Fi de doble banda AC1200.\n✔️ Velocidad de hasta 300 Mbps en 2.4 GHz y 867 Mbps en 5 GHz.\n✔️ Cuatro antenas externas para una mayor cobertura y una conexión más estable.\n✔️ Compatible con IPv6.\n✔️ Modos de funcionamiento: Router, Punto de Acceso (Access Point), Extensor de Alcance y WISP.\n✔️ Tecnología MU-MIMO para una mejor conexión con múltiples dispositivos al mismo tiempo.\n✔️ Control parental y red para invitados.\n✔️ Fácil configuración y administración mediante la aplicación TP-Link Tether.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar ligeros detalles estéticos o haber sido previamente devuelto, pero se encuentra en perfectas condiciones de uso y ofrece un rendimiento completamente funcional.",
-      "precioActual": 60,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1787375561622,
       "name": "Tp Link Archer ax55, ax3000",
       "catId": 10,
@@ -2436,24 +2454,6 @@
       "descripcion": "Sistema de alarma, posee:\n\n🔸4 sensores de movimiento\n🔸8 sensores de contacto \n🔸2 llaveros \n🔸1 sirena\n🔸3 mandos para su control\n🔸1 botón de emergencia SOS\n🔸1 panel de control de 2.4 pulgadas\n\n✅Recordatorio de puertas y ventanas sin cerrar, recordatorio de alarma de bajo voltaje.\n✅5 juegos de llamadas de alarma preestablecidas.",
       "description": "Sistema de alarma, posee:\n\n🔸4 sensores de movimiento\n🔸8 sensores de contacto \n🔸2 llaveros \n🔸1 sirena\n🔸3 mandos para su control\n🔸1 botón de emergencia SOS\n🔸1 panel de control de 2.4 pulgadas\n\n✅Recordatorio de puertas y ventanas sin cerrar, recordatorio de alarma de bajo voltaje.\n✅5 juegos de llamadas de alarma preestablecidas.",
       "precioActual": 180,
-      "comisionMoneda": "USD"
-    },
-    {
-      "id": 1788278326719,
-      "name": "NanoStation 5AC Loco",
-      "catId": 10,
-      "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 67,
-      "imagen": "photos/p-1788278326719-85eac473.webp",
-      "nombre": "NanoStation 5AC Loco",
-      "precio": "140 USD",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
-      "description": "Marca: Ubiquiti Networks\nModelo: NanoStation 5AC Loco (nota: Loco5AC)\nFrecuencia y Velocidad: 5 GHz hasta 450+ Mbps de rendimiento real (nota: Tecnología airMAX ac)\nPuertos: 1× puerto LAN Gigabit Ethernet (nota: 10/100/1000 Mbps)\nAntenas: Antena direccional integrada de 13 dBi (nota: Doble polarización 2×2 MIMO)\nModos de operación: CPE / Estación (Cliente), Punto de Acceso (AP) para enlaces Punto a Punto (PtP) y Punto a Multipunto (nota: PtMP)\n\n⚡ Características\nRendimiento de alta velocidad con tecnología airMAX ac, superando los 450 Mbps de velocidad real con baja latencia y alta eficiencia espectral.\nRadio Wi-Fi de gestión independiente en 2.4 GHz para configuración rápida y monitoreo directo desde el teléfono móvil mediante la app UISP (iOS/Android).\nSistema operativo airOS 8 con analizador de espectro en tiempo real (airView), herramientas avanzadas de diagnóstico de señal y compatibilidad con protocolo TDMA.\nPuerto Gigabit Ethernet que elimina cuellos de botella y aprovecha al máximo el ancho de banda del enlace inalámbrico.\nProcesador de alto rendimiento y arquitectura optimizada para rechazo de ruido e interferencias en entornos densos.\nDiseño ultra compacto, discreto y estilizado con protección para exteriores frente a rayos UV, lluvia y descargas electrostáticas (ESD).\nAlimentación mediante PoE Pasivo de 24V (consumo máx. ultra bajo de solo 8.5W).\n\n🎯 Ideal Para\nEnlaces inalámbricos Punto a Punto (PtP) y Punto a Multipunto (PtMP) de corto y medio alcance (hasta 5-10 km con línea de vista despejada).\nAntena cliente (CPE) para proveedores WISP que ofrecen planes de Internet de alta velocidad a usuarios residenciales o corporativos.\nTransmisión fluida de múltiples cámaras de videovigilancia IP en circuito cerrado, interconexión de naves industriales, oficinas anexas o fincas.\n\n📦 Qué incluye\n1× Antena Ubiquiti NanoStation 5AC Loco\n1× Abrazadera / kit de sujeción para montaje en mástil\n1× Guía de inicio rápido\n(Nota: El inyector PoE pasivo de 24V Gigabit se vende por separado en la presentación estándar de fábrica)",
-      "precioActual": 140,
       "comisionMoneda": "USD"
     },
     {
@@ -7919,21 +7919,20 @@
     {
       "id": 1790349760431,
       "ts": "2026-09-25T15:22:00.000Z",
-      "total": "$1620 USD + 2500 MN",
+      "total": "$680 USD + 2500 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T14:52:01.298Z",
+      "seenTs": "2026-09-27T19:45:37.559Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Darel",
       "valeNum": 100,
-      "articulo": "×5 Adaptador poe UBIQUITI de 0.3A / ×5 Router TP-Link Archer C54 Reacondicionado / ×3 NanoStation 5AC Loco / ×10 Tplink Archer AX1450 Doble Banda",
+      "articulo": "×5 Adaptador poe UBIQUITI de 0.3A / ×5 Router TP-Link Archer C54 Reacondicionado / ×2 NanoStation 5AC Loco",
       "garantia": "",
       "gestorId": 1781761257103,
       "precioMN": "",
       "telefono": "53113033",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Darel\n🔸Teléfono Cliente: 53113033\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: 2500 (de mi comisión)\n🔸 Artículos y cantidades:\n  ×5 Adaptador poe UBIQUITI de 0.3A\n  ×5 Router TP-Link Archer C54 Reacondicionado\n  ×3 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $820 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $820 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 11:22\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "La cuevita",
-      "precioUSD": "$1620 USD",
+      "precioUSD": "$680 USD",
       "reservado": false,
       "ubicacion": null,
       "adminNotes": "para el martes 29/09",
@@ -7947,7 +7946,7 @@
       "notasGestor": "",
       "seenByAdmin": true,
       "stockSalido": null,
-      "comFijadaUSD": 80,
+      "comFijadaUSD": 70,
       "fechaEntrega": "",
       "valeProductos": [
         {
@@ -7962,14 +7961,15 @@
         },
         {
           "id": 1788278326719,
-          "qty": 3,
+          "qty": 2,
           "name": "NanoStation 5AC Loco"
         }
       ],
-      "comisionGestor": "$180 USD + 7500 MN",
+      "comisionGestor": "$70 USD + 7500 MN",
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Darel\n🔸Teléfono Cliente: 53113033\n🔸Dirección Cliente: La cuevita\n🔸Mensajería/ costo: 2500 (de mi comisión)\n🔸 Artículos y cantidades:\n  ×5 Adaptador poe UBIQUITI de 0.3A\n  ×5 Router TP-Link Archer C54 Reacondicionado\n  ×2 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $680 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $680 USD + 2500 MN\n\n*Garantía: \n*Fecha y hora de Venta: 25/9/2026, 11:22:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -41593,5 +41593,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T19:40:07.445Z"
+  "timestamp": "2026-09-27T19:49:36.736Z"
 }
