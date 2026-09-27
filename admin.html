@@ -1119,8 +1119,20 @@
       <div class="vf-row">
         <span class="vf-emoji">⏰</span>
         <div class="vf-inner">
-          <div class="vf-label"><span>Hora de entrega</span></div>
-          <input type="time" id="ev-horaEntrega">
+          <div class="vf-label"><span>Día y hora de entrega</span></div>
+          <div style="display:flex;gap:6px;">
+            <input type="date" id="ev-fechaEntrega" style="flex:1.3;min-width:0;">
+            <input type="time" id="ev-horaEntrega" style="flex:1;min-width:0;">
+          </div>
+        </div>
+      </div>
+      <!-- v131: las notas que el gestor le dejó al admin. Editables por si hay
+           que corregirlas o borrarlas cuando ya no hacen falta. -->
+      <div class="vf-row">
+        <span class="vf-emoji">📝</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Notas del gestor</span></div>
+          <textarea id="ev-notasGestor" rows="2" maxlength="400" placeholder="Sin notas" style="width:100%;resize:vertical;"></textarea>
         </div>
       </div>
       <div class="vf-row">
@@ -1439,8 +1451,11 @@
       <div class="vf-row">
         <span class="vf-emoji">⏰</span>
         <div class="vf-inner">
-          <div class="vf-label"><span>Hora de entrega <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional, avisa 1 h antes</span></span></div>
-          <input type="time" id="av-horaEntrega" oninput="onAdminValeInput()">
+          <div class="vf-label"><span>Día y hora de entrega <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional, avisa 1 h antes</span></span></div>
+          <div style="display:flex;gap:6px;">
+            <input type="date" id="av-fechaEntrega" oninput="onAdminValeInput()" style="flex:1.3;min-width:0;">
+            <input type="time" id="av-horaEntrega" oninput="onAdminValeInput()" style="flex:1;min-width:0;">
+          </div>
         </div>
       </div>
       <div class="vf-row">

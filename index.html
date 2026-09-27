@@ -214,8 +214,14 @@
       <div class="vf-row">
         <span class="vf-emoji">⏰</span>
         <div class="vf-inner">
-          <div class="vf-label"><span>Hora de entrega <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional, avisa al admin 1 h antes</span></span></div>
-          <input type="time" id="vf-horaEntrega" oninput="onFormInput()">
+          <div class="vf-label"><span>Día y hora de entrega <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional, avisa al admin 1 h antes</span></span></div>
+          <!-- v131: el día también. Antes solo había hora y se daba por hecho que
+               era el mismo día del vale: un pedido para el sábado no había forma
+               de apuntarlo. Sin día, sigue siendo el día del vale. -->
+          <div style="display:flex;gap:6px;">
+            <input type="date" id="vf-fechaEntrega" oninput="onFormInput()" style="flex:1.3;min-width:0;">
+            <input type="time" id="vf-horaEntrega" oninput="onFormInput()" style="flex:1;min-width:0;">
+          </div>
         </div>
       </div>
 
@@ -267,6 +273,16 @@
         <div class="vf-inner">
           <div class="vf-label"><span>Total a pagar <span class="vf-req">*</span></span></div>
           <input type="text" id="vf-total" placeholder="Total final" oninput="onFormInput()">
+        </div>
+      </div>
+
+      <!-- v131: notas del gestor para el admin: lo que no cabe en ningún campo
+           ("llamar antes de ir", "paga la mamá", "portero sin timbre"). -->
+      <div class="vf-row">
+        <span class="vf-emoji">📝</span>
+        <div class="vf-inner">
+          <div class="vf-label"><span>Notas para el admin <span style="font-weight:400;color:var(--text-muted);font-size:10px;">· opcional</span></span></div>
+          <textarea id="vf-notasGestor" rows="2" maxlength="400" placeholder="Ej: llamar antes de ir · el cliente paga mitad en MN" oninput="onFormInput()" style="width:100%;resize:vertical;"></textarea>
         </div>
       </div>
 

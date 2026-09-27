@@ -3217,7 +3217,8 @@ function _ensurePendingValesEnqueued() {
     'id','valeNum','gestorId','ts','cliente','telefono','direccion',
     'carnet','mensajeria','articulo','precioUSD','precioMN','vuelto',
     'total','garantia','comisionGestor','recogidaTienda','ubicacion',
-    'horaEntrega'   // v104
+    'horaEntrega',  // v104
+    'fechaEntrega','notasGestor'   // v131
   ];
   const REENQUEUE_ADMIN_PRESERVE = [
     'status','mensajeroId','assignedTs','confirmedTs','adminNotes',
@@ -3414,6 +3415,14 @@ const saveVales = v => {
       adminNotes: x.adminNotes,
       recogidaTienda: !!x.recogidaTienda,
       ubicacion: x.ubicacion || null,
+      // v131 FIX: la hora de entrega NO iba aquí. El admin sube el vale con un
+      // upsert que REEMPLAZA la fila entera, así que en cuanto abría o tocaba
+      // un vale (marcarlo visto, asignarlo…) la hora se borraba de la nube, y
+      // el siguiente sondeo la quitaba también de los teléfonos. Van también
+      // el día y las notas del gestor, por lo mismo.
+      horaEntrega: x.horaEntrega || '',
+      fechaEntrega: x.fechaEntrega || '',
+      notasGestor: x.notasGestor || '',
     };
     // Solo incluir valeText si ya existía (para no romper vales viejos que lo usan).
     // Si el vale lo generó buildValeText() al enviar, NO se envía — se regenera al leer.
@@ -3490,6 +3499,8 @@ const saveVales = v => {
     'total','garantia','comisionGestor','recogidaTienda','ubicacion',
     // v104: la hora de entrega la pone el gestor, así que viaja con sus campos.
     'horaEntrega',
+    // v131: el día de entrega y las notas para el admin, también del gestor.
+    'fechaEntrega','notasGestor',
     // v75: la cesión de comisión la decide el gestor al hacer el vale, así que
     // viaja con sus campos. Si faltara aquí, pasaría lo de la marca de stock en
     // v73: se guarda en el móvil, sube sin ella y el poll la borra al volver.
@@ -4597,9 +4608,67 @@ function _valeReservaActiva(v) {
 const AVISO_ENTREGA_MS = 60 * 60 * 1000;      // se avisa una hora antes
 const _ESTADOS_ESPERANDO_ENTREGA = { pending: 1, assigned: 1 };
 
-// "HH:MM" + el día del vale → instante exacto, o null si no hay hora puesta.
+// v131: el gestor puede poner también el DÍA (fechaEntrega, "YYYY-MM-DD"). Sin
+// día, la hora es la del día del vale, como siempre. Sin hora pero con día, la
+// entrega es "ese día": para ordenar y avisar cuenta desde las 9:00, y no se da
+// por tarde hasta que el día se acaba.
+const HORA_DIA_SIN_HORA = 9;
+function _fechaEntregaDate(v) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String((v && v.fechaEntrega) || '').trim());
+  if (!m) return null;
+  const d = new Date(parseInt(m[1],10), parseInt(m[2],10) - 1, parseInt(m[3],10), 0, 0, 0, 0);
+  return isNaN(d.getTime()) ? null : d;
+}
+function _horaEntregaHM(v) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String((v && v.horaEntrega) || '').trim());
+  return m ? [parseInt(m[1],10), parseInt(m[2],10)] : null;
+}
+const _entregaSinHora = v => !!_fechaEntregaDate(v) && !_horaEntregaHM(v);
+// Hasta cuándo se puede entregar sin llegar tarde: la hora exacta, o el final
+// del día si solo se puso el día.
+function _finEntrega(v) {
+  const t = _momentoEntrega(v);
+  if (t == null) return null;
+  if (!_entregaSinHora(v)) return t;
+  const d = _fechaEntregaDate(v); d.setHours(23, 59, 59, 999);
+  return d.getTime();
+}
+// "hoy · 15:00", "mañana · 10:30", "sáb 27/09 · 15:00", "sáb 27/09 (sin hora)".
+// Con `absoluto` nunca dice "hoy/mañana" (para mensajes que se leen otro día):
+// fecha exacta si el gestor puso día, y solo la hora si no lo puso.
+function _textoEntrega(v, absoluto) {
+  const t = _momentoEntrega(v);
+  if (t == null) return '';
+  const d = new Date(t);
+  if (absoluto) {
+    const hm0 = _horaEntregaHM(v);
+    const hhmm = hm0 ? String(hm0[0]).padStart(2,'0') + ':' + String(hm0[1]).padStart(2,'0') : '';
+    if (!_fechaEntregaDate(v)) return hhmm;
+    const fecha = d.toLocaleDateString('es-ES', { weekday:'short', day:'2-digit', month:'2-digit' }).replace(',', '');
+    return hhmm ? fecha + ' · ' + hhmm : fecha + ' (sin hora)';
+  }
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const dia0 = new Date(d); dia0.setHours(0,0,0,0);
+  const difDias = Math.round((dia0 - hoy) / 864e5);
+  const dia = difDias === 0 ? 'hoy' : difDias === 1 ? 'mañana' : difDias === -1 ? 'ayer'
+    : d.toLocaleDateString('es-ES', { weekday:'short', day:'2-digit', month:'2-digit' }).replace(',', '');
+  if (_entregaSinHora(v)) return dia + ' (sin hora)';
+  const hm = _horaEntregaHM(v);
+  return dia + ' · ' + String(hm[0]).padStart(2,'0') + ':' + String(hm[1]).padStart(2,'0');
+}
+
+// "HH:MM" + el día (el puesto, o el del vale) → instante exacto, o null si no
+// hay ni hora ni día.
 function _momentoEntrega(v) {
-  if (!v || !v.horaEntrega) return null;
+  if (!v) return null;
+  const f = _fechaEntregaDate(v);
+  const hm = _horaEntregaHM(v);
+  if (f) {
+    const d = new Date(f);
+    if (hm) d.setHours(hm[0], hm[1], 0, 0); else d.setHours(HORA_DIA_SIN_HORA, 0, 0, 0);
+    return d.getTime();
+  }
+  if (!v.horaEntrega) return null;
   const m = /^(\d{1,2}):(\d{2})$/.exec(String(v.horaEntrega).trim());
   if (!m) return null;
   const base = new Date(v.ts || Date.now());
@@ -4617,11 +4686,12 @@ function _chipHoraEntrega(v) {
   const t = _momentoEntrega(v);
   if (t == null || !_ESTADOS_ESPERANDO_ENTREGA[v.status]) return '';
   const falta = t - Date.now();
+  const tarde = _finEntrega(v) < Date.now();
   let fondo = 'var(--surface3)', color = 'var(--text-muted)', borde = 'var(--border)';
-  if (falta < 0)                   { fondo = 'rgba(220,38,38,.15)';  color = '#dc2626'; borde = 'rgba(220,38,38,.4)'; }
+  if (tarde)                          { fondo = 'rgba(220,38,38,.15)';  color = '#dc2626'; borde = 'rgba(220,38,38,.4)'; }
   else if (falta <= AVISO_ENTREGA_MS) { fondo = 'rgba(245,158,11,.15)'; color = '#b45309'; borde = 'rgba(245,158,11,.4)'; }
-  const hhmm = escapeHTML(String(v.horaEntrega));
-  const titulo = falta < 0 ? 'La hora de entrega ya pasó' : 'Hora de entrega acordada';
+  const hhmm = escapeHTML(_textoEntrega(v));   // v131: con el día
+  const titulo = tarde ? 'La entrega ya pasó' : 'Entrega acordada';
   return `<span title="${titulo}" style="background:${fondo};color:${color};border:1px solid ${borde};border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;white-space:nowrap;">⏰ ${hhmm}</span>`;
 }
 
@@ -4651,23 +4721,28 @@ function renderProximasEntregas() {
     .filter(v => _ESTADOS_ESPERANDO_ENTREGA[v.status] && _momentoEntrega(v) != null)
     .map(v => ({ v, t: _momentoEntrega(v) }))
     // Lo de ayer no interesa; lo de hace un rato sí, porque sigue sin entregarse.
-    .filter(x => x.t > ahora - 12 * 3600000)
+    .filter(x => _finEntrega(x.v) > ahora - 12 * 3600000)
     .sort((a, b) => a.t - b.t);
 
   if (!pendientes.length) { sec.style.display = 'none'; cont.innerHTML = ''; return; }
   sec.style.display = '';
   cont.innerHTML = pendientes.map(({ v, t }) => {
     const min = Math.round((t - ahora) / 60000);
+    const sinHora = _entregaSinHora(v);
+    const tarde = _finEntrega(v) < ahora;
     let cuando, color, fondo;
-    if (min < 0)        { cuando = `${Math.abs(min)} min tarde`; color = '#dc2626'; fondo = 'rgba(220,38,38,.10)'; }
+    if (tarde)          { cuando = sinHora ? 'ya pasó el día' : `${Math.abs(min)} min tarde`; color = '#dc2626'; fondo = 'rgba(220,38,38,.10)'; }
+    else if (sinHora && min <= 0) { cuando = 'hoy';              color = '#b45309'; fondo = 'rgba(245,158,11,.10)'; }
     else if (min <= 60) { cuando = `en ${min} min`;              color = '#b45309'; fondo = 'rgba(245,158,11,.10)'; }
-    else                { cuando = `en ${Math.round(min / 60)} h`; color = 'var(--text-muted)'; fondo = 'transparent'; }
+    else if (min < 24 * 60) { cuando = `en ${Math.round(min / 60)} h`; color = 'var(--text-muted)'; fondo = 'transparent'; }
+    else                { cuando = `en ${Math.round(min / 1440)} d`; color = 'var(--text-muted)'; fondo = 'transparent'; }
     const g = gestorOf(v.gestorId);
     return `<div onclick="selectVale(${v.id})" style="display:flex;align-items:center;gap:10px;background:${fondo};border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-bottom:6px;cursor:pointer;">
-      <span style="font-weight:800;font-size:13px;color:${color};white-space:nowrap;">${escapeHTML(String(v.horaEntrega))}</span>
+      <span style="font-weight:800;font-size:12px;color:${color};white-space:nowrap;">${escapeHTML(_textoEntrega(v))}</span>
       <div style="flex:1;min-width:0;">
         <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.cliente || 'Cliente')}</div>
         <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</div>
+        ${v.notasGestor ? `<div style="font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.notasGestor)}</div>` : ''}
       </div>
       <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;">${cuando}</span>
     </div>`;
@@ -4691,10 +4766,12 @@ function revisarEntregasProximas() {
     if (!_ESTADOS_ESPERANDO_ENTREGA[v.status]) continue;   // ya entregado o cancelado
     const t = _momentoEntrega(v);
     if (t == null) continue;
-    if (ahora < t - AVISO_ENTREGA_MS) continue;            // todavía no toca
+    const sinHora = _entregaSinHora(v);
+    // Con hora: una hora antes. Solo con día: desde la mañana de ese día.
+    if (ahora < t - (sinHora ? 0 : AVISO_ENTREGA_MS)) continue;   // todavía no toca
     // Más de 12 h tarde: el vale se quedó ahí colgado, avisar ya no ayuda.
-    if (ahora > t + 12 * 3600000) continue;
-    const clave = v.id + '@' + v.horaEntrega;
+    if (ahora > _finEntrega(v) + 12 * 3600000) continue;
+    const clave = v.id + '@' + (v.fechaEntrega || '') + '@' + (v.horaEntrega || '');
     if (dados.has(clave)) continue;
     dados.add(clave); cambio = true;
 
@@ -4703,11 +4780,11 @@ function revisarEntregasProximas() {
     const g = (typeof gestorOf === 'function') ? gestorOf(v.gestorId) : null;
     const quien = g && g.name ? ' · ' + g.name : '';
     sendBrowserNotif(
-      `⏰ Entrega ${cuando} — ${v.horaEntrega}`,
-      `${v.cliente || 'Cliente'}${quien}\n${v.articulo || ''}`.trim()
+      sinHora ? `📅 Hoy toca entregar (sin hora)` : `⏰ Entrega ${cuando} — ${_textoEntrega(v)}`,
+      `${v.cliente || 'Cliente'}${quien}\n${v.articulo || ''}${v.notasGestor ? '\n📝 ' + v.notasGestor : ''}`.trim()
     );
     try { playSound('vale'); } catch(e) {}
-    try { showToast(`⏰ ${v.cliente || 'Cliente'} espera su pedido ${cuando}`); } catch(e) {}
+    try { showToast(sinHora ? `📅 Hoy toca entregar a ${v.cliente || 'Cliente'}` : `⏰ ${v.cliente || 'Cliente'} espera su pedido ${cuando}`); } catch(e) {}
   }
   if (cambio) _guardarAvisosEntrega(dados);
 }
@@ -7574,6 +7651,7 @@ function buildInboxCard(v) {
     </div>
     <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}${reservaTag}${_chipHoraEntrega(v)}</div>
     <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
+    ${String(v.notasGestor||'').trim()?`<div class="ic-nota-gestor" style="background:rgba(0,109,138,.1);color:var(--blue);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin:3px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(String(v.notasGestor).trim())}</div>`:``}
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
       <span class="sp ${s.cls}" style="font-size:10px;">${s.icon?s.icon+' ':''}${s.label}</span>
@@ -7964,7 +8042,7 @@ function _htmlPagoVale(v) {
   return `<div id="valePago" style="margin-top:10px;padding:12px 13px;background:var(--surface);border:1px solid var(--border);border-radius:11px;">
     <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
       <span style="font-size:12px;font-weight:800;">💳 ¿CÓMO PAGÓ?</span>
-      <span style="font-size:10px;color:var(--text-muted);">1 USD = ${pago.tasaMN || '—'} MN${pago.eurUSD ? ` · 1 EUR = $${pago.eurUSD}` : ''}${pago.ts ? ' · congeladas' : ''}</span>
+      <span style="font-size:10px;color:var(--text-muted);">1 USD = ${pago.tasaMN || '—'} MN${pago.eurUSD ? ` · 1 EUR = $${pago.eurUSD.toFixed(2)}` : ''}${pago.ts ? ' · congeladas' : ''}</span>
     </div>
     ${PAGO_METODOS.map(fila).join('')}
     <div style="border-top:1px solid var(--border);margin-top:6px;padding-top:7px;font-size:12px;font-weight:700;" id="pagoEstado">${estado}</div>
@@ -8290,6 +8368,12 @@ function renderValeDetail(destinoId) {
     </div>`;
   }
   const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
+  // v131: las notas que el gestor le escribió al admin, arriba y a la vista —
+  // son justo lo que no cabe en ningún otro campo del vale.
+  const notasGestorHTML=String(v.notasGestor||'').trim()?`<div id="valeNotasGestor" style="background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.3);border-radius:9px;padding:8px 11px;margin-top:8px;">
+    <div style="font-size:10px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">📝 Nota del gestor</div>
+    <div style="font-size:12px;color:var(--text);white-space:pre-wrap;">${escapeHTML(String(v.notasGestor).trim())}</div>
+  </div>`:'';
   const notesHighlight=v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
   const estafaMatches=checkEstafaMatch(v);
   const estafaDetailHTML=estafaMatches.length?`<div style="background:rgba(239,68,68,.08);border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:10px;">
@@ -8314,12 +8398,13 @@ function renderValeDetail(destinoId) {
       </div>
       <table class="vale-datos">
         ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['⏰ Hora de entrega',v.horaEntrega],['💰 Comisión gestor',v.comisionGestor]]
+           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['⏰ Entrega',_textoEntrega(v)],['💰 Comisión gestor',v.comisionGestor]]
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
             <td class="vale-datos-k" style="padding:6px 0;">${k}</td>
             <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
       </table>
+      ${notasGestorHTML}
       ${(()=>{const _r=_rebajaVale(v);if(!_r)return '';return `
         <div style="margin-top:10px;padding:12px 13px;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.35);border-radius:11px;">
           <div style="font-size:10px;color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">🏷️ Este vale lleva rebaja</div>
@@ -8439,7 +8524,7 @@ function _inputLocalATs(val) {
 function openEditValeModal(id) {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor',
-   'horaEntrega'].forEach(k=>{                     // v108: y la hora de entrega
+   'horaEntrega','fechaEntrega','notasGestor'].forEach(k=>{   // v108: la hora · v131: el día y las notas
     const el=document.getElementById('ev-'+k);if(el)el.value=v[k]||'';
   });
   const elFecha=document.getElementById('ev-fecha');
@@ -8734,7 +8819,7 @@ function saveEditVale() {
   const v=getVales().find(x=>x.id===id);if(!v)return;
   const changes={};
   ['cliente','telefono','direccion','mensajeria','total','garantia','comisionGestor','articulo','precioUSD','precioMN',
-   'horaEntrega'].forEach(k=>{                     // v108
+   'horaEntrega','fechaEntrega','notasGestor'].forEach(k=>{   // v108 · v131
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
   // v114: fecha editable. Solo se toca v.ts si el admin puso una fecha válida;
@@ -10198,7 +10283,7 @@ function buildValeText() {
     `🔸Mensajería/ costo: ${fVal('vf-mensajeria')}`,
     // v104: solo aparece si el gestor puso hora, para no meter una línea vacía
     // en todos los mensajes que no la usan.
-    ...(fVal('vf-horaEntrega') ? [`🔸Hora de entrega: ${fVal('vf-horaEntrega')}`] : []),
+    ...((fVal('vf-horaEntrega') || fVal('vf-fechaEntrega')) ? [`🔸Entrega: ${_textoEntrega({horaEntrega:fVal('vf-horaEntrega'), fechaEntrega:fVal('vf-fechaEntrega'), ts:new Date().toISOString()}, true)}`] : []),   // v131: con el día
     `🔸 Artículos y cantidades:`,prodLines,
     `🔸Precio USD/ zelle: ${fVal('vf-precioUSD')}`,
     `🔸Precio MN: ${fVal('vf-precioMN')}`,
@@ -10243,7 +10328,7 @@ function regenerateValeText(v) {
     `🔸Teléfono Cliente: ${v.telefono||''}`,
     `🔸Dirección Cliente: ${v.direccion||''}`,
     `🔸Mensajería/ costo: ${v.mensajeria||''}`,
-    ...(v.horaEntrega ? [`🔸Hora de entrega: ${v.horaEntrega}`] : []),
+    ...((v.horaEntrega || v.fechaEntrega) ? [`🔸Entrega: ${_textoEntrega(v, true)}`] : []),   // v131: con el día
     `🔸 Artículos y cantidades:`,prodLines,
     `🔸Precio USD/ zelle: ${v.precioUSD||''}`,
     `🔸Precio MN: ${v.precioMN||''}`,
@@ -10481,7 +10566,7 @@ function onRecogidaTiendaChange() {
 function resetForm() {
   ['vf-cliente','vf-telefono','vf-direccion','vf-carnet','vf-mensajeria','vf-articulo',
    'vf-precioUSD','vf-precioMN','vf-vuelto','vf-total','vf-garantia','vf-comisionGestor','vf-ubicacion',
-   'vf-comisionCedida','vf-cesionMotivo','vf-horaEntrega'].forEach(id=>{
+   'vf-comisionCedida','vf-cesionMotivo','vf-horaEntrega','vf-fechaEntrega','vf-notasGestor'].forEach(id=>{  // v131
      const el=document.getElementById(id);if(el)el.value='';
    });
   const chk=document.getElementById('vf-recogidaTienda');if(chk)chk.checked=false;
@@ -10549,6 +10634,8 @@ function sendVale() {
     precioUSD:fVal('vf-precioUSD'),precioMN:fVal('vf-precioMN'),
     vuelto:fVal('vf-vuelto'),total:fVal('vf-total'),garantia:fVal('vf-garantia'),comisionGestor:fVal('vf-comisionGestor'),
     horaEntrega:fVal('vf-horaEntrega'),   // v104: "HH:MM" o vacío
+    fechaEntrega:fVal('vf-fechaEntrega'), // v131: "YYYY-MM-DD" o vacío (= el día del vale)
+    notasGestor:fVal('vf-notasGestor'),   // v131: lo que el gestor le quiere decir al admin
     // v81: comisión que da este vale HOY, congelada. Si mañana cambia el catálogo,
     // este vale sigue valiendo lo que valía. Se calcula sobre un objeto suelto
     // para que no se lea a sí mismo.
@@ -16883,7 +16970,7 @@ function openAdminValeModal() {
 
   ['av-cliente','av-telefono','av-direccion','av-mensajeria','av-articulo',
    'av-precioUSD','av-precioMN','av-vuelto','av-total','av-garantia','av-comisionGestor',
-   'av-horaEntrega'].forEach(id => {
+   'av-horaEntrega','av-fechaEntrega'].forEach(id => {   // v131: y el día
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -16999,6 +17086,7 @@ function sendAdminVale() {
     vuelto: avVal('av-vuelto'), total: avVal('av-total'),
     garantia: avVal('av-garantia'), comisionGestor: avVal('av-comisionGestor'),
     horaEntrega: avVal('av-horaEntrega'),          // v108
+    fechaEntrega: avVal('av-fechaEntrega'),        // v131
     valeProductos: adminValeProductos, valeText: buildAdminValeText(),
     status: 'pending', mensajeroId: null, confirmedTs: null,
     isNew: true, adminNotes: 'Generado por Admin',
@@ -18540,6 +18628,16 @@ const AYUDA_SECCIONES = [
         como:'Debajo de "COBRAR AL CLIENTE" sale una casilla por cada forma de pago. Viene rellena como dice el vale (los dólares en USD efectivo). Si pagó distinto, cambia las cifras: el MN se calcula solo con lo que falte, a la tasa que ven todos (elToque + tu ajuste de Config, de 5 en 5). Hay botones para "Todo en MN" y "El resto en MN". Abajo dice si cuadra, si falta o si sobra (y cuánto dar de vuelto).',
         ojo:'El Zelle cuenta 1 a 1 con el dólar. El euro se pasa a dólares con la tasa del euro de elToque, que se baja sola junto con la del dólar. Las tasas se congelan al apuntar el pago —o al confirmar la venta si no lo apuntaste—: si mañana sube el dólar, lo cobrado hoy sigue valiendo lo mismo. Si escribes el MN a mano, la app deja de recalcularlo ("a mano"); "El resto en MN" lo vuelve a poner en automático.',
         nuevo:'v130' },
+      { icono:'⏰', titulo:'Día y hora de entrega', donde:'Formulario del gestor · Vales › detalle',
+        para:'Que no se pase la entrega de un pedido que el cliente espera a una hora o un día concretos.',
+        como:'Al hacer el vale, el gestor pone el día y/o la hora en "Día y hora de entrega". En el admin sale en la tarjeta del vale (chapa ⏰), en el detalle y en la lista de próximas entregas, ordenada por cercanía. El admin también la puede poner o corregir en ✏️ Editar vale.',
+        ojo:'Sin día, la hora es la del mismo día del vale, como antes. Con día pero sin hora, cuenta como "ese día": el aviso salta esa mañana y no se marca tarde hasta que el día se acaba. Con hora, el aviso salta una hora antes. La chapa se pone naranja cuando se acerca y roja cuando ya pasó. En el WhatsApp sale la fecha exacta, nunca "mañana", por si se lee otro día.',
+        nuevo:'v131' },
+      { icono:'📝', titulo:'Notas del gestor para el admin', donde:'Formulario del gestor · Vales › detalle',
+        para:'Lo que no cabe en ningún campo del vale: "llamar antes de ir", "paga la mamá", "portero sin timbre".',
+        como:'El gestor la escribe en "Notas para el admin" al hacer el vale. En el admin sale en azul en la tarjeta de la bandeja, arriba en el detalle del vale, en la lista de próximas entregas y en el aviso de la entrega.',
+        ojo:'No va en el ticket ni en el WhatsApp del cliente: es solo para el admin. Es distinta de la nota amarilla, que es la nota interna del propio admin. Se puede corregir o borrar desde ✏️ Editar vale.',
+        nuevo:'v131' },
       { icono:'🛵', titulo:'Asignar a un mensajero', donde:'Vales › detalle del vale',
         para:'Mandar la mercancía con alguien y que quede apuntado quién la lleva.',
         como:'Abre el vale, dale a "Asignar a Mensajero", elige a quién y compártele el vale por WhatsApp.',
