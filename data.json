@@ -963,7 +963,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 23,
+      "stock": 22,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2535,6 +2535,46 @@
   ],
   "vales": [
     {
+      "id": 1790521845181,
+      "ts": "2026-09-27T15:10:45.191Z",
+      "total": "$800 USD",
+      "carnet": "",
+      "seenTs": "2026-09-27T15:17:48.802Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Guillermo",
+      "valeNum": 142,
+      "articulo": "×5 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1787851412069,
+      "precioMN": "",
+      "telefono": "5358103433",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yoeni\n\n🔸 Nombre Cliente: Guillermo\n🔸Teléfono Cliente: 5358103433\n🔸Dirección Cliente: calzada de puentes grandes edificio 24 apartamento 10 entre santa rosita y cervantez\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×5 Nanostation loco m5\n🔸Precio USD/ zelle: $800 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $800 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 11:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "calzada de puentes grandes edificio 24 apartamento 10 entre santa rosita y cervantez",
+      "precioUSD": "$800 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "Mensajeria de el Yoeni",
+      "seenByAdmin": true,
+      "comFijadaUSD": 50,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 5,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$50.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790521385545,
       "ts": "2026-09-27T15:03:05.550Z",
       "total": "10400 MN",
@@ -2651,9 +2691,20 @@
     {
       "id": 1790520570690,
       "ts": "2026-09-27T14:49:30.693Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-27T15:17:21.276Z",
+        "eur": 0,
+        "usd": 28,
+        "zelle": 0,
+        "eurUSD": 1.1407,
+        "mnAuto": true,
+        "tasaMN": 735
+      },
       "total": "$28 USD",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-27T15:17:17.900Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Ariel",
       "valeNum": 139,
@@ -2669,8 +2720,13 @@
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-27T15:17:21.276Z",
       "horaEntrega": "",
       "notasGestor": "",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1786161303797": 1
+      },
       "comFijadaUSD": 3,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2682,7 +2738,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3274,7 +3330,7 @@
       "ts": "2026-09-26T22:36:36.024Z",
       "total": "$1480 USD",
       "carnet": "",
-      "seenTs": "2026-09-26T23:35:26.672Z",
+      "seenTs": "2026-09-27T15:18:35.010Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "damian",
@@ -40687,5 +40743,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T15:05:31.078Z"
+  "timestamp": "2026-09-27T15:18:50.678Z"
 }
