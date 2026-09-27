@@ -3056,6 +3056,7 @@
       ],
       "comisionGestor": "$5.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6626,6 +6627,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -37619,5 +37621,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T00:16:48.702Z"
+  "timestamp": "2026-09-27T00:22:06.695Z"
 }
