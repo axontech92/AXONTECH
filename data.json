@@ -2660,7 +2660,7 @@
       "total": "10400 MN",
       "carnet": "",
       "seenTs": "2026-09-27T15:44:23.376Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Lise",
       "valeNum": 141,
@@ -2674,8 +2674,10 @@
       "precioUSD": "",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-27T15:51:58.814Z",
       "mensajeria": "2000",
       "horaEntrega": "",
+      "mensajeroId": 1784476779247,
       "notasGestor": "",
       "seenByAdmin": true,
       "fechaEntrega": "",
@@ -2737,6 +2739,7 @@
       "ts": "2026-09-27T14:50:35.606Z",
       "total": "$28 USD",
       "carnet": "",
+      "seenTs": "2026-09-27T15:52:01.494Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yasmani",
@@ -2755,6 +2758,7 @@
       "comFijadaMN": 0,
       "horaEntrega": "",
       "notasGestor": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 3,
       "fechaEntrega": "",
       "valeProductos": [
@@ -5495,46 +5499,6 @@
       "recogidaTienda": false,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790433382170,
-      "ts": "2026-09-26T14:36:22.173Z",
-      "total": "$25 USD",
-      "carnet": "",
-      "seenTs": "2026-09-27T15:22:37.393Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Roberto",
-      "valeNum": 118,
-      "articulo": "×1 Camara de vigilancia IP inalambrica",
-      "garantia": "",
-      "gestorId": 1781761257101,
-      "precioMN": "",
-      "telefono": "5352812832",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Roberto\n🔸Teléfono Cliente: 5352812832\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Camara de vigilancia IP inalambrica\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/09/2026 10:35\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$25 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 1500,
-      "horaEntrega": "",
-      "notasGestor": "",
-      "seenByAdmin": true,
-      "comFijadaUSD": 0,
-      "fechaEntrega": "",
-      "valeProductos": [
-        {
-          "id": 1786893425174,
-          "qty": 1,
-          "name": "Camara de vigilancia IP inalambrica"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -40855,5 +40819,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T15:45:20.049Z"
+  "timestamp": "2026-09-27T15:52:58.858Z"
 }
