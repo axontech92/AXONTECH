@@ -2535,6 +2535,82 @@
   ],
   "vales": [
     {
+      "id": 1790521385545,
+      "ts": "2026-09-27T15:03:05.550Z",
+      "total": "10400 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Lise",
+      "valeNum": 141,
+      "articulo": "×30 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "8400 MN",
+      "telefono": "5354204258",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Lise\n🔸Teléfono Cliente: 5354204258\n🔸Dirección Cliente: Calle Gueicuría entre Santa Catalina y Milagros, edif 1944 Santo Suárez\n🔸Mensajería/ costo: 2000\n🔸 Artículos y cantidades:\n  ×30 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 8400 MN\n🔸 Vuelto: \n🔸 Total a pagar: 10400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 11:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle Gueicuría entre Santa Catalina y Milagros, edif 1944 Santo Suárez",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "horaEntrega": "",
+      "notasGestor": "",
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 30,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790520672480,
+      "ts": "2026-09-27T14:51:12.493Z",
+      "total": "16200 MN",
+      "carnet": "",
+      "seenTs": "2026-09-27T15:00:52.513Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Erikc",
+      "valeNum": 139,
+      "articulo": "×40 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "11200 MN",
+      "telefono": "5354971633",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Erikc\n🔸Teléfono Cliente: 5354971633\n🔸Dirección Cliente: 📍 23.036077, -82.250959 \"Lugar desconocido\" Cotorro, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/wmBHgDkzn6/Lugar_desconocido\n🔸Mensajería/ costo: 5000\n🔸Entrega: dom 27/09 (sin hora)\n🔸 Artículos y cantidades:\n  ×40 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 11200 MN\n🔸 Vuelto: \n🔸 Total a pagar: 16200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 10:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "📍 23.036077, -82.250959 \"Lugar desconocido\" Cotorro, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/wmBHgDkzn6/Lugar_desconocido",
+      "precioUSD": "",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-27T15:04:31.045Z",
+      "mensajeria": "5000",
+      "horaEntrega": "",
+      "mensajeroId": 1784476802516,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "fechaEntrega": "2026-09-27",
+      "valeProductos": [
+        {
+          "id": 1787349543585,
+          "qty": 40,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790520635604,
       "ts": "2026-09-27T14:50:35.606Z",
       "total": "$28 USD",
@@ -40611,5 +40687,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T14:53:15.581Z"
+  "timestamp": "2026-09-27T15:05:31.078Z"
 }
