@@ -585,7 +585,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 46,
+      "stock": 42,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -1242,7 +1242,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2463,
+      "stock": 2423,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -3047,39 +3047,59 @@
     },
     {
       "id": 1790528590106,
-      "ts": "2026-09-27T17:03:10.118Z",
-      "total": "11200 MN",
+      "ts": "2026-09-27T17:03:00.000Z",
+      "pago": {
+        "mn": 12000,
+        "ts": "2026-09-27T19:10:08.405Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1216,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
+      "total": "12000 MN",
       "carnet": "",
       "seenTs": "2026-09-27T19:09:13.102Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Ernest",
       "valeNum": 148,
-      "articulo": "×40 Cable de red categoría 6",
+      "articulo": "×40 Cable de red categoría 6 / ×4 Puntas de cable de red",
       "garantia": "",
       "gestorId": 1781761257107,
-      "precioMN": "11200 MN",
+      "precioMN": "12000 MN",
       "telefono": "5354141049",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Ernest\n🔸Teléfono Cliente: 5354141049\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×40 Cable de red categoría 6\n🔸Precio USD/ zelle: \n🔸Precio MN: 11200 MN\n🔸 Vuelto: \n🔸 Total a pagar: 11200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 13:02\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Ernest\n🔸Teléfono Cliente: 5354141049\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×40 Cable de red categoría 6\n  ×4 Puntas de cable de red\n🔸Precio USD/ zelle: \n🔸Precio MN: 12000 MN\n🔸 Vuelto: \n🔸 Total a pagar: 12000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/9/2026, 13:03:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "",
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
+      "confirmedTs": "2026-09-27T19:10:08.405Z",
       "horaEntrega": "",
       "notasGestor": "4 puntas \nTotal a pagar 12000",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 40,
+        "1790529394586": 4
+      },
       "fechaEntrega": "",
       "valeProductos": [
         {
           "id": 1787349543585,
           "qty": 40,
           "name": "Cable de red categoría 6"
+        },
+        {
+          "id": 1790529394586,
+          "qty": 4,
+          "name": "Puntas de cable de red"
         }
       ],
       "comisionGestor": "",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -41488,5 +41508,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T19:09:33.726Z"
+  "timestamp": "2026-09-27T19:11:08.448Z"
 }
