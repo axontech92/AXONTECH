@@ -4003,7 +4003,9 @@
         }
       ],
       "comisionGestor": "$3.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4111,7 +4113,9 @@
         }
       ],
       "comisionGestor": "$10 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4547,7 +4551,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -12192,8 +12198,9 @@
         }
       ],
       "comisionGestor": "$50.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -41562,5 +41569,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T20:33:48.007Z"
+  "timestamp": "2026-09-27T20:39:20.008Z"
 }
