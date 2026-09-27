@@ -2372,7 +2372,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 67,
+      "stock": 66,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -41627,5 +41627,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T22:54:39.017Z"
+  "timestamp": "2026-09-27T22:59:05.013Z"
 }
