@@ -1098,7 +1098,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 47,
+      "stock": 44,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1509,7 +1509,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 20,
+      "stock": 12,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -2551,6 +2551,61 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790549490761,
+      "ts": "2026-09-27T22:51:30.761Z",
+      "pago": {
+        "mn": 11000,
+        "ts": "2026-09-27T22:52:20.452Z",
+        "eur": 0,
+        "usd": 209,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
+      "total": "$209 USD + 11000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-27T22:52:14.323Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 148,
+      "articulo": "×8 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 0,
+      "precioMN": "11000cup",
+      "telefono": "000000",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Tienda (admin)\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 000000\n🔸Dirección Cliente: Tienda Axontech\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×8 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $209 USD\n🔸Precio MN: 11000cup\n🔸 Vuelto: \n🔸 Total a pagar: $209 USD + 11000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/9/2026, 18:51:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$209 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "comFijadaMN": 0,
+      "confirmedTs": "2026-09-27T22:52:20.452Z",
+      "horaEntrega": "",
+      "mensajeroId": null,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1784726857748": 8
+      },
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 8,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
     {
       "id": 1790537726343,
       "ts": "2026-09-27T19:35:26.357Z",
@@ -3736,6 +3791,7 @@
       "gestorId": 1786573707656,
       "precioMN": "",
       "telefono": "55652004",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: pedro moreno\n🔸Teléfono Cliente: 55652004\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/9/2026, 10:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$140 USD",
       "reservado": true,
@@ -3758,7 +3814,6 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Ariel\n\n🔸 Nombre Cliente: pedro moreno\n🔸Teléfono Cliente: 55652004\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/9/2026, 10:04:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -41572,5 +41627,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T22:49:08.793Z"
+  "timestamp": "2026-09-27T22:54:39.017Z"
 }
