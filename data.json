@@ -2535,6 +2535,46 @@
   ],
   "vales": [
     {
+      "id": 1790516155778,
+      "ts": "2026-09-27T13:35:55.785Z",
+      "total": "$140 USD",
+      "carnet": "",
+      "seenTs": "2026-09-27T13:37:04.215Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Saraí",
+      "valeNum": 131,
+      "articulo": "×1 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1786136592500,
+      "precioMN": "",
+      "telefono": "5356141032",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Saraí\n🔸Teléfono Cliente: 5356141032\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 09:35\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 1,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790515503298,
       "ts": "2026-09-27T13:25:03.299Z",
       "total": "$320 USD",
@@ -6943,7 +6983,7 @@
       "ts": "2026-09-25T14:49:10.460Z",
       "total": "$4400 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T13:06:50.020Z",
+      "seenTs": "2026-09-27T13:31:02.262Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Jose Carlos",
@@ -6958,7 +6998,7 @@
       "precioUSD": "$4400 USD",
       "reservado": true,
       "ubicacion": null,
-      "adminNotes": "para manana",
+      "adminNotes": "para el lunes",
       "mensajeria": "Sin envío",
       "comFijadaMN": 30000,
       "horaEntrega": "",
@@ -40176,5 +40216,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T13:28:33.049Z"
+  "timestamp": "2026-09-27T13:38:07.048Z"
 }
