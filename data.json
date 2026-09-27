@@ -2535,6 +2535,87 @@
   ],
   "vales": [
     {
+      "id": 1790517065657,
+      "ts": "2026-09-27T13:51:05.684Z",
+      "total": "$1600 USD",
+      "carnet": "",
+      "seenTs": "2026-09-27T13:53:44.888Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Juan founier perez",
+      "valeNum": 133,
+      "articulo": "×10 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "58588028",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Juan founier perez\n🔸Teléfono Cliente: 58588028\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Entrega: lun 28/09 (sin hora)\n🔸 Artículos y cantidades:\n  ×10 Nanostation loco m5\n🔸Precio USD/ zelle: $1600 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $1600 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 09:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1600 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "para el lunes",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "Cliente de holguin Recge los equipos antes del mediodía  CI: 99102418902",
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "fechaEntrega": "2026-09-28",
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 10,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$100.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790516662718,
+      "ts": "2026-09-27T13:44:22.720Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "seenTs": "2026-09-27T13:53:30.734Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eimarx Rodríguez",
+      "valeNum": 132,
+      "articulo": "×1 Pesa / báscula digital inteligente",
+      "garantia": "Probar en el momento de la compra",
+      "gestorId": 1788287295982,
+      "precioMN": "",
+      "telefono": "52429077",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael Hernandez\n\n🔸 Nombre Cliente: Eimarx Rodríguez\n🔸Teléfono Cliente: 52429077\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 27/09/2026 09:44\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$25 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788152657796,
+          "qty": 1,
+          "name": "Pesa / báscula digital inteligente"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790516155778,
       "ts": "2026-09-27T13:35:55.785Z",
       "total": "$140 USD",
@@ -40216,5 +40297,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T13:38:07.048Z"
+  "timestamp": "2026-09-27T13:54:32.697Z"
 }
