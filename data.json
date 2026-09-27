@@ -2535,6 +2535,44 @@
   ],
   "vales": [
     {
+      "id": 1790527894442,
+      "ts": "2026-09-27T16:51:34.474Z",
+      "total": "$230 USD + 2000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "20$",
+      "cliente": "Daylen",
+      "valeNum": 147,
+      "articulo": "×1 Nanostation m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "5353095391",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Daylen\n🔸Teléfono Cliente: 5353095391\n🔸Dirección Cliente: Calle 2da 441 entre Anita y Finlay. Reparto ampliacion del sevillano. Arroyo Naranjo\n🔸Mensajería/ costo: 2000\n🔸Entrega: dom 27/09 (sin hora)\n🔸 Artículos y cantidades:\n  ×1 Nanostation m5\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: 20$\n🔸 Total a pagar: $230 USD + 2000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 12:50\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 2da 441 entre Anita y Finlay. Reparto ampliacion del sevillano. Arroyo Naranjo",
+      "precioUSD": "$230 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2000",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "Entregar lo antes posible",
+      "comFijadaUSD": 10,
+      "fechaEntrega": "2026-09-27",
+      "valeProductos": [
+        {
+          "id": 1786510211408,
+          "qty": 1,
+          "name": "Nanostation m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790524841414,
       "ts": "2026-09-27T16:00:41.416Z",
       "total": "$28 USD + 4700 MN",
@@ -4650,6 +4688,7 @@
       ],
       "comisionGestor": "$20.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -40908,5 +40947,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T16:46:53.047Z"
+  "timestamp": "2026-09-27T16:55:10.331Z"
 }
