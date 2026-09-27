@@ -1509,7 +1509,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 23,
+      "stock": 20,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -1945,7 +1945,7 @@
       "name": "Nanostation m5",
       "catId": 10,
       "photo": "photos/img_1786510211408.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1786510211408.webp",
       "nombre": "Nanostation m5",
       "precio": "$230",
@@ -2408,7 +2408,7 @@
       "name": "📡 TP-Link Archer BE230",
       "catId": 10,
       "photo": "photos/p-1788560867958-06577344.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1788560867958-06577344.webp",
       "nombre": "📡 TP-Link Archer BE230",
       "precio": "$200",
@@ -2552,6 +2552,72 @@
   ],
   "vales": [
     {
+      "id": 1790533290361,
+      "ts": "2026-09-27T18:21:30.367Z",
+      "total": "$520 USD",
+      "carnet": "",
+      "seenTs": "2026-09-27T18:21:52.631Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "Rainel Céspedes",
+      "valeNum": 155,
+      "articulo": "×3 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado / ×1 Nanostation m5 / ×1 📡 TP-Link Archer BE230",
+      "garantia": "",
+      "gestorId": 1786136592500,
+      "precioMN": "",
+      "telefono": "5363711787",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Rainel Céspedes\n🔸Teléfono Cliente: 5363711787\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×3 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n  ×1 Nanostation m5\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $520 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $520 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 14:20\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$520 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 4500,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 20,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 3,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        },
+        {
+          "id": 1786510211408,
+          "qty": 1,
+          "name": "Nanostation m5"
+        },
+        {
+          "id": 1788560867958,
+          "qty": 1,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "$20.00 USD + 4500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": true,
+      "comisionCedidaMoneda": "USD",
+      "synced": true,
+      "stockSalido": {
+        "1784726857748": 3,
+        "1786510211408": 1,
+        "1788560867958": 1
+      },
+      "confirmedTs": "2026-09-27T18:21:59.377Z",
+      "pago": {
+        "usd": 520,
+        "zelle": 0,
+        "eur": 0,
+        "mn": 0,
+        "mnAuto": true,
+        "tasaMN": 750,
+        "eurUSD": 1.1216,
+        "ts": "2026-09-27T18:21:59.378Z"
+      }
+    },
+    {
       "id": 1790532338577,
       "ts": "2026-09-27T18:05:38.579Z",
       "total": "$28 USD",
@@ -2568,7 +2634,8 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Cándido\n🔸Teléfono Cliente: 5354312789\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 14:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$28 USD",
-      "ubicacion": "",
+      "reservado": false,
+      "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
       "horaEntrega": "",
@@ -2582,11 +2649,10 @@
           "name": "Compresor/Inflador de neumáticos"
         }
       ],
-      "comisionCedida": 0,
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": true,
+      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "comisionCedidaMotivo": "",
       "synced": true
     },
     {
@@ -2594,7 +2660,8 @@
       "ts": "2026-09-27T18:01:44.094Z",
       "total": "$50 USD + 1300 MN",
       "carnet": "",
-      "status": "pending",
+      "seenTs": "2026-09-27T18:19:36.318Z",
+      "status": "assigned",
       "vuelto": "No",
       "cliente": "Alberto",
       "valeNum": 153,
@@ -2608,10 +2675,13 @@
       "precioUSD": "$50 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-27T18:20:46.579Z",
       "mensajeria": "1300",
       "comFijadaMN": 3000,
       "horaEntrega": "",
+      "mensajeroId": 1784476802516,
       "notasGestor": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2632,7 +2702,7 @@
       "ts": "2026-09-27T17:50:22.782Z",
       "total": "$190 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T18:01:36.932Z",
+      "seenTs": "2026-09-27T18:10:03.319Z",
       "status": "assigned",
       "vuelto": "10 usd",
       "cliente": "Mercedes",
@@ -2726,7 +2796,7 @@
       "ts": "2026-09-27T17:21:37.319Z",
       "total": "$100 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T17:33:04.297Z",
+      "seenTs": "2026-09-27T18:19:32.124Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Pichi",
@@ -3228,7 +3298,9 @@
         }
       ],
       "comisionGestor": "$3.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -3338,46 +3410,6 @@
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790518180518,
-      "ts": "2026-09-27T14:09:40.521Z",
-      "total": "$230 USD",
-      "carnet": "",
-      "seenTs": "2026-09-27T14:20:07.216Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Rainel Céspedes",
-      "valeNum": 136,
-      "articulo": "×1 Nanostation m5",
-      "garantia": "",
-      "gestorId": 1786136592500,
-      "precioMN": "",
-      "telefono": "5363711787",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rachel Rodriguez\n\n🔸 Nombre Cliente: Rainel Céspedes\n🔸Teléfono Cliente: 5363711787\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m5\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 10:08\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$230 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "horaEntrega": "",
-      "notasGestor": "",
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "fechaEntrega": "",
-      "valeProductos": [
-        {
-          "id": 1786510211408,
-          "qty": 1,
-          "name": "Nanostation m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -4481,8 +4513,9 @@
         }
       ],
       "comisionGestor": "$3.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5060,8 +5093,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5880,8 +5914,9 @@
         }
       ],
       "comisionGestor": "$3.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5938,8 +5973,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6048,8 +6084,9 @@
         }
       ],
       "comisionGestor": "$3.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -41277,5 +41314,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T18:08:00.048Z"
+  "timestamp": "2026-09-27T18:23:00.006Z"
 }
