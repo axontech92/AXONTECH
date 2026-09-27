@@ -2535,48 +2535,11 @@
   ],
   "vales": [
     {
-      "id": 1790523033382,
-      "ts": "2026-09-27T15:30:33.403Z",
-      "total": "$25 USD + 3000 MN",
-      "carnet": "",
-      "status": "pending",
-      "vuelto": "15",
-      "cliente": "Osican",
-      "valeNum": 144,
-      "articulo": "×1 Pesa / báscula digital inteligente",
-      "garantia": "Probar en el momento de la compra",
-      "gestorId": 1781761257100,
-      "precioMN": "",
-      "telefono": "5359161723",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Osican\n🔸Teléfono Cliente: 5359161723\n🔸Dirección Cliente: Calle 47#8812/88y88b detrás de la panadería cuba Italia de 51\n🔸Mensajería/ costo: 3000 cup\n🔸Entrega: dom 27/09 · 11:58\n🔸 Artículos y cantidades:\n  ×1 Pesa / báscula digital inteligente\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: 15\n🔸 Total a pagar: $25 USD + 3000 MN\n\n*Garantía: Probar en el momento de la compra\n*Fecha y hora de Venta: 27/09/2026 11:29\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Calle 47#8812/88y88b detrás de la panadería cuba Italia de 51",
-      "precioUSD": "$25 USD",
-      "reservado": false,
-      "ubicacion": null,
-      "mensajeria": "3000 cup",
-      "comFijadaMN": 1500,
-      "horaEntrega": "11:58",
-      "notasGestor": "",
-      "comFijadaUSD": 0,
-      "fechaEntrega": "2026-09-27",
-      "valeProductos": [
-        {
-          "id": 1788152657796,
-          "qty": 1,
-          "name": "Pesa / báscula digital inteligente"
-        }
-      ],
-      "comisionGestor": "1500 MN",
-      "recogidaTienda": false,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1790522899895,
       "ts": "2026-09-27T15:28:19.899Z",
       "total": "$750 USD",
       "carnet": "",
+      "seenTs": "2026-09-27T15:38:46.297Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alex",
@@ -2595,6 +2558,7 @@
       "comFijadaMN": 0,
       "horaEntrega": "",
       "notasGestor": "Tiene un descuento de 5usd por equipo de mi comision",
+      "seenByAdmin": true,
       "comFijadaUSD": 100,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2655,6 +2619,7 @@
       "ts": "2026-09-27T15:03:05.550Z",
       "total": "10400 MN",
       "carnet": "",
+      "seenTs": "2026-09-27T15:38:35.108Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Lise",
@@ -2672,6 +2637,7 @@
       "mensajeria": "2000",
       "horaEntrega": "",
       "notasGestor": "",
+      "seenByAdmin": true,
       "fechaEntrega": "",
       "valeProductos": [
         {
@@ -2691,7 +2657,7 @@
       "ts": "2026-09-27T14:51:12.493Z",
       "total": "16200 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T15:00:52.513Z",
+      "seenTs": "2026-09-27T15:38:29.161Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Erikc",
@@ -3481,7 +3447,7 @@
       "ts": "2026-09-26T22:21:48.771Z",
       "total": "$1450 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T13:09:19.483Z",
+      "seenTs": "2026-09-27T15:38:58.354Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Riu Daniel",
@@ -40849,5 +40815,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T15:32:54.047Z"
+  "timestamp": "2026-09-27T15:39:10.244Z"
 }
