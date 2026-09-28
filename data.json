@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2551,6 +2551,44 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790605572655,
+      "ts": "2026-09-28T14:26:12.658Z",
+      "total": "$400 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "No",
+      "cliente": "Aileen 5ta Billar (Mipyme)",
+      "valeNum": 151,
+      "articulo": "×2 📡 TP-Link Archer BE230",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5353315662",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Aileen 5ta Billar (Mipyme)\n🔸Teléfono Cliente: 5353315662\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $400 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $400 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 10:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$400 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "comFijadaUSD": 20,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788560867958,
+          "qty": 2,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "$20.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790604816135,
       "ts": "2026-09-28T14:13:36.137Z",
@@ -8200,8 +8238,9 @@
         }
       ],
       "comisionGestor": "4500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -10669,8 +10708,9 @@
         }
       ],
       "comisionGestor": "$5.00 USD + 3000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -42145,5 +42185,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T14:15:57.872Z"
+  "timestamp": "2026-09-28T14:32:24.021Z"
 }
