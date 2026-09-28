@@ -2271,7 +2271,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2518,6 +2518,23 @@
       "description": "Puntas de cable de red",
       "precioActual": 200,
       "comisionMoneda": ""
+    },
+    {
+      "id": 1790612424343,
+      "creadoTs": 1790612424343,
+      "name": "5 ac loco version US",
+      "description": "5 ac loco version US",
+      "precio": "120",
+      "stock": 1,
+      "puntos": 1,
+      "garantia": "",
+      "comision": "$10 USD",
+      "comisionMoneda": "USD",
+      "photo": "",
+      "catId": 10,
+      "nombre": "5 ac loco version US",
+      "descripcion": "5 ac loco version US",
+      "precioActual": 120
     }
   ],
   "categorias": [
@@ -42540,5 +42557,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T16:16:29.873Z"
+  "timestamp": "2026-09-28T16:21:24.872Z"
 }
