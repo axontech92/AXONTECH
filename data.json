@@ -2726,7 +2726,7 @@
       "ts": "2026-09-28T00:36:34.695Z",
       "total": "$28 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T02:17:28.575Z",
+      "seenTs": "2026-09-28T13:31:32.908Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Eduardo",
@@ -3247,10 +3247,20 @@
     {
       "id": 1790532104091,
       "ts": "2026-09-27T18:01:44.094Z",
+      "pago": {
+        "mn": 1300,
+        "ts": "2026-09-28T13:34:26.351Z",
+        "eur": 0,
+        "usd": 50,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$50 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T02:52:57.735Z",
-      "status": "pending_payment",
+      "seenTs": "2026-09-28T13:34:15.188Z",
+      "status": "confirmed",
       "vuelto": "No",
       "cliente": "Alberto",
       "valeNum": 153,
@@ -3267,6 +3277,7 @@
       "assignedTs": "2026-09-27T18:20:46.579Z",
       "mensajeria": "1300",
       "comFijadaMN": 3000,
+      "confirmedTs": "2026-09-28T13:34:26.351Z",
       "deliveredTs": "2026-09-28T02:53:07.083Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
@@ -3294,10 +3305,20 @@
     {
       "id": 1790531422723,
       "ts": "2026-09-27T17:50:22.782Z",
+      "pago": {
+        "mn": 4000,
+        "ts": "2026-09-28T13:34:04.097Z",
+        "eur": 0,
+        "usd": 190,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$190 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T03:31:19.940Z",
-      "status": "pending_payment",
+      "seenTs": "2026-09-28T13:33:22.197Z",
+      "status": "confirmed",
       "vuelto": "10 usd",
       "cliente": "Mercedes",
       "valeNum": 152,
@@ -3314,6 +3335,7 @@
       "assignedTs": "2026-09-27T18:01:57.361Z",
       "mensajeria": "4000",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-28T13:34:04.096Z",
       "deliveredTs": "2026-09-28T03:31:22.464Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
@@ -3349,7 +3371,7 @@
       "ts": "2026-09-27T17:33:01.113Z",
       "total": "$30 USD + 7800 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T03:31:26.834Z",
+      "seenTs": "2026-09-28T13:34:39.290Z",
       "status": "pending_payment",
       "vuelto": "",
       "cliente": "Brian Gonzalez",
@@ -41972,5 +41994,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T13:30:43.597Z"
+  "timestamp": "2026-09-28T13:35:27.350Z"
 }
