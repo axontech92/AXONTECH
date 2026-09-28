@@ -721,7 +721,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 19,
+      "stock": 15,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1431,7 +1431,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 40,
+      "stock": 30,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -5848,7 +5848,9 @@
         }
       ],
       "comisionGestor": "1500 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5936,8 +5938,8 @@
       },
       "total": "$1480 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T18:04:39.760Z",
-      "status": "pending",
+      "seenTs": "2026-09-28T21:58:41.720Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "damian",
       "valeNum": 146,
@@ -5953,12 +5955,15 @@
       "ubicacion": null,
       "adminNotes": "Generado por Admin",
       "mensajeria": "",
-      "confirmedTs": null,
+      "confirmedTs": "2026-09-28T21:58:44.301Z",
       "horaEntrega": "",
       "mensajeroId": null,
       "notasGestor": "",
       "seenByAdmin": true,
-      "stockSalido": null,
+      "stockSalido": {
+        "1778384646214": 4,
+        "1788278326719": 10
+      },
       "fechaEntrega": "",
       "valeProductos": [
         {
@@ -5973,8 +5978,10 @@
         }
       ],
       "comisionGestor": "$100.00 USD + 6000 MN",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "commissionStatus": "cobrado",
+      "stockDecremented": true,
       "synced": true
     },
     {
@@ -6693,8 +6700,9 @@
         }
       ],
       "comisionGestor": "$10.00 USD",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -43339,5 +43347,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T21:52:19.759Z"
+  "timestamp": "2026-09-28T21:59:54.470Z"
 }
