@@ -1509,7 +1509,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 12,
+      "stock": 10,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -1854,7 +1854,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 94,
+      "stock": 93,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -1945,7 +1945,7 @@
       "name": "Nanostation m5",
       "catId": 10,
       "photo": "photos/img_1786510211408.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1786510211408.webp",
       "nombre": "Nanostation m5",
       "precio": "$230",
@@ -2168,7 +2168,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2393,
+      "stock": 2363,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2499,7 +2499,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 42,
+      "stock": 38,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -3109,8 +3109,8 @@
       "ts": "2026-09-27T17:50:22.782Z",
       "total": "$190 USD + 4000 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T22:27:54.632Z",
-      "status": "assigned",
+      "seenTs": "2026-09-28T03:31:19.940Z",
+      "status": "pending_payment",
       "vuelto": "10 usd",
       "cliente": "Mercedes",
       "valeNum": 152,
@@ -3127,10 +3127,15 @@
       "assignedTs": "2026-09-27T18:01:57.361Z",
       "mensajeria": "4000",
       "comFijadaMN": 1500,
+      "deliveredTs": "2026-09-28T03:31:22.464Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1784726857748": 1,
+        "1786509569058": 1
+      },
       "comFijadaUSD": 10,
       "fechaEntrega": "2026-09-27",
       "valeProductos": [
@@ -3147,7 +3152,8 @@
       ],
       "comisionGestor": "$10.00 USD + 1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "commissionStatus": "en_sobre",
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3156,8 +3162,8 @@
       "ts": "2026-09-27T17:33:01.113Z",
       "total": "$30 USD + 7800 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T17:57:44.053Z",
-      "status": "assigned",
+      "seenTs": "2026-09-28T03:31:26.834Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Brian Gonzalez",
       "valeNum": 151,
@@ -3174,10 +3180,15 @@
       "assignedTs": "2026-09-27T17:58:48.282Z",
       "mensajeria": "7000",
       "comFijadaMN": 1500,
+      "deliveredTs": "2026-09-28T03:31:28.983Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1784726857748": 1,
+        "1790529394586": 4
+      },
       "comFijadaUSD": 0,
       "fechaEntrega": "",
       "valeProductos": [
@@ -3194,7 +3205,8 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "commissionStatus": "en_sobre",
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3369,8 +3381,8 @@
       "ts": "2026-09-27T16:51:34.474Z",
       "total": "$230 USD + 2000 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T18:42:22.580Z",
-      "status": "assigned",
+      "seenTs": "2026-09-28T03:31:32.463Z",
+      "status": "pending_payment",
       "vuelto": "20$",
       "cliente": "Daylen",
       "valeNum": 147,
@@ -3387,10 +3399,14 @@
       "assignedTs": "2026-09-27T17:11:16.002Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "deliveredTs": "2026-09-28T03:31:34.403Z",
       "horaEntrega": "",
       "mensajeroId": 1788892462364,
       "notasGestor": "Entregar lo antes posible",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786510211408": 1
+      },
       "comFijadaUSD": 10,
       "fechaEntrega": "2026-09-27",
       "valeProductos": [
@@ -3402,7 +3418,8 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "commissionStatus": "en_sobre",
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -3603,8 +3620,8 @@
       "ts": "2026-09-27T15:03:05.550Z",
       "total": "10400 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T18:42:32.590Z",
-      "status": "assigned",
+      "seenTs": "2026-09-28T03:31:36.780Z",
+      "status": "pending_payment",
       "vuelto": "",
       "cliente": "Lise",
       "valeNum": 141,
@@ -3620,10 +3637,14 @@
       "ubicacion": null,
       "assignedTs": "2026-09-27T15:51:58.814Z",
       "mensajeria": "2000",
+      "deliveredTs": "2026-09-28T03:31:37.708Z",
       "horaEntrega": "",
       "mensajeroId": 1784476779247,
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 30
+      },
       "fechaEntrega": "",
       "valeProductos": [
         {
@@ -3633,8 +3654,10 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "commissionStatus": "cobrado",
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -41726,5 +41749,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T03:28:21.446Z"
+  "timestamp": "2026-09-28T03:33:00.120Z"
 }
