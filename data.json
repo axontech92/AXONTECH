@@ -462,7 +462,7 @@
       "color": "#2563EB",
       "phone": "50011679",
       "initials": "YF",
-      "password": "pbkdf2$100000$D2IbNK5GVw8ZIuy5WWoOWQ==$be082caabb7c4c40051751cb169568c9b3f595f647849b58f302be71f821960e"
+      "password": "pbkdf2$100000$9lnwTG3JREWTa4FODKyGRg==$6e0d36b3333248d5c1ef760b8a8592b41fe9ccf3ad168580c482c02a58dce378"
     }
   ],
   "mensajeros": [
@@ -2560,6 +2560,46 @@
   ],
   "vales": [
     {
+      "id": 1790610070252,
+      "ts": "2026-09-28T15:41:10.255Z",
+      "total": "$60 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T15:41:50.407Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Edgar",
+      "valeNum": 152,
+      "articulo": "×2 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "5358085425",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Edgar\n🔸Teléfono Cliente: 5358085425\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 11:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$60 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 3000,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 2,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "3000 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790609513007,
       "ts": "2026-09-28T15:31:53.017Z",
       "total": "$30 USD + 1750 MN",
@@ -2599,6 +2639,87 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790608296660,
+      "ts": "2026-09-28T15:11:36.671Z",
+      "total": "$1520 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T15:40:52.425Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Rolan Batista",
+      "valeNum": 150,
+      "articulo": "×4 MikroTik hEX S (2025) – E60iUGS / ×6 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "51449630",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Rolan Batista\n🔸Teléfono Cliente: 51449630\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸Entrega: mar 29/09 (sin hora)\n🔸 Artículos y cantidades:\n  ×4 MikroTik hEX S (2025) – E60iUGS\n  ×6 Nanostation loco m5\n🔸Precio USD/ zelle: $1520 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Precio: $1520 USD\n🔸 Rebaja: −$30 USD\n🔸 Total a pagar: $1490 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 11:10\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$1520 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "Recogida en la tienda Michel Infante \nRebaje 5 $ de mi comision a las nanos m5 loco solamente\nTotal a pagar por el cliente 1490",
+      "seenByAdmin": true,
+      "comFijadaUSD": 100,
+      "fechaEntrega": "2026-09-29",
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 4,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        },
+        {
+          "id": 1786509569058,
+          "qty": 6,
+          "cedidaUSD": 30,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$70 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790607604001,
+      "ts": "2026-09-28T15:00:04.007Z",
+      "total": "$250 USD + 3000 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "William",
+      "valeNum": 149,
+      "articulo": "×1 Ubiquiti LiteAP ac (LAP-120)",
+      "garantia": "",
+      "gestorId": 1786116024697,
+      "precioMN": "",
+      "telefono": "58691080",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: William\n🔸Teléfono Cliente: 58691080\n🔸Dirección Cliente: 1era/ E y F, Monterrey, San Miguel del Padron\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n🔸Precio USD/ zelle: $250 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $250 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 10:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "1era/ E y F, Monterrey, San Miguel del Padron",
+      "precioUSD": "$250 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "3000",
+      "horaEntrega": "",
+      "notasGestor": "ES PARA MAÑANA 29 DE SEPTIEMBRE",
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786509303890,
+          "qty": 1,
+          "name": "Ubiquiti LiteAP ac (LAP-120)"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
       "synced": true
     },
     {
@@ -2792,7 +2913,7 @@
       "ts": "2026-09-28T14:07:05.742Z",
       "total": "$30 USD + 7000 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T14:14:35.981Z",
+      "seenTs": "2026-09-28T15:37:41.151Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Yansel Romero",
@@ -42335,5 +42456,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T15:35:34.873Z"
+  "timestamp": "2026-09-28T15:41:54.739Z"
 }
