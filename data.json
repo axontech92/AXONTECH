@@ -2184,7 +2184,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2303,
+      "stock": 1998,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2546,20 +2546,20 @@
     },
     {
       "id": 1790637721439,
-      "creadoTs": 1790637721439,
       "name": "Lite ap GPS",
-      "description": "Lite ap GPS",
-      "precio": "250",
-      "stock": 2,
-      "puntos": 1,
-      "garantia": "",
-      "comision": "$9.7 USD",
-      "comisionMoneda": "USD",
-      "photo": "",
       "catId": 10,
+      "photo": "",
+      "stock": 0,
       "nombre": "Lite ap GPS",
+      "precio": "250",
+      "puntos": 1,
+      "comision": "$9.7 USD",
+      "creadoTs": 1790637721439,
+      "garantia": "",
       "descripcion": "Lite ap GPS",
-      "precioActual": 250
+      "description": "Lite ap GPS",
+      "precioActual": 250,
+      "comisionMoneda": "USD"
     }
   ],
   "categorias": [
@@ -2601,6 +2601,154 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790637905466,
+      "ts": "2026-09-28T23:25:05.473Z",
+      "total": "$140 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T23:25:33.572Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "IVÁN",
+      "valeNum": 173,
+      "articulo": "×1 MikroTik hEX S (2025) – E60iUGS",
+      "garantia": "",
+      "gestorId": 1781761257104,
+      "precioMN": "",
+      "telefono": "56884004",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Betty\n\n🔸 Nombre Cliente: IVÁN\n🔸Teléfono Cliente: 56884004\n🔸Dirección Cliente: Liga contra la ceguera\n🔸Mensajería/ costo: 3000\n🔸Entrega: mar 29/09 · 10:00\n🔸 Artículos y cantidades:\n  ×1 MikroTik hEX S (2025) – E60iUGS\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 19:24\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Liga contra la ceguera",
+      "precioUSD": "$140 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-28T23:25:51.766Z",
+      "mensajeria": "3000",
+      "comFijadaMN": 0,
+      "horaEntrega": "10:00",
+      "mensajeroId": 1784476779247,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "2026-09-29",
+      "valeProductos": [
+        {
+          "id": 1788015580929,
+          "qty": 1,
+          "name": "MikroTik hEX S (2025) – E60iUGS"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790637813350,
+      "ts": "2026-09-28T23:23:33.350Z",
+      "pago": {
+        "mn": 85400,
+        "ts": "2026-09-28T23:24:10.618Z",
+        "eur": 0,
+        "usd": 500,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 760
+      },
+      "total": "$500 USD + 85400 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T23:24:03.837Z",
+      "status": "confirmed",
+      "vuelto": "",
+      "cliente": "X",
+      "valeNum": 172,
+      "articulo": "×2 Lite ap GPS / ×305 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "85400 MN",
+      "telefono": "1",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: X\n🔸Teléfono Cliente: 1\n🔸Dirección Cliente: Tienda Axontech\n\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Lite ap GPS\n  ×305 Cable de red categoría 6\n🔸Precio USD/ zelle: $500 USD\n🔸Precio MN: 85400 MN\n🔸 Vuelto: \n🔸 Total a pagar: $500 USD + 85400 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 19:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Tienda Axontech",
+      "precioUSD": "$500 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "adminNotes": "Generado por Admin",
+      "mensajeria": "",
+      "confirmedTs": "2026-09-28T23:24:10.617Z",
+      "horaEntrega": "",
+      "mensajeroId": null,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "stockSalido": {
+        "1787349543585": 305,
+        "1790637721439": 2
+      },
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1790637721439,
+          "qty": 2,
+          "name": "Lite ap GPS"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 305,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "$19.40 USD",
+      "recogidaTienda": false,
+      "stockDecremented": true,
+      "synced": true
+    },
+    {
+      "id": 1790637806362,
+      "ts": "2026-09-28T23:23:26.365Z",
+      "total": "$160 USD + 32800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T23:24:33.077Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "Ana",
+      "valeNum": 172,
+      "articulo": "×1 mikrotik sxt sq 5ax / ×10 Cable de red categoría 6",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "2800 MN",
+      "telefono": "5355209875",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Ana\n🔸Teléfono Cliente: 5355209875\n🔸Dirección Cliente: Viaducto de Matanzas. Entrada de matanzas, en la parada del viaducto.\n🔸Mensajería/ costo: 30000\n🔸 Artículos y cantidades:\n  ×1 mikrotik sxt sq 5ax\n  ×10 Cable de red categoría 6\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: 2800 MN\n🔸 Vuelto: No\n🔸 Total a pagar: $160 USD + 32800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 19:23\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Viaducto de Matanzas. Entrada de matanzas, en la parada del viaducto.",
+      "precioUSD": "$160 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-28T23:25:29.482Z",
+      "mensajeria": "30000",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "mensajeroId": 1784476816825,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 1,
+          "name": "mikrotik sxt sq 5ax"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 10,
+          "name": "Cable de red categoría 6"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790635149702,
       "ts": "2026-09-28T22:39:09.703Z",
@@ -43451,5 +43599,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T23:23:01.459Z"
+  "timestamp": "2026-09-28T23:26:51.810Z"
 }
