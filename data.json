@@ -3369,10 +3369,20 @@
     {
       "id": 1790530381104,
       "ts": "2026-09-27T17:33:01.113Z",
+      "pago": {
+        "mn": 7800,
+        "ts": "2026-09-28T13:37:10.003Z",
+        "eur": 0,
+        "usd": 30,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$30 USD + 7800 MN",
       "carnet": "",
       "seenTs": "2026-09-28T13:34:39.290Z",
-      "status": "pending_payment",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Brian Gonzalez",
       "valeNum": 151,
@@ -3389,6 +3399,7 @@
       "assignedTs": "2026-09-27T17:58:48.282Z",
       "mensajeria": "7000",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-28T13:37:10.003Z",
       "deliveredTs": "2026-09-28T03:31:28.983Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
@@ -41994,5 +42005,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T13:35:27.350Z"
+  "timestamp": "2026-09-28T13:38:11.388Z"
 }
