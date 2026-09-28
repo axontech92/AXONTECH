@@ -455,6 +455,14 @@
       "phone": "5 8316575",
       "initials": "Y",
       "password": "pbkdf2$100000$kcOR+HfWtdmPNqiAbSc4PQ==$71f361a24b4b498a954751632aa44a588b29fdf92db5ad4f757c957b99e71f77"
+    },
+    {
+      "id": 1790609001210,
+      "name": "Yadira Fonseca",
+      "initials": "YF",
+      "color": "#2563EB",
+      "password": "pbkdf2$100000$D2IbNK5GVw8ZIuy5WWoOWQ==$be082caabb7c4c40051751cb169568c9b3f595f647849b58f302be71f821960e",
+      "phone": "50011679"
     }
   ],
   "mensajeros": [
@@ -42283,5 +42291,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T15:23:16.689Z"
+  "timestamp": "2026-09-28T15:24:21.872Z"
 }
