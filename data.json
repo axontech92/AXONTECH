@@ -945,7 +945,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -2551,6 +2551,129 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790604816135,
+      "ts": "2026-09-28T14:13:36.137Z",
+      "total": "$23 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Mixael Porto Chiong",
+      "valeNum": 150,
+      "articulo": "×1 Toldo para sombra marrón 2 x 4",
+      "garantia": "",
+      "gestorId": 1790085521628,
+      "precioMN": "",
+      "telefono": "5352768428",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yasmani\n\n🔸 Nombre Cliente: Mixael Porto Chiong\n🔸Teléfono Cliente: 5352768428\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Toldo para sombra marrón 2 x 4\n🔸Precio USD/ zelle: $23 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $23 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 10:13\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$23 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "comFijadaUSD": 3,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1778336859697,
+          "qty": 1,
+          "name": "Toldo para sombra marrón 2 x 4"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790604806415,
+      "ts": "2026-09-28T14:13:26.421Z",
+      "total": "$190 USD + 4000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T14:13:46.467Z",
+      "status": "pending",
+      "vuelto": "10",
+      "cliente": "Dayfel Ejasi",
+      "valeNum": 150,
+      "articulo": "×1 mikrotik sxt sq 5ax / ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "precioMN": "",
+      "telefono": "5354830541",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Dayfel Ejasi\n🔸Teléfono Cliente: 5354830541\n🔸Dirección Cliente: Edificio 711. Apartamento 11. Zona 21 Alamar\n🔸Mensajería/ costo: 4000\n🔸 Artículos y cantidades:\n  ×1 mikrotik sxt sq 5ax\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $190 USD\n🔸Precio MN: \n🔸 Vuelto: 10\n🔸 Total a pagar: $190 USD + 4000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 10:12\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Edificio 711. Apartamento 11. Zona 21 Alamar",
+      "precioUSD": "$190 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "4000",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788124513018,
+          "qty": 1,
+          "name": "mikrotik sxt sq 5ax"
+        },
+        {
+          "id": 1784726857748,
+          "qty": 1,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "$10.00 USD + 1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790604425704,
+      "ts": "2026-09-28T14:07:05.742Z",
+      "total": "$30 USD + 7000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T14:14:35.981Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Yansel Romero",
+      "valeNum": 149,
+      "articulo": "×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257100,
+      "precioMN": "",
+      "telefono": "34635423457",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Rafael\n\n🔸 Nombre Cliente: Yansel Romero\n🔸Teléfono Cliente: 34635423457\n🔸Dirección Cliente: Bejucal\n🔸Mensajería/ costo: 7000 cup\n🔸Entrega: lun 28/09 (sin hora)\n🔸 Artículos y cantidades:\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD + 7000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 10:06\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Bejucal",
+      "precioUSD": "$30 USD",
+      "reservado": true,
+      "ubicacion": "📍 22.927071, -82.385963 \"Lugar desconocido\" Bejucal, Cuba Abrir en MAPS.ME: https://maps.me/link/ge0/4mBGWziu38/Lugar_desconocido",
+      "mensajeria": "7000 cup",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "notasGestor": "58343965   otro número de cell",
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "fechaEntrega": "2026-09-28",
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 1,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790602158251,
       "ts": "2026-09-28T13:29:18.254Z",
@@ -4481,10 +4604,20 @@
     {
       "id": 1790464750157,
       "ts": "2026-09-26T23:19:10.168Z",
+      "pago": {
+        "mn": 1000,
+        "ts": "2026-09-28T14:14:56.569Z",
+        "eur": 0,
+        "usd": 20,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$20 USD + 1000 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T14:44:02.650Z",
-      "status": "assigned",
+      "seenTs": "2026-09-28T14:14:50.586Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Yessica",
       "valeNum": 150,
@@ -4501,10 +4634,15 @@
       "assignedTs": "2026-09-26T23:20:54.982Z",
       "mensajeria": "1000",
       "comFijadaMN": 1500,
+      "confirmedTs": "2026-09-28T14:14:56.569Z",
+      "deliveredTs": "2026-09-28T14:14:54.906Z",
       "horaEntrega": "",
       "mensajeroId": 1784476779247,
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1778336689684": 1
+      },
       "comFijadaUSD": 0,
       "fechaEntrega": "",
       "valeProductos": [
@@ -4516,7 +4654,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -42007,5 +42145,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T14:02:44.872Z"
+  "timestamp": "2026-09-28T14:15:57.872Z"
 }
