@@ -2590,7 +2590,7 @@
       "total": "$140 USD + 2600 MN",
       "carnet": "",
       "seenTs": "2026-09-28T23:05:14.164Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "60",
       "cliente": "Juan",
       "valeNum": 171,
@@ -2604,9 +2604,11 @@
       "precioUSD": "$140 USD",
       "reservado": true,
       "ubicacion": null,
+      "assignedTs": "2026-09-28T23:07:33.371Z",
       "mensajeria": "2600",
       "comFijadaMN": 0,
       "horaEntrega": "",
+      "mensajeroId": 1784476782949,
       "notasGestor": "",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -3884,7 +3886,7 @@
       "ts": "2026-09-28T14:07:00.000Z",
       "total": "$60 USD + 7000 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T19:53:20.742Z",
+      "seenTs": "2026-09-28T23:07:51.897Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yansel Romero",
@@ -43418,5 +43420,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T23:06:17.759Z"
+  "timestamp": "2026-09-28T23:08:33.407Z"
 }
