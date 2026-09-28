@@ -2706,7 +2706,7 @@
       "ts": "2026-09-28T17:56:04.353Z",
       "total": "$180 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T18:02:18.859Z",
+      "seenTs": "2026-09-28T18:45:02.737Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Ernesto Herrer Quintaja",
@@ -2719,7 +2719,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Adrian\n\n🔸 Nombre Cliente: Ernesto Herrer Quintaja\n🔸Teléfono Cliente: 5355514917\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 13:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$180 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -2916,7 +2916,7 @@
       },
       "total": "$780 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T17:13:51.199Z",
+      "seenTs": "2026-09-28T18:45:33.641Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Amalia",
@@ -3314,7 +3314,7 @@
       "ts": "2026-09-28T14:57:11.683Z",
       "total": "$103 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T17:12:42.496Z",
+      "seenTs": "2026-09-28T18:45:07.561Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rey",
@@ -4049,46 +4049,6 @@
       "synced": true
     },
     {
-      "id": 1790533855388,
-      "ts": "2026-09-27T18:30:55.395Z",
-      "total": "$230 USD",
-      "carnet": "",
-      "seenTs": "2026-09-28T15:27:43.090Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Jorge Luis",
-      "valeNum": 156,
-      "articulo": "×1 Nanostation m5",
-      "garantia": "",
-      "gestorId": 1788887566844,
-      "precioMN": "",
-      "telefono": "5358614817",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin Masso\n\n🔸 Nombre Cliente: Jorge Luis\n🔸Teléfono Cliente: 5358614817\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation m5\n🔸Precio USD/ zelle: $230 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $230 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 14:30\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$230 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "horaEntrega": "",
-      "notasGestor": "",
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "fechaEntrega": "",
-      "valeProductos": [
-        {
-          "id": 1786510211408,
-          "qty": 1,
-          "name": "Nanostation m5"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
       "id": 1790533701583,
       "ts": "2026-09-27T18:28:21.585Z",
       "total": "$28 USD",
@@ -4779,7 +4739,7 @@
       "ts": "2026-09-27T15:28:00.000Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T17:13:04.527Z",
+      "seenTs": "2026-09-28T18:45:14.574Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Alex",
@@ -5270,8 +5230,7 @@
       "recogidaTienda": true,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "isNew": false
+      "synced": true
     },
     {
       "id": 1790516662718,
@@ -43060,5 +43019,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T18:43:10.761Z"
+  "timestamp": "2026-09-28T18:46:04.759Z"
 }
