@@ -462,7 +462,7 @@
       "color": "#2563EB",
       "phone": "50011679",
       "initials": "YF",
-      "password": "pbkdf2$100000$9lnwTG3JREWTa4FODKyGRg==$6e0d36b3333248d5c1ef760b8a8592b41fe9ccf3ad168580c482c02a58dce378"
+      "password": "pbkdf2$100000$2RNwrnx7bjiK07FylkZOfA==$b14829af24e0db7976d3944622de78da5245afb999c8170b29d3f996058587d8"
     }
   ],
   "mensajeros": [
@@ -2577,7 +2577,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: Edgar\n🔸Teléfono Cliente: 5358085425\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×2 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $60 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $60 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 11:40\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$60 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 3000,
@@ -2692,6 +2692,7 @@
       "ts": "2026-09-28T15:00:04.007Z",
       "total": "$250 USD + 3000 MN",
       "carnet": "",
+      "seenTs": "2026-09-28T15:41:57.147Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "William",
@@ -2704,11 +2705,12 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Mauro\n\n🔸 Nombre Cliente: William\n🔸Teléfono Cliente: 58691080\n🔸Dirección Cliente: 1era/ E y F, Monterrey, San Miguel del Padron\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n🔸Precio USD/ zelle: $250 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $250 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 10:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "1era/ E y F, Monterrey, San Miguel del Padron",
       "precioUSD": "$250 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "3000",
       "horaEntrega": "",
       "notasGestor": "ES PARA MAÑANA 29 DE SEPTIEMBRE",
+      "seenByAdmin": true,
       "fechaEntrega": "",
       "valeProductos": [
         {
@@ -42456,5 +42458,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T15:41:54.739Z"
+  "timestamp": "2026-09-28T15:43:17.872Z"
 }
