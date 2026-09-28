@@ -2263,7 +2263,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2551,6 +2551,83 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790593105964,
+      "ts": "2026-09-28T10:58:25.965Z",
+      "total": "$250 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T13:20:36.404Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Omar García Batista",
+      "valeNum": 150,
+      "articulo": "×1 Ubiquiti LiteAP ac (LAP-120)",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "",
+      "telefono": "5358528017",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Omar García Batista\n🔸Teléfono Cliente: 5358528017\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Ubiquiti LiteAP ac (LAP-120)\n🔸Precio USD/ zelle: $250 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $250 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 06:57\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$250 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786509303890,
+          "qty": 1,
+          "name": "Ubiquiti LiteAP ac (LAP-120)"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "synced": true
+    },
+    {
+      "id": 1790572640237,
+      "ts": "2026-09-28T05:17:20.242Z",
+      "total": "$25 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T13:20:43.347Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Silvita",
+      "valeNum": 149,
+      "articulo": "×1 Camara de vigilancia IP inalambrica",
+      "garantia": "",
+      "gestorId": 1782489503525,
+      "precioMN": "",
+      "telefono": "5352701169",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Julio\n\n🔸 Nombre Cliente: Silvita\n🔸Teléfono Cliente: 5352701169\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Camara de vigilancia IP inalambrica\n🔸Precio USD/ zelle: $25 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $25 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 01:16\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$25 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786893425174,
+          "qty": 1,
+          "name": "Camara de vigilancia IP inalambrica"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790570762486,
       "ts": "2026-09-28T04:46:02.486Z",
@@ -3439,10 +3516,20 @@
     {
       "id": 1790527894442,
       "ts": "2026-09-27T16:51:34.474Z",
+      "pago": {
+        "mn": 2000,
+        "ts": "2026-09-28T13:21:17.727Z",
+        "eur": 0,
+        "usd": 230,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$230 USD + 2000 MN",
       "carnet": "",
       "seenTs": "2026-09-28T03:31:32.463Z",
-      "status": "pending_payment",
+      "status": "confirmed",
       "vuelto": "20$",
       "cliente": "Daylen",
       "valeNum": 147,
@@ -3459,6 +3546,7 @@
       "assignedTs": "2026-09-27T17:11:16.002Z",
       "mensajeria": "2000",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-28T13:21:17.727Z",
       "deliveredTs": "2026-09-28T03:31:34.403Z",
       "horaEntrega": "",
       "mensajeroId": 1788892462364,
@@ -3679,10 +3767,20 @@
     {
       "id": 1790521385545,
       "ts": "2026-09-27T15:03:05.550Z",
+      "pago": {
+        "mn": 10400,
+        "ts": "2026-09-28T13:21:15.290Z",
+        "eur": 0,
+        "usd": 0,
+        "zelle": 0,
+        "eurUSD": 1.1351,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "10400 MN",
       "carnet": "",
       "seenTs": "2026-09-28T03:31:36.780Z",
-      "status": "pending_payment",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Lise",
       "valeNum": 141,
@@ -3698,6 +3796,7 @@
       "ubicacion": null,
       "assignedTs": "2026-09-27T15:51:58.814Z",
       "mensajeria": "2000",
+      "confirmedTs": "2026-09-28T13:21:15.290Z",
       "deliveredTs": "2026-09-28T03:31:37.708Z",
       "horaEntrega": "",
       "mensajeroId": 1784476779247,
@@ -41821,5 +41920,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T04:47:12.471Z"
+  "timestamp": "2026-09-28T13:22:18.234Z"
 }
