@@ -2577,6 +2577,48 @@
   ],
   "vales": [
     {
+      "id": 1790624581764,
+      "ts": "2026-09-28T19:43:01.770Z",
+      "total": "$140 USD + 3000 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T19:47:56.052Z",
+      "status": "assigned",
+      "vuelto": "",
+      "cliente": "Han",
+      "valeNum": 163,
+      "articulo": "×1 NanoStation 5AC Loco",
+      "garantia": "",
+      "gestorId": 1781761257103,
+      "precioMN": "",
+      "telefono": "50144833",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Han\n🔸Teléfono Cliente: 50144833\n🔸Dirección Cliente: Calle guasimal entre antilla y Guantánamo #31 Parraga arroyo naranjo\n🔸Mensajería/ costo: 3000\n🔸 Artículos y cantidades:\n  ×1 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $140 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $140 USD + 3000 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 15:42\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle guasimal entre antilla y Guantánamo #31 Parraga arroyo naranjo",
+      "precioUSD": "$140 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "assignedTs": "2026-09-28T19:50:41.902Z",
+      "mensajeria": "3000",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "mensajeroId": 1784476786977,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788278326719,
+          "qty": 1,
+          "name": "NanoStation 5AC Loco"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790620451519,
       "ts": "2026-09-28T18:34:11.521Z",
       "total": "$320 USD + 4300 MN",
@@ -2972,7 +3014,7 @@
       "ts": "2026-09-28T16:10:02.369Z",
       "total": "$90 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T17:54:05.458Z",
+      "seenTs": "2026-09-28T19:41:56.636Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Yadira",
@@ -3188,7 +3230,7 @@
       "ts": "2026-09-28T15:11:36.671Z",
       "total": "$1520 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T19:23:39.065Z",
+      "seenTs": "2026-09-28T19:50:44.652Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Rolan Batista",
@@ -5225,7 +5267,7 @@
       "ts": "2026-09-27T13:51:05.684Z",
       "total": "$1600 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T18:42:17.467Z",
+      "seenTs": "2026-09-28T19:35:28.437Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Juan founier perez",
@@ -6613,7 +6655,7 @@
       "gestorId": 1781761257103,
       "precioMN": "",
       "telefono": "5355756907",
-      "valeText": "",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Kevin\n\n🔸 Nombre Cliente: Mirel\n🔸Teléfono Cliente: 5355756907\n🔸Dirección Cliente: Terminal de ómnibus\n🔸Mensajería/ costo: De mi comisión\n🔸 Artículos y cantidades:\n  ×5 NanoStation 5AC Loco\n🔸Precio USD/ zelle: $700 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $700 USD\n\n*Garantía: \n*Fecha y hora de Venta: 26/9/2026, 13:02:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Terminal de ómnibus",
       "precioUSD": "$700 USD",
       "reservado": false,
@@ -6629,8 +6671,8 @@
       "valeProductos": [
         {
           "id": 1788278326719,
-          "name": "NanoStation 5AC Loco",
-          "qty": 5
+          "qty": 5,
+          "name": "NanoStation 5AC Loco"
         }
       ],
       "comisionGestor": "$50 USD",
@@ -43048,5 +43090,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T19:33:19.759Z"
+  "timestamp": "2026-09-28T19:51:41.941Z"
 }
