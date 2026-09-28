@@ -2589,6 +2589,7 @@
       "ts": "2026-09-28T21:09:44.996Z",
       "total": "$28 USD + 2200 MN",
       "carnet": "",
+      "seenTs": "2026-09-28T21:30:32.800Z",
       "status": "pending",
       "vuelto": "72",
       "cliente": "Gretel",
@@ -2607,6 +2608,7 @@
       "comFijadaMN": 0,
       "horaEntrega": "",
       "notasGestor": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 3,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2627,8 +2629,8 @@
       "ts": "2026-09-28T21:05:55.863Z",
       "total": "$200 USD + 1750 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T21:26:49.377Z",
-      "status": "pending",
+      "seenTs": "2026-09-28T21:31:23.664Z",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Adrian",
       "valeNum": 166,
@@ -2642,9 +2644,11 @@
       "precioUSD": "$200 USD",
       "reservado": false,
       "ubicacion": null,
+      "assignedTs": "2026-09-28T21:30:24.970Z",
       "mensajeria": "1750",
       "comFijadaMN": 0,
       "horaEntrega": "",
+      "mensajeroId": 1784476779247,
       "notasGestor": "Llamar al cell no tiene cobertura para whatsapp",
       "seenByAdmin": true,
       "comFijadaUSD": 10,
@@ -43272,5 +43276,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T21:27:54.018Z"
+  "timestamp": "2026-09-28T21:31:25.009Z"
 }
