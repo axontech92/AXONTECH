@@ -2669,7 +2669,7 @@
       "ts": "2026-09-28T21:09:44.996Z",
       "total": "$28 USD + 2200 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T21:39:20.086Z",
+      "seenTs": "2026-09-28T21:48:56.193Z",
       "status": "assigned",
       "vuelto": "72",
       "cliente": "Gretel",
@@ -2682,7 +2682,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Gretel\n🔸Teléfono Cliente: 5355412124\n🔸Dirección Cliente: Calle 12 #11212 entre pastora y 13 casino deportivo\n🔸Mensajería/ costo: 2200\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: 72\n🔸 Total a pagar: $28 USD + 2200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 17:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Calle 12 #11212 entre pastora y 13 casino deportivo",
       "precioUSD": "$28 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "assignedTs": "2026-09-28T21:42:01.449Z",
       "mensajeria": "2200",
@@ -43323,5 +43323,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T21:48:21.168Z"
+  "timestamp": "2026-09-28T21:50:08.249Z"
 }
