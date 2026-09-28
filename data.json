@@ -2565,7 +2565,7 @@
       "total": "$30 USD + 1750 MN",
       "carnet": "",
       "seenTs": "2026-09-28T15:32:25.193Z",
-      "status": "pending",
+      "status": "assigned",
       "vuelto": "",
       "cliente": "Yasiel",
       "valeNum": 151,
@@ -2579,9 +2579,11 @@
       "precioUSD": "$30 USD",
       "reservado": true,
       "ubicacion": "https://maps.me/link/ge0/0mBG3qFSTM/Edificio",
+      "assignedTs": "2026-09-28T15:34:34.049Z",
       "mensajeria": "1750",
       "comFijadaMN": 1500,
       "horaEntrega": "",
+      "mensajeroId": 1784476898824,
       "notasGestor": "Mensajeria antes de las 3",
       "seenByAdmin": true,
       "comFijadaUSD": 0,
@@ -42333,5 +42335,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T15:33:30.872Z"
+  "timestamp": "2026-09-28T15:35:34.873Z"
 }
