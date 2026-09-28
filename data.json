@@ -2585,11 +2585,51 @@
   ],
   "vales": [
     {
+      "id": 1790631535581,
+      "ts": "2026-09-28T21:38:55.595Z",
+      "total": "$160 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T21:39:06.824Z",
+      "status": "pending",
+      "vuelto": "0",
+      "cliente": "Alberto Gonzalez Blanco",
+      "valeNum": 168,
+      "articulo": "×1 Nanostation loco m5",
+      "garantia": "",
+      "gestorId": 1786567980127,
+      "precioMN": "",
+      "telefono": "5354548350",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Faby\n\n🔸 Nombre Cliente: Alberto Gonzalez Blanco\n🔸Teléfono Cliente: 5354548350\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Nanostation loco m5\n🔸Precio USD/ zelle: $160 USD\n🔸Precio MN: \n🔸 Vuelto: 0\n🔸 Total a pagar: $160 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 17:38\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$160 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786509569058,
+          "qty": 1,
+          "name": "Nanostation loco m5"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790629784992,
       "ts": "2026-09-28T21:09:44.996Z",
       "total": "$28 USD + 2200 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T21:30:32.800Z",
+      "seenTs": "2026-09-28T21:39:20.086Z",
       "status": "pending",
       "vuelto": "72",
       "cliente": "Gretel",
@@ -43227,5 +43267,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T21:36:44.758Z"
+  "timestamp": "2026-09-28T21:40:12.760Z"
 }
