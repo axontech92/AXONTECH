@@ -3825,7 +3825,7 @@
       "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Luis enrique gomez cata\n🔸Teléfono Cliente: 5355003870\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n  ×30 Cable de red categoría 6\n  ×2 Puntas de cable de red\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: 8800 MN\n🔸 Vuelto: \n🔸 Total a pagar: $240 USD + 8800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 18:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$240 USD",
-      "reservado": false,
+      "reservado": true,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
@@ -43019,5 +43019,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T18:53:47.377Z"
+  "timestamp": "2026-09-28T18:54:47.760Z"
 }
