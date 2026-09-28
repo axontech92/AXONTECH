@@ -1114,7 +1114,7 @@
       "name": "Adaptador poe UBIQUITI de 0.3A",
       "catId": 10,
       "photo": "photos/img_1778384646214.webp",
-      "stock": 24,
+      "stock": 19,
       "imagen": "photos/img_1778384646214.webp",
       "nombre": "Adaptador poe UBIQUITI de 0.3A",
       "precio": "$20",
@@ -1784,7 +1784,7 @@
       "name": "Tplink Archer AX1450 Doble Banda",
       "catId": 10,
       "photo": "photos/img_1786207539390.webp",
-      "stock": 15,
+      "stock": 10,
       "imagen": "photos/img_1786207539390.webp",
       "nombre": "Tplink Archer AX1450 Doble Banda",
       "precio": "$80",
@@ -1835,7 +1835,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 12,
+      "stock": 11,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -2279,7 +2279,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2388,7 +2388,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 46,
+      "stock": 41,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2584,6 +2584,120 @@
     }
   ],
   "vales": [
+    {
+      "id": 1790629784992,
+      "ts": "2026-09-28T21:09:44.996Z",
+      "total": "$28 USD + 2200 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "72",
+      "cliente": "Gretel",
+      "valeNum": 167,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5355412124",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Gretel\n🔸Teléfono Cliente: 5355412124\n🔸Dirección Cliente: Calle 12 #11212 entre pastora y 13 casino deportivo\n🔸Mensajería/ costo: 2200\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: 72\n🔸 Total a pagar: $28 USD + 2200 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 17:09\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 12 #11212 entre pastora y 13 casino deportivo",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "2200",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "comFijadaUSD": 3,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790629555855,
+      "ts": "2026-09-28T21:05:55.863Z",
+      "total": "$200 USD + 1750 MN",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Adrian",
+      "valeNum": 166,
+      "articulo": "×1 📡 TP-Link Archer BE230",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "precioMN": "",
+      "telefono": "5352071938",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Adrian\n🔸Teléfono Cliente: 5352071938\n🔸Dirección Cliente: Hotel tulipán\n🔸Mensajería/ costo: 1750\n🔸 Artículos y cantidades:\n  ×1 📡 TP-Link Archer BE230\n🔸Precio USD/ zelle: $200 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $200 USD + 1750 MN\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 17:05\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Hotel tulipán",
+      "precioUSD": "$200 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "1750",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "Llamar al cell no tiene cobertura para whatsapp",
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1788560867958,
+          "qty": 1,
+          "name": "📡 TP-Link Archer BE230"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790628987699,
+      "ts": "2026-09-28T20:56:27.716Z",
+      "total": "$30 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Icel",
+      "valeNum": 165,
+      "articulo": "×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "garantia": "",
+      "gestorId": 1781761257107,
+      "precioMN": "",
+      "telefono": "5353831638",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Karla\n\n🔸 Nombre Cliente: Icel\n🔸Teléfono Cliente: 5353831638\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado\n🔸Precio USD/ zelle: $30 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $30 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 16:56\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$30 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 1500,
+      "horaEntrega": "",
+      "notasGestor": "Lo recoge mañana después del mediodia",
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1784726857748,
+          "qty": 1,
+          "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+        }
+      ],
+      "comisionGestor": "1500 MN",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
     {
       "id": 1790626469959,
       "ts": "2026-09-28T20:14:29.979Z",
@@ -5748,8 +5862,8 @@
       "ts": "2026-09-26T22:21:48.771Z",
       "total": "$1450 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T17:11:45.104Z",
-      "status": "pending",
+      "seenTs": "2026-09-28T21:23:36.164Z",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Riu Daniel",
       "valeNum": 145,
@@ -5795,9 +5909,26 @@
       ],
       "comisionGestor": "$110.00 USD + 7500 MN",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "synced": true
+      "synced": true,
+      "stockSalido": {
+        "1778384646214": 5,
+        "1786207539390": 5,
+        "1786509303890": 1,
+        "1788278326719": 5
+      },
+      "confirmedTs": "2026-09-28T21:24:44.140Z",
+      "pago": {
+        "usd": 1450,
+        "zelle": 0,
+        "eur": 0,
+        "mn": 0,
+        "mnAuto": true,
+        "tasaMN": 760,
+        "eurUSD": 1.1351,
+        "ts": "2026-09-28T21:24:44.140Z"
+      }
     },
     {
       "id": 1790457611412,
@@ -43139,5 +43270,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T20:16:01.759Z"
+  "timestamp": "2026-09-28T21:25:44.760Z"
 }
