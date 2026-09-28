@@ -1916,7 +1916,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 12,
+      "stock": 13,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -1935,7 +1935,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 26,
+      "stock": 29,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$130",
@@ -2159,7 +2159,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 7,
+      "stock": 5,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$110",
@@ -2577,10 +2577,49 @@
   ],
   "vales": [
     {
+      "id": 1790618164346,
+      "ts": "2026-09-28T17:56:04.353Z",
+      "total": "$180 USD",
+      "carnet": "",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Ernesto Herrer Quintaja",
+      "valeNum": 159,
+      "articulo": "×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
+      "garantia": "",
+      "gestorId": 1781761257113,
+      "precioMN": "",
+      "telefono": "5355514917",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Adrian\n\n🔸 Nombre Cliente: Ernesto Herrer Quintaja\n🔸Teléfono Cliente: 5355514917\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA\n🔸Precio USD/ zelle: $180 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $180 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/09/2026 13:55\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$180 USD",
+      "ubicacion": "",
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1779208523952,
+          "qty": 1,
+          "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+        }
+      ],
+      "comisionCedida": 0,
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "comisionCedidaMoneda": "USD",
+      "comisionCedidaMotivo": "",
+      "synced": true
+    },
+    {
       "id": 1790616942602,
       "ts": "2026-09-28T17:35:42.612Z",
       "total": "$30 USD + 4320 MN",
       "carnet": "",
+      "seenTs": "2026-09-28T17:53:19.848Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Javier",
@@ -2599,6 +2638,7 @@
       "comFijadaMN": 1500,
       "horaEntrega": "",
       "notasGestor": "",
+      "seenByAdmin": true,
       "comFijadaUSD": 0,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2778,7 +2818,7 @@
       "ts": "2026-09-28T16:10:02.369Z",
       "total": "$90 USD + 4500 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T17:22:24.690Z",
+      "seenTs": "2026-09-28T17:54:05.458Z",
       "status": "assigned",
       "vuelto": "No",
       "cliente": "Yadira",
@@ -3293,7 +3333,7 @@
       "ts": "2026-09-28T14:07:05.742Z",
       "total": "$30 USD + 7000 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T17:31:12.243Z",
+      "seenTs": "2026-09-28T17:53:35.333Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "Yansel Romero",
@@ -42879,5 +42919,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T17:52:53.493Z"
+  "timestamp": "2026-09-28T17:58:34.987Z"
 }
