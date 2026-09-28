@@ -2066,7 +2066,7 @@
       "name": "Camara de vigilancia IP inalambrica",
       "catId": 80,
       "photo": "photos/p-1786893425174-df9f00ac.webp",
-      "stock": 24,
+      "stock": 22,
       "imagen": "photos/p-1786893425174-df9f00ac.webp",
       "nombre": "Camara de vigilancia IP inalambrica",
       "precio": "$25",
@@ -2552,6 +2552,138 @@
   ],
   "vales": [
     {
+      "id": 1790555794693,
+      "ts": "2026-09-28T00:36:34.695Z",
+      "total": "$28 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T02:17:28.575Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Eduardo",
+      "valeNum": 151,
+      "articulo": "×1 Compresor/Inflador de neumáticos",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5358171293",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: Eduardo\n🔸Teléfono Cliente: 5358171293\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Compresor/Inflador de neumáticos\n🔸Precio USD/ zelle: $28 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $28 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 20:36\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$28 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 3,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786161303797,
+          "qty": 1,
+          "name": "Compresor/Inflador de neumáticos"
+        }
+      ],
+      "comisionGestor": "$3.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790550776397,
+      "ts": "2026-09-27T23:12:56.400Z",
+      "total": "$50 USD",
+      "carnet": "",
+      "seenTs": "2026-09-28T02:49:40.789Z",
+      "status": "assigned",
+      "vuelto": "No",
+      "cliente": "David",
+      "valeNum": 150,
+      "articulo": "×2 Camara de vigilancia IP inalambrica",
+      "garantia": "",
+      "gestorId": 1781761257101,
+      "precioMN": "",
+      "telefono": "5353879599",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Brianna\n\n🔸 Nombre Cliente: David\n🔸Teléfono Cliente: 5353879599\n🔸Dirección Cliente: Calle 243 entre 86y88 la cumbre. San Miguel\n🔸Mensajería/ costo: \n🔸 Artículos y cantidades:\n  ×2 Camara de vigilancia IP inalambrica\n🔸Precio USD/ zelle: $50 USD\n🔸Precio MN: \n🔸 Vuelto: No\n🔸 Total a pagar: $50 USD\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 19:11\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Calle 243 entre 86y88 la cumbre. San Miguel",
+      "precioUSD": "$50 USD",
+      "reservado": true,
+      "ubicacion": null,
+      "assignedTs": "2026-09-28T02:52:43.430Z",
+      "mensajeria": "",
+      "comFijadaMN": 3000,
+      "horaEntrega": "",
+      "mensajeroId": 1784476782949,
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 0,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786893425174,
+          "qty": 2,
+          "name": "Camara de vigilancia IP inalambrica"
+        }
+      ],
+      "comisionGestor": "3000 MN",
+      "recogidaTienda": false,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
+      "id": 1790549965762,
+      "ts": "2026-09-27T22:59:25.771Z",
+      "total": "$240 USD + 8800 MN",
+      "carnet": "",
+      "seenTs": "2026-09-28T02:53:55.670Z",
+      "status": "pending",
+      "vuelto": "",
+      "cliente": "Luis enrique gomez cata",
+      "valeNum": 149,
+      "articulo": "×1 Mikrotik lhg 5ax / ×30 Cable de red categoría 6 / ×2 Puntas de cable de red",
+      "garantia": "",
+      "gestorId": 1786138222992,
+      "precioMN": "8800 MN",
+      "telefono": "5355003870",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Luis enrique gomez cata\n🔸Teléfono Cliente: 5355003870\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik lhg 5ax\n  ×30 Cable de red categoría 6\n  ×2 Puntas de cable de red\n🔸Precio USD/ zelle: $240 USD\n🔸Precio MN: 8800 MN\n🔸 Vuelto: \n🔸 Total a pagar: $240 USD + 8800 MN\n\n*Garantía: \n*Fecha y hora de Venta: 27/09/2026 18:59\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
+      "direccion": "Recogida en tienda",
+      "precioUSD": "$240 USD",
+      "reservado": false,
+      "ubicacion": null,
+      "mensajeria": "Sin envío",
+      "comFijadaMN": 0,
+      "horaEntrega": "",
+      "notasGestor": "",
+      "seenByAdmin": true,
+      "comFijadaUSD": 10,
+      "fechaEntrega": "",
+      "valeProductos": [
+        {
+          "id": 1786509644554,
+          "qty": 1,
+          "name": "Mikrotik lhg 5ax"
+        },
+        {
+          "id": 1787349543585,
+          "qty": 30,
+          "name": "Cable de red categoría 6"
+        },
+        {
+          "id": 1790529394586,
+          "qty": 2,
+          "name": "Puntas de cable de red"
+        }
+      ],
+      "comisionGestor": "$10.00 USD",
+      "recogidaTienda": true,
+      "stockDecremented": false,
+      "comisionCedidaMoneda": "USD",
+      "synced": true
+    },
+    {
       "id": 1790549490761,
       "ts": "2026-09-27T22:51:30.761Z",
       "pago": {
@@ -2692,7 +2824,7 @@
       "ts": "2026-09-27T18:46:21.217Z",
       "total": "$240 USD",
       "carnet": "",
-      "seenTs": "2026-09-27T19:39:18.601Z",
+      "seenTs": "2026-09-28T02:53:47.297Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "CLIENTE MAYABEQUE",
@@ -2931,8 +3063,8 @@
       "ts": "2026-09-27T18:01:44.094Z",
       "total": "$50 USD + 1300 MN",
       "carnet": "",
-      "seenTs": "2026-09-27T20:06:44.699Z",
-      "status": "assigned",
+      "seenTs": "2026-09-28T02:52:57.735Z",
+      "status": "pending_payment",
       "vuelto": "No",
       "cliente": "Alberto",
       "valeNum": 153,
@@ -2949,10 +3081,14 @@
       "assignedTs": "2026-09-27T18:20:46.579Z",
       "mensajeria": "1300",
       "comFijadaMN": 3000,
+      "deliveredTs": "2026-09-28T02:53:07.083Z",
       "horaEntrega": "",
       "mensajeroId": 1784476802516,
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1786893425174": 2
+      },
       "comFijadaUSD": 0,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2964,7 +3100,7 @@
       ],
       "comisionGestor": "3000 MN",
       "recogidaTienda": false,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -8982,46 +9118,6 @@
       "recogidaTienda": true,
       "commissionStatus": "en_sobre",
       "stockDecremented": true,
-      "comisionCedidaMoneda": "USD",
-      "synced": true
-    },
-    {
-      "id": 1790335536804,
-      "ts": "2026-09-25T11:25:36.806Z",
-      "total": "$110 USD",
-      "carnet": "",
-      "seenTs": "2026-09-27T18:43:21.731Z",
-      "status": "pending",
-      "vuelto": "",
-      "cliente": "Omar García Batista",
-      "valeNum": 124,
-      "articulo": "×1 Mikrotik SXT sq lite 2",
-      "garantia": "",
-      "gestorId": 1786138222992,
-      "precioMN": "",
-      "telefono": "5358528017",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Cris\n\n🔸 Nombre Cliente: Omar García Batista\n🔸Teléfono Cliente: 5358528017\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Mikrotik SXT sq lite 2\n🔸Precio USD/ zelle: $110 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $110 USD\n\n*Garantía: \n*Fecha y hora de Venta: 25/09/2026 07:25\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
-      "direccion": "Recogida en tienda",
-      "precioUSD": "$110 USD",
-      "reservado": true,
-      "ubicacion": null,
-      "mensajeria": "Sin envío",
-      "comFijadaMN": 0,
-      "horaEntrega": "",
-      "notasGestor": "",
-      "seenByAdmin": true,
-      "comFijadaUSD": 10,
-      "fechaEntrega": "",
-      "valeProductos": [
-        {
-          "id": 1787265463792,
-          "qty": 1,
-          "name": "Mikrotik SXT sq lite 2"
-        }
-      ],
-      "comisionGestor": "$10.00 USD",
-      "recogidaTienda": true,
-      "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
       "synced": true
     },
@@ -41627,5 +41723,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-27T22:59:05.013Z"
+  "timestamp": "2026-09-28T02:54:07.464Z"
 }
