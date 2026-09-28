@@ -2543,6 +2543,23 @@
       "description": "5 ac loco version US",
       "precioActual": 120,
       "comisionMoneda": "USD"
+    },
+    {
+      "id": 1790637721439,
+      "creadoTs": 1790637721439,
+      "name": "Lite ap GPS",
+      "description": "Lite ap GPS",
+      "precio": "250",
+      "stock": 2,
+      "puntos": 1,
+      "garantia": "",
+      "comision": "$9.7 USD",
+      "comisionMoneda": "USD",
+      "photo": "",
+      "catId": 10,
+      "nombre": "Lite ap GPS",
+      "descripcion": "Lite ap GPS",
+      "precioActual": 250
     }
   ],
   "categorias": [
@@ -4398,6 +4415,7 @@
       "precioUSD": "$160 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "para manana",
       "mensajeria": "",
       "comFijadaMN": 0,
       "horaEntrega": "",
@@ -4416,8 +4434,7 @@
       "recogidaTienda": false,
       "stockDecremented": false,
       "comisionCedidaMoneda": "USD",
-      "synced": true,
-      "adminNotes": "para manana"
+      "synced": true
     },
     {
       "id": 1790534781209,
@@ -5205,7 +5222,7 @@
       "ts": "2026-09-27T15:10:45.191Z",
       "total": "$800 USD",
       "carnet": "",
-      "seenTs": "2026-09-28T17:13:40.417Z",
+      "seenTs": "2026-09-28T23:13:21.847Z",
       "status": "pending",
       "vuelto": "",
       "cliente": "Guillermo",
@@ -5220,6 +5237,7 @@
       "precioUSD": "$800 USD",
       "reservado": true,
       "ubicacion": null,
+      "adminNotes": "para manana",
       "mensajeria": "",
       "comFijadaMN": 0,
       "horaEntrega": "",
@@ -43433,5 +43451,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T23:13:20.558Z"
+  "timestamp": "2026-09-28T23:23:01.459Z"
 }
