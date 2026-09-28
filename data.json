@@ -1241,7 +1241,7 @@
       "name": "Toldo malla para sombra marrón 2×7m",
       "catId": 90,
       "photo": "photos/p-1787952316385-a70dcd86.webp",
-      "stock": 9,
+      "stock": 8,
       "imagen": "photos/p-1787952316385-a70dcd86.webp",
       "nombre": "Toldo malla para sombra",
       "precio": "$38",
@@ -2419,7 +2419,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788025891931,
@@ -2639,10 +2639,20 @@
     {
       "id": 1790604816135,
       "ts": "2026-09-28T14:13:00.000Z",
+      "pago": {
+        "mn": 0,
+        "ts": "2026-09-28T14:40:03.061Z",
+        "eur": 0,
+        "usd": 38,
+        "zelle": 0,
+        "eurUSD": 1.1267,
+        "mnAuto": true,
+        "tasaMN": 750
+      },
       "total": "$38 USD",
       "carnet": "",
       "seenTs": "2026-09-28T14:38:47.416Z",
-      "status": "pending",
+      "status": "confirmed",
       "vuelto": "",
       "cliente": "Mixael Porto Chiong",
       "valeNum": 150,
@@ -2651,15 +2661,20 @@
       "gestorId": 1790085521628,
       "precioMN": "",
       "telefono": "5352768428",
+      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yasmani\n\n🔸 Nombre Cliente: Mixael Porto Chiong\n🔸Teléfono Cliente: 5352768428\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Toldo malla para sombra marrón 2×7m\n🔸Precio USD/ zelle: $38 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $38 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/9/2026, 10:13:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "direccion": "Recogida en tienda",
       "precioUSD": "$38 USD",
       "reservado": false,
       "ubicacion": null,
       "mensajeria": "Sin envío",
       "comFijadaMN": 0,
+      "confirmedTs": "2026-09-28T14:40:03.060Z",
       "horaEntrega": "",
       "notasGestor": "",
       "seenByAdmin": true,
+      "stockSalido": {
+        "1787952316385": 1
+      },
       "comFijadaUSD": 3,
       "fechaEntrega": "",
       "valeProductos": [
@@ -2671,9 +2686,8 @@
       ],
       "comisionGestor": "$3 USD",
       "recogidaTienda": true,
-      "stockDecremented": false,
+      "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
-      "valeText": "Bienvenido a \"AXONTECH\" 🔥\n\nVALE DEL GESTOR:\n\n🔸Promotor: Yasmani\n\n🔸 Nombre Cliente: Mixael Porto Chiong\n🔸Teléfono Cliente: 5352768428\n🔸Dirección Cliente: Recogida en tienda\n🔸Mensajería/ costo: Sin envío\n🔸 Artículos y cantidades:\n  ×1 Toldo malla para sombra marrón 2×7m\n🔸Precio USD/ zelle: $38 USD\n🔸Precio MN: \n🔸 Vuelto: \n🔸 Total a pagar: $38 USD\n\n*Garantía: \n*Fecha y hora de Venta: 28/9/2026, 10:13:00\n\n🧭Dirección de la tienda:\n* Amistad #311 % San Rafael y San José, Centro Habana.\n\n🚨ATENCIÓN🚨\n•   Horarios de atención al cliente:\n    9:00am - 7:00pm.\n* Solo aceptamos hasta cinco billetes de 1 USD por compra.\n* Los pagos en MN deben ser con denominación de 50 en adelante.\n* Solo se aceptan billetes en buen estado (ni rotos ni manchados)",
       "synced": true
     },
     {
@@ -42196,5 +42210,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-28T14:39:41.100Z"
+  "timestamp": "2026-09-28T14:41:03.872Z"
 }
