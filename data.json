@@ -747,25 +747,6 @@
       "comisionMoneda": "MN"
     },
     {
-      "id": 1784726857748,
-      "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
-      "catId": 10,
-      "photo": "photos/img_1784726857748.webp",
-      "stock": 3,
-      "imagen": "photos/img_1784726857748.webp",
-      "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
-      "precio": "$30",
-      "puntos": 0.5,
-      "comision": "1500 MN",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "✔ Doble banda (2.4 GHz y 5 GHz).\n✔ Velocidad combinada de hasta 750 Mbps (300 Mbps en 2.4 GHz y 433 Mbps en 5 GHz).\n✔ Dos antenas externas para una mejor cobertura y estabilidad de la señal.\n✔ Puerto Ethernet para conectar equipos por cable.\n✔ Funciona como repetidor Wi-Fi o como punto de acceso (Access Point).\n✔ Compatible con la mayoría de los routers del mercado.\n✔ Configuración rápida mediante botón WPS.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar detalles estéticos menores o haber sido devuelto previamente, pero se encuentra en perfectas condiciones de uso y ofrece el mismo rendimiento esperado de un equipo funcional.\n\nIdeal para ampliar la cobertura de Internet en hogares, oficinas y pequeños negocios.\n\nTIENE LAS 3 OPCIONES❗️",
-      "description": "✔ Doble banda (2.4 GHz y 5 GHz).\n✔ Velocidad combinada de hasta 750 Mbps (300 Mbps en 2.4 GHz y 433 Mbps en 5 GHz).\n✔ Dos antenas externas para una mejor cobertura y estabilidad de la señal.\n✔ Puerto Ethernet para conectar equipos por cable.\n✔ Funciona como repetidor Wi-Fi o como punto de acceso (Access Point).\n✔ Compatible con la mayoría de los routers del mercado.\n✔ Configuración rápida mediante botón WPS.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar detalles estéticos menores o haber sido devuelto previamente, pero se encuentra en perfectas condiciones de uso y ofrece el mismo rendimiento esperado de un equipo funcional.\n\nIdeal para ampliar la cobertura de Internet en hogares, oficinas y pequeños negocios.\n\nTIENE LAS 3 OPCIONES❗️",
-      "precioActual": 30,
-      "reservedVales": 0,
-      "comisionMoneda": "MN"
-    },
-    {
       "id": 1785078905092,
       "name": "Audifonos Gaming NUBWO",
       "catId": 100,
@@ -1935,6 +1916,25 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1784726857748,
+      "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "catId": 10,
+      "photo": "photos/img_1784726857748.webp",
+      "stock": 4,
+      "imagen": "photos/img_1784726857748.webp",
+      "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
+      "precio": "$30",
+      "puntos": 0.5,
+      "comision": "1500 MN",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "✔ Doble banda (2.4 GHz y 5 GHz).\n✔ Velocidad combinada de hasta 750 Mbps (300 Mbps en 2.4 GHz y 433 Mbps en 5 GHz).\n✔ Dos antenas externas para una mejor cobertura y estabilidad de la señal.\n✔ Puerto Ethernet para conectar equipos por cable.\n✔ Funciona como repetidor Wi-Fi o como punto de acceso (Access Point).\n✔ Compatible con la mayoría de los routers del mercado.\n✔ Configuración rápida mediante botón WPS.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar detalles estéticos menores o haber sido devuelto previamente, pero se encuentra en perfectas condiciones de uso y ofrece el mismo rendimiento esperado de un equipo funcional.\n\nIdeal para ampliar la cobertura de Internet en hogares, oficinas y pequeños negocios.\n\nTIENE LAS 3 OPCIONES❗️",
+      "description": "✔ Doble banda (2.4 GHz y 5 GHz).\n✔ Velocidad combinada de hasta 750 Mbps (300 Mbps en 2.4 GHz y 433 Mbps en 5 GHz).\n✔ Dos antenas externas para una mejor cobertura y estabilidad de la señal.\n✔ Puerto Ethernet para conectar equipos por cable.\n✔ Funciona como repetidor Wi-Fi o como punto de acceso (Access Point).\n✔ Compatible con la mayoría de los routers del mercado.\n✔ Configuración rápida mediante botón WPS.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar detalles estéticos menores o haber sido devuelto previamente, pero se encuentra en perfectas condiciones de uso y ofrece el mismo rendimiento esperado de un equipo funcional.\n\nIdeal para ampliar la cobertura de Internet en hogares, oficinas y pequeños negocios.\n\nTIENE LAS 3 OPCIONES❗️",
+      "precioActual": 30,
+      "reservedVales": 0,
+      "comisionMoneda": "MN"
+    },
+    {
       "id": 1785076318779,
       "name": "Cargador inteligente de 12v(35A) y 24v(15A) configurable",
       "catId": 20,
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-29T21:56:48.177Z"
+  "timestamp": "2026-09-29T22:04:00.590Z"
 }
