@@ -1726,11 +1726,7 @@ async function _doRestPoll() {
               // no se notaba por ningún lado.
               // Puede leer de getVales() sin miedo: unas líneas más arriba se
               // guardó `merged` en la caché, y esto va con debounce.
-              const summary = gestores.map(g => ({
-                id: g.id,
-                pts: getGestorPoints(g.id),
-                metas: parseInt(g.metasLogradas, 10) || 0
-              }));
+              const summary = _armarRankingSummary(gestores);   // v135: + puntos del ciclo anterior
               const summaryStr = JSON.stringify(summary);
               if (summaryStr !== _lastRankingSummary) {
                 _lastRankingSummary = summaryStr;
@@ -1740,6 +1736,16 @@ async function _doRestPoll() {
           }
         }
         } // v103: cierra el "else" de _saltarVales — ver el gate más arriba
+        // v135: los vales ya están al día con la nube: ahora sí se puede cerrar
+        // un ciclo (ver _cerrarMesSiToca). Se mira aquí también para que el
+        // cierre ocurra aunque la app lleve abierta desde antes de medianoche.
+        if (IS_ADMIN) {
+          const _primera = !_valesAlDiaTs;
+          if (_primera || Date.now() - _valesAlDiaTs > 60000) {
+            _valesAlDiaTs = Date.now();
+            setTimeout(() => { try { _cerrarMesSiToca(); } catch(e) {} }, _primera ? 1500 : 0);
+          }
+        }
       } catch(e) {
         // v58: este catch envuelve TODO el bloque de vales (lectura, merge, avisos
         // y guardado). Con console.warn el fallo pasaba desapercibido y el poll
@@ -5725,6 +5731,10 @@ function renderGestorNotifs() {
     if (Number(n.gestorId) !== Number(activeGestorId)) return false;
     // v47: ocultar las notifs que ya estaban presentes cuando el gestor limpió
     if (n.id <= personalClearedId) return false;
+    // v135: los "¡2do Lugar!" de un cierre de ciclo que no llevan marca los
+    // mandó la cuenta vieja (o el teléfono del ganador con su podio parcial) y
+    // decían puestos que no eran. Los buenos llevan evt 'ranking_top3:<ciclo>:<puesto>'.
+    if (n.type === 'ranking_top3' && !n.evt && metaModo() === 'mensual') return false;
     return true;
   });
   // v51 DEBUG: log para verificar el filtro de notifs personales
@@ -5768,7 +5778,11 @@ function renderGestorNotifs() {
     } else if(n.type==='meta_alcanzada'){
       msg=`🎯 <b>¡Meta alcanzada!</b> Llegaste a los ${safeExtra} puntos — el contador vuelve a empezar.`;
     } else if(n.type==='mes_ganado'){
-      msg=`🏆 <b>¡Ganaste el mes!</b> Terminaste primero con ${safeExtra} puntos.`;
+      // v135: los puntos que guardó el cierre (corregidos si hizo falta), no
+      // los que llevaba el aviso: el del 29/09 decía 446 y fueron 381.5.
+      const _h=ganadoresMensuales().find(x=>x&&x.mes&&('mes_ganado:'+x.mes)===n.evt);
+      const _pts=_h&&_h.pts!=null?escapeHTML(String(_h.pts)):safeExtra;
+      msg=`🏆 <b>¡Ganaste el ciclo!</b> Terminaste primero con ${_pts} puntos.`;
     } else if(n.type==='vale_delivered'){
       msg=`📦 <b>¡Tu venta fue entregada!</b>${safeName?` · ${safeName}`:``}${safeExtra?` <span style="color:var(--gray-400);font-size:10px;">(${safeExtra})</span>`:``}`;
     } else if(n.type==='vale_unido'){
@@ -7410,8 +7424,8 @@ function renderAdminGestoresList() {
     const {pendientes,enSobre,cobrados}=_comisionesDe(g.id);
     const pendSum=sumCommissions(pendientes);
     const sobreSum=sumCommissions(enSobre);
-    const pendBadge=fmtComisionBadge(pendSum.usd,pendSum.mn,pendSum.computed);
-    const sobreBadge=fmtComisionBadge(sobreSum.usd,sobreSum.mn,sobreSum.computed);
+    const pendBadge=fmtComisionBadge(pendSum.usd,pendSum.mn,pendSum.computed,pendSum.sinCalcular);
+    const sobreBadge=fmtComisionBadge(sobreSum.usd,sobreSum.mn,sobreSum.computed,sobreSum.sinCalcular);
     let comBadgeHTML='';
     if(pendBadge)comBadgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;white-space:nowrap;">${pendBadge}</span>`;
     else if(pendientes.length)comBadgeHTML+=`<span style="background:var(--orange);color:white;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;">${pendientes.length} pend.</span>`;
@@ -9815,7 +9829,7 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   const comCobrados = vales.filter(v => _valeGeneraComision(v)
     && (v.commissionPaid || v.commissionStatus === 'cobrado')).length;
   const com = sumCommissions(comValesEarned);
-  const comBadge = fmtComisionBadge(com.usd, com.mn, com.computed);
+  const comBadge = fmtComisionBadge(com.usd,com.mn,com.computed,com.sinCalcular);
   // Conversion: confirmed / (total - cancelled - pending still pending)
   // More useful: closed sales (confirmed + pending_payment) / total attempted
   const closed = confirmed + pendingPay;
@@ -10154,7 +10168,7 @@ function renderGestorComisiones() {
   // Pendientes — orange left border, hourglass icon box, "se acumulan" subtitle
   if(pendientes.length){
     const s=sumCommissions(pendientes);
-    const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
+    const badge=fmtComisionBadge(s.usd,s.mn,s.computed,s.sinCalcular);
     html+=`<div class="card" style="border-left:4px solid #f59e0b;margin-bottom:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;">
       <div style="background:var(--surface2);border-radius:10px;padding:8px 10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⏳</div>
       <div style="flex:1;min-width:0;">
@@ -10167,7 +10181,7 @@ function renderGestorComisiones() {
   // En sobre — yellow left border, envelope icon box
   if(enSobre.length){
     const s=sumCommissions(enSobre);
-    const badge=fmtComisionBadge(s.usd,s.mn,s.computed);
+    const badge=fmtComisionBadge(s.usd,s.mn,s.computed,s.sinCalcular);
     html+=`<div class="card" style="border-left:4px solid #eab308;margin-bottom:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;opacity:.85;">
       <div style="background:var(--surface2);border-radius:10px;padding:8px 10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✉️</div>
       <div style="flex:1;min-width:0;">
@@ -14896,7 +14910,7 @@ function renderComisionesModal() {
   const sub = document.getElementById('comisionesModalSub');
   if (sub) {
     const s = sumCommissions(pendientes.concat(enSobre));
-    const b = fmtComisionBadge(s.usd, s.mn, s.computed);
+    const b = fmtComisionBadge(s.usd,s.mn,s.computed,s.sinCalcular);
     sub.textContent = b ? `Se le deben ${b}` : 'No se le debe nada';
   }
   cuerpo.innerHTML = renderComisionBody(g, pendientes, enSobre, cobrados);
@@ -15016,7 +15030,7 @@ function getValeCommissionParts(v) {
   };
   _quitaCed(_cedGeneral, 'Cedido por el gestor');
   _quitaCed(_cedLineas,  'Cedido por producto');
-  return{parts,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
+  return{parts,computable,totalUSD:computable&&parts.length?totalUSD:null,totalMN:computable&&parts.length?totalMN:null,
     // Backward compat: total + currency for single-currency vales.
     // IMPORTANTE: si hay comisión mixta USD+MN, devolver null en total — que el
     // llamador use fmtComisionBadge(totalUSD, totalMN, true) que muestra "$X USD + Y MN".
@@ -15116,19 +15130,28 @@ function unpayCommission(valeId,e) {
   renderComisiones();
 }
 // Helper: sum commissions from vales, returns {usd, mn, computed}
+// v135: un solo vale sin comisión calculable ya no tira el total entero.
+// Antes, con que UNO de los 37 vales del sobre no se pudiera calcular —o
+// simplemente no diera comisión (productos sin comisión)— la suma se daba por
+// perdida y la chapa enseñaba "✉️ 37": cuántos vales, no cuánto dinero. Ahora
+// se suma lo que sí se puede, los vales sin comisión cuentan 0 (que es lo que
+// dan) y los que de verdad no se pueden calcular (producto borrado sin comisión
+// congelada) se cuentan aparte para decirlo al lado del monto.
 function sumCommissions(vales) {
-  let usd=0,mn=0,computed=true;
+  let usd=0,mn=0,sinCalcular=0;
   vales.forEach(v=>{
     const r=getValeCommissionParts(v);
-    if(r.totalUSD===null&&r.totalMN===null){computed=false;}
+    if(r.totalUSD===null&&r.totalMN===null){ if(!r.computable)sinCalcular++; }
     else{if(r.totalUSD!==null)usd+=r.totalUSD;if(r.totalMN!==null)mn+=r.totalMN;}
   });
-  return{usd,mn,computed};
+  usd=Math.round(usd*100)/100; mn=Math.round(mn*100)/100;
+  return{usd,mn,computed:true,sinCalcular};
 }
-function fmtComisionBadge(usd,mn,computed) {
+function fmtComisionBadge(usd,mn,computed,sinCalcular) {
   if(!computed)return null;
   const p=[];if(usd>0)p.push(`$${usd.toFixed(2)} USD`);if(mn>0)p.push(`${Math.round(mn)} MN`);
-  return p.length?p.join(' + '):null;
+  if(!p.length)return sinCalcular>0?`${sinCalcular} sin calcular`:null;
+  return p.join(' + ')+(sinCalcular>0?` (+${sinCalcular} sin calcular)`:'');
 }
 // Las comisiones ahora viven DENTRO de la tarjeta de cada gestor (ver
 // renderAdminGestoresList) en vez de en una lista aparte que repetía cada
@@ -15190,7 +15213,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
     // ── PENDIENTES ──
     if(pendientes.length){
       const s=sumCommissions(pendientes);
-      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed);
+      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed,s.sinCalcular);
       html+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
         <span style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.5px;">⏳ Pendientes (${pendientes.length})</span>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -15224,7 +15247,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
     // ── EN SOBRE ──
     if(enSobre.length){
       const s=sumCommissions(enSobre);
-      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed);
+      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed,s.sinCalcular);
       html+=`<div style="margin-top:${pendientes.length?'14px':'0'};">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
           <span style="font-size:11px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;">✉️ En sobre (${enSobre.length})</span>
@@ -15263,7 +15286,7 @@ function renderComisionBody(g,pendientes,enSobre,cobrados) {
     // ── COBRADOS ──
     if(cobrados.length){
       const s=sumCommissions(cobrados);
-      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed);
+      const sumBadge=fmtComisionBadge(s.usd,s.mn,s.computed,s.sinCalcular);
       html+=`<div style="margin-top:${pendientes.length||enSobre.length?'14px':'0'};">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span style="font-size:10px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;">💰 Cobrados (${cobrados.length})</span>
@@ -15320,8 +15343,8 @@ function _puestoEnElCiclo(gid) {
   const resumen = _resumenRanking();
   const lista = getGestores().map(g => {
     const s = resumen.find(x => x && x.id === g.id);
-    return { id: g.id, pts: s ? (parseFloat(s.pts) || 0) : 0 };
-  }).sort((a, b) => b.pts - a.pts);
+    return { id: g.id, name: g.name, ..._ptsDelResumen(s) };
+  }).sort(_ordenRanking);
   const i = lista.findIndex(x => String(x.id) === String(gid));
   return { puesto: i < 0 ? 0 : i + 1, total: lista.length };
 }
@@ -15353,6 +15376,49 @@ function _tituloPuntos(label) {
   return 'Tus puntos en total';
 }
 
+// ── v135: historial de ganadores, desplegable ──────────────────────────────
+// Pedido: "un apartado de historial desplegable donde se puedan ver los
+// ganadores cada mes". Sale debajo del ranking (gestores) y en Config (admin).
+// El historial lo escribe el admin al cerrar cada ciclo, con el podio guardado,
+// así que todos ven lo mismo. Se recuerda si estaba abierto: el ranking se
+// repinta cada pocos segundos y si no se cerraría solo.
+let _histGanAbierto = false;
+const _histGanCicloAbierto = new Set();
+function _htmlHistorialGanadores() {
+  const hist = ganadoresMensuales().filter(h => h && h.mes).slice().reverse();
+  if (!hist.length) return '';
+  const medallas = ['🥇','🥈','🥉'];
+  const fila = (r, i) => `<div style="display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px;">
+      <span style="width:20px;text-align:center;flex-shrink:0;">${i < 3 ? medallas[i] : `<span style="font-size:10px;color:var(--gray-400);font-weight:700;">${i+1}</span>`}</span>
+      <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${i===0?'font-weight:800;':''}">${escapeHTML(r.name || '?')}</span>
+      <span style="font-weight:700;flex-shrink:0;">${escapeHTML(String(r.pts))} pts</span>
+    </div>`;
+  const ciclos = hist.map(h => {
+    const rk = Array.isArray(h.ranking) && h.ranking.length ? h.ranking
+      : [{ name:h.nombre, pts:h.pts }].concat(h.segundo ? [{ name:h.segundo, pts:'—' }] : []);
+    const podio = rk.slice(0, 3).map(fila).join('');
+    const resto = rk.slice(3);
+    const k = String(h.mes);
+    return `<div style="border:1px solid var(--border, var(--gray-200));border-radius:9px;padding:8px 10px;margin-top:7px;">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;">📅 ${escapeHTML(_textoCiclo(h.mes, h.hasta))}</div>
+      ${podio}
+      ${resto.length ? `<details ${_histGanCicloAbierto.has(k)?'open':''} ontoggle="_histGanCicloAbierto[this.open?'add':'delete'](${JSON.stringify(k).replace(/"/g,'&quot;')});rankingCache=null">
+        <summary style="font-size:11px;color:var(--gray-400);cursor:pointer;margin-top:3px;">Ver del 4.º al ${rk.length}.º</summary>
+        ${resto.map((r, j) => fila(r, j + 3)).join('')}
+      </details>` : ''}
+    </div>`;
+  }).join('');
+  return `<details id="histGanadores" ${_histGanAbierto?'open':''} ontoggle="_histGanAbierto=this.open;rankingCache=null" style="margin-top:12px;border-top:1px solid var(--gray-200);padding-top:10px;">
+    <summary style="font-size:12px;font-weight:700;cursor:pointer;color:var(--text, inherit);">🏆 Historial de ganadores <span style="color:var(--gray-400);font-weight:600;">(${hist.length})</span></summary>
+    ${ciclos}
+  </details>`;
+}
+function renderHistorialGanadoresAdmin() {
+  const box = document.getElementById('historialGanadoresAdmin');
+  if (!box) return;
+  const html = _htmlHistorialGanadores();
+  box.innerHTML = html || '<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Aún no se ha cerrado ningún ciclo.</div>';
+}
 function renderGestorRanking() {
   const c=document.getElementById('rankingList');if(!c)return;
   const gestores=getGestores();
@@ -15373,8 +15439,8 @@ function renderGestorRanking() {
 
   const ranked=gestores.map(g=>{
     const s = summary.find(x => x.id === g.id);
-    return {...g, pts: s ? s.pts : 0};
-  }).sort((a,b)=>b.pts-a.pts);
+    return {...g, ..._ptsDelResumen(s)};
+  }).sort(_ordenRanking);
   const medals=['🥇','🥈','🥉'];
   const barGradients=[
     'linear-gradient(90deg,#F59E0B,#EF4444)',
@@ -15458,6 +15524,7 @@ function renderGestorRanking() {
       </div>
     </div>`;
   }).join('');
+  html+=_htmlHistorialGanadores();   // v135
   c.innerHTML=html;
   rankingCache={html,ts:Date.now()};
 }
@@ -15598,12 +15665,50 @@ function guardarCicloInicio(valor) {
 // cambiar de modo o de ciclo el panel seguía enseñando los puntos viejos hasta
 // que alguien vendiera algo. Y como el gestor lo recibe por la nube, hasta
 // entonces veía el modo anterior en su teléfono.
+// ── v135: el orden cuando hay empate ───────────────────────────────────────
+// Reportado: al empezar el ciclo, con todos a 0, la lista salía en el orden en
+// que se crearon los gestores (Rafael, Brianna, Sanjoni…) y no en el de quién
+// acababa de ganar. Ahora el empate se deshace por los puntos del ciclo
+// anterior: el día 1 se ve el podio que se acaba de cerrar, y a medida que
+// entran puntos cada uno se va colocando. El admin lo calcula (tiene todos los
+// vales) y viaja a los gestores dentro del mismo resumen, como `prev`.
+function _puntosCicloAnterior() {
+  if (metaModo() !== 'mensual') return null;
+  const ini = _inicioDelCiclo();
+  const h = ganadoresMensuales().filter(x => x && x.mes && x.mes < ini).slice(-1)[0];
+  let desde = h ? h.mes : '', hasta = h ? (h.hasta || _finDelCiclo(h.mes)) : '';
+  if (!desde) { const c = _cicloAnterior(ini); desde = c.from; hasta = c.to; }
+  if (!desde) return null;
+  return _puntosPorGestorEnRango(desde, hasta);
+}
+function _armarRankingSummary(gestores) {
+  const prev = _puntosCicloAnterior();
+  return gestores.map(g => {
+    const o = { id: g.id, pts: getGestorPoints(g.id), metas: parseInt(g.metasLogradas, 10) || 0 };
+    if (metaModo() === 'mensual') o.c = _inicioDelCiclo();   // de qué ciclo son estos puntos
+    if (prev) { const p = _redondearPts(Math.max(0, prev.get(String(g.id)) || 0)); if (p) o.prev = p; }
+    return o;
+  });
+}
+// Los puntos de una entrada del resumen, leídos para el ciclo de HOY. Si el
+// resumen es de un ciclo que ya acabó (el admin aún no ha abierto la app desde
+// medianoche), esos puntos ya no cuentan: pasan a ser los del ciclo anterior.
+// Sin esto, el día 29 a las 2 de la madrugada se veía "Ciclo 29 sept → 28 oct"
+// con los 381.5 puntos del ciclo que acababa de terminar.
+function _ptsDelResumen(s) {
+  if (!s) return { pts: 0, prev: 0 };
+  const pts = parseFloat(s.pts) || 0, prev = parseFloat(s.prev) || 0;
+  if (s.c && metaModo() === 'mensual' && String(s.c) < _inicioDelCiclo()) return { pts: 0, prev: pts };
+  return { pts, prev };
+}
+// Mayor puntuación primero; empate → el que hizo más el ciclo pasado; y si
+// tampoco, por nombre, para que el orden no baile entre una pasada y otra.
+const _ordenRanking = (a, b) => (b.pts - a.pts) || ((b.prev || 0) - (a.prev || 0))
+  || String(a.name || '').localeCompare(String(b.name || ''), 'es');
 function _recalcularRankingSummary() {
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
   try {
-    const summary = getGestores().map(g => ({
-      id: g.id, pts: getGestorPoints(g.id), metas: parseInt(g.metasLogradas, 10) || 0
-    }));
+    const summary = _armarRankingSummary(getGestores());
     _safeSetLS('axon_ranking_summary', JSON.stringify(summary));   // para esta pantalla
     setSB('ranking_summary', summary);                             // y para los gestores
     rankingCache = null;
@@ -15749,6 +15854,7 @@ function loadGhConfigUI() {
       ? `<span style="color:var(--green);">✓ Ciclo en curso: <b>${fmt(ini)} → ${fmt(fin)}</b></span>`
       : `<span style="color:var(--gray-400);">Mes natural · ciclo en curso: ${fmt(ini)} → ${fmt(fin)}</span>`;
   }
+  try { renderHistorialGanadoresAdmin(); } catch(e) {}   // v135
   const _bn=document.getElementById('btnCicloMesNatural');
   if(_bn)_bn.style.display=cicloInicioCfg()?'inline-flex':'none';
   const _pd=document.getElementById('puntosDesdeStatus');
@@ -16097,28 +16203,74 @@ const PLACE_BADGE=['CAMPEÓN','SUBCAMPEÓN','TERCERO'];
 // Lo cierra SOLO el admin, y una sola vez: los gestores se enteran por el aviso,
 // igual que con la meta fija. Si lo cerrara cada teléfono, el mismo mes se
 // proclamaría varias veces y el historial saldría duplicado.
+// ── v135: los puntos de un ciclo cerrado, con la MISMA cuenta que el ranking ──
+// Reportado el 29/09: al cerrar el ciclo se anunció "Rafael 446 · Julio 31 ·
+// Karla 5.5" cuando el ranking que todos veían era Rafael 381.5 · Sanjoni 171 ·
+// Kevin 101. Dos fallos juntos:
+//   1. Esta cuenta era una copia de la del ranking a la que le faltaban cosas:
+//      no repartía los vales unidos entre sus gestores (de ahí 446 en vez de
+//      381.5), no sumaba los puntos puestos a mano y no miraba el "reiniciar
+//      puntos". Ahora hace exactamente lo mismo que getGestorPointsVentas.
+//   2. El teléfono del GANADOR, al recibir su aviso, volvía a calcular el podio
+//      con los vales que tenía él guardados — que son los suyos y poco más — y
+//      además mandaba "¡2do Lugar!" a quien saliera segundo en esa cuenta. Julio
+//      salía segundo porque compartía vales con Rafael; Sanjoni y Kevin ni
+//      aparecían. Ahora el podio lo calcula SOLO el admin (que tiene todos los
+//      vales), se guarda en el historial y los teléfonos leen ese.
+function _puntosPorGestorEnRango(desde, hasta) {
+  const tot = new Map();
+  const reinicio = puntosDesde();
+  getVales().forEach(v => {
+    if (!v || !['confirmed','pending_payment'].includes(v.status)) return;
+    const d = _fechaEfectiva(v);
+    if (!d || d < desde || d > hasta) return;
+    if (reinicio && d < reinicio) return;
+    const f = _factorReparto(v);
+    const pts = (v.valeProductos || []).reduce((t, p) => t + _puntosUnidad(p) * (parseFloat(p.qty) || 0) * f, 0);
+    if (!pts) return;
+    const k = String(v.gestorId);
+    tot.set(k, (tot.get(k) || 0) + pts);
+  });
+  // Los puntos a mano: cuentan en el ciclo de su fecha. Los que no llevan fecha
+  // cuentan siempre, igual que en el ranking en curso.
+  getGestores().forEach(g => {
+    const n = parseFloat(g && g.puntosAjuste);
+    if (!g || !isFinite(n) || n === 0) return;
+    const dia = (typeof g.puntosAjusteDia === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(g.puntosAjusteDia)) ? g.puntosAjusteDia : '';
+    if (dia && (dia < desde || dia > hasta || (reinicio && dia < reinicio))) return;
+    const k = String(g.id);
+    tot.set(k, (tot.get(k) || 0) + n);
+  });
+  return tot;
+}
+const _redondearPts = n => Math.round((parseFloat(n) || 0) * 100) / 100;
 function _puntosEnRango(gestorId, desde, hasta) {
-  return getVales()
-    .filter(v => {
-      if (v.gestorId !== gestorId) return false;
-      if (!['confirmed','pending_payment'].includes(v.status)) return false;
-      const d = _fechaEfectiva(v);
-      return !!d && d >= desde && d <= hasta;
-    })
-    .reduce((sum,v) => sum + (v.valeProductos||[]).reduce((t,p) => {
-      const pr = productoOf(p.id); return t + _puntosUnidad(p) * p.qty; }, 0), 0);
+  return _redondearPts(Math.max(0, _puntosPorGestorEnRango(desde, hasta).get(String(gestorId)) || 0));
 }
 function rankingDelCiclo(desde, hasta) {
+  const tot = _puntosPorGestorEnRango(desde, hasta);
   return getGestores().filter(g => g && !g._tienda)
     .map(g => ({ id:g.id, name:g.name, initials:g.initials, color:g.color,
-                 pts:_puntosEnRango(g.id, desde, hasta) }))
+                 pts:_redondearPts(Math.max(0, tot.get(String(g.id)) || 0)) }))
     .filter(x => x.pts > 0)
-    .sort((a,b) => b.pts - a.pts);
+    .sort((a,b) => (b.pts - a.pts) || String(a.name).localeCompare(String(b.name), 'es'));
 }
+// Lo que se guarda del podio en el historial: los 10 primeros, con lo justo
+// para pintarlos. El config viaja a todos los teléfonos en cada cambio, así
+// que no se guarda la lista entera de 50 gestores × 24 ciclos.
+const _RANKING_GUARDADO = 10;
+const _podioParaGuardar = ranking => ranking.slice(0, _RANKING_GUARDADO)
+  .map(r => ({ id:r.id, name:r.name, pts:r.pts }));
 function ganadoresMensuales() {
   const h = (getConfig()||{}).ganadoresMensuales;
   return Array.isArray(h) ? h : [];
 }
+// v135: el admin solo cierra el ciclo cuando ya tiene los vales de la nube.
+// Al abrir la app, los primeros segundos trabaja con lo que guardó el teléfono
+// la última vez, y si el teléfono llevaba días sin abrirse eso es una foto
+// vieja: el podio saldría con los puntos de hace días.
+let _valesAlDiaTs = 0;
+let _cierreIntentos = 0;
 function _cerrarMesSiToca() {
   if (metaModo() !== 'mensual') return;
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
@@ -16131,23 +16283,74 @@ function _cerrarMesSiToca() {
   // Primera vez en este modo: se apunta el ciclo en curso y ya está. No se
   // proclama nada de un ciclo que la app no estuvo contando.
   if (!enCurso) { saveConfig({ ...cfg, cicloActual: cicloAhora }); return; }
-  if (enCurso === cicloAhora) return;                // sigue el mismo ciclo
-  const ranking = rankingDelCiclo(enCurso, _finDelCiclo(enCurso));
-  const hist = ganadoresMensuales().slice(-23);      // dos años de historial, de sobra
+  if (enCurso === cicloAhora) { _repararHistorialDeGanadores(); return; }   // sigue el mismo ciclo
+  if (!_valesAlDiaTs) {
+    // Sin conexión todavía: se vuelve a mirar en un rato (el poll también lo
+    // llama en cuanto baja los vales).
+    if (_cierreIntentos++ < 120) setTimeout(() => { try { _cerrarMesSiToca(); } catch(e) {} }, 5000);
+    return;
+  }
+  const hasta = _finDelCiclo(enCurso);
+  const ranking = rankingDelCiclo(enCurso, hasta);
+  // Otro teléfono de admin pudo cerrarlo ya: no se apunta dos veces.
+  const hist = ganadoresMensuales().filter(h => h && h.mes !== enCurso).slice(-23);   // dos años, de sobra
   if (ranking.length) {
     const g = ranking[0];
-    hist.push({ mes:enCurso, hasta:_finDelCiclo(enCurso), gestorId:g.id, nombre:g.name, pts:g.pts,
-                segundo:(ranking[1]||{}).name || '', ts:new Date().toISOString() });
+    hist.push({ mes:enCurso, hasta, gestorId:g.id, nombre:g.name, pts:g.pts,
+                segundo:(ranking[1]||{}).name || '', ranking:_podioParaGuardar(ranking),
+                ts:new Date().toISOString() });
     addNotif('mes_ganado', g.name, null, String(g.pts), g.id, 'mes_ganado:'+enCurso);
+    _avisarPodio(enCurso, ranking);
     _logAudit('ciclo_cerrado', enCurso + ' → ' + g.name + ' (' + g.pts + ' pts)');
   }
   saveConfig({ ...cfg, cicloActual: cicloAhora, ganadoresMensuales: hist });
   rankingCache = null; gestoresTabDirty = true; _recalcularRankingSummary();
   if (ranking.length && typeof launchEpicGlowPulse === 'function') {
     // El admin ve el podio del mes que acaba de cerrar.
-    try { launchEpicGlowPulse(ranking[0], ranking[0].pts, { mes:enCurso, ranking }); } catch(e) {}
+    try { launchEpicGlowPulse(ranking[0], ranking[0].pts, { mes:enCurso, hasta, ranking }); } catch(e) {}
   }
-  try { renderGestorRanking(); } catch(e) {}
+  try { renderGestorRanking(); renderHistorialGanadoresAdmin(); } catch(e) {}
+}
+// Un aviso a cada uno de los tres primeros con SU puesto. Con `evt` para que
+// dos teléfonos de admin no lo manden dos veces.
+function _avisarPodio(mes, ranking) {
+  ranking.slice(0, 3).forEach((g, i) => {
+    addNotif('ranking_top3', g.name, null, `${PLACE_LABEL[i]}|${g.pts}|Puesto #${i+1}`, g.id,
+             'ranking_top3:' + mes + ':' + i);
+  });
+}
+// v135: el ciclo del 29/09 se cerró con la cuenta vieja. Los ciclos del
+// historial que no guardaron su podio se recalculan con la cuenta buena (el
+// admin tiene todos los vales) y, si el ganador o los puntos cambian, se
+// corrigen. Al último, si es reciente, se le mandan los avisos buenos de
+// puesto; los viejos sin marca dejan de enseñarse (ver renderGestorNotifs).
+function _repararHistorialDeGanadores() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN || !_valesAlDiaTs) return;
+  const hist = ganadoresMensuales();
+  if (!hist.some(h => h && h.mes && !Array.isArray(h.ranking))) return;
+  const ultimo = hist.length ? hist[hist.length - 1] : null;
+  const nuevo = hist.map(h => {
+    if (!h || !h.mes || Array.isArray(h.ranking)) return h;
+    // Los de antes de v119 se apuntaban por mes natural ('2026-08').
+    let desde = String(h.mes), hasta = h.hasta;
+    if (/^\d{4}-\d{2}$/.test(desde)) {
+      const [y, m] = desde.split('-').map(Number);
+      desde += '-01'; hasta = hasta || localDay(new Date(y, m, 0));
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(desde)) return { ...h, ranking: [] };
+    hasta = hasta || _finDelCiclo(desde);
+    const r = rankingDelCiclo(desde, hasta);
+    if (!r.length) return { ...h, ranking: [] };
+    if (h === ultimo && (Date.now() - new Date(h.ts || 0).getTime()) < 10 * 86400000) _avisarPodio(h.mes, r);
+    if (String(r[0].id) !== String(h.gestorId) || r[0].pts !== h.pts) {
+      _logAudit('ciclo_corregido', h.mes + ': ' + (h.nombre||'?') + ' ' + h.pts + ' → ' + r[0].name + ' ' + r[0].pts);
+    }
+    return { ...h, hasta: h.hasta || (desde !== h.mes ? hasta : _finDelCiclo(desde)), gestorId:r[0].id, nombre:r[0].name, pts:r[0].pts,
+             segundo:(r[1]||{}).name || '', ranking:_podioParaGuardar(r) };
+  });
+  saveConfig({ ...(getConfig() || {}), ganadoresMensuales: nuevo });
+  rankingCache = null; _recalcularRankingSummary();
+  try { renderHistorialGanadoresAdmin(); } catch(e) {}
 }
 
 function getTop3Ranked() {
@@ -16668,6 +16871,15 @@ function sendRankingPushNotif(top3) {
 // Con {mes, ranking} celebra el cierre de mes: el podio es el de ESE mes, no el
 // del ranking en curso —que el día 1 ya está a cero y enseñaría a todos con 0
 // puntos justo en la pantalla que proclama al ganador.
+function _textoCiclo(desde, hasta) {
+  const f = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString('es-ES', { day:'numeric', month:'short' }); } catch(e) { return d; } };
+  if (/^\d{4}-\d{2}$/.test(String(desde))) {        // historial viejo: 'YYYY-MM'
+    try { return new Date(desde + '-15T12:00:00').toLocaleDateString('es-ES', { month:'long', year:'numeric' }); } catch(e) { return desde; }
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(desde))) return String(desde || '');
+  const h = hasta || _finDelCiclo(desde);
+  return f(desde) + ' → ' + f(h) + ' ' + String(h).slice(0, 4);
+}
 function launchEpicGlowPulse(triggerGestor, triggerPts, ctx) {
   // Remove any existing overlay
   const existing=document.querySelector('.glow-overlay');if(existing)existing.remove();
@@ -16675,9 +16887,9 @@ function launchEpicGlowPulse(triggerGestor, triggerPts, ctx) {
   const esMes = !!(ctx && ctx.mes);
   const top3 = esMes ? (ctx.ranking||[]).slice(0,3) : getTop3Ranked();
   const meta = esMes ? 0 : (getConfig().metaPuntos||0);
-  const _mesTxt = esMes ? (()=>{ try {
-      return new Date(ctx.mes+'-15T12:00:00').toLocaleDateString('es-ES',{month:'long',year:'numeric'});
-    } catch(e){ return ctx.mes; } })() : '';
+  // v135: ctx.mes es el día en que empezó el ciclo (2026-08-29), no 'YYYY-MM':
+  // ctx.mes+'-15' daba una fecha inválida. Se enseña el ciclo de verdad.
+  const _mesTxt = esMes ? _textoCiclo(ctx.mes, ctx.hasta) : '';
 
   // Build overlay HTML
   const overlay=document.createElement('div');
@@ -16726,7 +16938,9 @@ function launchEpicGlowPulse(triggerGestor, triggerPts, ctx) {
     },700);
 
     // Personal notification to the triggering gestor (on their device/view)
-    if(triggerGestor){
+    // v135: "¡alcanzaste la meta!" es cosa de la meta fija; en un cierre de
+    // ciclo no hay meta y el puesto salía del ranking del ciclo NUEVO.
+    if(triggerGestor&&!esMes){
       const rank=getGestorRank(triggerGestor.id);
       if(rank&&rank<=3){
         setTimeout(()=>showGestorRankNotif(triggerGestor.id,rank,triggerPts),1200);
@@ -16737,7 +16951,11 @@ function launchEpicGlowPulse(triggerGestor, triggerPts, ctx) {
     setTimeout(()=>showRankNotifCards(top3),1500);
 
     // Push notification
-    setTimeout(()=>sendRankingPushNotif(top3),1800);
+    // v135: solo desde el admin, y no en el cierre de ciclo (esos avisos ya
+    // los manda _cerrarMesSiToca, una vez y con su marca). Antes también lo
+    // mandaba el teléfono del gestor que celebraba, con SU podio de mentira:
+    // de ahí el "¡2do Lugar! · Julio con 31 pts".
+    if(!esMes&&typeof IS_ADMIN!=='undefined'&&IS_ADMIN)setTimeout(()=>sendRankingPushNotif(top3),1800);
   });
 
   // Auto-dismiss after 12 seconds
@@ -16862,6 +17080,18 @@ function checkGoalReached(gestorId, currentValeId) {
 // admin. El gestor —que es para quien es la fiesta— no veía nada. Al llegarle
 // el aviso de su meta, su teléfono lanza la misma animación. Se apunta cuál se
 // celebró ya para no repetirla en cada pasada del bucle.
+// El podio de un ciclo cerrado, tal como lo guardó el admin, con el color y
+// las iniciales de cada gestor para poder pintarlo.
+function _podioGuardado(mes, ganador, pts) {
+  const h = ganadoresMensuales().find(x => x && x.mes === mes);
+  const lista = (h && Array.isArray(h.ranking) && h.ranking.length) ? h.ranking
+    : (ganador ? [{ id: ganador.id, name: ganador.name, pts }] : []);
+  return lista.map(r => {
+    const g = gestorOf(r.id) || {};
+    return { id: r.id, name: g.name || r.name, initials: g.initials || String(r.name || '?').slice(0, 2).toUpperCase(),
+             color: g.color || '#64748B', pts: r.pts };
+  });
+}
 function _celebrarMetaDelGestor() {
   if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) return;
   if (activeGestorId == null) return;
@@ -16881,9 +17111,13 @@ function _celebrarMetaDelGestor() {
   if (mia.type === 'mes_ganado') {
     // El podio del mes que ganó, no el del ranking de ahora (que el día 1 está
     // a cero y le enseñaría a todo el mundo con 0 puntos).
+    // v135: el podio es el que guardó el admin al cerrar el ciclo. Aquí se
+    // recalculaba con los vales de ESTE teléfono —los del gestor y poco más—
+    // y salía otro podio (Julio 2.º con 31 pts, cuando fue Sanjoni con 171).
+    // Si el historial aún no ha llegado, se enseña solo al ganador.
     const desde = String(mia.evt||'').split(':')[1] || _inicioDelCiclo();
     launchEpicGlowPulse(g, parseFloat(mia.extra)||0,
-      { mes: desde, hasta: _finDelCiclo(desde), ranking: rankingDelCiclo(desde, _finDelCiclo(desde)) });
+      { mes: desde, hasta: _finDelCiclo(desde), ranking: _podioGuardado(desde, g, parseFloat(mia.extra)||0) });
   } else {
     launchEpicGlowPulse(g, parseFloat(mia.extra) || 0);
   }
@@ -19199,6 +19433,16 @@ const AYUDA_SECCIONES = [
         como:'Con meta fija, la barra mide cuánto llevas de la meta. En el modo por ciclos NO hay meta: los puntos se cuentan sin final hasta que el ciclo acaba, así que las barras no miden progreso, comparan — la más larga es la de quien va primero y las demás salen a escala de la suya.',
         ojo:'En el ciclo, en su pantalla cada gestor ve sus puntos a secas, por qué puesto va y cuántos días quedan. Nada de "te faltan X": no falta nada, se cuenta hasta el final. (La v120 sí inventaba una meta redondeada por persona —uno veía 2/10 y otro 14/25— y eso se quitó.)',
         nuevo:'v121' },
+      { icono:'🏆', titulo:'Cierre del ciclo y ganadores', donde:'Top Gestores (gestores) y Config › Meta de puntos (admin)',
+        para:'Que al acabar el ciclo el podio sea el que todos veían en el ranking, y poder consultar quién ganó cada mes.',
+        como:'El ciclo lo cierra el teléfono del admin la primera vez que se abre después de medianoche, pero solo cuando ya bajó todos los vales de la nube. Cuenta igual que el ranking: los vales unidos se reparten entre sus gestores y los puntos puestos a mano suman. Guarda los 10 primeros en el historial y avisa a los tres primeros de su puesto. Debajo del ranking, "🏆 Historial de ganadores" se despliega con el podio de cada ciclo.',
+        ojo:'Al empezar un ciclo, con todos a 0, la lista sale en el orden en que acabó el anterior. El cierre del 29/09 salió mal (Julio aparecía 2.º porque el teléfono del ganador rehacía el podio con sus propios vales): se corrige solo en cuanto el admin abra la app, y los avisos de puesto equivocados dejan de salir.',
+        nuevo:'v135' },
+      { icono:'✉️', titulo:'Comisiones: el monto, no cuántas', donde:'Gestores › tarjeta › 💰 Comisiones',
+        para:'Ver cuánto dinero hay pendiente o en el sobre.',
+        como:'Se suma lo que se puede calcular. Las ventas de productos sin comisión cuentan 0.',
+        ojo:'Si alguna venta no se puede calcular (un producto borrado que no guardó su comisión), se dice al lado: "(+1 sin calcular)". Antes, con una sola así, la chapa enseñaba cuántas ventas había en vez del dinero.',
+        nuevo:'v135' },
       { icono:'📦', titulo:'El producto del catálogo es obligatorio', donde:'Al llenar el vale',
         para:'Que no vuelva a haber ventas que no dan puntos, no descuentan stock y no se sabe de qué dueño eran.',
         como:'Hay que escogerlo del catálogo. Escribir el artículo a mano en el campo de texto ya no basta: el vale no se manda hasta que se escoja, y la app dice qué falta.',
