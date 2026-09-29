@@ -24,7 +24,12 @@ const ok = (n, c, e) => { console.log((c?'✅ ':'❌ ')+n+(c?'':'  → '+JSON.st
 
 // Nube de mentira: solo la tabla meta (lo que usa el llavero); lo demás, vacío.
 const META = {};
+const GESTORES_NUBE = {};   // v140: el gestor lee su ficha de la nube antes de dejar el sobre
 function responde(url, metodo, cuerpo) {
+  if (url.includes('/rest/v1/gestores') && metodo === 'GET' && /id=eq\.(\d+)/.test(url)) {
+    const id = /id=eq\.(\d+)/.exec(url)[1];
+    return { status: 200, body: JSON.stringify(GESTORES_NUBE[id] ? [{ data: GESTORES_NUBE[id] }] : []) };
+  }
   if (url.includes('/rest/v1/meta')) {
     if (metodo === 'POST') {
       let b = []; try { b = JSON.parse(cuerpo || '[]'); } catch(e) {}
@@ -67,7 +72,12 @@ function responde(url, metodo, cuerpo) {
     saveGestores([{ id: 1, name: 'Ana', initials: 'AN', color: '#123', password: hashAna },
                   { id: 2, name: 'Luis', initials: 'LU', color: '#456', password: 'xyz789' }]);
   });
-  await p.fill('#passInput','axon2024'); await p.click('button:has-text("Entrar")');
+  // v140: con la contraseña de fábrica la llave NO se crea (ver sección 0);
+  // el admin de esta prueba ya la cambió.
+  const fabrica = await p.evaluate(async () => { const r = await _abrirLlavero('axon2024'); return { r, estado: _llaveEstado }; });
+  ok('con la contraseña de fábrica no se crea la llave', fabrica.r === false && fabrica.estado === 'clave_fabrica' && !META.claves_admin, fabrica);
+  await p.evaluate(async () => { localStorage.setItem('axon_admin_hash', await _hashPass('Clave-Admin-1')); });
+  await p.fill('#passInput','Clave-Admin-1'); await p.click('button:has-text("Entrar")');
   await p.waitForTimeout(4000);
   await p.evaluate(() => { try { clearInterval(_restPollTimer); } catch(e) {} });
 
@@ -109,6 +119,7 @@ function responde(url, metodo, cuerpo) {
 
   console.log('\n══ 4· LA DE ANA APARECE CUANDO ELLA ENTRA (sin cambiarla) ══');
   const listaAdmin = await p.evaluate(() => JSON.stringify({ gestores: getGestores(), config: getConfig() }));
+  JSON.parse(listaAdmin).gestores.forEach(x => { GESTORES_NUBE[x.id] = x; });
   const g = await abrir('index.html', false);
   const ana = await g.evaluate(async (txt) => {
     const d = JSON.parse(txt);
@@ -139,7 +150,7 @@ function responde(url, metodo, cuerpo) {
   const cambio = await p.evaluate(async () => {
     const ok1 = await _recerrarLlavero('Nueva-clave-99');
     _llavePrivada = null;
-    const conVieja = await _abrirLlavero('axon2024');
+    const conVieja = await _abrirLlavero('Clave-Admin-1');
     const estadoVieja = _llaveEstado;
     const conNueva = await _abrirLlavero('Nueva-clave-99');
     return { ok1, conVieja, estadoVieja, conNueva, ana: await _leerClaveGestor(gestorOf(1)) };

@@ -65,6 +65,8 @@ function nubeResponde(url, metodo, cuerpo) {
     }
     return {status:200, body:'{}'};
   }
+  // Una función que esta nube no tiene: como la Supabase de verdad, 404.
+  if (ruta.startsWith('rpc/')) return {status:404, body:'{"message":"not found"}'};
   if (metodo === 'POST') {
     let filas = []; try { filas = JSON.parse(cuerpo||'[]'); } catch(e) {}
     if (!Array.isArray(filas)) filas = [];

@@ -270,6 +270,26 @@ function base64ToUtf8(b64) {
 const SUPABASE_URL  = 'https://gdzsqwyedzrfituewdtt.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_Ftyw83d2WPU7TtC7JacCRw_uQuqFXdW';
 const _SB_REST      = SUPABASE_URL + '/rest/v1';
+// v140: ninguna LECTURA a la nube puede quedarse colgada para siempre. Con datos
+// móviles malos una petición podía no volver nunca, el sondeo se quedaba
+// "en vuelo" y el teléfono dejaba de enterarse de nada hasta recargar. Las
+// lecturas (y la pregunta ultimos_cambios) se cortan a los 30 s.
+(function () {
+  if (typeof window === 'undefined' || !window.fetch || typeof AbortController === 'undefined') return;
+  const _f0 = window.fetch.bind(window);
+  window.fetch = function (url, opts) {
+    try {
+      const u = String((url && url.url) || url || '');
+      const m = String((opts && opts.method) || 'GET').toUpperCase();
+      if (u.indexOf(_SB_REST) === 0 && !(opts && opts.signal) && (m === 'GET' || m === 'HEAD' || u.indexOf('/rpc/ultimos_cambios') > 0)) {
+        const c = new AbortController();
+        const t = setTimeout(() => c.abort(), 30000);
+        return _f0(url, { ...(opts || {}), signal: c.signal }).finally(() => clearTimeout(t));
+      }
+    } catch (e) {}
+    return _f0(url, opts);
+  };
+})();
 const _SB_AUTH_HDRS = {
   'apikey':       SUPABASE_KEY,
   'Authorization': 'Bearer ' + SUPABASE_KEY,
@@ -956,6 +976,23 @@ async function _sbRestMetaUpsert(name, value, yaFusionado) {
       if (nube > (parseInt(value.nextValeNum, 10) || 0)) value = { ...value, nextValeNum: nube };
     } catch(e) { /* sin lectura se sube lo que hay: mejor que no guardar el config */ }
   }
+  // v140: los avisos se JUNTAN con los de la nube (por id) en vez de
+  // reemplazarlos. Cada teléfono subía su lista entera y el último en escribir
+  // borraba el aviso que otro acababa de mandar (auditoría: el "Cambió" del
+  // admin desapareció porque un gestor subió su "asignado" justo después).
+  if (name === 'notifs' && Array.isArray(value)) {
+    try {
+      const nube = await _sbRestGetMeta('notifs');
+      if (Array.isArray(nube) && nube.length) {
+        const borrados = new Set((typeof _notifDeletedKeys === 'function') ? _notifDeletedKeys() : []);
+        const porId = new Map();
+        nube.forEach(n => { if (n && n.id != null && !borrados.has(String(n.id))) porId.set(String(n.id), n); });
+        value.forEach(n => { if (n && n.id != null) porId.set(String(n.id), n); });   // lo de aquí gana
+        const junto = [...porId.values()].sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')));
+        value = (typeof _trimNotifs === 'function') ? _trimNotifs(junto) : junto;
+      }
+    } catch (e) { /* sin lectura se sube lo de aquí, como antes */ }
+  }
   // v139: los dueños se fusionan con lo que haya en la nube (ver _guardarDuenos).
   let _dc = null;
   if (name === 'duenos' && typeof _duenosParaSubir === 'function') {
@@ -982,9 +1019,20 @@ async function _sbRestMetaUpsert(name, value, yaFusionado) {
 // Se parte del documento del SERVIDOR, no de la copia del teléfono: si se
 // partiera de la copia local se estaría repitiendo el fallo que costó el
 // inventario, esta vez con el config.
+// v140: si está instalada meta_fusionar (migration_v140_fusionar.sql), la
+// fusión la hace la base de datos de una vez: dos equipos cambiando el mismo
+// documento a la vez ya no se pisan. Sin ella, se lee y se escribe desde aquí.
+let _metaFusionarRpc = null;   // null = sin saber · false = no instalada
 async function _sbRestMetaMerge(name, parcial) {
   if (!parcial || typeof parcial !== 'object' || Array.isArray(parcial)) {
     return _sbRestMetaUpsert(name, parcial);
+  }
+  if (_metaFusionarRpc !== false) {
+    const res = await fetch(`${_SB_REST}/rpc/meta_fusionar`, {
+      method: 'POST', headers: _SB_AUTH_HDRS, body: JSON.stringify({ p_name: name, p_patch: parcial }) });
+    if (res.ok) { _metaFusionarRpc = true; return; }
+    if (res.status === 404) _metaFusionarRpc = false;
+    else { const t = await res.text().catch(() => ''); throw new Error(`META FUSIONAR ${name} ${res.status}: ${t.slice(0,150)}`); }
   }
   let actual = {};
   try {
@@ -996,6 +1044,8 @@ async function _sbRestMetaMerge(name, parcial) {
     throw new Error(`META MERGE ${name}: no se pudo leer lo anterior (${e.message})`);
   }
   const junto = { ...actual, ...parcial };
+  // v140: en la config, null = "esta clave se quitó".
+  if (name === 'config') Object.keys(parcial).forEach(k => { if (parcial[k] === null) delete junto[k]; });
   // v133: el contador de vales, al mayor de los dos (ver getNextValeNum).
   if (name === 'config' && actual.nextValeNum != null && parcial.nextValeNum != null)
     junto.nextValeNum = Math.max(parseInt(actual.nextValeNum, 10) || 0, parseInt(parcial.nextValeNum, 10) || 0);
@@ -1339,6 +1389,9 @@ function _ritmoPoll() {
   return 60000;
 }
 function _tickPoll() {
+  // v140: vigilante. Si una vuelta lleva más de 2 minutos "en vuelo" es que se
+  // colgó: se suelta el cerrojo para que el teléfono siga sincronizando.
+  if (_restPollInFlight && Date.now() - _ultimoPollHecho > 120000) _restPollInFlight = false;
   if (Date.now() - _ultimoPollHecho < _ritmoPoll() - 500) return;
   _doRestPoll();
 }
@@ -1786,6 +1839,7 @@ async function _doRestPoll() {
           try {
             _safeSetLS('axon_vales', JSON.stringify(merged)); // v65: era un catch vacío — si el guardado fallaba (p.ej. sin espacio), los vales se perdían sin que nadie se enterara
             _valesCache = merged; _valesDirty = false;
+            _resembrarSlim = true;   // v140: esto es lo que hay en la nube; el próximo guardado parte de aquí
             // v92: esta vía NO pasa por saveVales(), así que las reservas hay que
             // recalcularlas aquí a mano o se quedarían con el conteo anterior.
             setTimeout(_refrescarReservas, 0);
@@ -1983,6 +2037,7 @@ async function _doRestPoll() {
         _ultimaTsVisto[node] = _rn.maxTs || _ultimaTsVisto[node] || new Date().toISOString(); _tsVistosSucio = true;
         // v33 FIX: Always update localStorage even if Supabase returns empty
         // (prevents "zombie" data from staying in localStorage after being deleted from Supabase)
+        arr = _sanearLista(node, arr);   // v140: ver _sanearFila
         _syncCount++;
         try {
           _safeSetLS('axon_'+node, JSON.stringify(arr)); // v65: idem — fallo de guardado visible
@@ -2033,7 +2088,10 @@ async function _doRestPoll() {
         const _claveTs = 'meta:' + node;
         const _tsMeta = _ultimaTsVisto[_claveTs];
         const _fetchViejoMeta = (Date.now() - (_ultimoFetchReal[_claveTs] || 0)) > _GATE_SEGURIDAD_MS.meta;
-        if (_tsMeta !== undefined && !_fetchViejoMeta && !(await _sbRestMetaHayCambios(node, _tsMeta))) continue;
+        if (_tsMeta !== undefined && !_fetchViejoMeta && !(await _sbRestMetaHayCambios(node, _tsMeta))) {
+          if (node === 'config') _configAlDiaTs = Date.now();   // v140: la de aquí ya es la de la nube
+          continue;
+        }
         const _pedidoEnMeta = Date.now();
         const _rm = await _sbRestGetMetaYTs(node);
         // v139: si mientras venía la respuesta este teléfono guardó ese mismo
@@ -2087,9 +2145,10 @@ async function _doRestPoll() {
             // v133: el número de vale solo sube. Si este teléfono acaba de
             // reservar uno y su subida aún no ha llegado, la config que baja lo
             // traería más bajo y el siguiente vale repetiría número.
-            if (node === 'config' && val && typeof val === 'object') val = _configConContadorAlDia(val);
+            if (node === 'config' && val && typeof val === 'object') { val = _configConContadorAlDia(val); _configAlDiaTs = Date.now(); }
             // v139: lo que este teléfono cambió y aún no subió se queda encima de lo que baja.
             if (node === 'duenos' && val && typeof val === 'object') val = _aplicarCambiosDuenos(val, _cambiosDuenos());
+            if ((node === 'notifs' || node === 'estafa') && Array.isArray(val)) val = _sanearLista(node, val);   // v140
             _safeSetLS('axon_'+node, JSON.stringify(val)); // v65: idem — fallo de guardado visible
             if(node==='vales_borrados'){
               // v119: la lista de vales que alguien borró. En vez de bajar la
@@ -2429,7 +2488,8 @@ function gestorAvatarInner(g) {
   if (g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo)) {
     // Wrapper con overflow:hidden para que la imagen respete el círculo.
     // El botón cámara vive FUERA de este wrapper (como hijo directo de #bannerAvatar).
-    return `<span class="g-avatar-img-wrap"><img src="${escapeAttr(g.photo)}" alt="" onerror="this.parentElement.style.display='none';this.parentElement.parentElement.textContent='${initials}'"></span>`;
+    // v140: las iniciales viajan en un data-, no dentro del JavaScript del onerror.
+    return `<span class="g-avatar-img-wrap"><img src="${escapeAttr(g.photo)}" alt="" data-ini="${escapeAttr(g.initials || '?')}" onerror="var w=this.parentElement;w.style.display='none';w.parentElement.textContent=this.dataset.ini"></span>`;
   }
   return initials;
 }
@@ -2796,34 +2856,35 @@ function _processSBQueue() {
   const estimatedMs = Math.ceil((payloadBytes / effectiveBps) * 1000 * 1.3) + 3000;
   const adaptiveTimeout = Math.min(90000, Math.max(8000, estimatedMs));
   _currentWriteTimeout = adaptiveTimeout;  // exponer para el indicador de sync
-  const timeoutId = setTimeout(() => {
+  // v140: una petición que tarda NO se da por perdida a la primera: sigue viva
+  // y, si se reintentara ya, las dos acabarían llegando —la vieja la última— y
+  // pisaría un cambio más nuevo (auditoría: "asignado" llegó después de
+  // "entregado" y la nube se quedó en asignado). Se le da hasta 3 veces el
+  // plazo antes de reintentar.
+  let _prorrogas = 0;
+  const _alVencer = () => {
     if (settled) return;
+    if (_prorrogas < 2) { _prorrogas++; timeoutId = setTimeout(_alVencer, adaptiveTimeout); return; }
     settled = true;
-    console.warn(`Supabase write TIMEOUT (${adaptiveTimeout}ms, payload=${payloadBytes}B, est=${effectiveBps}B/s):`, path);
+    console.warn(`Supabase write TIMEOUT (${adaptiveTimeout * 3}ms, payload=${payloadBytes}B, est=${effectiveBps}B/s):`, path);
     // Flush del buffer in-flight ANTES de reencolar el item.
     // Si el gestor mandó 5 vales mientras este write estaba colgado, esos 5
     // vales están en _sbInFlightPending[path] y deben encolarse como un nuevo
     // write, no perderse.
     _flushInFlight();
-    if (item.retries < 4) {
-      requeued = true;
-      _sbWriteQueue.unshift(item);
-      _persistQueue();
-      // v17: Backoff exponencial con jitter para evitar thundering herd.
-      // Si varios gestores están reintentando a la vez sobre el mismo enlace
-      // saturado, backoffs sin jitter se sincronizan y empeoran la congestión.
-      const base = Math.min(1000 * Math.pow(2, item.retries), 30000);
-      const jitter = Math.random() * 500;
-      const delay = base + jitter;
-      setTimeout(() => { _sbProcessing = false; _currentWritePath = null; _processSBQueue(); }, delay);
-    } else {
-      // Demasiados reintentos — descartar y seguir con el siguiente.
-      _sbProcessing = false;
-      _currentWritePath = null;  // v31: clear in-flight path
-      _persistQueue();
-      _processSBQueue();
-    }
-  }, adaptiveTimeout);
+    // v140: un plazo vencido es la red, no el dato: se reintenta SIEMPRE (antes,
+    // al 4.º intento se tiraba el cambio en silencio y los teléfonos quedaban
+    // en desacuerdo para siempre). La espera crece hasta un minuto.
+    requeued = true;
+    _sbWriteQueue.unshift(item);
+    _persistQueue();
+    // v17: Backoff exponencial con jitter para evitar thundering herd.
+    const base = Math.min(1000 * Math.pow(2, item.retries), 60000);
+    const jitter = Math.random() * 500;
+    const delay = base + jitter;
+    setTimeout(() => { _sbProcessing = false; _currentWritePath = null; _processSBQueue(); }, delay);
+  };
+  let timeoutId = setTimeout(_alVencer, adaptiveTimeout);
 
   op.then(() => {
       // ── v15 BUGFIX: si el timeout de 8s ya disparó y reencoló el item,
@@ -2860,7 +2921,12 @@ function _processSBQueue() {
       console.error("Supabase write error:", e);
       // Flush del buffer in-flight antes de reencolar (igual que en timeout).
       _flushInFlight();
-      if (item.retries < 4) {
+      // v140: solo se da por perdido un error que NO se arregla reintentando
+      // (el servidor rechaza el dato: 400, 403, 404, 409, 413, 422…) y tras
+      // varios intentos. Sin red, 5xx, 408 o 429 se reintenta siempre.
+      const _msgErr = String((e && e.message) || e || '');
+      const _permanente = /\b(400|401|403|404|405|409|410|413|415|422)\b/.test(_msgErr);
+      if (!_permanente || item.retries < 4) {
         // Reencolar YA (no en el setTimeout) para que sobreviva a un cierre
         // de la app durante el backoff. Antes el item se perdía porque el
         // finally persistía la cola sin él.
@@ -2870,7 +2936,7 @@ function _processSBQueue() {
         // v17: backoff exponencial con jitter (igual que en timeout).
         // Antes Math.pow(1.5, retries) era demasiado corto en redes lentas y
         // sin jitter → si varios gestores reintentaban a la vez, saturaban.
-        const base = Math.min(1000 * Math.pow(2, item.retries), 30000);
+        const base = Math.min(1000 * Math.pow(2, item.retries), 60000);
         const jitter = Math.random() * 500;
         const delay = base + jitter;
         setTimeout(() => { _sbProcessing = false; _currentWritePath = null; _processSBQueue(); }, delay);
@@ -3401,6 +3467,41 @@ const setSB = (path, v, method = 'set') => {
 };
 
 // ═══ In-memory cache layer ═══
+// ── v140: saneamiento de lo que llega de la nube ────────────────────────────
+// Auditoría: la base de datos se puede escribir con la clave pública (no hay
+// RLS), y varios campos se pintaban tal cual dentro del HTML: el color de un
+// gestor en style="", las iniciales dentro de un onerror, los ids dentro de
+// onclick="…(${id})". Una ficha preparada ejecutaba código en el teléfono del
+// admin —que guarda el token de GitHub—. Aquí se limpian en el único sitio por
+// donde entran (al leer del teléfono y al bajar de la nube): ids solo números,
+// colores solo #hex, iniciales solo letras, fotos solo rutas conocidas.
+const _COLOR_OK = /^#[0-9a-f]{3,8}$/i;
+const _FOTO_OK = /^(https:\/\/[^\s"'<>`\\]+|data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+|(\.\/)?photos\/[\w.\-\/]+)$/i;
+function _idNumero(x) {
+  if (typeof x === 'number' && isFinite(x)) return x;
+  if (typeof x === 'string' && /^-?\d{1,20}$/.test(x.trim())) return Number(x.trim());
+  return null;
+}
+function _sanearFila(tipo, o) {
+  if (!o || typeof o !== 'object') return null;
+  const c = { ...o };
+  if ('id' in c || tipo !== 'estafa') { const id = _idNumero(c.id); if (id === null) return null; c.id = id; }
+  if ('color' in c && !_COLOR_OK.test(String(c.color || ''))) c.color = '#64748B';
+  if ('initials' in c) c.initials = String(c.initials || '').replace(/[^\p{L}\p{N}]/gu, '').slice(0, 3) || '?';
+  ['photo', 'imagen'].forEach(k => { if (c[k] && !_FOTO_OK.test(String(c[k]))) c[k] = ''; });
+  ['catId', 'productId', 'gestorId', 'mensajeroId'].forEach(k => {
+    if (c[k] == null || c[k] === '') return;
+    if (k === 'gestorId' && c[k] === 'admin') return;       // ventas directas
+    const n = _idNumero(c[k]); c[k] = n;
+  });
+  return c;
+}
+function _sanearLista(tipo, arr) {
+  if (!Array.isArray(arr)) return arr;
+  const out = [];
+  arr.forEach(o => { const c = _sanearFila(tipo, o); if (c) out.push(c); });
+  return out;
+}
 let _gestoresCache = null, _gestoresDirty = true;
 let _valesCache = null, _valesDirty = true;
 // v58: último slim de cada vale TAL Y COMO SE ENVIÓ a Supabase, serializado y
@@ -3413,6 +3514,13 @@ let _valesCache = null, _valesDirty = true;
 // los vales una vez. Es idempotente —el upsert deja el mismo resultado— y de
 // paso repara en Supabase los que se hubieran quedado con el estado viejo.
 const _valesPrevSlimJson = new Map();
+// v140: "lo que la nube ya tiene" se toma de lo GUARDADO en el teléfono al
+// empezar la sesión y cada vez que el sondeo trae vales. Antes el mapa nacía
+// vacío en cada carga, y el primer guardado del admin subía TODOS los vales
+// (cientos de peticiones, y con datos viejos que pisaban cambios de otro
+// equipo). Se lee de localStorage y no del caché porque el caché se modifica
+// por referencia (patchVale) antes de llamar a saveVales.
+let _resembrarSlim = true;
 let _mensajerosCache = null, _mensajerosDirty = true;
 let _productosCache = null, _productosDirty = true;
 let _categoriasCache = null, _categoriasDirty = true;
@@ -3433,10 +3541,10 @@ function _safeSetLS(key, value) {
   }
 }
 
-const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = JSON.parse(localStorage.getItem('axon_gestores') || '[]'); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
+const getGestores   = () => { if (_gestoresDirty || !_gestoresCache) { try { _gestoresCache = _sanearLista('gestores', JSON.parse(localStorage.getItem('axon_gestores') || '[]')); } catch(e) { _gestoresCache = []; } _gestoresDirty = false; } return _gestoresCache; };
 // ⚠️ saveGestores SUBE LA LISTA ENTERA. Solo para reemplazarlo todo (importar,
 // restaurar, cargar demo). Para tocar uno o dos usa guardarGestores(lista, ids).
-const saveGestores  = v  => { _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; _gestoresMap = null; if (!isSyncingFromSupabase()) setSB('gestores', v); _logAudit('gestores_update'); };
+const saveGestores  = v  => { v = _sanearLista('gestores', v); _safeSetLS('axon_gestores', JSON.stringify(v)); _gestoresCache = v; _gestoresDirty = false; _gestoresMap = null; if (!isSyncingFromSupabase()) setSB('gestores', v); _logAudit('gestores_update'); };
 
 // ── v96: guardar SOLO los gestores que cambian ──────────────────────────────
 // Mismo fallo que costó el inventario el 16/08, esperando su turno en otra
@@ -3514,6 +3622,11 @@ const saveVales = v => {
     });
   }
   const prevVales = _valesCache; // snapshot antes de este guardado, para detectar borrados reales
+  let _semilla = null;
+  if (_resembrarSlim) {
+    _resembrarSlim = false;
+    try { _semilla = JSON.parse(localStorage.getItem('axon_vales') || '[]'); } catch(e) { _semilla = []; }
+  }
   _safeSetLS('axon_vales', JSON.stringify(v));
   _valesCache = v; _valesDirty = false;
   setTimeout(_refrescarReservas, 0);   // v92: las reservas se calculan de los vales
@@ -3701,6 +3814,13 @@ const saveVales = v => {
     }
     return slim;
   }
+  if (Array.isArray(_semilla)) {
+    _semilla.forEach(x => {
+      if (!x || x.id == null) return;
+      if (IS_ADMIN) _valesPrevSlimJson.set(`${x.gestorId}/${x.id}`, JSON.stringify(slimVale(x)));
+      else if (activeGestorId && x.gestorId === activeGestorId) _valesPrevSlimJson.set(`${x.gestorId}/${x.id}`, JSON.stringify(slimValeGestor(x)));
+    });
+  }
   const curKeys = new Set();
   if (IS_ADMIN) {
     v.forEach(x => {
@@ -3780,8 +3900,8 @@ const saveVales = v => {
   // Sin gestor activo en la página de gestor: no se escribe nada (evita borrados fantasma)
 };
 
-const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = JSON.parse(localStorage.getItem('axon_mensajeros') || '[]'); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
-const saveMensajeros= v  => { _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; _mensajerosMap = null; if (!isSyncingFromSupabase()) setSB('mensajeros', v); };
+const getMensajeros = () => { if (_mensajerosDirty || !_mensajerosCache) { try { _mensajerosCache = _sanearLista('mensajeros', JSON.parse(localStorage.getItem('axon_mensajeros') || '[]')); } catch(e) { _mensajerosCache = []; } _mensajerosDirty = false; } return _mensajerosCache; };
+const saveMensajeros= v  => { v = _sanearLista('mensajeros', v); _safeSetLS('axon_mensajeros', JSON.stringify(v)); _mensajerosCache = v; _mensajerosDirty = false; _mensajerosMap = null; if (!isSyncingFromSupabase()) setSB('mensajeros', v); };
 
 // v41: Normalize product fields — some products come from productos.json with Spanish
 // field names (nombre, descripcion, imagen, precioActual) while the code uses English
@@ -3830,7 +3950,7 @@ function _normalizeProducto(p) {
 }
 const getProductos  = () => {
   if (_productosDirty || !_productosCache) {
-    try { _productosCache = JSON.parse(localStorage.getItem('axon_productos') || '[]'); } catch(e) { _productosCache = []; }
+    try { _productosCache = _sanearLista('productos', JSON.parse(localStorage.getItem('axon_productos') || '[]')); } catch(e) { _productosCache = []; }
     // v41: Normalize all products on read
     if (Array.isArray(_productosCache)) _productosCache.forEach(_normalizeProducto);
     _productosDirty = false;
@@ -3840,7 +3960,7 @@ const getProductos  = () => {
 // ⚠️ saveProductos SUBE EL CATÁLOGO ENTERO. Úsalo solo cuando de verdad quieras
 // reemplazarlo todo (importar, restaurar, cargar demo). Para cambiar uno o dos
 // productos usa guardarProductos(lista, ids), justo debajo.
-const saveProductos = v  => { if(Array.isArray(v)) v.forEach(_normalizeProducto); _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; _productosMap = null; if (!isSyncingFromSupabase()) setSB('productos', v); triggerAutoPublishCatalog(); };
+const saveProductos = v  => { v = _sanearLista('productos', v); if(Array.isArray(v)) v.forEach(_normalizeProducto); _safeSetLS('axon_productos', JSON.stringify(v)); _productosCache = v; _productosDirty = false; _productosMap = null; if (!isSyncingFromSupabase()) setSB('productos', v); triggerAutoPublishCatalog(); };
 
 // ── v95: guardar SOLO los productos que cambian ─────────────────────────────
 // El 16/08 se perdió el inventario de un día entero por esto. Alguien tocó el
@@ -3874,15 +3994,32 @@ function guardarProductos(lista, ids) {
   triggerAutoPublishCatalog();
 }
 
-const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = JSON.parse(localStorage.getItem('axon_categorias') || '[]'); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
+const getCategorias = () => { if (_categoriasDirty || !_categoriasCache) { try { _categoriasCache = _sanearLista('categorias', JSON.parse(localStorage.getItem('axon_categorias') || '[]')); } catch(e) { _categoriasCache = []; } _categoriasDirty = false; } return _categoriasCache; };
 // ⚠️ Sube la lista entera: solo para importar/restaurar/demo.
-const saveCategorias= v  => { _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromSupabase()) setSB('categorias', v); };
+const saveCategorias= v  => { v = _sanearLista('categorias', v); _safeSetLS('axon_categorias', JSON.stringify(v)); _categoriasCache = v; _categoriasDirty = false; if (!isSyncingFromSupabase()) setSB('categorias', v); };
 function guardarCategorias(lista, ids) {
   _guardarFilas('axon_categorias', 'categorias', lista, ids, l => { _categoriasCache = l; _categoriasDirty = false; });
 }
 
 const getConfig     = () => { if (_configDirty || !_configCache) { try { _configCache = JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { _configCache = {}; } _configDirty = false; } return _configCache; };
-const saveConfig    = v  => { _safeSetLS('axon_config', JSON.stringify(v)); _configCache = v; _configDirty = false; if (!isSyncingFromSupabase()) setSB('config', v); };
+// v140: la config sube SOLO lo que cambió, y se junta con la de la nube. Antes
+// subía entera: un equipo con una copia vieja (un admin recién abierto, la
+// tasa que se refresca sola cada 3 h) borraba lo que había puesto otro —la
+// auditoría vio desaparecer el historial de ganadores, el ciclo, la meta, el
+// repositorio y la llave de las claves—. Una clave que se quita viaja como null.
+const saveConfig    = v  => {
+  const antes = (() => { try { return _configCache || JSON.parse(localStorage.getItem('axon_config') || '{}'); } catch(e) { return {}; } })();
+  _safeSetLS('axon_config', JSON.stringify(v)); _configCache = v; _configDirty = false;
+  if (isSyncingFromSupabase()) return;
+  const parche = {};
+  const ahora = JSON.parse(JSON.stringify(v || {}));   // lo que de verdad se guarda (sin undefined)
+  new Set([...Object.keys(antes || {}), ...Object.keys(ahora)]).forEach(k => {
+    if (k === 'ghToken') return;                         // el token nunca sale del teléfono
+    const a = JSON.stringify(antes ? antes[k] : undefined), d = JSON.stringify(ahora[k]);
+    if (a !== d) parche[k] = (k in ahora) ? ahora[k] : null;
+  });
+  if (Object.keys(parche).length) setSB('config', parche, 'update');
+};
 
 // GitHub token helper — el token NUNCA se sincroniza a Supabase.
 // Vive solo en localStorage del dispositivo admin para evitar que gestores
@@ -3896,8 +4033,8 @@ const setGhStatus = html => ['ghSyncStatus','ghSyncStatus2'].forEach(i => {
   if (el) el.innerHTML = html;
 });
 
-const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = JSON.parse(localStorage.getItem('axon_notifs') || '[]'); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
-const saveNotifs    = v  => { _safeSetLS('axon_notifs', JSON.stringify(v)); _notifsCache = v; _notifsDirty = false; if (!isSyncingFromSupabase()) setSB('notifs', v); };
+const getNotifs     = () => { if (_notifsDirty || !_notifsCache) { try { _notifsCache = _sanearLista('notifs', JSON.parse(localStorage.getItem('axon_notifs') || '[]')); } catch(e) { _notifsCache = []; } _notifsDirty = false; } return _notifsCache; };
+const saveNotifs    = v  => { v = _sanearLista('notifs', v); _safeSetLS('axon_notifs', JSON.stringify(v)); _notifsCache = v; _notifsDirty = false; if (!isSyncingFromSupabase()) setSB('notifs', v); };
 
 // ══════════════════════════════════════════
 //  AUTO-PUBLISH CATALOG TO GITHUB
@@ -3938,7 +4075,10 @@ function buildCatalogHTML() {
     });
   }
   const cfg=getConfig();
-  const waPhone=cfg.catalogPhone||cfg.adminPhone||'';
+  // v140: solo dígitos. El número va tal cual dentro de un href del catálogo
+  // público (mismo dominio que el panel del admin): cualquier otra cosa era una
+  // puerta para meter código en esa página.
+  const waPhone=String(cfg.catalogPhone||cfg.adminPhone||'').replace(/\D/g,'');
   const catColors=['#006d8a','#7c3aed','#dc2626','#059669','#d97706','#2563eb','#be185d','#475569'];
   const dateStr=new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
   let catCardsJS='';
@@ -4137,8 +4277,8 @@ renderNav();renderGrid();
 // ══════════════════════════════════════════
 let _estafaCache = null;
 let _estafaDirty = true;
-const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { _estafaCache = JSON.parse(localStorage.getItem('axon_estafa') || '[]'); } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
-const saveEstafa  = v  => { _safeSetLS('axon_estafa', JSON.stringify(v)); _estafaCache = v; _estafaDirty = false; if (!isSyncingFromSupabase()) setSB('estafa', v); };
+const getEstafa   = () => { if (_estafaDirty || !_estafaCache) { try { _estafaCache = _sanearLista('estafa', JSON.parse(localStorage.getItem('axon_estafa') || '[]')); } catch(e) { _estafaCache = []; } _estafaDirty = false; } return _estafaCache; };
+const saveEstafa  = v  => { v = _sanearLista('estafa', v); _safeSetLS('axon_estafa', JSON.stringify(v)); _estafaCache = v; _estafaDirty = false; if (!isSyncingFromSupabase()) setSB('estafa', v); };
 
 function checkEstafaMatch(vale) {
   const lista = getEstafa();
@@ -4728,6 +4868,9 @@ async function reservarValeNumServidor() {
     const n = parseInt(await res.json().catch(() => NaN), 10);
     if (!(n > 0)) return null;
     _valeNumRpc = true;
+    // v140: si mientras esta respuesta venía de camino el teléfono ya numeró un
+    // vale por su cuenta, este número puede ser ESE: no se guarda y se pide otro.
+    if (n <= _valeNumMarca()) { setTimeout(() => { try { reservarValeNumServidor(); } catch(e) {} }, 0); return null; }
     try { localStorage.setItem(_VALE_NUM_RESERVA_KEY, JSON.stringify({ n, ts: Date.now() })); } catch(e) {}
     return n;
   } catch(e) { return null; }
@@ -4740,7 +4883,9 @@ function getNextValeNum() {
   // vaya en orden con los que este teléfono ha visto.
   const reservado = _valeNumReservado();
   if (reservado) {
-    n = parseInt(reservado.n, 10);
+    // v140: una reserva que no supera lo que este teléfono ya usó no vale (la
+    // pudo dar el servidor mientras aquí se numeraba un vale sin esperarla).
+    if (parseInt(reservado.n, 10) > _valeNumMarca()) n = parseInt(reservado.n, 10);
     try { localStorage.removeItem(_VALE_NUM_RESERVA_KEY); } catch(e) {}
   }
   setTimeout(() => { try { reservarValeNumServidor(); } catch(e) {} }, 0);   // el siguiente, ya
@@ -5446,7 +5591,9 @@ async function _duenosParaSubir(valor) {
   const hay = Object.keys(c.asig).length || Object.keys(c.lista).length;
   if (!hay) return { valor, c: null };                 // subida de rescate: va tal cual
   const nube = await _sbRestGetMeta('duenos');          // si falla, lanza: la cola reintenta
-  return { valor: _aplicarCambiosDuenos(nube, c), c };
+  // v140: si la nube no tiene lista (subida de rescate), la base es lo de aquí.
+  const base = (nube && Array.isArray(nube.lista) && nube.lista.length) ? nube : valor;
+  return { valor: _aplicarCambiosDuenos(base, c), c };
 }
 function _duenosSubidos(fusionado, c) {
   // Se quitan del diario los cambios que ya subieron (si no se tocaron mientras tanto).
@@ -6073,7 +6220,7 @@ function renderGestorNotifs() {
       const place=parts[0]||'';const pts=parts[1]||'';
       const placeNum=parseInt(parts[2])||0;
       const placeEmoji=placeNum===1?'🥇':placeNum===2?'🥈':placeNum===3?'🥉':'🏆';
-      msg=`<b>${placeEmoji} ${place}</b> · ${escapeHTML(n.productName)} con <b>${pts} pts</b>`;
+      msg=`<b>${placeEmoji} ${escapeHTML(place)}</b> · ${escapeHTML(n.productName)} con <b>${escapeHTML(pts)} pts</b>`;   // v140: escapado
     } else {
       msg=`${safeName}${safeExtra?` (${safeExtra})`:``}`;
     }
@@ -6506,9 +6653,19 @@ async function _leerMetaDeLaNube(name) {
   const rows = await res.json();
   return (rows && rows[0]) ? rows[0].data : null;
 }
+// v140: la llave pública se "fija" la primera vez que este teléfono la ve. Si
+// después aparece otra en el config, NO se usa: cualquiera con la dirección de
+// la base de datos podía cambiarla por la suya y recibir las claves nuevas.
+const _PUB_FIJADA_KEY = 'axon_claves_pub_fijada';
+function _pubFijada() { try { return localStorage.getItem(_PUB_FIJADA_KEY) || ''; } catch(e) { return ''; } }
+function _fijarPub(pub) { try { if (pub) localStorage.setItem(_PUB_FIJADA_KEY, pub); } catch(e) {} }
+let _clavesClaras = new Map();   // id gestor → clave, solo en memoria del admin con la llave abierta
 async function _cifrarParaAdmin(texto) {
   const pub = _clavePublicaTxt();
   if (!pub || !window.crypto || !crypto.subtle) return null;
+  const fijada = _pubFijada();
+  if (!fijada) _fijarPub(pub);
+  else if (fijada !== pub) { console.warn('[claves] la llave pública del config no es la de siempre — no se usa'); return null; }
   try {
     const k = await crypto.subtle.importKey('spki', _deB64(pub), _RSA, false, ['encrypt']);
     return _aB64(await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, k, new TextEncoder().encode(String(texto))));
@@ -6532,6 +6689,13 @@ async function _abrirLlavero(passAdmin) {
   }
   try {
     if (!doc || !doc.priv) {
+      // v140: con la contraseña de fábrica (sale en el código público) no se
+      // crea: cualquiera podría abrir la llave.
+      if (String(passAdmin) === 'axon2024') {
+        _llaveEstado = 'clave_fabrica'; _pintarClavesGestores();
+        showToast('🔑 Para poder ver las claves de los gestores, cambia antes la contraseña del admin (Config)');
+        return false;
+      }
       // No existe en la nube: es la primera vez. Se crea la llave doble.
       const par = await crypto.subtle.generateKey({ ..._RSA, modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]) },
                                                    true, ['encrypt', 'decrypt']);
@@ -6540,6 +6704,13 @@ async function _abrirLlavero(passAdmin) {
       _safeSetLS('axon_claves_admin', JSON.stringify(doc));
       setSB('claves_admin', doc);
       _logAudit('llavero_creado', 'claves de gestores legibles para el admin');
+      // v140: si otro equipo de admin la creó a la vez, se queda la de la nube.
+      setTimeout(async () => {
+        try {
+          const nube = await _leerMetaDeLaNube('claves_admin');
+          if (nube && nube.pub && nube.pub !== doc.pub) { _llavePrivada = null; await _abrirLlavero(passAdmin); }
+        } catch(e) {}
+      }, 4000);
     }
     const k = await _llaveDeClaveAdmin(passAdmin, _deB64(doc.sal));
     let pkcs8;
@@ -6547,6 +6718,10 @@ async function _abrirLlavero(passAdmin) {
     catch (e) { _llaveEstado = 'otra_clave'; _pintarClavesGestores(); return false; }
     _llavePrivada = await crypto.subtle.importKey('pkcs8', pkcs8, _RSA, true, ['decrypt']);
     _llaveEstado = 'abierta';
+    if (doc.pub) _fijarPub(doc.pub);   // v140: la que abre el admin es la buena
+    if (String(passAdmin) === 'axon2024') showToast('⚠️ La llave de las claves está cerrada con la contraseña de fábrica: cambia la contraseña del admin en Config');
+    _clavesClaras = new Map();
+    for (const g of getGestores()) { const c = await _leerClaveGestor(g); if (c) _clavesClaras.set(String(g.id), c); }
     _safeSetLS('axon_claves_admin', JSON.stringify(doc));
     // La pública del config es la que usan los gestores: si alguien la pisó
     // con un config viejo, se repone desde el documento.
@@ -6580,10 +6755,19 @@ async function _mandarClaveAlAdmin(id, clave) {
     if (g.claveVisible && g.claveVisibleDe === tag) return;
     const ct = await _cifrarParaAdmin(String(clave).trim().toUpperCase());
     if (!ct) return;
+    // v140: se parte de la ficha que hay en la NUBE, no de la copia de este
+    // teléfono (puede tener horas): subirla entera deshacía, por ejemplo, un
+    // reseteo de clave recién hecho por el admin.
+    let nube = null;
+    try {
+      const res = await fetch(`${_SB_REST}/gestores?select=data&id=eq.${encodeURIComponent(String(g.id))}`, { headers: _SB_AUTH_HDRS });
+      if (res.ok) { const rows = await res.json(); nube = rows && rows[0] && rows[0].data; }
+    } catch(e) {}
+    if (!nube || nube.password !== pw) return;            // sin red o la clave ya cambió: nada
     const list = getGestores().slice();
     const i = list.findIndex(x => String(x.id) === String(id));
-    if (i === -1 || list[i].password !== pw) return;
-    list[i] = { ...list[i], claveVisible: ct, claveVisibleDe: tag };
+    if (i === -1) return;
+    list[i] = { ...nube, claveVisible: ct, claveVisibleDe: tag };
     guardarGestores(list, [list[i].id]);
   } catch (e) {}
 }
@@ -6603,7 +6787,9 @@ async function encriptarClavesViejas() {
   const esPlana = pw => { const t = String(pw || '').trim(); return !!t && !t.startsWith('pbkdf2$') && !t.startsWith('sha256:'); };
   const pendientes = getGestores().filter(g => g && esPlana(g.password)).map(g => ({ id: g.id, plana: String(g.password).trim() }));
   if (!pendientes.length) return 0;
-  if (!_clavePublicaTxt()) return 0;   // v138: primero la llave, para no perderlas de vista
+  // v140: se encriptan aunque aún no haya llave (la seguridad primero): si no
+  // llevan sobre, el sobre lo cierra el teléfono del gestor la próxima vez que
+  // entre (_mandarClaveAlAdmin), así que el admin no las pierde de vista.
   _encriptandoClaves = true;
   try {
     const hechos = [];
@@ -7993,6 +8179,7 @@ function resetGestorPass(id) {
     const i=list.findIndex(g=>g.id===id);
     if(i===-1){ showToast('Ese gestor ya no existe'); return; }
     list[i]={...list[i], password:hash, claveVisible:sobre||null, claveVisibleDe:sobre?_etiquetaClave(hash):null};
+    _clavesClaras.set(String(id), np);   // v140
     guardarGestores(list, [id]);
     _logAudit('gestor_pass_reset', 'gestor:' + id);
     gestoresTabDirty=true;
@@ -8088,7 +8275,9 @@ function _ofrecerClaveNueva(id, g) {
   const pw = String(g && g.password || '');
   const tieneSobre = g && g.claveVisible && g.claveVisibleDe === _etiquetaClave(pw);
   // v138: por qué no se ve AHORA, que no es lo mismo en cada caso.
-  const porque = tieneSobre
+  const porque = _llaveEstado === 'clave_fabrica'
+    ? 'Para poder ver las claves hay que <b>cambiar primero la contraseña del admin</b> (Config): la de fábrica sale en el código público.'
+    : tieneSobre
     ? (_llaveEstado === 'otra_clave'
         ? 'Las claves se guardaron con <b>otra contraseña de admin</b>. Entra con esa (o cámbiala desde el teléfono donde se activaron) y se verán.'
         : 'La llave de las claves aún no se ha abierto en este teléfono. Espera unos segundos con conexión y vuelve a tocar.')
@@ -8105,7 +8294,9 @@ async function copyGestorPass(id) {
   let pass=g.password||'';
   const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
   if (hashed) {
-    const clara = await _leerClaveGestor(g);   // v138
+    // v140: de la memoria, sin esperar: en iPhone copiar solo funciona dentro
+    // del mismo toque, y descifrar en ese momento lo hacía fallar.
+    const clara = _clavesClaras.get(String(id)) || await _leerClaveGestor(g);
     if (!clara) { _ofrecerClaveNueva(id, g); return; }
     pass = clara;
   }
@@ -8150,6 +8341,7 @@ function addGestor() {
     }
     const nuevoId=Date.now();
     const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
+    _clavesClaras.set(String(nuevoId), password);   // v140
     list.push({id:nuevoId,name,initials,color,password:hash,phone,
                ...(sobre?{claveVisible:sobre,claveVisibleDe:_etiquetaClave(hash)}:{})});   // v138
     guardarGestores(list, [nuevoId]);
@@ -9081,7 +9273,7 @@ function renderValeDetail(destinoId) {
   const estafaMatches=checkEstafaMatch(v);
   const estafaDetailHTML=estafaMatches.length?`<div style="background:rgba(239,68,68,.08);border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:10px;">
     <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px;">🚨 ALERTA DE ESTAFA</div>
-    <div style="font-size:12px;color:var(--text);line-height:1.6;">${estafaMatches.map(m=>'⚠️ Coincidencia por '+m.reasons.join(', ')+(m.entry.nota?' — <i>'+escapeHTML(m.entry.nota)+'</i>':'')).join('<br>')}</div>
+    <div style="font-size:12px;color:var(--text);line-height:1.6;">${estafaMatches.map(m=>'⚠️ Coincidencia por '+escapeHTML(m.reasons.join(', '))+(m.entry.nota?' — <i>'+escapeHTML(m.entry.nota)+'</i>':'')).join('<br>')}</div>
   </div>`:'';
   c.innerHTML=`
     <div class="lbl" style="margin-top:0;">Detalle del Vale</div>
@@ -13231,7 +13423,7 @@ function renderMermas() {
       </div>
       <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
         ${costo}
-        <button class="btn btn-ghost btn-sm btn-icono" title="Deshacer: devuelve las unidades al almacén" onclick="mermaDeshacer('${escapeAttr(m.id)}')">↩️</button>
+        <button class="btn btn-ghost btn-sm btn-icono" title="Deshacer: devuelve las unidades al almacén" onclick="mermaDeshacer(${escapeAttr(JSON.stringify(String(m.id)))})">↩️</button>
       </div>
     </div>`;
   }).join('');
@@ -15247,7 +15439,7 @@ function buildCatalogCardJS(p,cat,color,waPhone){
   const esc=s=>JSON.stringify(s).replace(/<\//g,'<\\/');
   const waMsg=`Hola, me interesa el producto: ${pName}${pPrice?' - '+pPrice:''}. Esta disponible?`;
   const waLink=waPhone?`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`:'';
-  return `{id:${p.id},catId:${cat?cat.id:0},name:${esc(pName)},desc:${esc(pDesc)},price:${esc(pPrice)},photo:${esc(pPhoto)},catName:${esc(cat?cat.name:'')},catColor:'${color}',garantia:${esc(pGarantia)},waLink:${esc(waLink)}},`;
+  return `{id:${esc(p.id)},catId:${esc(cat?cat.id:0)},name:${esc(pName)},desc:${esc(pDesc)},price:${esc(pPrice)},photo:${esc(pPhoto)},catName:${esc(cat?cat.name:'')},catColor:${esc(/^#[0-9a-f]{3,8}$/i.test(String(color))?color:'#006d8a')},garantia:${esc(pGarantia)},waLink:${esc(waLink)}},`;
 }
 
 // ══════════════════════════════════════════
@@ -16856,6 +17048,7 @@ function ganadoresMensuales() {
 // la última vez, y si el teléfono llevaba días sin abrirse eso es una foto
 // vieja: el podio saldría con los puntos de hace días.
 let _valesAlDiaTs = 0;
+let _configAlDiaTs = 0;   // v140: y la config — el ciclo en curso y el historial salen de ahí
 let _cierreIntentos = 0;
 function _cerrarMesSiToca() {
   if (metaModo() !== 'mensual') return;
@@ -16870,9 +17063,11 @@ function _cerrarMesSiToca() {
   // proclama nada de un ciclo que la app no estuvo contando.
   if (!enCurso) { saveConfig({ ...cfg, cicloActual: cicloAhora }); return; }
   if (enCurso === cicloAhora) { _repararHistorialDeGanadores(); return; }   // sigue el mismo ciclo
-  if (!_valesAlDiaTs) {
+  if (!_valesAlDiaTs || !_configAlDiaTs) {
     // Sin conexión todavía: se vuelve a mirar en un rato (el poll también lo
-    // llama en cuanto baja los vales).
+    // llama en cuanto baja los vales). v140: también hace falta la config de la
+    // nube: con la de un teléfono que llevaba días sin abrirse se cerraba OTRA
+    // vez un ciclo ya cerrado por otro equipo y se pisaba el historial.
     if (_cierreIntentos++ < 120) setTimeout(() => { try { _cerrarMesSiToca(); } catch(e) {} }, 5000);
     return;
   }
@@ -16911,7 +17106,7 @@ function _avisarPodio(mes, ranking) {
 // corrigen. Al último, si es reciente, se le mandan los avisos buenos de
 // puesto; los viejos sin marca dejan de enseñarse (ver renderGestorNotifs).
 function _repararHistorialDeGanadores() {
-  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN || !_valesAlDiaTs) return;
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN || !_valesAlDiaTs || !_configAlDiaTs) return;
   const hist = ganadoresMensuales();
   if (!hist.some(h => h && h.mes && !Array.isArray(h.ranking))) return;
   const ultimo = hist.length ? hist[hist.length - 1] : null;
@@ -20133,6 +20328,11 @@ const AYUDA_SECCIONES = [
         como:'Pega migration_v137_una_pregunta.sql en el SQL Editor de Supabase y dale a "Run". Desde ahí cada teléfono hace UNA pregunta por vuelta y solo baja lo que cambió. Además la app pregunta cada 10 s mientras se usa, cada 30 s tras 2 minutos sin tocarla y cada 60 s tras 15; al tocarla pregunta en el acto.',
         ojo:'Sin ese paso ya ahorra por el ritmo lento, pero mucho menos. Un teléfono que lleva rato sin tocarse puede tardar hasta un minuto en enterarse de un vale nuevo; tocando la pantalla se entera al momento. Con la app en segundo plano no pregunta nada.',
         nuevo:'v137' },
+      { icono:'🧩', titulo:'Que dos equipos no se pisen (migración v140)', donde:'Supabase › SQL Editor (una sola vez)',
+        para:'Con el admin abierto en el ordenador y en el teléfono, que lo que cambia uno no lo borre el otro: la configuración, las mermas, los vales borrados.',
+        como:'Pega migration_v140_fusionar.sql en el SQL Editor de Supabase y dale a "Run". Desde ahí la base de datos junta los cambios de uno en uno. Además la hora de "último cambio" pasa a ser la exacta, para que ningún cambio se quede sin bajar.',
+        ojo:'Sin ese paso la app ya sube solo lo que cambió (no el documento entero), pero si dos equipos guardan en el mismo segundo aún podría perderse uno. Es gratis y se puede ejecutar dos veces.',
+        nuevo:'v140' },
       { icono:'🔢', titulo:'Números de vale que no se repiten', donde:'Supabase › SQL Editor (una sola vez)',
         para:'Que dos gestores que mandan un vale a la vez no se lleven el mismo número (en los datos había 192 repetidos).',
         como:'Pega el archivo migration_v134_vale_num.sql del repositorio en el SQL Editor de Supabase y dale a "Run". Desde ahí el número lo da la base de datos, de uno en uno. El teléfono lo pide por adelantado, así que mandar sin cobertura sigue funcionando.',

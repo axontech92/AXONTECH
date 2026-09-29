@@ -1862,3 +1862,12 @@ body.dark .pwa-help-note{color:#94a3b8;}
   border-style:dashed !important;
 }
 .vf-auto-lock:focus{outline:none;box-shadow:none;}
+
+/* v140: en el teléfono (390 px) Estadísticas y Ventas directas se salían por
+   el lado: una tabla ancha estiraba la columna de la rejilla (los hijos de un
+   grid no encogen por debajo de su contenido si no se les dice). Ahora la
+   columna no pasa del ancho de la pantalla y lo ancho se desplaza dentro. */
+.layout.active > *{min-width:0;}
+.admin-panel{min-width:0;max-width:100%;}
+#statsGananciaTabla, #adminDirectasPanel table{overflow-x:auto;max-width:100%;}
+#statsGananciaTabla{display:block;}

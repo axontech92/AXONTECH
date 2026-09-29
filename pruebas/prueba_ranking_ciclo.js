@@ -77,7 +77,7 @@ const ESCENARIO = () => {
 
   console.log('══ 1· EL ADMIN NO CIERRA EL CICLO CON VALES SIN BAJAR ══');
   const antes = await p.evaluate(() => {
-    _valesAlDiaTs = 0; _cierreIntentos = 999;   // sin reintentos en la prueba
+    _valesAlDiaTs = 0; _configAlDiaTs = 0; _cierreIntentos = 999;   // sin reintentos en la prueba
     const c0 = getConfig().cicloActual;
     _cerrarMesSiToca();
     return { c0, c1: getConfig().cicloActual, hist: ganadoresMensuales().length };
@@ -86,7 +86,7 @@ const ESCENARIO = () => {
 
   console.log('\n══ 2· EL PODIO SALE CON LA MISMA CUENTA QUE EL RANKING ══');
   const cierre = await p.evaluate(async () => {
-    _valesAlDiaTs = Date.now();
+    _valesAlDiaTs = Date.now(); _configAlDiaTs = Date.now();   // v140: vales Y config de la nube
     _cerrarMesSiToca();
     await new Promise(r => setTimeout(r, 300));
     try { closeEpicGlowPulse(); } catch(e) {}
