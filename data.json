@@ -2756,7 +2756,7 @@
       "ts": "2026-09-28T23:25:05.473Z",
       "total": "$140 USD + 3000 MN",
       "carnet": "",
-      "seenTs": "2026-09-28T23:25:33.572Z",
+      "seenTs": "2026-09-29T00:43:37.255Z",
       "status": "assigned",
       "vuelto": "",
       "cliente": "IVÁN",
@@ -3897,6 +3897,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5318,7 +5319,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5489,7 +5492,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -11728,7 +11733,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": true,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -12358,7 +12365,9 @@
         }
       ],
       "comisionGestor": "",
+      "commissionPaid": true,
       "recogidaTienda": false,
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -21731,8 +21740,9 @@
         }
       ],
       "comisionGestor": "15000 MN",
+      "commissionPaid": true,
       "recogidaTienda": true,
-      "commissionStatus": "en_sobre",
+      "commissionStatus": "cobrado",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -43776,5 +43786,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-29T00:42:32.459Z"
+  "timestamp": "2026-09-29T00:44:13.759Z"
 }
