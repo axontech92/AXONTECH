@@ -699,7 +699,7 @@
       "name": "Probador/ tester  digital de baterías",
       "catId": 40,
       "photo": "photos/img_1781365019871.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/img_1781365019871.webp",
       "nombre": "Probador/ tester  digital de baterías",
       "precio": "$20",
@@ -1219,7 +1219,7 @@
       "name": "Pesa / báscula digital inteligente",
       "catId": 130,
       "photo": "photos/p-1788152657796-9215b5a4.webp",
-      "stock": 7,
+      "stock": 0,
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-29T20:13:48.777Z"
+  "timestamp": "2026-09-29T20:18:14.010Z"
 }
