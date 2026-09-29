@@ -286,7 +286,7 @@ const _SB_SINGLETON_ROWS = ['config', 'notifs', 'estafa', 'ranking_summary', 're
 // no tienen por qué acabar guardados en el teléfono de un gestor.
 // v119: 'mermas' entra aquí y no en la lista de todos por lo mismo — cada
 // merma lleva congelado lo que costó la mercancía perdida.
-const _SB_SINGLETON_ADMIN = ['costos', 'duenos', 'mermas'];
+const _SB_SINGLETON_ADMIN = ['costos', 'duenos', 'mermas', 'claves_admin'];   // v138: la llave de las claves
 
 async function _sbRestGetCollection(collName) {
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=data&order=id.asc`;
@@ -2617,7 +2617,8 @@ function _processSBQueue() {
     reservas: 'reservas', tasa: 'tasa', costos: 'costos',  // v114
     duenos: 'duenos',                                      // v119 — ver aviso de arriba
     vales_borrados: 'vales_borrados',                      // v119 — lápidas de borrado
-    mermas: 'mermas'                                       // v119 — mercancía perdida
+    mermas: 'mermas',                                      // v119 — mercancía perdida
+    claves_admin: 'claves_admin'                           // v138 — llave de las claves de gestores
   };
   function _supabaseOpFor(path, value, method) {
     // Singleton → meta/{name}
@@ -6151,6 +6152,7 @@ function submitPass() {
   verifyPassAsync(val).then(ok => {
     if(ok){
       adminActive=true;closePassModal();
+      _abrirLlavero(val);                   // v138: abre las claves legibles de los gestores
       _programarEncriptadoClavesViejas();   // v133
       const al=document.getElementById('adminLabel'); if(al) al.style.display='flex';
       const bl=document.getElementById('btnLogout'); if(bl) bl.style.display='inline-flex';
@@ -6321,16 +6323,155 @@ function repararTotalesVacios() {
   if (n) _logAudit('totales_reparados', n + ' vales');
   return n;
 }
+// ── v138: el admin puede VER las claves de los gestores ────────────────────
+// Pedido: "que las contraseñas de los gestores en el admin no salgan
+// encriptadas". El hash (PBKDF2) no se puede deshacer —es de una sola
+// dirección—, así que además del hash se guarda una copia LEGIBLE SOLO PARA EL
+// ADMIN:
+//   · Hay una llave doble (RSA). La parte pública va en el config, que ven
+//     todos: con ella cualquier teléfono puede CERRAR un sobre con una clave.
+//   · La parte privada, la que ABRE los sobres, se guarda en la nube cifrada
+//     con la contraseña del admin (documento claves_admin, que los gestores no
+//     bajan). Solo se abre en el teléfono del admin al entrar con su clave.
+//   · Cada gestor lleva su sobre (claveVisible). Lo cierra el admin al crear o
+//     resetear una clave, y el propio teléfono del gestor al entrar con la suya
+//     —así las claves que ya estaban encriptadas aparecen solas, sin cambiarle
+//     la clave a nadie.
+// Quien tenga la dirección de la base de datos ve sobres cerrados, no claves.
+// Por eso importa que la contraseña del admin NO sea la de fábrica.
+let _llavePrivada = null;
+let _llaveEstado = '';           // '' | 'abierta' | 'otra_clave' | 'sin_red'
+let _llaveReintentos = 0;
+function _aB64(buf) { const u = new Uint8Array(buf); let t = ''; for (let i = 0; i < u.length; i += 0x8000) t += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(t); }
+const _deB64 = s => Uint8Array.from(atob(String(s || '')), c => c.charCodeAt(0));
+const _RSA = { name: 'RSA-OAEP', hash: 'SHA-256' };
+const _etiquetaClave = hash => String(hash || '').slice(-16);
+const _clavePublicaTxt = () => String((getConfig() || {}).clavesPub || '');
+async function _llaveDeClaveAdmin(pass, sal) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(String(pass)), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: sal, iterations: 200000, hash: 'SHA-256' }, base,
+    { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function _envolverPrivada(pkcs8, pass, pub) {
+  const sal = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const k = await _llaveDeClaveAdmin(pass, sal);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, k, pkcs8);
+  return { v: 1, sal: _aB64(sal), iv: _aB64(iv), priv: _aB64(ct), pub };
+}
+async function _leerMetaDeLaNube(name) {
+  const res = await fetch(`${_SB_REST}/meta?select=data&name=eq.${encodeURIComponent(name)}`, { headers: _SB_AUTH_HDRS });
+  if (!res.ok) throw new Error('meta ' + res.status);
+  const rows = await res.json();
+  return (rows && rows[0]) ? rows[0].data : null;
+}
+async function _cifrarParaAdmin(texto) {
+  const pub = _clavePublicaTxt();
+  if (!pub || !window.crypto || !crypto.subtle) return null;
+  try {
+    const k = await crypto.subtle.importKey('spki', _deB64(pub), _RSA, false, ['encrypt']);
+    return _aB64(await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, k, new TextEncoder().encode(String(texto))));
+  } catch (e) { return null; }
+}
+async function _leerClaveGestor(g) {
+  if (!_llavePrivada || !g || !g.claveVisible || g.claveVisibleDe !== _etiquetaClave(g.password)) return null;
+  try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, _llavePrivada, _deB64(g.claveVisible))); }
+  catch (e) { return null; }
+}
+// Se llama al entrar el admin, con la contraseña que acaba de escribir (solo
+// vive en memoria, y solo mientras se reintenta).
+async function _abrirLlavero(passAdmin) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN || !window.crypto || !crypto.subtle) return false;
+  let doc;
+  try { doc = await _leerMetaDeLaNube('claves_admin'); }
+  catch (e) {                                   // sin red: se reintenta un rato
+    _llaveEstado = 'sin_red';
+    if (_llaveReintentos++ < 24) setTimeout(() => _abrirLlavero(passAdmin), 5000);
+    return false;
+  }
+  try {
+    if (!doc || !doc.priv) {
+      // No existe en la nube: es la primera vez. Se crea la llave doble.
+      const par = await crypto.subtle.generateKey({ ..._RSA, modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]) },
+                                                   true, ['encrypt', 'decrypt']);
+      const pub = _aB64(await crypto.subtle.exportKey('spki', par.publicKey));
+      doc = await _envolverPrivada(await crypto.subtle.exportKey('pkcs8', par.privateKey), passAdmin, pub);
+      _safeSetLS('axon_claves_admin', JSON.stringify(doc));
+      setSB('claves_admin', doc);
+      _logAudit('llavero_creado', 'claves de gestores legibles para el admin');
+    }
+    const k = await _llaveDeClaveAdmin(passAdmin, _deB64(doc.sal));
+    let pkcs8;
+    try { pkcs8 = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: _deB64(doc.iv) }, k, _deB64(doc.priv)); }
+    catch (e) { _llaveEstado = 'otra_clave'; _pintarClavesGestores(); return false; }
+    _llavePrivada = await crypto.subtle.importKey('pkcs8', pkcs8, _RSA, true, ['decrypt']);
+    _llaveEstado = 'abierta';
+    _safeSetLS('axon_claves_admin', JSON.stringify(doc));
+    // La pública del config es la que usan los gestores: si alguien la pisó
+    // con un config viejo, se repone desde el documento.
+    if (doc.pub && _clavePublicaTxt() !== doc.pub) saveConfig({ ...(getConfig() || {}), clavesPub: doc.pub });
+    _programarEncriptadoClavesViejas();   // las que sigan en texto plano, ya con su sobre
+    _pintarClavesGestores();
+    return true;
+  } catch (e) { console.warn('[llavero]', e && e.message); return false; }
+}
+// Al cambiar la contraseña del admin, la llave se vuelve a cerrar con la nueva.
+async function _recerrarLlavero(passNueva) {
+  if (!_llavePrivada) return false;
+  try {
+    const doc = JSON.parse(localStorage.getItem('axon_claves_admin') || 'null');
+    const nuevo = await _envolverPrivada(await crypto.subtle.exportKey('pkcs8', _llavePrivada), passNueva, doc && doc.pub);
+    _safeSetLS('axon_claves_admin', JSON.stringify(nuevo));
+    setSB('claves_admin', nuevo);
+    return true;
+  } catch (e) { return false; }
+}
+// El teléfono del GESTOR, al entrar con su clave correcta, cierra su sobre si
+// no lo tiene (o si es de una clave anterior). No cambia la clave.
+async function _mandarClaveAlAdmin(id, clave) {
+  try {
+    if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) return;
+    const g = gestorOf(id);
+    if (!g || !g.password || !_clavePublicaTxt()) return;
+    const pw = String(g.password);
+    if (!pw.startsWith('pbkdf2$') && !pw.startsWith('sha256:')) return;   // se encripta primero; entra la próxima vez
+    const tag = _etiquetaClave(pw);
+    if (g.claveVisible && g.claveVisibleDe === tag) return;
+    const ct = await _cifrarParaAdmin(String(clave).trim().toUpperCase());
+    if (!ct) return;
+    const list = getGestores().slice();
+    const i = list.findIndex(x => String(x.id) === String(id));
+    if (i === -1 || list[i].password !== pw) return;
+    list[i] = { ...list[i], claveVisible: ct, claveVisibleDe: tag };
+    guardarGestores(list, [list[i].id]);
+  } catch (e) {}
+}
+// Pinta el texto de cada clave en la lista del admin.
+function _htmlClaveGestor(g) {
+  const pw = String(g && g.password || '');
+  const hashed = pw.startsWith('pbkdf2$') || pw.startsWith('sha256:');
+  if (!hashed) return '🔑 ' + escapeHTML(pw || '—').replace(/./g, '•');
+  if (g.claveVisible && g.claveVisibleDe === _etiquetaClave(pw)) return _llavePrivada ? '🔑 ••••••' : '🔒 Encriptada';
+  return '⏳ Se verá al entrar';
+}
+function _pintarClavesGestores() {
+  getGestores().forEach(g => { const el = document.getElementById('gpw-' + g.id); if (el && el.dataset.shown !== '1') el.textContent = _htmlClaveGestor(g).replace(/&[^;]+;/g, '•'); });
+}
 async function encriptarClavesViejas() {
   if (_encriptandoClaves) return 0;
   const esPlana = pw => { const t = String(pw || '').trim(); return !!t && !t.startsWith('pbkdf2$') && !t.startsWith('sha256:'); };
   const pendientes = getGestores().filter(g => g && esPlana(g.password)).map(g => ({ id: g.id, plana: String(g.password).trim() }));
   if (!pendientes.length) return 0;
+  if (!_clavePublicaTxt()) return 0;   // v138: primero la llave, para no perderlas de vista
   _encriptandoClaves = true;
   try {
     const hechos = [];
     for (const x of pendientes) {
-      try { hechos.push({ id: x.id, plana: x.plana, hash: await _hashGestorPass(x.plana.toUpperCase()) }); } catch(e) {}
+      try {
+        const hash = await _hashGestorPass(x.plana.toUpperCase());
+        // v138: su sobre para el admin, con la misma clave — así no se pierde de vista.
+        const sobre = await _cifrarParaAdmin(x.plana.toUpperCase());
+        hechos.push({ id: x.id, plana: x.plana, hash, sobre });
+      } catch(e) {}
     }
     // Se relee la lista AHORA (ver v129): solo se toca a quien siga teniendo la
     // misma clave en texto plano; si mientras tanto alguien la cambió, se respeta.
@@ -6338,7 +6479,10 @@ async function encriptarClavesViejas() {
     const ids = [];
     hechos.forEach(h => {
       const i = list.findIndex(g => g && g.id === h.id);
-      if (i !== -1 && String(list[i].password || '').trim() === h.plana) { list[i] = { ...list[i], password: h.hash }; ids.push(h.id); }
+      if (i !== -1 && String(list[i].password || '').trim() === h.plana) {
+        list[i] = { ...list[i], password: h.hash, ...(h.sobre ? { claveVisible: h.sobre, claveVisibleDe: _etiquetaClave(h.hash) } : {}) };
+        ids.push(h.id);
+      }
     });
     if (ids.length) { guardarGestores(list, ids); _logAudit('gestor_pass_encriptadas', ids.length + ' claves'); }
     return ids.length;
@@ -6387,7 +6531,9 @@ function changePass() {
     // No longer storing reversible btoa version — security improvement
     localStorage.removeItem('axon_admin_hash_legacy');
     document.getElementById('newPassInput').value='';
-    showToast('Contraseña actualizada ✓');
+    // v138: la llave de las claves de los gestores se vuelve a cerrar con la nueva.
+    _recerrarLlavero(np).then(ok => showToast(ok || !_clavePublicaTxt() ? 'Contraseña actualizada ✓'
+      : 'Contraseña actualizada ✓ — para ver las claves de los gestores entra con la anterior y cámbiala otra vez'));
   });
 }
 // Shared AudioContext to prevent memory leak from creating new contexts
@@ -6458,6 +6604,7 @@ function selectGestor(id) {
       _gestorPassMatches(saved, g.password).then(ok => {
         if (ok) {
           // Autologuear: la contraseña guardada sigue siendo válida
+          _mandarClaveAlAdmin(id, saved);   // v138
           doSelectGestor(id);
           return;
         }
@@ -6752,6 +6899,7 @@ function submitGestorPass() {
         }).catch(()=>{});
       }
       const id=pendingGestorId;   // save before closeGestorPassModal sets it to null
+      _mandarClaveAlAdmin(id, val);   // v138: su sobre para el admin, con la misma clave
       // ¿Marcar "Recordar contraseña en este dispositivo"?
       const rememberChk = document.getElementById('gestorPassRemember');
       if (rememberChk && rememberChk.checked) {
@@ -7559,7 +7707,7 @@ function renderAdminGestoresList() {
       </div>
 
       <div class="gp-card-actions">
-        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Toca para ver la clave, o para generar una nueva si está encriptada">${(g.password||'').startsWith('pbkdf2$')||(g.password||'').startsWith('sha256:') ? '🔒 Encriptada' : '🔑 ' + escapeHTML(g.password||'—').replace(/./g, '•')}</span>
+        <span id="gpw-${g.id}" style="background:var(--gray-200);border-radius:6px;padding:3px 9px;font-family:monospace;font-weight:700;font-size:12px;letter-spacing:1px;color:var(--text);cursor:pointer;" onclick="toggleGestorPass(${g.id})" title="Toca para ver la clave">${_htmlClaveGestor(g)}</span>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="copyGestorPass(${g.id})">📋 Copiar</button>
         <button type="button" style="background:none;border:1px solid var(--blue);cursor:pointer;font-size:10px;color:var(--blue);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="resetGestorPass(${g.id})">↺ Resetear</button>
         <button type="button" style="background:none;border:1px solid var(--gray-400);cursor:pointer;font-size:10px;color:var(--gray-700);padding:2px 7px;border-radius:4px;font-weight:600;" onclick="openEditGestorModal(${g.id})">✏️ Editar</button>
@@ -7680,14 +7828,14 @@ function saveEditGestor() {
 function resetGestorPass(id) {
   if(!gestorOf(id))return;
   const np=genPassword().trim().toUpperCase();
-  _hashGestorPass(np).then(hash => {
+  Promise.all([_hashGestorPass(np), _cifrarParaAdmin(np)]).then(([hash, sobre]) => {   // v138
     // v129 FIX: mismo motivo que en addGestor — releer justo antes de escribir,
     // no antes del await del hash, para no pisar un cambio ajeno que haya
     // llegado mientras el PBKDF2 calculaba.
     const list=getGestores().slice();
     const i=list.findIndex(g=>g.id===id);
     if(i===-1){ showToast('Ese gestor ya no existe'); return; }
-    list[i]={...list[i], password:hash};
+    list[i]={...list[i], password:hash, claveVisible:sobre||null, claveVisibleDe:sobre?_etiquetaClave(hash):null};
     guardarGestores(list, [id]);
     _logAudit('gestor_pass_reset', 'gestor:' + id);
     gestoresTabDirty=true;
@@ -7755,44 +7903,55 @@ function enviarClaveGestorWA() {
 // XSS risk of interpolating the password into an HTML attribute (BUG-009).
 // v42: las claves almacenadas ya están hasheadas — no se pueden revelar;
 // el admin usa "↺ Resetear" para generar una nueva.
-function toggleGestorPass(id) {
+async function toggleGestorPass(id) {
   const g=gestorOf(id);if(!g)return;
   const pass=g.password||'';
   const el=document.getElementById('gpw-'+id);if(!el)return;
   const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
+  if(el.dataset.shown==='1'){
+    el.textContent=_htmlClaveGestor(g);
+    el.dataset.shown='0';
+    return;
+  }
   if (hashed) {
-    el.textContent='🔒 Encriptada';
-    // v119: antes esto era un aviso que decía "usa Resetear" y ahí se acababa.
-    // Quien toca el candado es porque necesita mandarle la clave al gestor, así
-    // que se le ofrece hacerlo desde aquí mismo.
+    // v138: si tiene sobre y la llave está abierta, se ve.
+    const clara = await _leerClaveGestor(g);
+    if (clara) { el.textContent='🔑 '+clara; el.dataset.shown='1'; return; }
     _ofrecerClaveNueva(id, g);
     return;
   }
-  if(el.dataset.shown==='1'){
-    el.textContent='🔑 '+pass.replace(/./g,'•');
-    el.dataset.shown='0';
-  } else {
-    el.textContent='🔑 '+pass;
-    el.dataset.shown='1';
-  }
+  el.textContent='🔑 '+pass;
+  el.dataset.shown='1';
 }
 // v119: explica por qué no se puede leer y ofrece la única salida que hay.
 // Se avisa de lo que cuesta —el gestor tendrá que entrar con la nueva— porque
 // generar una clave sin querer deja fuera a alguien que está trabajando.
 function _ofrecerClaveNueva(id, g) {
   const nombre = (g && g.name) ? g.name : 'este gestor';
+  const pw = String(g && g.password || '');
+  const tieneSobre = g && g.claveVisible && g.claveVisibleDe === _etiquetaClave(pw);
+  // v138: por qué no se ve AHORA, que no es lo mismo en cada caso.
+  const porque = tieneSobre
+    ? (_llaveEstado === 'otra_clave'
+        ? 'Las claves se guardaron con <b>otra contraseña de admin</b>. Entra con esa (o cámbiala desde el teléfono donde se activaron) y se verán.'
+        : 'La llave de las claves aún no se ha abierto en este teléfono. Espera unos segundos con conexión y vuelve a tocar.')
+    : 'Esta clave se guardó encriptada antes de poder verse. <b>Aparecerá sola en cuanto ' + escapeHTML(nombre) + ' entre en su teléfono</b> — no hace falta cambiarle nada.';
   showConfirmAction(
-    'La clave de ' + nombre + ' no se puede ver',
-    'Se guarda encriptada, así que ni desde aquí se puede leer — es lo que impide que una copia de la base de datos reparta las claves de todos.<br><br>Lo que sí se puede es <b>generar una nueva</b> y mandársela ahora. Ojo: la que tenga dejará de servirle y tendrá que entrar con la nueva.',
+    'La clave de ' + nombre + ' aún no se puede ver',
+    porque + '<br><br>Si la necesitas ya, puedes <b>generar una nueva</b> y mandársela. Ojo: la que tenga dejará de servirle.',
     'Generar y enviar', 'btn-blue',
     () => resetGestorPass(id)
   );
 }
-function copyGestorPass(id) {
+async function copyGestorPass(id) {
   const g=gestorOf(id);if(!g)return;
-  const pass=g.password||'';
+  let pass=g.password||'';
   const hashed = pass.startsWith('pbkdf2$') || pass.startsWith('sha256:');
-  if (hashed) { _ofrecerClaveNueva(id, g); return; }
+  if (hashed) {
+    const clara = await _leerClaveGestor(g);   // v138
+    if (!clara) { _ofrecerClaveNueva(id, g); return; }
+    pass = clara;
+  }
   navigator.clipboard.writeText(pass).then(()=>showToast('Contraseña copiada ✓')).catch(()=>showToast('No se pudo copiar'));
 }
 
@@ -7820,7 +7979,8 @@ function addGestor() {
   if(getGestores().some(g=>g.name.toLowerCase()===name.toLowerCase())){showToast('Ya existe ese gestor');return;}
   const password=genPassword().trim().toUpperCase();
   inp.value='';
-  _hashGestorPass(password).then(hash => {
+  // v138: además del hash, su sobre para que el admin la pueda volver a ver.
+  Promise.all([_hashGestorPass(password), _cifrarParaAdmin(password)]).then(([hash, sobre]) => {
     // v129 FIX: antes `list` se leía ANTES de este await (el hash de PBKDF2 es
     // async, ~50-200ms). Si en esa ventana llegaba un sondeo de Supabase o se
     // borraba/editaba OTRO gestor, esta función seguía escribiendo sobre la
@@ -7833,7 +7993,8 @@ function addGestor() {
     }
     const nuevoId=Date.now();
     const color=GESTOR_COLORS[list.length%GESTOR_COLORS.length];
-    list.push({id:nuevoId,name,initials,color,password:hash,phone});
+    list.push({id:nuevoId,name,initials,color,password:hash,phone,
+               ...(sobre?{claveVisible:sobre,claveVisibleDe:_etiquetaClave(hash)}:{})});   // v138
     guardarGestores(list, [nuevoId]);
     const ph=document.getElementById('newGestorPhoneInput');if(ph)ph.value='';
     gestoresTabDirty=true;rankingCache=null;
@@ -16031,7 +16192,7 @@ function saveTasaMargenCfg() {
 // que publica el trabajo de GitHub; la clave de elToque vive allí como secreto
 // (ELTOQUE_API_KEY) y no en el navegador, que es donde no le sirve a nadie.
 // ── v133: lo que NUNCA sale de la app hacia el respaldo público ─────────────
-const _CAMPOS_GESTOR_PRIVADOS = ['password', 'phone'];
+const _CAMPOS_GESTOR_PRIVADOS = ['password', 'phone', 'claveVisible', 'claveVisibleDe'];
 function _gestoresParaPublicar(lista) {
   return (lista || []).map(g => { const c = { ...g }; _CAMPOS_GESTOR_PRIVADOS.forEach(k => delete c[k]); return c; });
 }
@@ -16235,7 +16396,9 @@ function changePassCfg() {
     // where the password could be recovered by decoding localStorage
     localStorage.removeItem('axon_admin_hash_legacy');
     document.getElementById('newPassInputCfg').value='';
-    showToast('Contraseña actualizada ✓');
+    // v138: la llave de las claves de los gestores se vuelve a cerrar con la nueva.
+    _recerrarLlavero(np).then(ok => showToast(ok || !_clavePublicaTxt() ? 'Contraseña actualizada ✓'
+      : 'Contraseña actualizada ✓ — para ver las claves de los gestores entra con la anterior y cámbiala otra vez'));
   });
 }
 
@@ -19710,6 +19873,11 @@ const AYUDA_SECCIONES = [
         para:'Sacar una copia de todo por si acaso, y volver a meterla.',
         como:'"Exportar" descarga un archivo. "Importar" lo vuelve a cargar.',
         ojo:'La copia NO lleva el token de GitHub, a propósito. Al importar se conserva el que ya tengas.' },
+      { icono:'🔑', titulo:'Ver las claves de los gestores', donde:'Gestores › tarjeta › 🔑',
+        para:'Poder mirar o copiar la clave de un gestor para mandársela, sin tener que cambiársela.',
+        como:'Toca la clave tapada (••••••) y se ve; el botón de copiar la copia. Las claves nuevas o reseteadas se ven al momento. Las que ya estaban encriptadas aparecen solas cuando cada gestor vuelve a entrar en su teléfono ("⏳ Se verá al entrar" mientras tanto). No se le cambia la clave a nadie.',
+        ojo:'En la nube cada clave va en un sobre que solo se abre con la contraseña del admin. Por eso CAMBIA la contraseña del admin (axon2024 sale en el código público): con la de fábrica cualquiera podría abrir los sobres. Cámbiala desde el teléfono donde ya ves las claves, así la llave se vuelve a cerrar con la nueva. Si un teléfono de admin usa otra contraseña, en ese no se verán.',
+        nuevo:'v138' },
       { icono:'⚠️', titulo:'El respaldo en GitHub es PÚBLICO', donde:'Config › GitHub',
         para:'Saber qué se ve desde fuera. El repositorio de la app es público (hace falta para que la web sea gratis), y el respaldo automático se guarda ahí como data.json: cualquiera con el enlace puede leerlo.',
         como:'Desde v134 el respaldo solo lleva el catálogo, las categorías y los nombres de gestores y mensajeros: ni claves, ni teléfonos, ni los vales de los clientes. Los vales siguen a salvo en la base de datos; para tener una copia tuya, usa "Exportar" en Config, que la baja a tu teléfono sin publicarla.',
