@@ -5536,6 +5536,37 @@ function _cambiosQueVenLosGestores(antes, ahora) {
   par('Garantía', antes.garantia, ahora.garantia);
   return cambios;
 }
+// ── v136: preguntar antes de avisar a los gestores ─────────────────────────
+// Pedido: "al subir un producto o reponer, que pregunte si se quiere notificar".
+// A veces el producto ya está en la tienda —y hasta reservado— pero faltaba en
+// la página, y el admin solo lo está completando: avisar "Nuevo producto" o
+// "Repuesto" haría que los gestores salieran a venderlo. Se pregunta SOLO
+// cuando de verdad iba a salir un aviso (alta, o stock que vuelve desde 0).
+function _preguntarAvisarGestores(que) {
+  return new Promise(resolve => {
+    const viejo = document.getElementById('avisoGestoresModal');
+    if (viejo) viejo.remove();
+    const m = document.createElement('div');
+    m.className = 'modal-bg'; m.id = 'avisoGestoresModal';
+    m.style.zIndex = '10050';
+    m.innerHTML = `<div class="modal" style="max-width:340px;">
+      <div class="modal-title">🔔 ¿Avisar a los gestores?</div>
+      <div class="modal-sub" style="line-height:1.5;">${que}<br><span style="font-size:11px;color:var(--text-muted);">Si no avisas, se guarda igual pero a los gestores no les llega nada.</span></div>
+      <div class="modal-btns" style="margin-top:16px;">
+        <button type="button" class="btn btn-ghost btn-full" data-r="0">🔕 No avisar</button>
+        <button type="button" class="btn btn-blue btn-full" data-r="1">🔔 Sí, avisar</button>
+      </div>
+    </div>`;
+    let hecho = false;
+    m.querySelectorAll('[data-r]').forEach(b => b.onclick = () => {
+      if (hecho) return; hecho = true;
+      m.classList.remove('show'); setTimeout(() => m.remove(), 250);
+      resolve(b.dataset.r === '1');
+    });
+    document.body.appendChild(m);
+    requestAnimationFrame(() => m.classList.add('show'));
+  });
+}
 function _avisarCambioProducto(id, antes, ahora) {
   const cambios = _cambiosQueVenLosGestores(antes, ahora);
   if (!cambios.length) return false;
@@ -12063,7 +12094,7 @@ function closeProductModal(){document.getElementById('productModal').classList.r
 // los ids se generen de otra forma.
 const _DIAS_PRODUCTO_NUEVO = 3;
 function _esProductoNuevo(p) {
-  if (!p) return false;
+  if (!p || p.silencioso) return false;   // v136: dado de alta sin avisar
   const t = Number(p.creadoTs || p.id);
   // Un id que no sea un sello de tiempo creíble no dice nada: los de la demo
   // son 100, 101… y saldrían todos como nuevos o ninguno, según el signo.
@@ -12102,6 +12133,15 @@ async function saveProduct() {
     photo:document.getElementById('pm-foto').value.trim(),
     catId:catVal?parseInt(catVal):null,
   };
+  // v136: ¿se avisa a los gestores? Solo se pregunta si iba a salir un aviso
+  // de alta o de reposición. Lo que se contesta vale para todo este guardado.
+  let _avisar = true;
+  const _viejo = editingProductId ? productoOf(editingProductId) : null;
+  if (!editingProductId && !_vdEsperandoProducto) {
+    _avisar = await _preguntarAvisarGestores(`Producto nuevo: <b>${escapeHTML(name)}</b>`);
+  } else if (_viejo && _numStock(_viejo.stock) === 0 && prod.stock > 0) {
+    _avisar = await _preguntarAvisarGestores(`<b>${escapeHTML(name)}</b> vuelve a tener stock (${prod.stock}).`);
+  }
   // v106: si la foto viene incrustada (base64), se sube a GitHub y en el
   // producto queda solo la ruta. Si la subida falla, se guarda como antes: es
   // mejor un catálogo pesado que un producto sin foto.
@@ -12121,20 +12161,24 @@ async function saveProduct() {
     setCosto(editingProductId,costoEscrito);
     setDuenoProducto(editingProductId,duenoElegido);
     patchProducto(editingProductId,prod);
-    if(old) _avisarCambioStock(editingProductId, prod.name, old.stock, prod.stock);
-    if(old) _avisarCambioProducto(editingProductId, old, {...old, ...prod});   // v132
-    showToast('Producto actualizado ✓');
+    if(old&&_avisar){
+      _avisarCambioStock(editingProductId, prod.name, old.stock, prod.stock);
+      _avisarCambioProducto(editingProductId, old, {...old, ...prod});   // v132
+    }
+    showToast(_avisar?'Producto actualizado ✓':'Producto actualizado ✓ · sin avisar a los gestores');
   } else {
     const newId=Date.now();
     setCosto(newId,costoEscrito);
     setDuenoProducto(newId,duenoElegido);
-    const list=getProductos().slice();list.push({id:newId,creadoTs:newId,...prod});guardarProductos(list,[newId]);
+    // v136: si no se avisa, tampoco lleva la chapa 💎 NUEVO — sería el mismo
+    // aviso por otro camino.
+    const list=getProductos().slice();list.push({id:newId,creadoTs:newId,...prod,...(_avisar?{}:{silencioso:true})});guardarProductos(list,[newId]);
     // v124: si el producto se está dando de alta desde "Ventas directas", no se
     // anuncia. Ese apartado es del admin y solo del admin: avisar de la novedad
     // sería contar justo lo que no se quiere contar.
     if(_vdEsperandoProducto) _vdProductoNuevo = newId;
-    else addNotif('new_product',prod.name,newId,prod.precio||'');
-    showToast('Producto agregado ✓');
+    else if(_avisar) addNotif('new_product',prod.name,newId,prod.precio||'');
+    showToast(_avisar||_vdEsperandoProducto?'Producto agregado ✓':'Producto agregado ✓ · sin avisar a los gestores');
   }
   const _paraDirecta=_vdEsperandoProducto&&_vdProductoNuevo;
   closeProductModal();renderProductGrid();renderStockCategorias();maybeAutoSync();
@@ -12550,15 +12594,23 @@ function stockModalRefresca() {
     res.style.color = 'var(--red)';
   }
 }
-function guardarStockModal() {
+async function guardarStockModal() {
   const id = _stockModalId;
   const p = productoOf(id); if (!p) { closeStockModal(); return; }
   const nuevo = Math.max(0, parseInt(document.getElementById('stockModalInput').value, 10) || 0);
-  const antes = parseInt(p.stock || 0, 10);
+  const antes = _numStock(p.stock);
   if (nuevo === antes) { closeStockModal(); showToast('Sin cambios'); return; }
-  _aplicarCambioStock(id, p, antes, nuevo);
+  // v136: reponer un agotado avisa a los gestores ("Repuesto"). Se pregunta.
+  let avisar = true;
+  if (antes === 0 && nuevo > 0) {
+    avisar = await _preguntarAvisarGestores(`Reponer <b>${escapeHTML(p.name)}</b>: de 0 a ${nuevo}.`);
+    if (_stockModalId !== id) return;   // se cerró o se abrió otro mientras tanto
+  }
+  if (avisar) _aplicarCambioStock(id, p, antes, nuevo);
+  else _sinAvisarStock(() => _aplicarCambioStock(id, p, antes, nuevo));
   closeStockModal();
-  showToast(nuevo > antes ? ('Entraron ' + (nuevo - antes) + ' ✓') : ('Stock ajustado a ' + nuevo + ' ✓'));
+  showToast((nuevo > antes ? ('Entraron ' + (nuevo - antes) + ' ✓') : ('Stock ajustado a ' + nuevo + ' ✓'))
+    + (avisar ? '' : ' · sin avisar a los gestores'));
 }
 // Guardado + avisos. Se comparte con adjustStock() para no tener la regla de
 // cuándo avisar escrita dos veces: ya pasó con otras vistas y acabó divergiendo.
@@ -19371,6 +19423,11 @@ const AYUDA_SECCIONES = [
         para:'Corregirle el precio, la foto o la comisión aunque no quede ninguno.',
         como:'El lápiz ✏️ al lado de "Reponer".',
         nuevo:'v119' },
+      { icono:'🔕', titulo:'Subir o reponer sin avisar a los gestores', donde:'Stock › ＋ Nuevo producto, 📥 Reponer y ✏️ editar',
+        para:'Completar en la página un producto que ya está en la tienda (y a lo mejor ya reservado) sin que a los gestores les llegue "Nuevo producto" o "Repuesto".',
+        como:'Al guardar un producto nuevo, o al pasar uno agotado a tener stock, la app pregunta "¿Avisar a los gestores?". Con "🔕 No avisar" se guarda igual y no les llega nada.',
+        ojo:'Un producto dado de alta sin avisar tampoco lleva la chapa 💎 NUEVO. Solo se pregunta cuando iba a salir un aviso: subir de 4 a 9 no pregunta. Cambiarle el precio o la comisión a un producto que ya tiene stock sigue avisando como siempre.',
+        nuevo:'v136' },
       { icono:'🗑️', titulo:'Borrar un producto ya vendido', donde:'Stock › 🗑️',
         para:'Quitar del catálogo algo que ya no traes sin que los gestores pierdan los puntos de lo que vendieron.',
         como:'Antes de borrarlo, la app apunta en cada venta cuántos puntos daba ese producto. Esas ventas siguen sumando sus puntos aunque el producto ya no exista.',

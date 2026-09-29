@@ -32,6 +32,10 @@ const ok = (n, c, e) => { console.log((c?'✅ ':'❌ ')+n+(c?'':'  → '+JSON.st
   await p.waitForTimeout(800);
   await p.evaluate(() => {
     try { clearInterval(_restPollTimer); } catch(e) {}
+    // v136: el admin ahora pregunta si avisar a los gestores; esta prueba es de
+    // antes y da por hecho que sí (lo que pasaba siempre).
+    new MutationObserver(() => { const b = document.querySelector('#avisoGestoresModal [data-r="1"]'); if (b) b.click(); })
+      .observe(document.body, { childList: true });
     saveProductos([]); saveCategorias([]); saveVales([]); saveNotifs([]);
     saveGestores([{id:1,name:'Ana',initials:'A',color:'#2563EB'}]);
     adminTab('stock');
@@ -79,15 +83,15 @@ const ok = (n, c, e) => { console.log((c?'✅ ':'❌ ')+n+(c?'':'  → '+JSON.st
      cambio.cuenta.totalUSD === 15 && cambio.cuenta.totalMN === 0, cambio.cuenta);
 
   console.log('\n══ 3 · LA VENTANA DE STOCK ══');
-  const stockModal = await p.evaluate(id => {
+  const stockModal = await p.evaluate(async id => {
     openStockModal(id);
     document.getElementById('stockModalInput').value = '0';
-    guardarStockModal();
+    await guardarStockModal();
     const agotado = _numStock(productoOf(id).stock);
     const avisos1 = getNotifs().map(n=>n.type);
     openStockModal(id);
     document.getElementById('stockModalInput').value = '25';
-    guardarStockModal();
+    await guardarStockModal();   // v136: pregunta si avisar (la prueba contesta que sí)
     return { agotado, repuesto:_numStock(productoOf(id).stock),
              avisos1, avisos2:getNotifs().map(n=>n.type) };
   }, alta.p.id);

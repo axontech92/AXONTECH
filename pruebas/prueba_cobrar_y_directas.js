@@ -40,6 +40,10 @@ const PRODS = [
 
   await p.evaluate(P => {
     try { clearInterval(_restPollTimer); } catch(e) {}
+    // v136: el admin ahora pregunta si avisar a los gestores; esta prueba es de
+    // antes y da por hecho que sí (lo que pasaba siempre).
+    new MutationObserver(() => { const b = document.querySelector('#avisoGestoresModal [data-r="1"]'); if (b) b.click(); })
+      .observe(document.body, { childList: true });
     saveProductos(P); saveCategorias(['Audio']);
     saveGestores([{id:1, name:'Ana', initials:'A', color:'#2563EB'}]);
     saveMensajeros([{id:50, name:'Yoel', phone:'55551234'}]);
@@ -286,13 +290,13 @@ const PRODS = [
   ok('y no se anuncia como novedad', nuevo.notifs.length === 0, nuevo.notifs);
 
   console.log('\n══ 11· DESDE CATÁLOGO SÍ SE SIGUE ANUNCIANDO ══');
-  const normal = await p.evaluate(() => {
+  const normal = await p.evaluate(async () => {
     saveNotifs([]);
     openAddProductModal();
     document.getElementById('pm-name').value = 'Teclado';
     document.getElementById('pm-precio').value = '$20 USD';
     document.getElementById('pm-stock').value = '2';
-    saveProduct();
+    await saveProduct();   // v136: pregunta si avisar (la prueba contesta que sí)
     return getNotifs().map(n => n.type);
   });
   ok('el alta normal sigue avisando', normal.includes('new_product'), normal);
