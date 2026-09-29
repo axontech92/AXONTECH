@@ -891,7 +891,16 @@ async function _sbRestDeleteBatch(collName, ids) {
     if (!res.ok && res.status !== 404) throw new Error(`Supabase DELETE batch ${collName} ${res.status}`);
   }
 }
-async function _sbRestMetaUpsert(name, value) {
+async function _sbRestMetaUpsert(name, value, yaFusionado) {
+  // v133: la config entera (saveConfig) lleva el contador de ESTE teléfono, que
+  // puede ser viejo. Antes de reemplazarla se mira el de la nube y se sube el mayor.
+  if (!yaFusionado && name === 'config' && value && typeof value === 'object' && !Array.isArray(value) && value.nextValeNum != null) {
+    try {
+      const previo = await _sbRestGetMeta('config');
+      const nube = parseInt(previo && previo.nextValeNum, 10) || 0;
+      if (nube > (parseInt(value.nextValeNum, 10) || 0)) value = { ...value, nextValeNum: nube };
+    } catch(e) { /* sin lectura se sube lo que hay: mejor que no guardar el config */ }
+  }
   const url = `${_SB_REST}/meta`;
   const body = JSON.stringify([{ name: name, data: value }]);
   const res = await fetch(url, { method: 'POST', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' }, body });
@@ -925,7 +934,11 @@ async function _sbRestMetaMerge(name, parcial) {
     // dejaría el documento pelado, que es justo lo que se está arreglando.
     throw new Error(`META MERGE ${name}: no se pudo leer lo anterior (${e.message})`);
   }
-  return _sbRestMetaUpsert(name, { ...actual, ...parcial });
+  const junto = { ...actual, ...parcial };
+  // v133: el contador de vales, al mayor de los dos (ver getNextValeNum).
+  if (name === 'config' && actual.nextValeNum != null && parcial.nextValeNum != null)
+    junto.nextValeNum = Math.max(parseInt(actual.nextValeNum, 10) || 0, parseInt(parcial.nextValeNum, 10) || 0);
+  return _sbRestMetaUpsert(name, junto, true);   // ya se leyó lo de la nube arriba
 }
 async function _sbRestMetaDelete(name) {
   const url = `${_SB_REST}/meta?name=eq.${encodeURIComponent(name)}`;
@@ -1952,6 +1965,10 @@ async function _doRestPoll() {
         if (val) {
           _syncCount++;
           try {
+            // v133: el número de vale solo sube. Si este teléfono acaba de
+            // reservar uno y su subida aún no ha llegado, la config que baja lo
+            // traería más bajo y el siguiente vale repetiría número.
+            if (node === 'config' && val && typeof val === 'object') val = _configConContadorAlDia(val);
             _safeSetLS('axon_'+node, JSON.stringify(val)); // v65: idem — fallo de guardado visible
             if(node==='vales_borrados'){
               // v119: la lista de vales que alguien borró. En vez de bajar la
@@ -4469,7 +4486,7 @@ function patchVale(id, changes) {
     // v130: y cómo pagó el cliente. Si el admin no lo apuntó, se da por hecho
     // que pagó como dice el vale — pero con las tasas de HOY congeladas, para
     // que la caja de este día no cambie cuando mañana cambie el dólar.
-    if (changes.status === 'confirmed' && !all[i].pago && !changes.pago &&
+    if (changes.status === 'confirmed' && !all[i].pago && !changes.pago && all[i].unidoA == null &&
         typeof IS_ADMIN !== 'undefined' && IS_ADMIN && typeof pagoDeVale === 'function') {
       try {
         const _p = pagoDeVale({ ...all[i], ...changes });
@@ -4507,9 +4524,35 @@ function patchVale(id, changes) {
 //      para los siguientes vales (los ya enviados conservan su número).
 //
 // IMPORTANTE: esta función NO usa saveConfig() a propósito (ver nota anterior).
+// ── v133: el número de vale nunca retrocede ────────────────────────────────
+// En los datos reales había 192 números repetidos, y no solo de dos vales a la
+// vez: V-403 salió dos veces con 18 horas de diferencia. El contador vive en la
+// config compartida y cada teléfono subía SU copia: si la de alguno era vieja
+// (el admin guardando la tasa, un teléfono que no había bajado la config, la
+// config que baja justo después de reservar), el contador volvía atrás y los
+// números se repetían horas después. Ahora es un máximo en todas partes:
+//   · lo más alto entre la config, la marca de este teléfono y los vales vistos
+//   · al subir, nunca por debajo de lo que ya hay en la nube
+//   · al bajar, nunca por debajo de lo que este teléfono ya reservó
+// Queda el caso de dos teléfonos reservando en el mismo instante sin conexión;
+// eso solo se cierra del todo con un contador en el servidor (ver la Ayuda).
+const _VALE_NUM_HW_KEY = 'axon_vale_num_hw';
+function _valeNumMarca() { try { return parseInt(localStorage.getItem(_VALE_NUM_HW_KEY) || '0', 10) || 0; } catch(e) { return 0; } }
+function _valeNumMaxVisto() {
+  let m = 0;
+  try { (getVales() || []).forEach(v => { const n = parseInt(v && v.valeNum, 10); if (n > m) m = n; }); } catch(e) {}
+  return m;
+}
+function _configConContadorAlDia(cfg) {
+  const remoto = parseInt(cfg && cfg.nextValeNum, 10) || 0;
+  const local = parseInt((getConfig() || {}).nextValeNum, 10) || 0;
+  const minimo = Math.max(remoto, local, _valeNumMarca() + 1, _valeNumMaxVisto() + 1);
+  return minimo > remoto ? { ...cfg, nextValeNum: minimo } : cfg;
+}
 function getNextValeNum() {
   const cfg = getConfig();
-  const n = (cfg.nextValeNum || 1);
+  const n = Math.max(parseInt(cfg.nextValeNum, 10) || 1, _valeNumMarca() + 1, _valeNumMaxVisto() + 1);
+  try { localStorage.setItem(_VALE_NUM_HW_KEY, String(n)); } catch(e) {}
   const updated = {...cfg, nextValeNum: n + 1};
   _safeSetLS('axon_config', JSON.stringify(updated));
   _configCache = updated; _configDirty = false;
@@ -5923,6 +5966,7 @@ function submitPass() {
   verifyPassAsync(val).then(ok => {
     if(ok){
       adminActive=true;closePassModal();
+      _programarEncriptadoClavesViejas();   // v133
       const al=document.getElementById('adminLabel'); if(al) al.style.display='flex';
       const bl=document.getElementById('btnLogout'); if(bl) bl.style.display='inline-flex';
       playSound('login');requestNotifPermission();
@@ -6060,6 +6104,45 @@ async function _hashGestorPass(input) {
     return 'sha256:' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 }
+// ── v133: encriptar las claves que siguen en texto plano ────────────────────
+// Las claves se encriptan desde v42, pero las de antes solo se migraban cuando
+// ese gestor volvía a entrar. En los datos reales quedaban 26 sin encriptar, y
+// la tabla de gestores se puede leer con la clave pública que va dentro de la
+// app. El teléfono del admin las encripta él mismo, en segundo plano: la
+// comparación de las claves viejas ya era en mayúsculas, así que se encripta
+// la clave en mayúsculas y cada gestor sigue entrando con la suya de siempre.
+let _encriptandoClaves = false, _encriptadoTimer = null;
+function _programarEncriptadoClavesViejas() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  clearTimeout(_encriptadoTimer);
+  // Se espera a que haya bajado la lista de gestores de la nube; y se repite de
+  // vez en cuando por si llega alguno importado de un respaldo viejo.
+  _encriptadoTimer = setTimeout(() => { encriptarClavesViejas().finally(() => {
+    _encriptadoTimer = setTimeout(_programarEncriptadoClavesViejas, 10 * 60 * 1000); }); }, 15000);
+}
+async function encriptarClavesViejas() {
+  if (_encriptandoClaves) return 0;
+  const esPlana = pw => { const t = String(pw || '').trim(); return !!t && !t.startsWith('pbkdf2$') && !t.startsWith('sha256:'); };
+  const pendientes = getGestores().filter(g => g && esPlana(g.password)).map(g => ({ id: g.id, plana: String(g.password).trim() }));
+  if (!pendientes.length) return 0;
+  _encriptandoClaves = true;
+  try {
+    const hechos = [];
+    for (const x of pendientes) {
+      try { hechos.push({ id: x.id, plana: x.plana, hash: await _hashGestorPass(x.plana.toUpperCase()) }); } catch(e) {}
+    }
+    // Se relee la lista AHORA (ver v129): solo se toca a quien siga teniendo la
+    // misma clave en texto plano; si mientras tanto alguien la cambió, se respeta.
+    const list = getGestores().slice();
+    const ids = [];
+    hechos.forEach(h => {
+      const i = list.findIndex(g => g && g.id === h.id);
+      if (i !== -1 && String(list[i].password || '').trim() === h.plana) { list[i] = { ...list[i], password: h.hash }; ids.push(h.id); }
+    });
+    if (ids.length) { guardarGestores(list, ids); _logAudit('gestor_pass_encriptadas', ids.length + ' claves'); }
+    return ids.length;
+  } finally { _encriptandoClaves = false; }
+}
 async function _gestorPassMatches(input, stored) {
   const val = String(input || '').trim().toUpperCase();
   const sys = String(stored || '').trim();
@@ -6165,6 +6248,8 @@ function renderGestores() {
 }
 function selectGestor(id) {
   const g=gestorOf(id);if(!g)return;
+  // v133: ficha sembrada desde data.json, sin clave todavía (ver loadInitialData).
+  if(g._semilla && !g.password){ showToast('Conéctate a internet para entrar la primera vez'); return; }
   if(g.password){
     // ¿Hay contraseña guardada para este gestor en este dispositivo?
     const saved = _getSavedGestorPass(id);
@@ -7912,6 +7997,14 @@ function _rebajaVale(v) {
 //   · txt   → lo que se cobra, ya con todo restado
 //   · nota  → por qué no se pudo restar, cuando no se pudo
 function _aCobrarVale(v) {
+  // v133: un vale UNIDO a otro es la misma venta apuntada dos veces: el dinero
+  // lo lleva el principal. Antes aquí salía su propio total, y el mensajero o
+  // el admin podían cobrar la misma venta dos veces.
+  if (v && v.unidoA != null) {
+    const p = getVales().find(x => x.id === v.unidoA);
+    return { txt: '—', rebajado: false, sueltaTxt: '', unido: true,
+             nota: 'Se cobra en el vale principal ' + (p ? _valeEtiqueta(p) : '') + ': es la misma venta.' };
+  }
   const totalTxt = ((v && v.total) || '').toString().trim();
   const r = _rebajaVale(v);
   if (!r) return { txt: totalTxt, rebajado: false, nota: '', sueltaTxt: '' };
@@ -7961,6 +8054,7 @@ const PAGO_METODOS = [
 const _num0 = x => { const n = parseFloat(x); return isFinite(n) && n > 0 ? n : 0; };
 // Lo que hay que cobrar, en sus dos monedas y ya con las rebajas.
 function _deudaVale(v) {
+  if (v && v.unidoA != null) return { usd: 0, mn: 0 };   // v133: lo lleva el principal
   const c = _aCobrarVale(v);
   const p = _partesMonetarias(c.txt || '');
   return { usd: p.usd, mn: p.mn };
@@ -8058,6 +8152,7 @@ function _repintarPagoVale(id) {
 }
 function _htmlPagoVale(v) {
   if (!v || v.status === 'cancelled') return '';
+  if (v.unidoA != null) return '';                      // v133: se cobra en el principal
   const pago = pagoDeVale(v);
   const d = _deudaVale(v);
   if (!(d.usd > 0) && !(d.mn > 0)) return '';          // "Venta Local" y parecidos: nada que cuadrar
@@ -8109,7 +8204,9 @@ function _htmlPagoVale(v) {
 // cada venta, no la de hoy.
 function totalesCaja(vales) {
   const t = { usd:0, zelle:0, eur:0, mn:0, equivUSD:0, ventas:0, sinApuntar:0, sinTasa:0 };
-  (vales || []).filter(v => v && v.status === 'confirmed').forEach(v => {
+  // v133: _valeCuentaDinero — un vale unido es la misma venta que su principal
+  // y no puede entrar dos veces en la caja.
+  (vales || []).filter(v => v && v.status === 'confirmed' && _valeCuentaDinero(v)).forEach(v => {
     const d = _deudaVale(v);
     if (!(d.usd > 0) && !(d.mn > 0) && !v.pago) return;
     const p = pagoDeVale(v);
@@ -8868,6 +8965,15 @@ function saveEditVale() {
    'horaEntrega','fechaEntrega','notasGestor'].forEach(k=>{   // v108 · v131
     const el=document.getElementById('ev-'+k);if(el)changes[k]=el.value.trim();
   });
+  // v133: el total no puede quedar vacío — sin él no hay "COBRAR AL CLIENTE",
+  // ni forma de pago, ni entra en la caja (en los datos reales, V-150). Si se
+  // borró, se recalcula de los precios; si ni así sale, no se guarda.
+  if (!changes.total) {
+    try { calcEditValeTotal(); } catch(e) {}
+    const _t = (document.getElementById('ev-total') || {}).value || '';
+    if (_t.trim()) changes.total = _t.trim();
+    else { showToast('Pon el total del vale antes de guardar'); return; }
+  }
   // v114: fecha editable. Solo se toca v.ts si el admin puso una fecha válida;
   // si borra el campo o escribe algo imposible, se queda la de antes en vez de
   // dejar el vale sin fecha (que lo sacaría del historial y de las estadísticas).
@@ -9061,7 +9167,7 @@ function mensajeroPagadoDirecto(id, skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
     // v122: si por aquí va a salir mercancía que no hay, se dice antes.
     if(_avisarSiFaltaStock(v, ()=>mensajeroPagadoDirecto(id,true))) return;
-    showConfirmAction('¿Confirmar venta cobrada?',`${v.cliente||''} · ${v.total||''}`,'Confirmar cobrada','btn-green',()=>mensajeroPagadoDirecto(id,true));
+    showConfirmAction('¿Confirmar venta cobrada?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar cobrada','btn-green',()=>mensajeroPagadoDirecto(id,true));
     return;
   }
   const v=getVales().find(x=>x.id===id);if(!v)return;
@@ -9111,7 +9217,7 @@ function mensajeroPagado(id, skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
     // v122: si por aquí va a salir mercancía que no hay, se dice antes.
     if(_avisarSiFaltaStock(v, ()=>mensajeroPagado(id,true))) return;
-    showConfirmAction('¿Confirmar venta cobrada?',`${v.cliente||''} · ${v.total||''}`,'Confirmar cobrada','btn-green',()=>mensajeroPagado(id,true));
+    showConfirmAction('¿Confirmar venta cobrada?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Confirmar cobrada','btn-green',()=>mensajeroPagado(id,true));
     return;
   }
   const v=getVales().find(x=>x.id===id);if(!v)return;
@@ -9192,7 +9298,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
     const title=paymentStatus==='confirmed'?'¿Confirmar venta cobrada?':'¿Confirmar — cobro pendiente?';
-    const sub=paymentStatus==='confirmed'?`${v.cliente||''} · ${v.total||''}`:`${v.cliente||''}`;
+    const sub=paymentStatus==='confirmed'?`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`:`${escapeHTML(v.cliente||'')}`;
     // ── v122: avisar cuando no hay mercancía para este vale ──────────────────
     // Pasó de verdad: un teléfono sin cobertura hizo un vale de 1 unidad y otro,
     // con conexión, se llevó todo lo que quedaba. Los dos llegaron al admin y
@@ -9240,7 +9346,7 @@ function confirmSale(id, paymentStatus, skipConfirm) {
 function markAsPaid(id, skipConfirm) {
   if(!skipConfirm) {
     const v=getVales().find(x=>x.id===id);if(!v)return;
-    showConfirmAction('¿Registrar cobro recibido?',`${v.cliente||''} · ${v.total||''}`,'Registrar cobro','btn-green',()=>markAsPaid(id,true));
+    showConfirmAction('¿Registrar cobro recibido?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,'Registrar cobro','btn-green',()=>markAsPaid(id,true));
     return;
   }
   // Revalida el estado justo antes de aplicar el cambio (igual que mensajeroPagado/
@@ -10050,7 +10156,7 @@ function cancelVale(id) {
   const v=getVales().find(x=>x.id===id);
   if(!v){showToast('Vale no encontrado');return;}
   // v33: Allow cancelling/deleting ANY vale, not just pending
-  showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
+  showConfirmAction('¿Eliminar este vale?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.articulo||'')}`,'Eliminar','btn-red',()=>{
     // v33 FIX: Actually DELETE the vale from Supabase instead of just marking
     // as 'cancelled'. Cancelled vales were reappearing on refresh because
     // they still existed in Supabase. Now we remove completely.
@@ -10118,7 +10224,7 @@ function adminDeleteVale(id) {
   const confirmMsg = needsStockRevert
     ? `¿Eliminar este vale?<br><br><b>⚠️ Se revertirá el stock automáticamente</b> porque la venta ya fue confirmada.`
     : `¿Eliminar este vale?`;
-  showConfirmAction('¿Eliminar este vale?',`${v.cliente||''} · ${v.articulo||''}`,'Eliminar','btn-red',()=>{
+  showConfirmAction('¿Eliminar este vale?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.articulo||'')}`,'Eliminar','btn-red',()=>{
     // v33: Auto-revert stock if the vale was confirmed/pending_payment
     _devolverStockDeVale(v);  // v73: misma regla que al revertir
     // v33 FIX: Track this deletion so _doRestPoll doesn't overwrite localStorage
@@ -11929,7 +12035,15 @@ async function saveProduct() {
 function removeProducto(id) {
   const p=productoOf(id);
   const name = p ? p.name : 'este producto';
-  showConfirmAction('¿Eliminar este producto?', name, 'Eliminar', 'btn-red', () => {
+  // v133: en los datos reales hay 38 ventas de un producto que se borró. Los
+  // puntos se leen del catálogo, así que esas ventas dejaron de dar puntos —
+  // tres de ellas dentro del ciclo—, y Dueños ya no sabe de quién eran. Se avisa
+  // antes: si solo se dejó de vender, basta con dejar el stock en 0.
+  const ventas = getVales().filter(v => v && v.status !== 'cancelled' && (v.valeProductos||[]).some(it => it && it.id === id)).length;
+  const sub = ventas
+    ? `${escapeHTML(name)}<br><br><b>⚠️ Tiene ${ventas} venta${ventas>1?'s':''}.</b> Si lo borras, esas ventas dejan de dar puntos a sus gestores y en Dueños y Estadísticas salen como "producto borrado".<br><br>Si ya no lo vendes, es mejor dejar el stock en 0.`
+    : escapeHTML(name);
+  showConfirmAction('¿Eliminar este producto?', sub, ventas ? 'Borrar igual' : 'Eliminar', 'btn-red', () => {
     // v95: al mandar este id como ausente, guardarProductos manda un borrado
     // de verdad. Antes solo se quitaba del teléfono y la siguiente
     // sincronización lo devolvía a la vida.
@@ -12072,7 +12186,7 @@ function registrarVentaDirecta() {
 function borrarVentaDirecta(id) {
   const v = getVales().find(x => x.id === id);
   if (!v || !esVentaDirecta(v)) return;
-  showConfirmAction('¿Deshacer esta venta?', (v.articulo || '') + ' — se borra del cuaderno de ventas directas',
+  showConfirmAction('¿Deshacer esta venta?', escapeHTML(v.articulo || '') + ' — se borra del cuaderno de ventas directas',
                     'Deshacer', 'btn-orange', () => {
     // Mismo camino que adminDeleteVale: marcar el borrado en vuelo para que el
     // poll no lo resucite, y mandar el DELETE de verdad a la nube.
@@ -15180,7 +15294,7 @@ function importData(input) {
   reader.onload=e=>{
     try {
       const data=JSON.parse(e.target.result);
-      if(data.gestores)saveGestores(data.gestores);
+      if(data.gestores)saveGestores(_gestoresDeRespaldo(data.gestores));   // v133
       if(data.mensajeros)saveMensajeros(data.mensajeros);
       if(data.productos)saveProductos(data.productos);
       if(data.categorias)saveCategorias(data.categorias);
@@ -15469,6 +15583,24 @@ function saveTasaMargenCfg() {
 // v120: saveTasaFuente() se quitó con sus dos campos. La tasa sale de tasa.json,
 // que publica el trabajo de GitHub; la clave de elToque vive allí como secreto
 // (ELTOQUE_API_KEY) y no en el navegador, que es donde no le sirve a nadie.
+// ── v133: lo que NUNCA sale de la app hacia el respaldo público ─────────────
+const _CAMPOS_GESTOR_PRIVADOS = ['password', 'phone'];
+function _gestoresParaPublicar(lista) {
+  return (lista || []).map(g => { const c = { ...g }; _CAMPOS_GESTOR_PRIVADOS.forEach(k => delete c[k]); return c; });
+}
+// Al restaurar, un gestor del respaldo que no trae clave (o teléfono) conserva
+// la que ya tiene. Sin esto, restaurar dejaría a todos SIN clave, y un gestor
+// sin clave entra sin que se la pidan.
+function _gestoresDeRespaldo(delRespaldo) {
+  const actuales = new Map((getGestores() || []).map(g => [String(g.id), g]));
+  return (delRespaldo || []).map(g => {
+    const a = actuales.get(String(g && g.id));
+    if (!a) return g;
+    const r = { ...g };
+    _CAMPOS_GESTOR_PRIVADOS.forEach(k => { if (r[k] == null || r[k] === '') { if (a[k] != null) r[k] = a[k]; } });
+    return r;
+  });
+}
 async function syncToGitHub(silent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
@@ -15484,7 +15616,11 @@ async function syncToGitHub(silent) {
   if(!silent) setGhStatus('<span style="color:var(--blue);">⟳ Sincronizando...</span>');
   try {
     const data={
-      gestores:getGestores(),mensajeros:getMensajeros(),
+      // v133: sin clave ni teléfono. Este archivo va a un repositorio PÚBLICO
+      // y además se sirve en la web (…/data.json): cualquiera podía leer las
+      // claves de los gestores —26 en texto plano— y sus teléfonos. Restaurar
+      // desde aquí conserva las que ya hay (ver _gestoresDeRespaldo).
+      gestores:_gestoresParaPublicar(getGestores()),mensajeros:getMensajeros(),
       productos:getProductos(),categorias:getCategorias(),
       vales:getVales(),timestamp:new Date().toISOString()
     };
@@ -15564,7 +15700,7 @@ async function loadFromGitHub() {
     // Use base64ToUtf8 instead of deprecated decodeURIComponent(escape(atob(...)))
     const text=base64ToUtf8(j.content.replace(/\n/g,''));
     const data=JSON.parse(text);
-    if(data.gestores)saveGestores(data.gestores);
+    if(data.gestores)saveGestores(_gestoresDeRespaldo(data.gestores));   // v133
     if(data.mensajeros)saveMensajeros(data.mensajeros);
     if(data.productos)saveProductos(data.productos);
     if(data.categorias)saveCategorias(data.categorias);
@@ -16629,7 +16765,7 @@ function revertConfirmSale(id, skipConfirm) {
   if(v.status!=='confirmed'&&v.status!=='pending_payment'){showToast('Solo se puede revertir una venta confirmada o pendiente de cobro');return;}
   if(!skipConfirm) {
     const targetLabel=v.status==='confirmed'?'Pendiente (enviado)':'Entregado';
-    showConfirmAction('¿Revertir venta?',`${v.cliente||''} volverá a "${targetLabel}" · Stock restaurado`,'Revertir','btn-orange',()=>revertConfirmSale(id,true));
+    showConfirmAction('¿Revertir venta?',`${escapeHTML(v.cliente||'')} volverá a "${targetLabel}" · Stock restaurado`,'Revertir','btn-orange',()=>revertConfirmSale(id,true));
     return;
   }
   // Idempotency: only restore stock if it was previously decremented.
@@ -16831,8 +16967,9 @@ async function nukeAndRebuild() {
     showToast("Inyectando base de datos limpia (atómico)...");
     const updates = {};
     if(data.gestores) {
-       localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
-       updates['gestores'] = data.gestores;
+       const _gs = _gestoresDeRespaldo(data.gestores);   // v133: conserva claves y teléfonos
+       localStorage.setItem('axon_gestores', JSON.stringify(_gs));
+       updates['gestores'] = _gs;
     }
     if(data.mensajeros) {
        localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
@@ -16941,7 +17078,11 @@ async function loadInitialData() {
     // vino a hacer.
     _syncCount++;
     try {
-      if (data.gestores   && !getGestores().length)   localStorage.setItem('axon_gestores', JSON.stringify(data.gestores));
+      // v133: data.json ya no lleva las claves. Los gestores sembrados de aquí se
+      // marcan: hasta que llegue la lista de verdad desde la nube no se puede
+      // entrar con ellos (sin clave, se entraría sin que la pidieran).
+      if (data.gestores   && !getGestores().length)   localStorage.setItem('axon_gestores', JSON.stringify(
+        data.gestores.map(g => (g && !g.password) ? { ...g, _semilla: true } : g)));
       if (data.mensajeros && !getMensajeros().length) localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
       if (data.productos  && !getProductos().length)  { data.productos.forEach(_normalizeProducto); localStorage.setItem('axon_productos', JSON.stringify(data.productos)); }
       if (data.categorias && !getCategorias().length) localStorage.setItem('axon_categorias', JSON.stringify(data.categorias));
@@ -18936,6 +19077,11 @@ const AYUDA_SECCIONES = [
         para:'Sacar una copia de todo por si acaso, y volver a meterla.',
         como:'"Exportar" descarga un archivo. "Importar" lo vuelve a cargar.',
         ojo:'La copia NO lleva el token de GitHub, a propósito. Al importar se conserva el que ya tengas.' },
+      { icono:'⚠️', titulo:'El respaldo en GitHub es PÚBLICO', donde:'Config › GitHub',
+        para:'Saber qué se ve desde fuera. El repositorio de la app es público (hace falta para que la web sea gratis), y el respaldo automático se guarda ahí como data.json: cualquiera con el enlace puede leerlo.',
+        como:'Desde v133 el respaldo ya NO lleva las claves ni los teléfonos de los gestores. Restaurar desde él conserva las que ya hay.',
+        ojo:'Sigue llevando los vales, con el nombre, teléfono y dirección de los clientes. Y las copias viejas de data.json siguen en el historial del repositorio, con las claves de antes: los gestores que tenían la clave sin encriptar deberían recibir una nueva (🔒 → Generar y enviar).',
+        nuevo:'v133' },
       { icono:'🛍️', titulo:'Publicar el catálogo', donde:'Catálogo',
         para:'Tener una página pública con lo que hay a la venta, para pasarla por WhatsApp.',
         como:'Configura GitHub en Config y dale a publicar. Te devuelve el enlace.' },
