@@ -1819,7 +1819,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 35,
+      "stock": 34,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$130",
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-29T14:38:50.626Z"
+  "timestamp": "2026-09-29T14:53:11.462Z"
 }
