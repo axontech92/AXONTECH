@@ -2279,7 +2279,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2692,6 +2692,7 @@
       ],
       "comisionGestor": "$3.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -2848,6 +2849,7 @@
       ],
       "comisionGestor": "$19.40 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "synced": true
     },
@@ -3768,6 +3770,7 @@
       ],
       "comisionGestor": "1500 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4245,6 +4248,7 @@
       ],
       "comisionGestor": "3000 MN",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -4784,6 +4788,7 @@
       ],
       "comisionGestor": "$10.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -5983,6 +5988,7 @@
       ],
       "comisionGestor": "$100.00 USD",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -6893,6 +6899,7 @@
       ],
       "comisionGestor": "$6.00 USD",
       "recogidaTienda": false,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -10557,6 +10564,7 @@
       ],
       "comisionGestor": "$220 USD + 20000 MN",
       "recogidaTienda": true,
+      "commissionStatus": "en_sobre",
       "stockDecremented": true,
       "comisionCedidaMoneda": "USD",
       "synced": true
@@ -43749,5 +43757,5 @@
       "synced": true
     }
   ],
-  "timestamp": "2026-09-29T00:19:04.199Z"
+  "timestamp": "2026-09-29T00:27:54.092Z"
 }
