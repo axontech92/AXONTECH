@@ -1643,7 +1643,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 16,
+      "stock": 13,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2162,7 +2162,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-29T14:28:07.815Z"
+  "timestamp": "2026-09-29T14:29:51.019Z"
 }
