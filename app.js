@@ -1234,8 +1234,24 @@ function _flattenValesFromSB(rawItems) {
 // pagar bytes— y ADEMÁS los ajustes de esa línea, que son dinero: lo que el
 // gestor cedió ahí y lo que el admin le rebajó. Sin esto, el ajuste se hacía en
 // un teléfono y desaparecía en cuanto el vale bajaba en otro.
+// ── v134: los puntos de una línea del vale ─────────────────────────────────
+// Los puntos se leen del CATÁLOGO a propósito: si un producto tenía 0 puntos
+// por error y se arregla, las ventas ya hechas los suman solas (ver v121). Lo
+// que no podía pasar es lo que pasó con la "NanoStation 5 AC loco SIN POE": se
+// borró el producto y sus 38 ventas dejaron de dar puntos. Ahora, antes de
+// borrar un producto, se apuntan sus puntos en cada línea que lo vendió (`pts`),
+// y esos solo se usan cuando el producto ya no existe.
+function _puntosUnidad(it) {
+  if (!it) return 0;
+  const pr = productoOf(it.id);
+  if (pr) return parseFloat(pr.puntos) || 0;
+  const g = parseFloat(it.pts);
+  return isFinite(g) && g > 0 ? g : 0;
+}
 function _lineaParaLaNube(p) {
   const s = { id: p && p.id, qty: p && p.qty };
+  // v134: los puntos guardados, si la línea los lleva (ver _puntosUnidad).
+  if (p && p.pts != null && isFinite(parseFloat(p.pts))) s.pts = parseFloat(p.pts);
   ['cedidaUSD','cedidaMN','rebajaUSD','rebajaMN'].forEach(k => {
     const n = parseFloat(p && p[k]);
     if (isFinite(n) && n > 0) s[k] = Math.round(n * 100) / 100;
@@ -3116,6 +3132,7 @@ document.addEventListener('visibilitychange', () => {
   // La tasa se reintenta al volver; actualizarTasaUSD() se frena sola si el
   // dato tiene menos de 3 h, así que esto no dispara peticiones de más.
   if (typeof actualizarTasaUSD === 'function') actualizarTasaUSD(false);
+  if (typeof reservarValeNumServidor === 'function') reservarValeNumServidor();   // v134
   // v130: el euro solo lo usa el admin, al apuntar cómo pagó el cliente.
   if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN && typeof actualizarTasaEUR === 'function') actualizarTasaEUR(false);
   // Solo actuar si hay trabajo pendiente o Supabase parece desconectado
@@ -4549,14 +4566,53 @@ function _configConContadorAlDia(cfg) {
   const minimo = Math.max(remoto, local, _valeNumMarca() + 1, _valeNumMaxVisto() + 1);
   return minimo > remoto ? { ...cfg, nextValeNum: minimo } : cfg;
 }
+// ── v134: el número lo da el servidor (migration_v134_vale_num.sql) ─────────
+// La base de datos atiende de uno en uno, así que dos teléfonos no pueden
+// recibir el mismo. El número se pide POR ADELANTADO, en cuanto hay conexión,
+// y se guarda en el teléfono: al mandar el vale se usa ese, sin esperar a
+// internet. Sin reserva (sin conexión, o sin la función instalada) se sigue
+// con la cuenta de v133.
+const _VALE_NUM_RESERVA_KEY = 'axon_vale_num_reservado';
+let _valeNumRpc = null;          // null = sin saber · false = no está instalada
+let _reservandoValeNum = false;
+function _valeNumReservado() {
+  try { const o = JSON.parse(localStorage.getItem(_VALE_NUM_RESERVA_KEY) || 'null'); return o && parseInt(o.n, 10) > 0 ? o : null; }
+  catch(e) { return null; }
+}
+async function reservarValeNumServidor() {
+  if (_valeNumRpc === false || _reservandoValeNum || _valeNumReservado()) return null;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return null;
+  _reservandoValeNum = true;
+  try {
+    const minimo = Math.max(_valeNumMarca(), _valeNumMaxVisto()) + 1;
+    const res = await fetch(`${_SB_REST}/rpc/reservar_vale_num`, {
+      method: 'POST', headers: _SB_AUTH_HDRS, body: JSON.stringify({ p_minimo: minimo }) });
+    if (res.status === 404) { _valeNumRpc = false; return null; }   // la migración no está: se sigue como antes
+    if (!res.ok) return null;
+    const n = parseInt(await res.json().catch(() => NaN), 10);
+    if (!(n > 0)) return null;
+    _valeNumRpc = true;
+    try { localStorage.setItem(_VALE_NUM_RESERVA_KEY, JSON.stringify({ n, ts: Date.now() })); } catch(e) {}
+    return n;
+  } catch(e) { return null; }
+  finally { _reservandoValeNum = false; }
+}
 function getNextValeNum() {
   const cfg = getConfig();
-  const n = Math.max(parseInt(cfg.nextValeNum, 10) || 1, _valeNumMarca() + 1, _valeNumMaxVisto() + 1);
-  try { localStorage.setItem(_VALE_NUM_HW_KEY, String(n)); } catch(e) {}
-  const updated = {...cfg, nextValeNum: n + 1};
+  let n = Math.max(parseInt(cfg.nextValeNum, 10) || 1, _valeNumMarca() + 1, _valeNumMaxVisto() + 1);
+  // v134: si hay un número reservado en el servidor, ese: es único aunque no
+  // vaya en orden con los que este teléfono ha visto.
+  const reservado = _valeNumReservado();
+  if (reservado) {
+    n = parseInt(reservado.n, 10);
+    try { localStorage.removeItem(_VALE_NUM_RESERVA_KEY); } catch(e) {}
+  }
+  setTimeout(() => { try { reservarValeNumServidor(); } catch(e) {} }, 0);   // el siguiente, ya
+  try { localStorage.setItem(_VALE_NUM_HW_KEY, String(Math.max(n, _valeNumMarca()))); } catch(e) {}
+  const updated = {...cfg, nextValeNum: Math.max(n + 1, parseInt(cfg.nextValeNum, 10) || 1)};
   _safeSetLS('axon_config', JSON.stringify(updated));
   _configCache = updated; _configDirty = false;
-  if (!isSyncingFromSupabase()) _enqueueSB('config', {nextValeNum: n + 1}, 'update');
+  if (!isSyncingFromSupabase()) _enqueueSB('config', {nextValeNum: updated.nextValeNum}, 'update');
   // v65: aquí se llamaba a _scheduleReconcileNextValeNum(), eliminado por no
   // funcionar (ver la nota justo debajo de esta función).
   return n;
@@ -5923,7 +5979,7 @@ function adminTab(tab) {
   if(tab==='vales'){renderAdminGestores();renderMensajeros();renderConfirmados();renderPendienteCobro();
     if(typeof renderProximasEntregas==='function'){try{renderProximasEntregas();}catch(e){}}  // v108
   }
-  if(tab==='stock'){renderStockCategorias();renderProductGrid();}
+  if(tab==='stock'){renderStockCategorias();renderProductGrid();try{renderVentasDeBorrados();}catch(e){}}
   if(tab==='catalog'){_adminShowAgotados=false;adminCatalogCatFilter=null;renderAdminCatalogCats();renderAdminCatalog();}
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
@@ -6117,8 +6173,24 @@ function _programarEncriptadoClavesViejas() {
   clearTimeout(_encriptadoTimer);
   // Se espera a que haya bajado la lista de gestores de la nube; y se repite de
   // vez en cuando por si llega alguno importado de un respaldo viejo.
-  _encriptadoTimer = setTimeout(() => { encriptarClavesViejas().finally(() => {
+  _encriptadoTimer = setTimeout(() => { try { repararTotalesVacios(); } catch(e) {}   // v134
+    encriptarClavesViejas().finally(() => {
     _encriptadoTimer = setTimeout(_programarEncriptadoClavesViejas, 10 * 60 * 1000); }); }, 15000);
+}
+// ── v134: vales con el total vacío ─────────────────────────────────────────
+// Sin total no hay "COBRAR AL CLIENTE", ni forma de pago, ni entra en la caja
+// (en los datos reales, V-150: precio $150 USD y total vacío). Desde v133 no se
+// puede guardar así; los que ya estaban se rellenan con sus precios.
+function repararTotalesVacios() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return 0;
+  let n = 0;
+  getVales().forEach(v => {
+    if (!v || v.status === 'cancelled' || String(v.total || '').trim()) return;
+    const t = _totalDesdePrecios(v.precioUSD, v.precioMN, v.mensajeria);
+    if (t) { patchVale(v.id, { total: t }); n++; }
+  });
+  if (n) _logAudit('totales_reparados', n + ' vales');
+  return n;
 }
 async function encriptarClavesViejas() {
   if (_encriptandoClaves) return 0;
@@ -8203,7 +8275,7 @@ function _htmlPagoVale(v) {
 // son dinero en sitios distintos. El "≈ USD" de abajo usa la tasa CONGELADA de
 // cada venta, no la de hoy.
 function totalesCaja(vales) {
-  const t = { usd:0, zelle:0, eur:0, mn:0, equivUSD:0, ventas:0, sinApuntar:0, sinTasa:0 };
+  const t = { usd:0, zelle:0, eur:0, mn:0, equivUSD:0, ventas:0, sinApuntar:0, sinTasa:0, descuadres:[] };
   // v133: _valeCuentaDinero — un vale unido es la misma venta que su principal
   // y no puede entrar dos veces en la caja.
   (vales || []).filter(v => v && v.status === 'confirmed' && _valeCuentaDinero(v)).forEach(v => {
@@ -8215,6 +8287,10 @@ function totalesCaja(vales) {
     t.usd += _num0(p.usd); t.zelle += _num0(p.zelle); t.eur += _num0(p.eur); t.mn += _num0(p.mn);
     const cu = cuadrePago(v, p);
     if (cu) t.equivUSD += cu.pagado; else t.sinTasa++;
+    // v134: un pago apuntado que no cuadra con el vale casi siempre es un error
+    // al teclear (V-163: $140 USD + 110.100 MN para un vale de $140 + 3.000 MN).
+    // Se lista para poder revisarlo, en vez de que infle la caja sin que se vea.
+    if (cu && !p.porDefecto && Math.abs(cu.dif) >= 1) t.descuadres.push({ id: v.id, num: v.valeNum, dif: cu.dif });
   });
   ['usd','zelle','eur','equivUSD'].forEach(k => t[k] = Math.round(t[k] * 100) / 100);
   t.mn = Math.round(t.mn);
@@ -8236,7 +8312,14 @@ function renderCaja(vales) {
       ${t.ventas} venta(s) · todo junto ≈ <b>$${t.equivUSD.toFixed(2)} USD</b> con la tasa de cada día
       ${t.sinApuntar ? `<br>⚠️ ${t.sinApuntar} sin forma de pago apuntada: se cuentan como dice el vale (dólares en USD, MN en MN).` : ''}
       ${t.sinTasa ? `<br>⚠️ ${t.sinTasa} sin tasa para pasarlas a USD: no entran en el "todo junto".` : ''}
-    </div>`;
+    </div>
+    ${t.descuadres.length ? `<div id="cajaDescuadres" style="margin-top:8px;background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.3);border-radius:9px;padding:9px 11px;">
+      <div style="font-size:11px;font-weight:800;color:var(--red);margin-bottom:5px;">⚠️ ${t.descuadres.length} venta${t.descuadres.length>1?'s':''} con el pago apuntado que no cuadra con el vale</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">${t.descuadres.map(d => `<button type="button" onclick="adminTab('vales');selectVale(${d.id})"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;padding:3px 8px;cursor:pointer;color:var(--text);">
+        ${escapeHTML(valeNumStr({valeNum:d.num}) || ('#' + d.id))} · ${d.dif > 0 ? 'sobra' : 'falta'} $${Math.abs(d.dif).toFixed(2)}</button>`).join('')}</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:5px;">Toca uno para abrirlo y corregir la forma de pago. Mientras tanto, la caja suma lo apuntado.</div>
+    </div>` : ''}`;
 }
 
 // ── v82: rebaja aplicada por el admin (fase 2) ──────────────────────────────
@@ -8417,7 +8500,7 @@ function renderValeDetail(destinoId) {
   // quedan a ESTE gestor. Enseñar los de la venta entera aquí y la mitad en la
   // app del gestor sería dar dos cifras distintas del mismo vale.
   const _repDet=(typeof _factorReparto==='function')?_factorReparto(v):1;
-  const pts=Math.round((v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0)*_repDet*100)/100;
+  const pts=Math.round((v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+_puntosUnidad(p)*p.qty;},0)*_repDet*100)/100;
   let actHTML='';
   // Product link status — show picker if no products linked
   const hasProducts=(v.valeProductos||[]).length>0;
@@ -9700,7 +9783,7 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   const _sumaPuntos = lista => lista.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
       const pr = productoOf(p.id);
       // v120: si la venta se comparte, aquí solo cuenta la parte de este gestor
-      return s + ((pr && pr.puntos) || 0) * p.qty * _factorReparto(v);
+      return s + _puntosUnidad(p) * p.qty * _factorReparto(v);
     }, sum), 0);
   const ptsEarned    = Math.max(0, _sumaPuntos(vales.filter(v => earnedStatuses.includes(v.status)))    - _canjeados);
   const ptsPotential = Math.max(0, _sumaPuntos(vales.filter(v => allActiveStatuses.includes(v.status))) - _canjeados);
@@ -9968,7 +10051,7 @@ function renderMyVales() {
       // se enseñan son YA los que le tocan. Antes salían los de la venta
       // entera, así que el gestor veía 4 y al final del mes le contaban 2.
       const _rep=(typeof _factorReparto==='function')?_factorReparto(v):1;
-      const pts=Math.round((v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+(pr?pr.puntos*p.qty:0);},0)*_rep*100)/100;
+      const pts=Math.round((v.valeProductos||[]).reduce((sum,p)=>{const pr=productoOf(p.id);return sum+_puntosUnidad(p)*p.qty;},0)*_rep*100)/100;
       const _nUnidos=(typeof _cuantosComparten==='function')?_cuantosComparten(v):1;
       const _chapaUnido=_nUnidos>1
         ? `<span style="background:rgba(124,58,237,.14);color:#7C3AED;border-radius:20px;padding:1px 8px;font-size:9px;font-weight:800;white-space:nowrap;" title="El admin unió este vale con el de otro gestor: es la misma venta y se reparte entre ${_nUnidos}">🔗 Compartido 1/${_nUnidos}</span>`
@@ -10364,6 +10447,23 @@ const fVal = id => (document.getElementById(id)?.value||'').trim();
 // ninguna de las dos, y por eso al añadirle un producto el total se quedaba como
 // estaba. Ahora es una sola función que recibe el prefijo de los campos: añadir
 // un cuarto formulario mañana no vuelve a dejarse la cuenta por el camino.
+// v134: la cuenta del total, sacada a una función para poder usarla también
+// sobre un vale ya guardado (ver repararTotalesVacios), no solo en un formulario.
+function _totalDesdePrecios(pUSD, pMN, mens) {
+  let usd = 0, mn = 0;
+  [pUSD, pMN, mens].forEach(str => {
+    const s = String(str || '').toUpperCase();
+    const num = parsePrecioNum(s);
+    if (num === 0) return;
+    if (s.includes('MN') || s.includes('CUP')) mn += num;
+    else if (s.includes('USD') || s.includes('ZELLE') || s.includes('$')) usd += num;
+    else if (num > 500) mn += num; else usd += num;
+  });
+  const out = [];
+  if (usd > 0) out.push(`$${usd} USD`);
+  if (mn > 0) out.push(`${mn} MN`);
+  return out.join(' + ');
+}
 function _calcTotalDe(pfx) {
   const pUSD = document.getElementById(pfx + '-precioUSD')?.value || '';
   const pMN  = document.getElementById(pfx + '-precioMN')?.value || '';
@@ -12041,9 +12141,15 @@ function removeProducto(id) {
   // antes: si solo se dejó de vender, basta con dejar el stock en 0.
   const ventas = getVales().filter(v => v && v.status !== 'cancelled' && (v.valeProductos||[]).some(it => it && it.id === id)).length;
   const sub = ventas
-    ? `${escapeHTML(name)}<br><br><b>⚠️ Tiene ${ventas} venta${ventas>1?'s':''}.</b> Si lo borras, esas ventas dejan de dar puntos a sus gestores y en Dueños y Estadísticas salen como "producto borrado".<br><br>Si ya no lo vendes, es mejor dejar el stock en 0.`
+    ? `${escapeHTML(name)}<br><br><b>⚠️ Tiene ${ventas} venta${ventas>1?'s':''}.</b> Sus puntos se guardan en cada venta, así que los gestores no los pierden. Pero en Dueños y Estadísticas saldrán como "producto borrado".<br><br>Si ya no lo vendes, es mejor dejar el stock en 0.`
     : escapeHTML(name);
   showConfirmAction('¿Eliminar este producto?', sub, ventas ? 'Borrar igual' : 'Eliminar', 'btn-red', () => {
+    // v134: antes de borrarlo, sus puntos se apuntan en cada venta que lo
+    // lleva — ver _puntosUnidad. Sin esto, esas ventas dejaban de dar puntos.
+    const _pts = p ? (parseFloat(p.puntos) || 0) : 0;
+    getVales().filter(v => v && (v.valeProductos||[]).some(it => it && it.id === id && it.pts == null)).forEach(v => {
+      patchVale(v.id, { valeProductos: (v.valeProductos||[]).map(it => (it && it.id === id && it.pts == null) ? { ...it, pts: _pts } : it) });
+    });
     // v95: al mandar este id como ausente, guardarProductos manda un borrado
     // de verdad. Antes solo se quitaba del teléfono y la siguiente
     // sincronización lo devolvía a la vida.
@@ -12052,6 +12158,105 @@ function removeProducto(id) {
   });
 }
 
+
+// ── v134: volver a vincular las ventas de un producto borrado ──────────────
+// Cuando se borra un producto, sus ventas se quedan apuntando a un número que
+// ya no existe: en Dueños no se sabe de quién eran y, si se borró antes de
+// v134, no dan puntos. Muchas veces el producto se volvió a crear (la
+// "NanoStation 5 AC loco SIN POE" es hoy "NanoStation 5AC Loco"). Aquí se
+// eligen el producto nuevo y se cambian todas esas ventas de una vez.
+// El stock no se toca: esas unidades ya salieron hace tiempo.
+function _ventasDeBorrados() {
+  const grupos = new Map();   // pid → {pid, vales:Set, uds, nombres:Map}
+  const nombresVivos = new Set(getProductos().map(p => String(p.name || '').trim().toLowerCase()));
+  getVales().forEach(v => {
+    if (!v || v.status === 'cancelled') return;
+    (v.valeProductos || []).forEach(it => {
+      if (!it || it.id == null || productoOf(it.id)) return;
+      let g = grupos.get(String(it.id));
+      if (!g) { g = { pid: it.id, vales: new Set(), uds: 0, nombres: new Map(), sinPuntos: 0 }; grupos.set(String(it.id), g); }
+      g.vales.add(v.id); g.uds += parseInt(it.qty, 10) || 0;
+      if (!(_puntosUnidad(it) > 0)) g.sinPuntos++;
+      // El nombre: el trozo del "artículo" que no es de ningún producto que exista.
+      String(v.articulo || '').split('/').map(t => t.replace(/^\s*×?\s*\d+\s*/, '').trim()).filter(Boolean)
+        .filter(t => !nombresVivos.has(t.toLowerCase()))
+        .forEach(t => g.nombres.set(t, (g.nombres.get(t) || 0) + 1));
+    });
+  });
+  return [...grupos.values()].map(g => ({
+    pid: g.pid, vales: [...g.vales], uds: g.uds, sinPuntos: g.sinPuntos,
+    nombre: [...g.nombres.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0])[0] || ('Producto #' + g.pid)
+  })).sort((a, b) => b.vales.length - a.vales.length);
+}
+// El producto que más se le parece por el nombre, para dejarlo preseleccionado.
+function _productoParecido(nombre) {
+  const pal = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter(w => w.length > 1);
+  const q = new Set(pal(nombre));
+  let mejor = null, nota = 0;
+  getProductos().forEach(p => {
+    const w = pal(p.name); if (!w.length) return;
+    const comunes = w.filter(x => q.has(x)).length;
+    const n = comunes / Math.max(q.size, w.length);
+    if (n > nota) { nota = n; mejor = p; }
+  });
+  return nota >= 0.34 ? mejor : null;
+}
+function renderVentasDeBorrados() {
+  const box = document.getElementById('ventasBorradasBox');
+  if (!box) return;
+  const grupos = _ventasDeBorrados();
+  if (!grupos.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const prods = getProductos().slice().sort((a, b) => String(a.name).localeCompare(String(b.name), 'es'));
+  box.style.display = 'block';
+  box.innerHTML = `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);border-radius:11px;padding:12px 13px;">
+    <div style="font-size:12px;font-weight:800;color:#b45309;margin-bottom:4px;">🗑️ Ventas de productos que ya no están en el catálogo</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:9px;line-height:1.5;">Si el producto se volvió a crear, elígelo y esas ventas pasan a contar como él: dan sus puntos y en Dueños se sabe de quién eran. El stock no se toca.</div>
+    ${grupos.map(g => {
+      const sug = _productoParecido(g.nombre);
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:7px;">
+        <div style="font-size:12px;font-weight:700;">${escapeHTML(g.nombre)}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin:2px 0 7px;">${g.vales.length} venta${g.vales.length>1?'s':''} · ${g.uds} unidades${g.sinPuntos ? ` · <b style="color:var(--red);">${g.sinPuntos} sin puntos</b>` : ''}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <select id="relink-${g.pid}" style="flex:1;min-width:170px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 8px;font-size:12px;color:var(--text);">
+            <option value="">— Elegir el producto —</option>
+            ${prods.map(p => `<option value="${p.id}"${sug && sug.id === p.id ? ' selected' : ''}>${escapeHTML(p.name)}${p.puntos ? ' · ' + p.puntos + ' pts' : ''}</option>`).join('')}
+          </select>
+          <button class="btn btn-sm btn-blue" onclick="pedirRevincular(${g.pid})">🔗 Vincular</button>
+        </div>
+      </div>`; }).join('')}
+  </div>`;
+}
+function pedirRevincular(pidViejo) {
+  const sel = document.getElementById('relink-' + pidViejo);
+  const pidNuevo = sel ? parseInt(sel.value, 10) : NaN;
+  const nuevo = productoOf(pidNuevo);
+  if (!nuevo) { showToast('Elige el producto'); return; }
+  const g = _ventasDeBorrados().find(x => String(x.pid) === String(pidViejo));
+  const n = g ? g.vales.length : 0;
+  showConfirmAction('¿Vincular ' + n + ' venta' + (n>1?'s':'') + '?',
+    `Pasan a contar como <b>${escapeHTML(nuevo.name)}</b>: dan sus puntos (${escapeHTML(String(nuevo.puntos || 0))} por unidad) y en Dueños van a su dueño. La comisión de cada venta no cambia y el stock no se toca.`,
+    'Vincular', 'btn-blue', () => {
+      const hechas = revincularProductoBorrado(pidViejo, pidNuevo);
+      gestoresTabDirty = true; statsTabDirty = true; rankingCache = null;
+      renderVentasDeBorrados(); maybeAutoSync();
+      showToast('🔗 ' + hechas + ' venta' + (hechas>1?'s':'') + ' vinculada' + (hechas>1?'s':''));
+    });
+}
+function revincularProductoBorrado(pidViejo, pidNuevo) {
+  if (productoOf(pidViejo) || !productoOf(pidNuevo)) return 0;   // solo desde un borrado hacia uno que existe
+  let n = 0;
+  getVales().filter(v => v && (v.valeProductos||[]).some(it => it && String(it.id) === String(pidViejo))).forEach(v => {
+    // La comisión congelada (comFijada) y lo cedido de cada línea no se tocan:
+    // cambiar de producto no cambia lo que se cobró.
+    patchVale(v.id, { valeProductos: (v.valeProductos||[]).map(it => {
+      if (!it || String(it.id) !== String(pidViejo)) return it;
+      const c = { ...it, id: pidNuevo }; delete c.pts; delete c.name; return c;
+    }) });
+    n++;
+  });
+  if (n) _logAudit('ventas_revinculadas', pidViejo + ' → ' + pidNuevo + ' (' + n + ')');
+  return n;
+}
 
 // ══════════════════════════════════════════
 //  VENTAS DIRECTAS — el mostrador  (v124, v127)
@@ -12682,7 +12887,7 @@ function _renderStatsGestorCard(g, vales, from, to) {
   const gPendingPay = gv.filter(v => v.status === 'pending_payment').length;
   const pts = gv.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
     const pr = productoOf(p.id);
-    return s + (pr ? (pr.puntos||0) * p.qty : 0);
+    return s + _puntosUnidad(p) * p.qty;
   }, sum), 0);
   const closed = gc + gPendingPay;
   const conversion = gv.length > 0 ? Math.round((closed / gv.length) * 100) : 0;
@@ -15295,7 +15500,7 @@ function importData(input) {
     try {
       const data=JSON.parse(e.target.result);
       if(data.gestores)saveGestores(_gestoresDeRespaldo(data.gestores));   // v133
-      if(data.mensajeros)saveMensajeros(data.mensajeros);
+      if(data.mensajeros)saveMensajeros(_mensajerosDeRespaldo(data.mensajeros));   // v134
       if(data.productos)saveProductos(data.productos);
       if(data.categorias)saveCategorias(data.categorias);
       if(data.vales) {
@@ -15601,6 +15806,15 @@ function _gestoresDeRespaldo(delRespaldo) {
     return r;
   });
 }
+// v134: lo mismo para los mensajeros, que ya no llevan el teléfono al respaldo.
+function _mensajerosDeRespaldo(delRespaldo) {
+  const actuales = new Map((getMensajeros() || []).map(m => [String(m.id), m]));
+  return (delRespaldo || []).map(m => {
+    const a = actuales.get(String(m && m.id));
+    if (!a || (m.phone != null && m.phone !== '')) return m;
+    return a.phone != null ? { ...m, phone: a.phone } : m;
+  });
+}
 async function syncToGitHub(silent) {
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){if(!silent)showToast('Configura GitHub primero en ⚙️ Config');return;}
@@ -15620,9 +15834,15 @@ async function syncToGitHub(silent) {
       // y además se sirve en la web (…/data.json): cualquiera podía leer las
       // claves de los gestores —26 en texto plano— y sus teléfonos. Restaurar
       // desde aquí conserva las que ya hay (ver _gestoresDeRespaldo).
-      gestores:_gestoresParaPublicar(getGestores()),mensajeros:getMensajeros(),
+      gestores:_gestoresParaPublicar(getGestores()),
+      // v134: y SIN los vales. Llevaban el nombre, teléfono y dirección de cada
+      // cliente (858 en el último), ubicaciones GPS y algún carnet, en un
+      // archivo que cualquiera puede abrir. Los vales viven en Supabase; la
+      // copia para guardar es "Exportar" (Config), que baja un archivo al
+      // teléfono y no lo publica. Tampoco van los teléfonos de los mensajeros.
+      mensajeros:(getMensajeros()||[]).map(m => { const c = { ...m }; delete c.phone; return c; }),
       productos:getProductos(),categorias:getCategorias(),
-      vales:getVales(),timestamp:new Date().toISOString()
+      timestamp:new Date().toISOString()
     };
     const json=JSON.stringify(data,null,2);
     const content=utf8ToBase64(json);
@@ -15701,7 +15921,7 @@ async function loadFromGitHub() {
     const text=base64ToUtf8(j.content.replace(/\n/g,''));
     const data=JSON.parse(text);
     if(data.gestores)saveGestores(_gestoresDeRespaldo(data.gestores));   // v133
-    if(data.mensajeros)saveMensajeros(data.mensajeros);
+    if(data.mensajeros)saveMensajeros(_mensajerosDeRespaldo(data.mensajeros));   // v134
     if(data.productos)saveProductos(data.productos);
     if(data.categorias)saveCategorias(data.categorias);
     if(data.vales) {
@@ -15886,7 +16106,7 @@ function _puntosEnRango(gestorId, desde, hasta) {
       return !!d && d >= desde && d <= hasta;
     })
     .reduce((sum,v) => sum + (v.valeProductos||[]).reduce((t,p) => {
-      const pr = productoOf(p.id); return t + ((pr && pr.puntos)||0) * p.qty; }, 0), 0);
+      const pr = productoOf(p.id); return t + _puntosUnidad(p) * p.qty; }, 0), 0);
 }
 function rankingDelCiclo(desde, hasta) {
   return getGestores().filter(g => g && !g._tienda)
@@ -15957,7 +16177,7 @@ function getGestorRank(gestorId) {
     // criterio que ya usa getGestorPoints.
     const _canj = metaModo()==='fija' ? (parseFloat(g.puntosCanjeados)||0) : 0;
     const pts=Math.max(0, confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+((pr&&pr.puntos)||0)*p.qty;},0),0)
+      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+_puntosUnidad(p)*p.qty;},0),0)
       - _canj);
     return {id:g.id,pts};
   }).sort((a,b)=>b.pts-a.pts);
@@ -16102,7 +16322,7 @@ function getGestorPointsVentas(gestorId) {
   return confirmedVales.reduce((sum,v)=>
     sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);
       // v120: los puntos se reparten entre los gestores unidos, como la comisión
-      return s+((pr&&pr.puntos)||0)*p.qty*_factorReparto(v);},0),0);
+      return s+_puntosUnidad(p)*p.qty*_factorReparto(v);},0),0);
 }
 function getGestorPointsTotal(gestorId) {
   return getGestorPointsVentas(gestorId) + _ajustePuntosDe(gestorId);
@@ -16149,8 +16369,12 @@ function _auditarPuntosCiclo(gestorId) {
     items.forEach(it => {
       const uds = parseInt(it.qty, 10) || 0;
       const p = productoOf(it.id);
+      if (!p && _puntosUnidad(it) > 0) {          // v134: borrado, pero con sus puntos guardados
+        r.pts += _puntosUnidad(it) * uds * factor;
+        return;
+      }
       if (!p) {
-        r.borrados.push({ nombre: it.name || ('#' + it.id), uds, vale: v.valeNum, valeId: v.id });
+        r.borrados.push({ nombre: it.name || ('#' + it.id), uds, vale: v.valeNum, valeId: v.id, pid: it.id });
         return;
       }
       const pu = parseFloat(p.puntos) || 0;
@@ -16259,7 +16483,8 @@ function _pgPintar() {
                  font-size:11px;font-weight:800;padding:1px 7px;margin:1px 2px;cursor:pointer;"
           title="Abrir este vale">#${b && b.vale != null ? b.vale : id}</button>`;
       }).join('');
-      trozos.push('🗑️ Vendió productos que ya <b>no están en el catálogo</b> (' + cuales + '): sin ficha no hay puntos que sumar.<br>' + vales);
+      trozos.push('🗑️ Vendió productos que ya <b>no están en el catálogo</b> (' + cuales + '): sin ficha no hay puntos que sumar.<br>' + vales
+        + '<br><button type="button" onclick="closePuntosGestorModal();adminTab(\'stock\')" style="margin-top:5px;background:none;border:1px solid var(--blue-bd);color:var(--blue);border-radius:6px;font-size:11px;font-weight:700;padding:3px 9px;cursor:pointer;">🔗 Vincularlas al producto nuevo (en Stock)</button>');
     }
     // Aquí iba un tercer aviso, el de "vendió productos con 0 puntos puestos".
     // Se quita: hay productos que no llevan puntos a propósito, y avisar de eso
@@ -16972,8 +17197,9 @@ async function nukeAndRebuild() {
        updates['gestores'] = _gs;
     }
     if(data.mensajeros) {
-       localStorage.setItem('axon_mensajeros', JSON.stringify(data.mensajeros));
-       updates['mensajeros'] = data.mensajeros;
+       const _ms = _mensajerosDeRespaldo(data.mensajeros);   // v134: conserva teléfonos
+       localStorage.setItem('axon_mensajeros', JSON.stringify(_ms));
+       updates['mensajeros'] = _ms;
     }
     if(data.productos) {
        { data.productos.forEach(_normalizeProducto); localStorage.setItem('axon_productos', JSON.stringify(data.productos)); }
@@ -18675,6 +18901,7 @@ function initGestorPage() {
   renderGestorRanking();
   renderTasaBadge(); actualizarTasaUSD(false);
   if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) actualizarTasaEUR(false);   // v130
+  setTimeout(() => { try { reservarValeNumServidor(); } catch(e) {} }, 4000);   // v134
   const bc = document.getElementById('btnCatalogo');
   if (bc) bc.style.display = 'inline-flex';
   // Triple-tap on AX logo → go to admin page
@@ -18698,6 +18925,7 @@ function initAdminPage() {
   renderAuditLog();
   renderTasaBadge(); actualizarTasaUSD(false);
   if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) actualizarTasaEUR(false);   // v130
+  setTimeout(() => { try { reservarValeNumServidor(); } catch(e) {} }, 4000);   // v134
   if (adminActive) {
     activateAdminMode();
     _resetSessionTimer();
@@ -18909,6 +19137,16 @@ const AYUDA_SECCIONES = [
         para:'Corregirle el precio, la foto o la comisión aunque no quede ninguno.',
         como:'El lápiz ✏️ al lado de "Reponer".',
         nuevo:'v119' },
+      { icono:'🗑️', titulo:'Borrar un producto ya vendido', donde:'Stock › 🗑️',
+        para:'Quitar del catálogo algo que ya no traes sin que los gestores pierdan los puntos de lo que vendieron.',
+        como:'Antes de borrarlo, la app apunta en cada venta cuántos puntos daba ese producto. Esas ventas siguen sumando sus puntos aunque el producto ya no exista.',
+        ojo:'Si lo que querías era cambiarle el nombre o el precio, mejor edítalo (✏️) en vez de borrarlo y crearlo de nuevo: así en Dueños y en Estadísticas sigue siendo el mismo producto.',
+        nuevo:'v134' },
+      { icono:'🔗', titulo:'Ventas de productos que ya no están', donde:'Stock (arriba, sale solo cuando hay)',
+        para:'Las ventas de un producto que se borró ANTES de v134 se quedaron sin puntos. Si el producto se volvió a crear con otro nombre, se pueden pasar a él.',
+        como:'Elige en la lista el producto nuevo (la app propone el que más se parece) y toca "Vincular". Esas ventas pasan a dar sus puntos y a contar para su dueño.',
+        ojo:'La comisión que ya se le pagó al gestor por cada venta no cambia, y el stock no se toca. Mira bien que sea el mismo producto: si no, le darías puntos de otra cosa.',
+        nuevo:'v134' },
       { icono:'☁️', titulo:'Aligerar catálogo', donde:'Stock',
         para:'Sacar a GitHub las fotos que están guardadas dentro de la base de datos. Baja mucho el consumo de datos de todos los teléfonos.',
         como:'Botón "☁️ Aligerar catálogo". Necesita GitHub configurado en Config.' },
@@ -19045,8 +19283,13 @@ const AYUDA_SECCIONES = [
       { icono:'💳', titulo:'Caja por forma de pago', donde:'Estadísticas › 💳 Caja',
         para:'Cuadrar la caja: cuánto entró en el período en dólares en efectivo, por Zelle, en euros y en MN, cada cosa por su lado.',
         como:'Elige las fechas arriba. Cuenta solo ventas confirmadas.',
-        ojo:'Las monedas no se suman entre sí. El "todo junto ≈ USD" de abajo usa la tasa congelada de cada venta, no la de hoy. Las ventas en las que no apuntaste cómo pagó se cuentan como dice el vale, y se avisa cuántas son.',
+        ojo:'Las monedas no se suman entre sí. El "todo junto ≈ USD" de abajo usa la tasa congelada de cada venta, no la de hoy. Las ventas en las que no apuntaste cómo pagó se cuentan como dice el vale, y se avisa cuántas son. Desde v134, debajo salen los vales en los que lo apuntado no cuadra con lo que había que cobrar (sobra o falta), con un botón para abrir cada uno.',
         nuevo:'v130' },
+      { icono:'🔢', titulo:'Números de vale que no se repiten', donde:'Supabase › SQL Editor (una sola vez)',
+        para:'Que dos gestores que mandan un vale a la vez no se lleven el mismo número (en los datos había 192 repetidos).',
+        como:'Pega el archivo migration_v134_vale_num.sql del repositorio en el SQL Editor de Supabase y dale a "Run". Desde ahí el número lo da la base de datos, de uno en uno. El teléfono lo pide por adelantado, así que mandar sin cobertura sigue funcionando.',
+        ojo:'Sin ese paso la app sigue funcionando como antes (el número ya no retrocede, pero dos gestores en el mismo minuto aún podrían coincidir). Es gratis y se puede ejecutar dos veces sin problema. Los números viejos repetidos se quedan como están.',
+        nuevo:'v134' },
       { icono:'📈', titulo:'Ganancia del período', donde:'Estadísticas',
         para:'Lo que de verdad quedó: lo que entró, menos lo que costó la mercancía, menos las comisiones.',
         como:'Elige las fechas arriba.',
@@ -19079,9 +19322,9 @@ const AYUDA_SECCIONES = [
         ojo:'La copia NO lleva el token de GitHub, a propósito. Al importar se conserva el que ya tengas.' },
       { icono:'⚠️', titulo:'El respaldo en GitHub es PÚBLICO', donde:'Config › GitHub',
         para:'Saber qué se ve desde fuera. El repositorio de la app es público (hace falta para que la web sea gratis), y el respaldo automático se guarda ahí como data.json: cualquiera con el enlace puede leerlo.',
-        como:'Desde v133 el respaldo ya NO lleva las claves ni los teléfonos de los gestores. Restaurar desde él conserva las que ya hay.',
-        ojo:'Sigue llevando los vales, con el nombre, teléfono y dirección de los clientes. Y las copias viejas de data.json siguen en el historial del repositorio, con las claves de antes: los gestores que tenían la clave sin encriptar deberían recibir una nueva (🔒 → Generar y enviar).',
-        nuevo:'v133' },
+        como:'Desde v134 el respaldo solo lleva el catálogo, las categorías y los nombres de gestores y mensajeros: ni claves, ni teléfonos, ni los vales de los clientes. Los vales siguen a salvo en la base de datos; para tener una copia tuya, usa "Exportar" en Config, que la baja a tu teléfono sin publicarla.',
+        ojo:'Restaurar desde GitHub ya no trae vales ni pisa las claves que hay. Las copias VIEJAS de data.json siguen en el historial del repositorio, con los datos de antes: borrarlas es una operación aparte que hay que decidir.',
+        nuevo:'v134' },
       { icono:'🛍️', titulo:'Publicar el catálogo', donde:'Catálogo',
         para:'Tener una página pública con lo que hay a la venta, para pasarla por WhatsApp.',
         como:'Configura GitHub en Config y dale a publicar. Te devuelve el enlace.' },

@@ -187,7 +187,7 @@ function nube(url, metodo, cuerpo) {
     return { con, boton, sin };
   });
   ok('dice cuántas ventas tiene', /Tiene 2 ventas/.test(borrar.con), borrar.con.slice(0,160));
-  ok('y que dejan de dar puntos', /dejan de dar puntos/.test(borrar.con), '');
+  ok('y que sus puntos se conservan (v134)', /no los pierden/.test(borrar.con), borrar.con.slice(0,300));
   ok('el botón es "Borrar igual"', borrar.boton === 'Borrar igual', borrar.boton);
   ok('un producto sin ventas no lleva el aviso', !/ventas/.test(borrar.sin), borrar.sin);
 
