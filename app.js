@@ -1313,6 +1313,8 @@ function _lineaParaLaNube(p) {
   const s = { id: p && p.id, qty: p && p.qty };
   // v134: los puntos guardados, si la línea los lleva (ver _puntosUnidad).
   if (p && p.pts != null && isFinite(parseFloat(p.pts))) s.pts = parseFloat(p.pts);
+  // v140: el precio de catálogo del día de la venta (ver patchVale al confirmar).
+  if (p && typeof p.precio === 'string' && p.precio.trim()) s.precio = p.precio.trim().slice(0, 60);
   ['cedidaUSD','cedidaMN','rebajaUSD','rebajaMN'].forEach(k => {
     const n = parseFloat(p && p[k]);
     if (isFinite(n) && n > 0) s[k] = Math.round(n * 100) / 100;
@@ -4608,6 +4610,19 @@ function patchVale(id, changes) {
     // vale — ver la nota en _congelarCostoVale().
     if (changes.status === 'confirmed' && all[i].status !== 'confirmed') {
       try { _congelarCostoVale(all[i]); } catch(e) { console.warn('[costos] no se pudo congelar:', e && e.message); }
+      // v140: y el precio de cada línea. Dueños valoraba cada venta con el precio
+      // de HOY del catálogo: subir un producto de $100 a $130 cambiaba lo que
+      // "se vendió" ayer.
+      try {
+        const _base = changes.valeProductos || all[i].valeProductos || [];
+        if (_base.some(l => l && !l.precio && productoOf(l.id))) {
+          changes.valeProductos = _base.map(l => {
+            if (!l || l.precio) return l;
+            const pr = productoOf(l.id);
+            return pr && pr.precio ? { ...l, precio: String(pr.precio) } : l;
+          });
+        }
+      } catch(e) {}
     }
     // v130: y cómo pagó el cliente. Si el admin no lo apuntó, se da por hecho
     // que pagó como dice el vale — pero con las tasas de HOY congeladas, para
@@ -4619,9 +4634,21 @@ function patchVale(id, changes) {
         if (_p && (_p.usd > 0 || _p.mn > 0)) {
           delete _p.porDefecto;
           _p.ts = new Date().toISOString();
+          _p.auto = true;   // v140: lo puso la app, no el admin (ver la reversión, abajo)
           changes.pago = _p;
         }
       } catch(e) { console.warn('[pago] no se pudo congelar:', e && e.message); }
+    }
+    // v140: al REVERTIR una venta (sale de confirmada) se sueltan el costo y el
+    // pago que se congelaron al confirmarla. Si no, al editarla (3 unidades en
+    // vez de 1) y volver a confirmar, Ganancia seguía con el costo de 1 y la
+    // caja con el pago viejo. El pago que apuntó el admin a mano se respeta.
+    if (all[i].status === 'confirmed' && changes.status && changes.status !== 'confirmed') {
+      try { _descongelarCostoVale(all[i].id); } catch(e) {}
+      if (all[i].pago && all[i].pago.auto && !('pago' in changes)) changes.pago = null;
+      if (!('valeProductos' in changes) && (all[i].valeProductos || []).some(l => l && l.precio)) {
+        changes.valeProductos = all[i].valeProductos.map(l => { if (!l || !l.precio) return l; const c = { ...l }; delete c.precio; return c; });
+      }
     }
     all[i]={...all[i],...changes};
     // v39: Mark this vale as locally patched (for time-based local-wins in merge)
@@ -5171,6 +5198,16 @@ function _costoValeHoy(v) {
     total += u * (parseInt(it.qty, 10) || 0);
   }
   return Math.round(total * 100) / 100;
+}
+function _descongelarCostoVale(id) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  const doc = { ...getCostos() };
+  if (!doc._vales || !(String(id) in doc._vales)) return false;
+  doc._vales = { ...doc._vales }; delete doc._vales[String(id)];
+  _safeSetLS('axon_costos', JSON.stringify(doc));
+  _costosCache = doc; _costosDirty = false;
+  setSB('costos', doc);
+  return true;
 }
 function _congelarCostoVale(v) {
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
@@ -7523,9 +7560,22 @@ function unirVales(mainId, secIds) {
   _logAudit('vales_unidos', mainId + ' ← ' + ids.join(','));
   return { ok: true, n };
 }
+// v140: por qué no se puede deshacer la unión ahora ('' = sí se puede). Es la
+// misma regla que para unir: si la venta ya descontó stock (o se cobró), el
+// vale secundario quedaría como una venta aparte "que ya sacó mercancía" y al
+// revertirlo devolvería unidades que nunca salieron; la caja además la contaría
+// dos veces. Primero se revierte la venta.
+function _porQueNoSePuedeDesunir(v) {
+  if (!v || v.unidoA == null) return 'ese vale no está unido';
+  const main = getVales().find(x => x.id === v.unidoA);
+  const cerrada = x => x && (x.status === 'confirmed' || x.status === 'pending_payment' || _valeDescontoStock(x));
+  if (cerrada(main) || cerrada(v)) return 'la venta ya se cobró o descontó stock — revierte la venta primero';
+  return '';
+}
 function desunirVale(secId) {
   const v = getVales().find(x => x.id === secId);
   if (!v || v.unidoA == null) return false;
+  if (_porQueNoSePuedeDesunir(v)) return false;   // v140
   const mainId = v.unidoA;
   // Los que quedan en el grupo después de sacar a este. Se calcula ANTES del
   // parche, porque después el grupo ya es otro.
@@ -7584,6 +7634,8 @@ function _bloqueUnionHTML(v) {
 }
 function deshacerUnionVale(secId) {
   const v = getVales().find(x => x.id === secId); if (!v) return;
+  const _no = _porQueNoSePuedeDesunir(v);   // v140
+  if (_no) { showToast('No se puede deshacer: ' + _no); return; }
   showConfirmAction('¿Deshacer la unión?',
     'El vale ' + escapeHTML(_valeEtiqueta(v)) + ' vuelve a ser una venta aparte: se lleva su comisión y sus puntos enteros, y volverá a descontar stock cuando se cobre.',
     'Deshacer', 'btn-orange', () => {
@@ -7785,7 +7837,7 @@ function renderAdminGestoresList() {
   c.innerHTML=list.map(g=>{
     const vales=getVales().filter(v=>v.gestorId===g.id);
     const today=vales.filter(v=>new Date(v.ts).toDateString()===todayStr()).length;
-    const pts=getGestorPoints(g.id);   // v114: los del ciclo, los que corren hacia la meta
+    const pts=_redondearPts(getGestorPoints(g.id));   // v114: los del ciclo · v140: redondeado
     const hasPhoto = !!(g.photo && /^(https?:|data:image|photos\/|\.\/photos\/)/i.test(g.photo));
 
     // Comisiones de este gestor, repartidas en los tres montones.
@@ -8365,6 +8417,13 @@ function _fmtMonto(usd, mn) {
   return p.length ? p.join(' + ') : '0';
 }
 
+// La tasa con la que se cuenta este vale: la congelada al apuntar el pago, si
+// la hay; si no, la de hoy.
+function _tasaDelVale(v) {
+  const t = parseFloat(v && v.pago && v.pago.tasaMN);
+  if (t > 0) return t;
+  try { return parseFloat(tasaUSDFinal()) || 0; } catch(e) { return 0; }
+}
 function _rebajaVale(v) {
   if (!v) return null;
   const totalTxt = ((v.total || '') + '').trim();
@@ -8384,8 +8443,31 @@ function _rebajaVale(v) {
     if (m.usd > 0) partes.push({ quien, importe: m.usd, moneda: 'USD', motivo: motivo || '' });
     if (m.mn  > 0) partes.push({ quien, importe: m.mn,  moneda: 'MN',  motivo: motivo || '' });
   };
-  _mete('gestor', _montoEnSuMoneda(v.comisionCedida, v.comisionCedidaMoneda), v.comisionCedidaMotivo);
-  _mete('gestor', _sumaLineas(v, 'cedida'), 'ajuste por producto');
+  // v140: el gestor no puede ceder más de lo que gana. Puede ceder en la otra
+  // moneda (lo normal: "625 USD − 2000 MN"), y se cuenta a la tasa: con $20 de
+  // comisión y 400 CUP/USD, como mucho 8000 MN. Antes no había tope y la tienda
+  // se comía lo que pasara de su comisión. Sin tasa, o si la comisión no se
+  // puede calcular (producto borrado…), no se inventa un tope.
+  const _tasaV = _tasaDelVale(v);
+  const _disp = (() => {
+    if (!(_tasaV > 0)) return null;
+    try {
+      const r = getValeCommissionParts({ ...v, comisionCedida: 0,
+        valeProductos: (v.valeProductos || []).map(l => { if (!l) return l; const c = { ...l }; delete c.cedidaUSD; delete c.cedidaMN; return c; }) });
+      if (r.totalUSD === null && r.totalMN === null) return r.computable && (v.valeProductos || []).length ? { eq: 0 } : null;
+      return { eq: (r.totalUSD || 0) + (r.totalMN || 0) / _tasaV };
+    } catch(e) { return null; }
+  })();
+  const _topaGestor = m => {
+    if (!_disp) return m;
+    const pide = (m.usd || 0) + (m.mn || 0) / _tasaV;
+    if (pide <= _disp.eq + 1e-9) { _disp.eq -= pide; return m; }
+    const f = _disp.eq > 0 ? _disp.eq / pide : 0;
+    _disp.eq = 0;
+    return { usd: Math.round((m.usd || 0) * f * 100) / 100, mn: Math.round((m.mn || 0) * f) };
+  };
+  _mete('gestor', _topaGestor(_montoEnSuMoneda(v.comisionCedida, v.comisionCedidaMoneda)), v.comisionCedidaMotivo);
+  _mete('gestor', _topaGestor(_sumaLineas(v, 'cedida')), 'ajuste por producto');
   _mete('admin',  _montoEnSuMoneda(v.rebajaAdmin, v.rebajaAdminMoneda), v.rebajaAdminMotivo);
   _mete('admin',  _sumaLineas(v, 'rebaja'), 'ajuste por producto');
   if (!partes.length) return null;
@@ -10173,7 +10255,10 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   // SOLO cuando se está mirando todo el histórico. Si hay un rango de fechas
   // ("Este mes", "Mes pasado"), lo que se pregunta es cuántos puntos se hicieron
   // EN ESAS FECHAS: restarle ahí los ciclos de toda la vida daría cero.
-  const _canjeados = (from || to) ? 0
+  // v140: y solo en el modo de META FIJA, que es el único donde se canjean
+  // (igual que getGestorPoints). En los otros modos restaba igual y el panel
+  // del gestor decía 2 cuando el ranking decía 12.
+  const _canjeados = (from || to || metaModo() !== 'fija') ? 0
     : ((gestorOf(gestorId) && parseFloat(gestorOf(gestorId).puntosCanjeados)) || 0);
   const _sumaPuntos = lista => lista.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
       const pr = productoOf(p.id);
@@ -10775,6 +10860,23 @@ function _aplicarCamposAuto() {
   _bloquearCampo('vf-mensajeria', enTienda, 'Recogida en tienda: no hay envío a domicilio');
 }
 
+// v140: lo que se puede ceder en la moneda elegida. Si ya hay productos
+// elegidos y la comisión en ESA moneda es 0 (p. ej. comisión en USD y se cede
+// en MN), el tope es 0: antes el "tope > 0" dejaba ceder lo que fuera, el
+// cliente pagaba menos y la tienda se comía la diferencia.
+function _cedidaTopada(val, moneda) {
+  val = Math.max(0, parseFloat(val) || 0);
+  const lineas = (typeof currentValeProductos !== 'undefined' && Array.isArray(currentValeProductos)) ? currentValeProductos : [];
+  if (!lineas.length) return val;                    // sin productos aún no se sabe el tope
+  const r = _comisionDelValeEnCurso();
+  if (r.totalUSD === null && r.totalMN === null) return val;   // no computable: no se inventa
+  const t = parseFloat(tasaUSDFinal()) || 0;
+  // Lo que gana, expresado en la moneda en que cede (la otra moneda, a la tasa).
+  const tope = moneda === 'MN'
+    ? (r.totalMN || 0) + (t > 0 ? (r.totalUSD || 0) * t : 0)
+    : (r.totalUSD || 0) + (t > 0 ? (r.totalMN || 0) / t : 0);
+  return Math.min(val, moneda === 'MN' ? Math.floor(tope) : Math.floor(tope * 100) / 100);
+}
 function onCesionComisionInput() {
   const inp = document.getElementById('vf-comisionCedida');
   const sel = document.getElementById('vf-comisionCedidaMoneda');
@@ -10783,9 +10885,12 @@ function onCesionComisionInput() {
   if (!inp || !nota) return;
   const moneda = (sel && sel.value === 'MN') ? 'MN' : 'USD';
   const r = _comisionDelValeEnCurso();
-  const tope = moneda === 'MN' ? (r.totalMN || 0) : (r.totalUSD || 0);
+  // v140: lo máximo que puede ceder en esta moneda (la otra, a la tasa).
+  const _hayProd = typeof currentValeProductos !== 'undefined' && Array.isArray(currentValeProductos) && currentValeProductos.length;
+  const tope = _hayProd ? _cedidaTopada(1e12, moneda) : 0;
   let val = Math.max(0, parseFloat(inp.value) || 0);
-  if (tope > 0 && val > tope) { val = tope; inp.value = val; }   // no se puede ceder más de lo que se gana
+  const _top = _cedidaTopada(val, moneda);   // v140: también con tope 0
+  if (_top < val) { val = _top; inp.value = val || ''; }   // no se puede ceder más de lo que se gana
   // El motivo solo aparece cuando de verdad se cede algo: pedirlo siempre sería
   // un campo más que estorba en el 95% de los vales.
   if (motivo) motivo.style.display = val > 0 ? '' : 'none';
@@ -10855,8 +10960,9 @@ function _totalDesdePrecios(pUSD, pMN, mens) {
     else if (num > 500) mn += num; else usd += num;
   });
   const out = [];
-  if (usd > 0) out.push(`$${usd} USD`);
-  if (mn > 0) out.push(`${mn} MN`);
+  const r2 = n => Math.round(n * 100) / 100;   // v140: sin "$0.30000000000000004"
+  if (usd > 0) out.push(`$${r2(usd)} USD`);
+  if (mn > 0) out.push(`${r2(mn)} MN`);
   return out.join(' + ');
 }
 function _calcTotalDe(pfx) {
@@ -10885,8 +10991,9 @@ function _calcTotalDe(pfx) {
   addVal(mens);
 
   let out = [];
-  if(usdTotal > 0) out.push(`$${usdTotal} USD`);
-  if(mnTotal > 0) out.push(`${mnTotal} MN`);
+  const r2 = n => Math.round(n * 100) / 100;   // v140: sin "$0.30000000000000004"
+  if(usdTotal > 0) out.push(`$${r2(usdTotal)} USD`);
+  if(mnTotal > 0) out.push(`${r2(mnTotal)} MN`);
 
   const totalInput = document.getElementById(pfx + '-total');
   if(out.length > 0 && totalInput) {
@@ -11009,8 +11116,8 @@ let _ticketAfterSend = false;
 // cuenta allí. Con una sola función, cualquier sitio que muestre el total la usa.
 function _rebajaFormulario() {
   const el = document.getElementById('vf-comisionCedida');
-  const cedida = Math.max(0, parseFloat((el && el.value) || 0) || 0);
   const selMon = document.getElementById('vf-comisionCedidaMoneda');
+  const cedida = _cedidaTopada((el && el.value) || 0, (selMon && selMon.value === 'MN') ? 'MN' : 'USD');   // v140
   // v130 FIX: antes solo se miraba la casilla general de cesión. La rebaja
   // producto a producto (v123: "tu comisión" en cada línea) no llegaba aquí, y
   // el ticket del cliente salía con el precio entero aunque el gestor hubiera
@@ -11294,7 +11401,7 @@ function sendVale() {
       } catch(e) { return {}; }
     })(),
     // v75: cesión de comisión (importe, moneda y motivo)
-    comisionCedida: Math.max(0, parseFloat(fVal('vf-comisionCedida')) || 0),
+    comisionCedida: _cedidaTopada(fVal('vf-comisionCedida'), (document.getElementById('vf-comisionCedidaMoneda')||{}).value === 'MN' ? 'MN' : 'USD'),   // v140
     comisionCedidaMoneda: (document.getElementById('vf-comisionCedidaMoneda')||{}).value === 'MN' ? 'MN' : 'USD',
     comisionCedidaMotivo: fVal('vf-cesionMotivo'),
     recogidaTienda:!!document.getElementById('vf-recogidaTienda')?.checked,
@@ -12707,7 +12814,10 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
     ventaDirecta: true,
     cliente: VENTA_DIRECTA_CLIENTE, telefono: '', direccion: 'Tienda Física',
     mensajeria: '', articulo: p.name + ' x' + qty,
-    precioUSD: p.precio || '', precioMN: '',
+    // v140: el precio de la venta es lo COBRADO (todas las unidades), no el
+    // de catálogo de una sola: Ganancia leía precioUSD y con 3 × $100 cobrados
+    // en $270 salía una pérdida de $110.
+    precioUSD: cobrado, precioMN: '',
     vuelto: '', total: cobrado, garantia: p.garantia || '',
     valeProductos: [{ id: p.id, name: p.name, qty }],
     valeText: 'Venta en tienda',
@@ -12715,7 +12825,7 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
     adminNotes: String(nota || '').trim(),
     // Sin gestor no hay comisión que pagar: nace saldada.
     comisionGestor: '', commissionPaid: true, commissionStatus: 'cobrado',
-    commissionPaidTs: ahoraTs,
+    commissionPaidTs: ahoraTs, comFijadaUSD: 0, comFijadaMN: 0,   // v140: sin gestor, comisión cero
     // v127: explícito en false —no solo ausente— para que ningún camino que
     // revierta o borre un vale (adminDeleteVale, revertConfirmSale…) intente
     // devolver stock que nunca se quitó. _valeDescontoStock() mira esta
@@ -13307,10 +13417,11 @@ function _renderStatsGestorCard(g, vales, from, to) {
   const gv = vales.filter(v => v.gestorId === g.id);
   const gc = gv.filter(v => v.status === 'confirmed').length;
   const gPendingPay = gv.filter(v => v.status === 'pending_payment').length;
-  const pts = gv.reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) => {
-    const pr = productoOf(p.id);
-    return s + _puntosUnidad(p) * p.qty;
-  }, sum), 0);
+  // v140: puntos GANADOS en el período: solo ventas cerradas, repartidas si
+  // están unidas. Antes sumaba también pendientes y canceladas.
+  const pts = _redondearPts(gv.filter(v => v.status === 'confirmed' || v.status === 'pending_payment')
+    .reduce((sum,v) => (v.valeProductos||[]).reduce((s,p) =>
+      s + _puntosUnidad(p) * (parseFloat(p.qty) || 0) * _factorReparto(v), sum), 0));
   const closed = gc + gPendingPay;
   const conversion = gv.length > 0 ? Math.round((closed / gv.length) * 100) : 0;
   const isExpanded = window._expandedStatsGestors.has(g.id);
@@ -13557,6 +13668,9 @@ function _gananciaProducto(p) {
 // Lo que se cobró de verdad por un vale. Se prefieren los campos de precio; si
 // el vale es viejo y solo tiene "total", se lee de ahí.
 function _ventaVale(v) {
+  // v140: en una venta directa lo que vale es lo cobrado (las de antes de v140
+  // guardaban en precioUSD el precio de catálogo de UNA unidad).
+  if (v && v.ventaDirecta) { const t = _montoMonedas(v.total); return { usd: t.usd, mn: t.mn }; }
   const a = _montoMonedas(v.precioUSD), b = _montoMonedas(v.precioMN);
   let usd = a.usd + b.usd, mn = a.mn + b.mn;
   if (!usd && !mn) { const t = _montoMonedas(v.total); usd = t.usd; mn = t.mn; }
@@ -13759,9 +13873,14 @@ function renderGanancia(vales) {
       if (faltaCosto) valesSinCosto++;
     }
     try {
-      const r = getValeCommissionParts(v);
-      const c = _aUSD({ usd: r.totalUSD || 0, mn: r.totalMN || 0 });
-      if (c !== null) comisiones += c; else hayMNSinTasa = true;
+      // v140: en un vale unido la comisión se reparte entre sus gestores, y
+      // cada uno cobra SU parte: se suman las de todos los vales del grupo. Con
+      // solo la del principal se descontaba la mitad y la ganancia salía inflada.
+      [v].concat(_valesUnidosA(v.id)).forEach(x => {
+        const r = getValeCommissionParts(x);
+        const c = _aUSD({ usd: r.totalUSD || 0, mn: r.totalMN || 0 });
+        if (c !== null) comisiones += c; else hayMNSinTasa = true;
+      });
     } catch(e) {}
   });
   const ganRealizada = ingreso - costoVendido - comisiones;
@@ -13958,7 +14077,7 @@ function _lineasPorDueno(vales) {
       // v117: cada moneda por su lado. Antes se pasaba todo a USD con la tasa
       // del día, y al dueño hay que pagarle en lo que se cobró, no en un
       // equivalente que cambia cada mañana.
-      const pv = _montoMonedas(p ? p.precio : '');
+      const pv = _montoMonedas((_it && _it.precio) || (p ? p.precio : ''));   // v140: el precio del día de la venta
       const ventaUSD = pv.usd * unidades, ventaMN = pv.mn * unidades;
       if (!pv.usd && !pv.mn) sinPrecio++;
       // La comisión del gestor. Una venta hecha desde el admin no genera
@@ -13998,6 +14117,45 @@ function _lineasPorDueno(vales) {
       });
     });
 
+    // ── v140: la comisión, la de VERDAD del vale ──────────────────────────────
+    // Línea a línea solo sale la del catálogo de hoy: sin la comisión congelada
+    // al hacer el vale, sin el reparto de un vale unido y sin lo que cedió el
+    // gestor para todo el vale. Así "Debe pagar a" pedía $20 cuando el panel de
+    // Gestores debía $7, o todo al principal de un vale unido. Ahora se toma la
+    // del vale (getValeCommissionParts, la misma que Gestores) y se reparte entre
+    // sus líneas en proporción a lo que pesaba cada una.
+    if (!esTienda && _lineasVale.length) {
+      const _pesos = _lineasVale.map(l => ({ usd: l.comUSD, mn: l.comMN, v: l.ventaUSD + l.ventaMN }));
+      const _reparte = (vx, destino) => {
+        const rv = getValeCommissionParts(vx);
+        [['comUSD', 'usd', rv.totalUSD], ['comMN', 'mn', rv.totalMN]].forEach(([k, m, real]) => {
+          real = Math.max(0, parseFloat(real) || 0);
+          let base = _pesos.reduce((s, x) => s + x[m], 0), campo = m;
+          if (!(base > 0)) { base = _pesos.reduce((s, x) => s + x.v, 0); campo = 'v'; }
+          let dado = 0;
+          destino.forEach((l, i) => {
+            const parte = i === destino.length - 1 ? Math.round((real - dado) * 100) / 100
+              : (base > 0 ? Math.round(real * (_pesos[i][campo] / base) * 100) / 100 : 0);
+            l[k] = Math.max(0, parte); dado += l[k];
+          });
+        });
+      };
+      try { _reparte(v, _lineasVale); } catch(e) {}
+      // Los gestores de los vales unidos a este: su parte, en líneas que solo
+      // llevan comisión (la mercancía y el dinero ya los cuenta el principal).
+      try {
+        _valesUnidosA(v.id).forEach(sv => {
+          const gs = gestorOf(sv.gestorId);
+          const est = (sv.commissionPaid || sv.commissionStatus === 'cobrado') ? 'cobrado'
+                    : sv.commissionStatus === 'en_sobre' ? 'en_sobre' : 'pendiente';
+          const copias = _lineasVale.map(l => ({ ...l, qty: 0, ventaUSD: 0, ventaMN: 0, comUSD: 0, comMN: 0,
+            soloComision: true, gestor: gs ? gs.name : '—', gestorId: sv.gestorId, comEstado: est }));
+          _reparte(sv, copias);
+          copias.forEach(c => _lineasVale.push(c));
+        });
+      } catch(e) {}
+    }
+
     // ── v120: la rebaja del admin baja el dinero del DUEÑO de esa mercancía ──
     // Este panel existe para saber, al cerrar el día, cuánto entró por lo de
     // cada cual. Enseñar el precio de catálogo mentía justo en ese número: si
@@ -14013,15 +14171,16 @@ function _lineasPorDueno(vales) {
     // catálogo (sin la cesión descontada): restarla también aquí le quitaría al
     // dueño el mismo dinero dos veces —cobraría menos Y pagaría igual—.
     const _reb = Math.max(0, parseFloat(v.rebajaAdmin || 0) || 0);
-    if (_reb > 0 && _lineasVale.length) {
+    const _lineasMerc = _lineasVale.filter(l => !l.soloComision);   // v140: las de solo comisión no llevan dinero
+    if (_reb > 0 && _lineasMerc.length) {
       const _campo = (String(v.rebajaAdminMoneda || 'USD')).toUpperCase() === 'MN' ? 'ventaMN' : 'ventaUSD';
-      const _totalVale = _lineasVale.reduce((s, l) => s + l[_campo], 0);
+      const _totalVale = _lineasMerc.reduce((s, l) => s + l[_campo], 0);
       if (_totalVale > 0) {
         // A la última línea se le da lo que quede, para que lo repartido sume
         // exactamente la rebaja y el redondeo no pierda ni invente un céntimo.
         let _repartido = 0;
-        _lineasVale.forEach((l, i) => {
-          const _quiere = (i === _lineasVale.length - 1)
+        _lineasMerc.forEach((l, i) => {
+          const _quiere = (i === _lineasMerc.length - 1)
             ? _reb - _repartido
             : Math.round((_reb * (l[_campo] / _totalVale)) * 100) / 100;
           const _real = Math.max(0, Math.min(l[_campo], _quiere));
@@ -14230,7 +14389,7 @@ function renderDuenoModal() {
           </span>
           <span style="font-size:10px;color:var(--ax2-text-low);white-space:nowrap;">${new Date(v.ts).toLocaleDateString('es-ES',{day:'2-digit',month:'short'})} · ${escapeHTML(v.gestor)}${v.esTienda ? ' (sin comisión)' : ''}</span>
         </div>
-        ${v.lineas.map(l => `<div style="font-size:11px;color:var(--ax2-text-mid);margin-top:3px;">
+        ${v.lineas.filter(l => !l.soloComision).map(l => `<div style="font-size:11px;color:var(--ax2-text-mid);margin-top:3px;">
           ${escapeHTML(l.producto)}${l.qty > 1 ? ` <b>×${l.qty}</b>` : ''} — ${l.sinPrecio ? '<span style="color:var(--ax2-text-low);">sin precio</span>' : `<span class="ax2-mono">${_fmtDosMonedas(l.ventaUSD, l.ventaMN)}</span>`}
         </div>`).join('')}
         <div style="display:flex;justify-content:space-between;gap:8px;margin-top:5px;padding-top:5px;border-top:1px solid var(--ax2-line);font-size:11px;">
@@ -14405,14 +14564,14 @@ function renderDuenos() {
     tarjetas.push({ clave: String(d.id), id: d.id, nombre: d.nombre, propia: false,
                     ventaUSD: gr ? gr.ventaUSD : 0, ventaMN: gr ? gr.ventaMN : 0,
                     comUSD: gr ? gr.comUSD : 0, comMN: gr ? gr.comMN : 0,
-                    ventas: gr ? gr.lineas.length : 0,
+                    ventas: gr ? gr.lineas.filter(l => !l.soloComision).length : 0,
                     productos: productosDeDueno(d.id).length });
   });
   const tienda = porDueno.get(_SIN_DUENO);
   if (tienda) tarjetas.push({ clave: _SIN_DUENO, id: null, nombre: tienda.nombre, propia: true,
                               ventaUSD: tienda.ventaUSD, ventaMN: tienda.ventaMN,
                               comUSD: tienda.comUSD, comMN: tienda.comMN,
-                              ventas: tienda.lineas.length, productos: 0 });
+                              ventas: tienda.lineas.filter(l => !l.soloComision).length, productos: 0 });
   if (cListCount) cListCount.textContent = tarjetas.length ? `${tarjetas.length}` : '';
   if (!tarjetas.length) {
     cList.innerHTML = '<div class="ax2-card ax2-empty">Sin dueños todavía</div>';
@@ -15383,7 +15542,7 @@ function getValeCommissionParts(v) {
   // del importe congelado, no del recalculado.
   // Los vales anteriores a esto no la llevan y siguen calculándose del catálogo:
   // no se puede saber a posteriori qué comisión tenían el día que se hicieron.
-  if (v && (v.comFijadaUSD != null || v.comFijadaMN != null)) {
+  if (v && (v.comFijadaUSD != null || v.comFijadaMN != null || v.ventaDirecta)) {   // v140: venta directa = sin gestor
     totalUSD = Math.max(0, parseFloat(v.comFijadaUSD || 0) || 0);
     totalMN  = Math.max(0, parseFloat(v.comFijadaMN  || 0) || 0);
     computable = true;
@@ -15427,8 +15586,17 @@ function getValeCommissionParts(v) {
     if (!(m.usd > 0 || m.mn > 0) || !computable || !parts.length) return;
     // Nunca por debajo de cero: ceder más de lo que se gana no tiene sentido, y
     // el formulario ya lo topa, pero el dato puede venir de otro dispositivo.
+    // v140: lo que pase de lo que gana en esa moneda sale de la otra, a la tasa.
+    // "625 USD − 2000 MN" con la comisión en USD: esos 2000 MN le bajaban el
+    // precio al cliente y no le tocaban la comisión al gestor.
+    const _exU = Math.max(0, m.usd - totalUSD), _exM = Math.max(0, m.mn - totalMN);
     totalUSD = Math.max(0, totalUSD - m.usd);
     totalMN  = Math.max(0, totalMN  - m.mn);
+    const _t = _tasaDelVale(v);
+    if (_t > 0) {
+      if (_exM > 0) totalUSD = Math.max(0, Math.round((totalUSD - _exM / _t) * 100) / 100);
+      if (_exU > 0) totalMN  = Math.max(0, Math.round(totalMN - _exU * _t));
+    }
     parts.push({
       label: etiqueta,
       com: '−' + _fmtMonto(m.usd, m.mn),
@@ -16095,7 +16263,7 @@ function _puntosCicloAnterior() {
 function _armarRankingSummary(gestores) {
   const prev = _puntosCicloAnterior();
   return gestores.map(g => {
-    const o = { id: g.id, pts: getGestorPoints(g.id), metas: parseInt(g.metasLogradas, 10) || 0 };
+    const o = { id: g.id, pts: _redondearPts(getGestorPoints(g.id)), metas: parseInt(g.metasLogradas, 10) || 0 };   // v140: sin 2.3333333333333335
     if (metaModo() === 'mensual') o.c = _inicioDelCiclo();   // de qué ciclo son estos puntos
     if (prev) { const p = _redondearPts(Math.max(0, prev.get(String(g.id)) || 0)); if (p) o.prev = p; }
     return o;
@@ -16662,11 +16830,16 @@ function _puntosEnRango(gestorId, desde, hasta) {
 }
 function rankingDelCiclo(desde, hasta) {
   const tot = _puntosPorGestorEnRango(desde, hasta);
+  // v140: los empates se deshacen igual que en el ranking en curso: por los
+  // puntos del ciclo anterior a este, y luego por nombre.
+  let prev = null;
+  try { const c = _cicloAnterior(desde); if (c && c.from) prev = _puntosPorGestorEnRango(c.from, c.to); } catch(e) {}
   return getGestores().filter(g => g && !g._tienda)
     .map(g => ({ id:g.id, name:g.name, initials:g.initials, color:g.color,
-                 pts:_redondearPts(Math.max(0, tot.get(String(g.id)) || 0)) }))
+                 pts:_redondearPts(Math.max(0, tot.get(String(g.id)) || 0)),
+                 prev: prev ? _redondearPts(Math.max(0, prev.get(String(g.id)) || 0)) : 0 }))
     .filter(x => x.pts > 0)
-    .sort((a,b) => (b.pts - a.pts) || String(a.name).localeCompare(String(b.name), 'es'));
+    .sort(_ordenRanking);
 }
 // Lo que se guarda del podio en el historial: los 10 primeros, con lo justo
 // para pintarlos. El config viaja a todos los teléfonos en cada cambio, así
@@ -16780,25 +16953,15 @@ function getTop3Ranked() {
 
 // Get a specific gestor's current rank (1-based)
 function getGestorRank(gestorId) {
-  const gestores=getGestores();
-  const confirmedVales=getVales().filter(v=>['confirmed','pending_payment'].includes(v.status));
-  const ranked=gestores.map(g=>{
-    // v114: puntos del ciclo en curso, igual que la barra de meta. Si el
-    // ranking siguiera contando los de siempre, quien ya cerró varias metas se
-    // quedaría arriba para siempre y resetear el contador no serviría de nada.
-    // v121: los puntos ya canjeados solo se restan en el modo de META FIJA, que
-    // es el único donde "canjear" significa algo. Aquí se restaban siempre, así
-    // que un gestor que cerró metas en su día seguía apareciendo con menos
-    // puntos de los que tiene aunque ahora se compita por ciclos. Es el mismo
-    // criterio que ya usa getGestorPoints.
-    const _canj = metaModo()==='fija' ? (parseFloat(g.puntosCanjeados)||0) : 0;
-    const pts=Math.max(0, confirmedVales.filter(v=>v.gestorId===g.id).reduce((sum,v)=>
-      sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);return s+_puntosUnidad(p)*p.qty;},0),0)
-      - _canj);
-    return {id:g.id,pts};
-  }).sort((a,b)=>b.pts-a.pts);
-  const idx=ranked.findIndex(r=>r.id===gestorId);
-  return idx>=0?idx+1:null;
+  // v140: el puesto sale de la MISMA cuenta que el ranking (getGestorPoints:
+  // vales unidos repartidos, reinicio, puntos a mano) y con el mismo orden en
+  // los empates. Había una copia aparte que no sabía nada de eso y el aviso
+  // decía "Puesto #2" mientras el podio ponía a ese gestor primero.
+  const ranked = getGestores().filter(g => g && !g._tienda)
+    .map(g => ({ id: g.id, name: g.name, pts: getGestorPoints(g.id) }))
+    .sort(_ordenRanking);
+  const idx = ranked.findIndex(r => String(r.id) === String(gestorId));
+  return idx >= 0 ? idx + 1 : null;
 }
 
 // Get a specific gestor's total points
@@ -16938,7 +17101,7 @@ function getGestorPointsVentas(gestorId) {
   return confirmedVales.reduce((sum,v)=>
     sum+(v.valeProductos||[]).reduce((s,p)=>{const pr=productoOf(p.id);
       // v120: los puntos se reparten entre los gestores unidos, como la comisión
-      return s+_puntosUnidad(p)*p.qty*_factorReparto(v);},0),0);
+      return s+_puntosUnidad(p)*(parseFloat(p.qty)||0)*_factorReparto(v);},0),0);   // v140: sin qty no da NaN
 }
 function getGestorPointsTotal(gestorId) {
   return getGestorPointsVentas(gestorId) + _ajustePuntosDe(gestorId);
@@ -18161,6 +18324,14 @@ function sendAdminVale() {
     vale.comFijadaUSD = 0;
     vale.comFijadaMN = 0;
     vale.comisionGestor = '';
+  } else {
+    // v140: con un gestor de verdad se congela la comisión de HOY, igual que en
+    // el vale que manda el gestor (submitVale). Sin esto, cambiar mañana la
+    // comisión del producto reescribía estos vales, también los ya pagados.
+    try {
+      const _r = getValeCommissionParts({ valeProductos: _lineasSinAjustes(adminValeProductos || []) });
+      if (!(_r.totalUSD === null && _r.totalMN === null)) { vale.comFijadaUSD = _r.totalUSD || 0; vale.comFijadaMN = _r.totalMN || 0; }
+    } catch(e) {}
   }
 
   // ── 1. Guardar el vale LOCALMENTE y encolar write a Supabase (síncrono, rápido) ──

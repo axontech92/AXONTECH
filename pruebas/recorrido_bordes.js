@@ -149,15 +149,24 @@ const ok = (n, c, e) => { console.log((c?'✅ ':'❌ ')+n+(c?'':'  → '+JSON.st
   ok('y los puntos también se parten (4×2 / 2 = 4 cada uno)',
      stockUnidos.ptsA === 4 && stockUnidos.ptsB === 4, stockUnidos);
 
+  // v140: con la venta ya cobrada NO se puede deshacer la unión: el secundario
+  // quedaría como una venta aparte "que ya sacó mercancía", y al revertirlo
+  // devolvía al almacén unidades que nunca salieron (la caja la contaba dos veces).
+  const bloqueado = await p.evaluate(() => ({ ok: desunirVale(8202), unido: getVales().find(v=>v.id===8202).unidoA }));
+  ok('con la venta cobrada no deja deshacer la unión', bloqueado.ok === false && bloqueado.unido === 8201, bloqueado);
   const desunidos = await p.evaluate(() => {
-    desunirVale(8202);
+    // Primero se revierten los dos (el secundario no devuelve nada), y entonces sí.
+    revertConfirmSale(8202, true); revertConfirmSale(8201, true);
+    const trasRevertir = _numStock(productoOf(950).stock);
+    const ok = desunirVale(8202);
     const b = getVales().find(v=>v.id===8202);
-    return { unido:b.unidoA, com:getValeCommissionParts(b).totalUSD,
-             stock:_numStock(productoOf(950).stock), pts:getGestorPointsVentas(2) };
+    return { ok, trasRevertir, unido:b.unidoA, com:getValeCommissionParts(b).totalUSD,
+             stock:_numStock(productoOf(950).stock) };
   });
+  ok('revertir los dos devuelve las 2 unidades una sola vez → 10', desunidos.trasRevertir === 10, desunidos);
+  ok('y entonces sí se deshace la unión', desunidos.ok && desunidos.unido == null, desunidos);
   ok('al desunir recupera su comisión entera', desunidos.com === 4, desunidos);
-  ok('y sus puntos enteros', desunidos.pts === 8, desunidos);
-  ok('desunir no mueve el almacén por su cuenta', desunidos.stock === 8, desunidos);
+  ok('desunir no mueve el almacén por su cuenta', desunidos.stock === 10, desunidos);
 
   console.log('\n══ 6 · UN VALE SIN PRODUCTOS (de los viejos) ══');
   const sinProd = await p.evaluate(() => {

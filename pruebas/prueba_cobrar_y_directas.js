@@ -18,7 +18,7 @@ const ok = (n, c, e) => { console.log((c?'✅ ':'❌ ')+n+(c?'':'  → '+JSON.st
 
 const PRODS = [
   {id:701, name:'Bocina JBL', stock:6, precio:'$120 USD', comision:'$5 USD', puntos:2, categoria:'Audio'},
-  {id:702, name:'Cargador',   stock:4, precio:'2500 MN',  comision:'200 MN', puntos:1, categoria:'Audio'},
+  {id:702, name:'Cargador',   stock:4, precio:'2500 MN',  comision:'5000 MN', puntos:1, categoria:'Audio'},
   // Este no lo pide ningún vale: sirve para probar el caso de dejar el almacén a 0.
   {id:703, name:'Mouse',      stock:2, precio:'$10 USD',  comision:'$1 USD', puntos:1, categoria:'Audio'},
 ];
