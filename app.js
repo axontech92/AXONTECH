@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 192;
+const APP_VERSION = 190;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 192;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v13.8';
+let _PUBLIC_VERSION_STR = 'v13.6';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '326a0aa746424dd6';
+let _LOCAL_BUILD_HASH = '602b4c7dae32e6d2';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4056,7 +4056,11 @@ function buildCatalogHTML() {
   const cats=getCategorias();
   // v139: `let` — más abajo se rehace con las categorías; con `const` fallaba
   // siempre que hubiera categorías y el catálogo público no se generaba.
-  let allProds=getProductos().filter(p=>(p.stock||0)>0);
+  // FIX catálogo: solo productos DISPONIBLES. Antes solo excluía stock=0
+  // (agotados) y los totalmente reservados se colaban al catálogo público.
+  // Mismo criterio que la sección "Disponibles" del panel: stock>0 y no
+  // totalmente reservado (_isFullyReserved = lo apartado a mano + vales).
+  let allProds=getProductos().filter(p=>(p.stock||0)>0 && !_isFullyReserved(p));
   if(!allProds.length) return null;
   // ── v28 BUGFIX: Asignar catId por nombre si el producto no lo tiene ──
   // Algunos productos vienen de productos.json con campo 'categoria' (string)
@@ -4221,7 +4225,7 @@ function filterCat(id,btn){
   if(btn)btn.classList.add('active');
   renderGrid();
 }
-var PHOTO_RE=/^(https?:|data:image|photos\.|.\/photos\.)/i;
+var PHOTO_RE=/^(https?:|data:image|photos\\.|.\\/photos\\.)/i;
 function renderGrid(){
   var g=document.getElementById('productGrid');
   var filtered=activeCat!==null?products.filter(function(p){return p.catId===activeCat}):products;
@@ -4241,7 +4245,9 @@ function renderGrid(){
     if(p.garantia){s+='<span class="badge badge-garantia">Garantia: '+escapeHTML(p.garantia)+'</span>';}
     s+='</div>';
     if(p.waLink){s+='<a class="wa-btn" href="'+escapeHTML(p.waLink)+'" target="_blank" onclick="event.stopPropagation();"><span class="wa-icon">&#128172;</span>Pedir por WhatsApp</a>';}
-    else{s+='<div class="wa-btn" style="background:#cbd5e1;cursor:default;pointer-events:none;">No disponible</div>';}
+    // FIX: sin número de WhatsApp configurado la tarjeta no muestra nada.
+    // Antes ponía una placa gris "No disponible" que confundía: el producto
+    // SÍ está disponible, solo falta el número en ⚙️ Config → Teléfonos.
     s+='</div></div>';
     return s;
   }).join('');
@@ -15356,7 +15362,7 @@ function renderAdminCatalog() {
 function shareCatalogWeb(){
   const html=buildCatalogHTML();
   if(!html){showToast('No hay productos para exportar');return;}
-  const allProds=getProductos().filter(p=>(p.stock||0)>0);
+  const allProds=getProductos().filter(p=>(p.stock||0)>0 && !_isFullyReserved(p));
   // Generate downloadable HTML file
   const blob=new Blob([html],{type:'text/html;charset=utf-8'});
   const url=URL.createObjectURL(blob);
