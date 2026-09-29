@@ -2264,7 +2264,7 @@
       "name": "NanoStation 5AC Loco",
       "catId": 10,
       "photo": "photos/p-1788278326719-85eac473.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/p-1788278326719-85eac473.webp",
       "nombre": "NanoStation 5AC Loco",
       "precio": "140 USD",
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-29T16:55:14.625Z"
+  "timestamp": "2026-09-29T17:07:03.246Z"
 }
