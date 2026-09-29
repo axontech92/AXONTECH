@@ -1401,7 +1401,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -1728,7 +1728,7 @@
       "name": "Mikrotik hap ax3",
       "catId": 10,
       "photo": "photos/img_1786509419466.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/img_1786509419466.webp",
       "nombre": "Mikrotik hap ax3",
       "precio": "$260",
@@ -1800,7 +1800,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 13,
+      "stock": 12,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-29T18:40:06.365Z"
+  "timestamp": "2026-09-29T19:30:54.175Z"
 }
