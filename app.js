@@ -316,8 +316,55 @@ async function _sbRestGetCollection(collName) {
 // (_doRestPoll) igual fuerza una bajada real de vez en cuando pase lo que
 // pase — la red de seguridad que limita cuánto puede tardar un borrado en
 // notarse, sin volver a la descarga constante de antes.
+// ── v137: UNA pregunta por vuelta en vez de tres ───────────────────────────
+// Supabase avisó: "Log Ingestion 1.52 / 1 GB" — por encima del plan gratis.
+// Cada petición deja una línea de registro, y cada teléfono abierto hacía tres
+// cada 5 segundos ("¿vales nuevos?", "¿avisos nuevos?", "¿borrados?"). La
+// función ultimos_cambios() (migration_v137_una_pregunta.sql) devuelve la hora
+// del último cambio de todo de una vez; las preguntas de abajo la consultan
+// antes de ir a la red. Si no está instalada (404) se sigue como antes.
+let _cambiosRpc = null;        // null = no se sabe aún · false = no instalada
+let _cambiosVuelta = null;     // lo que contestó en ESTA vuelta
+let _cambiosVueltaTxt = '';
+function _tsMicro(s) {
+  if (typeof s !== 'string') return null;
+  const m = /^(.*T\d{2}:\d{2}:\d{2})(?:\.(\d+))?(.*)$/.exec(s);
+  if (!m) return null;
+  const base = Date.parse(m[1] + (m[3] || 'Z'));
+  if (isNaN(base)) return null;
+  return base * 1000 + parseInt(((m[2] || '') + '000000').slice(0, 6), 10);
+}
+// true/false si la respuesta de esta vuelta lo sabe; null si hay que preguntar.
+function _cambioSegunVuelta(ts, desdeISO) {
+  if (!_cambiosVuelta || ts === undefined) return null;
+  if (ts === null) return false;                 // tabla vacía: nada que bajar
+  const a = _tsMicro(ts), b = _tsMicro(desdeISO);
+  if (a === null || b === null) return null;
+  return a > b;
+}
+async function _pedirUltimosCambios() {
+  _cambiosVuelta = null;
+  if (_cambiosRpc === false) return;
+  const gid = (typeof IS_ADMIN !== 'undefined' && !IS_ADMIN && activeGestorId) ? Number(activeGestorId) : null;
+  try {
+    const res = await fetch(`${_SB_REST}/rpc/ultimos_cambios`, {
+      method: 'POST', headers: _SB_AUTH_HDRS, body: JSON.stringify({ p_gestor: gid || null }) });
+    if (res.status === 404) { _cambiosRpc = false; return; }
+    if (!res.ok) return;
+    const j = await res.json().catch(() => null);
+    if (!j || typeof j !== 'object') return;
+    _cambiosRpc = true;
+    j.__gid = gid || null;
+    _cambiosVuelta = j;
+    const txt = JSON.stringify(j);
+    if (_cambiosVueltaTxt && txt !== _cambiosVueltaTxt) _ultimoCambioVisto = Date.now();
+    _cambiosVueltaTxt = txt;
+  } catch (e) {}
+}
 async function _sbRestHayCambios(collName, desdeISO) {
   if (!desdeISO) return true; // sin referencia previa: no se puede saber → se baja todo
+  const _v = _cambiosVuelta ? _cambioSegunVuelta(_cambiosVuelta[collName], desdeISO) : null;   // v137
+  if (_v !== null) return _v;
   const url = `${_SB_REST}/${encodeURIComponent(collName)}?select=id&updated_at=gt.${encodeURIComponent(desdeISO)}&limit=1`;
   try {
     const res = await fetch(url, { headers: _SB_AUTH_HDRS });
@@ -536,6 +583,10 @@ const _GATE_ABSOLUTO_MS = { vales: 24 * 60 * 60000 };
 async function _sbRestHayCambiosDeGestor(gestorId, desdeISO) {
   const gid = Number(gestorId);
   if (!gid || isNaN(gid) || !desdeISO) return true;
+  if (_cambiosVuelta && _cambiosVuelta.__gid === gid) {                        // v137
+    const _v = _cambioSegunVuelta(_cambiosVuelta.vales_gestor, desdeISO);
+    if (_v !== null) return _v;
+  }
   const url = `${_SB_REST}/vales?select=id&data->>gestorId=eq.${encodeURIComponent(String(gid))}`
             + `&updated_at=gt.${encodeURIComponent(desdeISO)}&limit=1`;
   try {
@@ -606,6 +657,10 @@ async function _sbRestGetMeta(name) {
 // La pregunta equivalente pesa 2 bytes.
 async function _sbRestMetaHayCambios(name, desdeISO) {
   if (!desdeISO) return true;   // sin referencia previa: se baja, como siempre
+  if (_cambiosVuelta && _cambiosVuelta.meta && typeof _cambiosVuelta.meta === 'object') {   // v137
+    const _v = _cambioSegunVuelta(Object.prototype.hasOwnProperty.call(_cambiosVuelta.meta, name) ? _cambiosVuelta.meta[name] : null, desdeISO);
+    if (_v !== null) return _v;
+  }
   const url = `${_SB_REST}/meta?select=name&name=eq.${encodeURIComponent(name)}&updated_at=gt.${encodeURIComponent(desdeISO)}&limit=1`;
   try {
     const res = await fetch(url, { headers: _SB_AUTH_HDRS });
@@ -1260,7 +1315,31 @@ function _lineaParaLaNube(p) {
 }
 let _restPollTimer = null;
 let _restPollInFlight = false;
-const _REST_POLL_MS = 5000;
+const _REST_POLL_MS = 5000;   // el reloj; cuándo se pregunta de verdad lo decide _ritmoPoll
+// ── v137: preguntar más despacio cuando nadie usa la app ───────────────────
+// Antes cada teléfono abierto preguntaba cada 5 s aunque estuviera encima del
+// mostrador sin que nadie lo tocara. Ahora: cada 10 s mientras se usa (o si
+// acaba de llegar un cambio), cada 30 s tras 2 minutos sin tocarla y cada
+// 60 s tras 15. Al volver a tocarla se pregunta en el acto.
+let _ultimaActividad = Date.now();
+let _ultimoCambioVisto = 0;
+let _ultimoPollHecho = 0;
+function _ritmoPoll() {
+  const quieto = Date.now() - Math.max(_ultimaActividad, _ultimoCambioVisto);
+  if (quieto < 120000) return 10000;
+  if (quieto < 900000) return 30000;
+  return 60000;
+}
+function _tickPoll() {
+  if (Date.now() - _ultimoPollHecho < _ritmoPoll() - 500) return;
+  _doRestPoll();
+}
+function _marcarActividad() {
+  const antes = _ultimaActividad;
+  _ultimaActividad = Date.now();
+  // Venía de estar quieta: se pregunta ya, sin esperar al siguiente turno.
+  if (_restPollTimer && Date.now() - antes > 60000 && Date.now() - _ultimoPollHecho > 10000) _doRestPoll();
+}
 // v66: ritmo lento para los datos que casi nunca cambian (productos, categorías,
 // gestores, mensajeros, config, estafa, ranking_summary). Ver el motivo donde se
 // usa: descargarlos cada 5 s era la mayor parte del tráfico contra Supabase.
@@ -1284,6 +1363,8 @@ async function _doRestPoll() {
   if (!navigator.onLine) return;
   if (document.hidden) return;
   _restPollInFlight = true;
+  _ultimoPollHecho = Date.now();
+  await _pedirUltimosCambios();   // v137: una pregunta para todo
   // v66: ¿toca en esta pasada refrescar lo que cambia poco? (cada 5 min)
   const _toqueNodosLentos = (Date.now() - _ultimoPollLento) >= _POLL_LENTO_MS;
   if (_toqueNodosLentos) _ultimoPollLento = Date.now();
@@ -2137,6 +2218,7 @@ async function _doRestPoll() {
   } catch(e) { console.warn('[rest-poll] error:', e && e.message); }
   finally {
     _restPollInFlight = false;
+    _cambiosVuelta = null;   // v137: vale solo para esta vuelta; fuera de ella se pregunta a la red
     // v96: un nodo lento que no se pudo bajar no gasta el turno de 5 minutos.
     if (_lentoSaltado) _ultimoPollLento = 0;
     // v119: al terminar la pasada se apunta hasta dónde se llegó, para que la
@@ -2147,7 +2229,9 @@ async function _doRestPoll() {
 function _startRestPolling() {
   if (_restPollTimer) return;
   _doRestPoll();
-  _restPollTimer = setInterval(_doRestPoll, _REST_POLL_MS);
+  _restPollTimer = setInterval(_tickPoll, _REST_POLL_MS);   // v137: a ritmo, ver _ritmoPoll
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
+    document.addEventListener(ev, _marcarActividad, { passive: true, capture: true }));
   // v53 FIX: cuando la página se vuelve visible, forzar un poll Y resetear
   // el hash de vales para que refreshUI() SIEMPRE re-renderice la vista del
   // gestor (Mis Vales, notifs, etc.). ANTES, si el gestor salía de la app y
@@ -19586,6 +19670,11 @@ const AYUDA_SECCIONES = [
         como:'Elige las fechas arriba. Cuenta solo ventas confirmadas.',
         ojo:'Las monedas no se suman entre sí. El "todo junto ≈ USD" de abajo usa la tasa congelada de cada venta, no la de hoy. Las ventas en las que no apuntaste cómo pagó se cuentan como dice el vale, y se avisa cuántas son. Desde v134, debajo salen los vales en los que lo apuntado no cuadra con lo que había que cobrar (sobra o falta), con un botón para abrir cada uno.',
         nuevo:'v130' },
+      { icono:'📉', titulo:'Menos peticiones a Supabase (plan gratis)', donde:'Supabase › SQL Editor (una sola vez)',
+        para:'No pasarse del plan gratis. Supabase avisó de "Log Ingestion 1.52 / 1 GB": cada petición deja un registro, y cada teléfono abierto hacía 3 cada 5 segundos.',
+        como:'Pega migration_v137_una_pregunta.sql en el SQL Editor de Supabase y dale a "Run". Desde ahí cada teléfono hace UNA pregunta por vuelta y solo baja lo que cambió. Además la app pregunta cada 10 s mientras se usa, cada 30 s tras 2 minutos sin tocarla y cada 60 s tras 15; al tocarla pregunta en el acto.',
+        ojo:'Sin ese paso ya ahorra por el ritmo lento, pero mucho menos. Un teléfono que lleva rato sin tocarse puede tardar hasta un minuto en enterarse de un vale nuevo; tocando la pantalla se entera al momento. Con la app en segundo plano no pregunta nada.',
+        nuevo:'v137' },
       { icono:'🔢', titulo:'Números de vale que no se repiten', donde:'Supabase › SQL Editor (una sola vez)',
         para:'Que dos gestores que mandan un vale a la vez no se lleven el mismo número (en los datos había 192 repetidos).',
         como:'Pega el archivo migration_v134_vale_num.sql del repositorio en el SQL Editor de Supabase y dale a "Run". Desde ahí el número lo da la base de datos, de uno en uno. El teléfono lo pide por adelantado, así que mandar sin cobertura sigue funcionando.',
