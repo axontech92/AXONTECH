@@ -193,12 +193,14 @@ function nubeResponde(url, metodo, cuerpo) {
       detalle: det.textContent.replace(/\s+/g,' '),
       notaBloque: !!document.getElementById('valeNotasGestor'),
       proximas: (document.getElementById('proximasEntregas')||{}).textContent || '',
+      // v139: la nota va en el 📝 (se lee al pasar por encima), no en una línea aparte.
+      notaProx: ((document.querySelector('#proximasEntregas span[title]')||{}).title) || '',
       chip: _chipHoraEntrega(v), texto: _textoEntrega(v) };
   });
   ok('en el detalle sale la nota del gestor', vista.notaBloque && /paga la mamá/.test(vista.detalle), vista.detalle.slice(0,300));
   ok('y la entrega con el día y la hora', /Entrega/.test(vista.detalle) && /15:30/.test(vista.detalle) && /\d{2}\/\d{2}/.test(vista.texto), vista.texto);
   ok('la chapa del vale lleva el día', /\d{2}\/\d{2}/.test(vista.chip) && /15:30/.test(vista.chip), vista.chip);
-  ok('y sale en próximas entregas, con la nota', /Rosa/.test(vista.proximas) && /en 2 d|en 1 d|en 3 d/.test(vista.proximas) && /mamá/.test(vista.proximas), vista.proximas);
+  ok('y sale en próximas entregas, con la nota (en el 📝)', /Rosa/.test(vista.proximas) && /en 2 d|en 1 d|en 3 d/.test(vista.proximas) && /📝/.test(vista.proximas) && /mamá/.test(vista.notaProx), vista);
 
   console.log('\n══ 4 · EL FALLO VIEJO: TOCAR EL VALE NO BORRA LA HORA DE LA NUBE ══');
   // Abrir el vale lo marca como visto → el admin lo sube. Se asigna además un

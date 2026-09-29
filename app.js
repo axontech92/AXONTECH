@@ -956,10 +956,16 @@ async function _sbRestMetaUpsert(name, value, yaFusionado) {
       if (nube > (parseInt(value.nextValeNum, 10) || 0)) value = { ...value, nextValeNum: nube };
     } catch(e) { /* sin lectura se sube lo que hay: mejor que no guardar el config */ }
   }
+  // v139: los dueños se fusionan con lo que haya en la nube (ver _guardarDuenos).
+  let _dc = null;
+  if (name === 'duenos' && typeof _duenosParaSubir === 'function') {
+    const r = await _duenosParaSubir(value); value = r.valor; _dc = r.c;
+  }
   const url = `${_SB_REST}/meta`;
   const body = JSON.stringify([{ name: name, data: value }]);
   const res = await fetch(url, { method: 'POST', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'resolution=merge-duplicates,return=representation' }, body });
   if (!res.ok) { const t = await res.text(); throw new Error(`Supabase META UPSERT ${name} ${res.status}: ${t.slice(0,150)}`); }
+  if (_dc) { try { _duenosSubidos(value, _dc); } catch(e) {} }
 }
 // ── v99: escribir SOLO unas claves de un documento compartido ───────────────
 // Los documentos como `config` viven enteros en una fila de `meta`, así que
@@ -2026,8 +2032,16 @@ async function _doRestPoll() {
         const _tsMeta = _ultimaTsVisto[_claveTs];
         const _fetchViejoMeta = (Date.now() - (_ultimoFetchReal[_claveTs] || 0)) > _GATE_SEGURIDAD_MS.meta;
         if (_tsMeta !== undefined && !_fetchViejoMeta && !(await _sbRestMetaHayCambios(node, _tsMeta))) continue;
+        const _pedidoEnMeta = Date.now();
         const _rm = await _sbRestGetMetaYTs(node);
-        const val = _rm.data;
+        // v139: si mientras venía la respuesta este teléfono guardó ese mismo
+        // documento, la respuesta es de ANTES y aplicarla deshace lo guardado
+        // (así se perdía un dueño recién puesto). Se toma en la próxima vuelta.
+        if ((_ultimoGuardadoLocal[node] || 0) >= _pedidoEnMeta) { if (_toqueNodosLentos) _lentoSaltado = true; continue; }
+        // v139: `let`, no `const`. Más abajo se reescribe (config con el contador
+        // al día, v133) y con `const` eso lanzaba un error que el try se tragaba:
+        // desde v133 la config de la nube no se aplicaba en ningún teléfono.
+        let val = _rm.data;
         _ultimoFetchReal[_claveTs] = Date.now(); _tsVistosSucio = true;
         if (_rm.ts) _ultimaTsVisto[_claveTs] = _rm.ts; _tsVistosSucio = true;
         // ── v119: un documento vacío de la nube NO borra lo que hay aquí ──
@@ -2072,6 +2086,8 @@ async function _doRestPoll() {
             // reservar uno y su subida aún no ha llegado, la config que baja lo
             // traería más bajo y el siguiente vale repetiría número.
             if (node === 'config' && val && typeof val === 'object') val = _configConContadorAlDia(val);
+            // v139: lo que este teléfono cambió y aún no subió se queda encima de lo que baja.
+            if (node === 'duenos' && val && typeof val === 'object') val = _aplicarCambiosDuenos(val, _cambiosDuenos());
             _safeSetLS('axon_'+node, JSON.stringify(val)); // v65: idem — fallo de guardado visible
             if(node==='vales_borrados'){
               // v119: la lista de vales que alguien borró. En vez de bajar la
@@ -3899,7 +3915,9 @@ function triggerAutoPublishCatalog() {
 
 function buildCatalogHTML() {
   const cats=getCategorias();
-  const allProds=getProductos().filter(p=>(p.stock||0)>0);
+  // v139: `let` — más abajo se rehace con las categorías; con `const` fallaba
+  // siempre que hubiera categorías y el catálogo público no se generaba.
+  let allProds=getProductos().filter(p=>(p.stock||0)>0);
   if(!allProds.length) return null;
   // ── v28 BUGFIX: Asignar catId por nombre si el producto no lo tiene ──
   // Algunos productos vienen de productos.json con campo 'categoria' (string)
@@ -4916,27 +4934,52 @@ function renderProximasEntregas() {
 
   if (!pendientes.length) { sec.style.display = 'none'; cont.innerHTML = ''; return; }
   sec.style.display = '';
-  cont.innerHTML = pendientes.map(({ v, t }) => {
+  // v139: compacta. Reportado: "se ve regado con todas esas notas y tira los
+  // vales abajo". Ahora una línea por entrega (la nota es un 📝 que se lee al
+  // pasar por encima o abriendo el vale), solo las 3 más cercanas + las que
+  // van tarde, y la cabecera pliega la lista entera.
+  const tardes = pendientes.filter(x => _finEntrega(x.v) < ahora).length;
+  const hoyFin = new Date(); hoyFin.setHours(23, 59, 59, 999);
+  const deHoy = pendientes.filter(x => _finEntrega(x.v) >= ahora && x.t <= hoyFin.getTime()).length;
+  const cab = document.getElementById('proximasEntregasCab');
+  const plegada = _proximasPlegada();
+  if (cab) cab.innerHTML = `${plegada ? '▸' : '▾'} ⏰ Próximas entregas <span style="font-weight:600;text-transform:none;letter-spacing:0;">· ${pendientes.length}`
+    + (tardes ? ` · <span style="color:#dc2626;">${tardes} tarde</span>` : '')
+    + (deHoy ? ` · <span style="color:#b45309;">${deHoy} hoy</span>` : '') + '</span>';
+  if (plegada) { cont.innerHTML = ''; return; }
+  const LIMITE = 3;
+  const visibles = _proximasTodas ? pendientes
+    : pendientes.filter((x, i) => _finEntrega(x.v) < ahora || i < tardes + LIMITE);
+  const ocultas = pendientes.length - visibles.length;
+  cont.innerHTML = visibles.map(({ v, t }) => {
     const min = Math.round((t - ahora) / 60000);
     const sinHora = _entregaSinHora(v);
     const tarde = _finEntrega(v) < ahora;
     let cuando, color, fondo;
-    if (tarde)          { cuando = sinHora ? 'ya pasó el día' : `${Math.abs(min)} min tarde`; color = '#dc2626'; fondo = 'rgba(220,38,38,.10)'; }
-    else if (sinHora && min <= 0) { cuando = 'hoy';              color = '#b45309'; fondo = 'rgba(245,158,11,.10)'; }
-    else if (min <= 60) { cuando = `en ${min} min`;              color = '#b45309'; fondo = 'rgba(245,158,11,.10)'; }
+    if (tarde)          { cuando = sinHora ? 'pasó el día' : `${Math.abs(min)} min tarde`; color = '#dc2626'; fondo = 'rgba(220,38,38,.08)'; }
+    else if (sinHora && min <= 0) { cuando = 'hoy';              color = '#b45309'; fondo = 'rgba(245,158,11,.08)'; }
+    else if (min <= 60) { cuando = `en ${min} min`;              color = '#b45309'; fondo = 'rgba(245,158,11,.08)'; }
     else if (min < 24 * 60) { cuando = `en ${Math.round(min / 60)} h`; color = 'var(--text-muted)'; fondo = 'transparent'; }
     else                { cuando = `en ${Math.round(min / 1440)} d`; color = 'var(--text-muted)'; fondo = 'transparent'; }
     const g = gestorOf(v.gestorId);
-    return `<div onclick="selectVale(${v.id})" style="display:flex;align-items:center;gap:10px;background:${fondo};border:1px solid var(--border);border-radius:9px;padding:8px 11px;margin-bottom:6px;cursor:pointer;">
-      <span style="font-weight:800;font-size:12px;color:${color};white-space:nowrap;">${escapeHTML(_textoEntrega(v))}</span>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(v.cliente || 'Cliente')}</div>
-        <div style="font-size:10px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</div>
-        ${v.notasGestor ? `<div style="font-size:10px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.notasGestor)}</div>` : ''}
-      </div>
-      <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;">${cuando}</span>
+    const nota = v.notasGestor ? `<span title="${escapeHTML(v.notasGestor)}" style="flex-shrink:0;font-size:11px;cursor:help;">📝</span>` : '';
+    return `<div onclick="selectVale(${v.id})" title="${escapeHTML((v.cliente || 'Cliente') + ' · ' + (v.articulo || ''))}" style="display:flex;align-items:center;gap:8px;background:${fondo};border-bottom:1px solid var(--border);padding:5px 8px;cursor:pointer;font-size:11px;min-width:0;">
+      <span style="font-weight:800;color:${color};white-space:nowrap;flex-shrink:0;min-width:92px;">${escapeHTML(_textoEntrega(v))}</span>
+      <span style="font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30%;flex-shrink:1;">${escapeHTML(v.cliente || 'Cliente')}</span>
+      <span style="color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</span>
+      ${nota}
+      <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;flex-shrink:0;">${cuando}</span>
     </div>`;
-  }).join('');
+  }).join('')
+  + (ocultas > 0 ? `<div onclick="_proximasTodas=true;renderProximasEntregas()" style="font-size:11px;font-weight:700;color:var(--blue, #2563eb);padding:6px 8px;cursor:pointer;">Ver ${ocultas} más ▾</div>`
+     : (_proximasTodas && pendientes.length > LIMITE ? `<div onclick="_proximasTodas=false;renderProximasEntregas()" style="font-size:11px;font-weight:700;color:var(--text-muted);padding:6px 8px;cursor:pointer;">Ver menos ▴</div>` : ''));
+  cont.style.cssText = 'border:1px solid var(--border);border-radius:9px;overflow:hidden;';
+}
+let _proximasTodas = false;
+function _proximasPlegada() { try { return localStorage.getItem('axon_proximas_plegada') === '1'; } catch(e) { return false; } }
+function toggleProximasEntregas() {
+  try { localStorage.setItem('axon_proximas_plegada', _proximasPlegada() ? '0' : '1'); } catch(e) {}
+  renderProximasEntregas();
 }
 
 let _ultimaRevisionEntregas = 0;
@@ -5321,10 +5364,72 @@ function getDuenosDoc() {
   }
   return _duenosCache;
 }
+// ── v139: los cambios de dueños se FUSIONAN con la nube, no la reemplazan ──
+// Reportado: "se le pone el dueño a un producto y lo pierde a cada rato".
+// Además del fallo del desplegable (ver openEditProductModal), el documento se
+// subía ENTERO: con el admin abierto en el ordenador y en el teléfono, cada
+// uno subía su copia —que tarda hasta 5 minutos en ponerse al día— y el último
+// en guardar borraba lo que había puesto el otro. Ahora se apunta QUÉ cambió
+// (este producto pasa a tal dueño, este dueño se llama así) y al subir se lee
+// lo que hay en la nube y se le aplican solo esos cambios.
+const _DUENOS_CAMBIOS_KEY = 'axon_duenos_cambios';
+function _cambiosDuenos() {
+  try { const c = JSON.parse(localStorage.getItem(_DUENOS_CAMBIOS_KEY) || 'null');
+        if (c && typeof c === 'object') return { asig: c.asig || {}, lista: c.lista || {} }; } catch(e) {}
+  return { asig: {}, lista: {} };
+}
+function _apuntarCambiosDuenos(antes, despues) {
+  const c = _cambiosDuenos();
+  const pids = new Set([...Object.keys(antes.asig || {}), ...Object.keys(despues.asig || {})]);
+  pids.forEach(pid => {
+    const a = (antes.asig || {})[pid], d = (despues.asig || {})[pid];
+    if (String(a) !== String(d)) c.asig[pid] = d == null ? null : Number(d);
+  });
+  const porId = l => new Map((l || []).map(x => [String(x.id), x]));
+  const la = porId(antes.lista), ld = porId(despues.lista);
+  new Set([...la.keys(), ...ld.keys()]).forEach(id => {
+    const a = la.get(id), d = ld.get(id);
+    if (JSON.stringify(a || null) !== JSON.stringify(d || null)) c.lista[id] = d ? { id: Number(d.id), nombre: d.nombre } : null;
+  });
+  _safeSetLS(_DUENOS_CAMBIOS_KEY, JSON.stringify(c));
+}
+function _aplicarCambiosDuenos(base, c) {
+  const doc = _normalizarDocDuenos(base);
+  const asig = { ...doc.asig };
+  Object.entries(c.asig || {}).forEach(([pid, d]) => { if (d == null) delete asig[pid]; else asig[pid] = d; });
+  const lista = new Map(doc.lista.map(x => [String(x.id), x]));
+  Object.entries(c.lista || {}).forEach(([id, d]) => { if (d == null) lista.delete(id); else lista.set(id, d); });
+  // Un dueño borrado se lleva sus asignaciones, también las que llegaron de otro teléfono.
+  Object.keys(asig).forEach(pid => { if (!lista.has(String(asig[pid]))) delete asig[pid]; });
+  return { lista: [...lista.values()], asig };
+}
+// Lo llama la subida (_sbRestMetaUpsert) justo antes de escribir.
+async function _duenosParaSubir(valor) {
+  const c = _cambiosDuenos();
+  const hay = Object.keys(c.asig).length || Object.keys(c.lista).length;
+  if (!hay) return { valor, c: null };                 // subida de rescate: va tal cual
+  const nube = await _sbRestGetMeta('duenos');          // si falla, lanza: la cola reintenta
+  return { valor: _aplicarCambiosDuenos(nube, c), c };
+}
+function _duenosSubidos(fusionado, c) {
+  // Se quitan del diario los cambios que ya subieron (si no se tocaron mientras tanto).
+  const ahora = _cambiosDuenos();
+  ['asig', 'lista'].forEach(k => Object.keys(c[k] || {}).forEach(id => {
+    if (JSON.stringify(ahora[k][id]) === JSON.stringify(c[k][id])) delete ahora[k][id];
+  }));
+  _safeSetLS(_DUENOS_CAMBIOS_KEY, JSON.stringify(ahora));
+  // Lo local pasa a ser lo fusionado, más lo que quede pendiente.
+  const local = _aplicarCambiosDuenos(fusionado, ahora);
+  _safeSetLS('axon_duenos', JSON.stringify(local));
+  _duenosCache = local; _duenosDirty = false;
+  if (typeof currentAdminTab !== 'undefined' && currentAdminTab === 'duenos' && typeof renderDuenos === 'function') { try { renderDuenos(); } catch(e) {} }
+}
 function _guardarDuenos(doc) {
   if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
   const ahora = JSON.stringify(doc);
-  if (ahora === JSON.stringify(getDuenosDoc())) return false;
+  const previo = getDuenosDoc();
+  if (ahora === JSON.stringify(previo)) return false;
+  _apuntarCambiosDuenos(previo, doc);   // v139
   _safeSetLS('axon_duenos', ahora);
   _duenosCache = doc; _duenosDirty = false;
   setSB('duenos', doc);
@@ -11917,7 +12022,6 @@ function openEditProductModal(id) {
   document.getElementById('pm-desc').value=p.description||'';
   document.getElementById('pm-precio').value=p.precio||'';
   {const elC=document.getElementById('pm-costo');if(elC)elC.value=costoDe(id);}   // v114: vive aparte
-  {const elD=document.getElementById('pm-dueno');if(elD)elD.value=duenoIdDe(id)==null?'':String(duenoIdDe(id));}   // v117
   document.getElementById('pm-stock').value=p.stock||0;
   document.getElementById('pm-puntos').value=p.puntos||0;
   document.getElementById('pm-garantia').value=p.garantia||'';
@@ -11931,6 +12035,11 @@ function openEditProductModal(id) {
   document.getElementById('pm-foto').value=p.photo||'';
   document.getElementById('pm-foto-file').value='';
   populateCatSelect(p.catId);
+  // v139: el dueño se elige DESPUÉS de llenar la lista. Antes se ponía antes de
+  // que el desplegable tuviera las opciones (la primera vez está vacío), el
+  // valor no "cuajaba", se quedaba en "Mercancía de la tienda" y al guardar
+  // cualquier cambio —precio, stock, foto— el producto perdía su dueño.
+  {const elD=document.getElementById('pm-dueno');if(elD)elD.value=duenoIdDe(id)==null?'':String(duenoIdDe(id));}
   _pintarFotoProducto(p.photo ? _resolvePhotoUrl(p.photo) : '');
   _notaStockProducto();
   document.getElementById('productModal').classList.add('show');
@@ -12404,7 +12513,9 @@ async function saveProduct() {
   if(editingProductId){
     const old=productoOf(editingProductId);
     setCosto(editingProductId,costoEscrito);
-    setDuenoProducto(editingProductId,duenoElegido);
+    // v139: solo si de verdad se cambió en el desplegable. Guardar el precio no
+    // tiene por qué reescribir el dueño.
+    if(String(duenoElegido)!==(duenoIdDe(editingProductId)==null?'':String(duenoIdDe(editingProductId)))) setDuenoProducto(editingProductId,duenoElegido);
     patchProducto(editingProductId,prod);
     if(old&&_avisar){
       _avisarCambioStock(editingProductId, prod.name, old.stock, prod.stock);
@@ -15705,8 +15816,9 @@ function _htmlHistorialGanadores() {
       </details>` : ''}
     </div>`;
   }).join('');
-  return `<details id="histGanadores" ${_histGanAbierto?'open':''} ontoggle="_histGanAbierto=this.open;rankingCache=null" style="margin-top:12px;border-top:1px solid var(--gray-200);padding-top:10px;">
-    <summary style="font-size:12px;font-weight:700;cursor:pointer;color:var(--text, inherit);">🏆 Historial de ganadores <span style="color:var(--gray-400);font-weight:600;">(${hist.length})</span></summary>
+  const ult = hist[0];
+  return `<details id="histGanadores" ${_histGanAbierto?'open':''} ontoggle="_histGanAbierto=this.open;rankingCache=null" style="margin:0 0 12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:8px 11px;">
+    <summary style="font-size:12px;font-weight:700;cursor:pointer;color:var(--text, inherit);">🏆 Historial de ganadores <span style="color:var(--gray-400);font-weight:600;">(${hist.length}) · último: ${escapeHTML(ult.nombre || '?')}${ult.pts != null ? ' ' + escapeHTML(String(ult.pts)) + ' pts' : ''}</span></summary>
     ${ciclos}
   </details>`;
 }
@@ -15782,6 +15894,9 @@ function renderGestorRanking() {
                lider?`👑 ${escapeHTML(lider.name)} · ${lider.pts} pts`:'Sin puntos todavía',
                lider?'var(--green)':'var(--gray-400)');
   }
+  // v139: el historial va ARRIBA, bajo la cabecera del ciclo (antes al final,
+  // detrás de 58 gestores, donde nadie lo encontraba).
+  html+=_htmlHistorialGanadores();
   html+=ranked.map((g,i)=>{
     // v120: solo llega al 100% quien de verdad alcanzó la referencia. Con 4999
     // de 5000 el redondeo daba 100% y la barra salía llena sin estarlo — el
@@ -15821,7 +15936,6 @@ function renderGestorRanking() {
       </div>
     </div>`;
   }).join('');
-  html+=_htmlHistorialGanadores();   // v135
   c.innerHTML=html;
   rankingCache={html,ts:Date.now()};
 }
@@ -19675,6 +19789,11 @@ const AYUDA_SECCIONES = [
         como:'Al guardar un producto nuevo, o al pasar uno agotado a tener stock, la app pregunta "¿Avisar a los gestores?". Con "🔕 No avisar" se guarda igual y no les llega nada.',
         ojo:'Un producto dado de alta sin avisar tampoco lleva la chapa 💎 NUEVO. Solo se pregunta cuando iba a salir un aviso: subir de 4 a 9 no pregunta. Cambiarle el precio o la comisión a un producto que ya tiene stock sigue avisando como siempre.',
         nuevo:'v136' },
+      { icono:'🧑‍💼', titulo:'El dueño de un producto ya no se pierde', donde:'Stock › ✏️ editar producto y Dueños',
+        para:'Que el dueño que le pones a un producto se quede puesto.',
+        como:'Se perdía por dos cosas: al abrir "Editar producto" el desplegable no mostraba al dueño y al guardar cualquier otro cambio (precio, stock, foto) se lo quitaba; y con el admin abierto en dos equipos, el último en guardar borraba lo que había puesto el otro. Ahora el desplegable sale con el dueño, solo se toca si lo cambias, y cada equipo sube solo lo que cambió.',
+        ojo:'Los productos que ya lo perdieron hay que volver a asignarlos una vez (Dueños o ✏️ editar).',
+        nuevo:'v139' },
       { icono:'🗑️', titulo:'Borrar un producto ya vendido', donde:'Stock › 🗑️',
         para:'Quitar del catálogo algo que ya no traes sin que los gestores pierdan los puntos de lo que vendieron.',
         como:'Antes de borrarlo, la app apunta en cada venta cuántos puntos daba ese producto. Esas ventas siguen sumando sus puntos aunque el producto ya no exista.',
@@ -19737,6 +19856,11 @@ const AYUDA_SECCIONES = [
         como:'Con meta fija, la barra mide cuánto llevas de la meta. En el modo por ciclos NO hay meta: los puntos se cuentan sin final hasta que el ciclo acaba, así que las barras no miden progreso, comparan — la más larga es la de quien va primero y las demás salen a escala de la suya.',
         ojo:'En el ciclo, en su pantalla cada gestor ve sus puntos a secas, por qué puesto va y cuántos días quedan. Nada de "te faltan X": no falta nada, se cuenta hasta el final. (La v120 sí inventaba una meta redondeada por persona —uno veía 2/10 y otro 14/25— y eso se quitó.)',
         nuevo:'v121' },
+      { icono:'⏰', titulo:'Próximas entregas', donde:'Vales (arriba)',
+        para:'Ver de un vistazo qué hay que entregar y qué va tarde, sin que empuje los vales hacia abajo.',
+        como:'Una línea por entrega: hora, cliente, gestor y artículo. Salen las atrasadas y las 3 más cercanas; "Ver N más" enseña el resto. Tocando el título se pliega entera (y se queda así).',
+        ojo:'La nota del gestor es el 📝: pasa el ratón por encima o abre el vale para leerla entera.',
+        nuevo:'v139' },
       { icono:'🏆', titulo:'Cierre del ciclo y ganadores', donde:'Top Gestores (gestores) y Config › Meta de puntos (admin)',
         para:'Que al acabar el ciclo el podio sea el que todos veían en el ranking, y poder consultar quién ganó cada mes.',
         como:'El ciclo lo cierra el teléfono del admin la primera vez que se abre después de medianoche, pero solo cuando ya bajó todos los vales de la nube. Cuenta igual que el ranking: los vales unidos se reparten entre sus gestores y los puntos puestos a mano suman. Guarda los 10 primeros en el historial y avisa a los tres primeros de su puesto. Debajo del ranking, "🏆 Historial de ganadores" se despliega con el podio de cada ciclo.',
