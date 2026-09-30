@@ -1402,7 +1402,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -1540,7 +1540,7 @@
       "name": "Transfer 3 polos 220v",
       "catId": 20,
       "photo": "photos/img_1785079428055.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1785079428055.webp",
       "nombre": "Transfer 3 polos 220v",
       "precio": "$70",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-30T20:40:31.182Z"
+  "timestamp": "2026-09-30T22:11:05.028Z"
 }
