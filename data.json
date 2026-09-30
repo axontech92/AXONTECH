@@ -1729,7 +1729,7 @@
       "name": "Mikrotik hap ax3",
       "catId": 10,
       "photo": "photos/img_1786509419466.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1786509419466.webp",
       "nombre": "Mikrotik hap ax3",
       "precio": "$260",
@@ -1801,7 +1801,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 9,
+      "stock": 7,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2061,7 +2061,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 1953,
+      "stock": 1913,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-30T18:37:25.863Z"
+  "timestamp": "2026-09-30T19:21:18.864Z"
 }
