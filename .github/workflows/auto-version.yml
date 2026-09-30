@@ -17,7 +17,7 @@ on:
       - 'index.html'
       - 'admin.html'
       - 'sw.js'
-      - 'catalogo.html'
+    
 
 permissions:
   contents: write
