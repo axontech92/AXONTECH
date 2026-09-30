@@ -2129,7 +2129,7 @@
       "name": "Toldo malla para sombra marrón 2×7m",
       "catId": 90,
       "photo": "photos/p-1787952316385-a70dcd86.webp",
-      "stock": 6,
+      "stock": 3,
       "imagen": "photos/p-1787952316385-a70dcd86.webp",
       "nombre": "Toldo malla para sombra",
       "precio": "$38",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-30T18:04:36.863Z"
+  "timestamp": "2026-09-30T18:37:25.863Z"
 }
