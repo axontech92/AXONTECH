@@ -1765,7 +1765,7 @@
       "name": "Mikrotik lhg 5ax",
       "catId": 10,
       "photo": "photos/img_1786509644554.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1786509644554.webp",
       "nombre": "Mikrotik lhg 5ax",
       "precio": "$240",
@@ -2155,7 +2155,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2354,7 +2354,7 @@
       "name": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ",
       "catId": 10,
       "photo": "photos/p-1789945881104-42e3d673.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/p-1789945881104-42e3d673.webp",
       "nombre": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ",
       "precio": "320",
@@ -2476,5 +2476,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-30T14:09:39.863Z"
+  "timestamp": "2026-09-30T14:12:25.452Z"
 }
