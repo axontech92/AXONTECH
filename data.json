@@ -1402,7 +1402,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -1644,7 +1644,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 13,
+      "stock": 12,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -1959,7 +1959,7 @@
       "name": "Camara de vigilancia IP inalambrica",
       "catId": 80,
       "photo": "photos/p-1786893425174-df9f00ac.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/p-1786893425174-df9f00ac.webp",
       "nombre": "Camara de vigilancia IP inalambrica",
       "precio": "$25",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-09-30T22:57:07.029Z"
+  "timestamp": "2026-09-30T23:06:17.108Z"
 }
