@@ -547,7 +547,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 4,
+      "stock": 2,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -1083,7 +1083,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 1861,
+      "stock": 1811,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-01T23:13:11.386Z"
+  "timestamp": "2026-10-01T23:14:45.230Z"
 }
