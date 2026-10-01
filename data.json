@@ -1402,7 +1402,7 @@
       "name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "catId": 10,
       "photo": "photos/img_1784726857748.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1784726857748.webp",
       "nombre": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado",
       "precio": "$30",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-01T13:32:54.941Z"
+  "timestamp": "2026-10-01T14:05:23.944Z"
 }
