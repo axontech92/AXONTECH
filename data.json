@@ -2163,7 +2163,7 @@
       "name": "MikroTik hEX S (2025) – E60iUGS",
       "catId": 10,
       "photo": "photos/p-1788015580929-00dbb51e.webp",
-      "stock": 0,
+      "stock": 6,
       "imagen": "photos/p-1788015580929-00dbb51e.webp",
       "nombre": "MikroTik hEX S (2025) – E60iUGS",
       "precio": "140 USD",
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-01T14:05:23.944Z"
+  "timestamp": "2026-10-01T14:44:07.942Z"
 }
