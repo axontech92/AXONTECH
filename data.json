@@ -1820,7 +1820,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 33,
+      "stock": 11,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$130",
@@ -2156,7 +2156,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2477,5 +2477,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-01T02:32:14.628Z"
+  "timestamp": "2026-10-01T02:40:40.868Z"
 }
