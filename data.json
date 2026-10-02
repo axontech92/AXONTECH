@@ -844,7 +844,7 @@
       "name": "SWITCH DE 5 PUERTOS",
       "catId": 10,
       "photo": "photos/img_1778336689684.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1778336689684.webp",
       "nombre": "SWITCH DE 5 PUERTOS",
       "precio": "$20 USD",
@@ -1753,7 +1753,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 49,
+      "stock": 46,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2343,7 +2343,7 @@
       "name": "Hex Poe Lite(RB750gr2)",
       "catId": 10,
       "photo": "photos/p-1789945684800-999454fb.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1789945684800-999454fb.webp",
       "nombre": "Hex Poe Lite(RB750gr2)",
       "precio": "110",
@@ -2467,7 +2467,7 @@
       "name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]",
       "catId": 10,
       "photo": "photos/p-1790959980548-d7aa8712.webp",
-      "stock": 20,
+      "stock": 18,
       "imagen": "photos/p-1790959980548-d7aa8712.webp",
       "nombre": "Repetidor TP-Link TL-WA801N / TL-WA801ND",
       "precio": "45",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T22:03:30.804Z"
+  "timestamp": "2026-10-02T22:47:23.298Z"
 }
