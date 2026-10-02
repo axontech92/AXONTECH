@@ -376,8 +376,8 @@
     {
       "id": 1790950003504,
       "name": "Jersy",
-      "initials": "J",
-      "color": "#059669"
+      "color": "#059669",
+      "initials": "J"
     }
   ],
   "mensajeros": [
@@ -2483,5 +2483,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T14:07:44.456Z"
+  "timestamp": "2026-10-02T14:14:57.455Z"
 }
