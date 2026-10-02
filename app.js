@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 206;
+const APP_VERSION = 207;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 206;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v15.2';
+let _PUBLIC_VERSION_STR = 'v15.3';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '64d1a2713b8bfcf7';
+let _LOCAL_BUILD_HASH = '4e83b0ca4eb43ee4';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5141,10 +5141,23 @@ function renderProximasEntregas() {
     else                { cuando = `en ${Math.round(min / 1440)} d`; color = 'var(--text-muted)'; fondo = 'transparent'; }
     const g = gestorOf(v.gestorId);
     const nota = v.notasGestor ? `<span title="${escapeHTML(v.notasGestor)}" style="flex-shrink:0;font-size:11px;cursor:help;">📝</span>` : '';
+    // ── v206: productos en líneas separadas, igual que en la bandeja ──────────
+    // La fila metía gestor + TODOS los productos en un solo renglón y con varios
+    // productos se salía de la pantalla. Con valeProductos se pinta una línea
+    // por producto (cada una se recorta a lo ancho si es larguísima, pero ya no
+    // se amontona todo en un renglón). Vales sin productos vinculados: la fila
+    // de siempre.
+    const _prodsEnt=(v.valeProductos||[]).filter(p=>p&&(p.name||productoOf(p.id)));
+    const _colEnt=_prodsEnt.length
+      ? `<span style="color:var(--text-muted);flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">
+          <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML((g && g.name) || '—')}</span>
+          ${_prodsEnt.map(p=>`<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">×${p.qty} ${escapeHTML(p.name||(productoOf(p.id)||{}).name||('#'+p.id))}</span>`).join('')}
+        </span>`
+      : `<span style="color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</span>`;
     return `<div onclick="selectVale(${v.id})" title="${escapeHTML((v.cliente || 'Cliente') + ' · ' + (v.articulo || ''))}" style="display:flex;align-items:center;gap:8px;background:${fondo};border-bottom:1px solid var(--border);padding:5px 8px;cursor:pointer;font-size:11px;min-width:0;">
       <span style="font-weight:800;color:${color};white-space:nowrap;flex-shrink:0;min-width:92px;">${escapeHTML(_textoEntrega(v))}</span>
       <span style="font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30%;flex-shrink:1;">${escapeHTML(v.cliente || 'Cliente')}</span>
-      <span style="color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</span>
+      ${_colEnt}
       ${nota}
       <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;flex-shrink:0;">${cuando}</span>
     </div>`;
@@ -9292,6 +9305,16 @@ function renderValeDetail(destinoId) {
   </div>`:'';
   const notesHighlight=v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
   const estafaMatches=checkEstafaMatch(v);
+  // ── v206: el campo Artículo del detalle, con los productos en líneas ────────
+  // v.articulo es un solo texto separado por " / " y en la tabla
+  // (table-layout:fixed + overflow-wrap:anywhere) se partía por mitad de
+  // palabra cuando la columna quedaba angosta. Con valeProductos se lista un
+  // producto por línea —igual que en la bandeja—; vales viejos sin productos
+  // vinculados siguen enseñando el texto de siempre.
+  const _prodsDetalle=(v.valeProductos||[]).filter(p=>p&&(p.name||productoOf(p.id)));
+  const _artDetalleHTML=_prodsDetalle.length
+    ? _prodsDetalle.map(p=>`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">×${p.qty} ${escapeHTML(p.name||(productoOf(p.id)||{}).name||('#'+p.id))}</div>`).join('')
+    : null;
   const estafaDetailHTML=estafaMatches.length?`<div style="background:rgba(239,68,68,.08);border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:10px;">
     <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px;">🚨 ALERTA DE ESTAFA</div>
     <div style="font-size:12px;color:var(--text);line-height:1.6;">${estafaMatches.map(m=>'⚠️ Coincidencia por '+escapeHTML(m.reasons.join(', '))+(m.entry.nota?' — <i>'+escapeHTML(m.entry.nota)+'</i>':'')).join('<br>')}</div>
@@ -9318,7 +9341,7 @@ function renderValeDetail(destinoId) {
           .filter(([,val])=>val)
           .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
             <td class="vale-datos-k" style="padding:6px 0;">${k}</td>
-            <td style="padding:6px 0;font-weight:600;">${escapeHTML(val)}</td></tr>`).join('')}
+            <td style="padding:6px 0;font-weight:600;">${(k==='Artículo'&&_artDetalleHTML)?_artDetalleHTML:escapeHTML(val)}</td></tr>`).join('')}
       </table>
       ${notasGestorHTML}
       ${(()=>{const _r=_rebajaVale(v);if(!_r)return '';return `
