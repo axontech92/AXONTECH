@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 209;
+const APP_VERSION = 210;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 209;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v15.5';
+let _PUBLIC_VERSION_STR = 'v15.6';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '902d3aee1c0ee80d';
+let _LOCAL_BUILD_HASH = 'd42151c3c0b1bf31';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5093,11 +5093,15 @@ function _guardarAvisosEntrega(set) {
   try { _safeSetLS('axon_avisos_entrega', JSON.stringify([...set].slice(-200))); } catch(e) {}
 }
 
-// ── v108: la lista de entregas con hora, siempre a la vista ─────────────────
+// ── v108: la lista de entregas con hora, a un toque de distancia ────────────
 // El aviso del sistema salta una vez y se lo puede llevar el viento: si en ese
-// momento nadie estaba mirando, no queda rastro. Esto es lo contrario — una
-// lista corta, ordenada por cercanía, que está ahí todo el rato. El aviso pasa
-// a ser el extra, no el único sitio donde se entera uno.
+// momento nadie estaba mirando, no queda rastro. Por eso existe esta lista.
+// ── v210: PLEGADA POR DEFECTO — el usuario la quería "pendientes desplegable":
+// con la lista abierta arriba seguía viéndose todo el detalle de los vales
+// ("sigue saliendo las notas arriba") justo encima del banner de la bandeja,
+// que ya avisa solo del que toca entregar. Ahora la lista vive plegada en una
+// línea (▸ Pendientes · N · tarde · hoy) y se abre al tocarla. Quien la abra
+// y la prefiera abierta, se le respeta (se recuerda en el navegador).
 function renderProximasEntregas() {
   const cont = document.getElementById('proximasEntregas');
   const sec = document.getElementById('proximasEntregasSection');
@@ -5121,10 +5125,12 @@ function renderProximasEntregas() {
   const deHoy = pendientes.filter(x => _finEntrega(x.v) >= ahora && x.t <= hoyFin.getTime()).length;
   const cab = document.getElementById('proximasEntregasCab');
   const plegada = _proximasPlegada();
-  if (cab) cab.innerHTML = `${plegada ? '▸' : '▾'} ⏰ Próximas entregas <span style="font-weight:600;text-transform:none;letter-spacing:0;">· ${pendientes.length}`
+  if (cab) cab.innerHTML = `${plegada ? '▸' : '▾'} ⏰ Pendientes <span style="font-weight:600;text-transform:none;letter-spacing:0;">· ${pendientes.length}`
     + (tardes ? ` · <span style="color:#dc2626;">${tardes} tarde</span>` : '')
     + (deHoy ? ` · <span style="color:#b45309;">${deHoy} hoy</span>` : '') + '</span>';
-  if (plegada) { cont.innerHTML = ''; return; }
+  // v210: al plegar hay que limpiar también el borde que dejó la lista abierta,
+  // si no queda una rayita flotante donde antes estaba la lista.
+  if (plegada) { cont.innerHTML = ''; cont.removeAttribute('style'); return; }
   const LIMITE = 3;
   const visibles = _proximasTodas ? pendientes
     : pendientes.filter((x, i) => _finEntrega(x.v) < ahora || i < tardes + LIMITE);
@@ -5173,7 +5179,9 @@ function renderProximasEntregas() {
   cont.style.cssText = 'border:1px solid var(--border);border-radius:9px;overflow:hidden;';
 }
 let _proximasTodas = false;
-function _proximasPlegada() { try { return localStorage.getItem('axon_proximas_plegada') === '1'; } catch(e) { return false; } }
+// v210: por defecto PLEGADA (solo el banner de la bandeja avisa). Si el usuario
+// la despliega, se guarda '0' y se le respeta; '1' o nada = plegada.
+function _proximasPlegada() { try { return localStorage.getItem('axon_proximas_plegada') !== '0'; } catch(e) { return true; } }
 function toggleProximasEntregas() {
   try { localStorage.setItem('axon_proximas_plegada', _proximasPlegada() ? '0' : '1'); } catch(e) {}
   renderProximasEntregas();
@@ -20360,11 +20368,11 @@ const AYUDA_SECCIONES = [
         como:'Con meta fija, la barra mide cuánto llevas de la meta. En el modo por ciclos NO hay meta: los puntos se cuentan sin final hasta que el ciclo acaba, así que las barras no miden progreso, comparan — la más larga es la de quien va primero y las demás salen a escala de la suya.',
         ojo:'En el ciclo, en su pantalla cada gestor ve sus puntos a secas, por qué puesto va y cuántos días quedan. Nada de "te faltan X": no falta nada, se cuenta hasta el final. (La v120 sí inventaba una meta redondeada por persona —uno veía 2/10 y otro 14/25— y eso se quitó.)',
         nuevo:'v121' },
-      { icono:'⏰', titulo:'Próximas entregas', donde:'Vales (arriba)',
+      { icono:'⏰', titulo:'Pendientes de entrega', donde:'Vales (arriba)',
         para:'Ver de un vistazo qué hay que entregar y qué va tarde, sin que empuje los vales hacia abajo.',
-        como:'Una línea por entrega: hora, cliente, gestor y artículo. Salen las atrasadas y las 3 más cercanas; "Ver N más" enseña el resto. Tocando el título se pliega entera (y se queda así).',
-        ojo:'La nota del gestor es el 📝: pasa el ratón por encima o abre el vale para leerla entera.',
-        nuevo:'v139' },
+        como:'Va plegada en una línea (▸ Pendientes · cuántos · tarde · hoy): el banner de la bandeja avisa del que toca entregar. Toca la línea y se despliega: una fila por entrega con hora, cliente, gestor y artículos. Las atrasadas y las 3 más cercanas siempre; "Ver N más" enseña el resto. Si la dejas abierta, se queda abierta.',
+        ojo:'La nota del gestor no sale en las filas: está en el chip 📝 de la tarjeta del vale y en el detalle.',
+        nuevo:'v139 · v210 plegada por defecto' },
       { icono:'🏆', titulo:'Cierre del ciclo y ganadores', donde:'Top Gestores (gestores) y Config › Meta de puntos (admin)',
         para:'Que al acabar el ciclo el podio sea el que todos veían en el ranking, y poder consultar quién ganó cada mes.',
         como:'El ciclo lo cierra el teléfono del admin la primera vez que se abre después de medianoche, pero solo cuando ya bajó todos los vales de la nube. Cuenta igual que el ranking: los vales unidos se reparten entre sus gestores y los puntos puestos a mano suman. Guarda los 10 primeros en el historial y avisa a los tres primeros de su puesto. Debajo del ranking, "🏆 Historial de ganadores" se despliega con el podio de cada ciclo.',
