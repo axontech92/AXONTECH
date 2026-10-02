@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 205;
+const APP_VERSION = 206;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 205;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v15.1';
+let _PUBLIC_VERSION_STR = 'v15.2';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'c479826af816eb39';
+let _LOCAL_BUILD_HASH = '64d1a2713b8bfcf7';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -8492,13 +8492,28 @@ function buildInboxCard(v) {
   // v93: chapa de reservado, para saber de un vistazo qué vales tienen mercancía
   // apartada sin tener que abrirlos uno a uno.
   const reservaTag=_valeReservaActiva(v)?'<span style="background:rgba(180,83,9,.15);color:#b45309;border:1px solid rgba(180,83,9,.35);border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;white-space:nowrap;">🔐 RESERVADO</span>':'';
+  // ── v206: los productos del vale, UNO DEBAJO DEL OTRO ─────────────────────
+  // `articulo` junta todos los productos en una sola línea separada por " / " y
+  // .ic-preview la recorta (nowrap + ellipsis): con varios productos la tarjeta
+  // salía deformada y la lista no se podía leer. Se parte desde `valeProductos`
+  // —la misma fuente fiable que usa buildShareText— porque los nombres pueden
+  // llevar "/" (ej. "TP-Link TL-WA801N / TL-WA801ND") y trocear el texto a mano
+  // los rompería. Cada producto sale en su propia línea; si un nombre solitario
+  // es larguísimo, se recorta ESA línea y no se deforma la tarjeta. Vales viejos
+  // sin productos vinculados siguen enseñando el texto de siempre.
+  const _prodsVale=(v.valeProductos||[]).filter(p=>p&&(p.name||productoOf(p.id)));
+  const _prevProds=_prodsVale.length
+    ? `<div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">`+
+      _prodsVale.map(p=>`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">×${p.qty} ${escapeHTML(p.name||(productoOf(p.id)||{}).name||('#'+p.id))}</div>`).join('')+
+      `</div>`
+    : `<div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>`;
   return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}${estafaBorder}">
     ${isNew?'<div class="new-dot"></div>':''}
     <div class="ic-head" style="margin-bottom:4px;">
       <span class="ic-time">${timeStr(v.ts)}</span>
     </div>
     <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}${reservaTag}${_chipHoraEntrega(v)}</div>
-    <div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>
+    ${_prevProds}
     ${String(v.notasGestor||'').trim()?`<div class="ic-nota-gestor" style="background:rgba(0,109,138,.1);color:var(--blue);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin:3px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(String(v.notasGestor).trim())}</div>`:``}
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
