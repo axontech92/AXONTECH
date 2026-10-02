@@ -1807,7 +1807,7 @@
       "name": "Nanostation m2",
       "catId": 10,
       "photo": "photos/img_1786509790425.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1786509790425.webp",
       "nombre": "Nanostation m2",
       "precio": "$230",
@@ -2483,5 +2483,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T16:06:56.614Z"
+  "timestamp": "2026-10-02T16:10:40.398Z"
 }
