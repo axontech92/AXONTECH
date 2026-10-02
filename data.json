@@ -876,7 +876,7 @@
     {
       "id": 1778336859697,
       "name": "Toldo para sombra marrón 2 x 4",
-      "catId": 40,
+      "catId": 90,
       "photo": "photos/p-1778336859697-c6406584.webp",
       "stock": 17,
       "imagen": "photos/p-1778336859697-c6406584.webp",
@@ -1354,7 +1354,7 @@
     {
       "id": 1781365019871,
       "name": "Probador/ tester  digital de baterías",
-      "catId": 40,
+      "catId": 50,
       "photo": "photos/img_1781365019871.webp",
       "stock": 5,
       "imagen": "photos/img_1781365019871.webp",
@@ -2483,5 +2483,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T14:55:48.128Z"
+  "timestamp": "2026-10-02T14:57:43.522Z"
 }
