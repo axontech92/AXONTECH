@@ -372,6 +372,12 @@
       "name": "Yasmel",
       "color": "#7C3AED",
       "initials": "Y"
+    },
+    {
+      "id": 1790950003504,
+      "name": "Jersy",
+      "initials": "J",
+      "color": "#059669"
     }
   ],
   "mensajeros": [
@@ -2477,5 +2483,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T14:06:23.783Z"
+  "timestamp": "2026-10-02T14:07:44.456Z"
 }
