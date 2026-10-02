@@ -863,7 +863,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -970,7 +970,7 @@
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
       "photo": "photos/img_1786510034029.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1786510034029.webp",
       "nombre": "Mikrotik SXTsq 5 lite",
       "precio": "$130",
@@ -1107,7 +1107,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 1167,
+      "stock": 1067,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T23:06:04.908Z"
+  "timestamp": "2026-10-02T23:07:26.446Z"
 }
