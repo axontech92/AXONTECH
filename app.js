@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 207;
+const APP_VERSION = 209;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 207;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v15.3';
+let _PUBLIC_VERSION_STR = 'v15.5';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '4e83b0ca4eb43ee4';
+let _LOCAL_BUILD_HASH = '902d3aee1c0ee80d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -5140,7 +5140,6 @@ function renderProximasEntregas() {
     else if (min < 24 * 60) { cuando = `en ${Math.round(min / 60)} h`; color = 'var(--text-muted)'; fondo = 'transparent'; }
     else                { cuando = `en ${Math.round(min / 1440)} d`; color = 'var(--text-muted)'; fondo = 'transparent'; }
     const g = gestorOf(v.gestorId);
-    const nota = v.notasGestor ? `<span title="${escapeHTML(v.notasGestor)}" style="flex-shrink:0;font-size:11px;cursor:help;">📝</span>` : '';
     // ── v206: productos en líneas separadas, igual que en la bandeja ──────────
     // La fila metía gestor + TODOS los productos en un solo renglón y con varios
     // productos se salía de la pantalla. Con valeProductos se pinta una línea
@@ -5154,11 +5153,18 @@ function renderProximasEntregas() {
           ${_prodsEnt.map(p=>`<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">×${p.qty} ${escapeHTML(p.name||(productoOf(p.id)||{}).name||('#'+p.id))}</span>`).join('')}
         </span>`
       : `<span style="color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;">${escapeHTML((g && g.name) || '—')} · ${escapeHTML(v.articulo || '')}</span>`;
-    return `<div onclick="selectVale(${v.id})" title="${escapeHTML((v.cliente || 'Cliente') + ' · ' + (v.articulo || ''))}" style="display:flex;align-items:center;gap:8px;background:${fondo};border-bottom:1px solid var(--border);padding:5px 8px;cursor:pointer;font-size:11px;min-width:0;">
+    // ── v208: fuera el 📝 de las filas ──────────────────────────────────────
+    // El emoji iba pegado a la hora y parecía parte de ella ("📝 hoy"), y el
+    // texto solo se leía con hover — que en el móvil no existe. La nota sigue
+    // donde de verdad se trabaja con ella: en la tarjeta del vale (bandeja) y
+    // en el detalle. La fila queda limpia; en escritorio se puede ver gratis
+    // pasando el cursor, porque la nota se añade al title de la fila.
+    const _titleFila=(v.cliente || 'Cliente') + ' · ' + (v.articulo || '')
+      + (v.notasGestor ? '\n📝 ' + v.notasGestor : '');
+    return `<div onclick="selectVale(${v.id})" title="${escapeHTML(_titleFila)}" style="display:flex;align-items:center;gap:8px;background:${fondo};border-bottom:1px solid var(--border);padding:5px 8px;cursor:pointer;font-size:11px;min-width:0;">
       <span style="font-weight:800;color:${color};white-space:nowrap;flex-shrink:0;min-width:92px;">${escapeHTML(_textoEntrega(v))}</span>
       <span style="font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30%;flex-shrink:1;">${escapeHTML(v.cliente || 'Cliente')}</span>
       ${_colEnt}
-      ${nota}
       <span style="font-size:10px;font-weight:700;color:${color};white-space:nowrap;flex-shrink:0;">${cuando}</span>
     </div>`;
   }).join('')
@@ -5183,6 +5189,13 @@ function revisarEntregasProximas() {
   // El aviso, en cambio, no necesita mirarse cada 5 s.
   if (ahora - _ultimaRevisionEntregas < 60000) return;
   _ultimaRevisionEntregas = ahora;
+  // v209: con la bandeja plegada, el banner de "toca entregar" es lo que manda.
+  // Se re-pinta una vez por minuto para que aparezca solo (y su cuenta atrás
+  // envejezca) aunque nadie esté tocando nada. Solo con el panel de vales
+  // delante; en otras pestañas sería trabajo muerto.
+  if (typeof currentAdminTab === 'undefined' || currentAdminTab === 'vales') {
+    try { renderAdminGestores(); } catch (e) {}
+  }
 
   const dados = _avisosEntregaDados();
   let cambio = false;
@@ -8427,6 +8440,52 @@ function renderAdminGestores() {
      return;
   }
 
+  // ── v209: UN banner fijo con el vale al que le toca entregar ─────────────
+  // La bandeja queda plegada (productos y notas en chips), así que lo único
+  // siempre a la vista es este aviso. Sale SOLO cuando aprieta: el vale en
+  // espera de entrega más cercano con menos de una hora (naranja) o ya pasado
+  // (rojo) — uno solo, no uno por vale. Si nada aprieta, sin banner: la chapa
+  // ⏰ de cada tarjeta y la lista de Próximas entregas son el respaldo.
+  html += (() => {
+    try {
+      const _ahora = Date.now();
+      const _cands = vales
+        .filter(v => _ESTADOS_ESPERANDO_ENTREGA[v.status] && _momentoEntrega(v) != null)
+        .map(v => ({ v, t: _momentoEntrega(v) }))
+        .filter(x => _finEntrega(x.v) > _ahora - 12 * 3600000)
+        .sort((a, b) => a.t - b.t);
+      const _pri = _cands.find(x => {
+        const _sinH = _entregaSinHora(x.v);
+        return _finEntrega(x.v) < _ahora
+          || (_sinH ? x.t - _ahora <= 0 : x.t - _ahora <= AVISO_ENTREGA_MS);
+      });
+      if (!_pri) return '';
+      const v = _pri.v;
+      const _sinH = _entregaSinHora(v);
+      const _tarde = _finEntrega(v) < _ahora;
+      const _min = Math.round((_pri.t - _ahora) / 60000);
+      const _cuando = _tarde
+        ? (_sinH ? 'pasó el día' : `hace ${Math.abs(_min)} min`)
+        : (_sinH ? 'hoy (sin hora)' : `en ${_min} min`);
+      const _cMain = _tarde ? '#dc2626' : '#f59e0b';   // mismos colores que la chapa ⏰
+      const _cTxt  = _tarde ? '#dc2626' : '#b45309';
+      const _gB = gestorOf(v.gestorId);
+      const _prodsB = (v.valeProductos || []).filter(p => p && (p.name || productoOf(p.id)));
+      const _resumen = _prodsB.length
+        ? `×${_prodsB[0].qty} ${escapeHTML(_prodsB[0].name || (productoOf(_prodsB[0].id) || {}).name || ('#' + _prodsB[0].id))}${_prodsB.length > 1 ? ` +${_prodsB.length - 1} más` : ''}`
+        : escapeHTML(v.articulo || '');
+      return `<div onclick="selectVale(${v.id})" title="Abrir ${escapeHTML(valeNumStr(v) || 'el vale')}" style="display:flex;align-items:center;gap:10px;background:${_tarde ? 'rgba(220,38,38,.08)' : 'rgba(245,158,11,.1)'};border:2px solid ${_tarde ? 'rgba(220,38,38,.45)' : 'rgba(245,158,11,.5)'};border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">
+        <span style="flex-shrink:0;width:34px;height:34px;border-radius:50%;background:${_cMain};color:white;display:flex;align-items:center;justify-content:center;font-size:15px;">⏰</span>
+        <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:${_cTxt};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_tarde ? 'Entrega atrasada' : 'Toca entregar'} · ${_cuando}</span>
+          <span style="font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${v.valeNum ? escapeHTML(valeNumStr(v)) + ' · ' : ''}${escapeHTML(v.cliente || 'Cliente')}</span>
+          <span style="font-size:10.5px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_resumen}${_gB && _gB.name ? ' · ' + escapeHTML(_gB.name) : ''}</span>
+        </span>
+        <span style="flex-shrink:0;background:${_cMain};color:white;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:800;">Ver</span>
+      </div>`;
+    } catch (e) { return ''; }
+  })();
+
   _ordenados.forEach(g => {
     // Solo vales activos (no confirmed/cancelled) — 'delivered' incluido, ver arriba.
     // La ficha de la tienda recoge TODO lo que no tiene dueño en la lista: sus
@@ -8487,6 +8546,19 @@ function setGestorFilter(gId){
   renderAdminGestores();
 }
 
+// ── v209: qué tarjetas de la bandeja están desplegadas ─────────────────────
+// En memoria de este teléfono (no se sincroniza: es preferencia de vista, no
+// dato del negocio). Así, si el poll re-pinta la bandeja porque llegó otro
+// vale, lo que el admin tenía abierto sigue abierto.
+const _bandejaPlegado = {};
+function _pliegueVale(id, k) { const s = _bandejaPlegado[id]; return !!(s && s[k]); }
+function _togglePliegueBandeja(id, k) {
+  const s = _bandejaPlegado[id] || {};
+  s[k] = !s[k];
+  _bandejaPlegado[id] = s;
+  if (typeof renderAdminGestores === 'function') renderAdminGestores();
+}
+
 // ══════════════════════════════════════════
 //  ADMIN INBOX
 // ══════════════════════════════════════════
@@ -8515,19 +8587,41 @@ function buildInboxCard(v) {
   // es larguísimo, se recorta ESA línea y no se deforma la tarjeta. Vales viejos
   // sin productos vinculados siguen enseñando el texto de siempre.
   const _prodsVale=(v.valeProductos||[]).filter(p=>p&&(p.name||productoOf(p.id)));
-  const _prevProds=_prodsVale.length
-    ? `<div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">`+
+  // ── v209: tarjeta PLEGADA — productos y nota en chips que se abren ────────
+  // El fix v206 puso los productos uno debajo de otro, pero SIEMPRE a la vista:
+  // con muchos la tarjeta crecía y la bandeja se volvió un pregón. Ahora la
+  // tarjeta mide lo mismo con 1 que con 20 productos: "📦 N productos ▼" abre
+  // la lista (una línea por producto, mismo recorte por línea de siempre) y
+  // "📝 Nota ▼" abre la nota completa. Vales viejos sin productos vinculados
+  // siguen enseñando el texto de siempre.
+  const _abProds=_pliegueVale(v.id,'prods');
+  const _abNota=_pliegueVale(v.id,'nota');
+  const _notaTxt=String(v.notasGestor||'').trim();
+  const _chipCSS='cursor:pointer;user-select:none;white-space:nowrap;border-radius:12px;padding:2px 8px;font-size:10.5px;font-weight:700;';
+  const _chipOn='background:rgba(0,109,138,.12);border:1px solid rgba(0,109,138,.4);color:var(--blue);';
+  const _chipOff='background:var(--surface3);border:1px solid var(--border);color:var(--text-muted);';
+  const _chipsFila=(
+    (_prodsVale.length?`<span onclick="event.stopPropagation();_togglePliegueBandeja(${v.id},'prods')" title="Ver los ${_prodsVale.length} productos del vale" style="${_chipCSS}${_abProds?_chipOn:_chipOff}">📦 ${_prodsVale.length} producto${_prodsVale.length>1?'s':''} ${_abProds?'▲':'▼'}</span>`:``)+
+    (_notaTxt?`<span onclick="event.stopPropagation();_togglePliegueBandeja(${v.id},'nota')" title="Ver la nota del gestor" style="${_chipCSS}${_abNota?_chipOn:_chipOff}">📝 Nota ${_abNota?'▲':'▼'}</span>`:``)
+  );
+  const _chipsRow=_chipsFila?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">${_chipsFila}</div>`:``;
+  const _listaProds=_prodsVale.length
+    ? `<div style="display:${_abProds?'':'none'};font-size:11.5px;color:var(--gray-500);margin-top:4px;">`+
       _prodsVale.map(p=>`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">×${p.qty} ${escapeHTML(p.name||(productoOf(p.id)||{}).name||('#'+p.id))}</div>`).join('')+
       `</div>`
     : `<div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">${escapeHTML(v.articulo||'Sin artículo')}</div>`;
+  const _notaExpandida=_notaTxt
+    ? `<div style="display:${_abNota?'':'none'};background:rgba(0,109,138,.1);color:var(--blue);border-radius:4px;padding:4px 7px;font-size:10.5px;font-weight:600;margin-top:4px;line-height:1.35;white-space:normal;">📝 ${escapeHTML(_notaTxt)}</div>`
+    : ``;
+  const _cuerpoPlegado=_prodsVale.length?`${_chipsRow}${_listaProds}`:`${_listaProds}${_chipsRow}`;
   return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}${estafaBorder}">
     ${isNew?'<div class="new-dot"></div>':''}
     <div class="ic-head" style="margin-bottom:4px;">
       <span class="ic-time">${timeStr(v.ts)}</span>
     </div>
     <div class="ic-cliente" style="font-size:13px;margin-bottom:2px;">${v.valeNum?`<span style="font-weight:800;color:var(--blue);">${valeNumStr(v)}</span> `:``}${escapeHTML(v.cliente||'Sin nombre')}${estafaTag}${reservaTag}${_chipHoraEntrega(v)}</div>
-    ${_prevProds}
-    ${String(v.notasGestor||'').trim()?`<div class="ic-nota-gestor" style="background:rgba(0,109,138,.1);color:var(--blue);border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin:3px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(String(v.notasGestor).trim())}</div>`:``}
+    ${_cuerpoPlegado}
+    ${_notaExpandida}
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
       <span class="sp ${s.cls}" style="font-size:10px;">${s.icon?s.icon+' ':''}${s.label}</span>
