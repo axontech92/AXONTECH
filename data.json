@@ -1546,7 +1546,7 @@
       "name": "Transfer 3 polos 220v",
       "catId": 20,
       "photo": "photos/img_1785079428055.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1785079428055.webp",
       "nombre": "Transfer 3 polos 220v",
       "precio": "$70",
@@ -2483,5 +2483,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T14:53:13.108Z"
+  "timestamp": "2026-10-02T14:55:48.128Z"
 }
