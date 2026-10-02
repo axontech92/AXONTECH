@@ -947,6 +947,43 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1786509644554,
+      "name": "Mikrotik lhg 5ax",
+      "catId": 10,
+      "photo": "photos/img_1786509644554.webp",
+      "stock": 3,
+      "imagen": "photos/img_1786509644554.webp",
+      "nombre": "Mikrotik lhg 5ax",
+      "precio": "$240",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
+      "description": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
+      "precioActual": 240,
+      "comisionMoneda": "USD"
+    },
+    {
+      "id": 1786509790425,
+      "name": "Nanostation m2",
+      "catId": 10,
+      "photo": "photos/img_1786509790425.webp",
+      "stock": 2,
+      "imagen": "photos/img_1786509790425.webp",
+      "nombre": "Nanostation m2",
+      "precio": "$230",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "NanoStation M2 – Internacional\n- Version Internacional\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora\n- Ganancia 16 dBi,\n- Consumo de energía máximo 8W\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente",
+      "description": "NanoStation M2 – Internacional\n- Version Internacional\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora\n- Ganancia 16 dBi,\n- Consumo de energía máximo 8W\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente",
+      "precioActual": 230,
+      "reservedVales": 3,
+      "comisionMoneda": "USD"
+    },
+    {
       "id": 1786510034029,
       "name": "Mikrotik SXTsq 5 lite",
       "catId": 10,
@@ -996,6 +1033,23 @@
       "descripcion": "🌿 Panel de Pared de Césped y Plantas Artificiales\nRenueva cualquier espacio con un toque natural y elegante gracias a estos paneles decorativos de césped artificial.\n✔️ Seto de boj con acabado realista y color verde intenso\n✔️ Protección UV, ideal para interiores y exteriores\n✔️ Perfecto para decorar paredes, patios, balcones, jardines o negocios\n✔️ Ideal como valla de privacidad o pantalla para patio trasero\n✔️ Excelente opción para bodas, eventos y decoración del hogar\n✔️ Paquete de 10 unidades, cada panel mide 25 cm x 25 cm\n✔️ Fácil de instalar y de bajo mantenimiento\nDale vida a tus espacios con una decoración moderna y siempre verde.",
       "description": "🌿 Panel de Pared de Césped y Plantas Artificiales\nRenueva cualquier espacio con un toque natural y elegante gracias a estos paneles decorativos de césped artificial.\n✔️ Seto de boj con acabado realista y color verde intenso\n✔️ Protección UV, ideal para interiores y exteriores\n✔️ Perfecto para decorar paredes, patios, balcones, jardines o negocios\n✔️ Ideal como valla de privacidad o pantalla para patio trasero\n✔️ Excelente opción para bodas, eventos y decoración del hogar\n✔️ Paquete de 10 unidades, cada panel mide 25 cm x 25 cm\n✔️ Fácil de instalar y de bajo mantenimiento\nDale vida a tus espacios con una decoración moderna y siempre verde.",
       "precioActual": 4,
+      "comisionMoneda": "USD"
+    },
+    {
+      "id": 1786858233037,
+      "name": "Nanostation m2 loco",
+      "catId": 10,
+      "photo": "photos/p-1786858233037-c26e7f82.webp",
+      "stock": 1,
+      "imagen": "photos/p-1786858233037-c26e7f82.webp",
+      "nombre": "Nanostation m2 loco",
+      "precio": "$150",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "descripcion": "El Ubiquiti NanoStation loco M2 (LocoM2) es un equipo inalámbrico para exteriores diseñado para enlaces de corta y media distancia y como CPE (cliente inalámbrico) en la banda de 2.4 GHz. Es muy utilizado para conectar casas, edificios o cámaras IP, ofreciendo una mayor penetración de obstáculos en comparación con las frecuencias de 5 GHz.\n​Frecuencia: 2.4 GHz (2400–2484 MHz).\n​Tecnología: 802.11b/g/n con protocolo propietario airMAX TDMA.\n​Antena integrada: 8 dBi, doble polarización (2×2 MIMO).\n​Ancho de haz: aproximadamente 60°.\n​Potencia de transmisión: hasta 23 dBm.\n​Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n​Alimentación: PoE pasivo de 24 V.\n​Consumo eléctrico: máximo 5.5 W.\n​Procesador: Atheros MIPS 400 MHz.\n​Memoria: 32 MB RAM y 8 MB Flash.\n​Uso exterior: carcasa resistente a UV.\n​Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
+      "description": "El Ubiquiti NanoStation loco M2 (LocoM2) es un equipo inalámbrico para exteriores diseñado para enlaces de corta y media distancia y como CPE (cliente inalámbrico) en la banda de 2.4 GHz. Es muy utilizado para conectar casas, edificios o cámaras IP, ofreciendo una mayor penetración de obstáculos en comparación con las frecuencias de 5 GHz.\n​Frecuencia: 2.4 GHz (2400–2484 MHz).\n​Tecnología: 802.11b/g/n con protocolo propietario airMAX TDMA.\n​Antena integrada: 8 dBi, doble polarización (2×2 MIMO).\n​Ancho de haz: aproximadamente 60°.\n​Potencia de transmisión: hasta 23 dBm.\n​Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n​Alimentación: PoE pasivo de 24 V.\n​Consumo eléctrico: máximo 5.5 W.\n​Procesador: Atheros MIPS 400 MHz.\n​Memoria: 32 MB RAM y 8 MB Flash.\n​Uso exterior: carcasa resistente a UV.\n​Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
+      "precioActual": 150,
       "comisionMoneda": "USD"
     },
     {
@@ -2097,24 +2151,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1786509644554,
-      "name": "Mikrotik lhg 5ax",
-      "catId": 10,
-      "photo": "photos/img_1786509644554.webp",
-      "stock": 3,
-      "imagen": "photos/img_1786509644554.webp",
-      "nombre": "Mikrotik lhg 5ax",
-      "precio": "$240",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
-      "description": "Mikrotik lhg 5ax:\n\n- Wi-Fi 6 (802.11ax) en la banda de 5 GHz.\n- Antena direccional de 24,5 dBi, integrada en el equipo.\n- 2 cadenas inalámbricas (2×2 MIMO).\n- Velocidad inalámbrica máxima anunciada de hasta 1,2 Gbps. \n- Puerto Ethernet Gigabit (10/100/1000 Mbps).\n- PoE pasivo, con alimentación de 12–28 V.\n- Consumo máximo aproximado de 5 W.\n- Procesador dual-core ARM IPQ-5010 a 800 MHz.\n- 256 MB de RAM y 128 MB de almacenamiento.\n- Incluye RouterOS v7, por lo que permite configurar funciones avanzadas de red, routing, firewall, bridge, etc.\n- Compatible con WPA3.\n- Diseño tipo rejilla que ayuda a obtener alto alcance y buena directividad.\n- Temperatura de funcionamiento: aproximadamente −40 °C a 70 °C.\n- Protección IP54 para instalación exterior.",
-      "precioActual": 240,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1786509734474,
       "name": "Mikrotik SXT SA 5 ac",
       "catId": 10,
@@ -2129,25 +2165,6 @@
       "descripcion": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
       "description": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
       "precioActual": 220,
-      "comisionMoneda": "USD"
-    },
-    {
-      "id": 1786509790425,
-      "name": "Nanostation m2",
-      "catId": 10,
-      "photo": "photos/img_1786509790425.webp",
-      "stock": 2,
-      "imagen": "photos/img_1786509790425.webp",
-      "nombre": "Nanostation m2",
-      "precio": "$230",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "NanoStation M2 – Internacional\n- Version Internacional\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora\n- Ganancia 16 dBi,\n- Consumo de energía máximo 8W\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente",
-      "description": "NanoStation M2 – Internacional\n- Version Internacional\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora\n- Ganancia 16 dBi,\n- Consumo de energía máximo 8W\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente",
-      "precioActual": 230,
-      "reservedVales": 3,
       "comisionMoneda": "USD"
     },
     {
@@ -2201,23 +2218,6 @@
       "descripcion": "Router inalambrico giganite Tp-link Archer AX21 AX1800 mbps:\n\n-Wi-Fi 6 (802.11ax)\n-Rendimiento de hasta 1775 Mb/s\n-2,4 GHz /5 GHz (doble banda)\n-4 antenas externas fijas\n-4 puertos LAN Gigabit\n-puerto WAN Gigabit\n-Autenticación WPA / WPA2 / WPA3\n-Soporte para firewall y VPN de SPI\n-Compatible con la aplicación TP-Link Tether",
       "description": "Router inalambrico giganite Tp-link Archer AX21 AX1800 mbps:\n\n-Wi-Fi 6 (802.11ax)\n-Rendimiento de hasta 1775 Mb/s\n-2,4 GHz /5 GHz (doble banda)\n-4 antenas externas fijas\n-4 puertos LAN Gigabit\n-puerto WAN Gigabit\n-Autenticación WPA / WPA2 / WPA3\n-Soporte para firewall y VPN de SPI\n-Compatible con la aplicación TP-Link Tether",
       "precioActual": 120,
-      "comisionMoneda": "USD"
-    },
-    {
-      "id": 1786858233037,
-      "name": "Nanostation m2 loco",
-      "catId": 10,
-      "photo": "photos/p-1786858233037-c26e7f82.webp",
-      "stock": 1,
-      "imagen": "photos/p-1786858233037-c26e7f82.webp",
-      "nombre": "Nanostation m2 loco",
-      "precio": "$150",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "descripcion": "El Ubiquiti NanoStation loco M2 (LocoM2) es un equipo inalámbrico para exteriores diseñado para enlaces de corta y media distancia y como CPE (cliente inalámbrico) en la banda de 2.4 GHz. Es muy utilizado para conectar casas, edificios o cámaras IP, ofreciendo una mayor penetración de obstáculos en comparación con las frecuencias de 5 GHz.\n​Frecuencia: 2.4 GHz (2400–2484 MHz).\n​Tecnología: 802.11b/g/n con protocolo propietario airMAX TDMA.\n​Antena integrada: 8 dBi, doble polarización (2×2 MIMO).\n​Ancho de haz: aproximadamente 60°.\n​Potencia de transmisión: hasta 23 dBm.\n​Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n​Alimentación: PoE pasivo de 24 V.\n​Consumo eléctrico: máximo 5.5 W.\n​Procesador: Atheros MIPS 400 MHz.\n​Memoria: 32 MB RAM y 8 MB Flash.\n​Uso exterior: carcasa resistente a UV.\n​Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
-      "description": "El Ubiquiti NanoStation loco M2 (LocoM2) es un equipo inalámbrico para exteriores diseñado para enlaces de corta y media distancia y como CPE (cliente inalámbrico) en la banda de 2.4 GHz. Es muy utilizado para conectar casas, edificios o cámaras IP, ofreciendo una mayor penetración de obstáculos en comparación con las frecuencias de 5 GHz.\n​Frecuencia: 2.4 GHz (2400–2484 MHz).\n​Tecnología: 802.11b/g/n con protocolo propietario airMAX TDMA.\n​Antena integrada: 8 dBi, doble polarización (2×2 MIMO).\n​Ancho de haz: aproximadamente 60°.\n​Potencia de transmisión: hasta 23 dBm.\n​Puerto Ethernet: 1 puerto RJ45 10/100 Mbps (no Gigabit).\n​Alimentación: PoE pasivo de 24 V.\n​Consumo eléctrico: máximo 5.5 W.\n​Procesador: Atheros MIPS 400 MHz.\n​Memoria: 32 MB RAM y 8 MB Flash.\n​Uso exterior: carcasa resistente a UV.\n​Temperatura de trabajo: de aproximadamente -30 °C a 75 °C.",
-      "precioActual": 150,
       "comisionMoneda": "USD"
     },
     {
@@ -2304,7 +2304,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T20:18:23.970Z"
+  "timestamp": "2026-10-02T20:37:27.384Z"
 }
