@@ -1650,7 +1650,7 @@
       "name": "Compresor/Inflador de neumáticos",
       "catId": 50,
       "photo": "photos/p-1786161303797-682a20bb.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/p-1786161303797-682a20bb.webp",
       "nombre": "Compresor/Inflador de neumáticos",
       "precio": "$28 USD",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T18:34:28.971Z"
+  "timestamp": "2026-10-02T18:40:10.381Z"
 }
