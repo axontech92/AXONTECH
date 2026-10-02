@@ -2033,12 +2033,12 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 0,
+      "stock": 11,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
-      "precio": "$60",
+      "precio": "$70",
       "puntos": 1,
-      "comision": "$10 USD",
+      "comision": "$5 USD",
       "garantia": "",
       "descripcion": "Router Wi-Fi TP-Link Archer C54 Reacondicionado\n\n✔️ Wi-Fi de doble banda AC1200.\n✔️ Velocidad de hasta 300 Mbps en 2.4 GHz y 867 Mbps en 5 GHz.\n✔️ Cuatro antenas externas para una mayor cobertura y una conexión más estable.\n✔️ Compatible con IPv6.\n✔️ Modos de funcionamiento: Router, Punto de Acceso (Access Point), Extensor de Alcance y WISP.\n✔️ Tecnología MU-MIMO para una mejor conexión con múltiples dispositivos al mismo tiempo.\n✔️ Control parental y red para invitados.\n✔️ Fácil configuración y administración mediante la aplicación TP-Link Tether.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar ligeros detalles estéticos o haber sido previamente devuelto, pero se encuentra en perfectas condiciones de uso y ofrece un rendimiento completamente funcional.",
       "description": "Router Wi-Fi TP-Link Archer C54 Reacondicionado\n\n✔️ Wi-Fi de doble banda AC1200.\n✔️ Velocidad de hasta 300 Mbps en 2.4 GHz y 867 Mbps en 5 GHz.\n✔️ Cuatro antenas externas para una mayor cobertura y una conexión más estable.\n✔️ Compatible con IPv6.\n✔️ Modos de funcionamiento: Router, Punto de Acceso (Access Point), Extensor de Alcance y WISP.\n✔️ Tecnología MU-MIMO para una mejor conexión con múltiples dispositivos al mismo tiempo.\n✔️ Control parental y red para invitados.\n✔️ Fácil configuración y administración mediante la aplicación TP-Link Tether.\n\n🔹 Producto reacondicionado: esto significa que el equipo ha sido revisado, probado y verificado para garantizar su correcto funcionamiento. Puede presentar ligeros detalles estéticos o haber sido previamente devuelto, pero se encuentra en perfectas condiciones de uso y ofrece un rendimiento completamente funcional.",
@@ -2501,5 +2501,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T16:40:59.055Z"
+  "timestamp": "2026-10-02T16:44:37.459Z"
 }
