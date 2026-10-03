@@ -2361,7 +2361,7 @@
       "name": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ",
       "catId": 10,
       "photo": "photos/p-1789945881104-42e3d673.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1789945881104-42e3d673.webp",
       "nombre": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ",
       "precio": "320",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-03T15:56:44.221Z"
+  "timestamp": "2026-10-03T15:59:13.787Z"
 }
