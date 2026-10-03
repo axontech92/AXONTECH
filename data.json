@@ -1718,7 +1718,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 11,
+      "stock": 9,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -2343,7 +2343,7 @@
       "name": "Hex Poe Lite(RB750gr2)",
       "catId": 10,
       "photo": "photos/p-1789945684800-999454fb.webp",
-      "stock": 4,
+      "stock": 2,
       "imagen": "photos/p-1789945684800-999454fb.webp",
       "nombre": "Hex Poe Lite(RB750gr2)",
       "precio": "110",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-03T17:43:34.444Z"
+  "timestamp": "2026-10-03T17:50:29.225Z"
 }
