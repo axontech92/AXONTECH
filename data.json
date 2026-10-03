@@ -657,7 +657,7 @@
       "name": "Router KUWIFI de linea de 1.150MBPS",
       "catId": 10,
       "photo": "photos/p-1778104287395-885659f8.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1778104287395-885659f8.webp",
       "nombre": "Router KUWIFI de linea de 1.150MBPS",
       "precio": "$130",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-03T15:38:18.134Z"
+  "timestamp": "2026-10-03T15:40:43.729Z"
 }
