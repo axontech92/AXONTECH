@@ -1390,7 +1390,7 @@
       "name": "Creatina Monohidratada Luckycare® (5000 mg)",
       "catId": 130,
       "photo": "photos/p-1781377297283-cc909b2a.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1781377297283-cc909b2a.webp",
       "nombre": "Creatina Monohidratada Luckycare® (5000 mg)",
       "precio": "$25",
@@ -1753,7 +1753,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 45,
+      "stock": 42,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2033,7 +2033,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 10,
+      "stock": 5,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$70",
@@ -2067,7 +2067,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 1017,
+      "stock": 957,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2398,7 +2398,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 17,
+      "stock": 15,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -2467,7 +2467,7 @@
       "name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]",
       "catId": 10,
       "photo": "photos/p-1790959980548-d7aa8712.webp",
-      "stock": 17,
+      "stock": 16,
       "imagen": "photos/p-1790959980548-d7aa8712.webp",
       "nombre": "Repetidor TP-Link TL-WA801N / TL-WA801ND",
       "precio": "45",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-03T21:20:38.450Z"
+  "timestamp": "2026-10-03T22:14:14.991Z"
 }
