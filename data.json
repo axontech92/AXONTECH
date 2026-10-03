@@ -1735,7 +1735,7 @@
       "name": "Mikrotik hap ax3",
       "catId": 10,
       "photo": "photos/img_1786509419466.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/img_1786509419466.webp",
       "nombre": "Mikrotik hap ax3",
       "precio": "$260",
@@ -2067,7 +2067,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 1017,
+      "stock": 982,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2467,7 +2467,7 @@
       "name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]",
       "catId": 10,
       "photo": "photos/p-1790959980548-d7aa8712.webp",
-      "stock": 18,
+      "stock": 17,
       "imagen": "photos/p-1790959980548-d7aa8712.webp",
       "nombre": "Repetidor TP-Link TL-WA801N / TL-WA801ND",
       "precio": "45",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-03T18:41:56.227Z"
+  "timestamp": "2026-10-03T18:48:44.184Z"
 }
