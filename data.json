@@ -1844,7 +1844,7 @@
       "name": "Nanostation m5",
       "catId": 10,
       "photo": "photos/img_1786510211408.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1786510211408.webp",
       "nombre": "Nanostation m5",
       "precio": "$230",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-03T14:18:20.220Z"
+  "timestamp": "2026-10-03T14:59:31.222Z"
 }
