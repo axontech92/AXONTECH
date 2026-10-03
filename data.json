@@ -984,6 +984,25 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1786510211408,
+      "name": "Nanostation m5",
+      "catId": 10,
+      "photo": "photos/img_1786510211408.webp",
+      "stock": 1,
+      "imagen": "photos/img_1786510211408.webp",
+      "nombre": "Nanostation m5",
+      "precio": "$230",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "reserved": 0,
+      "descripcion": "Nanostation m5 Version Internacional:\n\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora.\n- Rango de frecuencia: 5.745-5.825 Ghz, Ganancia 16 dBi, Consumo de energía máximo 8W.\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente.",
+      "description": "Nanostation m5 Version Internacional:\n\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora.\n- Rango de frecuencia: 5.745-5.825 Ghz, Ganancia 16 dBi, Consumo de energía máximo 8W.\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente.",
+      "precioActual": 230,
+      "reservedVales": 6,
+      "comisionMoneda": "USD"
+    },
+    {
       "id": 1786594651216,
       "name": "Breker digital ajustable",
       "catId": 20,
@@ -2151,25 +2170,6 @@
       "comisionMoneda": "USD"
     },
     {
-      "id": 1786510211408,
-      "name": "Nanostation m5",
-      "catId": 10,
-      "photo": "photos/img_1786510211408.webp",
-      "stock": 1,
-      "imagen": "photos/img_1786510211408.webp",
-      "nombre": "Nanostation m5",
-      "precio": "$230",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "reserved": 0,
-      "descripcion": "Nanostation m5 Version Internacional:\n\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora.\n- Rango de frecuencia: 5.745-5.825 Ghz, Ganancia 16 dBi, Consumo de energía máximo 8W.\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente.",
-      "description": "Nanostation m5 Version Internacional:\n\n- Acceso múltiple por división de tiempo, tecnología integrada airMAX (protocolo MIMO TDMA).\n- Dual Ethernet, indicador de intensidad de señal de 4 LED, POE inteligente, capaz de enlaces de alta velocidad, clase portadora.\n- Rango de frecuencia: 5.745-5.825 Ghz, Ganancia 16 dBi, Consumo de energía máximo 8W.\n- El protocolo airMAX de acceso (TDMA) permite a cada cliente enviar y recibir datos utilizando intervalos de tiempo predesignados programados por un controlador AP inteligente.",
-      "precioActual": 230,
-      "reservedVales": 6,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1786596117205,
       "name": "Controlador solar de 120A Y&H",
       "catId": 20,
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-02T23:35:16.803Z"
+  "timestamp": "2026-10-03T02:17:41.654Z"
 }
