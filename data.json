@@ -1863,7 +1863,7 @@
       "name": "Breker digital ajustable",
       "catId": 20,
       "photo": "photos/img_1786594651216.webp",
-      "stock": 20,
+      "stock": 19,
       "imagen": "photos/img_1786594651216.webp",
       "nombre": "Breker digital ajustable",
       "precio": "$20",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-04T21:55:22.742Z"
+  "timestamp": "2026-10-04T22:30:00.242Z"
 }
