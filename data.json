@@ -1152,7 +1152,7 @@
       "name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "catId": 20,
       "photo": "photos/img_1779208523952.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/img_1779208523952.webp",
       "nombre": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA",
       "precio": "$180",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-04T23:03:28.902Z"
+  "timestamp": "2026-10-04T23:05:47.351Z"
 }
