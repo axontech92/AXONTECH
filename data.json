@@ -946,7 +946,7 @@
       "name": "KIT de 4 camaras Zosi (sin disco duro)",
       "catId": 80,
       "photo": "photos/img_1778384314795.webp",
-      "stock": 0,
+      "stock": 3,
       "imagen": "photos/img_1778384314795.webp",
       "nombre": "KIT de 4 camaras Zosi (sin disco duro)",
       "precio": "$230",
@@ -1580,7 +1580,7 @@
       "name": "Camara de Panel",
       "catId": 80,
       "photo": "photos/img_1785079567810.webp",
-      "stock": 0,
+      "stock": 2,
       "imagen": "photos/img_1785079567810.webp",
       "nombre": "Camara de Panel",
       "precio": "$100",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-04T19:37:56.887Z"
+  "timestamp": "2026-10-04T19:50:48.888Z"
 }
