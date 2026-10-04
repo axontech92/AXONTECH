@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 210;
+const APP_VERSION = 211;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 210;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v15.6';
+let _PUBLIC_VERSION_STR = 'v15.7';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'd42151c3c0b1bf31';
+let _LOCAL_BUILD_HASH = '1a266e019f26a89d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -10628,18 +10628,33 @@ function _computeGestorStatsForRange(gestorId, from, to) {
   // por cobrar. Es el mismo criterio que usa el panel del admin desde v102 —
   // "en sobre" sigue contando (está apartado, pero el gestor no lo tiene en la
   // mano) y lo ya cobrado desaparece.
-  const comValesEarned = vales.filter(v => _valeGeneraComision(v)
+  // ── v211: la deuda NO se recorta por período ──────────────────────────────
+  // Hasta ahora el importe salía de los vales DEL RANGO (por defecto, el ciclo).
+  // Al rodar el ciclo, todo lo sin cobrar de ciclos anteriores —incluidas las
+  // comisiones "en sobre"— desaparecía de la tarjeta; y si el ciclo nuevo
+  // empezaba sin vales, la tarjeta entera se borraba con dinero debiéndose.
+  // Reporte del dueño: "siempre debe mostrar comisiones pendientes a cobrar
+  // aunque sean de ciclos diferentes". Ahora el importe y las ventas sin cobrar
+  // se cuentan SIEMPRE sobre TODOS los vales del gestor (mismo criterio que el
+  // admin: _valeGeneraComision), y el rango solo decide si se avisa "incluye N
+  // de ciclos anteriores". Lo ya cobrado sí queda dentro del período, porque
+  // eso sí es información del período ("este ciclo cobraste N").
+  const _todosGestor = getVales().filter(v => v.gestorId === gestorId);
+  const comValesEarned = _todosGestor.filter(v => _valeGeneraComision(v)
     && !v.commissionPaid && v.commissionStatus !== 'cobrado');
   const comCobrados = vales.filter(v => _valeGeneraComision(v)
     && (v.commissionPaid || v.commissionStatus === 'cobrado')).length;
   const com = sumCommissions(comValesEarned);
   const comBadge = fmtComisionBadge(com.usd,com.mn,com.computed,com.sinCalcular);
+  const comFueraDeRango = (from || to)
+    ? comValesEarned.filter(v => (from && _fechaEfectiva(v) < from) || (to && _fechaEfectiva(v) > to)).length
+    : 0;
   // Conversion: confirmed / (total - cancelled - pending still pending)
   // More useful: closed sales (confirmed + pending_payment) / total attempted
   const closed = confirmed + pendingPay;
   const conversion = total > 0 ? Math.round((closed / total) * 100) : 0;
   return { total, confirmed, pendingPay, pending, cancelled, pts, ptsEarned, ptsPotential,
-           com, comBadge, comPendientes: comValesEarned.length, comCobrados, conversion, closed };
+           com, comBadge, comPendientes: comValesEarned.length, comCobrados, comFueraDeRango, conversion, closed };
 }
 
 // Comparison arrow HTML — previous vs current value
@@ -10746,11 +10761,16 @@ function renderGestorDashboard() {
     // ver con el dinero que falta por pagarle.
     const _n = cur.comPendientes;
     const _sub = _n > 0 ? `de ${_n} venta${_n !== 1 ? 's' : ''} sin cobrar` : '';
+    // v211: si parte de esa deuda es de ciclos anteriores, se dice — que no
+    // vuelva a parecer que el número es solo del ciclo y se perdió dinero.
+    const _fuera = cur.comFueraDeRango > 0
+      ? `incluye ${cur.comFueraDeRango} de ciclo${cur.comFueraDeRango !== 1 ? 's' : ''} anterior${cur.comFueraDeRango !== 1 ? 'es' : ''}` : '';
     comHero = `<div style="${_heroBase}">
       <div style="min-width:0;">
         <div style="${_heroLbl}">Comisión por cobrar</div>
         <div style="font-size:26px;font-weight:800;color:white;margin-top:3px;line-height:1.1;word-break:break-word;">${escapeHTML(cur.comBadge)}</div>
         ${_sub ? `<div style="font-size:11px;color:rgba(255,255,255,.82);margin-top:3px;">${_sub}</div>` : ''}
+        ${_fuera ? `<div style="font-size:10.5px;color:rgba(255,255,255,.75);margin-top:2px;">${_fuera}</div>` : ''}
       </div>
       <div style="font-size:30px;opacity:.75;flex-shrink:0;">💰</div>
     </div>`;
@@ -10948,19 +10968,18 @@ function renderGestorComisiones() {
   const section=document.getElementById('gestorComisionSection');
   const list=document.getElementById('gestorComisionList');
   if(!section||!list||!activeGestorId){if(section)section.style.display='none';return;}
-  // v52 FIX: la comisión se cuenta solo al completar la venta (status
-  // 'confirmed' = cobrada). 'pending_payment' es entregado pero AÚN sin cobrar,
-  // así que no debe generar comisión todavía.
-  // v61 FIX: faltaba excluir los vales ocultos, y por eso la comisión se quedaba
-  // "pegada". El botón 🙈 Ocultar historial marca los vales confirmados con
-  // hiddenFromHistory:true; renderMyVales sí lo respeta y los quita del
-  // historial, pero aquí no se miraba, así que la comisión de un vale que ya no
-  // se ve por ninguna parte seguía en MIS COMISIONES sin forma de quitarla: los
-  // vales activos ya estaban borrados y el vale que la generaba estaba oculto.
-  // Ahora ambas vistas usan el mismo criterio. Ojo: esto solo afecta a lo que ve
-  // el gestor. La comisión sigue intacta en el panel del admin, que es quien
-  // paga — igual que avisa el propio texto del botón ("los datos NO se borran").
-  const mine=valesConfirmadosDeGestor(activeGestorId);
+  // ── v211: dinero es dinero — mismo criterio que el admin ──────────────────
+  // v52 decía que 'pending_payment' (entregado, sin cobrar) no generaba
+  // comisión, pero desde v104 el criterio del admin es _valeGeneraComision
+  // (confirmed + pending_payment): esta sección se quedó con el criterio viejo
+  // y esos vales no salían aquí sí en el admin. Además se excluían los vales
+  // ocultos con "Ocultar historial" (v61) — típico al terminar un ciclo: se
+  // tapa el historial y con él desaparecían las tarjetas de Pendiente y En
+  // sobre con la deuda viva ("las comisiones en sobre las omite y no salen
+  // a pesar de estar todos los vales"). Ahora se cuentan TODOS los vales que
+  // generan comisión, de todos los ciclos, ocultos o no: la deuda es deuda y
+  // solo el admin la quita, cobrándola.
+  const mine=getVales().filter(v=>v&&v.gestorId===activeGestorId&&_valeGeneraComision(v));
   // Solo pendientes (NO en sobre ni cobrado) — fuera del gestor solo se muestra "Pendiente"
   const pendientes=mine.filter(v=>!v.commissionPaid&&v.commissionStatus!=='en_sobre'&&v.commissionStatus!=='cobrado');
   const enSobre=mine.filter(v=>v.commissionStatus==='en_sobre');
@@ -13835,6 +13854,18 @@ function _renderStatsGestorCard(g, vales, from, to) {
     if (pendCom.length) comParts.push(`<span style="color:var(--orange);font-weight:600;">${pendCom.length} pend.</span>`);
     if (enSobre.length) comParts.push(`<span style="color:var(--yellow);font-weight:600;">✉️ ${enSobre.length} en sobre</span>`);
     if (cobrados.length) comParts.push(`<span style="color:var(--green);font-weight:600;">💰 ${cobrados.length} cobrado${cobrados.length!==1?'s':''}</span>`);
+    // v211: el período recorta la lista, pero la deuda no se recorta. Si a este
+    // gestor aún se le debe de FUERA del período elegido (ciclos anteriores,
+    // meses pasados), se dice aquí al lado — que un ciclo rodado no vuelva a
+    // tapar comisiones pendientes en el admin.
+    const _comGlob = _comisionesDe(g.id);
+    const _enPeriodo = new Set(pendCom.concat(enSobre).map(v => v.id));
+    const _fueraPeriodo = _comGlob.pendientes.concat(_comGlob.enSobre).filter(v => !_enPeriodo.has(v.id));
+    if (_fueraPeriodo.length) {
+      const _sF = sumCommissions(_fueraPeriodo);
+      const _bF = fmtComisionBadge(_sF.usd, _sF.mn, _sF.computed, _sF.sinCalcular);
+      comParts.push(`<span style="color:var(--orange);font-weight:600;">⏳ de otros períodos: ${_bF ? escapeHTML(_bF) : _fueraPeriodo.length + ' comisiones'} sin cobrar</span>`);
+    }
     const comHTML = comParts.length ? comParts.join(' · ') : '<span style="color:var(--gray-400);">Sin comisiones en el período</span>';
 
     // Last activity
