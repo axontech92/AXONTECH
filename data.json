@@ -1753,7 +1753,7 @@
       "name": "Nanostation loco m5",
       "catId": 10,
       "photo": "photos/img_1786509569058.webp",
-      "stock": 40,
+      "stock": 39,
       "imagen": "photos/img_1786509569058.webp",
       "nombre": "Nanostation loco m5",
       "precio": "$160",
@@ -2033,7 +2033,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$70",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-04T18:13:26.888Z"
+  "timestamp": "2026-10-04T18:19:05.888Z"
 }
