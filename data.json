@@ -1965,7 +1965,7 @@
       "name": "Camara de vigilancia IP inalambrica",
       "catId": 80,
       "photo": "photos/p-1786893425174-df9f00ac.webp",
-      "stock": 18,
+      "stock": 14,
       "imagen": "photos/p-1786893425174-df9f00ac.webp",
       "nombre": "Camara de vigilancia IP inalambrica",
       "precio": "$25",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-04T16:02:42.158Z"
+  "timestamp": "2026-10-04T16:18:01.144Z"
 }
