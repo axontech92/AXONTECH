@@ -573,7 +573,7 @@
       "name": "Router KUWIFI de linea de 1.150MBPS",
       "catId": 10,
       "photo": "photos/p-1778104287395-885659f8.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1778104287395-885659f8.webp",
       "nombre": "Router KUWIFI de linea de 1.150MBPS",
       "precio": "$130",
@@ -1003,7 +1003,7 @@
       "name": "Camara de vigilancia IP inalambrica",
       "catId": 80,
       "photo": "photos/p-1786893425174-df9f00ac.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/p-1786893425174-df9f00ac.webp",
       "nombre": "Camara de vigilancia IP inalambrica",
       "precio": "$25",
@@ -1054,7 +1054,7 @@
       "name": "Router TP-Link Archer C54 Reacondicionado",
       "catId": 10,
       "photo": "photos/p-1787114204179-dabd97ce.webp",
-      "stock": 4,
+      "stock": 3,
       "imagen": "photos/p-1787114204179-dabd97ce.webp",
       "nombre": "Router TP-Link Archer C54 Reacondicionado",
       "precio": "$70",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-05T13:33:42.747Z"
+  "timestamp": "2026-10-05T13:47:00.788Z"
 }
