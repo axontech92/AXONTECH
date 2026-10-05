@@ -2015,7 +2015,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 31,
+      "stock": 29,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2553,5 +2553,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-05T17:52:55.462Z"
+  "timestamp": "2026-10-05T18:20:41.955Z"
 }
