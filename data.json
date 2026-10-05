@@ -1071,7 +1071,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 5,
+      "stock": 8,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$110",
@@ -2537,5 +2537,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-05T13:47:00.788Z"
+  "timestamp": "2026-10-05T13:48:46.288Z"
 }
