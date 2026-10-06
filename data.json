@@ -2067,7 +2067,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 8,
+      "stock": 6,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$110",
@@ -2179,7 +2179,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-05T22:50:18.471Z"
+  "timestamp": "2026-10-06T13:25:09.703Z"
 }
