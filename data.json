@@ -877,7 +877,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 7,
+      "stock": 6,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -1014,7 +1014,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 617,
+      "stock": 587,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -1099,7 +1099,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 15,
+      "stock": 100,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-06T19:04:55.088Z"
+  "timestamp": "2026-10-06T19:35:35.089Z"
 }
