@@ -877,7 +877,7 @@
       "name": "Ubiquiti LiteAP ac (LAP-120)",
       "catId": 10,
       "photo": "photos/img_1786509303890.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1786509303890.webp",
       "nombre": "Ubiquiti Unifi AC Mesh",
       "precio": "$250",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-06T18:55:03.571Z"
+  "timestamp": "2026-10-06T18:58:43.220Z"
 }
