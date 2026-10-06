@@ -929,7 +929,7 @@
       "name": "Panel de Césped Artificial 25cm x 25cm",
       "catId": 90,
       "photo": "photos/p-1786816725748-a0ff89bd.webp",
-      "stock": 136,
+      "stock": 132,
       "imagen": "photos/p-1786816725748-a0ff89bd.webp",
       "nombre": "Panel de Césped Artificial 25cm x 25cm",
       "precio": "$4",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-06T18:58:43.220Z"
+  "timestamp": "2026-10-06T19:01:33.088Z"
 }
