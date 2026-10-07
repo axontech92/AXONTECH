@@ -1495,7 +1495,7 @@
       "name": "Audifonos Gaming NUBWO",
       "catId": 100,
       "photo": "photos/img_1785078905092.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/img_1785078905092.webp",
       "nombre": "Audifonos Gaming NUBWO",
       "precio": "$50",
@@ -2179,7 +2179,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-07T17:29:32.590Z"
+  "timestamp": "2026-10-07T18:23:54.360Z"
 }
