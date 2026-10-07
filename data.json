@@ -2016,7 +2016,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 29,
+      "stock": 28,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2152,7 +2152,7 @@
       "name": "Toldo malla para sombra marrón 2×7m",
       "catId": 90,
       "photo": "photos/p-1787952316385-a70dcd86.webp",
-      "stock": 2,
+      "stock": 1,
       "imagen": "photos/p-1787952316385-a70dcd86.webp",
       "nombre": "Toldo malla para sombra",
       "precio": "$38",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-06T21:22:16.412Z"
+  "timestamp": "2026-10-07T13:27:52.751Z"
 }
