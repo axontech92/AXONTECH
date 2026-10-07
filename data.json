@@ -497,40 +497,6 @@
   ],
   "productos": [
     {
-      "id": 1780543090267,
-      "name": "AUDÍFONOS ERGONÓMICOS",
-      "catId": 30,
-      "photo": "photos/img_1780543090267.webp",
-      "stock": 0,
-      "imagen": "photos/img_1780543090267.webp",
-      "nombre": "AUDÍFONOS ERGONÓMICOS",
-      "precio": "$10",
-      "puntos": 0.5,
-      "comision": "1500 MN",
-      "garantia": "",
-      "descripcion": "[AUDIO]\nAudífonos ergonómicos, elegantes, táctiles, con 40 horas de bateria, alta calidad de sonido, cancelacion de ruido de ambiente en llamadas, haciendo la voz mas clara y legible en las mismas. Buena calidad de musica y buenos  bajos. Diseño similar a los de  iPhone. Son compactos  y compatibles con todo tipo de telefonos. Se cargan con cable lighting de iphone (incluído en la caja).",
-      "description": "[AUDIO]\nAudífonos ergonómicos, elegantes, táctiles, con 40 horas de bateria, alta calidad de sonido, cancelacion de ruido de ambiente en llamadas, haciendo la voz mas clara y legible en las mismas. Buena calidad de musica y buenos  bajos. Diseño similar a los de  iPhone. Son compactos  y compatibles con todo tipo de telefonos. Se cargan con cable lighting de iphone (incluído en la caja).",
-      "precioActual": 10,
-      "comisionMoneda": "MN"
-    },
-    {
-      "id": 1786509734474,
-      "name": "Mikrotik SXT SA 5 ac",
-      "catId": 10,
-      "photo": "photos/img_1786509734474.webp",
-      "stock": 0,
-      "imagen": "photos/img_1786509734474.webp",
-      "nombre": "Mikrotik SXT SA 5 ac",
-      "precio": "$220",
-      "puntos": 1,
-      "comision": "$10 USD",
-      "garantia": "",
-      "descripcion": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
-      "description": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
-      "precioActual": 220,
-      "comisionMoneda": "USD"
-    },
-    {
       "id": 1777923552923,
       "name": "CARGADOR INTELIGENTE 20A",
       "catId": 20,
@@ -1284,6 +1250,23 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1780543090267,
+      "name": "AUDÍFONOS ERGONÓMICOS",
+      "catId": 30,
+      "photo": "photos/img_1780543090267.webp",
+      "stock": 0,
+      "imagen": "photos/img_1780543090267.webp",
+      "nombre": "AUDÍFONOS ERGONÓMICOS",
+      "precio": "$10",
+      "puntos": 0.5,
+      "comision": "1500 MN",
+      "garantia": "",
+      "descripcion": "[AUDIO]\nAudífonos ergonómicos, elegantes, táctiles, con 40 horas de bateria, alta calidad de sonido, cancelacion de ruido de ambiente en llamadas, haciendo la voz mas clara y legible en las mismas. Buena calidad de musica y buenos  bajos. Diseño similar a los de  iPhone. Son compactos  y compatibles con todo tipo de telefonos. Se cargan con cable lighting de iphone (incluído en la caja).",
+      "description": "[AUDIO]\nAudífonos ergonómicos, elegantes, táctiles, con 40 horas de bateria, alta calidad de sonido, cancelacion de ruido de ambiente en llamadas, haciendo la voz mas clara y legible en las mismas. Buena calidad de musica y buenos  bajos. Diseño similar a los de  iPhone. Son compactos  y compatibles con todo tipo de telefonos. Se cargan con cable lighting de iphone (incluído en la caja).",
+      "precioActual": 10,
+      "comisionMoneda": "MN"
+    },
+    {
       "id": 1780873638627,
       "name": "ROUTER FENVI AX3000 Wi-Fi 6",
       "catId": 10,
@@ -1820,6 +1803,23 @@
       "comisionMoneda": "USD"
     },
     {
+      "id": 1786509734474,
+      "name": "Mikrotik SXT SA 5 ac",
+      "catId": 10,
+      "photo": "photos/img_1786509734474.webp",
+      "stock": 0,
+      "imagen": "photos/img_1786509734474.webp",
+      "nombre": "Mikrotik SXT SA 5 ac",
+      "precio": "$220",
+      "puntos": 1,
+      "comision": "$10 USD",
+      "garantia": "",
+      "descripcion": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
+      "description": "El MikroTik SXT SA 5 ac Internacional Level 4 es un punto de acceso inalámbrico para exteriores diseñado para proporcionar cobertura sectorial de alto rendimiento en la banda de 5 GHz. Gracias a su antena integrada de 90° de apertura horizontal, es ideal para redes WISP, enlaces punto-multipunto y despliegues empresariales que requieren una distribución eficiente de la señal en áreas amplias. Su tecnología 802.11ac (WiFi 5) permite conexiones rápidas, estables y con baja latencia\n\n✅ Tecnología WiFi 5 (802.11ac) de alto rendimiento\n✅ Antena sectorial integrada de 13 dBi con cobertura de 90°\n✅ Puerto Gigabit Ethernet para máximo aprovechamiento del enlace inalámbrico\n✅ RouterOS Nivel 4 para funciones avanzadas de punto de acceso\n✅ Diseño resistente para instalaciones en exteriores\n✅ Alimentación PoE para una instalación sencilla y flexible\n✅ Compatible con redes WISP, CCTV IP, hoteles, condominios y zonas WiFi.",
+      "precioActual": 220,
+      "comisionMoneda": "USD"
+    },
+    {
       "id": 1786509790425,
       "name": "Nanostation m2",
       "catId": 10,
@@ -2179,7 +2179,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2484,7 +2484,7 @@
       "name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]",
       "catId": 10,
       "photo": "photos/p-1790959980548-d7aa8712.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/p-1790959980548-d7aa8712.webp",
       "nombre": "Repetidor TP-Link TL-WA801N / TL-WA801ND",
       "precio": "45",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-07T20:32:48.545Z"
+  "timestamp": "2026-10-07T21:42:28.834Z"
 }
