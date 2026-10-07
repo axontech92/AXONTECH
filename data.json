@@ -1050,7 +1050,7 @@
       "name": "Timbre inteligente",
       "catId": 80,
       "photo": "photos/img_1778384840618.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1778384840618.webp",
       "nombre": "Timbre inteligente",
       "precio": "$25 USD",
@@ -1752,7 +1752,7 @@
       "name": "Mikrotik hap ax3",
       "catId": 10,
       "photo": "photos/img_1786509419466.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/img_1786509419466.webp",
       "nombre": "Mikrotik hap ax3",
       "precio": "$260",
@@ -2179,7 +2179,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-07T19:48:37.834Z"
+  "timestamp": "2026-10-07T19:57:55.833Z"
 }
