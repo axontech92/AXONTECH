@@ -963,7 +963,7 @@
       "name": "KIT de 4 camaras Zosi (sin disco duro)",
       "catId": 80,
       "photo": "photos/img_1778384314795.webp",
-      "stock": 3,
+      "stock": 1,
       "imagen": "photos/img_1778384314795.webp",
       "nombre": "KIT de 4 camaras Zosi (sin disco duro)",
       "precio": "$230",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-08T17:59:42.860Z"
+  "timestamp": "2026-10-08T18:17:48.857Z"
 }
