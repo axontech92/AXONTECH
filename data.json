@@ -1982,7 +1982,7 @@
       "name": "Camara de vigilancia IP inalambrica",
       "catId": 80,
       "photo": "photos/p-1786893425174-df9f00ac.webp",
-      "stock": 12,
+      "stock": 11,
       "imagen": "photos/p-1786893425174-df9f00ac.webp",
       "nombre": "Camara de vigilancia IP inalambrica",
       "precio": "$25",
@@ -2084,7 +2084,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2683,
+      "stock": 2633,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2415,7 +2415,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 98,
+      "stock": 96,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-08T17:03:54.857Z"
+  "timestamp": "2026-10-08T17:11:54.945Z"
 }
