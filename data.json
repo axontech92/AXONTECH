@@ -2067,7 +2067,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$110",
@@ -2084,7 +2084,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 577,
+      "stock": 2683,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-08T01:48:53.153Z"
+  "timestamp": "2026-10-08T15:13:57.857Z"
 }
