@@ -895,7 +895,7 @@
       "name": "Toldo para sombra marrón 2 x 4",
       "catId": 90,
       "photo": "photos/p-1778336859697-c6406584.webp",
-      "stock": 16,
+      "stock": 12,
       "imagen": "photos/p-1778336859697-c6406584.webp",
       "nombre": "Toldo para sombra",
       "precio": "$23",
@@ -2084,7 +2084,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2633,
+      "stock": 2593,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2415,7 +2415,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 96,
+      "stock": 92,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-08T21:00:33.858Z"
+  "timestamp": "2026-10-08T23:25:58.241Z"
 }
