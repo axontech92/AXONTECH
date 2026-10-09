@@ -2033,7 +2033,7 @@
       "name": "Planta de soldar Bielmeier FLUXMAX 140 (3 en 1)",
       "catId": 40,
       "photo": "photos/p-1787114047916-ce51532d.webp",
-      "stock": 3,
+      "stock": 2,
       "imagen": "photos/p-1787114047916-ce51532d.webp",
       "nombre": "Planta de soldar Bielmeier FLUXMAX 140 (3 en 1)",
       "precio": "$275",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-09T18:00:04.923Z"
+  "timestamp": "2026-10-09T18:36:54.772Z"
 }
