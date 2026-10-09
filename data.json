@@ -793,7 +793,7 @@
       "name": "ESTACION DE CARGA PORTÁTIL",
       "catId": 20,
       "photo": "photos/img_1778104924836.webp",
-      "stock": 14,
+      "stock": 13,
       "imagen": "photos/img_1778104924836.webp",
       "nombre": "ESTACION DE CARGA PORTÁTIL",
       "precio": "$640 USD",
@@ -2084,7 +2084,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2593,
+      "stock": 2563,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2415,7 +2415,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 92,
+      "stock": 90,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-09T20:37:32.743Z"
+  "timestamp": "2026-10-09T22:09:47.736Z"
 }
