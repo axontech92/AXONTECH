@@ -674,7 +674,7 @@
       "name": "Router KUWIFI de linea de 1.150MBPS",
       "catId": 10,
       "photo": "photos/p-1778104287395-885659f8.webp",
-      "stock": 2,
+      "stock": 0,
       "imagen": "photos/p-1778104287395-885659f8.webp",
       "nombre": "Router KUWIFI de linea de 1.150MBPS",
       "precio": "$130",
@@ -2067,7 +2067,7 @@
       "name": "Mikrotik SXT sq lite 2",
       "catId": 10,
       "photo": "photos/p-1787265463792-09e56024.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1787265463792-09e56024.webp",
       "nombre": "Mikrotik SXT sq lite 2",
       "precio": "$110",
@@ -2179,7 +2179,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "MN"
+      "comisionMoneda": "USD"
     },
     {
       "id": 1788015580929,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-10T18:38:05.316Z"
+  "timestamp": "2026-10-10T18:40:10.980Z"
 }
