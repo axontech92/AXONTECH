@@ -2484,7 +2484,7 @@
       "name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]",
       "catId": 10,
       "photo": "photos/p-1790959980548-d7aa8712.webp",
-      "stock": 6,
+      "stock": 4,
       "imagen": "photos/p-1790959980548-d7aa8712.webp",
       "nombre": "Repetidor TP-Link TL-WA801N / TL-WA801ND",
       "precio": "45",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-10T13:27:25.746Z"
+  "timestamp": "2026-10-10T13:30:51.095Z"
 }
