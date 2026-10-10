@@ -1390,7 +1390,7 @@
       "name": "Ventilador de techo",
       "catId": 90,
       "photo": "photos/img_1781365135486.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1781365135486.webp",
       "nombre": "Ventilador de techo",
       "precio": "$35",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-10T19:30:27.315Z"
+  "timestamp": "2026-10-10T20:37:15.317Z"
 }
