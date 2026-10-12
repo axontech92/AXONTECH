@@ -606,7 +606,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 17,
+      "stock": 16,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -2084,7 +2084,7 @@
       "name": "Cable de red categoría 6",
       "catId": 10,
       "photo": "photos/p-1787349543585-d9deb06c.webp",
-      "stock": 2428,
+      "stock": 2458,
       "imagen": "photos/p-1787349543585-d9deb06c.webp",
       "nombre": "Cable de red categoría 6",
       "precio": "280 cup",
@@ -2415,7 +2415,7 @@
       "name": "Puntas de cable de red",
       "catId": 10,
       "photo": "",
-      "stock": 71,
+      "stock": 73,
       "nombre": "Puntas de cable de red",
       "precio": "200 cup",
       "puntos": 0,
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-11T19:30:24.702Z"
+  "timestamp": "2026-10-12T13:45:53.806Z"
 }
