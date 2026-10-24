@@ -9,7 +9,7 @@ const IS_ADMIN = document.body.dataset.page === 'admin';
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 212;
+const APP_VERSION = 211;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -20,7 +20,7 @@ const APP_VERSION = 212;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v15.8';
+let _PUBLIC_VERSION_STR = 'v15.7';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -82,7 +82,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = 'a46b8e85832a8cee';
+let _LOCAL_BUILD_HASH = '1a266e019f26a89d';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -4078,6 +4078,8 @@ function buildCatalogHTML() {
       return p;
     });
   }
+  allProds=allProds.filter(p=>!_prodOcultoPorCategoria(p));   // categorías desactivadas
+  if(!allProds.length) return null;
   const cfg=getConfig();
   // v140: solo dígitos. El número va tal cual dentro de un href del catálogo
   // público (mismo dominio que el panel del admin): cualquier otra cosa era una
@@ -11888,7 +11890,7 @@ function openProductPicker() {
 }
 function closeProductPicker(){document.getElementById('productPickerModal').classList.remove('show');}
 function renderPickerCatTabs() {
-  const cats=getCategorias();
+  const cats=getCategorias().filter(c=>c.activa!==false);
   document.getElementById('pickerCatTabs').innerHTML=
     `<button class="pcat-tab ${pickerCatFilter===null?'active':''}" onclick="setPickerCat(null)">Todos</button>`+
     cats.map(c=>`<button class="pcat-tab ${pickerCatFilter===c.id?'active':''}" onclick="setPickerCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
@@ -11896,7 +11898,7 @@ function renderPickerCatTabs() {
 function setPickerCat(id){pickerCatFilter=id;renderPickerCatTabs();renderPickerProducts();}
 function renderPickerProducts() {
   const search=document.getElementById('pickerSearch').value.toLowerCase();
-  let prods=getProductos();
+  let prods=getProductos().filter(p=>!_prodOcultoPorCategoria(p));   // categorías desactivadas
   if(pickerCatFilter!==null)prods=prods.filter(p=>p.catId===pickerCatFilter);
   if(search)prods=prods.filter(p=>p.name.toLowerCase().includes(search)||(p.description||'').toLowerCase().includes(search));
   // Sort: disponibles primero, totalmente reservados y agotados al final
@@ -12148,6 +12150,20 @@ function _recalcularComisionFormulario() {
 // ══════════════════════════════════════════
 //  STOCK PANEL
 // ══════════════════════════════════════════
+// ── Categorías activas / inactivas ──────────────────────────────────────────
+// Una categoría desactivada (activa === false) no se borra: sus productos dejan
+// de verse en lo que ven los GESTORES (catálogo, selector de productos del vale)
+// y en el catálogo público / PDF. El admin lo sigue viendo todo, con una marca.
+const catActiva = id => { const c = getCategorias().find(x => x.id === id); return !c || c.activa !== false; };
+const _prodOcultoPorCategoria = p => !!p && p.catId != null && !catActiva(p.catId);
+function toggleCategoriaActiva(id) {
+  const list = getCategorias().map(c => c.id === id ? { ...c, activa: c.activa === false } : c);
+  const cat = list.find(c => c.id === id); if (!cat) return;
+  guardarCategorias(list, [id]);
+  try { triggerAutoPublishCatalog(); } catch(e) {}
+  renderStockCategorias(); renderProductGrid();
+  showToast(cat.activa === false ? '🚫 ' + cat.name + ' desactivada · los gestores ya no la ven' : '✅ ' + cat.name + ' activada');
+}
 function renderStockCategorias() {
   const cats=getCategorias();
   const prods=getProductos();
@@ -12159,7 +12175,8 @@ function renderStockCategorias() {
     </button>`+
     cats.map(cat=>{
       const count=prods.filter(p=>p.catId===cat.id).length;
-      return `<button type="button" class="pcat-tab ${stockCatFilter===cat.id?'active':''}" onclick="setStockCat(${cat.id})" style="flex-shrink:0;">${escapeHTML(cat.name)} <span style="opacity:.7;">(${count})</span></button>`;
+      const off=cat.activa===false;
+      return `<button type="button" class="pcat-tab ${stockCatFilter===cat.id?'active':''}" onclick="setStockCat(${cat.id})" style="flex-shrink:0;${off?'opacity:.55;text-decoration:line-through;':''}" title="${off?'Desactivada: los gestores no la ven':''}">${off?'🚫 ':''}${escapeHTML(cat.name)} <span style="opacity:.7;">(${count})</span></button>`;
     }).join('');
   // Render cat manager list if visible
   const mgr=document.getElementById('catManagerList');
@@ -12167,11 +12184,21 @@ function renderStockCategorias() {
     mgr.innerHTML=cats.length?cats.map(cat=>{
       const count=prods.filter(p=>p.catId===cat.id).length;
       return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;">
-        <span style="font-size:12px;font-weight:600;">${escapeHTML(cat.name)} <span style="font-size:10px;color:var(--text-muted);">(${count} producto${count!==1?'s':''})</span></span>
-        <button type="button" class="btn btn-sm" style="background:rgba(239,68,68,.1);color:var(--red);border:none;font-size:11px;padding:3px 9px;" onclick="removeCategoria(${cat.id})">🗑️ Borrar</button>
+        <span style="font-size:12px;font-weight:600;${cat.activa===false?'opacity:.55;':''}">${escapeHTML(cat.name)} <span style="font-size:10px;color:var(--text-muted);">(${count} producto${count!==1?'s':''})</span></span>
+        <span style="display:flex;gap:6px;align-items:center;">
+          ${_btnToggleCat(cat)}
+          <button type="button" class="btn btn-sm" style="background:rgba(239,68,68,.1);color:var(--red);border:none;font-size:11px;padding:3px 9px;" onclick="removeCategoria(${cat.id})">🗑️ Borrar</button>
+        </span>
       </div>`;
     }).join(''):'<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin categorías creadas.</div>';
   }
+  // Interruptor de la categoría elegida, junto al título (sin abrir "Gestionar").
+  const tg=document.getElementById('stockCatToggle');
+  if(tg){const cat=cats.find(x=>x.id===stockCatFilter);tg.innerHTML=cat?_btnToggleCat(cat):'';}
+}
+function _btnToggleCat(cat){
+  const on=cat.activa!==false;
+  return `<button type="button" class="btn btn-sm" title="${on?'Visible para los gestores · toca para desactivar':'Oculta para los gestores · toca para activar'}" style="border:1px solid ${on?'var(--green)':'var(--red)'};background:${on?'rgba(16,185,129,.12)':'rgba(239,68,68,.1)'};color:${on?'var(--green)':'var(--red)'};font-size:11px;font-weight:700;padding:3px 9px;" onclick="toggleCategoriaActiva(${cat.id})">${on?'✅ Activa':'🚫 Inactiva'}</button>`;
 }
 let catManagerOpen=false;
 function toggleCatManager(){
@@ -12275,12 +12302,15 @@ function buildProdCard(p, cats, isAgotado) {
         <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
           <span class="prod-name" style="margin:0;font-size:14px;">${escapeHTML(p.name)}</span>
           ${_esProductoNuevo(p)?_BADGE_NUEVO:''}
-          ${cat?`<span class="prod-cat-tag" style="font-size:9px;">${escapeHTML(cat.name)}</span>`:''}
+          ${cat?`<span class="prod-cat-tag" style="font-size:9px;${cat.activa===false?'opacity:.6;':''}" ${cat.activa===false?'title="Categoría desactivada: los gestores no la ven"':''}>${cat.activa===false?'🚫 ':''}${escapeHTML(cat.name)}</span>`:''}
           ${reservedBadge}
         </div>
         <div style="display:flex;align-items:center;gap:9px;margin-top:3px;flex-wrap:wrap;">
           ${p.precio?`<span class="prod-price" style="margin:0;font-size:11px;">${escapeHTML(p.precio)}</span>`:''}
         ${p.comision?`<span style="font-size:10px;color:var(--green);font-weight:600;">💰 ${escapeHTML(p.comision)}</span>`:''}
+        ${IS_ADMIN?(()=>{const cl=comLocalDe(p.id);return cl.unit>0
+          ?`<span style="font-size:10px;color:var(--green);font-weight:600;" title="Comisión por venta en local">🏪 ${escapeHTML(_fmtComLocal(cl.unit,cl.mon))}</span>`
+          :`<span style="font-size:10px;color:#b45309;font-weight:700;background:rgba(245,158,11,.16);border-radius:10px;padding:1px 7px;cursor:pointer;" onclick="openEditProductModal(${p.id})" title="Este producto no tiene comisión por venta en local. Toca para ponérsela.">⚠️ Sin comisión local</span>`;})():''}
         ${p.puntos?`<span style="font-size:10px;color:var(--blue);font-weight:600;">⭐ ${p.puntos} pts</span>`:''}
         ${p.garantia?`<span style="font-size:10px;color:var(--gray-400);">🛡️ ${escapeHTML(p.garantia)}</span>`:''}
         </div>
@@ -15474,7 +15504,7 @@ function openGestorCatalog() {
 }
 function toggleCatalogItem(id){expandedCatalogId=expandedCatalogId===id?null:id;renderGestorCatalog();}
 function renderCatalogCatTabs() {
-  const cats=getCategorias();
+  const cats=getCategorias().filter(c=>c.activa!==false);
   document.getElementById('catalogCatTabs').innerHTML=
     `<button class="pcat-tab ${catalogCatFilter===null?'active':''}" onclick="setCatalogCat(null)">Todos</button>`+
     cats.map(c=>`<button class="pcat-tab ${catalogCatFilter===c.id?'active':''}" onclick="setCatalogCat(${c.id})">${escapeHTML(c.name)}</button>`).join('');
@@ -15496,6 +15526,7 @@ function renderGestorCatalog() {
     }
     return cp;
   });
+  allProds = allProds.filter(p => !_prodOcultoPorCategoria(p));   // categorías desactivadas
   // v35: Filter out agotados by default
   let prods = _showAgotados ? allProds : allProds.filter(p => (p.stock || 0) > 0);
   if(catalogCatFilter!==null)prods=prods.filter(p=>p.catId===catalogCatFilter);
@@ -15563,7 +15594,7 @@ function renderGestorCatalog() {
 // ══════════════════════════════════════════
 function generateCatalogPDF() {
   const cats = getCategorias();
-  const prods = getProductos().filter(p => (p.stock || 0) > 0);
+  const prods = getProductos().filter(p => (p.stock || 0) > 0 && !_prodOcultoPorCategoria(p));
   if (!prods.length) { showToast('No hay productos disponibles para generar PDF'); return; }
 
   // v35: Build rich printable HTML with product photos, prices, and full descriptions
