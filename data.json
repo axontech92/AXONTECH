@@ -1101,7 +1101,7 @@
       "name": "CASA DE CAMPAÑA LIGERA",
       "catId": 40,
       "photo": "photos/img_1778820912552.webp",
-      "stock": 0,
+      "stock": 5,
       "imagen": "photos/img_1778820912552.webp",
       "nombre": "CASA DE CAMPAÑA LIGERA",
       "precio": "$100 USD",
@@ -2484,7 +2484,7 @@
       "name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]",
       "catId": 10,
       "photo": "photos/p-1790959980548-d7aa8712.webp",
-      "stock": 3,
+      "stock": 0,
       "imagen": "photos/p-1790959980548-d7aa8712.webp",
       "nombre": "Repetidor TP-Link TL-WA801N / TL-WA801ND",
       "precio": "45",
@@ -2554,5 +2554,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-13T18:23:16.760Z"
+  "timestamp": "2026-10-24T02:24:42.506Z"
 }
