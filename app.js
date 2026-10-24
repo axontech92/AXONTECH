@@ -6429,7 +6429,7 @@ function logoutAdmin() {
 // ══════════════════════════════════════════
 function adminTab(tab) {
   currentAdminTab=tab;
-  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa','directas','ayuda'].forEach(t=>{
+  ['vales','stock','gestores','duenos','stats','mensajeros','config','historial','catalog','estafa','directas','comlocal','ayuda'].forEach(t=>{
     const btn=document.getElementById('anav-'+t);if(btn)btn.classList.toggle('active',t===tab);
     const pid='admin'+t.charAt(0).toUpperCase()+t.slice(1)+'Panel';
     const el=document.getElementById(pid);
@@ -6448,6 +6448,7 @@ function adminTab(tab) {
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
   if(tab==='directas'){_vdLlenarSelector();vdRefresca();renderVentasDirectas();}
+  if(tab==='comlocal'){renderComisionLocal();}
   if(tab==='ayuda'){renderAyuda();}
 }
 
@@ -12421,6 +12422,8 @@ function openAddProductModal() {
   ['pm-name','pm-desc','pm-precio','pm-costo','pm-dueno','pm-foto','pm-garantia','pm-comision'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('pm-comision-amount').value='';
   document.getElementById('pm-comision-currency').value='USD';
+  {const a=document.getElementById('pm-comisionLocal-amount');if(a)a.value='';
+   const c=document.getElementById('pm-comisionLocal-currency');if(c)c.value='USD';}
   document.getElementById('pm-stock').value='0';document.getElementById('pm-puntos').value='0';
   document.getElementById('pm-foto-file').value='';
   _pintarFotoProducto('');
@@ -12496,6 +12499,9 @@ function openEditProductModal(id) {
    const numParsed=parseFloat(com.replace(/[^0-9.]/g,'')); const num=isNaN(numParsed)?'':numParsed;
    document.getElementById('pm-comision-amount').value=num;
    document.getElementById('pm-comision-currency').value=isMN?'MN':'USD';}
+  {const cl=comLocalDe(id);   // vive aparte del producto, ver getComLocal
+   const a=document.getElementById('pm-comisionLocal-amount');if(a)a.value=cl.unit>0?cl.unit:'';
+   const c=document.getElementById('pm-comisionLocal-currency');if(c)c.value=cl.mon;}
   document.getElementById('pm-foto').value=p.photo||'';
   document.getElementById('pm-foto-file').value='';
   populateCatSelect(p.catId);
@@ -12973,10 +12979,14 @@ async function saveProduct() {
   // v114: el costo NO va dentro del producto —ver la nota en getCostos()— así
   // que se guarda aparte, con el id que le toque.
   const costoEscrito=(document.getElementById('pm-costo')||{value:''}).value.trim();
+  // Comisión por venta en local: igual que el costo, NO va dentro del producto.
+  const _clAmt=parseFloat((document.getElementById('pm-comisionLocal-amount')||{}).value)||0;
+  const _clMon=((document.getElementById('pm-comisionLocal-currency')||{}).value)==='MN'?'MN':'USD';
   const duenoElegido=(document.getElementById('pm-dueno')||{value:''}).value;
   if(editingProductId){
     const old=productoOf(editingProductId);
     setCosto(editingProductId,costoEscrito);
+    setComLocal(editingProductId,_clAmt,_clMon);
     // v139: solo si de verdad se cambió en el desplegable. Guardar el precio no
     // tiene por qué reescribir el dueño.
     if(String(duenoElegido)!==(duenoIdDe(editingProductId)==null?'':String(duenoIdDe(editingProductId)))) setDuenoProducto(editingProductId,duenoElegido);
@@ -12989,6 +12999,7 @@ async function saveProduct() {
   } else {
     const newId=Date.now();
     setCosto(newId,costoEscrito);
+    setComLocal(newId,_clAmt,_clMon);
     setDuenoProducto(newId,duenoElegido);
     // v136: si no se avisa, tampoco lleva la chapa 💎 NUEVO — sería el mismo
     // aviso por otro camino.
@@ -13192,6 +13203,7 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
   const all = getVales(); all.push(vale); saveVales(all);
   // Nace ya confirmada, así que no pasa por patchVale: el costo se congela aquí.
   try { _congelarCostoVale(vale); } catch(e) {}
+  try { _congelarComLocalVenta(vale); } catch(e) {}   // comisión en local, fuera del vale
   _logAudit('direct_sale', 'product:' + pid + ' qty:' + qty);
   statsTabDirty = true;
   return vale;
@@ -13278,6 +13290,7 @@ function borrarVentaDirecta(id) {
     // poll no lo resucite, y mandar el DELETE de verdad a la nube.
     try { _valesDirectDeleting.add(String(id)); } catch(e) {}
     saveVales(getVales().filter(x => x.id !== id));
+    try { _olvidarComLocalVenta(id); } catch(e) {}
     _logAudit('direct_sale_undo', 'vale:' + id);
     statsTabDirty = true;
     showToast('Venta deshecha');
@@ -13286,8 +13299,8 @@ function borrarVentaDirecta(id) {
   });
 }
 
-function _vdRango() {
-  const modo = ((document.getElementById('vdPeriodo') || {}).value) || 'mes';
+function _vdRango(selId) {
+  const modo = ((document.getElementById(selId || 'vdPeriodo') || {}).value) || 'mes';
   const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
   if (modo === 'todo') return { desde: 0, label: 'de siempre' };
   if (modo === 'hoy')  return { desde: hoy.getTime(), label: 'de hoy' };
@@ -13355,6 +13368,223 @@ function renderVentasDirectas() {
     </div>`;
   }).join('');
 }
+// ══════════════════════════════════════════
+//  COMISIÓN POR VENTA EN LOCAL
+// ══════════════════════════════════════════
+// Cada producto puede pagar una comisión por unidad cuando se vende en el local
+// (campo de la ficha del producto). Se guarda como el costo: en el documento
+// admin `costos` (ver getCostos), NO dentro del producto ni del vale, porque
+// ambos se los baja el teléfono del gestor y esto es cosa tuya. Claves
+// reservadas, que nunca chocan con un id de producto:
+//   _cl  : { productoId: { m: monto por unidad, c: 'USD'|'MN' } }
+//   _clv : { valeId: { l: [{id, n, q, u, c}], p: fechaDePago } }
+//            l = las líneas con la comisión CONGELADA el día de la venta (si
+//            mañana cambia la ficha, lo ya vendido no cambia); p = cuándo se
+//            pagó (ausente = pendiente).
+// Las dos monedas van siempre por separado: sumarlas sería mentir.
+function _comDocEscribir(doc) {
+  _safeSetLS('axon_costos', JSON.stringify(doc));
+  _costosCache = doc; _costosDirty = false;
+  setSB('costos', doc);
+}
+function comLocalDe(pid) {
+  const r = (getCostos()._cl || {})[String(pid)];
+  const m = r ? parseFloat(r.m) : 0;
+  return { unit: m > 0 ? m : 0, mon: r && String(r.c).toUpperCase() === 'MN' ? 'MN' : 'USD' };
+}
+function setComLocal(pid, monto, mon) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  const m = parseFloat(monto) || 0;
+  const doc = { ...getCostos() };
+  const cl = { ...(doc._cl || {}) };
+  const antes = JSON.stringify(cl[String(pid)] || null);
+  if (m > 0) cl[String(pid)] = { m, c: mon === 'MN' ? 'MN' : 'USD' }; else delete cl[String(pid)];
+  if (JSON.stringify(cl[String(pid)] || null) === antes) return false;
+  doc._cl = cl;
+  _comDocEscribir(doc);
+  return true;
+}
+// Si algún producto trae el campo dentro (versión anterior), se saca de ahí.
+function _rescatarComLocalDelProducto() {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const dentro = getProductos().filter(p => p && parseFloat(p.comisionLocal) > 0);
+  if (!dentro.length) return;
+  const doc = { ...getCostos() }; const cl = { ...(doc._cl || {}) };
+  dentro.forEach(p => { if (!cl[String(p.id)]) cl[String(p.id)] = { m: parseFloat(p.comisionLocal), c: String(p.comisionLocalMoneda).toUpperCase() === 'MN' ? 'MN' : 'USD' }; });
+  doc._cl = cl; _comDocEscribir(doc);
+  dentro.forEach(p => patchProducto(p.id, { comisionLocal: null, comisionLocalMoneda: null }));
+}
+// Congela las líneas de una venta directa con la comisión de HOY.
+function _lineasComLocalHoy(v) {
+  return (v.valeProductos || []).filter(Boolean).map(it => {
+    const c = comLocalDe(it.id), p = productoOf(it.id);
+    return { id: it.id, n: (p && p.name) || it.name || '', q: Math.max(0, parseInt(it.qty, 10) || 0), u: c.unit, c: c.mon };
+  });
+}
+function _congelarComLocalVenta(v) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN || !v) return false;
+  const doc = { ...getCostos() };
+  if (doc._clv && doc._clv[String(v.id)]) return false;
+  const l = _lineasComLocalHoy(v);
+  if (!l.some(x => x.u > 0)) return false;     // nada que pagar, nada que guardar
+  doc._clv = { ...(doc._clv || {}), [String(v.id)]: { l } };
+  _comDocEscribir(doc);
+  return true;
+}
+function _olvidarComLocalVenta(id) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return false;
+  const doc = { ...getCostos() };
+  if (!doc._clv || !(String(id) in doc._clv)) return false;
+  doc._clv = { ...doc._clv }; delete doc._clv[String(id)];
+  _comDocEscribir(doc);
+  return true;
+}
+// Lo que paga una venta: congelado si lo hay (y entonces puede estar pagada);
+// si no (ventas anteriores a esta función), la ficha de hoy y pendiente.
+function _comLocalDeVenta(v) {
+  const reg = (getCostos()._clv || {})[String(v.id)];
+  const lineas = reg ? (reg.l || []) : _lineasComLocalHoy(v);
+  let usd = 0, mn = 0;
+  const out = lineas.map(l => {
+    const total = (parseFloat(l.u) || 0) * (parseFloat(l.q) || 0);
+    const mon = String(l.c).toUpperCase() === 'MN' ? 'MN' : 'USD';
+    if (mon === 'MN') mn += total; else usd += total;
+    return { id: l.id, nombre: l.n || 'Producto borrado', qty: parseFloat(l.q) || 0, unit: parseFloat(l.u) || 0, mon, total };
+  });
+  return { lineas: out, usd, mn, pagada: reg && reg.p ? reg.p : '' };
+}
+function _fmtComLocal(n, mon) {
+  return mon === 'MN' ? _fmtMonto(0, n) : _fmtMonto(n, 0);
+}
+function _ventasDelPeriodoCL() {
+  const { desde, label } = _vdRango('clPeriodo');
+  const ventas = getVales()
+    .filter(esVentaDirecta)
+    .filter(v => new Date(v.confirmedTs || v.ts).getTime() >= desde)
+    .sort((a, b) => new Date(b.confirmedTs || b.ts) - new Date(a.confirmedTs || a.ts));
+  return { ventas, label };
+}
+// Marca como pagadas (o pendientes) estas ventas. Si alguna es anterior a esta
+// función y no tiene registro, se congela con la ficha de hoy al pagarla.
+function _marcarComLocal(ids, pagada) {
+  if (typeof IS_ADMIN === 'undefined' || !IS_ADMIN) return;
+  const doc = { ...getCostos() }; const clv = { ...(doc._clv || {}) };
+  const ahora = new Date().toISOString(); let n = 0;
+  ids.forEach(id => {
+    const v = getVales().find(x => String(x.id) === String(id));
+    if (!v) return;
+    let reg = clv[String(id)];
+    if (!reg) { const l = _lineasComLocalHoy(v); if (!l.some(x => x.u > 0)) return; reg = { l }; }
+    reg = { ...reg };
+    if (pagada) reg.p = ahora; else delete reg.p;
+    clv[String(id)] = reg; n++;
+  });
+  if (!n) return;
+  doc._clv = clv; _comDocEscribir(doc);
+  _logAudit(pagada ? 'comlocal_pagada' : 'comlocal_deshecha', n + ' venta(s)');
+  renderComisionLocal();
+}
+function pagarComLocal(id) { _marcarComLocal([id], true); showToast('Comisión marcada como pagada ✓'); }
+function deshacerPagoComLocal(id) { _marcarComLocal([id], false); showToast('Vuelve a estar pendiente'); }
+function pagarTodoComLocal() {
+  const { ventas, label } = _ventasDelPeriodoCL();
+  const pend = ventas.map(v => ({ v, c: _comLocalDeVenta(v) })).filter(x => (x.c.usd > 0 || x.c.mn > 0) && !x.c.pagada);
+  if (!pend.length) { showToast('No hay comisiones pendientes'); return; }
+  let usd = 0, mn = 0; pend.forEach(x => { usd += x.c.usd; mn += x.c.mn; });
+  showConfirmAction('¿Marcar todo como pagado?',
+    `${pend.length} venta${pend.length > 1 ? 's' : ''} ${escapeHTML(label)} · <b>${escapeHTML(_fmtMonto(usd, mn))}</b>`,
+    'Marcar pagado', 'btn-green', () => { _marcarComLocal(pend.map(x => x.v.id), true); showToast('Todo marcado como pagado ✓'); });
+}
+function renderComisionLocal() {
+  const resumen = document.getElementById('clResumen');
+  const porProd = document.getElementById('clPorProducto');
+  const lista = document.getElementById('clLista');
+  if (!lista) return;
+  const { ventas, label } = _ventasDelPeriodoCL();
+
+  let pUSD = 0, pMN = 0, gUSD = 0, gMN = 0, uds = 0, sinCom = 0, nPend = 0;
+  const prods = new Map();   // solo lo PENDIENTE, por producto
+  const filas = ventas.map(v => {
+    const c = _comLocalDeVenta(v);
+    const tiene = c.usd > 0 || c.mn > 0;
+    c.lineas.forEach(l => { uds += l.qty; if (!(l.unit > 0)) sinCom += l.qty; });
+    if (tiene) {
+      if (c.pagada) { gUSD += c.usd; gMN += c.mn; }
+      else {
+        pUSD += c.usd; pMN += c.mn; nPend++;
+        c.lineas.filter(l => l.unit > 0).forEach(l => {
+          const k = String(l.id);
+          const r = prods.get(k) || { nombre: l.nombre, uds: 0, unit: l.unit, mon: l.mon, usd: 0, mn: 0 };
+          r.uds += l.qty; if (l.mon === 'MN') r.mn += l.total; else r.usd += l.total;
+          prods.set(k, r);
+        });
+      }
+    }
+    return { v, c, tiene };
+  });
+
+  const caja = (tit, val, color) => `<div style="flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">${tit}</div>
+      <div style="font-size:17px;font-weight:900;color:${color};margin-top:3px;">${escapeHTML(val)}</div></div>`;
+  if (resumen) {
+    resumen.innerHTML = ventas.length ? `
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${caja('Pendiente de pagar ' + escapeHTML(label), _fmtMonto(pUSD, pMN), (pUSD || pMN) ? 'var(--orange)' : 'var(--gray-400)')}
+        ${caja('Ya pagado', _fmtMonto(gUSD, gMN), 'var(--green)')}
+        <div style="flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">Ventas / unidades</div>
+          <div style="font-size:17px;font-weight:900;margin-top:3px;">${ventas.length} · ${uds} u.</div>
+          ${sinCom ? `<div style="font-size:9px;color:var(--text-muted);margin-top:2px;">${sinCom} u. de productos sin comisión en local</div>` : ''}
+        </div>
+      </div>
+      ${nPend ? `<button class="btn btn-green btn-full" style="margin-top:10px;" onclick="pagarTodoComLocal()">✓ Marcar todo lo pendiente como pagado (${nPend})</button>` : ''}` : '';
+  }
+
+  if (porProd) {
+    const arr = [...prods.values()].sort((a, b) => (b.usd + b.mn) - (a.usd + a.mn));
+    porProd.innerHTML = arr.length ? `
+      <div class="lbl" style="margin-top:14px;">Pendiente, por producto</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:6px;">
+        ${arr.map(r => `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);">
+          <div style="min-width:0;">
+            <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(r.nombre)}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${r.uds} u. × ${escapeHTML(_fmtComLocal(r.unit, r.mon))}</div>
+          </div>
+          <div style="font-size:14px;font-weight:900;color:var(--orange);white-space:nowrap;">${escapeHTML(_fmtMonto(r.usd, r.mn))}</div>
+        </div>`).join('')}
+      </div>` : '';
+  }
+
+  if (!ventas.length) {
+    lista.innerHTML = `<div style="background:var(--surface);border:1px dashed var(--border);border-radius:10px;padding:22px;text-align:center;font-size:12px;color:var(--text-muted);">
+      Todavía no hay ventas en local ${escapeHTML(label)}.</div>`;
+    return;
+  }
+  lista.innerHTML = `<div class="lbl" style="margin-top:14px;">Cada venta</div>` + filas.map(({ v, c, tiene }) => {
+    const d = new Date(v.confirmedTs || v.ts);
+    const pagada = !!c.pagada;
+    let accion = '';
+    if (tiene) {
+      accion = pagada
+        ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+             <span style="font-size:11px;color:var(--green);font-weight:700;">✓ Pagada ${escapeHTML(new Date(c.pagada).toLocaleDateString('es-ES'))}</span>
+             <button class="btn btn-ghost btn-sm" style="font-size:11px;" onclick="deshacerPagoComLocal(${v.id})">↩️ Deshacer</button></div>`
+        : `<button class="btn btn-green btn-sm" style="margin-top:8px;font-size:12px;" onclick="pagarComLocal(${v.id})">✓ Marcar como pagada</button>`;
+    }
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;${pagada ? 'opacity:.6;' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+        <div style="font-size:11px;color:var(--text-muted);">${d.toLocaleDateString('es-ES')} ${timeStr(d.getTime())}${valeNumStr(v) ? ' · ' + escapeHTML(valeNumStr(v)) : ''}</div>
+        <div style="font-size:14px;font-weight:900;color:${!tiene ? 'var(--gray-400)' : pagada ? 'var(--green)' : 'var(--orange)'};white-space:nowrap;">${tiene ? escapeHTML(_fmtMonto(c.usd, c.mn)) : 'Sin comisión'}</div>
+      </div>
+      ${c.lineas.map(l => `<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;margin-top:4px;">
+        <span>${escapeHTML(l.nombre)} <span style="color:var(--text-muted);">x${l.qty}</span></span>
+        <span style="color:var(--text-muted);white-space:nowrap;">${l.unit > 0 ? escapeHTML(_fmtComLocal(l.unit, l.mon)) + ' c/u' : '—'}</span>
+      </div>`).join('')}
+      ${accion}
+    </div>`;
+  }).join('');
+}
+
 // ── v70: ajuste de stock con modal propio ───────────────────────────────────
 // Antes esto era un prompt() del navegador que pedía el valor ABSOLUTO: con 5
 // unidades en almacén y una entrada de 10, había que escribir 15 calculándolo de
@@ -16367,6 +16597,22 @@ function renderHistorialGanadoresAdmin() {
 }
 function renderGestorRanking() {
   const c=document.getElementById('rankingList');if(!c)return;
+  // Con la meta desactivada ("Sin meta") no hay competencia: el apartado de
+  // ranking no se enseña a los gestores. Se oculta la columna entera (no solo
+  // la lista) y se restaura al volver a activar un modo. El admin sigue viendo
+  // los puntos en su panel de gestores.
+  {
+    const _off = metaModo() === 'off';
+    const _col = document.getElementById('rankingColumn');
+    const _sec = document.getElementById('gestorRankingSection');
+    // Sin ranking, la lista de gestores usa todo el ancho en tarjetas cuadradas
+    // (ver .sin-ranking en app.css) en vez de una columna estrecha y vacía al lado.
+    const _lay = document.getElementById('layoutGestor');
+    if (_lay) _lay.classList.toggle('sin-ranking', _off);
+    if (_col) _col.style.display = _off ? 'none' : '';
+    if (_sec) _sec.style.display = _off ? 'none' : '';
+    if (_off) { c.innerHTML = ''; return; }
+  }
   const gestores=getGestores();
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-text">Sin gestores configurados</div></div>';return;}
   const meta=getConfig().metaPuntos||0;
@@ -19614,7 +19860,7 @@ async function init() {
     // el admin puede hacerlo: es el único que tiene el token de GitHub.
     setTimeout(() => { _aligerarCatalogoAuto().catch(() => {}); }, 8000);
     // v114: rescatar los costos que hubieran quedado dentro del producto.
-    setTimeout(() => { try { _rescatarCostosDelProducto(); } catch(e) {} }, 9000);
+    setTimeout(() => { try { _rescatarCostosDelProducto(); _rescatarComLocalDelProducto(); } catch(e) {} }, 9000);
     // v119: y los dueños que se quedaron sin subir — ver _rescatarDuenosNoSubidos.
     setTimeout(() => { _rescatarDuenosNoSubidos().catch(() => {}); }, 10000);
     // v119: ¿cambió el mes desde la última vez? Entonces toca proclamar al

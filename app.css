@@ -577,6 +577,32 @@ body.dark .g-pin-label{color:#fcd34d;background:rgba(245,158,11,.22);}
   #gestoresList .g-item-pinned .g-name{font-size:13px;}
 }
 
+/* Sin meta → sin ranking: los gestores pasan a tarjetas cuadradas a todo el ancho,
+   para no dejar media pantalla en blanco. Solo en la pantalla de elegir gestor. */
+#layoutGestor.sin-ranking:not(.has-gestor){grid-template-columns:1fr;max-width:820px;}
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;
+}
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item{
+  margin-bottom:0;aspect-ratio:1/1;flex-direction:column;justify-content:center;
+  text-align:center;gap:8px;padding:10px 8px;position:relative;
+}
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item .g-avatar{width:52px;height:52px;font-size:17px;}
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item .g-name{
+  flex:0 0 auto;font-size:13px;text-align:center;line-height:1.2;
+}
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item .g-badge{position:absolute;top:6px;left:8px;}
+/* el fijado destaca ocupando dos casillas */
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item-pinned{grid-column:span 2;aspect-ratio:auto;}
+#layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item-pinned .g-avatar{width:60px;height:60px;font-size:19px;}
+#layoutGestor.sin-ranking:not(.has-gestor) .g-change{max-width:260px;margin:12px auto 0;}
+@media (max-width:640px){
+  #layoutGestor.sin-ranking:not(.has-gestor) #gestoresList{grid-template-columns:repeat(3,1fr);gap:8px;}
+  #layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item .g-avatar{width:40px;height:40px;font-size:13px;}
+  #layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item .g-name{font-size:11px;}
+  #layoutGestor.sin-ranking:not(.has-gestor) #gestoresList .g-item-pinned .g-avatar{width:46px;height:46px;font-size:15px;}
+}
+
 /* ── Vale form ── */
 .vale-form-header{margin-bottom:12px;}
 .vale-form-header h2{font-size:16px;color:var(--blue-dk);font-weight:800;}

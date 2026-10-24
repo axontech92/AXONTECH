@@ -98,6 +98,7 @@
     <button class="anav-btn" id="anav-gestores" onclick="adminTab('gestores')">👥 Gestores</button>
     <button class="anav-btn" id="anav-mensajeros" onclick="adminTab('mensajeros')">🛵 Mensajeros<span id="mensajeroBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;margin-left:4px;"></span></button>
     <button class="anav-btn" id="anav-directas" onclick="adminTab('directas')">🏪 Ventas directas</button>
+    <button class="anav-btn" id="anav-comlocal" onclick="adminTab('comlocal')">💵 Comisión local</button>
     <button class="anav-btn" id="anav-duenos" onclick="adminTab('duenos')">🧑‍💼 Dueños</button>
     <button class="anav-btn" id="anav-stats" onclick="adminTab('stats')">📊 Estadísticas</button>
     <button class="anav-btn" id="anav-historial" onclick="adminTab('historial')">📋 Historial</button>
@@ -436,6 +437,27 @@
     </div>
     <div id="vdResumen" style="margin-bottom:10px;"></div>
     <div id="vdLista"></div>
+  </div>
+
+  <!-- ════════ COMISIÓN POR VENTA EN LOCAL ════════ -->
+  <div id="adminComlocalPanel" class="admin-panel">
+    <div class="lbl" style="margin-top:0;">💵 Comisión por venta en local (solo tú la ves)</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+      Lo que hay que pagar por cada producto vendido en el local (<b>Ventas directas</b>). Cada producto lleva su cifra por unidad en la ficha
+      (campo <b>Comisión por venta en local</b>, que no viaja al catálogo de los gestores); aquí se multiplica por las unidades vendidas. Las dos monedas van por separado.
+    </p>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+      <div class="lbl" style="margin-top:0;">Comisión a pagar</div>
+      <select id="clPeriodo" onchange="renderComisionLocal()" style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-size:12px;color:var(--text);">
+        <option value="hoy">Hoy</option>
+        <option value="7">Últimos 7 días</option>
+        <option value="mes" selected>Este mes</option>
+        <option value="todo">Todo</option>
+      </select>
+    </div>
+    <div id="clResumen" style="margin-bottom:10px;"></div>
+    <div id="clPorProducto"></div>
+    <div id="clLista"></div>
   </div>
 
   <!-- ════════ ESTAFA PANEL ════════ -->
@@ -1321,6 +1343,21 @@
         </div>
       </div>
       <input type="hidden" id="pm-comision">
+      <!-- Comisión que se paga por cada unidad vendida EN LOCAL (Ventas directas).
+           Es independiente de la comisión del gestor de arriba. -->
+      <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;align-items:end;margin-top:8px;">
+        <div>
+          <div class="vf-label"><span>🏪 Comisión por venta en local</span></div>
+          <input type="number" id="pm-comisionLocal-amount" placeholder="Monto por unidad" min="0" step="0.1">
+        </div>
+        <div>
+          <div class="vf-label" style="opacity:0;">.</div>
+          <select id="pm-comisionLocal-currency" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 9px;font-size:12px;">
+            <option value="USD">USD</option>
+            <option value="MN">MN</option>
+          </select>
+        </div>
+      </div>
       <div class="vf-row" style="margin-top:8px;">
         <div class="vf-inner">
           <div class="vf-label"><span>Foto del producto</span></div>
