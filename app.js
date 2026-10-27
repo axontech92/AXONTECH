@@ -4758,6 +4758,8 @@ function patchVale(id, changes) {
     // vale — ver la nota en _congelarCostoVale().
     if (changes.status === 'confirmed' && all[i].status !== 'confirmed') {
       try { _congelarCostoVale(all[i]); } catch(e) { console.warn('[costos] no se pudo congelar:', e && e.message); }
+      // Comisión por venta en local: toda venta completada la congela con la ficha de hoy.
+      try { const _vl = { ...all[i], ...changes, status: 'confirmed' }; if (esVentaLocal(_vl)) _congelarComLocalVenta(_vl); } catch(e) {}
       // v140: y el precio de cada línea. Dueños valoraba cada venta con el precio
       // de HOY del catálogo: subir un producto de $100 a $130 cambiaba lo que
       // "se vendió" ayer.
@@ -13196,6 +13198,8 @@ function revincularProductoBorrado(pidViejo, pidNuevo) {
 // toca para nada, ni al registrar la venta ni al deshacerla.
 const VENTA_DIRECTA_CLIENTE = 'Venta Directa en Tienda';
 const esVentaDirecta = v => !!v && (v.ventaDirecta === true || v.gestorId === 'admin');
+// Toda venta completada (confirmada) o directa suma la comisión de local de sus productos.
+const esVentaLocal = v => !!v && (esVentaDirecta(v) || v.status === 'confirmed');
 
 // El corazón: crea la venta en silencio, sin tocar el stock. Devuelve el vale
 // creado o null.
@@ -13489,7 +13493,7 @@ function _fmtComLocal(n, mon) {
 function _ventasDelPeriodoCL() {
   const { desde, label } = _vdRango('clPeriodo');
   const ventas = getVales()
-    .filter(esVentaDirecta)
+    .filter(esVentaLocal)
     .filter(v => new Date(v.confirmedTs || v.ts).getTime() >= desde)
     .sort((a, b) => new Date(b.confirmedTs || b.ts) - new Date(a.confirmedTs || a.ts));
   return { ventas, label };
@@ -13533,23 +13537,23 @@ function renderComisionLocal() {
   const { ventas, label } = _ventasDelPeriodoCL();
 
   let pUSD = 0, pMN = 0, gUSD = 0, gMN = 0, uds = 0, sinCom = 0, nPend = 0;
-  const prods = new Map();   // solo lo PENDIENTE, por producto
+  const prods = new Map();   // todo lo vendido del periodo, por producto (pagado y pendiente)
   const filas = ventas.map(v => {
     const c = _comLocalDeVenta(v);
     const tiene = c.usd > 0 || c.mn > 0;
     c.lineas.forEach(l => { uds += l.qty; if (!(l.unit > 0)) sinCom += l.qty; });
     if (tiene) {
       if (c.pagada) { gUSD += c.usd; gMN += c.mn; }
-      else {
-        pUSD += c.usd; pMN += c.mn; nPend++;
-        c.lineas.filter(l => l.unit > 0).forEach(l => {
-          const k = String(l.id);
-          const r = prods.get(k) || { nombre: l.nombre, uds: 0, unit: l.unit, mon: l.mon, usd: 0, mn: 0 };
-          r.uds += l.qty; if (l.mon === 'MN') r.mn += l.total; else r.usd += l.total;
-          prods.set(k, r);
-        });
-      }
+      else { pUSD += c.usd; pMN += c.mn; nPend++; }
     }
+    c.lineas.forEach(l => {
+      const k = String(l.id);
+      const r = prods.get(k) || { nombre: l.nombre, uds: 0, udsPend: 0, unit: l.unit, mon: l.mon, usd: 0, mn: 0, pUsd: 0, pMn: 0 };
+      r.uds += l.qty;
+      if (l.mon === 'MN') r.mn += l.total; else r.usd += l.total;
+      if (!c.pagada) { r.udsPend += l.qty; if (l.mon === 'MN') r.pMn += l.total; else r.pUsd += l.total; }
+      prods.set(k, r);
+    });
     return { v, c, tiene };
   });
 
@@ -13571,16 +13575,19 @@ function renderComisionLocal() {
   }
 
   if (porProd) {
-    const arr = [...prods.values()].sort((a, b) => (b.usd + b.mn) - (a.usd + a.mn));
+    const arr = [...prods.values()].sort((a, b) => (b.usd + b.mn) - (a.usd + a.mn) || b.uds - a.uds);
     porProd.innerHTML = arr.length ? `
-      <div class="lbl" style="margin-top:14px;">Pendiente, por producto</div>
+      <div class="lbl" style="margin-top:14px;">Por producto ${escapeHTML(label)}</div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:6px;">
         ${arr.map(r => `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);">
           <div style="min-width:0;">
             <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(r.nombre)}</div>
-            <div style="font-size:11px;color:var(--text-muted);">${r.uds} u. × ${escapeHTML(_fmtComLocal(r.unit, r.mon))}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${r.uds} u. vendidas${r.unit > 0 ? ' × ' + escapeHTML(_fmtComLocal(r.unit, r.mon)) : ' · sin comisión'}${r.unit > 0 && r.udsPend !== r.uds ? ' · ' + r.udsPend + ' pendientes' : ''}</div>
           </div>
-          <div style="font-size:14px;font-weight:900;color:var(--orange);white-space:nowrap;">${escapeHTML(_fmtMonto(r.usd, r.mn))}</div>
+          <div style="text-align:right;white-space:nowrap;">
+            <div style="font-size:14px;font-weight:900;color:${(r.pUsd || r.pMn) ? 'var(--orange)' : 'var(--green)'};">${escapeHTML(_fmtMonto(r.usd, r.mn))}</div>
+            ${(r.pUsd || r.pMn) && (r.pUsd !== r.usd || r.pMn !== r.mn) ? `<div style="font-size:10px;color:var(--text-muted);">pendiente ${escapeHTML(_fmtMonto(r.pUsd, r.pMn))}</div>` : ''}
+          </div>
         </div>`).join('')}
       </div>` : '';
   }
