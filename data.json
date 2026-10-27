@@ -895,7 +895,7 @@
       "name": "Toldo para sombra marrón 2 x 4",
       "catId": 90,
       "photo": "photos/p-1778336859697-c6406584.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/p-1778336859697-c6406584.webp",
       "nombre": "Toldo para sombra",
       "precio": "$23",
@@ -2016,7 +2016,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 24,
+      "stock": 23,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2152,7 +2152,7 @@
       "name": "Toldo malla para sombra marrón 2×7m",
       "catId": 90,
       "photo": "photos/p-1787952316385-a70dcd86.webp",
-      "stock": 1,
+      "stock": 0,
       "imagen": "photos/p-1787952316385-a70dcd86.webp",
       "nombre": "Toldo malla para sombra",
       "precio": "$38",
@@ -2179,7 +2179,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2237,7 +2237,7 @@
       "name": "Pesa / báscula digital inteligente",
       "catId": 130,
       "photo": "photos/p-1788152657796-9215b5a4.webp",
-      "stock": 10,
+      "stock": 9,
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
@@ -2593,5 +2593,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-24T16:21:46.701Z"
+  "timestamp": "2026-10-27T15:21:45.508Z"
 }
