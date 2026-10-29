@@ -1937,3 +1937,106 @@ body.dark .pwa-help-note{color:#94a3b8;}
   .vf-sticky-sync.online{color:var(--green);}
 }
 body.dark .vf-sticky{background:var(--surface);}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v152 · Estilo nuevo de la página del gestor
+   Fondo suave con tarjetas blancas, tarjetas de color por gestor, títulos con
+   acento en cursiva y, en el móvil, barra de navegación abajo + hoja de perfil.
+   Todo bajo body[data-page="gestor"]: el panel del admin no cambia.
+   ══════════════════════════════════════════════════════════════════════════ */
+body[data-page="gestor"]{
+  --g-fondo:#eef3f6; --g-card:var(--surface); --g-linea:#cfdbe3;
+  --g-sombra:0 1px 2px rgba(6,30,40,.06),0 4px 14px rgba(6,30,40,.05);
+  background:var(--g-fondo);
+}
+body.dark[data-page="gestor"]{ --g-fondo:#0a1018; --g-card:#141f2e; --g-linea:#2b3b4f; --g-sombra:0 0 0 1px rgba(255,255,255,.04); }
+
+/* Tarjetas */
+body[data-page="gestor"] .card{background:var(--g-card);border:none;border-radius:16px;box-shadow:var(--g-sombra);}
+body[data-page="gestor"] #gestorBanner{border:none;border-radius:18px;box-shadow:var(--g-sombra);}
+
+/* Títulos con acento */
+body[data-page="gestor"] .lbl-h{font-size:19px;font-weight:800;color:var(--text);text-transform:none;letter-spacing:-.01em;margin:18px 2px 10px;}
+body[data-page="gestor"] .lbl-h em{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:600;color:var(--blue);}
+
+/* Formulario: una tarjeta por sección */
+body[data-page="gestor"] .vale-form-body{gap:12px;}
+body[data-page="gestor"] .vf-card{background:var(--g-card);border-radius:16px;box-shadow:var(--g-sombra);padding:14px;display:flex;flex-direction:column;gap:10px;}
+body[data-page="gestor"] .vf-sep{display:none;}
+body[data-page="gestor"] .vf-sec{margin:0;padding:0;border:none;color:var(--blue);}
+body[data-page="gestor"] .vf-row input,
+body[data-page="gestor"] .vf-row textarea{border-radius:12px;border-color:var(--g-linea);}
+/* Lo que rellena la app: borde punteado ("esto no lo escribes tú") */
+body[data-page="gestor"] .vf-row input[readonly],
+body[data-page="gestor"] .vf-row .vf-auto-lock{border-style:dashed !important;border-color:var(--blue) !important;background:var(--blue-lt) !important;color:var(--blue-dk) !important;font-weight:700;}
+body[data-page="gestor"] #vfExtrasToggle{background:var(--g-card) !important;border:none !important;border-radius:14px !important;box-shadow:var(--g-sombra);}
+body[data-page="gestor"] .vf-info summary{background:var(--g-card);border:none;box-shadow:var(--g-sombra);border-radius:14px;}
+
+/* Selector de gestor: tarjeta teñida con el color de cada uno */
+body[data-page="gestor"] #gestoresList .g-item{
+  background:var(--g-card);
+  background:color-mix(in srgb, var(--gc) 13%, var(--g-card));
+  border:none;border-radius:18px;box-shadow:var(--g-sombra);
+}
+body[data-page="gestor"] #gestoresList .g-item .g-name{color:var(--text);color:color-mix(in srgb, var(--gc) 65%, var(--text));}
+body[data-page="gestor"] #gestoresList .g-item .g-avatar{border-radius:14px;box-shadow:0 3px 8px rgba(0,0,0,.12);}
+body[data-page="gestor"] #gestoresList .g-item.active{outline:2px solid var(--gc);}
+body[data-page="gestor"] .g-sub{display:none;}
+body[data-page="gestor"] .g-change{background:var(--g-card);border:none;border-radius:14px;box-shadow:var(--g-sombra);padding:11px;}
+
+/* Barra de abajo y hoja de perfil: solo en el móvil */
+.g-nav,.g-perfil{display:none;}
+@media (max-width:640px){
+  body[data-page="gestor"]{padding-bottom:calc(92px + env(safe-area-inset-bottom, 0px));}
+  body[data-page="gestor"] .g-sub{display:block;font-size:10px;font-weight:600;color:var(--text-muted);}
+  body[data-page="gestor"] #gestoresList .g-item{padding:14px 6px 12px;gap:6px;}
+  body[data-page="gestor"] #gestoresList .g-item .g-avatar{width:42px;height:42px;font-size:14px;}
+  body[data-page="gestor"] #gestoresList .g-item .g-name{font-size:12.5px;}
+
+  /* Novedades, Stock, tema e Instalar pasan a Perfil; en la cabecera queda la tasa */
+  body[data-page="gestor"] header .header-right > button:not(#tasaUSDBadge){display:none !important;}
+
+  body[data-page="gestor"] .g-nav{
+    display:grid;grid-template-columns:repeat(4,1fr);position:fixed;z-index:700;
+    left:max(10px, env(safe-area-inset-left, 0px));right:max(10px, env(safe-area-inset-right, 0px));
+    bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+    background:var(--g-card);border-radius:20px;padding:6px;
+    box-shadow:0 -2px 18px rgba(6,30,40,.12),0 0 0 1px var(--border);
+  }
+  .g-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:6px 0;border-radius:14px;
+    font:700 10.5px var(--font);color:var(--text-muted);cursor:pointer;}
+  .g-nav button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .g-nav button.on{color:var(--blue);background:var(--blue-lt);}
+
+  /* La barra de "Enviar" se apoya encima de la de navegación */
+  body[data-page="gestor"] .vf-sticky{left:max(10px, env(safe-area-inset-left, 0px));right:max(10px, env(safe-area-inset-right, 0px));
+    bottom:calc(84px + env(safe-area-inset-bottom, 0px));border:none;border-radius:18px;box-shadow:0 -2px 18px rgba(6,30,40,.14),0 0 0 1px var(--border);
+    padding:10px 10px 10px 14px;background:var(--g-card);}
+  body[data-page="gestor"].vf-sticky-on{padding-bottom:calc(170px + env(safe-area-inset-bottom, 0px));}
+  body[data-page="gestor"] #syncIndicator{bottom:calc(88px + env(safe-area-inset-bottom, 0px));}
+  body[data-page="gestor"] .toast{bottom:calc(96px + env(safe-area-inset-bottom, 0px));}
+
+  .g-perfil{position:fixed;inset:0;z-index:4800;background:rgba(6,20,26,.45);}
+  .g-perfil.show{display:block;}
+  .g-hoja{position:absolute;left:0;right:0;bottom:0;background:var(--g-card,var(--surface));border-radius:24px 24px 0 0;
+    padding:10px max(16px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    display:flex;flex-direction:column;gap:14px;animation:gHojaSube .22s ease-out;}
+  @keyframes gHojaSube{from{transform:translateY(40px);opacity:.6;}to{transform:none;opacity:1;}}
+  .g-asa{width:44px;height:5px;border-radius:9px;background:var(--border);margin:0 auto;}
+  .g-hoja-quien{display:flex;align-items:center;gap:12px;}
+  .g-hoja-av{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;overflow:hidden;flex-shrink:0;}
+  .g-hoja-av img{width:100%;height:100%;object-fit:cover;}
+  .g-hoja-quien b{display:block;font-size:18px;color:var(--text);}
+  .g-hoja-quien small{font-size:12px;color:var(--text-muted);font-weight:600;}
+  .g-hoja-estado{font-size:12px;font-weight:700;border-radius:12px;padding:9px 12px;background:var(--surface2);color:var(--text-muted);}
+  .g-hoja-estado.online{background:rgba(16,185,129,.12);color:var(--green-dk);}
+  .g-hoja-estado.pending{background:rgba(249,115,22,.12);color:var(--orange);}
+  .g-hoja-estado.offline{background:rgba(239,68,68,.12);color:var(--red);}
+  .g-hoja-op{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .g-hoja-op button{display:flex;align-items:center;gap:8px;border:1.5px solid var(--border);background:var(--g-card,var(--surface));color:var(--text);
+    border-radius:14px;padding:12px 11px;font:700 13px var(--font);text-align:left;cursor:pointer;}
+  .g-hoja-op button span{font-size:17px;}
+  .g-hoja-op button i{margin-left:auto;font-style:normal;font-size:10px;font-weight:800;color:var(--text-muted);background:var(--surface2);border-radius:99px;padding:2px 7px;}
+  .g-hoja-salir{background:none;border:0;font:800 13px var(--font);color:var(--red);padding:6px;cursor:pointer;}
+  .g-hoja-pie{text-align:center;font-size:11px;color:var(--text-muted);font-weight:600;}
+}

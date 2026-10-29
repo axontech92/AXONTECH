@@ -90,7 +90,7 @@
 
   <!-- Col 1: Selector de gestores (izquierda en desktop, arriba en móvil) -->
   <div class="col col-left">
-    <div class="lbl">¿Quién eres?</div>
+    <div class="lbl lbl-h">¿Quién <em>eres</em>?</div>
     <div id="gestoresList">
       <div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>
     </div>
@@ -100,7 +100,7 @@
   <!-- Col 2: Top Gestores (derecha en desktop SIN gestor, oculto cuando hay gestor) -->
   <div class="col col-right" id="rankingColumn">
     <div id="gestorRankingSection" style="margin-bottom:14px;">
-      <div class="lbl" style="margin-top:0;">🏆 Top Gestores</div>
+      <div class="lbl lbl-h" style="margin-top:0;">🏆 Top <em>gestores</em></div>
       <div class="card" style="padding:14px 16px;">
         <div id="rankingList"><div class="es"><div class="es-text">Sin datos aún</div></div></div>
       </div>
@@ -142,6 +142,7 @@
       </div>
     </div>
     <div class="vale-form-body">
+      <div class="vf-card vf-card-promotor">
 
       <div class="vf-row vf-auto">
         <span class="vf-emoji">🔸</span>
@@ -151,6 +152,8 @@
         </div>
       </div>
 
+      </div>
+      <div class="vf-card">
       <div class="vf-sec">👤 Cliente</div>
 
       <div class="vf-row">
@@ -198,6 +201,8 @@
       </div>
 
 
+      </div>
+      <div class="vf-card">
       <div class="vf-sec">🚚 Entrega</div>
 
       <div class="vf-row">
@@ -227,6 +232,8 @@
         </div>
       </div>
 
+      </div>
+      <div class="vf-card">
       <div class="vf-sec">📦 Productos</div>
 
       <div class="vf-row">
@@ -248,6 +255,8 @@
         </div>
       </div>
 
+      </div>
+      <div class="vf-card">
       <div class="vf-sec">💵 Pago</div>
 
       <div class="vf-grid2">
@@ -286,6 +295,8 @@
 
       <!-- v131: notas del gestor para el admin: lo que no cabe en ningún campo
            ("llamar antes de ir", "paga la mamá", "portero sin timbre"). -->
+      </div>
+      <div class="vf-card">
       <div class="vf-sec">📝 Notas</div>
 
       <div class="vf-row">
@@ -296,6 +307,7 @@
         </div>
       </div>
 
+      </div><!-- /vf-card -->
       <hr class="vf-sep">
 
       <!-- v69: campos que casi nunca se tocan, plegados para acortar el formulario.
@@ -404,7 +416,7 @@
     <!-- Mis Vales (aquí para que se vea en móvil cuando hay gestor seleccionado) -->
         <div id="gestorMyValesSection" style="display:none;padding-top:4px;">
       <!-- NEW: Resumen dashboard with period chips -->
-      <div class="lbl" style="margin-top:14px;">📊 Mi Resumen</div>
+      <div class="lbl lbl-h" style="margin-top:14px;">Mi <em>resumen</em></div>
       <div id="gestorHistDashboard"></div>
       <div id="gestorHistPeriodFilter" style="display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap;">
         <button class="btn btn-blue btn-sm" data-period="ciclo" onclick="setGestorHistPeriod('ciclo')" style="display:none;">Este ciclo</button>
@@ -413,7 +425,7 @@
         <button class="btn btn-ghost btn-sm" data-period="all" onclick="setGestorHistPeriod('all')">Todo</button>
       </div>
 
-      <div class="lbl" style="margin-top:14px;">Mis Vales Activos</div>
+      <div class="lbl lbl-h" style="margin-top:14px;">Vales <em>activos</em></div>
       <div id="gestorMyVales"></div>
       
       <div style="margin-top:20px;">
@@ -433,7 +445,7 @@
 
     <!-- Mis Comisiones Pendientes -->
     <div id="gestorComisionSection" style="display:none;padding-top:4px;">
-      <div class="lbl" style="margin-top:14px;">💰 Mis Comisiones</div>
+      <div class="lbl lbl-h" style="margin-top:14px;">Mis <em>comisiones</em></div>
       <div id="gestorComisionList"></div>
     </div>
 
@@ -810,6 +822,35 @@
   </div>
 </div>
 
+
+<!-- v152: barra de navegación inferior (móvil) y hoja de perfil.
+     Solo llaman a funciones que ya existían (catálogo, novedades, tasa, tema,
+     cambiar gestor); no hay lógica nueva de datos. -->
+<nav id="gNav" class="g-nav" aria-label="Navegación">
+  <button type="button" data-tab="inicio" class="on" onclick="gNavIr('inicio')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>
+  <button type="button" data-tab="catalogo" onclick="gNavIr('catalogo')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7"/></svg>Catálogo</button>
+  <button type="button" data-tab="vales" onclick="gNavIr('vales')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg>Mis vales</button>
+  <button type="button" data-tab="perfil" onclick="gNavIr('perfil')"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>Perfil</button>
+</nav>
+<div id="gPerfil" class="g-perfil" aria-hidden="true" onclick="if(event.target===this)cerrarPerfilGestor()">
+  <div class="g-hoja" role="dialog" aria-label="Perfil">
+    <div class="g-asa"></div>
+    <div class="g-hoja-quien">
+      <div class="g-hoja-av" id="gPerfilAv">?</div>
+      <div><b id="gPerfilNombre">Elige tu nombre</b><small id="gPerfilSub">Toca tu tarjeta en Inicio para entrar</small></div>
+    </div>
+    <div class="g-hoja-estado" id="gPerfilEstado">● En línea</div>
+    <div class="g-hoja-op">
+      <button type="button" onclick="cerrarPerfilGestor();toggleTheme();"><span>🌙</span>Modo oscuro<i id="gPerfilTema">OFF</i></button>
+      <button type="button" onclick="cerrarPerfilGestor();openNotifsModal();"><span>📣</span>Novedades<i id="gPerfilNotif" hidden></i></button>
+      <button type="button" onclick="cerrarPerfilGestor();openTasaModal();"><span>💵</span>Tasa<i id="gPerfilTasa"></i></button>
+      <button type="button" onclick="cerrarPerfilGestor();openGestorCatalog();"><span>📦</span>Stock</button>
+      <button type="button" id="gPerfilInstalar" hidden onclick="cerrarPerfilGestor();var b=document.getElementById('btnPWAInstallHeader');if(b)b.click();"><span>📲</span>Instalar app</button>
+    </div>
+    <button type="button" class="g-hoja-salir" id="gPerfilSalir" onclick="cerrarPerfilGestor();changeGestor();">Cambiar de gestor</button>
+    <div class="g-hoja-pie" id="gPerfilVersion">AXONTECH</div>
+  </div>
+</div>
 
 <script src="./app.js?v=221"></script>
 <script>

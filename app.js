@@ -7472,12 +7472,13 @@ function renderGestores() {
     const pinBtn = pinned
       ? `<button class="g-pin-btn g-pinned" type="button" title="Quitar del inicio" aria-label="Quitar del inicio" onclick="event.stopPropagation();unpinGestor()">📌</button>`
       : `<button class="g-pin-btn" type="button" title="Fijar al inicio" aria-label="Fijar al inicio" onclick="event.stopPropagation();togglePinGestor(${g.id})">📍</button>`;
-    return `<div class="g-item ${act?'active':''} ${pinned?'g-item-pinned':''}" onclick="selectGestor(${g.id})">
+    return `<div class="g-item ${act?'active':''} ${pinned?'g-item-pinned':''}" style="--gc:${g.color||'#006d8a'}" onclick="selectGestor(${g.id})">
       <div class="g-pin-wrap">
         <div class="g-avatar" style="background:${g.color}">${gestorAvatarInner(g)}</div>
         ${pinBtn}
       </div>
       <div class="g-name">${escapeHTML(g.name)}</div>
+      <span class="g-sub">${act?'Estás aquí':'Toca para entrar'}</span>
       ${pinned?'<span class="g-pin-label">Fijado</span>':''}
       ${act?'<span class="g-badge">✓</span>':''}
     </div>`;
@@ -11916,7 +11917,11 @@ function _vfStickyActualizar() {
   const bar = document.getElementById('vfStickyBtn');
   if (!bar) return;
   const w = document.getElementById('valeFormWrapper');
-  const visible = !!(w && w.offsetParent !== null && activeGestorId);
+  // v152: solo mientras el formulario está en pantalla (con la barra de abajo,
+  // tenerla siempre puesta tapaba "Mis vales").
+  let enPantalla = false;
+  try { const f = document.querySelector('.vale-form-body'); if (f) { const r = f.getBoundingClientRect(); enPantalla = r.bottom > 140 && r.top < window.innerHeight - 140; } } catch (e) {}
+  const visible = !!(w && w.offsetParent !== null && activeGestorId && enPantalla);
   document.body.classList.toggle('vf-sticky-on', visible);
   if (!visible) return;
   const faltan = REQUIRED.filter(id => !fVal(id).length).map(id => _VF_NOMBRE_CAMPO[id] || id);
@@ -11942,7 +11947,71 @@ function _vfStickyEnviar() {
   if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { try { el.focus(); } catch (e) {} }, 350); }
   else if (!activeGestorId) showToast('Selecciona tu nombre primero');
 }
-if (!IS_ADMIN) setInterval(() => { try { _vfStickyActualizar(); } catch (e) {} }, 800);
+if (!IS_ADMIN) setInterval(() => { try { _vfStickyActualizar(); _gNavMarcar(); } catch (e) {} }, 800);
+if (!IS_ADMIN) {
+  let _gScrollPend = false;
+  window.addEventListener('scroll', () => {
+    if (_gScrollPend) return; _gScrollPend = true;
+    requestAnimationFrame(() => { _gScrollPend = false; try { _vfStickyActualizar(); _gNavMarcar(); } catch (e) {} });
+  }, { passive: true });
+}
+
+// ── v152: barra de navegación inferior y hoja de perfil (página del gestor) ──
+// Solo llevan a sitios y funciones que ya existían; no tocan datos.
+function _gNavMarcar(forzar) {
+  const nav = document.getElementById('gNav'); if (!nav) return;
+  let tab = forzar;
+  if (!tab) {
+    const mv = document.getElementById('gestorMyValesSection');
+    tab = (mv && mv.offsetParent !== null && mv.getBoundingClientRect().top < window.innerHeight * 0.5) ? 'vales' : 'inicio';
+  }
+  nav.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+}
+function gNavIr(tab) {
+  if (tab === 'inicio') { window.scrollTo({ top: 0, behavior: 'smooth' }); _gNavMarcar('inicio'); return; }
+  if (tab === 'catalogo') { openGestorCatalog(); return; }
+  if (tab === 'vales') {
+    if (!activeGestorId) { showToast('Primero elige tu nombre'); return; }
+    const mv = document.getElementById('gestorMyValesSection');
+    if (mv) mv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    _gNavMarcar('vales'); return;
+  }
+  if (tab === 'perfil') abrirPerfilGestor();
+}
+function abrirPerfilGestor() {
+  const p = document.getElementById('gPerfil'); if (!p) return;
+  const g = activeGestorId ? gestorOf(activeGestorId) : null;
+  const av = document.getElementById('gPerfilAv');
+  if (g) {
+    document.getElementById('gPerfilNombre').textContent = g.name;
+    document.getElementById('gPerfilSub').textContent = 'Gestor · sesión abierta en este teléfono';
+    av.style.background = g.color || 'var(--blue)';
+    try { av.innerHTML = gestorAvatarInner(g); } catch (e) { av.textContent = (g.name || '?')[0]; }
+  } else {
+    document.getElementById('gPerfilNombre').textContent = 'Elige tu nombre';
+    document.getElementById('gPerfilSub').textContent = 'Toca tu tarjeta en Inicio para entrar';
+    av.style.background = 'var(--gray-300)'; av.textContent = '?';
+  }
+  document.getElementById('gPerfilSalir').hidden = !g;
+  const lbl = document.getElementById('syncLabel'), ind = document.getElementById('syncIndicator');
+  const est = document.getElementById('gPerfilEstado');
+  est.textContent = '● ' + (lbl ? lbl.textContent : 'En línea');
+  est.className = 'g-hoja-estado ' + ((ind && ind.className) || '');
+  document.getElementById('gPerfilTema').textContent = document.body.classList.contains('dark') ? 'ON' : 'OFF';
+  const tv = document.getElementById('tasaUSDValor'); document.getElementById('gPerfilTasa').textContent = tv ? tv.textContent : '';
+  const nb = document.getElementById('notifUnreadBadge'), pn = document.getElementById('gPerfilNotif');
+  if (nb && pn) { pn.hidden = nb.style.display === 'none' || !nb.textContent; pn.textContent = nb.textContent; }
+  const ins = document.getElementById('btnPWAInstallHeader');
+  document.getElementById('gPerfilInstalar').hidden = !(ins && ins.style.display !== 'none');
+  document.getElementById('gPerfilVersion').textContent = 'AXONTECH · ' + (typeof VERSION_STR !== 'undefined' ? VERSION_STR : '');
+  p.classList.add('show'); p.setAttribute('aria-hidden', 'false');
+  _gNavMarcar('perfil');
+}
+function cerrarPerfilGestor() {
+  const p = document.getElementById('gPerfil'); if (!p) return;
+  p.classList.remove('show'); p.setAttribute('aria-hidden', 'true');
+  _gNavMarcar();
+}
 
 function buildValeText() {
   const g=gestorOf(activeGestorId);
