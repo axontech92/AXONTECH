@@ -8981,7 +8981,9 @@ function renderAdminGestores() {
   // revertConfirmSale (AUDITORIA-AXONTECH.md ALTO 8) que aquí seguía vivo.
   // Ningún flujo actual produce 'delivered', pero sí aparece en datos antiguos
   // y en los datos de demostración.
-  const _activo = v => v.status !== 'confirmed' && v.status !== 'cancelled';
+  // v158: los "pendientes de cobro" (pending_payment) ya tienen su lista justo
+  // debajo; contarlos aquí también hacía que el mismo vale saliera dos veces.
+  const _activo = v => v.status !== 'confirmed' && v.status !== 'cancelled' && v.status !== 'pending_payment';
   const gestoresConPendientes = gestores.filter(g => {
      return vales.some(v => v.gestorId === g.id && _activo(v));
   });
@@ -9068,7 +9070,7 @@ function renderAdminGestores() {
     // La ficha de la tienda recoge TODO lo que no tiene dueño en la lista: sus
     // propios vales (gestorId 0) y los huérfanos de un gestor borrado.
     const _mio = g._tienda ? (v => !_idsReales.has(v.gestorId)) : (v => v.gestorId === g.id);
-    const pendingVales = ordenarRecientesPrimero(vales.filter(v => _mio(v) && v.status !== 'confirmed' && v.status !== 'cancelled'));
+    const pendingVales = ordenarRecientesPrimero(vales.filter(v => _mio(v) && v.status !== 'confirmed' && v.status !== 'cancelled' && v.status !== 'pending_payment'));   // v158
     const isOpen = adminGestorFilter === g.id;
 
     html += `<div style="margin-bottom:8px;">
@@ -11014,7 +11016,7 @@ function renderPendienteCobro() {
   if(!pend.length){c.innerHTML='<div class="es"><div class="es-icon">⏳</div><div class="es-text">Sin pendientes</div></div>';return;}
   c.innerHTML=pend.map(v=>{
     const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
-    return `<div class="sc sc-pend"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:7px;"><button class="btn btn-green btn-sm btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado</button><button class="btn btn-ghost btn-sm btn-full" style="color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir</button></div></div>`;
+    return `<div class="sc sc-pend" style="cursor:pointer;" onclick="selectVale(${v.id})"><div class="sc-head"><span class="sc-g">${g?escapeHTML(g.name):'—'}</span><span class="sc-t">${timeStr(v.ts)}</span></div><div>${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}</div><div class="sc-m">${m?'🛵 '+escapeHTML(m.name):''}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:7px;"><button class="btn btn-green btn-sm btn-full" onclick="event.stopPropagation();markAsPaid(${v.id})">✅ Cobrado</button><button class="btn btn-ghost btn-sm btn-full" style="color:var(--orange);" onclick="event.stopPropagation();revertConfirmSale(${v.id})">↩ Revertir</button></div></div>`;
   }).join('');
 }
 function togglePendingCobro(){pendingCobroExpanded=!pendingCobroExpanded;renderPendingCobroSection();}
