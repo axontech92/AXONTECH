@@ -1,4 +1,6 @@
-## [Sin publicar] - 2026-10-29 (autoprueba en el teléfono)
+## [2.19.0] - 2026-10-29 (autoprueba en el teléfono)
+
+- **Versión subida a 2.19.0 (versionCode 102).** Hasta ahora las tandas Jarvis no habían tocado `versionName`/`versionCode` (seguían en 2.15.0 / 101): Android toma un APK con el mismo versionCode como «la misma versión» y el actualizador de la app no lo ofrece, así que parecía que no había cambiado nada.
 
 **«PROBAR AGENTE»: medir, con el modelo cargado EN el teléfono, si sirve de agente. Sin PC.**
 
@@ -7,7 +9,7 @@
 - `js/kiu-autoprueba.js` + 12 tests (modelo de mentira con el prompt y la gramática reales; control de que no ejecuta herramientas; un test impide que sus casos se desincronicen de `tests/evals/escenarios.mjs`). 615 tests en verde.
 - Los botones antiguos `mdl-load/mdl-test/mdl-free` ya no existen en `index.html` (código huérfano en `app-ui.js`); no se tocaron.
 
-## [Sin publicar] - 2026-10-29 (rutinas)
+## [2.18.0] - 2026-10-29 (rutinas)
 
 **RUTINAS: "todos los días a las 8 dame el resumen", "los domingos a las 20 avisame si llueve mañana".**
 
@@ -17,7 +19,7 @@
 - Corre una vez por día, solo hasta 6 h después de su hora (un buen día a las 15 no sirve), y una rutina recién creada no corre de inmediato si su hora de hoy ya pasó. Si falta red para la condición de lluvia no se marca el día: reintenta.
 - 11 tests propios + 3 pedidos en el arnés de evaluación. Techos de presupuesto de tokens subidos otra vez (compacto 200→240, peor caso 900→1000, prompt 1050→1150). 603 tests en verde.
 
-## [Sin publicar] - 2026-10-29 (tanda 2)
+## [2.17.0] - 2026-10-29 (tanda 2)
 
 **SEGUNDA TANDA "JARVIS": que Kiu vea lo que pasa en el teléfono.**
 
@@ -30,7 +32,7 @@
 - Tests: 592 en verde. `KiuNotifStore` (Java puro) se ejecuta de verdad con su arnés y un control negativo. **El resto del Java (servicio, puente, manifiesto) no se pudo compilar acá por no haber Android SDK: queda para el CI y para probar en un teléfono.**
 - Presupuesto de tokens: los techos del manifiesto subieron otra vez (compacto 170→200, peor caso 760→900, prompt 900→1050) por las 3 herramientas nuevas. Lo que se paga por turno sigue siendo `seleccionar()` (≤60). Con 21 herramientas conviene medir en dispositivo antes de agregar más.
 
-## [Sin publicar] - 2026-10-29
+## [2.16.0] - 2026-10-29
 
 **PRIMERA TANDA "JARVIS": que Kiu consulte el mundo y lleve tu día.**
 
