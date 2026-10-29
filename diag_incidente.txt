@@ -1,0 +1,48 @@
+VALES filas: 13
+filas formato antiguo (sin ts propio): 1 [0]
+
+Vales por FECHA DE VENTA (data.ts):
+  2026-08-13 3
+  2026-08-14 3
+  2026-08-15 1
+  2026-08-21 1
+  2026-09-02 1
+  2026-09-22 2
+  2026-09-25 1
+  ???? 1
+
+Filas por ÚLTIMA ESCRITURA (updated_at, por hora UTC), últimas 40:
+  2026-10-29T06 9
+  2026-10-29T07 4
+
+Estados: {'pending': 9, 'confirmed': 2, 'assigned': 2}
+
+Vales con fecha >= 2026-10-23: 0
+
+Rango de ids: 0 … 1790345732692
+
+PRODUCTOS: 124 filas · última escritura 2026-10-29T06:53:18.33263+00:00 · escritas desde 29/10: 87
+
+GESTORES: 61 filas · última escritura 2026-10-06T20:14:06.71827+00:00 · escritas desde 29/10: 0
+
+MENSAJEROS: 25 filas · última escritura 2026-10-05T14:07:02.152191+00:00 · escritas desde 29/10: 0
+
+CATEGORIAS: 9 filas · última escritura 2026-10-29T06:36:35.975276+00:00 · escritas desde 29/10: 9
+
+META (documentos):
+  ranking_summary 2026-10-29T07:14:45.16639+00:00
+  reservas 2026-10-29T07:14:42.055238+00:00
+  config 2026-10-29T07:08:31.134559+00:00
+  notifs 2026-10-29T06:54:33.228841+00:00
+  vales_borrados 2026-10-29T06:52:49.384282+00:00
+  costos 2026-10-28T20:05:42.782496+00:00
+  duenos 2026-10-24T03:13:16.49392+00:00
+  mermas 2026-10-08T18:47:23.359947+00:00
+  estafa 2026-10-01T16:08:47.71638+00:00
+  claves_admin 2026-09-29T07:16:58.418713+00:00
+
+BACKUPS en la nube: 0
+
+LÁPIDAS (vales borrados a propósito): 1175 fechas ['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09', '2026-10-10', '2026-10-11', '2026-10-12', '2026-10-13', '2026-10-24', '2026-10-29']
+
+VALE_EVENTOS (migración v143 ejecutada): 0
