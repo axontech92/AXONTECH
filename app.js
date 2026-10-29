@@ -5423,7 +5423,9 @@ function getNextValeNum() {
 // en el servidor (una función RPC en Supabase que devuelva el siguiente valor de
 // forma atómica), no un contador en cada teléfono.
 function valeNumStr(v) {
-  return v.valeNum ? 'V-' + String(v.valeNum).padStart(3,'0') : '';
+  // v160: los vales reconstruidos a mano guardan "V-813" en vez de 813, y
+  // salía "V-V-813". Se quita el prefijo si ya viene puesto.
+  return v.valeNum ? 'V-' + String(v.valeNum).replace(/^V-/i,'').padStart(3,'0') : '';
 }
 function patchProducto(id, changes) {
   // v65: .slice() para no mutar el array vivo del caché.
@@ -9180,7 +9182,7 @@ function buildInboxCard(v) {
   const _chipOn='background:rgba(0,109,138,.12);border:1px solid rgba(0,109,138,.4);color:var(--blue);';
   const _chipOff='background:var(--surface3);border:1px solid var(--border);color:var(--text-muted);';
   const _chipsFila=(
-    (_prodsVale.length?`<span onclick="event.stopPropagation();_togglePliegueBandeja(${v.id},'prods')" title="Ver los ${_prodsVale.length} productos del vale" style="${_chipCSS}${_abProds?_chipOn:_chipOff}">📦 ${_prodsVale.length} producto${_prodsVale.length>1?'s':''} ${_abProds?'▲':'▼'}</span>`:``)+
+    (_prodsVale.length>1?`<span onclick="event.stopPropagation();_togglePliegueBandeja(${v.id},'prods')" title="Ver los ${_prodsVale.length} productos del vale" style="${_chipCSS}${_abProds?_chipOn:_chipOff}">📦 ${_prodsVale.length} producto${_prodsVale.length>1?'s':''} ${_abProds?'▲':'▼'}</span>`:``)+
     (_notaTxt?`<span onclick="event.stopPropagation();_togglePliegueBandeja(${v.id},'nota')" title="Ver la nota del gestor" style="${_chipCSS}${_abNota?_chipOn:_chipOff}">📝 Nota ${_abNota?'▲':'▼'}</span>`:``)
   );
   const _chipsRow=_chipsFila?`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">${_chipsFila}</div>`:``;
@@ -9192,7 +9194,11 @@ function buildInboxCard(v) {
   const _notaExpandida=_notaTxt
     ? `<div style="display:${_abNota?'':'none'};background:rgba(0,109,138,.1);color:var(--blue);border-radius:4px;padding:4px 7px;font-size:10.5px;font-weight:600;margin-top:4px;line-height:1.35;white-space:normal;">📝 ${escapeHTML(_notaTxt)}</div>`
     : ``;
-  const _cuerpoPlegado=_prodsVale.length?`${_chipsRow}${_listaProds}`:`${_listaProds}${_chipsRow}`;
+  // v160: el primer producto se ve siempre (con "+N más" si hay varios) — antes
+  // con un solo producto había que abrir el chip para saber qué se vendió.
+  const _p0=_prodsVale[0];
+  const _resumenProd=_p0?`<div class="ic-preview" style="font-size:11.5px;color:var(--gray-500);">×${_p0.qty} ${escapeHTML(_p0.name||(productoOf(_p0.id)||{}).name||('#'+_p0.id))}${_prodsVale.length>1?` <b style="color:var(--blue);">+${_prodsVale.length-1} más</b>`:''}</div>`:'';
+  const _cuerpoPlegado=_prodsVale.length?`${_resumenProd}${_chipsRow}${_prodsVale.length>1?_listaProds:''}`:`${_listaProds}${_chipsRow}`;
   return `<div class="ic ${sel?'sel':''} ${isNew?'is-new':''}" onclick="selectVale(${v.id})" style="${sel?'border: 1px solid var(--blue); background: var(--blue-lt);':'margin-bottom:6px;padding:10px;background:var(--surface);'}${estafaBorder}">
     ${isNew?'<div class="new-dot"></div>':''}
     <div class="ic-head" style="margin-bottom:4px;">
@@ -9204,7 +9210,7 @@ function buildInboxCard(v) {
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
       <span class="sp ${s.cls}" style="font-size:10px;">${s.icon?s.icon+' ':''}${s.label}</span>
-      <span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total||'')}</span>
+      ${String(v.total||'').trim()?`<span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total)}</span>`:`<span style="font-size:11px;color:var(--orange);font-weight:700;">sin total</span>`}
     </div>
   </div>`;
 }
@@ -9867,7 +9873,7 @@ function renderValeDetail(destinoId) {
   const v=getVales().find(x=>x.id===selectedValeId);
   const c=document.getElementById(_valeDetailDestino) || document.getElementById('valeDetail');
   if(!c) return;
-  if(!v){c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
+  if(!v){c.classList.remove('vd-abierto');c.innerHTML='<div class="det-empty"><div class="det-empty-icon">📋</div><div style="font-size:13px;">Selecciona un vale de la bandeja</div></div>';return;}
   const g=gestorOf(v.gestorId);const m=v.mensajeroId?mensajeroOf(v.mensajeroId):null;
   // v51 FIX: normalizar status
   const _vStatus = v.status || 'pending';
@@ -9914,69 +9920,12 @@ function renderValeDetail(destinoId) {
           : 'Marca esto si el cliente aún no ha pagado pero quieres guardarle la mercancía.'}</span>
       </span>
     </label>` : '';
-  if(v.status==='pending'){
-    // v88: si el cliente recoge en la tienda no hay nada que repartir, así que
-    // el botón de mensajero estorba y se presta a asignar por error. En su
-    // lugar se recuerda de qué tipo de venta se trata.
-    const _cabecera = v.recogidaTienda
-      ? `<div style="background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;padding:10px;text-align:center;margin-bottom:8px;">
-        <div style="font-size:12px;font-weight:700;color:var(--blue);">🏬 Recogida en tienda</div>
-        <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">No lleva mensajero — se entrega en el mostrador</div>
-      </div>`
-      : `<button class="btn btn-blue btn-full" onclick="openShareModal(${v.id})" style="margin-bottom:8px;">🛵 Asignar a Mensajero</button>
-    <div style="font-size:10px;color:var(--gray-400);text-align:center;margin-bottom:6px;">— o confirmar directo —</div>`;
-    actHTML=`${productPickerHTML}${reservaHTML}${_cabecera}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-      <button class="btn btn-green btn-sm btn-full" onclick="confirmSale(${v.id},'confirmed')">✅ Cobrado directo</button>
-      <button class="btn btn-sm btn-full" style="background:var(--orange);color:white;" onclick="confirmSale(${v.id},'pending_payment')">⏳ Entregado (Por cobrar)</button>
-    </div>`;
-  } else if(v.status==='assigned'){
-    actHTML=`${productPickerHTML}${reservaHTML}<div class="mensajero-row">🛵 <b>Mensajero:</b> ${m?escapeHTML(m.name):'—'}</div>
-      <div style="font-size:12px;color:var(--gray-400);margin:6px 0 10px;">Esperando que el mensajero confirme la entrega</div>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="mensajeroEntrega(${v.id})" style="margin-bottom:6px;">📦 Marcar entregado (admin)</button>
-      <button class="btn btn-ghost btn-full btn-sm" onclick="openShareModal(${v.id})">🔄 Reenviar vale</button>`;
-  } else if(v.status==='delivered'){
-    actHTML=`${productPickerHTML}<div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:12px;text-align:center;margin-bottom:10px;">
-      <div style="font-size:24px;margin-bottom:4px;">🛵</div>
-      <div style="font-weight:700;color:#7C3AED;">Entregado por mensajero</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
-    </div>
-    <button class="btn btn-green btn-full" onclick="confirmSale(${v.id},'confirmed')" style="margin-bottom:8px;">✅ Confirmar venta + Entregado</button>
-    <button class="btn btn-orange btn-full" onclick="confirmSale(${v.id},'pending_payment')">⏳ Confirmar venta + Pendiente de cobro</button>`;
-  } else if(v.status==='confirmed'){
-    // v121: el aviso del producto que falta va también aquí. Es la venta cerrada
-    // sin producto la que no da puntos, y era justo la que no lo decía.
-    actHTML=`${productPickerHTML}<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:14px;text-align:center;">
-      <div style="font-size:26px;margin-bottom:4px;">✅</div>
-      <div style="font-weight:700;color:var(--green);">Venta Confirmada y Cobrada</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Entregada por: ${escapeHTML(m.name)}</div>`:``}
-    </div>
-    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta (restaurar stock)</button>`;
-  } else if(v.status==='pending_payment'){
-    actHTML=`${productPickerHTML}<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:14px;text-align:center;margin-bottom:8px;">
-      <div style="font-size:26px;margin-bottom:4px;">⏳</div>
-      <div style="font-weight:700;color:var(--yellow);">Pendiente de cobro</div>
-      ${m?`<div style="font-size:12px;color:var(--gray-400);">Mensajero: ${escapeHTML(m.name)}</div>`:``}
-    </div>
-    <button class="btn btn-green btn-full" onclick="markAsPaid(${v.id})">✅ Cobrado — Registrar pago</button>
-    <button type="button" class="btn btn-ghost btn-full btn-sm" style="margin-top:6px;color:var(--orange);" onclick="revertConfirmSale(${v.id})">↩ Revertir venta</button>`;
-  } else if(v.status==='cancelled'){
-    // Antes este estado no tenía rama propia: el badge mostraba el texto crudo
-    // "cancelled" (sin traducir) y no se mostraba ningún bloque de acciones.
-    actHTML=`<div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.25);border-radius:8px;padding:14px;text-align:center;">
-      <div style="font-size:26px;margin-bottom:4px;">🚫</div>
-      <div style="font-weight:700;color:var(--red);">Vale Cancelado</div>
-      ${v.cancelledTs?`<div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${new Date(v.cancelledTs).toLocaleString('es-ES')}</div>`:''}
-    </div>`;
-  }
-  const numBadge=valeNumStr(v)?`<span style="font-size:15px;font-weight:900;color:var(--blue);margin-bottom:4px;display:block;">${valeNumStr(v)}</span>`:'';
   // v131: las notas que el gestor le escribió al admin, arriba y a la vista —
   // son justo lo que no cabe en ningún otro campo del vale.
   const notasGestorHTML=String(v.notasGestor||'').trim()?`<div id="valeNotasGestor" style="background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.3);border-radius:9px;padding:8px 11px;margin-top:8px;">
     <div style="font-size:10px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">📝 Nota del gestor</div>
     <div style="font-size:12px;color:var(--text);white-space:pre-wrap;">${escapeHTML(String(v.notasGestor).trim())}</div>
   </div>`:'';
-  const notesHighlight=v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border:1px solid var(--yellow);border-radius:8px;padding:7px 10px;font-size:11px;font-weight:700;margin-top:5px;">📝 ${escapeHTML(v.adminNotes)}</div>`:'';
   const estafaMatches=checkEstafaMatch(v);
   // ── v206: el campo Artículo del detalle, con los productos en líneas ────────
   // v.articulo es un solo texto separado por " / " y en la tabla
@@ -9985,101 +9934,204 @@ function renderValeDetail(destinoId) {
   // producto por línea —igual que en la bandeja—; vales viejos sin productos
   // vinculados siguen enseñando el texto de siempre.
   const _prodsDetalle=(v.valeProductos||[]).filter(p=>p&&(p.name||productoOf(p.id)));
-  const _artDetalleHTML=_prodsDetalle.length
-    ? _prodsDetalle.map(p=>`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">×${p.qty} ${escapeHTML(p.name||(productoOf(p.id)||{}).name||('#'+p.id))}</div>`).join('')
-    : null;
   const estafaDetailHTML=estafaMatches.length?`<div style="background:rgba(239,68,68,.08);border:2px solid var(--red);border-radius:10px;padding:12px;margin-bottom:10px;">
     <div style="font-size:14px;font-weight:800;color:var(--red);margin-bottom:6px;">🚨 ALERTA DE ESTAFA</div>
     <div style="font-size:12px;color:var(--text);line-height:1.6;">${estafaMatches.map(m=>'⚠️ Coincidencia por '+escapeHTML(m.reasons.join(', '))+(m.entry.nota?' — <i>'+escapeHTML(m.entry.nota)+'</i>':'')).join('<br>')}</div>
   </div>`:'';
-  c.innerHTML=`
-    <div class="lbl" style="margin-top:0;">Detalle del Vale</div>
-    ${estafaDetailHTML}
-    <div class="card">
-      ${numBadge}
-      <div class="det-gestor-row">
-        <div class="g-avatar" style="background:${g?g.color:'#888'};width:34px;height:34px;font-size:12px;">${g?escapeHTML(g.initials):'?'}</div>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;">${g?escapeHTML(g.name):'—'}</div>
-          <div style="font-size:11px;color:var(--gray-400);">${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</div>
-        </div>
-        <div style="text-align:right;">
-          <span class="sp ${s.cls}">${s.icon} ${s.label}</span>
-          ${pts>0?`<div style="font-size:10px;color:var(--blue);font-weight:700;margin-top:3px;">⭐ ${pts} pts</div>`:``}
-        </div>
-      </div>
-      <table class="vale-datos">
-        ${[['Cliente',v.cliente],['Teléfono',v.telefono],['Dirección',v.direccion],['Artículo',v.articulo],
-           ['Precio USD',v.precioUSD],['Precio MN',v.precioMN],['Vuelto',v.vuelto],['Total',_rebajaVale(v)?'':v.total],['Garantía',v.garantia],['⏰ Entrega',_textoEntrega(v)],['💰 Comisión gestor',v.comisionGestor]]
-          .filter(([,val])=>val)
-          .map(([k,val])=>`<tr style="border-bottom:1px solid var(--gray-100);">
-            <td class="vale-datos-k" style="padding:6px 0;">${k}</td>
-            <td style="padding:6px 0;font-weight:600;">${(k==='Artículo'&&_artDetalleHTML)?_artDetalleHTML:escapeHTML(val)}</td></tr>`).join('')}
-      </table>
-      ${notasGestorHTML}
-      ${(()=>{const _r=_rebajaVale(v);if(!_r)return '';return `
-        <div style="margin-top:10px;padding:12px 13px;background:rgba(245,158,11,.09);border:1px solid rgba(245,158,11,.35);border-radius:11px;">
-          <div style="font-size:10px;color:var(--orange);font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;">🏷️ Este vale lleva rebaja</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
-            <span style="color:var(--text-muted);">Precio del vale</span>
-            <span style="${_r.aCobrarTxt?'text-decoration:line-through;opacity:.6;':'font-weight:700;'}">${escapeHTML(_r.totalTxt||'—')}</span>
-          </div>
-          ${_r.gestor?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
-            <span style="color:var(--text-muted);">🤝 Del gestor <span style="font-size:9px;opacity:.8;">(de su comisión)</span></span>
-            <span style="color:var(--orange);font-weight:700;">− ${escapeHTML(_r.gestor.txt)}</span>
-          </div>`:''}
-          ${_r.admin?`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
-            <span style="color:var(--text-muted);">🏷️ Del negocio <span style="font-size:9px;opacity:.8;">(tu margen)</span></span>
-            <span style="color:var(--blue);font-weight:700;">− ${escapeHTML(_r.admin.txt)}</span>
-          </div>`:''}
-          ${_r.motivo?`<div style="margin-top:7px;font-size:11px;color:var(--text-muted);">Motivo: ${escapeHTML(_r.motivo)}</div>`:''}
-          <button class="btn btn-ghost btn-sm btn-full" style="margin-top:9px;font-size:11px;" onclick="openRebajaAdminModal(${v.id})">🏷️ Cambiar la rebaja del negocio</button>
-        </div>`;})()}
-      ${(()=>{const _c=_aCobrarVale(v);if(!_c.txt&&!_c.nota)return '';return `
-        <div id="valeACobrar" style="margin-top:10px;padding:12px 13px;background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.4);border-radius:11px;">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
-            <span style="font-size:12px;font-weight:800;color:var(--text);">💵 COBRAR AL CLIENTE</span>
-            <span id="valeACobrarMonto" style="font-size:19px;font-weight:900;color:var(--green);text-align:right;">${escapeHTML(_c.txt||'—')}</span>
-          </div>
-          ${_c.sueltaTxt?`<div style="display:flex;justify-content:flex-end;margin-top:1px;">
-            <span id="valeACobrarSuelta" style="font-size:15px;font-weight:800;color:var(--orange);">− ${escapeHTML(_c.sueltaTxt)}</span>
-          </div>`:''}
-          ${_c.rebajado?`<div style="margin-top:4px;font-size:10px;color:var(--text-muted);">Ya lleva la rebaja restada del precio del vale.</div>`:''}
-          ${_c.nota?`<div style="margin-top:5px;font-size:11px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_c.nota)}</div>`:''}
-          ${String(v.vuelto||'').trim()?`<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b>${escapeHTML(v.vuelto)}</b></div>`:''}
-        </div>`;})()}
-      ${_htmlPagoVale(v)}
-      ${!_rebajaVale(v)?`<button class="btn btn-ghost btn-full btn-sm" style="margin-top:9px;color:var(--blue);" onclick="openRebajaAdminModal(${v.id})">🏷️ Rebajar este vale</button>`:''}
-      ${v.recogidaTienda?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.08);border:1px solid rgba(0,109,138,.25);border-radius:8px;display:flex;align-items:center;gap:6px;">
-        <span style="font-size:14px;">🏪</span>
-        <span style="font-size:12px;font-weight:700;color:var(--blue);">Recogida en tienda</span>
-      </div>`:''}
-      ${v.ubicacion?`<div style="margin-top:8px;padding:8px 12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;">
-        <div style="font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">📍 Ubicación compartida</div>
-        <a href="${escapeAttr(v.ubicacion)}" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:underline;word-break:break-all;">Abrir en Google Maps</a>
-      </div>`:''}
-      ${v.mensajeria?`<div style="margin-top:8px;padding:8px 12px;background:rgba(0,109,138,.06);border:1px solid rgba(0,109,138,.2);border-radius:8px;">
-        <div style="font-size:10px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🛵 Mensajería</div>
-        <div style="font-size:13px;font-weight:600;color:var(--text);">${escapeHTML(v.mensajeria)}</div>
-      </div>`:''}
-      ${notesHighlight}
-    </div>
-    ${_bloqueUnionHTML(v)}
-    <div class="card" style="padding:10px 14px;display:flex;gap:6px;">
-      ${v.status!=='confirmed'?`<button type="button" class="btn btn-ghost btn-full btn-sm" onclick="openEditValeModal(${v.id})">✏️ Editar vale</button>`:``}
-      <button type="button" class="btn btn-sm btn-full" style="background:rgba(239,68,68,.1);color:var(--red);border:none;" onclick="adminDeleteVale(${v.id})">🗑️ Eliminar vale</button>
-    </div>
-    ${actHTML?`<div class="card"><div class="det-actions">${actHTML}</div></div>`:``}
-    <div class="card" style="padding:10px 14px;">
-      <div style="font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;">📝 Notas (admin)</div>
-      <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin-bottom:6px;">${escapeHTML(v.adminNotes||'')}</textarea>
-      <button type="button" class="btn btn-ghost btn-sm btn-full" onclick="saveValeNotes(${v.id})">Guardar nota</button>
-    </div>
-    <div class="lbl">Vale completo</div>
-    <div class="card" style="padding:10px 12px;">
-      <div class="vale-preview" style="font-size:11px;">${escapeHTML(v.valeText || (typeof regenerateValeText==='function' ? regenerateValeText(v) : ''))}</div>
-      <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(document.querySelector('#valeDetail .vale-preview').textContent).then(()=>showToast('Copiado ✓'))">📋 Copiar vale</button>
+  // ── v160: el vale abierto como HOJA ─────────────────────────────────────
+  // Antes era una tabla de datos con los botones repartidos por todo el panel
+  // (acciones al fondo, Editar/Eliminar en medio, el cobro entre la rebaja y
+  // la ubicación). Ahora va por tarjetas en el orden en que se trabaja un
+  // vale —quién, quién lo lleva, qué, cuánto, cómo pagó— y lo que se hace con
+  // él está siempre en la barra de abajo. Lo que se usa poco (editar, rebajar,
+  // apartar, unir, copiar, eliminar) vive en "⋯ Más". Los botones llaman a
+  // las MISMAS funciones de siempre y los ids que leen otras partes
+  // (valeACobrar, valePago, valeNotasGestor, valeNotesInput) no cambian.
+  const _enPanel = c.id === 'valeDetail';
+  const _id = v.id;
+  const _faltaTxt = t => `<span class="vd-falta">${t}</span>`;
+  const _completar = v.status !== 'confirmed' && v.status !== 'cancelled'
+    ? `<button type="button" class="vd-mini" onclick="openEditValeModal(${_id})">Completar</button>` : '';
+  const _tel = String(v.telefono || '').trim(), _dir = String(v.direccion || '').trim();
+  const _entrega = _textoEntrega(v);
+  const clienteHTML = `<div class="vd-card">
+    <div class="vd-sec">👤 Cliente</div>
+    <div class="vd-cliente">${escapeHTML(v.cliente || 'Sin nombre')}</div>
+    <div class="vd-dato"><span>📞</span><span class="vd-v">${_tel ? escapeHTML(_tel) : _faltaTxt('Sin teléfono')}</span>${!_tel ? _completar : ''}</div>
+    ${v.recogidaTienda ? '' : `<div class="vd-dato"><span>📍</span><span class="vd-v">${_dir ? escapeHTML(_dir) : _faltaTxt('Sin dirección')}</span>${!_dir && _tel ? _completar : ''}</div>`}
+    ${(_entrega || v.recogidaTienda || v.ubicacion) ? `<div class="vd-chips">
+      ${_entrega ? `<span class="vd-chip vd-chip-hora">⏰ ${escapeHTML(_entrega)}</span>` : ''}
+      ${v.recogidaTienda ? `<span class="vd-chip">🏬 Recoge en tienda</span>` : ''}
+      ${v.ubicacion ? `<a class="vd-chip vd-chip-link" href="${escapeAttr(v.ubicacion)}" target="_blank" rel="noopener">📍 Abrir en el mapa</a>` : ''}
+    </div>` : ''}
+    ${v.adminNotes ? `<div class="vd-nota-admin">📝 ${escapeHTML(v.adminNotes)}</div>` : ''}
+  </div>`;
+
+  // Mensajero: quién lo lleva, y el botón para asignarlo o cambiarlo mientras
+  // el vale aún no se ha entregado.
+  let mensHTML;
+  if (v.recogidaTienda) {
+    mensHTML = `<div class="vd-mens"><b>🏬 Recogida en tienda</b><small>No lleva mensajero — se entrega en el mostrador</small></div>`;
+  } else if (m) {
+    const _cambiar = (v.status === 'pending' || v.status === 'assigned')
+      ? `<button type="button" class="vd-mini" onclick="openShareModal(${_id})">${v.status === 'assigned' ? '🔄 Cambiar / reenviar' : 'Cambiar'}</button>` : '';
+    mensHTML = `<div class="vd-mens"><b>${escapeHTML(m.name)}</b>${v.status === 'assigned' ? '<small>Esperando que confirme la entrega</small>' : ''}${_cambiar}</div>`;
+  } else if (v.status === 'pending') {
+    mensHTML = `<div class="vd-mens"><span class="vd-falta">Sin asignar</span><button type="button" class="vd-mini vd-mini-1" onclick="openShareModal(${_id})">🛵 Asignar</button></div>`;
+  } else {
+    mensHTML = `<div class="vd-mens"><span class="vd-suave">Sin mensajero</span></div>`;
+  }
+  const mensajeroCardHTML = `<div class="vd-card">
+    <div class="vd-sec">🛵 Mensajero</div>
+    ${mensHTML}
+    ${v.mensajeria ? `<div class="vd-dato"><span>🚚</span><span class="vd-v">${escapeHTML(v.mensajeria)}</span></div>` : ''}
+  </div>`;
+
+  // Pedido: un producto por línea, con su foto, cantidad, precio y lo que
+  // queda en el almacén. Los vales viejos sin productos vinculados enseñan el
+  // texto del artículo, como siempre.
+  const _lineas = _prodsDetalle.map(p => {
+    const pr = productoOf(p.id) || {};
+    const nombre = p.name || pr.name || ('#' + p.id);
+    const foto = pr.photo ? `<img src="${escapeAttr(pr.photo)}" alt="" loading="lazy" onerror="this.remove()">` : '📦';
+    const unit = String(pr.precio || pr.price || '').trim();
+    const stock = (pr && pr.stock != null && !_cerrado && v.status !== 'cancelled')
+      ? `<small class="${Number(pr.stock) < Number(p.qty || 1) ? 'vd-falta' : ''}">Quedan ${escapeHTML(String(pr.stock))} en almacén</small>` : '';
+    return `<div class="vd-linea">
+      <div class="vd-foto">${foto}</div>
+      <div class="vd-linea-t"><b>${escapeHTML(nombre)}</b>${unit ? `<small>Catálogo: ${escapeHTML(/[a-z$€]/i.test(unit) ? unit : '$' + unit)} c/u</small>` : ''}${stock}</div>
+      <div class="vd-qty">×${escapeHTML(String(p.qty || 1))}</div>
     </div>`;
+  }).join('');
+  const pedidoHTML = `<div class="vd-card">
+    <div class="vd-sec">📦 Pedido${_prodsDetalle.length > 1 ? ` · ${_prodsDetalle.length} productos` : ''}</div>
+    ${_lineas || `<div class="vd-art">${v.articulo ? escapeHTML(v.articulo) : _faltaTxt('Sin artículo')}</div>`}
+    ${!hasProducts ? `<div style="margin-top:10px;">${productPickerHTML}</div>` : ''}
+    ${v.garantia ? `<div class="vd-dato"><span>🛡️</span><span class="vd-v">Garantía: ${escapeHTML(v.garantia)}</span></div>` : ''}
+    ${notasGestorHTML}
+  </div>`;
+
+  // Dinero: lo que se le cobra al cliente, grande; debajo, de dónde sale.
+  const _r = _rebajaVale(v);
+  const _cob = _aCobrarVale(v);
+  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', v.total], ['Vuelto que hay que llevar', v.vuelto]]
+    .filter(([, val]) => String(val || '').trim());
+  const rebajaHTML = _r ? `<div class="vd-rebaja">
+      <div class="vd-rebaja-t">🏷️ Este vale lleva rebaja</div>
+      <div class="vd-fila"><span>Precio del vale</span><span style="${_r.aCobrarTxt ? 'text-decoration:line-through;opacity:.6;' : 'font-weight:700;'}">${escapeHTML(_r.totalTxt || '—')}</span></div>
+      ${_r.gestor ? `<div class="vd-fila"><span>🤝 Del gestor <small>(de su comisión)</small></span><span style="color:var(--orange);font-weight:700;">− ${escapeHTML(_r.gestor.txt)}</span></div>` : ''}
+      ${_r.admin ? `<div class="vd-fila"><span>🏷️ Del negocio <small>(tu margen)</small></span><span style="color:var(--blue);font-weight:700;">− ${escapeHTML(_r.admin.txt)}</span></div>` : ''}
+      ${_r.motivo ? `<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">Motivo: ${escapeHTML(_r.motivo)}</div>` : ''}
+    </div>` : '';
+  const cobrarHTML = (_cob.txt || _cob.nota) ? `<div id="valeACobrar">
+      <div class="vd-total"><span>Cobrar al cliente</span><b id="valeACobrarMonto">${escapeHTML(_cob.txt || '—')}</b></div>
+      ${_cob.sueltaTxt ? `<div style="text-align:right;"><span id="valeACobrarSuelta" style="font-size:15px;font-weight:800;color:var(--orange);">− ${escapeHTML(_cob.sueltaTxt)}</span></div>` : ''}
+      ${_cob.rebajado ? `<div class="vd-suave" style="font-size:11px;">Ya lleva la rebaja restada del precio del vale.</div>` : ''}
+      ${_cob.nota ? `<div style="margin-top:4px;font-size:11.5px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_cob.nota)}</div>` : ''}
+    </div>` : `<div class="vd-total"><span>Cobrar al cliente</span>${_faltaTxt('Sin total')}</div>${_completar ? `<div style="text-align:right;margin-top:4px;">${_completar}</div>` : ''}`;
+  const _com = String(v.comisionGestor || '').trim();
+  const dineroHTML = `<div class="vd-card">
+    <div class="vd-sec">💵 Dinero</div>
+    ${cobrarHTML}
+    ${_desg.length ? `<div class="vd-desg">${_desg.map(([k, val]) => `<span>${k}</span><span class="vd-r">${escapeHTML(String(val))}</span>`).join('')}</div>` : ''}
+    ${rebajaHTML}
+    ${(_com || pts > 0) ? `<div class="vd-com">
+      <span>Comisión de ${g ? escapeHTML(g.name) : 'el gestor'}<small>Se le paga cuando la venta queda cobrada</small></span>
+      <span class="vd-r">${_com ? `<b>${escapeHTML(_com)}</b>` : ''}${pts > 0 ? `<small>⭐ ${pts} pts</small>` : ''}</span>
+    </div>` : ''}
+  </div>`;
+
+  // La barra de abajo: lo que toca hacer con el vale en su estado actual.
+  const B = (cls, fn, txt, title) => `<button type="button" class="${cls}" onclick="${fn}"${title ? ` title="${title}"` : ''}>${txt}</button>`;
+  let barra = [];
+  if (v.status === 'pending') {
+    if (!v.recogidaTienda) barra.push(B('vd-b1', `openShareModal(${_id})`, '🛵 Asignar', 'Asignar a un mensajero'));
+    barra.push(B('vd-bok', `confirmSale(${_id},'confirmed')`, '✅ Cobrado', 'Cobrado directo'));
+    barra.push(B('vd-b2', `confirmSale(${_id},'pending_payment')`, '⏳ Por cobrar', 'Entregado, pendiente de cobro'));
+  } else if (v.status === 'assigned') {
+    barra.push(B('vd-b2', `mensajeroEntrega(${_id})`, '📦 Entregado, por cobrar', 'Marcar entregado (admin)'));
+    barra.push(B('vd-bok', `mensajeroPagadoDirecto(${_id})`, '✅ Cobrado', 'Entregado y cobrado'));
+  } else if (v.status === 'delivered') {
+    barra.push(B('vd-bok', `confirmSale(${_id},'confirmed')`, '✅ Cobrado', 'Confirmar venta + entregado'));
+    barra.push(B('vd-b2', `confirmSale(${_id},'pending_payment')`, '⏳ Por cobrar', 'Confirmar venta + pendiente de cobro'));
+  } else if (v.status === 'pending_payment') {
+    barra.push(B('vd-bok', `markAsPaid(${_id})`, '✅ Cobrado', 'Cobrado — registrar pago'));
+    barra.push(B('vd-brev', `revertConfirmSale(${_id})`, '↩ Revertir', 'Revertir venta'));
+  } else if (v.status === 'confirmed') {
+    barra.push(B('vd-brev', `revertConfirmSale(${_id})`, '↩ Revertir la venta', 'Revertir venta (restaurar stock)'));
+  }
+  const cancelHTML = v.status === 'cancelled' ? `<div class="vd-card vd-cancel">
+    <b>🚫 Vale cancelado</b>
+    ${v.cancelledTs ? `<small>${new Date(v.cancelledTs).toLocaleString('es-ES')}</small>` : ''}
+  </div>` : '';
+
+  // "⋯ Más": lo que se usa de vez en cuando.
+  const _unido = v.unidoA != null || _valesUnidosA(v.id).length > 0;
+  const _op = (ico, txt, sub, fn, cls) => `<button type="button" class="vd-op ${cls || ''}" onclick="_vdMas(this,false);${fn}"><i>${ico}</i><span>${txt}${sub ? `<small>${sub}</small>` : ''}</span></button>`;
+  const masHTML = `<div class="vd-velo" onclick="_vdMas(this,false)"></div>
+  <div class="vd-menu" role="dialog" aria-label="Más acciones del vale">
+    <div class="vd-asa"></div>
+    <div class="vd-menu-t">Vale ${escapeHTML(valeNumStr(v) || '#' + _id)}</div>
+    ${v.status !== 'confirmed' ? _op('✏️', 'Editar vale', 'Datos del cliente, productos y precios', `openEditValeModal(${_id})`) : ''}
+    ${_op('🏷️', _r ? 'Cambiar la rebaja del negocio' : 'Rebajar este vale', 'Bajarle el precio al cliente', `openRebajaAdminModal(${_id})`)}
+    ${_op('📋', 'Copiar texto del vale', '', `_vdCopiar(${_id})`)}
+    ${reservaHTML ? `<div class="vd-mas-bloque">${reservaHTML}</div>` : ''}
+    ${!_unido ? (() => { const u = _bloqueUnionHTML(v); return u ? `<div class="vd-mas-bloque">${u}</div>` : ''; })() : ''}
+    <div class="vd-sep"></div>
+    ${_op('🗑️', 'Eliminar vale', '', `adminDeleteVale(${_id})`, 'vd-peligro')}
+  </div>`;
+
+  const _txtVale = v.valeText || (typeof regenerateValeText === 'function' ? regenerateValeText(v) : '');
+  c.innerHTML = `<div class="vd">
+    <div class="vd-cab">
+      ${_enPanel ? `<button type="button" class="vd-x" onclick="cerrarValeDetalle()" aria-label="Cerrar">✕</button>` : ''}
+      <div class="vd-t">
+        <b>${escapeHTML(valeNumStr(v) || 'Vale')}</b>
+        <small><span class="vd-g" style="background:${g ? g.color : '#888'};"></span>${g ? escapeHTML(g.name) : '—'} · ${new Date(v.ts).toLocaleDateString('es-ES')} ${timeStr(v.ts)}</small>
+      </div>
+      <span class="sp ${s.cls}">${s.icon ? s.icon + ' ' : ''}${s.label}</span>
+    </div>
+    <div class="vd-cuerpo">
+      ${estafaDetailHTML}
+      ${cancelHTML}
+      ${clienteHTML}
+      ${mensajeroCardHTML}
+      ${pedidoHTML}
+      ${dineroHTML}
+      ${_htmlPagoVale(v)}
+      ${_unido ? _bloqueUnionHTML(v) : ''}
+      <details class="vd-card vd-pliego">
+        <summary>📝 Notas del admin <span>${v.adminNotes ? 'Con nota' : 'Ninguna'}</span></summary>
+        <textarea id="valeNotesInput" rows="2" placeholder="Añadir nota interna…" style="font-size:12px;margin:8px 0 6px;">${escapeHTML(v.adminNotes || '')}</textarea>
+        <button type="button" class="btn btn-ghost btn-sm btn-full" onclick="saveValeNotes(${_id})">Guardar nota</button>
+      </details>
+      <details class="vd-card vd-pliego">
+        <summary>🧾 Texto del vale <span>Ver</span></summary>
+        <div class="vale-preview" style="font-size:11px;margin-top:8px;">${escapeHTML(_txtVale)}</div>
+        <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px;" onclick="_vdCopiar(${_id})">📋 Copiar vale</button>
+      </details>
+    </div>
+    <div class="vd-acc">
+      <button type="button" class="vd-bmas" onclick="_vdMas(this,true)" aria-label="Más acciones">⋯</button>
+      ${barra.join('')}
+    </div>
+    <div class="vd-mas">${masHTML}</div>
+  </div>`;
+  if (_enPanel) c.classList.add('vd-abierto');
+}
+// v160: cerrar la hoja del vale (en el móvil tapa la pantalla entera).
+function cerrarValeDetalle() {
+  selectedValeId = null;
+  renderAdminGestores(); renderValeDetail();
+}
+function _vdMas(el, abrir) {
+  const hoja = el && el.closest('.vd');
+  if (hoja) hoja.classList.toggle('vd-mas-on', !!abrir);
+}
+function _vdCopiar(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const t = v.valeText || (typeof regenerateValeText === 'function' ? regenerateValeText(v) : '');
+  navigator.clipboard.writeText(t).then(() => showToast('Copiado ✓')).catch(() => showToast('No se pudo copiar'));
 }
 
 function saveValeNotes(id) {
