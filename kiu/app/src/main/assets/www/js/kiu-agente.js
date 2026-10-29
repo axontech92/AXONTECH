@@ -581,15 +581,23 @@ window.KiuAgente = (function () {
   def('get_weather',
     'Clima y pronóstico: "¿llueve mañana?", "qué temperatura hace".',
     {
-      place: { type: 'string', required: false, desc: 'Ciudad. Vacío = la última que usó el usuario.' },
+      place: { type: 'string', required: false, desc: 'Ciudad. Vacío = la última usada o donde está el usuario.' },
       day: { type: 'string', required: false, enum: ['hoy', 'mañana', 'pasado'], desc: 'Qué día. Por defecto hoy.' }
     },
     function (a) {
-      var lugar = s(a.place, 60).trim() || ciudadPorDefecto();
+      var dado = s(a.place, 60).trim();
+      var aqui = !dado || /^(aqu[ií]|ac[aá]|donde estoy|mi ubicaci[oó]n)$/i.test(dado);
+      var lugar = aqui ? ciudadPorDefecto() : dado;
+      /* v2.17.0 · sin ciudad conocida, la ubicación aproximada del teléfono (si dio permiso) */
+      if (!lugar) {
+        var pos = window.KiuApp && typeof window.KiuApp.locationNow === 'function' ? window.KiuApp.locationNow() : null;
+        if (pos === 'NEED_PERM') return { ok: false, err: 'necesito el permiso de ubicación (te lo pedí en pantalla) o decime la ciudad' };
+        if (pos) lugar = { lat: pos.lat, lon: pos.lon };
+      }
       if (!lugar) return { ok: false, err: 'decime de qué ciudad querés el clima' };
       return pedirClima(lugar).then(function (w) {
-        if (!w) return { ok: false, err: 'no pude consultar el clima de "' + lugar + '" (¿sin conexión o ciudad inexistente?)' };
-        if (s(a.place, 60).trim()) guardarCiudad(lugar);
+        if (!w) return { ok: false, err: 'no pude consultar el clima (¿sin conexión o ciudad inexistente?)' };
+        if (dado && !aqui) guardarCiudad(dado);
         return { ok: true, text: climaFrase(w, diaClave(a.day)) };
       });
     });
@@ -698,6 +706,63 @@ window.KiuAgente = (function () {
       return pedirClima(ciudad).then(cierre);
     });
 
+  /* --- 15. NOTIFICACIONES (v2.17.0) -----------------------------------------
+     "¿Qué me llegó?", "¿escribió Ana?". Solo lo que quedó en la RAM desde que el
+     usuario activó el acceso. Lo que se lee lo ve el modelo LOCAL del teléfono: el
+     bucle del agente no corre con proveedores en la nube. */
+  function cuando(ms) {
+    var d = new Date(ms), hoy = new Date();
+    var hh = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    return d.toDateString() === hoy.toDateString() ? hh : (d.getDate() + '/' + (d.getMonth() + 1) + ' ' + hh);
+  }
+  def('read_notifications',
+    'Leer las últimas notificaciones: "¿qué me llegó?", "¿escribió Ana?".',
+    {
+      from: { type: 'string', required: false, desc: 'App o persona a buscar (WhatsApp, Gmail, Ana). Vacío = todas.' }
+    },
+    function (a) {
+      var app = window.KiuApp;
+      if (!app || typeof app.notifQuery !== 'function') return { ok: false, err: 'no puedo leer notificaciones ahora' };
+      var r = app.notifQuery(s(a.from, 40), 6);
+      if (r === 'NEED_PERM') return { ok: false, err: 'primero activá "Acceso a notificaciones" para Kiu (te abrí la pantalla) y volvé a preguntarme' };
+      if (r === null) return { ok: false, err: 'no pude leer las notificaciones' };
+      if (!r.length) return { ok: true, text: s(a.from, 40) ? 'No encontré notificaciones de "' + s(a.from, 40) + '".' : 'No hay notificaciones nuevas desde que activaste el acceso.' };
+      return { ok: true, text: 'Notificaciones recientes:\n' + r.map(function (n) {
+        return '· ' + cuando(n.w) + ' ' + n.a + (n.t ? ' — ' + n.t : '') + (n.x ? ': ' + n.x : '');
+      }).join('\n') };
+    });
+
+  /* --- 16. SMS (v2.17.0) -------------------------------------------------------- */
+  def('read_sms',
+    'Leer los últimos SMS recibidos: "¿me escribió el banco?", "leeme mis mensajes".',
+    {
+      from: { type: 'string', required: false, desc: 'Número o texto a buscar. Vacío = los últimos.' }
+    },
+    function (a) {
+      var app = window.KiuApp;
+      if (!app || typeof app.smsQuery !== 'function') return { ok: false, err: 'no puedo leer SMS ahora' };
+      var r = app.smsQuery(s(a.from, 40), 4);
+      if (r === 'NEED_PERM') return { ok: false, err: 'necesito el permiso de SMS (te lo pedí en pantalla); aceptalo y volvé a preguntarme' };
+      if (r === null) return { ok: false, err: 'no pude leer los SMS' };
+      if (!r.length) return { ok: true, text: 'No encontré SMS' + (s(a.from, 40) ? ' de "' + s(a.from, 40) + '"' : '') + '.' };
+      return { ok: true, text: 'SMS recientes:\n' + r.map(function (m) { return '· ' + cuando(m.w) + ' ' + m.f + ': ' + m.x; }).join('\n') };
+    });
+
+  /* --- 17. MÚSICA (v2.17.0) ----------------------------------------------------- */
+  def('media_control',
+    'Controlar la música o el video que suena: pausar, seguir, siguiente, anterior.',
+    { action: { type: 'string', required: true, enum: ['play', 'pause', 'next', 'previous'], desc: 'play/pause=alternar, next=siguiente, previous=anterior.' } },
+    function (a) {
+      var app = window.KiuApp;
+      var act = String(a.action || '').toLowerCase();
+      if (!app || typeof app.mediaKey !== 'function') return { ok: false, err: 'no puedo controlar la música ahora' };
+      if (['play', 'pause', 'next', 'previous'].indexOf(act) < 0) return { ok: false, err: 'acción de música desconocida' };
+      var ok = app.mediaKey(act);
+      var dicho = { play: 'Listo, play/pausa.', pause: 'Listo, play/pausa.', next: 'Pasé a la siguiente.', previous: 'Volví a la anterior.' };
+      return { ok: !!ok, text: ok ? dicho[act] : 'No pude controlar el reproductor.' };
+    },
+    { risk: 'write' });
+
   /* v2.13.1 · REGISTRO de lo que hizo el agente: solo metadatos (herramienta, riesgo,
      resultado, hora), nunca los argumentos ni el texto del usuario. Máx. 30. */
   var LOG = [];
@@ -738,6 +803,9 @@ window.KiuAgente = (function () {
     forget: ['olvidá', 'olvida', 'olvidate', 'no quiero guardar', 'sacá', 'saca', 'borra mi', 'elimina mi'],
     update_memory: ['corregí', 'corregir', 'corrige', 'cambiá', 'cambia', 'reemplazá', 'en realidad', 'ahora es', 'ya no es', 'no era', 'equivocad', 'es el'],
     now: ['hora', 'fecha', 'que dia', 'qué día', 'hoy es', 'que fecha', 'qué fecha', 'que horas'],
+    read_notifications: ['notificacion', 'notificaciones', 'notificación', 'llego', 'llegó', 'me llego', 'me llegó', 'escribio', 'escribió', 'novedades', 'avisos'],
+    read_sms: ['sms', 'mensajes de texto', 'mensaje de texto', 'banco', 'codigo', 'código', 'leeme mis mensajes', 'leeme los mensajes'],
+    media_control: ['musica', 'música', 'cancion', 'canción', 'pausa', 'pausar', 'pausá', 'reproducir', 'siguiente', 'anterior', 'saltá', 'saltar', 'tema', 'volumen', 'play'],
     get_weather: ['clima', 'tiempo', 'llueve', 'lluvia', 'llover', 'llovera', 'lloviendo', 'va llover', 'hace calor', 'hace frio', 'temperatura', 'pronostico', 'pronóstico', 'paraguas', 'calor', 'frio', 'frío', 'nublado', 'hace sol'],
     summarize_url: ['resumi', 'resumí', 'resume', 'resumen de', 'pagina', 'página', 'articulo', 'artículo', 'link', 'enlace', 'url', 'https', 'leé', 'lee esta'],
     log_expense: ['gaste', 'gasté', 'gasto', 'gastos', 'gastar', 'pague', 'pagué', 'compre', 'compré', 'costo', 'presupuesto'],
@@ -748,7 +816,7 @@ window.KiuAgente = (function () {
   var LECTURA = {
     read_calendar: 1, find_contact: 1, search_docs: 1, recall: 1,
     manage_task: 1, manage_alarm: 1, now: 1, web_search: 1,
-    get_weather: 1, summarize_url: 1, daily_briefing: 1
+    get_weather: 1, summarize_url: 1, daily_briefing: 1, read_notifications: 1, read_sms: 1
   };
   function esLectura(n) { return !!LECTURA[n]; }
   /* v2.14.4 · DESEMPATE EXPRESO. Cuando dos herramientas matchean la misma
@@ -758,7 +826,7 @@ window.KiuAgente = (function () {
      tarea; "qué tengo mañana" es la agenda. */
   var PRIORIDAD = {
     manage_task: 3, recall: 3, manage_alarm: 3, create_calendar_event: 3,
-    read_calendar: 2, device_action: 2, web_search: 2, get_weather: 3, summarize_url: 3, log_expense: 3, daily_briefing: 3, find_contact: 2, search_docs: 2,
+    read_calendar: 2, device_action: 2, web_search: 2, get_weather: 3, read_notifications: 3, read_sms: 3, media_control: 3, summarize_url: 3, log_expense: 3, daily_briefing: 3, find_contact: 2, search_docs: 2,
     set_alarm: 1, send_message: 1, remember: 1, now: 1, forget: 1, update_memory: 1
   };
   /* ¿alguno de estos tools matcheó palabras del pedido? */

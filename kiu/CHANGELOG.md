@@ -1,3 +1,16 @@
+## [Sin publicar] - 2026-10-29 (tanda 2)
+
+**SEGUNDA TANDA "JARVIS": que Kiu vea lo que pasa en el teléfono.**
+
+- **`read_notifications`** — "¿qué me llegó?", "¿escribió Ana?". Nuevo `KiuNotifService` (NotificationListenerService) + `KiuNotifStore`: **solo en RAM**, tope de 40 entradas y 280 caracteres, descarta notificaciones en curso, resúmenes de grupo y las propias; las republicadas no se duplican. Requiere que el usuario active "Acceso a notificaciones" (la herramienta abre esa pantalla).
+- **`read_sms`** — últimos SMS recibidos o filtrados por texto/número. Permiso `READ_SMS` pedido en el momento. Solo lectura, tope de 10.
+- **`media_control`** — pausa/seguir/siguiente/anterior con teclas multimedia (`AudioManager`), sin permisos.
+- **Ubicación en el clima** — `get_weather` sin ciudad usa la última ubicación conocida (`ACCESS_COARSE_LOCATION`, aproximada, sin encender el GPS) y va directo al pronóstico por coordenadas.
+- Puente nuevo: `notifAccess`, `notifList`, `smsList`, `locationGet`, `mediaKey`; `requestPerm` entiende `sms`, `location` y `notif`.
+- Privacidad: lo que estas herramientas leen lo ve el modelo LOCAL; el bucle del agente no corre con proveedores en la nube.
+- Tests: 592 en verde. `KiuNotifStore` (Java puro) se ejecuta de verdad con su arnés y un control negativo. **El resto del Java (servicio, puente, manifiesto) no se pudo compilar acá por no haber Android SDK: queda para el CI y para probar en un teléfono.**
+- Presupuesto de tokens: los techos del manifiesto subieron otra vez (compacto 170→200, peor caso 760→900, prompt 900→1050) por las 3 herramientas nuevas. Lo que se paga por turno sigue siendo `seleccionar()` (≤60). Con 21 herramientas conviene medir en dispositivo antes de agregar más.
+
 ## [Sin publicar] - 2026-10-29
 
 **PRIMERA TANDA "JARVIS": que Kiu consulte el mundo y lleve tu día.**

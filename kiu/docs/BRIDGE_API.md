@@ -182,3 +182,15 @@ la recurrencia, así que "todos los lunes" aparece todos los lunes.
 
 ## v2.13.3
 - `kiuChatTemplate()` → `String`: plantilla de chat (Jinja) del GGUF cargado; `""` si no hay modelo o no trae plantilla. Solo lectura; se usa para elegir el formato del prompt.
+
+## Notificaciones, SMS, ubicación y música (v2.17.0)
+Mismo contrato que `contacts()`/`calendarList()`: JSON en texto o `"NEED_PERM"`.
+
+| Método | Descripción |
+|---|---|
+| `notifAccess()` → bool | ¿El usuario activó "Acceso a notificaciones" para Kiu? |
+| `notifList(query, max)` → JSON | `[{a: app, t: título, x: texto, w: ms}]`, más recientes primero (máx. 20). Memoria en RAM, nunca a disco. `"NEED_PERM"` si falta el acceso |
+| `smsList(query, max)` → JSON | `[{f: remitente, x: texto, w: ms}]` (máx. 10). Permiso `READ_SMS` |
+| `locationGet()` → JSON | `{lat, lon, acc, t}` última ubicación conocida (aproximada); `"NONE"` si no hay; `"NEED_PERM"` |
+| `mediaKey(action)` → bool | `play`/`pause`/`next`/`previous` como tecla multimedia |
+| `requestPerm(what)` | ahora acepta `sms`, `location` (permiso) y `notif` (abre la pantalla de acceso a notificaciones) |

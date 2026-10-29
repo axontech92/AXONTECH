@@ -63,6 +63,9 @@ public class MainActivity extends Activity {
     private static final int REQ_CONTACTS = 4244;
     /* v2.9.0: leer la agenda ("¿qué tengo mañana?") */
     private static final int REQ_CALENDAR = 4245;
+    /* v2.17.0: leer SMS y ubicación aproximada */
+    private static final int REQ_SMS = 4246;
+    private static final int REQ_LOCATION = 4247;
     private static final int REQ_MIC = 4242;
     private static final int REQ_NOTIF = 4243;
     public static volatile boolean SPEAKING;
@@ -2127,6 +2130,149 @@ public class MainActivity extends Activity {
             }
         }
 
+        /* v2.17.0 · NOTIFICACIONES. No hay permiso de ejecución: el usuario activa "Acceso a
+           notificaciones" en una pantalla del sistema. notifAccess() dice si ya lo hizo. */
+        @JavascriptInterface
+        public boolean notifAccess() {
+            try {
+                String s = android.provider.Settings.Secure.getString(
+                        MainActivity.this.getContentResolver(), "enabled_notification_listeners");
+                return s != null && s.contains(MainActivity.this.getPackageName());
+            } catch (Exception unused) {
+                return false;
+            }
+        }
+
+        /* Mismo contrato que contacts()/calendarList(): JSON en texto, o "NEED_PERM". */
+        @JavascriptInterface
+        public String notifList(String query, int max) {
+            try {
+                if (!notifAccess()) {
+                    return "NEED_PERM";
+                }
+                java.util.List<KiuNotifStore.Entry> l = KiuNotifService
+                        .store(MainActivity.this.getPackageName()).recent(query, max);
+                JSONArray arr = new JSONArray();
+                for (KiuNotifStore.Entry e : l) {
+                    JSONObject o = new JSONObject();
+                    o.put("a", e.app);
+                    o.put("t", e.title);
+                    o.put("x", e.text);
+                    o.put("w", e.at);
+                    arr.put(o);
+                }
+                return arr.toString();
+            } catch (Exception unused) {
+                return "[]";
+            }
+        }
+
+        /* v2.17.0 · SMS recibidos, solo lectura. Tope de 10, textos de 280 caracteres. */
+        @JavascriptInterface
+        public String smsList(String query, int max) {
+            android.database.Cursor cur = null;
+            try {
+                if (MainActivity.this.checkSelfPermission("android.permission.READ_SMS") != 0) {
+                    return "NEED_PERM";
+                }
+                int cap = max <= 0 ? 5 : Math.min(max, 10);
+                String q = query == null ? "" : query.trim();
+                String sel = null;
+                String[] args = null;
+                if (!q.isEmpty()) {
+                    sel = "body LIKE ? OR address LIKE ?";
+                    args = new String[]{"%" + q + "%", "%" + q + "%"};
+                }
+                cur = MainActivity.this.getContentResolver().query(
+                        Uri.parse("content://sms/inbox"),
+                        new String[]{"address", "body", "date"}, sel, args, "date DESC");
+                JSONArray arr = new JSONArray();
+                while (cur != null && cur.moveToNext() && arr.length() < cap) {
+                    String body = cur.isNull(1) ? "" : cur.getString(1);
+                    if (body.length() > 280) {
+                        body = body.substring(0, 280);
+                    }
+                    JSONObject o = new JSONObject();
+                    o.put("f", cur.isNull(0) ? "" : cur.getString(0));
+                    o.put("x", body);
+                    o.put("w", cur.isNull(2) ? 0L : cur.getLong(2));
+                    arr.put(o);
+                }
+                return arr.toString();
+            } catch (Exception unused) {
+                return "[]";
+            } finally {
+                if (cur != null) {
+                    try {
+                        cur.close();
+                    } catch (Exception unused2) {
+                    }
+                }
+            }
+        }
+
+        /* v2.17.0 · ÚLTIMA ubicación conocida (aproximada), sin encender el GPS. "NEED_PERM"
+           si falta el permiso, "NONE" si el teléfono no tiene ninguna guardada. */
+        @JavascriptInterface
+        public String locationGet() {
+            try {
+                if (MainActivity.this.checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") != 0) {
+                    return "NEED_PERM";
+                }
+                android.location.LocationManager lm = (android.location.LocationManager)
+                        MainActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                if (lm == null) {
+                    return "NONE";
+                }
+                android.location.Location best = null;
+                for (String p : lm.getProviders(true)) {
+                    android.location.Location l = lm.getLastKnownLocation(p);
+                    if (l != null && (best == null || l.getTime() > best.getTime())) {
+                        best = l;
+                    }
+                }
+                if (best == null) {
+                    return "NONE";
+                }
+                JSONObject o = new JSONObject();
+                o.put("lat", best.getLatitude());
+                o.put("lon", best.getLongitude());
+                o.put("acc", (double) best.getAccuracy());
+                o.put("t", best.getTime());
+                return o.toString();
+            } catch (Exception unused) {
+                return "NONE";
+            }
+        }
+
+        /* v2.17.0 · control del reproductor con teclas multimedia: lo que Android manda a
+           Spotify, YouTube Music, etc. No necesita permisos. action: play|pause|next|previous. */
+        @JavascriptInterface
+        public boolean mediaKey(String action) {
+            try {
+                int code;
+                if ("play".equals(action) || "pause".equals(action) || "toggle".equals(action)) {
+                    code = android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
+                } else if ("next".equals(action)) {
+                    code = android.view.KeyEvent.KEYCODE_MEDIA_NEXT;
+                } else if ("previous".equals(action)) {
+                    code = android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+                } else {
+                    return false;
+                }
+                android.media.AudioManager am = (android.media.AudioManager)
+                        MainActivity.this.getSystemService(Context.AUDIO_SERVICE);
+                if (am == null) {
+                    return false;
+                }
+                am.dispatchMediaKeyEvent(new android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, code));
+                am.dispatchMediaKeyEvent(new android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, code));
+                return true;
+            } catch (Exception unused) {
+                return false;
+            }
+        }
+
         @JavascriptInterface
         public void requestPerm(final String str) {
             MainActivity.this.runOnUiThread(new Runnable() { // from class: com.kiu.agent.MainActivity.Bridge.10
@@ -2136,6 +2282,13 @@ public class MainActivity extends Activity {
                         MainActivity.this.requestPermissions(new String[]{"android.permission.READ_CONTACTS"}, MainActivity.REQ_CONTACTS);
                     } else if ("calendar".equals(str)) {
                         MainActivity.this.requestPermissions(new String[]{"android.permission.READ_CALENDAR"}, MainActivity.REQ_CALENDAR);
+                    } else if ("sms".equals(str)) {
+                        MainActivity.this.requestPermissions(new String[]{"android.permission.READ_SMS"}, MainActivity.REQ_SMS);
+                    } else if ("location".equals(str)) {
+                        MainActivity.this.requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, MainActivity.REQ_LOCATION);
+                    } else if ("notif".equals(str)) {
+                        /* no es un permiso de ejecución: abre la pantalla "Acceso a notificaciones" */
+                        MainActivity.this.startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
                     }
                 }
             });
@@ -3052,10 +3205,10 @@ public class MainActivity extends Activity {
     @Override // android.app.Activity
     public void onRequestPermissionsResult(int i, String[] strArr, int[] iArr) {
         if (i != REQ_MIC) {
-            if (i == REQ_CONTACTS || i == REQ_CALENDAR) {
+            if (i == REQ_CONTACTS || i == REQ_CALENDAR || i == REQ_SMS || i == REQ_LOCATION) {
                 boolean z = iArr.length > 0 && iArr[0] == 0;
                 StringBuilder sb = new StringBuilder("nexoPerm('");
-                sb.append(i == REQ_CALENDAR ? "calendar" : "contacts").append("',");
+                sb.append(i == REQ_CALENDAR ? "calendar" : i == REQ_SMS ? "sms" : i == REQ_LOCATION ? "location" : "contacts").append("',");
                 sb.append(z ? "true" : "false");
                 sb.append(")");
                 js(sb.toString());

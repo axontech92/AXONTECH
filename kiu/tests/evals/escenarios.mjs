@@ -70,6 +70,10 @@ export const ESCENARIOS = [
   { id: 'gasto', pedido: 'gasté 12 en almuerzo', espera: { tool: 'log_expense' }, args: { action: 'add' }, ejemplo: { action: 'add', amount: 12, what: 'almuerzo' } },
   { id: 'gasto-mes', pedido: 'cuánto gasté este mes', espera: { tool: 'log_expense' }, args: { action: 'total' }, ejemplo: { action: 'total' } },
   { id: 'buen-dia', pedido: 'buen día, qué tengo hoy', espera: { tool: 'daily_briefing' }, ejemplo: {} },
+  { id: 'notificaciones', pedido: 'qué notificaciones me llegaron', espera: { tool: 'read_notifications' }, ejemplo: {} },
+  { id: 'sms-banco', pedido: 'leeme los sms del banco', espera: { tool: 'read_sms' }, args: { from: /banco/i }, ejemplo: { from: 'banco' } },
+  { id: 'musica-siguiente', pedido: 'pasá a la siguiente canción', espera: { tool: 'media_control' }, args: { action: 'next' }, ejemplo: { action: 'next' } },
+  { id: 'musica-pausa', pedido: 'pausá la música', espera: { tool: 'media_control' }, args: { action: 'pause' }, ejemplo: { action: 'pause' } },
   { id: 'documento', pedido: 'qué dice el contrato en mis documentos', espera: { tool: 'search_docs' }, ejemplo: { query: 'contrato' } },
 ];
 

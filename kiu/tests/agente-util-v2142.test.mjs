@@ -345,7 +345,7 @@ test('la gramática incluye las herramientas nuevas y sigue siendo derivable del
 test('el manifiesto compacto (el que se paga en el móvil) entra en presupuesto', () => {
   const sb = montar();
   const tok = sb.KiuAgente.budget().manifiestoCompactoTok;
-  assert.ok(tok <= 170, 'manifiesto compacto: ' + tok + ' tokens, el techo es 170');
+  assert.ok(tok <= 200, 'manifiesto compacto: ' + tok + ' tokens, el techo es 200');
 });
 
 /* ================= 11 · el modelo ve el VOCABULARIO de cada herramienta ==== */

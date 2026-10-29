@@ -17,6 +17,11 @@
          abre el calendario del sistema), pero no leer: "¿qué tengo mañana?" no tenía
          respuesta. Solo lectura, y se pide en el momento, no al instalar. -->
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <!-- v2.17.0 (tanda 2 "Jarvis"): leer SMS ("¿me escribió el banco?") y la ubicación aproximada
+         (clima de donde estás). Los dos son de solo lectura y se piden en el momento, nunca al
+         instalar. COARSE y no FINE: para el clima alcanza con la ciudad. -->
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <uses-feature android:name="android.hardware.microphone" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
@@ -101,6 +106,19 @@
             android:grantUriPermissions="true"/>
 
         <receiver android:name=".ReminderReceiver" android:exported="false"/>
+
+        <!-- v2.17.0: leer notificaciones. El usuario lo activa a mano en "Acceso a notificaciones";
+             exported=true es obligatorio para que el sistema se una, y BIND_NOTIFICATION_LISTENER_SERVICE
+             impide que lo use cualquier otra app. -->
+        <service
+            android:name=".KiuNotifService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
 
         <!-- v2.5.0 (sección 4-b): resumen matutino diario -->
         <receiver android:name=".MorningReceiver" android:exported="false"/>
