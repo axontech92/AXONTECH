@@ -533,6 +533,171 @@ window.KiuAgente = (function () {
       return buscarWeb(q);
     });
 
+  /* --- 11. CLIMA (v2.16.0) -----------------------------------------------
+     Antes el clima iba por web_search, que devuelve el resumen de DuckDuckGo:
+     sirve para "quién es X", no para "¿llueve mañana?". Open-Meteo da el dato
+     real y sin clave. La ciudad se aprende: la última que el usuario nombró
+     queda como predeterminada para "¿llueve?" a secas y para el resumen. */
+  var CIUDAD_KEY = 'kiu_ciudad';
+  function ciudadPorDefecto() {
+    try { if (window.S && window.S.city) return s(window.S.city, 60); } catch (e) { }
+    try { return s(localStorage.getItem(CIUDAD_KEY), 60); } catch (e) { return ''; }
+  }
+  function guardarCiudad(c) { try { localStorage.setItem(CIUDAD_KEY, s(c, 60)); } catch (e) { } }
+  function climaTexto(code) {
+    var c = Number(code);
+    if (c === 0) return 'despejado';
+    if (c <= 2) return 'algo nublado';
+    if (c === 3) return 'nublado';
+    if (c === 45 || c === 48) return 'con niebla';
+    if (c >= 51 && c <= 57) return 'con llovizna';
+    if (c >= 61 && c <= 67) return 'con lluvia';
+    if (c >= 71 && c <= 77) return 'con nieve';
+    if (c >= 80 && c <= 82) return 'con chubascos';
+    if (c >= 95) return 'con tormenta';
+    return 'variable';
+  }
+  function climaFrase(w, dia) {
+    var i = dia === 'pasado' ? 2 : dia === 'manana' ? 1 : 0;
+    var d = w.days && w.days[i];
+    if (!d) return 'sin pronóstico para ese día';
+    var cuando = i === 0 ? 'Hoy' : i === 1 ? 'Mañana' : 'Pasado mañana';
+    var t = cuando + ' en ' + w.place + ': ' + climaTexto(d.code) + ', entre ' + Math.round(d.min) + '° y ' + Math.round(d.max) + '°';
+    if (d.rain !== null && d.rain !== undefined) t += ', ' + Math.round(d.rain) + '% de probabilidad de lluvia';
+    if (i === 0 && w.cur) t += ' (ahora ' + Math.round(w.cur.temp) + '°, viento ' + Math.round(w.cur.wind) + ' km/h)';
+    return t + '.';
+  }
+  function diaClave(txt) {
+    var x = sinAcentos(txt || '');
+    return /pasado/.test(x) ? 'pasado' : /manana/.test(x) ? 'manana' : 'hoy';
+  }
+  function pedirClima(lugar) {
+    var app = window.KiuApp;
+    if (!app || typeof app.weatherQuery !== 'function') return Promise.resolve(null);
+    return new Promise(function (resolve) {
+      try { app.weatherQuery(lugar, function (w) { resolve(w || null); }); } catch (e) { resolve(null); }
+    });
+  }
+  def('get_weather',
+    'Clima y pronóstico: "¿llueve mañana?", "qué temperatura hace".',
+    {
+      place: { type: 'string', required: false, desc: 'Ciudad. Vacío = la última que usó el usuario.' },
+      day: { type: 'string', required: false, enum: ['hoy', 'mañana', 'pasado'], desc: 'Qué día. Por defecto hoy.' }
+    },
+    function (a) {
+      var lugar = s(a.place, 60).trim() || ciudadPorDefecto();
+      if (!lugar) return { ok: false, err: 'decime de qué ciudad querés el clima' };
+      return pedirClima(lugar).then(function (w) {
+        if (!w) return { ok: false, err: 'no pude consultar el clima de "' + lugar + '" (¿sin conexión o ciudad inexistente?)' };
+        if (s(a.place, 60).trim()) guardarCiudad(lugar);
+        return { ok: true, text: climaFrase(w, diaClave(a.day)) };
+      });
+    });
+
+  /* --- 12. LEER UNA PÁGINA (v2.16.0) ---------------------------------------
+     web_search da fragmentos; esto trae la página. El texto va acotado: el
+     modelo del teléfono lo resume, pero un prefill largo cuesta segundos. */
+  def('summarize_url',
+    'Leer una página web y resumirla.',
+    { url: { type: 'string', required: true, desc: 'Dirección https://… de la página.' } },
+    function (a) {
+      var u = s(a.url, 300).trim();
+      if (!/^https:\/\//i.test(u)) return { ok: false, err: 'necesito una dirección que empiece con https://' };
+      var app = window.KiuApp;
+      if (!app || typeof app.pageText !== 'function') return { ok: false, err: 'no puedo leer páginas ahora' };
+      return new Promise(function (resolve) {
+        try {
+          app.pageText(u, function (txt) {
+            var limpio = s(txt, 6000).replace(/\s+/g, ' ').trim();
+            if (limpio.length < 40) { resolve({ ok: false, err: 'no pude leer esa página (¿sin conexión o bloqueada?)' }); return; }
+            resolve({ ok: true, text: 'Contenido de ' + u + ':\n' + limpio.slice(0, 1800) });
+          });
+        } catch (e) { resolve({ ok: false, err: 'la lectura de la página falló' }); }
+      });
+    });
+
+  /* --- 13. GASTOS (v2.16.0) -------------------------------------------------
+     Registro por voz: "gasté 12 en almuerzo". Local, sin red. */
+  var GASTOS_KEY = 'kiu_gastos';
+  function leerGastos() {
+    try { var l = JSON.parse(localStorage.getItem(GASTOS_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; }
+  }
+  function guardarGastos(l) {
+    try { localStorage.setItem(GASTOS_KEY, JSON.stringify(l.slice(-500))); return true; } catch (e) { return false; }
+  }
+  function mesActual(ts) { var d = new Date(ts), h = new Date(); return d.getFullYear() === h.getFullYear() && d.getMonth() === h.getMonth(); }
+  function dinero(n) { return (Math.round(n * 100) / 100).toLocaleString('es', { maximumFractionDigits: 2 }); }
+  def('log_expense',
+    'Anotar o consultar gastos: "gasté 12 en almuerzo", "cuánto gasté este mes".',
+    {
+      action: { type: 'string', required: true, enum: ['add', 'list', 'total'], desc: 'add=anotar, list=últimos, total=suma del mes.' },
+      amount: { type: 'number', required: false, desc: 'Monto. Solo para add.' },
+      what: { type: 'string', required: false, desc: 'En qué se gastó. Corto.' }
+    },
+    function (a) {
+      var action = String(a.action || '').toLowerCase();
+      var l = leerGastos();
+      if (action === 'add') {
+        var m = num(a.amount);
+        if (m === null || m <= 0 || m > 1e9) return { ok: false, err: 'decime cuánto fue (un número mayor que cero)' };
+        var que = s(a.what, 60).trim() || 'sin detalle';
+        l.push({ m: m, w: que, t: Date.now() });
+        if (!guardarGastos(l)) return { ok: false, err: 'no pude guardar el gasto' };
+        var mes = l.filter(function (x) { return mesActual(x.t); }).reduce(function (n, x) { return n + x.m; }, 0);
+        return { ok: true, text: 'Anotado: ' + dinero(m) + ' en ' + que + '. Este mes llevás ' + dinero(mes) + '.' };
+      }
+      var delMes = l.filter(function (x) { return mesActual(x.t); });
+      if (action === 'total') {
+        if (!delMes.length) return { ok: true, text: 'Este mes no anotaste gastos.' };
+        return { ok: true, text: 'Este mes gastaste ' + dinero(delMes.reduce(function (n, x) { return n + x.m; }, 0)) + ' en ' + delMes.length + ' gasto' + (delMes.length === 1 ? '' : 's') + '.' };
+      }
+      if (!l.length) return { ok: true, text: 'Todavía no anotaste gastos.' };
+      return { ok: true, text: 'Últimos gastos:\n' + l.slice(-5).reverse().map(function (x) { return '· ' + dinero(x.m) + ' — ' + x.w; }).join('\n') };
+    },
+    { risk: 'write', riskFor: function (a) { return String(a && a.action || '').toLowerCase() === 'add' ? 'write' : 'read'; } });
+
+  /* --- 14. RESUMEN DEL DÍA (v2.16.0) -----------------------------------------
+     Una sola decisión del modelo en vez de cuatro: fecha, agenda de hoy,
+     tareas pendientes, alarmas y (si hay ciudad conocida) el clima. Cada
+     pieza falla por separado y el resumen sigue con las demás. */
+  def('daily_briefing',
+    'Resumen del día: agenda, tareas, alarmas y clima. "Buen día", "qué tengo hoy".',
+    {},
+    function () {
+      var partes = [], app = window.KiuApp, M = window.KiuMem;
+      var f = TOOLS.now.run({});
+      if (f && f.text) partes.push(f.text);
+      try {
+        if (app && typeof app.calendarQuery === 'function') {
+          var ini = Date.now(), fin = new Date(new Date().setHours(24, 0, 0, 0)).getTime();
+          var ev = app.calendarQuery('', ini, fin);
+          if (Array.isArray(ev)) {
+            partes.push(ev.length ? 'Agenda de hoy: ' + ev.slice(0, 5).map(function (e) { return s(e.title || e.t, 50); }).join('; ') + '.' : 'No tenés eventos en la agenda hoy.');
+          }
+        }
+      } catch (e) { }
+      try {
+        if (M && typeof M.pendingTasks === 'function') {
+          var pend = M.pendingTasks();
+          partes.push(pend.length ? 'Tareas pendientes (' + pend.length + '): ' + pend.slice(0, 3).map(function (x) { return s(x.text, 60); }).join('; ') + '.' : 'No tenés tareas pendientes.');
+        }
+      } catch (e) { }
+      try {
+        if (app && typeof app.reminders === 'function') {
+          var hoy = new Date(new Date().setHours(24, 0, 0, 0)).getTime();
+          var al = (app.reminders() || []).filter(function (r) { return r.when > Date.now() && r.when < hoy; });
+          if (al.length) partes.push('Alarmas hoy: ' + al.length + '.');
+        }
+      } catch (e) { }
+      var ciudad = ciudadPorDefecto();
+      var cierre = function (w) {
+        if (w) partes.push(climaFrase(w, 'hoy'));
+        return { ok: true, text: partes.join('\n') };
+      };
+      if (!ciudad) return cierre(null);
+      return pedirClima(ciudad).then(cierre);
+    });
+
   /* v2.13.1 · REGISTRO de lo que hizo el agente: solo metadatos (herramienta, riesgo,
      resultado, hora), nunca los argumentos ni el texto del usuario. Máx. 30. */
   var LOG = [];
@@ -573,12 +738,17 @@ window.KiuAgente = (function () {
     forget: ['olvidá', 'olvida', 'olvidate', 'no quiero guardar', 'sacá', 'saca', 'borra mi', 'elimina mi'],
     update_memory: ['corregí', 'corregir', 'corrige', 'cambiá', 'cambia', 'reemplazá', 'en realidad', 'ahora es', 'ya no es', 'no era', 'equivocad', 'es el'],
     now: ['hora', 'fecha', 'que dia', 'qué día', 'hoy es', 'que fecha', 'qué fecha', 'que horas'],
+    get_weather: ['clima', 'tiempo', 'llueve', 'lluvia', 'llover', 'llovera', 'lloviendo', 'va llover', 'hace calor', 'hace frio', 'temperatura', 'pronostico', 'pronóstico', 'paraguas', 'calor', 'frio', 'frío', 'nublado', 'hace sol'],
+    summarize_url: ['resumi', 'resumí', 'resume', 'resumen de', 'pagina', 'página', 'articulo', 'artículo', 'link', 'enlace', 'url', 'https', 'leé', 'lee esta'],
+    log_expense: ['gaste', 'gasté', 'gasto', 'gastos', 'gastar', 'pague', 'pagué', 'compre', 'compré', 'costo', 'presupuesto'],
+    daily_briefing: ['buen dia', 'buen día', 'buenos dias', 'resumen del dia', 'resumen del día', 'briefing', 'que tengo hoy', 'qué tengo hoy', 'mi dia', 'mi día', 'como viene el dia', 'cómo viene el día'],
     web_search: ['buscá', 'busca', 'buscar', 'investiga', 'noticias', 'precio', 'precios', 'clima', 'tiempo', 'cotizacion', 'cotización', 'quien es', 'que es', 'internet', 'web', 'google', 'dolar', 'dólar', 'cuanto sale']
   };
   /* las que CONSULTAN (no modifican nada) */
   var LECTURA = {
     read_calendar: 1, find_contact: 1, search_docs: 1, recall: 1,
-    manage_task: 1, manage_alarm: 1, now: 1, web_search: 1
+    manage_task: 1, manage_alarm: 1, now: 1, web_search: 1,
+    get_weather: 1, summarize_url: 1, daily_briefing: 1
   };
   function esLectura(n) { return !!LECTURA[n]; }
   /* v2.14.4 · DESEMPATE EXPRESO. Cuando dos herramientas matchean la misma
@@ -588,7 +758,7 @@ window.KiuAgente = (function () {
      tarea; "qué tengo mañana" es la agenda. */
   var PRIORIDAD = {
     manage_task: 3, recall: 3, manage_alarm: 3, create_calendar_event: 3,
-    read_calendar: 2, device_action: 2, web_search: 2, find_contact: 2, search_docs: 2,
+    read_calendar: 2, device_action: 2, web_search: 2, get_weather: 3, summarize_url: 3, log_expense: 3, daily_briefing: 3, find_contact: 2, search_docs: 2,
     set_alarm: 1, send_message: 1, remember: 1, now: 1, forget: 1, update_memory: 1
   };
   /* ¿alguno de estos tools matcheó palabras del pedido? */

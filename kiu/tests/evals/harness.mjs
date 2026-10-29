@@ -74,11 +74,18 @@ function entorno(op) {
     ytSearch: () => true,
   };
 
-  /* la web: mismo formato que el resumen de DuckDuckGo */
-  sb.fetch = () => Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({ AbstractText: 'Un resultado de prueba.', Heading: 'Fuente', AbstractURL: '' }),
-  });
+  /* la web: cada servicio con la forma de su respuesta real */
+  sb.fetch = (url) => {
+    const u = String(url);
+    const json = (o) => Promise.resolve({ ok: true, json: () => Promise.resolve(o), text: () => Promise.resolve(JSON.stringify(o)) });
+    if (u.includes('geocoding-api.open-meteo.com')) return json({ results: [{ name: 'Ciudad de prueba', country: 'AR', latitude: -31.4, longitude: -64.2 }] });
+    if (u.includes('api.open-meteo.com')) return json({
+      current: { temperature_2m: 21, weather_code: 1, wind_speed_10m: 9 },
+      daily: { time: ['a', 'b', 'c'], weather_code: [1, 61, 3], temperature_2m_max: [24, 19, 22], temperature_2m_min: [12, 11, 13], precipitation_probability_max: [10, 80, 20] },
+    });
+    if (u.includes('r.jina.ai')) return Promise.resolve({ ok: true, text: () => Promise.resolve('Una nota de prueba con texto suficiente para que el resumen tenga de dónde sacar contenido real.') });
+    return json({ AbstractText: 'Un resultado de prueba.', Heading: 'Fuente', AbstractURL: '' });
+  };
 
   /* los módulos REALES, en el orden de index.html */
   loadAll(sb, [

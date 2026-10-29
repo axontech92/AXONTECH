@@ -1,3 +1,14 @@
+## [Sin publicar] - 2026-10-29
+
+**PRIMERA TANDA "JARVIS": que Kiu consulte el mundo y lleve tu día.**
+
+- **`get_weather`** — clima y pronóstico de 3 días con Open-Meteo (sin clave). Antes el clima iba por `web_search`, que solo devuelve el resumen de DuckDuckGo. La última ciudad nombrada queda como predeterminada.
+- **`summarize_url`** — lee una página `https://` y el modelo la resume. Rechaza `http` y hosts locales/privados.
+- **`log_expense`** — "gasté 12 en almuerzo", "cuánto gasté este mes". Local; leer no pide confirmación, anotar sí.
+- **`daily_briefing`** — fecha, agenda de hoy, tareas, alarmas y clima en UNA decisión del modelo; cada pieza falla por separado.
+- Ayudantes `KiuApp.weatherQuery` y `KiuApp.pageText`; etiquetas, iconos y palabras clave de las herramientas nuevas; 6 pedidos nuevos en el arnés de evaluación (el de clima ahora espera `get_weather`) y la red del arnés responde con la forma real de cada servicio.
+- Nota: las palabras clave descartan palabras de 1 letra, así que las frases se escriben sin ellas ("va llover", no "va a llover").
+
 ## [2.15.0] - 2026-10-29
 
 **EL ERROR QUE IMPEDÍA ACTUALIZAR, Y ERA MÍO.**

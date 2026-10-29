@@ -2136,7 +2136,8 @@
         send_message: 'Preparo el mensaje', remember: 'Guardo en tu memoria',
         recall: 'Busco en tu memoria', manage_task: 'Miro tus tareas',
         manage_alarm: 'Miro tus alarmas', create_calendar_event: 'Creo el evento',
-        now: 'Miro la hora', web_search: 'Busco en la web', forget: 'Olvido eso'
+        now: 'Miro la hora', web_search: 'Busco en la web', forget: 'Olvido eso',
+        get_weather: 'Miro el clima', summarize_url: 'Leo la página', daily_briefing: 'Preparo tu resumen', log_expense: 'Anoto el gasto'
       };
       var txt = ETIQUETA[tool] || '';
       if (!txt) {
@@ -2156,14 +2157,16 @@
       call_contact: 'Llamada', search_docs: 'Documentos', device_action: 'Acción del teléfono',
       send_message: 'Mensaje', remember: 'Memoria', recall: 'Memoria',
       manage_task: 'Tareas', manage_alarm: 'Alarmas', create_calendar_event: 'Evento',
-      forget: 'Memoria', update_memory: 'Memoria', now: 'Hora', web_search: 'Web'
+      forget: 'Memoria', update_memory: 'Memoria', now: 'Hora', web_search: 'Web',
+      get_weather: 'Clima', summarize_url: 'Página', daily_briefing: 'Resumen', log_expense: 'Gastos'
     },
     TOOL_ICONO: {
       set_alarm: 'alarm', read_calendar: 'receipt', find_contact: 'users',
       call_contact: 'phone', search_docs: 'bookmark', device_action: 'flash',
       send_message: 'mail', remember: 'memory', recall: 'memory',
       manage_task: 'check', manage_alarm: 'alarm', create_calendar_event: 'receipt',
-      forget: 'trash', update_memory: 'pencil', now: 'cal', web_search: 'grid'
+      forget: 'trash', update_memory: 'pencil', now: 'cal', web_search: 'grid',
+      get_weather: 'pulse', summarize_url: 'bookmark', daily_briefing: 'cal', log_expense: 'receipt'
     },
     insertToolCard: function (tool) {
       var el = document.getElementById('chat-messages');
@@ -5529,6 +5532,51 @@
           }
         }).catch(function () { });
       Promise.all([p1, p2]).then(done, done);
+    },
+    /* v2.16.0 · CLIMA. Open-Meteo no pide clave: geocodifica el nombre y devuelve el pronóstico.
+       cb({place, cur:{temp,code,wind}, days:[{max,min,rain,code}]}) o cb(null) si no hay red,
+       el lugar no existe o tardó más de 8 s. Nunca lanza. */
+    weatherQuery: function (place, cb) {
+      var fin = false;
+      function done(v) { if (fin) return; fin = true; cb(v); }
+      var q = String(place || '').trim().slice(0, 80);
+      if (!q || typeof fetch !== 'function') { done(null); return; }
+      var c = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      setTimeout(function () { if (c) c.abort(); done(null); }, 8000);
+      var opt = c ? { signal: c.signal } : {};
+      fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=es&name=' + encodeURIComponent(q), opt)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (g) {
+          var r0 = g && g.results && g.results[0];
+          if (!r0) { done(null); return null; }
+          var nombre = r0.name + (r0.country ? ', ' + r0.country : '');
+          return fetch('https://api.open-meteo.com/v1/forecast?latitude=' + r0.latitude + '&longitude=' + r0.longitude +
+            '&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=3', opt)
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (f) {
+              if (!f || !f.current || !f.daily) { done(null); return; }
+              var d = f.daily, days = [];
+              for (var i = 0; i < (d.time || []).length; i++) {
+                days.push({ max: d.temperature_2m_max[i], min: d.temperature_2m_min[i], rain: d.precipitation_probability_max[i], code: d.weather_code[i] });
+              }
+              done({ place: nombre, cur: { temp: f.current.temperature_2m, code: f.current.weather_code, wind: f.current.wind_speed_10m }, days: days });
+            });
+        }).catch(function () { done(null); });
+    },
+    /* v2.16.0 · TEXTO DE UNA PÁGINA, para que el agente la resuma. cb(texto|null).
+       Solo https y nunca hosts locales/privados. Pasa por r.jina.ai (ya usado en la búsqueda web)
+       para no depender de CORS ni de HTML crudo. Tope 12 s y 6000 caracteres. */
+    pageText: function (url, cb) {
+      var fin = false;
+      function done(v) { if (fin) return; fin = true; cb(v); }
+      var u = String(url || '').trim();
+      if (!/^https:\/\/[^\s\/]+/i.test(u) || /^https:\/\/(localhost|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[|0\.)/i.test(u) || typeof fetch !== 'function') { done(null); return; }
+      var c = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      setTimeout(function () { if (c) c.abort(); done(null); }, 12000);
+      fetch('https://r.jina.ai/' + u, c ? { signal: c.signal } : {})
+        .then(function (r) { return r.ok ? r.text() : null; })
+        .then(function (t) { done(t ? String(t).slice(0, 6000) : null); })
+        .catch(function () { done(null); });
     },
     contactSearch: function (q) {
       if (!BR || !BR.contacts) return null;
