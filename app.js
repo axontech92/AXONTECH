@@ -3,6 +3,20 @@
 // ══════════════════════════════════════════
 const IS_ADMIN = document.body.dataset.page === 'admin';
 
+// ── v146: RESCATE tras el incidente de v16.0 ─────────────────────────────────
+// Antes de que la primera sincronización iguale este teléfono con la nube (que
+// pudo quedar dañada), se guarda UNA copia de los vales que tiene. Si después
+// faltan en la nube vales que este teléfono sí tenía, se ofrece volver a subirlos
+// (ver _ofrecerRescateVales, más abajo). Va aquí arriba a propósito: tiene que
+// correr antes que cualquier sondeo.
+const _RESCATE_CARGA_TS = Date.now();
+try {
+  if (!localStorage.getItem('axon_vales_rescate')) {
+    const _v = localStorage.getItem('axon_vales');
+    if (_v && _v.length > 2) localStorage.setItem('axon_vales_rescate', JSON.stringify({ ts: new Date().toISOString(), vales: JSON.parse(_v) }));
+  }
+} catch (e) {}
+
 // ══════════════════════════════════════════
 //  APP VERSION  (debe coincidir con sw.js APP_VERSION y version.json)
 // ══════════════════════════════════════════
@@ -18882,6 +18896,55 @@ function closeConfirmAction() {
   document.getElementById('confirmActionModal').classList.remove('show');
   confirmActionCb = null;
 }
+
+// ── v146: ofrecer recuperar vales que este teléfono tenía y la nube perdió ────
+// Se espera a que haya una bajada completa POSTERIOR a abrir la app (si no, la
+// comparación no dice nada). No sube nada sin que la persona lo confirme, y nunca
+// ofrece vales que alguien borró a propósito (lápidas).
+function _ofrecerRescateVales() {
+  let doc = null;
+  try { doc = JSON.parse(localStorage.getItem('axon_vales_rescate') || 'null'); } catch (e) {}
+  if (!doc || !Array.isArray(doc.vales) || localStorage.getItem('axon_vales_rescate_respondido')) return true;
+  if (!IS_ADMIN && activeGestorId == null) return false;                       // aún no entró
+  if ((_ultimoFetchReal.vales || 0) < _RESCATE_CARGA_TS) return false;          // falta una bajada completa
+  const actuales = new Set((getVales() || []).map(v => v && String(v.id)));
+  const lapidas = (_lapidasCache && typeof _lapidasCache === 'object') ? _lapidasCache : {};
+  const faltan = doc.vales.filter(v => v && v.id != null &&
+    !actuales.has(String(v.id)) && !lapidas[String(v.id)] && v.status !== 'cancelled' &&
+    (IS_ADMIN || v.gestorId === activeGestorId));
+  if (!faltan.length) { localStorage.setItem('axon_vales_rescate_respondido', 'nada'); return true; }
+  const fechas = faltan.map(v => Date.parse(v.ts)).filter(isFinite).sort((a, b) => a - b);
+  const f = t => new Date(t).toLocaleDateString('es-ES');
+  const rango = fechas.length ? ` (del ${f(fechas[0])} al ${f(fechas[fechas.length - 1])})` : '';
+  const n = faltan.length;
+  showConfirmAction('¿Recuperar vales?',
+    `Este teléfono tiene <b>${n} vale${n === 1 ? '' : 's'}</b>${rango} que ya no ${n === 1 ? 'está' : 'están'} en la nube. ` +
+    `Puede ser por el fallo de sincronización del 29/10. Si eran ventas reales, pulsa Recuperar y se vuelven a subir. ` +
+    `Si los borraste tú a propósito, cancela.`,
+    'Recuperar', 'btn-green', () => {
+      const todos = (getVales() || []).slice();
+      faltan.forEach(v => todos.push(IS_ADMIN ? { ...v } : { ...v, synced: false }));
+      saveVales(todos);   // el diff los ve como nuevos y los sube (admin: upsert_vale_admin; gestor: su RPC)
+      if (!IS_ADMIN) { try { _ensurePendingValesEnqueued(); } catch (e) {} }
+      localStorage.setItem('axon_vales_rescate_respondido', 'recuperados:' + n);
+      _logAudit('vales_rescatados', String(n));
+      try { if (typeof refreshUI === 'function') refreshUI(); } catch (e) {}
+      showToast(`${n} vale${n === 1 ? '' : 's'} recuperado${n === 1 ? '' : 's'} ✓ — subiendo a la nube`);
+    });
+  // Cancelar también cuenta como respuesta: no se vuelve a preguntar. La copia se
+  // queda guardada (axon_vales_rescate) por si hiciera falta mirarla a mano.
+  setTimeout(() => { if (!localStorage.getItem('axon_vales_rescate_respondido')) localStorage.setItem('axon_vales_rescate_respondido', 'preguntado'); }, 1000);
+  return true;
+}
+(function _programarRescate() {
+  // Sin límite de intentos: la bajada completa puede tardar horas (va con freno de
+  // datos) y es justo entonces cuando desaparecerían los vales de la pantalla.
+  const t = setInterval(() => {
+    let listo = false;
+    try { listo = _ofrecerRescateVales(); } catch (e) { console.warn('[rescate]', e && e.message); }
+    if (listo) clearInterval(t);
+  }, 30000);
+})();
 
 // ══════════════════════════════════════════
 //  REVERT CONFIRMED SALE
