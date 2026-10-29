@@ -9210,7 +9210,10 @@ function buildInboxCard(v) {
     ${v.adminNotes?`<div style="background:var(--yellow);color:#1a1a2e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escapeHTML(v.adminNotes)}</div>`:``}
     <div class="ic-foot" style="margin-top:8px;">
       <span class="sp ${s.cls}" style="font-size:10px;">${s.icon?s.icon+' ':''}${s.label}</span>
-      ${String(v.total||'').trim()?`<span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total)}</span>`:`<span style="font-size:11px;color:var(--orange);font-weight:700;">sin total</span>`}
+      ${(()=>{const _rb=_rebajaVale(v);
+        // v160: con rebaja se ve lo que de verdad se cobra, y el total viejo tachado.
+        if(_rb&&_rb.aCobrarTxt)return `<span style="text-align:right;line-height:1.2;"><span style="font-size:10px;color:var(--orange);font-weight:700;">🏷️ <s style="opacity:.75;">${escapeHTML(v.total||'')}</s></span><br><span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(_rb.aCobrarTxt)}</span></span>`;
+        return String(v.total||'').trim()?`<span style="font-size:12px;color:var(--text);font-weight:800;">${escapeHTML(v.total)}</span>`:`<span style="font-size:11px;color:var(--orange);font-weight:700;">sin total</span>`;})()}
     </div>
   </div>`;
 }
@@ -10014,14 +10017,17 @@ function renderValeDetail(destinoId) {
   // Dinero: lo que se le cobra al cliente, grande; debajo, de dónde sale.
   const _r = _rebajaVale(v);
   const _cob = _aCobrarVale(v);
-  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', v.total], ['Vuelto que hay que llevar', v.vuelto]]
+  // Con rebaja, el total del vale ya sale (tachado) en el recuadro de la rebaja.
+  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', _r ? '' : v.total], ['Vuelto que hay que llevar', v.vuelto]]
     .filter(([, val]) => String(val || '').trim());
   const rebajaHTML = _r ? `<div class="vd-rebaja">
       <div class="vd-rebaja-t">🏷️ Este vale lleva rebaja</div>
       <div class="vd-fila"><span>Precio del vale</span><span style="${_r.aCobrarTxt ? 'text-decoration:line-through;opacity:.6;' : 'font-weight:700;'}">${escapeHTML(_r.totalTxt || '—')}</span></div>
       ${_r.gestor ? `<div class="vd-fila"><span>🤝 Del gestor <small>(de su comisión)</small></span><span style="color:var(--orange);font-weight:700;">− ${escapeHTML(_r.gestor.txt)}</span></div>` : ''}
       ${_r.admin ? `<div class="vd-fila"><span>🏷️ Del negocio <small>(tu margen)</small></span><span style="color:var(--blue);font-weight:700;">− ${escapeHTML(_r.admin.txt)}</span></div>` : ''}
+      ${_r.aCobrarTxt ? `<div class="vd-fila vd-fila-tot"><span>Queda a cobrar</span><span>${escapeHTML(_r.aCobrarTxt)}</span></div>` : ''}
       ${_r.motivo ? `<div style="margin-top:5px;font-size:11px;color:var(--text-muted);">Motivo: ${escapeHTML(_r.motivo)}</div>` : ''}
+      ${v.status !== 'cancelled' ? `<button type="button" class="vd-mini" style="margin-top:8px;" onclick="openRebajaAdminModal(${_id})">🏷️ Cambiar la rebaja del negocio</button>` : ''}
     </div>` : '';
   const cobrarHTML = (_cob.txt || _cob.nota) ? `<div id="valeACobrar">
       <div class="vd-total"><span>Cobrar al cliente</span><b id="valeACobrarMonto">${escapeHTML(_cob.txt || '—')}</b></div>
