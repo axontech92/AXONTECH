@@ -74,6 +74,9 @@ export const ESCENARIOS = [
   { id: 'sms-banco', pedido: 'leeme los sms del banco', espera: { tool: 'read_sms' }, args: { from: /banco/i }, ejemplo: { from: 'banco' } },
   { id: 'musica-siguiente', pedido: 'pasá a la siguiente canción', espera: { tool: 'media_control' }, args: { action: 'next' }, ejemplo: { action: 'next' } },
   { id: 'musica-pausa', pedido: 'pausá la música', espera: { tool: 'media_control' }, args: { action: 'pause' }, ejemplo: { action: 'pause' } },
+  { id: 'rutina-resumen', pedido: 'todos los días a las 8 dame el resumen', espera: { tool: 'manage_routine' }, args: { action: 'add', at: /8/ }, ejemplo: { action: 'add', name: 'resumen', at: '8', what: 'resumen' } },
+  { id: 'rutina-lluvia', pedido: 'los domingos a las 20 avisame si llueve mañana', espera: { tool: 'manage_routine' }, args: { action: 'add' }, ejemplo: { action: 'add', name: 'paraguas', at: '20', days: 'domingo', what: 'clima', if_rain: 'mañana' } },
+  { id: 'rutinas-ver', pedido: 'qué rutinas tengo', espera: { tool: 'manage_routine' }, args: { action: 'list' }, ejemplo: { action: 'list' } },
   { id: 'documento', pedido: 'qué dice el contrato en mis documentos', espera: { tool: 'search_docs' }, ejemplo: { query: 'contrato' } },
 ];
 

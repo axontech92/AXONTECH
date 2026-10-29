@@ -1,3 +1,13 @@
+## [Sin publicar] - 2026-10-29 (rutinas)
+
+**RUTINAS: "todos los días a las 8 dame el resumen", "los domingos a las 20 avisame si llueve mañana".**
+
+- Módulo nuevo `js/kiu-rutinas.js` + herramienta `manage_routine` (ver / crear / borrar; crear y borrar piden confirmación, ver no). Hora, días ("lunes y jueves", "lunes a viernes", "fines de semana"), condición opcional de lluvia (hoy o mañana, umbral 50 %) y una acción.
+- **Solo pueden LEER**: resumen del día, clima, agenda de hoy, tareas, o decir un texto. Mandar mensajes, llamar o borrar no son acciones de rutina, y al ejecutar se vuelve a comprobar el riesgo real de la herramienta.
+- **Cuándo corren**: un tick por minuto mientras la app vive, al volver a primer plano y cuando suena una alarma. Con la app cerrada **no se ejecuta nada por cuenta propia**: se programa una alarma normal de Android ("Rutina: <nombre>") y al tocarla se abre Kiu y la rutina corre. Sin servicio ni permiso nuevo; está dicho en la respuesta al crearla.
+- Corre una vez por día, solo hasta 6 h después de su hora (un buen día a las 15 no sirve), y una rutina recién creada no corre de inmediato si su hora de hoy ya pasó. Si falta red para la condición de lluvia no se marca el día: reintenta.
+- 11 tests propios + 3 pedidos en el arnés de evaluación. Techos de presupuesto de tokens subidos otra vez (compacto 200→240, peor caso 900→1000, prompt 1050→1150). 603 tests en verde.
+
 ## [Sin publicar] - 2026-10-29 (tanda 2)
 
 **SEGUNDA TANDA "JARVIS": que Kiu vea lo que pasa en el teléfono.**

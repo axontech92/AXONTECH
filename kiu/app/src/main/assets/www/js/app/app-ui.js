@@ -336,8 +336,11 @@
       /* Onboarding: primera vez, preguntamos el nombre */
       setTimeout(function () { self2.onboard(); }, 800);
       document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) { self2.syncReminders(); Sys.refresh(); self2.kiuReschedule(); }
+        if (!document.hidden) { self2.syncReminders(); Sys.refresh(); self2.kiuReschedule(); self2.rutinasTick(); }
       });
+      /* v2.18.0 · rutinas: un tick por minuto mientras la app vive, y uno al arrancar */
+      setTimeout(function () { self2.rutinasTick(); }, 3000);
+      setInterval(function () { self2.rutinasTick(); }, 60000);
       setTimeout(function () { self2.kiuReschedule(); }, 1400);
       /* v1.7.0: descargar lista real de modelos + auto-cargar motor interno */
       setTimeout(function () {
@@ -350,6 +353,7 @@
          Son los estados 'Disparado' y 'Reprogramado al reiniciar', que antes no
          los disparaba nadie. */
       window.nexoAlarmFired = function (title) {
+        try { setTimeout(function () { self.rutinasTick(); }, 800); } catch (eRu) { }
         stFlash('Disparado', 3500);
         try { self.refreshMem(); } catch (eR) { }
         if (title) self.toast(title);
@@ -2141,7 +2145,7 @@
         recall: 'Busco en tu memoria', manage_task: 'Miro tus tareas',
         manage_alarm: 'Miro tus alarmas', create_calendar_event: 'Creo el evento',
         now: 'Miro la hora', web_search: 'Busco en la web', forget: 'Olvido eso',
-        get_weather: 'Miro el clima', read_notifications: 'Miro tus notificaciones', read_sms: 'Leo tus SMS', media_control: 'Controlo la música', summarize_url: 'Leo la página', daily_briefing: 'Preparo tu resumen', log_expense: 'Anoto el gasto'
+        get_weather: 'Miro el clima', manage_routine: 'Miro tus rutinas', read_notifications: 'Miro tus notificaciones', read_sms: 'Leo tus SMS', media_control: 'Controlo la música', summarize_url: 'Leo la página', daily_briefing: 'Preparo tu resumen', log_expense: 'Anoto el gasto'
       };
       var txt = ETIQUETA[tool] || '';
       if (!txt) {
@@ -2162,7 +2166,7 @@
       send_message: 'Mensaje', remember: 'Memoria', recall: 'Memoria',
       manage_task: 'Tareas', manage_alarm: 'Alarmas', create_calendar_event: 'Evento',
       forget: 'Memoria', update_memory: 'Memoria', now: 'Hora', web_search: 'Web',
-      get_weather: 'Clima', read_notifications: 'Notificaciones', read_sms: 'SMS', media_control: 'Música', summarize_url: 'Página', daily_briefing: 'Resumen', log_expense: 'Gastos'
+      get_weather: 'Clima', manage_routine: 'Rutinas', read_notifications: 'Notificaciones', read_sms: 'SMS', media_control: 'Música', summarize_url: 'Página', daily_briefing: 'Resumen', log_expense: 'Gastos'
     },
     TOOL_ICONO: {
       set_alarm: 'alarm', read_calendar: 'receipt', find_contact: 'users',
@@ -2170,7 +2174,7 @@
       send_message: 'mail', remember: 'memory', recall: 'memory',
       manage_task: 'check', manage_alarm: 'alarm', create_calendar_event: 'receipt',
       forget: 'trash', update_memory: 'pencil', now: 'cal', web_search: 'grid',
-      get_weather: 'pulse', read_notifications: 'mail', read_sms: 'mail', media_control: 'flash', summarize_url: 'bookmark', daily_briefing: 'cal', log_expense: 'receipt'
+      get_weather: 'pulse', manage_routine: 'timer', read_notifications: 'mail', read_sms: 'mail', media_control: 'flash', summarize_url: 'bookmark', daily_briefing: 'cal', log_expense: 'receipt'
     },
     insertToolCard: function (tool) {
       var el = document.getElementById('chat-messages');
@@ -3827,6 +3831,17 @@
       bridge('cancelReminder', [id]);
       store('nexo_alarmas', this.reminders().filter(function (r) { return r.id !== id; }));
       this.refreshMem();
+    },
+    /* v2.18.0 · corre las rutinas que ya les toca y pone el resultado en el chat. Nunca lanza. */
+    rutinasTick: function () {
+      var self = this;
+      try {
+        if (!window.KiuRutinas || !window.KiuAgente) return;
+        window.KiuRutinas.tick(function (texto, r) {
+          self.botSay('**' + r.name + '**\n' + texto);
+          self.toast(r.name);
+        });
+      } catch (e) { }
     },
     syncReminders: function () {
       if (!BR) return;

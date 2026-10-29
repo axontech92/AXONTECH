@@ -103,6 +103,7 @@ function entorno(op) {
 
   /* el agente, encima */
   runScript(sb, 'js/kiu-agente.js', readFileSync(path.join(WWW, 'js', 'kiu-agente.js'), 'utf8'));
+  runScript(sb, 'js/kiu-rutinas.js', readFileSync(path.join(WWW, 'js', 'kiu-rutinas.js'), 'utf8'));
 
   /* una alarma real en la agenda, con el título que usa la persona */
   sb.localStorage.setItem('nexo_alarmas', JSON.stringify([

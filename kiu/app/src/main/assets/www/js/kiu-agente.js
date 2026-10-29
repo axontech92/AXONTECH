@@ -763,6 +763,45 @@ window.KiuAgente = (function () {
     },
     { risk: 'write' });
 
+  /* --- 18. RUTINAS (v2.18.0) --------------------------------------------------
+     "Todos los días a las 8 dame el resumen", "los domingos a las 20 avisame si llueve
+     mañana". La lógica vive en kiu-rutinas.js; esto solo traduce los argumentos. Crear o
+     borrar pide confirmación; ver la lista no. Una rutina solo puede LEER (ver ese archivo). */
+  def('manage_routine',
+    'Ver, crear o borrar rutinas automáticas a cierta hora: "todos los días a las 8 el resumen".',
+    {
+      action: { type: 'string', required: true, enum: ['list', 'add', 'remove'], desc: 'list=ver, add=crear, remove=borrar.' },
+      name: { type: 'string', required: false, desc: 'Nombre corto. Para remove: cuál.' },
+      at: { type: 'string', required: false, desc: 'Hora: "8", "20:30".' },
+      days: { type: 'string', required: false, desc: '"lunes y jueves", "fines de semana". Vacío = todos los días.' },
+      what: { type: 'string', required: false, enum: ['resumen', 'clima', 'agenda', 'tareas', 'decir'], desc: 'Qué hacer. Por defecto resumen.' },
+      if_rain: { type: 'string', required: false, enum: ['no', 'hoy', 'mañana'], desc: 'Solo avisar si llueve ese día.' },
+      text: { type: 'string', required: false, desc: 'Solo para what=decir.' }
+    },
+    function (a) {
+      var R = window.KiuRutinas;
+      if (!R) return { ok: false, err: 'las rutinas no están disponibles' };
+      var action = String(a.action || '').toLowerCase();
+      if (action === 'add') {
+        var r = R.add({ name: a.name, at: a.at, days: a.days, what: a.what, ifRain: a.if_rain, text: a.text });
+        if (!r.ok) return { ok: false, err: r.err };
+        var nf = R.nextFire(r.routine);
+        R.programarDespertadores();
+        return { ok: true, text: 'Rutina creada — ' + R.dicho(r.routine) + (nf ? '. La próxima es ' + nf.toLocaleString('es', { weekday: 'long', hour: '2-digit', minute: '2-digit' }) + '.' : '.') +
+          ' Corre cuando Kiu está abierto; con la app cerrada te suena una alarma y al tocarla se ejecuta.' };
+      }
+      if (action === 'remove') {
+        var q = s(a.name, 40).trim();
+        if (!q) return { ok: false, err: 'decime cuál rutina borrar' };
+        var del = R.remove(q);
+        return del ? { ok: true, text: 'Borré la rutina "' + del.name + '".' } : { ok: false, err: 'no encontré una rutina "' + q + '"' };
+      }
+      var l = R.all();
+      if (!l.length) return { ok: true, text: 'No tenés rutinas. Pedime una: "todos los días a las 8 dame el resumen".' };
+      return { ok: true, text: 'Tus rutinas:\n' + l.map(function (x) { return '· ' + R.dicho(x); }).join('\n') };
+    },
+    { risk: 'write', riskFor: function (a) { return String(a && a.action || '').toLowerCase() === 'list' ? 'read' : 'write'; } });
+
   /* v2.13.1 · REGISTRO de lo que hizo el agente: solo metadatos (herramienta, riesgo,
      resultado, hora), nunca los argumentos ni el texto del usuario. Máx. 30. */
   var LOG = [];
@@ -806,6 +845,7 @@ window.KiuAgente = (function () {
     read_notifications: ['notificacion', 'notificaciones', 'notificación', 'llego', 'llegó', 'me llego', 'me llegó', 'escribio', 'escribió', 'novedades', 'avisos'],
     read_sms: ['sms', 'mensajes de texto', 'mensaje de texto', 'banco', 'codigo', 'código', 'leeme mis mensajes', 'leeme los mensajes'],
     media_control: ['musica', 'música', 'cancion', 'canción', 'pausa', 'pausar', 'pausá', 'reproducir', 'siguiente', 'anterior', 'saltá', 'saltar', 'tema', 'volumen', 'play'],
+    manage_routine: ['rutina', 'rutinas', 'cada', 'todos los', 'todas las', 'automatico', 'automaticamente', 'los lunes', 'los martes', 'los miercoles', 'los jueves', 'los viernes', 'los sabados', 'los domingos', 'fines de semana', 'avisame si', 'siempre que'],
     get_weather: ['clima', 'tiempo', 'llueve', 'lluvia', 'llover', 'llovera', 'lloviendo', 'va llover', 'hace calor', 'hace frio', 'temperatura', 'pronostico', 'pronóstico', 'paraguas', 'calor', 'frio', 'frío', 'nublado', 'hace sol'],
     summarize_url: ['resumi', 'resumí', 'resume', 'resumen de', 'pagina', 'página', 'articulo', 'artículo', 'link', 'enlace', 'url', 'https', 'leé', 'lee esta'],
     log_expense: ['gaste', 'gasté', 'gasto', 'gastos', 'gastar', 'pague', 'pagué', 'compre', 'compré', 'costo', 'presupuesto'],
@@ -816,7 +856,7 @@ window.KiuAgente = (function () {
   var LECTURA = {
     read_calendar: 1, find_contact: 1, search_docs: 1, recall: 1,
     manage_task: 1, manage_alarm: 1, now: 1, web_search: 1,
-    get_weather: 1, summarize_url: 1, daily_briefing: 1, read_notifications: 1, read_sms: 1
+    get_weather: 1, summarize_url: 1, daily_briefing: 1, read_notifications: 1, read_sms: 1, manage_routine: 1
   };
   function esLectura(n) { return !!LECTURA[n]; }
   /* v2.14.4 · DESEMPATE EXPRESO. Cuando dos herramientas matchean la misma
@@ -826,7 +866,7 @@ window.KiuAgente = (function () {
      tarea; "qué tengo mañana" es la agenda. */
   var PRIORIDAD = {
     manage_task: 3, recall: 3, manage_alarm: 3, create_calendar_event: 3,
-    read_calendar: 2, device_action: 2, web_search: 2, get_weather: 3, read_notifications: 3, read_sms: 3, media_control: 3, summarize_url: 3, log_expense: 3, daily_briefing: 3, find_contact: 2, search_docs: 2,
+    read_calendar: 2, device_action: 2, web_search: 2, get_weather: 3, manage_routine: 4, read_notifications: 3, read_sms: 3, media_control: 3, summarize_url: 3, log_expense: 3, daily_briefing: 3, find_contact: 2, search_docs: 2,
     set_alarm: 1, send_message: 1, remember: 1, now: 1, forget: 1, update_memory: 1
   };
   /* ¿alguno de estos tools matcheó palabras del pedido? */

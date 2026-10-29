@@ -423,7 +423,7 @@ test('el manifiesto entra en presupuesto', () => {
      corre por defecto): una línea por herramienta, sin descripciones. Ese es
      el número que importa, y tiene su propio techo, más estricto. */
   /* v2.16.0 · 18 herramientas (+4 de la tanda Jarvis): el techo sube a 760. Lo que se paga por turno sigue siendo seleccionar() (≤60). */
-  assert.ok(tok <= 900, 'manifiesto (worst case, con descripciones): ' + tok + ' tokens, el techo es 900');
+  assert.ok(tok <= 1000, 'manifiesto (worst case, con descripciones): ' + tok + ' tokens, el techo es 1000');
   /* v2.14.2 · el compacto sube a ~119 tokens porque ahora lleva los VALORES
      de los enums (manage_task(action: list|add|done)): el modelo ya no tiene
      que adivinar el vocabulario, y un valor inventado costaba una generación
@@ -431,14 +431,14 @@ test('el manifiesto entra en presupuesto', () => {
      lleva (ver seleccionar()), así que el costo real es mucho menor que este
      techo, que es el peor caso. */
   const comp = A.budget().manifiestoCompactoTok;
-  assert.ok(comp <= 200, 'manifiesto compacto (el que se paga en el móvil): ' + comp + ' tokens, el techo es 200');
+  assert.ok(comp <= 240, 'manifiesto compacto (el que se paga en el móvil): ' + comp + ' tokens, el techo es 240');
 });
 
 test('el prompt completo de una decisión entra en presupuesto', () => {
   const A = cargar().A;
   const tok = A.budget().promptTok;
   assert.equal(typeof tok, 'number');
-  assert.ok(tok <= 1050, 'prompt: ' + tok + ' tokens (bajó de 544 pero hay 14 herramientas más), el techo es 1050');
+  assert.ok(tok <= 1150, 'prompt: ' + tok + ' tokens (bajó de 544 pero hay 15 herramientas más), el techo es 1150');
 });
 
 test('el perfil del usuario no infla el prompt de la decisión', () => {
@@ -453,7 +453,7 @@ test('el perfil del usuario no infla el prompt de la decisión', () => {
      modelo real, sin ellos el 97 % de los pedidos terminaban sin hacer nada
      (el modelo contestaba {"listo":true}). 100 caracteres de ejemplo
      compraron 74 puntos de acierto. */
-  assert.ok(largo < 3800, 'el prompt no puede pasar de ~3800 caracteres: ' + largo);
+  assert.ok(largo < 4100, 'el prompt no puede pasar de ~4100 caracteres: ' + largo);
 });
 
 test('el mensaje del usuario va UNA vez, no dos', () => {
