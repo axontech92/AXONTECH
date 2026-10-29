@@ -7506,15 +7506,21 @@ function renderGestores() {
   if(!c) return;
   if(!gestores.length){c.innerHTML='<div class="es"><div class="es-icon">👤</div><div class="es-text">El admin aún no ha configurado gestores</div></div>';return;}
   const pinnedId = _getPinnedGestorId();
+  // v154: un color PROPIO por gestor para su tarjeta. g.color se repite mucho
+  // (pocos colores para 61 gestores); aquí cada uno recibe un tono separado del
+  // anterior por el ángulo áureo, según su orden de alta, así que no cambia al
+  // añadir gestores nuevos y dos vecinos de la lista casi nunca se parecen.
+  const _ordenAlta = new Map(getGestores().map((x, i) => [String(x.id), i]));
+  const _colorPropio = g => `hsl(${Math.round(((_ordenAlta.get(String(g.id)) || 0) * 137.508) % 360)} 62% 44%)`;
   c.innerHTML=gestores.map(g=>{
     const act=g.id===activeGestorId;
     const pinned=g.id===pinnedId;
     const pinBtn = pinned
       ? `<button class="g-pin-btn g-pinned" type="button" title="Quitar del inicio" aria-label="Quitar del inicio" onclick="event.stopPropagation();unpinGestor()">📌</button>`
       : `<button class="g-pin-btn" type="button" title="Fijar al inicio" aria-label="Fijar al inicio" onclick="event.stopPropagation();togglePinGestor(${g.id})">📍</button>`;
-    return `<div class="g-item ${act?'active':''} ${pinned?'g-item-pinned':''}" style="--gc:${g.color||'#006d8a'}" onclick="selectGestor(${g.id})">
+    return `<div class="g-item ${act?'active':''} ${pinned?'g-item-pinned':''}" style="--gc:${_colorPropio(g)}" onclick="selectGestor(${g.id})">
       <div class="g-pin-wrap">
-        <div class="g-avatar" style="background:${g.color}">${gestorAvatarInner(g)}</div>
+        <div class="g-avatar" style="background:var(--gc)">${gestorAvatarInner(g)}</div>
         ${pinBtn}
       </div>
       <div class="g-name">${escapeHTML(g.name)}</div>
@@ -11960,7 +11966,9 @@ function _vfStickyActualizar() {
   // v152: solo mientras el formulario está en pantalla (con la barra de abajo,
   // tenerla siempre puesta tapaba "Mis vales").
   let enPantalla = false;
-  try { const f = document.querySelector('.vale-form-body'); if (f) { const r = f.getBoundingClientRect(); enPantalla = r.bottom > 140 && r.top < window.innerHeight - 140; } } catch (e) {}
+  // v154: cuenta cuánto formulario se VE, no si asoma un borde: si solo asoma
+  // debajo de "Vales activos", la barra tapaba esa lista.
+  try { const f = document.querySelector('.vale-form-body'); if (f) { const r = f.getBoundingClientRect(); const vh = window.innerHeight; enPantalla = (Math.min(r.bottom, vh) - Math.max(r.top, 0)) > vh * 0.4; } } catch (e) {}
   const visible = !!(w && w.offsetParent !== null && activeGestorId && enPantalla);
   document.body.classList.toggle('vf-sticky-on', visible);
   if (!visible) return;

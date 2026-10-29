@@ -2112,3 +2112,24 @@ body[data-page="admin"] .anav-btn.active{background:var(--blue);color:#fff;}
   .a-hoja-acc button i{margin-left:auto;font-style:normal;font-size:10px;font-weight:800;color:var(--text-muted);background:var(--surface2);border-radius:99px;padding:2px 7px;}
   .a-hoja-salir{background:none;border:0;font:800 13px var(--font);color:var(--red);padding:6px;cursor:pointer;}
 }
+
+/* v154 · tarjetas de gestor iguales en el móvil: la columna no se ensancha con
+   un nombre largo (minmax(0,1fr)), la tarjeta no es cuadrada (crecía con el
+   ancho) y el nombre ocupa como mucho dos líneas. */
+@media (max-width:640px){
+  body[data-page="gestor"] #layoutGestor #gestoresList{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important;}
+  body[data-page="gestor"] #layoutGestor #gestoresList .g-item{aspect-ratio:auto !important;min-width:0;min-height:124px;justify-content:center;}
+  body[data-page="gestor"] #layoutGestor #gestoresList .g-item-pinned{grid-column:span 2;}
+  body[data-page="gestor"] #layoutGestor #gestoresList .g-item .g-name{max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;}
+  body[data-page="gestor"] #layoutGestor{padding-bottom:calc(96px + env(safe-area-inset-bottom, 0px));}
+}
+/* v154 · la barra de Enviar solo existe mientras la app la pide (vf-sticky-on).
+   Antes en el móvil se veía siempre y la clase solo cambiaba el hueco de abajo. */
+body:not(.vf-sticky-on) .vf-sticky{display:none !important;}
+/* v154 · en el móvil, "En línea" no flota encima del contenido: solo aparece
+   cuando hay algo que contar (guardando, sin conexión). El estado sigue en
+   Perfil (gestor) y en Más (admin). */
+@media (max-width:640px){
+  body[data-page="gestor"] #syncIndicator.online,
+  body[data-page="admin"] #syncIndicator.online{display:none !important;}
+}
