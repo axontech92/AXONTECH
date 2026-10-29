@@ -2133,3 +2133,85 @@ body:not(.vf-sticky-on) .vf-sticky{display:none !important;}
   body[data-page="gestor"] #syncIndicator.online,
   body[data-page="admin"] #syncIndicator.online{display:none !important;}
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v157 · Panel del admin unificado
+   Cada pestaña había ido cogiendo su propio estilo (tarjetas "cristal" con su
+   propia paleta en Dueños y Ganancia, cifras con etiquetas en MAYÚSCULAS,
+   mini-botones con bordes de colores, filtros con formas distintas). Aquí todo
+   pasa por las mismas piezas que el resto del estilo nuevo. Solo apariencia.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. La paleta "ax2" (Dueños, Ganancia e inversión) usa la misma que el resto */
+body[data-page="admin"]{
+  --ax2-bg0:var(--g-fondo); --ax2-bg1:var(--g-fondo); --ax2-card:var(--g-card); --ax2-card-hi:var(--g-card);
+  --ax2-line:var(--border); --ax2-signal:var(--blue); --ax2-signal-dim:var(--blue-lt);
+  --ax2-ember:var(--orange); --ax2-ember-soft:var(--orange); --ax2-good:var(--green-dk); --ax2-danger:var(--red);
+  --ax2-text-hi:var(--text); --ax2-text-mid:var(--text-muted); --ax2-text-low:var(--gray-400);
+  --ax2-aura1:transparent; --ax2-aura2:transparent; --ax2-shadow:var(--g-sombra);
+  --ax2-font:var(--font); --ax2-mono:var(--font);
+}
+body.dark[data-page="admin"]{
+  --ax2-bg0:var(--g-fondo); --ax2-bg1:var(--g-fondo); --ax2-card:var(--g-card); --ax2-card-hi:var(--g-card);
+  --ax2-line:var(--border); --ax2-signal:var(--blue); --ax2-signal-dim:var(--blue-lt);
+  --ax2-ember:var(--orange); --ax2-ember-soft:var(--orange); --ax2-good:var(--green); --ax2-danger:var(--red);
+  --ax2-text-hi:var(--text); --ax2-text-mid:var(--text-muted); --ax2-text-low:var(--gray-400);
+  --ax2-aura1:transparent; --ax2-aura2:transparent; --ax2-shadow:var(--g-sombra);
+  --ax2-font:var(--font); --ax2-mono:var(--font);
+}
+body[data-page="admin"] .ax2-panel{background:transparent !important;}
+body[data-page="admin"] .ax2-card,
+body[data-page="admin"] .ax2-hero{background:var(--g-card) !important;background-image:none !important;border:none !important;border-radius:16px !important;box-shadow:var(--g-sombra) !important;}
+body[data-page="admin"] .ax2-hero::before,body[data-page="admin"] .ax2-hero::after,
+body[data-page="admin"] .ax2-card::before,body[data-page="admin"] .ax2-card::after{display:none !important;}
+body[data-page="admin"] .ax2-mono,body[data-page="admin"] .ax2-table td{font-variant-numeric:tabular-nums;}
+
+/* 2. Títulos: uno solo */
+body[data-page="admin"] .admin-panel .lbl,
+body[data-page="admin"] .ax2-section-title{font-size:15px !important;font-weight:800 !important;color:var(--text) !important;text-transform:none !important;letter-spacing:-.01em !important;margin:18px 2px 10px !important;}
+
+/* 3. Cifras: etiqueta legible arriba, número grande debajo */
+body[data-page="admin"] .admin-panel [style*="text-transform:uppercase"],
+body[data-page="admin"] .ax2-kpi-label,
+body[data-page="admin"] .stat-lbl{text-transform:none !important;letter-spacing:0 !important;font-size:11.5px !important;font-weight:700 !important;color:var(--text-muted) !important;}
+body[data-page="admin"] .stat-card,
+body[data-page="admin"] .ax2-kpi{background:var(--g-card) !important;border:none !important;border-radius:16px !important;box-shadow:var(--g-sombra) !important;}
+body[data-page="admin"] .stat-num,
+body[data-page="admin"] .ax2-kpi-value{font-weight:800 !important;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+
+/* 4. Filtros: siempre pastillas */
+body[data-page="admin"] .pcat-tab,
+body[data-page="admin"] .ax2-chip{border:1.5px solid var(--border) !important;background:var(--g-card) !important;color:var(--text-muted) !important;
+  border-radius:99px !important;padding:6px 12px !important;font:700 12px var(--font) !important;box-shadow:none !important;}
+body[data-page="admin"] .pcat-tab.active,
+body[data-page="admin"] .ax2-chip.active,
+body[data-page="admin"] .ax2-chip.on{background:var(--blue) !important;border-color:var(--blue) !important;color:#fff !important;}
+
+/* 5. Botones: misma forma y tamaño en todas las pestañas */
+body[data-page="admin"] .admin-panel .btn{border-radius:12px;}
+body[data-page="admin"] .admin-panel .btn-sm{border-radius:10px;padding:7px 11px;font-size:12px;}
+/* Los mini-botones con estilo propio (Copiar, Resetear, Editar, Puntos, Foto…):
+   mismo tamaño y borde neutro; conservan el color del texto. */
+body[data-page="admin"] .admin-panel button[style*="padding:2px 7px"],
+body[data-page="admin"] .admin-panel button[style*="padding:3px 8px"],
+body[data-page="admin"] .admin-panel button[style*="border-radius:4px"]{
+  padding:6px 10px !important;border-radius:10px !important;font-size:11.5px !important;font-weight:700 !important;
+  border:1.5px solid var(--border) !important;background:var(--g-card) !important;}
+body[data-page="admin"] .ax2-btn{border-radius:12px !important;}
+
+/* 6. Campos */
+body[data-page="admin"] .admin-panel input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),
+body[data-page="admin"] .admin-panel select,
+body[data-page="admin"] .ax2-input,
+body[data-page="admin"] .ax2-search-box{border-radius:12px !important;border:1.5px solid var(--g-linea) !important;background:var(--g-card) !important;color:var(--text);min-height:40px;}
+body[data-page="admin"] .admin-panel textarea{border-radius:12px !important;border:1.5px solid var(--g-linea) !important;background:var(--g-card) !important;}
+
+/* 7. Avisos (cajas amarillas) con la misma forma */
+body[data-page="admin"] .ax2-aviso{border-radius:14px !important;}
+
+/* 8. La barra de abajo no corta el final de ninguna pestaña */
+@media (max-width:640px){
+  body[data-page="admin"] #layoutAdmin{padding-bottom:calc(170px + env(safe-area-inset-bottom, 0px)) !important;}
+}
+/* v157 · la caja de búsqueda de "Ganancia" ya tiene borde: el campo de dentro, no */
+body[data-page="admin"] .ax2-search-box input{border:none !important;background:transparent !important;min-height:0 !important;box-shadow:none !important;}
