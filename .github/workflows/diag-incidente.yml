@@ -1,0 +1,20 @@
+name: Diagnostico incidente 29-10
+# Temporal y de SOLO LECTURA sobre Supabase. Guarda el resultado en esta rama.
+on:
+  push:
+    branches: [diag-incidente]
+    paths: [diag_incidente.py, .github/workflows/diag-incidente.yml]
+permissions:
+  contents: write
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 diag_incidente.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add diag_incidente.txt
+          git commit -m "resultado diagnostico" || exit 0
+          git push
