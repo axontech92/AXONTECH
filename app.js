@@ -19177,6 +19177,36 @@ if (IS_ADMIN) setTimeout(() => {
   } catch (e) {}
 }, 4000);
 
+// ── v155: ¿le falta a este teléfono algún vale que SÍ está en la nube? ──────
+// El sondeo solo pide los vales cambiados desde su marca de agua, y el barrido
+// completo (el único que repara huecos) salta mientras el número de filas no
+// cambie, hasta 24 h. Si un vale desaparece de la memoria del teléfono sin
+// cambiar en la nube, no volvía a bajar en todo un día: pasó el 29/10 con tres
+// ventas que el panel dejó de ver aunque estaban en Supabase.
+// Ahora, cada 10 min, se bajan solo los ids (unos bytes por vale) y si falta
+// alguno se fuerza la bajada completa en el siguiente sondeo.
+async function _comprobarValesQueFaltan() {
+  if (!navigator.onLine) return;
+  if (!IS_ADMIN && activeGestorId == null) return;
+  const filtro = IS_ADMIN ? '' : `&gestor_id=eq.${encodeURIComponent(String(activeGestorId))}`;
+  let filas;
+  try {
+    const r = await fetch(`${_SB_REST}/vales?select=id${filtro}&id=neq.0`, { headers: _SB_AUTH_HDRS });
+    if (!r.ok) return;
+    filas = await r.json();
+  } catch (e) { return; }
+  if (!Array.isArray(filas)) return;
+  const locales = new Set((getVales() || []).map(v => v && String(v.id)));
+  const lapidas = (_lapidasCache && typeof _lapidasCache === 'object') ? _lapidasCache : {};
+  const faltan = filas.map(f => String(f.id)).filter(id =>
+    !locales.has(id) && !lapidas[id] && !(_valesDirectDeleting && _valesDirectDeleting.has(id)));
+  if (!faltan.length) return;
+  console.warn(`[v155] faltan ${faltan.length} vale(s) que están en la nube: se fuerza la bajada completa`, faltan);
+  _ultimoFetchReal.vales = 0; _ultimaBajadaCompleta.vales = 0; _filasVistas.vales = null; _tsVistosSucio = true;
+  if (typeof _doRestPoll === 'function') setTimeout(_doRestPoll, 200);
+}
+setTimeout(() => { _comprobarValesQueFaltan(); setInterval(_comprobarValesQueFaltan, 10 * 60000); }, 20000);
+
 // ── v146: ofrecer recuperar vales que este teléfono tenía y la nube perdió ────
 // Se espera a que haya una bajada completa POSTERIOR a abrir la app (si no, la
 // comparación no dice nada). No sube nada sin que la persona lo confirme, y nunca
