@@ -15980,8 +15980,12 @@ function buildDemoVale(v) {
 //  MENSAJERO BADGE
 // ══════════════════════════════════════════
 function updateMensajeroBadge() {
-  const pend=getVales().filter(v=>v.status==='pending_payment').length;
-  const asgn=getVales().filter(v=>v.status==='assigned').length;
+  // v149: solo los que llevan mensajero. Un vale pendiente de cobro sin mensajero
+  // (lo cobra la tienda) no tiene nada que ver con esta pestaña, y antes la
+  // encendía en rojo como si un mensajero debiera dinero.
+  const _conMensajero = v => v.mensajeroId != null && v.mensajeroId !== '';
+  const pend=getVales().filter(v=>v.status==='pending_payment'&&_conMensajero(v)).length;
+  const asgn=getVales().filter(v=>v.status==='assigned'&&_conMensajero(v)).length;
   const b=document.getElementById('mensajeroBadge');
   if(!b)return;
   if(pend>0){
