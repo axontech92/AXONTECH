@@ -859,7 +859,7 @@ function guardarProductosPorDelta(lista, deltas) {
   if (Array.isArray(lista)) lista.forEach(_normalizeProducto);
   _safeSetLS('axon_productos', JSON.stringify(lista));
   _productosCache = lista; _productosDirty = false; _productosMap = null;
-  if (!isSyncingFromSupabase()) {
+  if (!isSyncingFromSupabase() && !_stockSoloLocal) {
     const carga = {};
     let hay = false;
     Object.entries(deltas || {}).forEach(([id, d]) => {
@@ -894,6 +894,274 @@ async function _deltaStockPorLectura(id, delta) {
   });
   if (!patch.ok) throw new Error(`PATCH productos/${id} ${patch.status}`);
   _asentarStockServidor(id, nuevo);
+}
+
+// ════════════════════════════════════════
+//  v142: RPC upsert_vale_admin — control de versión por vale
+// ════════════════════════════════════════
+//  Dos admins (o una pestaña vieja) podían pisarse: el upsert reemplaza la fila
+//  entera. Ahora cada cambio del admin lleva `rev` (+1) y `revOp`, y el servidor
+//  solo lo acepta si su rev es mayor que el de la nube. Si lo rechaza devuelve la
+//  versión de la nube, que este teléfono adopta. Requiere migration_v142_rev_vales.sql;
+//  sin ella se usa el upsert de siempre.
+let _sbAdminRpcAvailable = null;
+async function _detectAdminRpc() {
+  if (_sbAdminRpcAvailable !== null) return _sbAdminRpcAvailable;
+  try {
+    const res = await fetch(`${_SB_REST}/rpc/upsert_vale_admin`, {
+      method: 'POST', headers: _SB_AUTH_HDRS, body: JSON.stringify({ p_id: 0, p_data: {} })
+    });
+    _sbAdminRpcAvailable = (res.status !== 404);
+  } catch (e) { _sbAdminRpcAvailable = false; }
+  console.log(`[sb] upsert_vale_admin RPC: ${_sbAdminRpcAvailable ? 'disponible' : 'NO disponible (upsert normal)'}`);
+  return _sbAdminRpcAvailable;
+}
+
+// Sustituye un vale local por la versión de la nube SIN encolar nada.
+function _adoptarValeNube(data) {
+  if (!data || data.id == null) return;
+  const all = getVales().slice();
+  const i = all.findIndex(v => String(v.id) === String(data.id));
+  const nuevo = { ...data, synced: true };
+  if (i === -1) all.push(nuevo); else all[i] = { ...all[i], ...nuevo };
+  _valeLocalPatchTs.delete(String(data.id));
+  _safeSetLS('axon_vales', JSON.stringify(all));
+  _valesCache = all; _valesDirty = false;
+  // El próximo saveVales debe tomar esta versión como "ya en la nube" y NO
+  // reenviarla (la clave del diff se fija allí, donde está slimVale).
+  try { _valesAdoptados.add(`${data.gestorId}/${data.id}`); } catch (e) {}
+}
+
+// ════════════════════════════════════════
+//  v143: eventos de vale — el servidor decide estado y stock
+// ════════════════════════════════════════
+//  Confirmar/entregar/revertir ya no son "quita stock" + "sube el vale" por
+//  separado: viaja UNA orden con identificador (vale_aplicar_estado) y el servidor
+//  cambia el estado y mueve el stock en la misma transacción, una sola vez.
+//  Requiere migration_v143_eventos_vale.sql; sin ella todo sigue como antes.
+let _sbEventosRpc = null;                 // null = sin saber, true/false
+const _descontoLocal = new Set();         // vales cuyo stock se restó en pantalla y debe restarlo el servidor
+let _stockSoloLocal = false;              // true = tocar el stock en pantalla sin encolar nada (lo hace el servidor)
+const _eventosResultados = [];
+async function _detectEventosRpc() {
+  if (_sbEventosRpc !== null) return _sbEventosRpc;
+  try {
+    const res = await fetch(`${_SB_REST}/rpc/vale_aplicar_estado`, {
+      method: 'POST', headers: _SB_AUTH_HDRS,
+      body: JSON.stringify({ p_op: 'sonda', p_vale: 0, p_cambios: {}, p_descontar: false, p_rev: 0 })
+    });
+    _sbEventosRpc = (res.status !== 404);
+  } catch (e) { _sbEventosRpc = false; }
+  console.log(`[sb] vale_aplicar_estado RPC: ${_sbEventosRpc ? 'disponible' : 'NO disponible (flujo anterior)'}`);
+  return _sbEventosRpc;
+}
+async function _sbRestAplicarEvento(ev) {
+  const eliminar = ev.tipo === 'eliminar';
+  // Sin las funciones SQL (migración no ejecutada o revertida) se aplica la misma
+  // lógica desde aquí, leyendo SIEMPRE el estado de la nube. No es una transacción,
+  // pero los descuentos llevan id (stock_ops) y el vale lleva revOp, así que un
+  // reintento no repite nada.
+  if (!(await _detectEventosRpc())) { _eventosResultados.push({ ev, r: await _eventoSinServidor(ev) }); return; }
+  const res = await fetch(`${_SB_REST}/rpc/${eliminar ? 'vale_eliminar' : 'vale_aplicar_estado'}`, {
+    method: 'POST', headers: _SB_AUTH_HDRS,
+    body: JSON.stringify(eliminar
+      ? { p_op: ev.op, p_vale: Number(ev.valeId) }
+      : { p_op: ev.op, p_vale: Number(ev.valeId), p_cambios: ev.cambios || {}, p_descontar: !!ev.descontar, p_rev: Number(ev.rev) || 0 })
+  });
+  if (res.status === 404) {
+    // La función ya no está (o solo falta vale_eliminar, v144): plan B, sin perder la orden.
+    if (!eliminar) _sbEventosRpc = false;
+    _eventosResultados.push({ ev, r: await _eventoSinServidor(ev) });
+    return;
+  }
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error(`RPC ${eliminar ? 'vale_eliminar' : 'vale_aplicar_estado'}(${ev.valeId}) ${res.status}: ${t.slice(0,150)}`);
+  }
+  const r = await res.json().catch(() => null);
+  _eventosResultados.push({ ev, r });
+}
+
+// ── Plan B: la misma regla que las funciones SQL, ejecutada desde el teléfono ──
+const _RANGO_VALE = { pending: 0, assigned: 1, delivered: 2, pending_payment: 3, confirmed: 4 };
+const _rangoVale = st => _RANGO_VALE[st] || 0;
+function _valeNubeDescontado(cur) {
+  if (cur.unidoA != null) return false;
+  if (cur.stockDecremented === true) return true;
+  if (cur.stockDecremented === false) return false;
+  return _rangoVale(cur.status) >= 3;
+}
+async function _leerValeNube(id) {
+  const r = await fetch(`${_SB_REST}/vales?select=data&id=eq.${encodeURIComponent(String(id))}`, { headers: _SB_AUTH_HDRS });
+  if (!r.ok) throw new Error(`GET vales/${id} ${r.status}`);
+  const filas = await r.json().catch(() => []);
+  return (filas && filas[0] && filas[0].data) || null;
+}
+async function _leerStockNube(ids) {
+  if (!ids.length) return {};
+  const r = await fetch(`${_SB_REST}/productos?select=id,data&id=in.(${ids.map(x => encodeURIComponent(String(x))).join(',')})`, { headers: _SB_AUTH_HDRS });
+  if (!r.ok) throw new Error(`GET productos ${r.status}`);
+  const out = {};
+  (await r.json().catch(() => [])).forEach(f => { out[String(f.id)] = Math.max(0, parseInt((f.data || {}).stock || 0, 10) || 0); });
+  return out;
+}
+// Devuelve al almacén lo que salió con este vale (deltas con id: no se repiten).
+async function _devolverStockNube(cur, op) {
+  const salido = (cur.stockSalido && typeof cur.stockSalido === 'object') ? { ...cur.stockSalido } : null;
+  const mapa = {};
+  (cur.valeProductos || []).forEach(l => {
+    if (!l || l.id == null) return;
+    const k = String(l.id);
+    const dev = salido ? Math.max(0, parseInt(salido[k], 10) || 0) : Math.max(0, parseInt(l.qty, 10) || 0);
+    if (salido) salido[k] = 0;
+    if (dev) mapa[k] = { d: (mapa[k] ? mapa[k].d : 0) + dev, op: `${op}-${k}` };
+  });
+  if (Object.keys(mapa).length) await _sbRestAplicarDeltas(mapa);
+}
+async function _eventoSinServidor(ev) {
+  const cur = await _leerValeNube(ev.valeId);
+  if (ev.tipo === 'eliminar') {
+    if (!cur) {
+      // Formato antiguo (vale dentro de la fila del gestor) o ya borrado.
+      try { await _sbRestDeleteVale(ev.valeId, ev.gestorId); } catch (e) {}
+      return { applied: true, ya_borrado: true, lapida: true, stock: {} };
+    }
+    const devuelto = _valeNubeDescontado(cur);
+    if (devuelto) await _devolverStockNube(cur, ev.op);
+    await _sbRestDeleteVale(ev.valeId, cur.gestorId != null ? cur.gestorId : ev.gestorId);
+    return { applied: true, ya_borrado: false, devuelto, lapida: true, stock: {} };
+  }
+  if (!cur) return { applied: false, motivo: 'no_existe' };
+  if (cur.revOp === ev.op) return { applied: true, ya_aplicado: true, reintento: true, data: cur, stock: {} };
+  const cambios = ev.cambios || {};
+  const curRank = _rangoVale(cur.status);
+  const newRank = _rangoVale(cambios.status || cur.status);
+  if (newRank >= 3 && curRank >= 3 && newRank <= curRank) return { applied: true, ya_aplicado: true, data: cur, stock: {} };
+  const nuevo = { ...cur };
+  Object.entries(cambios).forEach(([k, val]) => {
+    if (['id','gestorId','rev','revOp','stockSalido','stockDecremented'].includes(k)) return;
+    if (val === null) delete nuevo[k]; else nuevo[k] = val;
+  });
+  const descontado = _valeNubeDescontado(cur);
+  let hizoBaja = false;
+  if (newRank >= 3 && curRank < 3) {
+    if (ev.descontar && !descontado && cur.unidoA == null) {
+      const lineas = (cur.valeProductos || []).filter(l => l && l.id != null);
+      const stock = await _leerStockNube([...new Set(lineas.map(l => String(l.id)))]);
+      const salido = {}, mapa = {};
+      lineas.forEach(l => {
+        const k = String(l.id);
+        if (!(k in stock)) return;
+        const salen = Math.min(Math.max(0, parseInt(l.qty, 10) || 0), stock[k]);
+        stock[k] -= salen;
+        salido[k] = (salido[k] || 0) + salen;
+        if (salen) mapa[k] = { d: (mapa[k] ? mapa[k].d : 0) - salen, op: `${ev.op}-${k}` };
+      });
+      if (Object.keys(mapa).length) await _sbRestAplicarDeltas(mapa);
+      nuevo.stockSalido = salido; nuevo.stockDecremented = true; hizoBaja = true;
+    } else {
+      nuevo.stockDecremented = (typeof cambios.stockDecremented === 'boolean') ? cambios.stockDecremented : descontado;
+    }
+  } else if (newRank < 3 && curRank >= 3) {
+    if (descontado) await _devolverStockNube(cur, ev.op);
+    nuevo.stockDecremented = false; delete nuevo.stockSalido;
+  } else {
+    nuevo.stockDecremented = (typeof cambios.stockDecremented === 'boolean') ? cambios.stockDecremented : descontado;
+  }
+  nuevo.rev = Math.max((Number(cur.rev) || 0) + 1, Number(ev.rev) || 0);
+  nuevo.revOp = ev.op;
+  const r = await fetch(`${_SB_REST}/vales?id=eq.${encodeURIComponent(String(ev.valeId))}`, {
+    method: 'PATCH', headers: { ..._SB_AUTH_HDRS, 'Prefer': 'return=minimal' }, body: JSON.stringify({ data: nuevo })
+  });
+  if (!r.ok) throw new Error(`PATCH vales/${ev.valeId} ${r.status}`);
+  return { applied: true, ya_aplicado: false, descontado_ahora: hizoBaja, data: nuevo, stock: {} };
+}
+
+// Borrar un vale: orden en la cola (sobrevive a cierres) y el servidor devuelve el
+// stock según el estado REAL del vale en la nube, una sola vez.
+function _borrarValeEnNube(v, id) {
+  const op = `del-${id}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  _ultimoGuardadoLocal.vales = Date.now();
+  _enqueueSB('vale_eventos', { op, tipo: 'eliminar', valeId: v.id, gestorId: v.gestorId }, 'evento');
+}
+// Se llama cuando el evento ya salió de la cola: adopta lo que decidió el servidor.
+function _procesarResultadosEventos() {
+  while (_eventosResultados.length) {
+    const { ev, r } = _eventosResultados.shift();
+    try {
+      if (!r || r.probe) continue;
+      if (ev.tipo === 'eliminar') {
+        if (r.stock) Object.entries(r.stock).forEach(([pid, n]) => _asentarStockServidor(Number(pid), Number(n)));
+        if (!r.lapida) {
+          // Vía SQL: si no había fila propia puede ser un vale del formato antiguo.
+          if (r.ya_borrado) _sbRestDeleteVale(ev.valeId, ev.gestorId).catch(() => {});
+          else _apuntarValeBorrado(ev.valeId);
+        }
+        setTimeout(() => _valesDirectDeleting.delete(String(ev.valeId)), 5000);
+        if (!r.reintento && typeof showToast === 'function') showToast('Vale eliminado ✓');
+        try { if (typeof maybeAutoSync === 'function') maybeAutoSync(); } catch (e) {}
+        if (typeof _doRestPoll === 'function') setTimeout(_doRestPoll, 500);
+        continue;
+      }
+      if (r.applied === false) {
+        if (r.motivo === 'no_existe' && typeof showToast === 'function') showToast('⚠️ Un vale ya no existe en la nube; su cambio no se aplicó.');
+        continue;
+      }
+      if (r.stock) Object.entries(r.stock).forEach(([pid, n]) => _asentarStockServidor(Number(pid), Number(n)));
+      if (r.data && !_valeTieneEscrituraPendiente(ev.valeId)) _adoptarValeNube(r.data);
+      if (r.ya_aplicado && !r.reintento && typeof showToast === 'function') {
+        showToast('ℹ️ Esa venta ya estaba confirmada en la nube: no se volvió a descontar el stock.');
+      }
+      statsTabDirty = true; rankingCache = null;
+      ['renderConfirmados','renderPendienteCobro','renderValeDetail','renderProductGrid','renderAdminGestores']
+        .forEach(f => { try { if (typeof window[f] === 'function') window[f](); } catch (e) {} });
+    } catch (e) { console.warn('[eventos] no se pudo procesar el resultado:', e && e.message); }
+  }
+}
+// ¿Esta venta ya se confirmó/entregó antes en ESTE teléfono (y no se revirtió)?
+// Es la red de seguridad para ventas que la nube perdió: el vale vuelve a salir
+// "pendiente" pero su stock ya se descontó. Se mira el registro de actividad.
+function _ventaYaConfirmadaAntes(id) {
+  try {
+    const re = new RegExp('^vale:' + String(id).replace(/[^0-9a-zA-Z_-]/g, '') + '(\\s|$)');
+    const log = _getAuditLog();                       // más reciente primero
+    for (const e of log) {
+      if (!e || !re.test(String(e.target || ''))) continue;
+      if (e.action === 'vale_reverted' || e.action === 'vale_deleted') return false;
+      if (['vale_confirmed','vale_confirm_confirmed','vale_confirm_pending_payment','vale_delivered'].includes(e.action)) return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
+async function _sbRestUpsertValeAdminBatch(items) {
+  if (!items || !items.length) return;
+  const conflictos = [];
+  for (const it of items) {
+    const res = await fetch(`${_SB_REST}/rpc/upsert_vale_admin`, {
+      method: 'POST', headers: _SB_AUTH_HDRS,
+      body: JSON.stringify({ p_id: Number(it.id), p_data: it.value })
+    });
+    if (res.status === 404) { _sbAdminRpcAvailable = false; throw new Error('RPC upsert_vale_admin desapareció (404)'); }
+    if (!res.ok) {
+      const t = await res.text().catch(() => '');
+      throw new Error(`RPC upsert_vale_admin(${it.id}) ${res.status}: ${t.slice(0,150)}`);
+    }
+    const r = await res.json().catch(() => null);
+    if (r && r.applied === false && r.data) conflictos.push(r.data);
+  }
+  if (conflictos.length) {
+    conflictos.forEach(_adoptarValeNube);
+    try {
+      if (typeof showToast === 'function') {
+        const n = conflictos.length;
+        showToast(`⚠️ ${n} vale${n === 1 ? '' : 's'} ya ${n === 1 ? 'había sido modificado' : 'habían sido modificados'} desde otro dispositivo. Se muestra la versión más reciente; revisa y repite tu cambio si hace falta.`);
+      }
+      if (typeof renderConfirmados === 'function') renderConfirmados();
+      if (typeof renderPendienteCobro === 'function') renderPendienteCobro();
+      if (typeof renderValeDetail === 'function') renderValeDetail();
+    } catch (e) {}
+  }
 }
 
 // Llama al RPC upsert_vale_from_gestor para un vale individual.
@@ -1664,7 +1932,16 @@ async function _doRestPoll() {
             if (!localV || !sbV) return false;
             // v39: Only allow local-wins if this vale was recently patched locally
             const patchTs = _valeLocalPatchTs.get(String(valeId));
-            if (!patchTs || (Date.now() - patchTs) > _LOCAL_WINS_WINDOW_MS) {
+            // Admin: un cambio suyo que la nube aún no confirmó manda siempre,
+            // incluida una reversión (rango menor). Persistente, sin plazo.
+            if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN && _valeEstaSucio(valeId)) {
+              // v142: salvo que la nube ya tenga una versión igual o más nueva
+              // (otro admin cambió el vale): ahí el servidor rechazará el nuestro.
+              const lr = Number(localV.rev) || 0, sr = Number(sbV.rev) || 0;
+              return (lr || sr) ? lr > sr : true;
+            }
+            if (!_valeTieneEscrituraPendiente(valeId) &&
+                (!patchTs || (Date.now() - patchTs) > _LOCAL_WINS_WINDOW_MS)) {
               // Not recently changed locally → Supabase is source of truth
               // BUT: if local has fields that Supabase doesn't (e.g. synced===false
               // for a new vale), still keep local version.
@@ -2357,7 +2634,7 @@ window.addEventListener('online', () => {
   if (_sbConnected) return;
   _sbConnected = true;
   _sbConnectedBooted = true;
-  setTimeout(() => { _ensurePendingValesEnqueued(); _processSBQueue(); }, 100);
+  setTimeout(() => { _detectEventosRpc(); _ensurePendingValesEnqueued(); _processSBQueue(); _startPollIfPending(); }, 100);
   _updateSyncIndicator();
 });
 window.addEventListener('offline', () => { _sbConnected = false; _sbConnectedBooted = false; _updateSyncIndicator(); });
@@ -2582,6 +2859,63 @@ const _FAILED_WRITES_LIMIT = 100;
 // Resultado: como máximo 1 write encolado esperando, sin importar cuántos
 // saveVales se llamen durante el procesamiento.
 const _sbInFlightPending = {};  // { path: { value, method } }
+let _sbInFlightItem = null;     // item en vuelo (ya sacado de la cola)
+
+// ¿Hay un cambio de ESTE vale esperando a subir a la nube (en cola, en vuelo o
+// en el buffer in-flight)? Mientras lo haya, la copia local manda sobre la nube
+// sin límite de tiempo: la nube aún no ha visto el cambio, así que lo que
+// devuelve es viejo. Sustituye a la ventana fija de 60 s, que se perdía al
+// recargar y dejaba que un 'pendiente' viejo pisara una venta confirmada.
+function _valeTieneEscrituraPendiente(valeId) {
+  const id = String(valeId);
+  const toca = (path, value) => {
+    if (!value || typeof value !== 'object') return false;
+    if (path === 'vale_eventos') return String(value.valeId) === id;
+    if (path !== 'vales' && !String(path).startsWith('vales/')) return false;
+    return Object.keys(value).some(k => k === id || k.endsWith('/' + id));
+  };
+  try {
+    if (_sbWriteQueue.some(it => toca(it.path, it.value))) return true;
+    if (_sbInFlightItem && _sbProcessing && toca(_sbInFlightItem.path, _sbInFlightItem.value)) return true;
+    return Object.keys(_sbInFlightPending).some(p => toca(p, _sbInFlightPending[p] && _sbInFlightPending[p].value));
+  } catch (e) { return false; }
+}
+
+// ── Cambios del admin aún NO confirmados por la nube (persistente) ──────────
+// El admin no tiene la bandera synced que usa el gestor, así que un cambio suyo
+// (confirmar, revertir, asignar) perdido por el camino no dejaba rastro y la
+// nube se quedaba con el estado viejo para siempre. Aquí se apunta cada vale
+// tocado y solo se borra cuando la nube CONFIRMA el write. Sobrevive a recargas.
+const _SUCIOS_KEY = 'axon_vales_sucios';
+let _valesSucios = null;
+function _getValesSucios() {
+  if (_valesSucios) return _valesSucios;
+  try { _valesSucios = JSON.parse(localStorage.getItem(_SUCIOS_KEY) || '{}') || {}; } catch (e) { _valesSucios = {}; }
+  return _valesSucios;
+}
+function _guardarValesSucios() { try { localStorage.setItem(_SUCIOS_KEY, JSON.stringify(_getValesSucios())); } catch (e) {} }
+// ev = true: lo lleva una ORDEN al servidor (cola/lista de fallidos), no un envío
+// del vale entero; la autorreparación no debe reenviarlo por la vía antigua.
+function _marcarValeSucio(id, ev) { _getValesSucios()[String(id)] = ev ? { t: Date.now(), ev: true } : Date.now(); _guardarValesSucios(); }
+function _valeEstaSucio(id) { return Object.prototype.hasOwnProperty.call(_getValesSucios(), String(id)); }
+// Tras confirmarse un write: limpia los vales que ya no tienen nada pendiente.
+function _limpiarSuciosConfirmados(path, value) {
+  try {
+    if (!value || typeof value !== 'object') return;
+    const sucios = _getValesSucios(); let cambio = false;
+    if (path === 'vale_eventos') {
+      const id = String(value.valeId);
+      if (sucios[id] !== undefined && !_valeTieneEscrituraPendiente(id)) { delete sucios[id]; _guardarValesSucios(); }
+      return;
+    }
+    if (path !== 'vales' && !String(path).startsWith('vales/')) return;
+    Object.keys(value).forEach(k => {
+      const id = k.includes('/') ? k.split('/').pop() : k;
+      if (sucios[id] !== undefined && !_valeTieneEscrituraPendiente(id)) { delete sucios[id]; cambio = true; }
+    });
+    if (cambio) _guardarValesSucios();
+  } catch (e) {}
+}
 
 // Persist queue to localStorage so it survives reloads / tab closes
 function _persistQueue() {
@@ -2589,7 +2923,15 @@ function _persistQueue() {
     // Only persist non-callback items (callbacks are not serializable)
     const serializable = _sbWriteQueue.map(({path, value, method, retries}) => ({path, value, method, retries}));
     localStorage.setItem('axon_pending_writes', JSON.stringify(serializable));
-  } catch(e) {/* storage full or unavailable */}
+  } catch(e) {
+    // Almacenamiento lleno o no disponible: la cola vive solo en memoria y se
+    // perdería al cerrar la app. Se avisa (una vez cada 5 min) en vez de callar.
+    const _ahora = Date.now();
+    if (typeof showToast === 'function' && _ahora - (_persistQueue._avisoTs || 0) > 300000) {
+      _persistQueue._avisoTs = _ahora;
+      try { showToast('⚠️ Sin espacio para guardar cambios pendientes. No cierres la app hasta que se sincronice.'); } catch(_) {}
+    }
+  }
   _updateSyncIndicator();
 }
 
@@ -2653,6 +2995,7 @@ function _processSBQueue() {
   _sbProcessing = true;
   _updateSyncIndicator();
   const item = _sbWriteQueue.shift();
+  _sbInFlightItem = item;
   _currentWritePath = item.path;  // v31: track in-flight path for _doRestPoll guard
   item.retries = (item.retries || 0) + 1;
   const {path, method, callback} = item;
@@ -2699,6 +3042,8 @@ function _processSBQueue() {
     claves_admin: 'claves_admin'                           // v138 — llave de las claves de gestores
   };
   function _supabaseOpFor(path, value, method) {
+    // v143: orden de cambio de estado de un vale (el servidor mueve el stock)
+    if (path === 'vale_eventos' && method === 'evento') return _sbRestAplicarEvento(value);
     // Singleton → meta/{name}
     if (_FS_SINGLETON_DOCS[path]) {
       const name = _FS_SINGLETON_DOCS[path];
@@ -2796,8 +3141,14 @@ function _processSBQueue() {
             }
           }));
         } else {
-          // Admin write o escritura de otra colección → upsert normal
-          ops.push(_sbRestUpsertBatch(collName, upsertItems));
+          // Admin write de vales → con control de versión si la migración está;
+          // cualquier otra colección → upsert normal
+          if (collName === 'vales') {
+            ops.push(Promise.resolve(_detectAdminRpc()).then(ok =>
+              ok ? _sbRestUpsertValeAdminBatch(upsertItems) : _sbRestUpsertBatch(collName, upsertItems)));
+          } else {
+            ops.push(_sbRestUpsertBatch(collName, upsertItems));
+          }
         }
       }
       if (deleteIds.length > 0) ops.push(_sbRestDeleteBatch(collName, deleteIds));
@@ -2906,6 +3257,9 @@ function _processSBQueue() {
       // Flush del buffer in-flight: si llegaron más cambios al mismo path
       // durante este write, encolarlos ahora.
       _flushInFlight();
+      _sbInFlightItem = null;
+      _limpiarSuciosConfirmados(path, value);
+      _procesarResultadosEventos();
       // Actualizar el indicador con timestamp de última sync exitosa.
       _markSyncSuccess();
       // Liberar el candado y procesar el siguiente item de la cola.
@@ -2949,6 +3303,17 @@ function _processSBQueue() {
         if (failed.length > _FAILED_WRITES_LIMIT) failed.splice(0, failed.length - _FAILED_WRITES_LIMIT);
         localStorage.setItem('axon_failed_writes', JSON.stringify(failed));
       } catch(e2) {}
+      // El diff de saveVales compara contra el último slim "enviado", que se
+      // apunta al ENCOLAR, no al confirmar. Si el write se descarta, hay que
+      // olvidarlo o el cambio nunca se vuelve a intentar (el diff sale vacío).
+      try {
+        if (path === 'vales' && value && typeof value === 'object') Object.keys(value).forEach(k => _valesPrevSlimJson.delete(k));
+        else if (path.startsWith('vales/') && value && typeof value === 'object') {
+          const g = path.split('/')[1];
+          Object.keys(value).forEach(k => _valesPrevSlimJson.delete(`${g}/${k}`));
+        }
+      } catch(e3) {}
+      try { if (typeof showToast === 'function') showToast('⚠️ Un cambio no pudo enviarse a la nube (' + path + '). Se reintentará al reabrir la app.'); } catch(e4) {}
       _sbProcessing = false;
       _currentWritePath = null;  // v31: clear in-flight path
       _persistQueue();
@@ -3187,15 +3552,39 @@ function _updatePendingSyncBanner() {
   _updateSyncIndicator();
 }
 
+// v144: un borrado que sigue en la cola tras reabrir la app no debe "resucitar"
+// el vale con el siguiente sondeo.
+try {
+  (JSON.parse(localStorage.getItem('axon_pending_writes') || '[]') || []).forEach(it => {
+    if (it && it.path === 'vale_eventos' && it.value && it.value.tipo === 'eliminar') _valesDirectDeleting.add(String(it.value.valeId));
+  });
+} catch (e) {}
+
 // On startup: re-enqueue persisted writes
 try {
   const pending = JSON.parse(localStorage.getItem('axon_pending_writes') || '[]');
   if (Array.isArray(pending) && pending.length) {
     pending.forEach(item => _sbWriteQueue.push(item));
-    // Clear persisted copy; will be re-persisted as queue processes
-    localStorage.removeItem('axon_pending_writes');
+    // NO se borra la copia persistida: solo _persistQueue() la reescribe, y
+    // solo tras confirmarse un write. Antes se borraba aquí y, si la app se
+    // cerraba sin conexión antes de la primera persistencia, el cambio se perdía.
     // Defer first attempt to give Supabase time to init
     setTimeout(_processSBQueue, 1500);
+  }
+} catch(e) {}
+
+// Al abrir, los envíos que el servidor rechazó (axon_failed_writes) vuelven a la
+// cola con los intentos a cero: antes nada los leía. Si siguen siendo rechazados,
+// vuelven a la lista y se avisa de nuevo (ver el catch de _processSBQueue).
+try {
+  const _fallidos = JSON.parse(localStorage.getItem('axon_failed_writes') || '[]');
+  if (Array.isArray(_fallidos) && _fallidos.length) {
+    _fallidos.forEach(f => { if (f && f.path) _sbWriteQueue.push({ path: f.path, value: f.value, method: f.method || 'update', retries: 0 }); });
+    // Se guarda la cola ya con ellos ANTES de vaciar la lista (sin pasar por
+    // _persistQueue, que aún no puede tocar el indicador de sync en este punto).
+    localStorage.setItem('axon_pending_writes', JSON.stringify(_sbWriteQueue.map(({path, value, method, retries}) => ({path, value, method, retries}))));
+    localStorage.removeItem('axon_failed_writes');
+    setTimeout(_processSBQueue, 2500);
   }
 } catch(e) {}
 
@@ -3364,7 +3753,8 @@ let _pendingPollTimer = null;
 function _startPollIfPending() {
   if (_pendingPollTimer) return; // ya está corriendo
   const tick = () => {
-    if (_sbWriteQueue.length === 0 && _countPendingSyncVales() === 0) {
+    if (_sbWriteQueue.length === 0 && _countPendingSyncVales() === 0 &&
+        !(IS_ADMIN && Object.keys(_getValesSucios()).length)) {
       // No hay trabajo — apagar el poll
       clearInterval(_pendingPollTimer);
       _pendingPollTimer = null;
@@ -3392,7 +3782,24 @@ function _startPollIfPending() {
 // El in-flight buffer se flushéa solo cuando el write actual termina, y como los
 // vales ya están siendo subidos, no hay nada nuevo que encolar.
 function _ensurePendingValesEnqueued() {
-  if (IS_ADMIN) return; // el admin no envía vales propios
+  if (IS_ADMIN) {
+    // Autorreparación: cambios del admin que la nube no confirmó y que ya no
+    // están en ninguna cola (write descartado, cola perdida) se reenvían.
+    const _sc = _getValesSucios();
+    const sucios = Object.keys(_sc).filter(id => !(_sc[id] && _sc[id].ev) && !_valeTieneEscrituraPendiente(id));
+    if (!sucios.length) return;
+    const todos = getVales();
+    let hay = false;
+    sucios.forEach(id => {
+      const v = todos.find(x => String(x.id) === id);
+      if (!v) { delete _getValesSucios()[id]; return; }
+      _valesPrevSlimJson.delete(`${v.gestorId}/${v.id}`); // fuerza que el diff lo vea distinto
+      hay = true;
+    });
+    _guardarValesSucios();
+    if (hay) saveVales(todos);
+    return;
+  }
   if (!activeGestorId) return;
   const mine = getVales().filter(v => v.gestorId === activeGestorId && v.synced !== true && v.status !== 'cancelled');
   if (mine.length === 0) return;
@@ -3514,6 +3921,8 @@ let _valesCache = null, _valesDirty = true;
 // los vales una vez. Es idempotente —el upsert deja el mismo resultado— y de
 // paso repara en Supabase los que se hubieran quedado con el estado viejo.
 const _valesPrevSlimJson = new Map();
+const _valesAdoptados = new Set();   // v142: vales que acaban de adoptarse de la nube
+const _saltarBorradoDiff = new Set(); // v144: vales cuyo borrado lo lleva una orden (vale_eliminar)
 // v140: "lo que la nube ya tiene" se toma de lo GUARDADO en el teléfono al
 // empezar la sesión y cada vez que el sondeo trae vales. Antes el mapa nacía
 // vacío en cada carga, y el primer guardado del admin subía TODOS los vales
@@ -3738,8 +4147,14 @@ const saveVales = v => {
     // cuando vale null: null es "lo desuní", y si no viajara, el teléfono del
     // gestor seguiría repartiendo su comisión a medias para siempre.
     if (x.unidoA !== undefined) slim.unidoA = x.unidoA;
+    // v142: versión del vale (ver upsert_vale_admin).
+    if (x.rev != null) slim.rev = x.rev;
+    if (x.revOp) slim.revOp = x.revOp;
     return slim;
   }
+  // El diff compara el contenido SIN la versión; si no, estampar la versión
+  // haría que todo vale pareciera cambiado.
+  function _slimClave(slim) { const c = { ...slim }; delete c.rev; delete c.revOp; return JSON.stringify(c); }
   // ── v17: slimValeGestor — whitelist de campos que el gestor puede escribir ──
   // PROBLEMA: el gestor tenía una copia local del vale que podía estar desactualizada
   // respecto a lo que el admin había cambiado (status, mensajeroId, confirmedTs,
@@ -3817,11 +4232,12 @@ const saveVales = v => {
   if (Array.isArray(_semilla)) {
     _semilla.forEach(x => {
       if (!x || x.id == null) return;
-      if (IS_ADMIN) _valesPrevSlimJson.set(`${x.gestorId}/${x.id}`, JSON.stringify(slimVale(x)));
+      if (IS_ADMIN) _valesPrevSlimJson.set(`${x.gestorId}/${x.id}`, _slimClave(slimVale(x)));
       else if (activeGestorId && x.gestorId === activeGestorId) _valesPrevSlimJson.set(`${x.gestorId}/${x.id}`, JSON.stringify(slimValeGestor(x)));
     });
   }
   const curKeys = new Set();
+  let _revEstampada = false;
   if (IS_ADMIN) {
     v.forEach(x => {
       const key = `${x.gestorId}/${x.id}`;
@@ -3844,13 +4260,25 @@ const saveVales = v => {
       // AHORA se compara contra un snapshot SERIALIZADO del último slim
       // enviado. Al ser texto y no referencias, es inmune a que alguien mute
       // los vales del caché por debajo.
-      const slim = slimVale(x);
-      const slimStr = JSON.stringify(slim);
+      let slim = slimVale(x);
+      const slimStr = _slimClave(slim);
+      if (_valesAdoptados.has(key)) {
+        _valesAdoptados.delete(key);
+        _valesPrevSlimJson.set(key, slimStr);
+        return;
+      }
       if (_valesPrevSlimJson.get(key) !== slimStr) {
+        // v142: cada cambio del admin sube la versión del vale y lleva su
+        // identificador; el servidor rechaza lo que no sea más nuevo que la nube.
+        x.rev = (Number(x.rev) || 0) + 1;
+        x.revOp = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+        _revEstampada = true;
+        slim = slimVale(x);
         updates[key] = slim;
         _valesPrevSlimJson.set(key, slimStr);
       }
     });
+    if (_revEstampada) _safeSetLS('axon_vales', JSON.stringify(v));
     // Borrados reales: vales que estaban en prevVales pero ya no están en v.
     // Esto sí funciona con prevVales: al borrar se construye un array NUEVO
     // (getVales().filter(...)), sin mutar el anterior, así que la ausencia se
@@ -3858,7 +4286,11 @@ const saveVales = v => {
     if (Array.isArray(prevVales)) {
       prevVales.forEach(x => {
         const key = `${x.gestorId}/${x.id}`;
-        if (!curKeys.has(key)) { updates[key] = null; _valesPrevSlimJson.delete(key); }
+        if (!curKeys.has(key)) {
+          _valesPrevSlimJson.delete(key);
+          if (_saltarBorradoDiff.delete(String(x.id))) return;   // lo borra la orden, que además devuelve el stock
+          updates[key] = null;
+        }
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
@@ -3891,7 +4323,11 @@ const saveVales = v => {
     if (Array.isArray(prevVales)) {
       const kept = new Set(mine.map(x => x.id));
       prevVales.filter(x => x.gestorId === activeGestorId).forEach(x => {
-        if (!kept.has(x.id)) { updates[x.id] = null; _valesPrevSlimJson.delete(`${x.gestorId}/${x.id}`); }
+        if (!kept.has(x.id)) {
+          _valesPrevSlimJson.delete(`${x.gestorId}/${x.id}`);
+          if (_saltarBorradoDiff.delete(String(x.id))) return;   // v144: lo borra la orden
+          updates[x.id] = null;
+        }
       });
     }
     if (Object.keys(updates).length === 0) return; // nada que escribir
@@ -4795,14 +5231,39 @@ function patchVale(id, changes) {
     // caja con el pago viejo. El pago que apuntó el admin a mano se respeta.
     if (all[i].status === 'confirmed' && changes.status && changes.status !== 'confirmed') {
       try { _descongelarCostoVale(all[i].id); } catch(e) {}
+      // La comisión de venta en local también se congeló al confirmar: si no se
+      // suelta, al editar y volver a confirmar se pagaba con las líneas viejas
+      // (y con la marca de "pagada" de una venta que ya no existe).
+      try { _olvidarComLocalVenta(all[i].id); } catch(e) {}
       if (all[i].pago && all[i].pago.auto && !('pago' in changes)) changes.pago = null;
       if (!('valeProductos' in changes) && (all[i].valeProductos || []).some(l => l && l.precio)) {
         changes.valeProductos = all[i].valeProductos.map(l => { if (!l || !l.precio) return l; const c = { ...l }; delete c.precio; return c; });
       }
     }
+    // v143: ¿es un cambio que mueve stock / cruza "confirmada"? Entonces no se sube
+    // el vale entero: viaja una ORDEN y el servidor decide.
+    const _esConf = st => st === 'confirmed' || st === 'pending_payment';
+    const _viejoSt = all[i].status;
+    const _usaEvento = !!(typeof IS_ADMIN !== 'undefined' && IS_ADMIN && changes.status && (
+      (_esConf(changes.status) && !_esConf(_viejoSt)) ||
+      (_esConf(_viejoSt) && !_esConf(changes.status)) ||
+      (_viejoSt === 'pending_payment' && changes.status === 'confirmed')));
     all[i]={...all[i],...changes};
     // v39: Mark this vale as locally patched (for time-based local-wins in merge)
     _valeLocalPatchTs.set(String(id), Date.now());
+    if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) _marcarValeSucio(id, _usaEvento);
+    if (_usaEvento) {
+      const op = `${id}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+      const descontar = _descontoLocal.delete(String(id));
+      all[i].rev = (Number(all[i].rev) || 0) + 1;
+      all[i].revOp = op;
+      _valesAdoptados.add(`${all[i].gestorId}/${all[i].id}`);   // saveVales: guardar en pantalla, NO subir el vale entero
+      _ultimoGuardadoLocal.vales = Date.now();
+      saveVales(all);
+      _enqueueSB('vale_eventos', { op, valeId: all[i].id, gestorId: all[i].gestorId, cambios: { ...changes }, descontar, rev: all[i].rev }, 'evento');
+      setTimeout(() => { if (typeof _doRestPoll === 'function') _doRestPoll(); }, 3000);
+      return;
+    }
     // saveVales already writes to Supabase via _enqueueSB — no need for redundant fbUpdateVale
     // Previously, both saveVales (full 'set') and fbUpdateVale (partial 'update') were called,
     // causing race conditions where Supabase could overwrite local changes with stale data.
@@ -5804,6 +6265,14 @@ function _descontarStock(v) {
   // La mercancía sale del almacén una sola vez, y de eso se encarga el
   // principal. Si descontara también este, se irían el doble de unidades.
   if (v && v.unidoA != null) return false;
+  // v143: si esta venta ya se confirmó antes en este teléfono y no se revirtió, su
+  // stock YA salió (la nube pudo perder el cambio del vale y mostrarlo pendiente).
+  // Volver a descontar vaciaría el almacén por duplicado.
+  if (v && v.id != null && v.stockDecremented !== true && _ventaYaConfirmadaAntes(v.id)) {
+    try { showToast('ℹ️ Esta venta ya se había confirmado antes: no se descontó el stock otra vez. Revisa el inventario.'); } catch (e) {}
+    return false;
+  }
+  const _evt = (typeof IS_ADMIN !== 'undefined' && IS_ADMIN);
   const prods = getProductos().slice();
   const deltas = {};
   // ── v122: se apunta lo que REALMENTE salió, producto por producto ─────────
@@ -5832,6 +6301,12 @@ function _descontarStock(v) {
     addNotif('sale_product', prods[idx].name, pid, `${pedidas}|${newStock}`, v.gestorId);
     _avisarCambioStock(pid, prods[idx].name, oldStock, newStock);
   });
+  if (_evt) {
+    // v143: en pantalla se resta ya; en la nube lo resta el servidor al confirmar el vale.
+    if (stockChanged) { _stockSoloLocal = true; try { guardarProductosPorDelta(prods, deltas); } finally { _stockSoloLocal = false; } }
+    if (v && v.id != null) _descontoLocal.add(String(v.id));
+    return stockChanged;
+  }
   if (stockChanged) guardarProductosPorDelta(prods, deltas);
   // Se apunta en el vale aunque no haya salido nada: "salieron cero" es un dato,
   // y es justo el que hacía falta para no devolver de más al revertir.
@@ -11093,8 +11568,11 @@ function cancelVale(id) {
     // inventario perdido en silencio, y este botón está disponible para el
     // gestor sobre cualquiera de sus vales. La bandera stockDecremented es por
     // sí sola la fuente de verdad, igual que ya hacía adminDeleteVale.
-    _devolverStockDeVale(v);  // v73: misma regla que al revertir
+    // v144: en pantalla se devuelve ya; en la nube lo devuelve el servidor según
+    // el estado REAL del vale (la copia de este teléfono puede ir atrasada).
+    _stockSoloLocal = true; try { _devolverStockDeVale(v); } finally { _stockSoloLocal = false; }
     const filtered = getVales().filter(x=>x.id!==id);
+    _saltarBorradoDiff.add(String(id));
     saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
     // v52: quitar los avisos de estado de un vale que ya no existe, para que el
@@ -11103,7 +11581,7 @@ function cancelVale(id) {
     if(selectedValeId===id)selectedValeId=null;
     showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
-    _doValeSupabaseDelete(v, id);
+    _borrarValeEnNube(v, id);
   });
 }
 // v34: Shared Supabase delete function with retry logic + extended guard
@@ -11151,11 +11629,12 @@ function adminDeleteVale(id) {
     : `¿Eliminar este vale?`;
   showConfirmAction('¿Eliminar este vale?',`${escapeHTML(v.cliente||'')} · ${escapeHTML(v.articulo||'')}`,'Eliminar','btn-red',()=>{
     // v33: Auto-revert stock if the vale was confirmed/pending_payment
-    _devolverStockDeVale(v);  // v73: misma regla que al revertir
+    _stockSoloLocal = true; try { _devolverStockDeVale(v); } finally { _stockSoloLocal = false; }   // v144: la nube la devuelve el servidor
     // v33 FIX: Track this deletion so _doRestPoll doesn't overwrite localStorage
     // with stale Supabase data while the delete is in flight.
     _valesDirectDeleting.add(String(id));
     const filtered = getVales().filter(x=>x.id!==id);
+    _saltarBorradoDiff.add(String(id));
     saveVales(filtered);
     _logAudit('vale_deleted', 'vale:' + id);
     // v52: quitar los avisos de estado de un vale que ya no existe, para que el
@@ -11164,8 +11643,8 @@ function adminDeleteVale(id) {
     if(selectedValeId===id)selectedValeId=null;
     showToast('Eliminando vale…');
     renderAdminGestores();renderValeDetail();renderMyVales();
-    // v33: Use shared delete function with retry and verification
-    _doValeSupabaseDelete(v, id);
+    // v144: orden en la cola; el servidor borra y devuelve el stock una vez
+    _borrarValeEnNube(v, id);
   });
 }
 
@@ -18446,7 +18925,7 @@ function _devolverStockDeVale(v) {
   if (cambio) guardarProductosPorDelta(prods, deltas);
   // Ya se devolvió: el apunte no debe quedarse, o una segunda reversión
   // devolvería otra vez lo mismo.
-  if (_salido && v && v.id != null) { try { patchVale(v.id, { stockSalido: null }); } catch(e) {} }
+  if (!_stockSoloLocal && _salido && v && v.id != null) { try { patchVale(v.id, { stockSalido: null }); } catch(e) {} }
   return true;
 }
 
@@ -18462,7 +18941,13 @@ function revertConfirmSale(id, skipConfirm) {
   // Idempotency: only restore stock if it was previously decremented.
   // The stockDecremented flag prevents double-restoration when the user
   // double-clicks the revert button before patchVale updates the state.
-  _devolverStockDeVale(v);
+  // v143: con el servidor al mando, él devuelve el stock al aplicar la orden de
+  // revertir (una sola vez); aquí solo se refleja en pantalla.
+  if (typeof IS_ADMIN !== 'undefined' && IS_ADMIN) {
+    _stockSoloLocal = true; try { _devolverStockDeVale(v); } finally { _stockSoloLocal = false; }
+  } else {
+    _devolverStockDeVale(v);
+  }
   // Revert to appropriate previous state:
   // - Si tenía mensajero asignado, vuelve a 'assigned' (estado visible en el panel admin)
   // - Si no, vuelve a 'pending' (estado original)
