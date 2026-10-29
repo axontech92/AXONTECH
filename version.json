@@ -1,10 +1,10 @@
 {
-  "version": 229,
-  "versionStr": "v17.5",
-  "build": 229,
-  "hash": "fa5031ca455f6e84",
-  "hashFull": "fa5031ca455f6e84",
-  "releasedAt": "2026-10-29 09:29",
+  "version": 230,
+  "versionStr": "v17.6",
+  "build": 230,
+  "hash": "c76cee26ce63c673",
+  "hashFull": "c76cee26ce63c673",
+  "releasedAt": "2026-10-29 14:36",
   "files": [
     "app.js",
     "app.css",
@@ -13,6 +13,6 @@
     "sw.js"
   ],
   "changelog": [
-    "Actualización automática · build fa5031ca"
+    "Actualización automática · build c76cee26"
   ]
 }
