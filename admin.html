@@ -1549,7 +1549,7 @@
 </div>
 
 <!-- Floating admin action: New vale + sync indicator -->
-<div style="position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:8px;">
+<div class="a-fab" style="position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:8px;">
   <button class="btn btn-blue" style="border-radius:50%;width:54px;height:54px;font-size:24px;box-shadow:var(--shadow-lg);" onclick="openAdminValeModal()" title="Generar vale">＋</button>
 </div>
 
@@ -1781,6 +1781,39 @@
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- v153: barra inferior del admin (móvil) y hoja "Más". Solo llaman a
+     adminTab() y a los botones que ya existían; no hay lógica de datos nueva. -->
+<nav id="aNav" class="a-nav" aria-label="Secciones">
+  <button type="button" data-tab="vales" onclick="aNavIr('vales')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H15l-3 3-3-3H4z"/></svg><b class="a-nav-badge" hidden></b>Vales</button>
+  <button type="button" data-tab="stock" onclick="aNavIr('stock')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4zm0 0v10l9 4 9-4V7"/></svg><b class="a-nav-badge" hidden></b>Stock</button>
+  <button type="button" data-tab="gestores" onclick="aNavIr('gestores')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21c1-4 4-6 7-6s6 2 7 6M17 11a3 3 0 1 0 0-6M22 20c-.6-2.6-2.2-4.2-4.5-4.8"/></svg><b class="a-nav-badge" hidden></b>Gestores</button>
+  <button type="button" data-tab="mensajeros" onclick="aNavIr('mensajeros')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17a2 2 0 1 0 0 .1M19 17a2 2 0 1 0 0 .1M7 17h8l2-5h-5l-2-4H6M14 7h3l2 5"/></svg><b class="a-nav-badge" hidden></b>Mensajeros</button>
+  <button type="button" data-tab="mas" onclick="aNavIr('mas')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg><b class="a-nav-badge" hidden></b>Más</button>
+</nav>
+<div id="aMas" class="a-mas" aria-hidden="true" onclick="if(event.target===this)cerrarMasAdmin()">
+  <div class="a-hoja" role="dialog" aria-label="Más secciones">
+    <div class="a-asa"></div>
+    <div class="a-hoja-t">Más <em>secciones</em></div>
+    <div class="a-hoja-grid">
+      <button type="button" data-tab="catalog" onclick="cerrarMasAdmin();aNavIr('catalog')"><span>🛍️</span>Catálogo</button>
+      <button type="button" data-tab="directas" onclick="cerrarMasAdmin();aNavIr('directas')"><span>🏪</span>Ventas directas</button>
+      <button type="button" data-tab="comlocal" onclick="cerrarMasAdmin();aNavIr('comlocal')"><span>💵</span>Comisión local</button>
+      <button type="button" data-tab="duenos" onclick="cerrarMasAdmin();aNavIr('duenos')"><span>🧑‍💼</span>Dueños</button>
+      <button type="button" data-tab="stats" onclick="cerrarMasAdmin();aNavIr('stats')"><span>📊</span>Estadísticas</button>
+      <button type="button" data-tab="historial" onclick="cerrarMasAdmin();aNavIr('historial')"><span>📋</span>Historial</button>
+      <button type="button" data-tab="estafa" onclick="cerrarMasAdmin();aNavIr('estafa')"><span>🚫</span>Estafa</button>
+      <button type="button" data-tab="config" onclick="cerrarMasAdmin();aNavIr('config')"><span>⚙️</span>Config</button>
+      <button type="button" data-tab="ayuda" onclick="cerrarMasAdmin();aNavIr('ayuda')"><span>❓</span>Ayuda</button>
+    </div>
+    <div class="a-hoja-acc">
+      <button type="button" onclick="cerrarMasAdmin();descargarCopiaNube();"><span>☁️</span>Descargar copia de la nube</button>
+      <button type="button" onclick="cerrarMasAdmin();toggleTheme();"><span>🌙</span>Modo oscuro <i id="aMasTema">OFF</i></button>
+      <button type="button" id="aMasInstalar" hidden onclick="cerrarMasAdmin();var b=document.getElementById('btnPWAInstallHeader');if(b)b.click();"><span>📲</span>Instalar app</button>
+    </div>
+    <button type="button" class="a-hoja-salir" onclick="cerrarMasAdmin();logoutAdmin();">🚪 Cerrar sesión</button>
+  </div>
+</div>
 
 <script src="./app.js?v=222"></script>
 <script>

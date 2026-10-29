@@ -6976,6 +6976,46 @@ function adminTab(tab) {
 // ══════════════════════════════════════════
 //  BADGE
 // ══════════════════════════════════════════
+// ── v153: barra inferior del admin (móvil) y hoja "Más" ──────────────────────
+// Llama a adminTab() como las pestañas de arriba; los contadores se COPIAN de
+// los que ya pinta la app (#adminBadge, #mensajeroBadge), no se recalculan.
+const _A_NAV_TABS = ['vales', 'stock', 'gestores', 'mensajeros'];
+function aNavIr(tab) {
+  if (tab === 'mas') { abrirMasAdmin(); return; }
+  adminTab(tab);
+  window.scrollTo({ top: 0 });
+  _aNavSync();
+}
+function _aNavSync() {
+  const nav = document.getElementById('aNav'); if (!nav) return;
+  const cur = (typeof currentAdminTab !== 'undefined' && currentAdminTab) || 'vales';
+  const activa = _A_NAV_TABS.includes(cur) ? cur : 'mas';
+  nav.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tab === activa));
+  const copia = (tab, src, visible) => {
+    const el = nav.querySelector(`button[data-tab="${tab}"] .a-nav-badge`); if (!el) return;
+    el.hidden = !visible; if (visible) { el.textContent = src.textContent; el.style.background = src.style.background || ''; }
+  };
+  const ab = document.getElementById('adminBadge');
+  if (ab) copia('vales', ab, ab.classList.contains('show') && !!ab.textContent);
+  const mb = document.getElementById('mensajeroBadge');
+  if (mb) copia('mensajeros', mb, mb.style.display !== 'none' && !!mb.textContent);
+  const mas = document.getElementById('aMas');
+  if (mas) mas.querySelectorAll('.a-hoja-grid button').forEach(b => b.classList.toggle('on', b.dataset.tab === cur));
+}
+function abrirMasAdmin() {
+  const m = document.getElementById('aMas'); if (!m) return;
+  document.getElementById('aMasTema').textContent = document.body.classList.contains('dark') ? 'ON' : 'OFF';
+  const ins = document.getElementById('btnPWAInstallHeader');
+  document.getElementById('aMasInstalar').hidden = !(ins && ins.style.display !== 'none');
+  _aNavSync();
+  m.classList.add('show'); m.setAttribute('aria-hidden', 'false');
+}
+function cerrarMasAdmin() {
+  const m = document.getElementById('aMas'); if (!m) return;
+  m.classList.remove('show'); m.setAttribute('aria-hidden', 'true');
+}
+if (IS_ADMIN) setInterval(() => { try { _aNavSync(); } catch (e) {} }, 800);
+
 function updateAdminBadge() {
   const n=sinVerCount();  // v84: solo los que el admin aún no ha abierto
   const b=document.getElementById('adminBadge');

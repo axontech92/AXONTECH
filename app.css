@@ -2040,3 +2040,75 @@ body[data-page="gestor"] .g-change{background:var(--g-card);border:none;border-r
   .g-hoja-salir{background:none;border:0;font:800 13px var(--font);color:var(--red);padding:6px;cursor:pointer;}
   .g-hoja-pie{text-align:center;font-size:11px;color:var(--text-muted);font-weight:600;}
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   v153 · Mismo estilo en el panel del admin
+   Fondo suave, tarjetas sin borde con sombra, pestañas en una barra blanca y,
+   en el móvil, barra inferior (Vales, Stock, Gestores, Mensajeros, Más).
+   Todo bajo body[data-page="admin"]: la página del gestor no cambia.
+   ══════════════════════════════════════════════════════════════════════════ */
+body[data-page="admin"]{
+  --g-fondo:#eef3f6; --g-card:var(--surface); --g-linea:#cfdbe3;
+  --g-sombra:0 1px 2px rgba(6,30,40,.06),0 4px 14px rgba(6,30,40,.05);
+  background:var(--g-fondo);
+}
+body.dark[data-page="admin"]{ --g-fondo:#0a1018; --g-card:#141f2e; --g-linea:#2b3b4f; --g-sombra:0 0 0 1px rgba(255,255,255,.04); }
+body[data-page="admin"] .card{background:var(--g-card);border:none;border-radius:16px;box-shadow:var(--g-sombra);}
+body[data-page="admin"] .es{background:var(--g-card);border:1px dashed var(--g-linea);border-radius:16px;}
+body[data-page="admin"] .admin-panel .lbl{font-size:12.5px;font-weight:800;color:var(--text);text-transform:none;letter-spacing:0;margin:16px 2px 8px;}
+body[data-page="admin"] .admin-panel input:not([type=checkbox]):not([type=radio]):not([type=range]),
+body[data-page="admin"] .admin-panel select,
+body[data-page="admin"] .admin-panel textarea{border-radius:12px;}
+/* Pestañas de arriba: una barra blanca con píldoras */
+body[data-page="admin"] .admin-nav{background:var(--g-card);border-radius:16px;box-shadow:var(--g-sombra);padding:6px;gap:4px;border:none;}
+body[data-page="admin"] .anav-btn{border:none;background:transparent;border-radius:11px;}
+body[data-page="admin"] .anav-btn:hover{background:var(--blue-lt);color:var(--blue);}
+body[data-page="admin"] .anav-btn.active{background:var(--blue);color:#fff;}
+
+.a-nav,.a-mas{display:none;}
+@media (max-width:640px){
+  body[data-page="admin"]{padding-bottom:calc(92px + env(safe-area-inset-bottom, 0px));}
+  /* En el móvil las pestañas pasan abajo; Instalar, tema y Salir van a "Más" */
+  body[data-page="admin"] .admin-nav{display:none !important;}
+  body[data-page="admin"] header .header-right > #btnLogout,
+  body[data-page="admin"] header .header-right > #btnPWAInstallHeader,
+  body[data-page="admin"] header .header-right > #btnTheme{display:none !important;}
+  body[data-page="admin"] .a-nav{
+    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;z-index:700;
+    left:max(10px, env(safe-area-inset-left, 0px));right:max(10px, env(safe-area-inset-right, 0px));
+    bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+    background:var(--g-card);border-radius:20px;padding:6px;
+    box-shadow:0 -2px 18px rgba(6,30,40,.12),0 0 0 1px var(--border);
+  }
+  .a-nav button{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:6px 0;border-radius:14px;
+    font:700 10px var(--font);color:var(--text-muted);cursor:pointer;}
+  .a-nav button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .a-nav button.on{color:var(--blue);background:var(--blue-lt);}
+  .a-nav-badge{position:absolute;top:2px;left:calc(50% + 4px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--red);
+    color:#fff;font:800 10px/17px var(--font);text-align:center;}
+  /* Lo que flotaba abajo sube por encima de la barra */
+  body[data-page="admin"] .a-fab{bottom:calc(94px + env(safe-area-inset-bottom, 0px)) !important;right:max(16px, env(safe-area-inset-right, 0px)) !important;}
+  body[data-page="admin"] #syncIndicator{bottom:calc(88px + env(safe-area-inset-bottom, 0px));}
+  body[data-page="admin"] .toast{bottom:calc(96px + env(safe-area-inset-bottom, 0px));}
+
+  .a-mas{position:fixed;inset:0;z-index:4800;background:rgba(6,20,26,.45);}
+  .a-mas.show{display:block;}
+  .a-hoja{position:absolute;left:0;right:0;bottom:0;background:var(--g-card,var(--surface));border-radius:24px 24px 0 0;max-height:88vh;overflow-y:auto;
+    padding:10px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    display:flex;flex-direction:column;gap:14px;animation:gHojaSube .22s ease-out;}
+  .a-asa{width:44px;height:5px;border-radius:9px;background:var(--border);margin:0 auto;}
+  .a-hoja-t{font-size:19px;font-weight:800;color:var(--text);}
+  .a-hoja-t em{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:600;color:var(--blue);}
+  .a-hoja-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .a-hoja-grid button{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--border);background:var(--g-card,var(--surface));
+    color:var(--text);border-radius:14px;padding:12px 4px;font:700 11.5px var(--font);cursor:pointer;text-align:center;}
+  .a-hoja-grid button span{font-size:20px;}
+  .a-hoja-grid button.on{border-color:var(--blue);background:var(--blue-lt);color:var(--blue);}
+  .a-hoja-acc{display:flex;flex-direction:column;gap:8px;}
+  .a-hoja-acc button{display:flex;align-items:center;gap:10px;border:1.5px solid var(--border);background:var(--g-card,var(--surface));color:var(--text);
+    border-radius:14px;padding:12px;font:700 13px var(--font);cursor:pointer;text-align:left;}
+  .a-hoja-acc button span{font-size:17px;}
+  .a-hoja-acc button i{margin-left:auto;font-style:normal;font-size:10px;font-weight:800;color:var(--text-muted);background:var(--surface2);border-radius:99px;padding:2px 7px;}
+  .a-hoja-salir{background:none;border:0;font:800 13px var(--font);color:var(--red);padding:6px;cursor:pointer;}
+}
