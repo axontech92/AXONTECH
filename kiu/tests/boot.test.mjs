@@ -22,6 +22,7 @@ const SCRIPTS = [
   'js/tools.js',
   'js/kiu-agente.js',
   'js/kiu-rutinas.js',
+  'js/kiu-autoprueba.js',
   'js/kiu-estados.js',
   'js/kiu-avatar.js',
   'js/kiu-avatar-boot.js',

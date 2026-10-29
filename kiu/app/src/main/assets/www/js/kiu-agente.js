@@ -802,6 +802,41 @@ window.KiuAgente = (function () {
     },
     { risk: 'write', riskFor: function (a) { return String(a && a.action || '').toLowerCase() === 'list' ? 'read' : 'write'; } });
 
+  /* --- AUTOPRUEBA (v2.19.0) ------------------------------------------------
+     UNA decisión del modelo cargado en el teléfono, SIN ejecutar la herramienta: mismo
+     prompt, misma selección y misma gramática que el bucle real, para medir si el modelo
+     elige bien. Lo usa kiu-autoprueba.js. Nunca toca el dispositivo. */
+  function probarDecision(pedido, cb) {
+    var K = window.Kiu;
+    if (!K || typeof K.ask !== 'function') { cb({ ok: false, err: 'sin motor' }); return; }
+    var nombre = String(window.S && window.S.kiu && window.S.kiu.name || '');
+    var hermes = /hermes/i.test(nombre);
+    var herr = seleccionar(pedido), harness = null;
+    try { harness = window.KiuHarness2 && window.KiuHarness2.choose({ modelName: nombre }); } catch (e) { harness = null; }
+    var hist = [
+      { role: 'system', content: systemPrompt(s(pedido, 300), herr, [], 1, harness && harness.id === 'Harness-Local-Compact', hermes, herramientasConPalabras(herr, pedido)) },
+      { role: 'user', content: s(pedido, 300) }
+    ];
+    var gb = null;
+    try { gb = grammar(herr, hermes, false); } catch (e2) { gb = null; }
+    var t0 = Date.now(), espera = 0;
+    (function pedir() {
+      K.ask(hist, (harness && harness.maxTokens) || 120, function (res) {
+        if (res && !res.ok && /ocupado/i.test(String(res.err || '')) && espera++ < 20) { setTimeout(pedir, 1200); return; }
+        var ms = Date.now() - t0;
+        if (!res || !res.ok || !res.text) { cb({ ok: false, err: (res && res.err) || 'sin respuesta', ms: ms }); return; }
+        var d = parseDecision(res.text), rd = d ? readDecision(d) : null;
+        var v = rd && !rd.bad ? validate(rd.name, rd.raw) : null;
+        cb({
+          ok: true, ms: ms, tps: res.tps || 0, raw: s(res.text, 160),
+          tool: rd && !rd.bad ? rd.name : null,
+          args: v && v.ok ? v.args : (rd && rd.raw) || null,
+          valida: !!(v && v.ok), listo: !!(d && isDone(d))
+        });
+      }, null, gb);
+    })();
+  }
+
   /* v2.13.1 · REGISTRO de lo que hizo el agente: solo metadatos (herramienta, riesgo,
      resultado, hora), nunca los argumentos ni el texto del usuario. Máx. 30. */
   var LOG = [];
@@ -1635,6 +1670,7 @@ window.KiuAgente = (function () {
     readDecision: readDecision,
     isDone: isDone,
     run: run,
+    probarDecision: probarDecision,
     systemPrompt: systemPrompt,
     perfil: perfil,
     riskOf: riskOf,

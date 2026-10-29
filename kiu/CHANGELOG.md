@@ -1,3 +1,12 @@
+## [Sin publicar] - 2026-10-29 (autoprueba en el teléfono)
+
+**«PROBAR AGENTE»: medir, con el modelo cargado EN el teléfono, si sirve de agente. Sin PC.**
+
+- Ajustes → Modelos: botones **Probar agente** (8 pedidos) y **Prueba completa** (21). Cada pedido pasa por el mismo prompt, la misma selección de herramientas y la misma gramática GBNF que el agente real (`KiuAgente.probarDecision`), pero **no ejecuta nada**: no suena ninguna alarma ni se manda ningún mensaje.
+- Muestra aciertos, segundos por decisión y tokens por segundo, qué pedidos fallaron y por qué ("eligió now", "dijo listo sin hacer nada", "when = …"), y un veredicto con los mismos umbrales del arnés de la PC: ≥ 80 % sirve, 50–80 % anda a medias, < 50 % el modelo es demasiado chico. Guarda el último resultado por modelo; una corrida cancelada no pisa el resultado completo.
+- `js/kiu-autoprueba.js` + 12 tests (modelo de mentira con el prompt y la gramática reales; control de que no ejecuta herramientas; un test impide que sus casos se desincronicen de `tests/evals/escenarios.mjs`). 615 tests en verde.
+- Los botones antiguos `mdl-load/mdl-test/mdl-free` ya no existen en `index.html` (código huérfano en `app-ui.js`); no se tocaron.
+
 ## [Sin publicar] - 2026-10-29 (rutinas)
 
 **RUTINAS: "todos los días a las 8 dame el resumen", "los domingos a las 20 avisame si llueve mañana".**

@@ -376,6 +376,12 @@
       <div id="mdl-mine" class="k2-list"></div>
       <div class="loc-actions" style="margin-top:8px"><button class="chip-btn" id="mdl-import">Importar GGUF del teléfono</button></div>
       <p class="set-hint small" id="mdl-imp-status"></p>
+      <!-- v2.19.0: ¿este modelo, cargado en ESTE teléfono, sirve de agente? Solo mira qué herramienta elegiría; no ejecuta nada. -->
+      <div class="loc-actions" style="margin-top:8px">
+        <button class="chip-btn" id="mdl-agent-test">Probar agente</button>
+        <button class="chip-btn" id="mdl-agent-full">Prueba completa</button>
+      </div>
+      <p class="set-hint small" id="mdl-agent-res" style="white-space:pre-line"></p>
 
       <div class="k2-sec">
         <h3>Descargar modelos</h3>
@@ -773,6 +779,8 @@
 <script src="js/kiu-agente.js"></script>
 <!-- v2.18.0: rutinas (hora + condición + acción de lectura). Usa KiuAgente, así que va después. -->
 <script src="js/kiu-rutinas.js"></script>
+<!-- v2.19.0: autoprueba del agente con el modelo cargado en el teléfono -->
+<script src="js/kiu-autoprueba.js"></script>
 <script src="js/kiu-estados.js"></script>
 <script src="js/kiu-avatar.js"></script>
 <script src="js/kiu-avatar-boot.js"></script>

@@ -1212,6 +1212,38 @@
       });
       var bf = document.getElementById('mdl-free');
       if (bf) bf.addEventListener('click', function () { Kiu.forceReset(); Kiu.unload(); self.toast('Motor liberado'); });
+      /* v2.19.0 · PROBAR AGENTE: mide, en este teléfono y con el modelo cargado, si elige bien las
+         herramientas. Rápida = 8 pedidos; completa = los 21. No ejecuta nada. */
+      var self3 = this;
+      function probarAgente(completa) {
+        var res = document.getElementById('mdl-agent-res');
+        var b1 = document.getElementById('mdl-agent-test'), b2 = document.getElementById('mdl-agent-full');
+        if (!window.KiuAutoprueba) return;
+        if (!S.kiu.ok) { self3.toast('Cargá un modelo primero'); return; }
+        if (self3._probandoAgente) { self3._cancelarAgente = true; self3.toast('Cancelando…'); return; }
+        self3._probandoAgente = true; self3._cancelarAgente = false;
+        var etq1 = b1 ? b1.textContent : '', etq2 = b2 ? b2.textContent : '';
+        (completa ? b2 : b1).textContent = 'Cancelar';
+        KiuAutoprueba.correr({
+          completa: completa,
+          cancelar: function () { return self3._cancelarAgente; },
+          progreso: function (i, n) { if (res) res.textContent = 'Probando ' + (i + 1) + ' de ' + n + '… (un modelo chico tarda unos segundos por pedido)'; }
+        }, function (r) {
+          self3._probandoAgente = false;
+          if (b1) b1.textContent = etq1; if (b2) b2.textContent = etq2;
+          if (!res) return;
+          if (!r.ok) { res.textContent = r.err || 'No se pudo probar.'; return; }
+          if (r.tps && window.KiuBench) { try { KiuBench.rec(S.kiu.name, r.tps); } catch (eB) { } }
+          var pct = Math.round(r.acierto * 100);
+          res.textContent = (r.parcial ? '(cancelada) ' : '') + prettyName(r.modelo) + ': ' + r.aciertos + ' de ' + r.total + ' bien (' + pct + ' %) · ' +
+            (r.msPromedio / 1000).toFixed(1).replace('.', ',') + ' s por decisión' + (r.tps ? ' · ' + r.tps.toFixed(1).replace('.', ',') + ' tok/s' : '') +
+            '\n' + r.texto +
+            (r.fallos.length ? '\nFalló: ' + r.fallos.slice(0, 4).map(function (f) { return '«' + f.pedido + '» → ' + f.motivo; }).join(' · ') : '');
+        });
+      }
+      var ba = document.getElementById('mdl-agent-test'), bb = document.getElementById('mdl-agent-full');
+      if (ba) ba.addEventListener('click', function () { probarAgente(false); });
+      if (bb) bb.addEventListener('click', function () { probarAgente(true); });
       this.bindOrch();
     },
     /* ---------- v1.8.0: panel del Orquestador — v2.0 mapa de roles ---------- */
