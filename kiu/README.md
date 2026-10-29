@@ -1,6 +1,6 @@
 # Kiu — agente personal para Android
 
-Kiu 2.19.1 · paquete `com.kiu.agent` · minSdk 24 · targetSdk 34 · arm64-v8a (+ x86_64 compilando el motor)
+Kiu 2.19.2 · paquete `com.kiu.agent` · minSdk 24 · targetSdk 34 · arm64-v8a (+ x86_64 compilando el motor)
 
 App Android híbrida: interfaz web (HTML/CSS/JS) dentro de un WebView, una capa nativa en Java
 y un motor **llama.cpp** que corre modelos GGUF en el propio teléfono, sin Internet.

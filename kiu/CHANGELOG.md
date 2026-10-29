@@ -1,3 +1,10 @@
+## [2.19.2] - 2026-10-29
+
+**LA VERSIÓN, A LA VISTA Y A PRUEBA DE OLVIDOS.**
+
+- Ajustes → Modelos muestra **«Kiu instalada: 2.19.2 (código 104)»**, leída del paquete que Android tiene instalado (no del JS). Antes la versión solo estaba dentro del informe de diagnóstico y no había dónde comprobar si una actualización había entrado.
+- Nuevo `tests/version-coherente.test.mjs`: el CI falla si el CHANGELOG, el README y `app/build.gradle.kts` no nombran la misma versión, o si el versionCode retrocede. Dos tandas salieron sin subir la versión; eso ya no puede pasar sin que el CI lo grite.
+
 ## [2.19.1] - 2026-10-29
 
 **«PROBAR AGENTE» CERRÓ LA APP EN UN TELÉFONO.** Causa no confirmada: no hay log del crash y no se pudo compilar llama.cpp aquí para reproducirlo. Se actuó sobre los dos sospechosos y se agregó diagnóstico para saber cuál es.

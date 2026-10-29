@@ -1212,6 +1212,14 @@
       });
       var bf = document.getElementById('mdl-free');
       if (bf) bf.addEventListener('click', function () { Kiu.forceReset(); Kiu.unload(); self.toast('Motor liberado'); });
+      /* v2.19.2 · LA VERSIÓN INSTALADA, A LA VISTA. Antes solo estaba dentro del informe de
+         diagnóstico: si una actualización no entraba, no había dónde comprobarlo. Esto sale del
+         paquete que Android tiene instalado (no del JS), así que no puede mentir. */
+      try {
+        var dv = JSON.parse(rawBridge('kiuDiag', []) || '{}') || {};
+        var ev = document.getElementById('mdl-agent-ver');
+        if (ev) ev.textContent = dv.version ? ('Kiu instalada: ' + dv.version + ' (código ' + dv.versionCode + ')') : '';
+      } catch (eV) { }
       /* v2.19.0 · PROBAR AGENTE: mide, en este teléfono y con el modelo cargado, si elige bien las
          herramientas. Rápida = 8 pedidos; completa = los 21. No ejecuta nada. */
       var self3 = this;
