@@ -1215,27 +1215,28 @@
       /* v2.19.0 · PROBAR AGENTE: mide, en este teléfono y con el modelo cargado, si elige bien las
          herramientas. Rápida = 8 pedidos; completa = los 21. No ejecuta nada. */
       var self3 = this;
-      function probarAgente(completa) {
+      function probarAgente(completa, sinGram) {
         var res = document.getElementById('mdl-agent-res');
-        var b1 = document.getElementById('mdl-agent-test'), b2 = document.getElementById('mdl-agent-full');
+        var b1 = document.getElementById('mdl-agent-test'), b2 = document.getElementById('mdl-agent-full'), b3 = document.getElementById('mdl-agent-nogram');
         if (!window.KiuAutoprueba) return;
         if (!S.kiu.ok) { self3.toast('Cargá un modelo primero'); return; }
         if (self3._probandoAgente) { self3._cancelarAgente = true; self3.toast('Cancelando…'); return; }
         self3._probandoAgente = true; self3._cancelarAgente = false;
-        var etq1 = b1 ? b1.textContent : '', etq2 = b2 ? b2.textContent : '';
-        (completa ? b2 : b1).textContent = 'Cancelar';
+        var etq1 = b1 ? b1.textContent : '', etq2 = b2 ? b2.textContent : '', etq3 = b3 ? b3.textContent : '';
+        (sinGram ? b3 : completa ? b2 : b1).textContent = 'Cancelar';
         KiuAutoprueba.correr({
           completa: completa,
+          sinGramatica: !!sinGram,
           cancelar: function () { return self3._cancelarAgente; },
           progreso: function (i, n) { if (res) res.textContent = 'Probando ' + (i + 1) + ' de ' + n + '… (un modelo chico tarda unos segundos por pedido)'; }
         }, function (r) {
           self3._probandoAgente = false;
-          if (b1) b1.textContent = etq1; if (b2) b2.textContent = etq2;
+          if (b1) b1.textContent = etq1; if (b2) b2.textContent = etq2; if (b3) b3.textContent = etq3;
           if (!res) return;
           if (!r.ok) { res.textContent = r.err || 'No se pudo probar.'; return; }
           if (r.tps && window.KiuBench) { try { KiuBench.rec(S.kiu.name, r.tps); } catch (eB) { } }
           var pct = Math.round(r.acierto * 100);
-          res.textContent = (r.parcial ? '(cancelada) ' : '') + prettyName(r.modelo) + ': ' + r.aciertos + ' de ' + r.total + ' bien (' + pct + ' %) · ' +
+          res.textContent = (r.parcial ? '(cancelada) ' : '') + (r.sinGramatica ? '[sin gramática] ' : '') + prettyName(r.modelo) + ': ' + r.aciertos + ' de ' + r.total + ' bien (' + pct + ' %) · ' +
             (r.msPromedio / 1000).toFixed(1).replace('.', ',') + ' s por decisión' + (r.tps ? ' · ' + r.tps.toFixed(1).replace('.', ',') + ' tok/s' : '') +
             '\n' + r.texto +
             (r.fallos.length ? '\nFalló: ' + r.fallos.slice(0, 4).map(function (f) { return '«' + f.pedido + '» → ' + f.motivo; }).join(' · ') : '');
@@ -1244,6 +1245,19 @@
       var ba = document.getElementById('mdl-agent-test'), bb = document.getElementById('mdl-agent-full');
       if (ba) ba.addEventListener('click', function () { probarAgente(false); });
       if (bb) bb.addEventListener('click', function () { probarAgente(true); });
+      var bn = document.getElementById('mdl-agent-nogram');
+      if (bn) bn.addEventListener('click', function () { probarAgente(false, true); });
+      /* si la prueba anterior terminó con Android matando la app, se dice dónde */
+      try {
+        var mg = window.KiuAutoprueba && KiuAutoprueba.migasPendientes();
+        var rs = document.getElementById('mdl-agent-res');
+        if (mg && rs) {
+          rs.textContent = '⚠ La prueba anterior cerró la app en el pedido ' + mg.n + ' de ' + mg.de + ' («' + mg.pedido + '») con ' + prettyName(mg.modelo) +
+            ' · ' + (mg.gram ? 'con gramática' : 'sin gramática') + (mg.ramMB !== null && mg.ramMB !== undefined ? ' · RAM libre ' + mg.ramMB + ' MB' : '') +
+            '.\nProbá «Sin gramática» (si no se cierra, la causa es la gramática) o un modelo más chico (si se cierra igual, es la memoria).';
+          KiuAutoprueba.limpiarMigas();
+        }
+      } catch (eMg) { }
       this.bindOrch();
     },
     /* ---------- v1.8.0: panel del Orquestador — v2.0 mapa de roles ---------- */

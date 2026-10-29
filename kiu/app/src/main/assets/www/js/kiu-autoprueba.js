@@ -14,6 +14,7 @@ window.KiuAutoprueba = (function () {
   'use strict';
 
   var KEY = 'kiu_autoprueba';
+  var MIGAS = 'kiu_autoprueba_migas';   /* rastro para saber DÓNDE murió la app si el sistema la mata */
   var UMBRAL_BIEN = 0.8;     /* mismo umbral que el arnés de la PC */
   var UMBRAL_REGULAR = 0.5;
 
@@ -81,7 +82,19 @@ window.KiuAutoprueba = (function () {
     try { return (JSON.parse(localStorage.getItem(KEY) || '{}'))[modelo] || null; } catch (e) { return null; }
   }
 
-  /* opts: {completa:bool, progreso:fn(i, n, caso), cancelar:fn()->bool}
+  /* Si Android mata la app en medio de la prueba, JS no puede avisar. Por eso antes de CADA
+     pedido se deja una miga en localStorage y se borra al terminar; al próximo arranque,
+     migasPendientes() dice en qué pedido, con qué modelo y con o sin gramática se cayó. */
+  function miga(m) { try { if (m) localStorage.setItem(MIGAS, JSON.stringify(m)); else localStorage.removeItem(MIGAS); } catch (e) { } }
+  function migasPendientes() {
+    try { var m = JSON.parse(localStorage.getItem(MIGAS) || 'null'); return m && m.pedido ? m : null; } catch (e) { return null; }
+  }
+  function limpiarMigas() { miga(null); }
+  function ramLibreMB() {
+    try { var d = JSON.parse(window.rawBridge('sysInfo') || '{}'); return typeof d.ramAvail === 'number' ? Math.round(d.ramAvail / 1048576) : null; } catch (e) { return null; }
+  }
+
+  /* opts: {completa:bool, sinGramatica:bool, progreso:fn(i, n, caso), cancelar:fn()->bool}
      cb({ok, modelo, total, aciertos, acierto, msPromedio, tps, fallos:[{pedido, motivo}], nivel, texto}) */
   function correr(opts, cb) {
     var o = opts || {};
@@ -96,15 +109,17 @@ window.KiuAutoprueba = (function () {
       if ((typeof o.cancelar === 'function' && o.cancelar()) || i >= casos.length) { fin(); return; }
       var caso = casos[i];
       try { if (typeof o.progreso === 'function') o.progreso(i, casos.length, caso); } catch (e) { }
+      miga({ pedido: caso.pedido, n: i + 1, de: casos.length, modelo: String(window.S.kiu.name || ''), gram: !o.sinGramatica, ramMB: ramLibreMB(), at: Date.now() });
       A.probarDecision(caso.pedido, function (dec) {
         var ev = evaluar(caso, dec);
         if (dec && dec.tps) { tpsSum += dec.tps; tpsN++; }
         filas.push({ pedido: caso.pedido, ok: ev.ok, motivo: ev.motivo, ms: dec && dec.ms || 0 });
         i++;
         sig();
-      });
+      }, { sinGramatica: !!o.sinGramatica });
     })();
     function fin() {
+      miga(null);   /* terminó (bien o cancelada): no murió */
       var hechos = filas.length;
       var aciertos = filas.filter(function (f) { return f.ok; }).length;
       var acierto = hechos ? aciertos / hechos : 0;
@@ -114,12 +129,12 @@ window.KiuAutoprueba = (function () {
         msPromedio: hechos ? Math.round(filas.reduce(function (a, f) { return a + f.ms; }, 0) / hechos) : 0,
         tps: tpsN ? tpsSum / tpsN : 0,
         fallos: filas.filter(function (f) { return !f.ok; }).map(function (f) { return { pedido: f.pedido, motivo: f.motivo }; }),
-        nivel: v.nivel, texto: v.texto, parcial: hechos < casos.length
+        nivel: v.nivel, texto: v.texto, parcial: hechos < casos.length, sinGramatica: !!o.sinGramatica
       };
       if (res.ok && !res.parcial) guardar(res);
       cb(res);
     }
   }
 
-  return { CASOS: CASOS, correr: correr, evaluar: evaluar, veredicto: veredicto, ultima: ultima, UMBRAL_BIEN: UMBRAL_BIEN };
+  return { migasPendientes: migasPendientes, limpiarMigas: limpiarMigas, CASOS: CASOS, correr: correr, evaluar: evaluar, veredicto: veredicto, ultima: ultima, UMBRAL_BIEN: UMBRAL_BIEN };
 })();

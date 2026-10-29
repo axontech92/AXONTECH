@@ -14,7 +14,7 @@ function montar(over = {}) {
 
 test('get_weather: pronóstico de mañana con lluvia', async () => {
   const { A } = montar();
-  const r = await A.get('get_weather').run({ place: 'Córdoba', day: 'mañana' });
+  const r = await A.get('get_weather').run({ place: 'Córdoba', day: 'manana' });
   assert.equal(r.ok, true);
   assert.match(r.text, /Mañana en Ciudad de prueba/);
   assert.match(r.text, /con lluvia/);

@@ -1,3 +1,13 @@
+## [2.19.1] - 2026-10-29
+
+**«PROBAR AGENTE» CERRÓ LA APP EN UN TELÉFONO.** Causa no confirmada: no hay log del crash y no se pudo compilar llama.cpp aquí para reproducirlo. Se actuó sobre los dos sospechosos y se agregó diagnóstico para saber cuál es.
+
+- **Sospechoso 1, la gramática:** `get_weather.day` y `manage_routine.if_rain` eran los primeros enums con `ñ` ("mañana") en la gramática GBNF del agente. Ahora son `manana` (ASCII); el código sigue entendiendo ambos. Un test impide que cualquier herramienta vuelva a meter caracteres no ASCII en la gramática.
+- **Sospechoso 2, la memoria:** la prueba encadena varias generaciones seguidas dentro del proceso de la app.
+- **Diagnóstico:** antes de cada pedido la prueba deja una miga en `localStorage` (pedido, modelo, con/sin gramática, RAM libre) y la borra al terminar. Si Android mata la app, al abrir Kiu aparece en Modelos «La prueba anterior cerró la app en el pedido N de M…» con esos datos.
+- **Botón «Sin gramática»**: corre la prueba sin gramática. Si con gramática se cierra y sin gramática no, la causa es la gramática; si se cierra igual, es la memoria (probar un modelo más chico).
+- Versión 2.19.1 (versionCode 103). 621 tests en verde.
+
 ## [2.19.0] - 2026-10-29 (autoprueba en el teléfono)
 
 - **Versión subida a 2.19.0 (versionCode 102).** Hasta ahora las tandas Jarvis no habían tocado `versionName`/`versionCode` (seguían en 2.15.0 / 101): Android toma un APK con el mismo versionCode como «la misma versión» y el actualizador de la app no lo ofrece, así que parecía que no había cambiado nada.

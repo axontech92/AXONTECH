@@ -582,7 +582,7 @@ window.KiuAgente = (function () {
     'Clima y pronóstico: "¿llueve mañana?", "qué temperatura hace".',
     {
       place: { type: 'string', required: false, desc: 'Ciudad. Vacío = la última usada o donde está el usuario.' },
-      day: { type: 'string', required: false, enum: ['hoy', 'mañana', 'pasado'], desc: 'Qué día. Por defecto hoy.' }
+      day: { type: 'string', required: false, enum: ['hoy', 'manana', 'pasado'], desc: 'hoy, manana o pasado. Por defecto hoy.' }
     },
     function (a) {
       var dado = s(a.place, 60).trim();
@@ -775,7 +775,7 @@ window.KiuAgente = (function () {
       at: { type: 'string', required: false, desc: 'Hora: "8", "20:30".' },
       days: { type: 'string', required: false, desc: '"lunes y jueves", "fines de semana". Vacío = todos los días.' },
       what: { type: 'string', required: false, enum: ['resumen', 'clima', 'agenda', 'tareas', 'decir'], desc: 'Qué hacer. Por defecto resumen.' },
-      if_rain: { type: 'string', required: false, enum: ['no', 'hoy', 'mañana'], desc: 'Solo avisar si llueve ese día.' },
+      if_rain: { type: 'string', required: false, enum: ['no', 'hoy', 'manana'], desc: 'Solo avisar si llueve ese día.' },
       text: { type: 'string', required: false, desc: 'Solo para what=decir.' }
     },
     function (a) {
@@ -806,7 +806,7 @@ window.KiuAgente = (function () {
      UNA decisión del modelo cargado en el teléfono, SIN ejecutar la herramienta: mismo
      prompt, misma selección y misma gramática que el bucle real, para medir si el modelo
      elige bien. Lo usa kiu-autoprueba.js. Nunca toca el dispositivo. */
-  function probarDecision(pedido, cb) {
+  function probarDecision(pedido, cb, opts) {
     var K = window.Kiu;
     if (!K || typeof K.ask !== 'function') { cb({ ok: false, err: 'sin motor' }); return; }
     var nombre = String(window.S && window.S.kiu && window.S.kiu.name || '');
@@ -818,7 +818,7 @@ window.KiuAgente = (function () {
       { role: 'user', content: s(pedido, 300) }
     ];
     var gb = null;
-    try { gb = grammar(herr, hermes, false); } catch (e2) { gb = null; }
+    if (!(opts && opts.sinGramatica)) { try { gb = grammar(herr, hermes, false); } catch (e2) { gb = null; } }
     var t0 = Date.now(), espera = 0;
     (function pedir() {
       K.ask(hist, (harness && harness.maxTokens) || 120, function (res) {

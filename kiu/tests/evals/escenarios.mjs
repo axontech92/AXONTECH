@@ -65,7 +65,7 @@ export const ESCENARIOS = [
   /* ---------- internet y documentos ---------- */
   { id: 'dolar', pedido: 'buscá el precio del dólar hoy', espera: { tool: 'web_search' }, ejemplo: { query: 'precio del dólar hoy' } },
   { id: 'clima', pedido: 'qué tiempo hace en Córdoba', espera: { tool: 'get_weather' }, args: { place: /c[oó]rdoba/i }, ejemplo: { place: 'Córdoba' } },
-  { id: 'lluvia', pedido: 'va a llover mañana en Lima', espera: { tool: 'get_weather' }, args: { place: /lima/i }, ejemplo: { place: 'Lima', day: 'mañana' } },
+  { id: 'lluvia', pedido: 'va a llover mañana en Lima', espera: { tool: 'get_weather' }, args: { place: /lima/i }, ejemplo: { place: 'Lima', day: 'manana' } },
   { id: 'resumir-pagina', pedido: 'resumí esta página https://example.com/nota', espera: { tool: 'summarize_url' }, args: { url: /example\.com/ }, ejemplo: { url: 'https://example.com/nota' } },
   { id: 'gasto', pedido: 'gasté 12 en almuerzo', espera: { tool: 'log_expense' }, args: { action: 'add' }, ejemplo: { action: 'add', amount: 12, what: 'almuerzo' } },
   { id: 'gasto-mes', pedido: 'cuánto gasté este mes', espera: { tool: 'log_expense' }, args: { action: 'total' }, ejemplo: { action: 'total' } },
@@ -75,7 +75,7 @@ export const ESCENARIOS = [
   { id: 'musica-siguiente', pedido: 'pasá a la siguiente canción', espera: { tool: 'media_control' }, args: { action: 'next' }, ejemplo: { action: 'next' } },
   { id: 'musica-pausa', pedido: 'pausá la música', espera: { tool: 'media_control' }, args: { action: 'pause' }, ejemplo: { action: 'pause' } },
   { id: 'rutina-resumen', pedido: 'todos los días a las 8 dame el resumen', espera: { tool: 'manage_routine' }, args: { action: 'add', at: /8/ }, ejemplo: { action: 'add', name: 'resumen', at: '8', what: 'resumen' } },
-  { id: 'rutina-lluvia', pedido: 'los domingos a las 20 avisame si llueve mañana', espera: { tool: 'manage_routine' }, args: { action: 'add' }, ejemplo: { action: 'add', name: 'paraguas', at: '20', days: 'domingo', what: 'clima', if_rain: 'mañana' } },
+  { id: 'rutina-lluvia', pedido: 'los domingos a las 20 avisame si llueve mañana', espera: { tool: 'manage_routine' }, args: { action: 'add' }, ejemplo: { action: 'add', name: 'paraguas', at: '20', days: 'domingo', what: 'clima', if_rain: 'manana' } },
   { id: 'rutinas-ver', pedido: 'qué rutinas tengo', espera: { tool: 'manage_routine' }, args: { action: 'list' }, ejemplo: { action: 'list' } },
   { id: 'documento', pedido: 'qué dice el contrato en mis documentos', espera: { tool: 'search_docs' }, ejemplo: { query: 'contrato' } },
 ];

@@ -192,7 +192,7 @@ window.KiuRutinas = (function () {
     var args = {};
     for (var k in acc.args) if (Object.prototype.hasOwnProperty.call(acc.args, k)) args[k] = acc.args[k];
     if (r.what === 'clima' && r.place) args.place = r.place;
-    if (r.what === 'clima' && r.rain === 'manana') args.day = 'mañana';
+    if (r.what === 'clima' && r.rain === 'manana') args.day = 'manana';
     /* la regla de oro: sin supervisión, solo lectura */
     if (A.riskOf(t, args) !== 'read') return Promise.resolve({ ok: false, err: 'una rutina solo puede leer' });
     try { return Promise.resolve(t.run(args)); } catch (e) { return Promise.resolve({ ok: false, err: 'falló' }); }

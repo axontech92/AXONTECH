@@ -166,3 +166,64 @@ test('cableado: botones, script y el motor de la UI', () => {
   const ui = fs.readFileSync(path.join(WWW, 'js/app/app-ui.js'), 'utf8');
   assert.match(ui, /KiuAutoprueba\.correr\(/);
 });
+
+/* ---- v2.19.1: la prueba cerró la app en un teléfono real ---- */
+test('deja una miga ANTES de cada pedido y la borra al terminar: si la app muere, se sabe dónde', async () => {
+  let migaDuranteAsk = null;
+  const { U, ctx } = conModelo((p) => {
+    migaDuranteAsk = JSON.parse(ctx.localStorage.getItem('kiu_autoprueba_migas'));
+    return perfecto()(p);
+  });
+  await corrida(U, {});
+  assert.ok(migaDuranteAsk && migaDuranteAsk.pedido && migaDuranteAsk.n >= 1, 'la miga existe mientras el motor trabaja');
+  assert.equal(migaDuranteAsk.gram, true);
+  assert.equal(ctx.localStorage.getItem('kiu_autoprueba_migas'), null, 'terminó bien: no queda miga');
+});
+
+test('si el motor nunca vuelve (la app muere), la miga queda y migasPendientes() la lee', () => {
+  const { U, ctx } = conModelo(() => { throw new Error('el proceso murió'); });
+  assert.throws(() => U.correr({}, () => { }));
+  const m = J(U.migasPendientes());
+  assert.equal(m.n, 1);
+  assert.match(m.modelo, /Qwen3/);
+  assert.equal(typeof m.pedido, 'string');
+  U.limpiarMigas();
+  assert.equal(U.migasPendientes(), null);
+  assert.ok(ctx);
+});
+
+test('"Sin gramática" no manda la gramática al motor y lo marca en el resultado', async () => {
+  const { U, visto } = conModelo((p) => perfecto()(p));
+  const r = J(await corrida(U, { sinGramatica: true }));
+  assert.ok(visto.length > 0 && visto.every((v) => v.gbnf === null), 'ningún pedido lleva gramática');
+  assert.equal(r.sinGramatica, true);
+  const con = conModelo((p) => perfecto()(p));
+  await corrida(con.U, {});
+  assert.ok(con.visto.every((v) => v.gbnf && v.gbnf.length > 20), 'por defecto sí');
+});
+
+test('la gramática es ASCII puro: ningún valor de enum lleva ñ ni acentos', () => {
+  const { A } = conModelo(() => ({}));
+  for (const n of A.toolNames()) {
+    const g = A.grammar([n], false, false);
+    assert.ok(!/[^\x00-\x7f]/.test(g), n + ': la gramática tiene caracteres no ASCII → ' + (g.match(/[^\x00-\x7f]+/) || [''])[0]);
+  }
+  const g2 = A.grammar(A.toolNames(), false, false);
+  assert.ok(!/[^\x00-\x7f]/.test(g2), 'con todas las herramientas juntas también');
+});
+
+test('"mañana" sigue funcionando aunque el enum diga "manana"', async () => {
+  const { A } = conModelo(() => ({}));
+  const r = await A.get('get_weather').run({ place: 'Lima', day: 'manana' });
+  assert.match(r.text, /^Mañana en/);
+  const v = A.validate('get_weather', { place: 'Lima', day: 'manana' });
+  assert.equal(v.ok, true);
+});
+
+test('cableado: botón "Sin gramática" y aviso de la prueba que cerró la app', () => {
+  const html = fs.readFileSync(path.join(WWW, 'index.html'), 'utf8');
+  assert.match(html, /id="mdl-agent-nogram"/);
+  const ui = fs.readFileSync(path.join(WWW, 'js/app/app-ui.js'), 'utf8');
+  assert.match(ui, /KiuAutoprueba\.migasPendientes\(\)/);
+  assert.match(ui, /La prueba anterior cerró la app/);
+});
