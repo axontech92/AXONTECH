@@ -3332,6 +3332,18 @@ function _processSBQueue() {
           Object.keys(value).forEach(k => _valesPrevSlimJson.delete(`${g}/${k}`));
         }
       } catch(e3) {}
+      // v148: y se saca de la lista de "sin confirmar". Si no, la autorreparación
+      // lo volvía a mandar a los pocos segundos, el servidor lo volvía a rechazar,
+      // y así sin fin: el indicador se quedaba en "Guardando… (red lenta)".
+      try {
+        const _sc = _getValesSucios(); let _cambio = false;
+        const _quitar = id => { if (_sc[String(id)] !== undefined) { delete _sc[String(id)]; _cambio = true; } };
+        if (path === 'vale_eventos' && value) _quitar(value.valeId);
+        else if ((path === 'vales' || path.startsWith('vales/')) && value && typeof value === 'object')
+          Object.keys(value).forEach(k => _quitar(k.includes('/') ? k.split('/').pop() : k));
+        if (_cambio) _guardarValesSucios();
+      } catch(e5) {}
+      console.error('[v148] el servidor rechazó para siempre este envío:', path, _msgErr);
       try { if (typeof showToast === 'function') showToast('⚠️ El servidor rechazó un cambio (' + path + '). No se reintentará: revisa ese dato.'); } catch(e4) {}
       _sbProcessing = false;
       _currentWritePath = null;  // v31: clear in-flight path
