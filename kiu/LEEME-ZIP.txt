@@ -1,0 +1,675 @@
+KIU - Tanda 27: el rediseño y la visión (v2.14.7)
+===============================================================================
+
+OJO, LEÉ ESTO PRIMERO
+- Este ZIP es SOLO CÓDIGO. NO es un APK: no se instala, se compila.
+- Y no se puede compilar desde este ZIP tal cual, porque NO trae las librerías
+  nativas del motor (40 MB, están en .gitignore: app/src/main/jniLibs/ y
+  vendor/llama.cpp). El build falla con:
+      KIU: no hay librerías nativas del motor
+- ESO es lo que pasaba: el build fallaba, se instalaba el APK viejo, la app
+  decía 2.7 y nadie veía el error porque se iba al scrollback de Gradle.
+
+LO QUE TIENES QUE HACER (en orden de probabilidad)
+1) Bajá el APK del RELEASE de GitHub. El CI publica Kiu-APK-release; ahí no
+   dependés de que tu build local funcione. ES LO MÁS SEGURO.
+2) Verificalo ANTES de instalar:
+      ./scripts/verificar-apk.sh el-apk-bajado.apk --esperar 2.14.7
+   Sale con 0 si es el que esperabas, 1 si no. Lee el sello de build de adentro
+   del APK con unzip: no necesita Android SDK, ni aapt, ni apkanalyzer.
+3) Si igual compilás local: tenés que tener las .so. Se recuperan con
+      ./scripts/vendor_llama.sh && ./gradlew :app:assembleDebug
+   y MIRA que termine bien antes de instalar.
+4) OJO CON LA FIRMA: si ya tenés Kiu instalada, usá SIEMPRE la misma keystore
+   (keystore/kiu-release.jks, que NO va en este ZIP). Con otra clave Android
+   te obliga a desinstalar y se pierden los datos locales.
+
+LO QUE HAY EN ESTA TANDA
+- App v2.14.7 (versionCode 98).
+- LA VISION: el motor del telefono NO tiene soporte multimodal (el JNI no
+  carga mmproj ni usa mtmd). Antes, en modo Auto, el motor local (que no ve) se
+  probaba antes que el servidor (que si ve), y el "swap" de vision
+  descargaba el modelo del usuario para poner un modelo de TEXTO (que
+  tampoco ve). Ahora la foto va al servidor o a la API y el modelo cargado
+  SE QUEDA CARGADO. Si no hay quien vea, Kiu contesta el texto y lo dice.
+- LA TARJETA DE ERROR: un fallo no es una respuesta del bot, es un problema
+  de la app: ahora sale con icono, motivo y boton ("Liberar motor", "Conectar
+  vision", "Reintentar"), y no se lee por el TTS.
+- LOS TOKENS DEL REDISENO: el gris secundario pasa de 3,6:1 a 5,3:1 (WCAG
+  AA) y hay un piso de 11 px para lo que hay que leer. Un test calcula el
+  contraste y lo exige.
+- 561 tests: 556 en verde, 0 en rojo, 5 omitidas.
+
+LO QUE HAY EN ESTA TANDA (v2.14.6, el resto)
+- App v2.14.6 (versionCode 97).
+- EL PIE DE DIAGNOSTICO SE FUE: cada respuesta del motor terminaba con
+  "(motor interno - modelo - 6,3 tok/s en tu telefono)". Media pantalla de
+  ruido. Ahora esta APAGADO por defecto y se enciende en Ajustes -> Motor local
+  -> "Detalles del motor en el chat".
+- EL CIERRE FORZADO: el motor vive dentro del proceso de la app, asi que los
+  pesos, el contexto y el WebView comparten la RAM; cuando eso se desborda
+  Android mata la app entera ("le pedi que creara una web y se cerro"). Ahora
+  hay una guarda de memoria: si no hay RAM, Kiu no genera y lo dice con los
+  megas que faltan; si la RAM se hunde durante una generacion larga, se corta
+  y se devuelve el parcial. El arreglo de fondo (motor en un proceso aparte)
+  esta anotado en KNOWN_ISSUES.
+- LA VOZ: se preferia la voz local (robotica) porque las de red necesitan
+  internet y, si fallaban, Kiu quedaba mudo. Como el TTS ya reintenta con una
+  local si la de red falla, ahora con internet se usa la que suena a persona
+  (network/neural) y sin internet se cae a la local. Ademas lo que se habla
+  va limpio: las URLs no se leen y los simbolos sueltos se traducen.
+- 550 tests: 545 en verde, 0 en rojo, 5 omitidas (los arneses de Java: sin
+  JDK se saltan a la vista; en el CI corren).
+
+LO QUE HAY EN ESTA TANDA (v2.14.5, el resto)
+- App v2.14.5 (versionCode 96).
+- EL AGENTE, MEDIDO DE VERDAD. Con un llama.cpp compilado y un Qwen3-0.6B
+  real, el arnés de evaluacion pasa de 3% a 93% de acierto (28 de 30
+  pedidos) con el no-op del 97% al 7%. Los cuatro bugs:
+  (1) la gramatica GBNF del agente NUNCA PARSEO (en GBNF un salto de linea
+      termina la regla, y el "|" de las alternativas iba al principio de la
+      linea siguiente) y ademas nunca se mandaba (el JS la ponia solo si la
+      ANTERIOR se habia aplicado, y en la primera decision no habia ninguna);
+  (2) el modelo contestaba {"listo":true} en el 97% de los pedidos: ahora,
+      en el primer paso la gramatica no ofrece esa salida y el prompt lleva
+      un ejemplo;
+  (3) las palabras clave no matcheaban (regex angostas, y con acentos contra
+      un pedido normalizado sin acentos): ahora son listas que se cuentan,
+      con desempate explicito;
+  (4) el cerebro no entendia "7" (solo "a las 7").
+- COMO REPRODUCIR LA MEDICION (el paso que faltaba):
+      1) compilar llama.cpp y levantar el servidor:
+         cmake -B build -DGGML_NATIVE=OFF -DLLAMA_CURL=OFF && cmake --build build --target llama-server -j2
+         ./build/bin/llama-server -m modelo.gguf --port 8080 -c 2048 --threads 2
+      2) correr el arnes contra el modelo real:
+         node tests/evals/run.mjs --url http://127.0.0.1:8080/v1/chat/completions --model <nombre>
+      Sale con 1 si no cumple los umbrales (acierto 80%, no-op 10%, 3 pasos).
+- 545 tests: 540 en verde, 0 en rojo, 5 omitidas (los arneses de Java: sin
+  JDK se saltan a la vista; en el CI corren).
+
+LO QUE HAY EN ESTA TANDA (v2.14.4, el resto)
+- App v2.14.4 (versionCode 95).
+- EL MOTOR DEJO DE DECIR "OCUPADO". El sintoma era "El motor interno no pudo
+  responder (el motor sigue ocupado con una solicitud anterior)". Tres causas:
+  (1) el resumen de memoria en segundo plano le robaba el motor a la respuesta
+  del usuario, y era AUTO-AMPLIFICANTE (el mensaje de error es enorme, hace
+  que el historial dispare otro resumen, y asi el error se repite para
+  siempre); (2) el motor no tenia cola: el pedido rebotaba con un error en vez
+  de esperar su turno; (3) el controlador de estados del avatar acumulaba
+  temporizadores (prometia "uno solo" y no era cierto), y en un WebView en
+  segundo plano eso desgasta CPU de verdad.
+- 544 tests: 544 en verde, 0 en rojo, 0 omitidas (con JDK: los arneses de Java
+  se compilan y se ejecutan de verdad).
+
+LO QUE HAY EN ESTA TANDA (v2.14.3, el resto)
+- App v2.14.3 (versionCode 94).
+- LA CAPA PREMIUM DEL CSS: vidrio esmerilado para lo que flota y se lee,
+  tarjetas a relieve para lo que se toca. Va como una capa que SOLO AGREGA al
+  final de app.css: si algo se ve mal, se saca la capa y la app vuelve a la
+  de siempre. El blur de verdad solo va en las superficies grandes, porque un
+  backdrop-filter en cada tarjeta repetida baja los frames en un WebView de
+  Android.
+- EL CI VOLVIÓ A VERDE. El fallo era del control negativo del arnés del
+  descargador (mutaba una guarda y la otra seguía atrapando el caso), no de
+  la app. Con JDK 17 en el sandbox: 539 tests, 539 en verde.
+
+LO QUE HAY EN ESTA TANDA (v2.14.2, el resto)
+Son cambios de FONDO, no de
+cosmética: Kiu deja de ser un enrutador con un modelo al final y empieza a
+comportarse como un agente.
+
+EL AGENTE (lo que reportaba la gente)
+- "el agente no reconoce cuando hay un modelo cargado y siempre pone motor
+  ocupado". NO era una causa: eran cuatro, encadenadas:
+  1) El puente se capturaba UNA sola vez al cargar el JS. Si la interfaz
+     nativa no estaba en ese instante, moría en silencio para siempre:
+     kiuGen devolvía null y el agente contestaba "ocupado" con el modelo
+     cargado. Ahora se resuelve en cada llamada.
+  2) Un evento de carga tardío liberaba el flag de una generación en vuelo:
+     el JS creía que el motor estaba libre mientras el nativo generaba.
+  3) Un push tardío cerraba la generación SIGUIENTE (le daba el texto viejo
+     al callback nuevo y le borraba el pending): motor en "Generando" para
+     siempre. Ahora el evento lleva el id de la generación y se descarta el
+     que no es suyo.
+  4) El watchdog de 10 minutos mataba la generación que estuviera corriendo
+     diez minutos después de CUALQUIER generación. Ahora compara identidades.
+- El agente ahora ESPERA al motor ocupado (como ya hacía el chat normal) en
+  vez de rendirse al instante, y tiene un reloj de 2 min por decisión.
+- El motor distingue "no hay motor" de "está ocupado": si el puente no tiene
+  el método, lo dice en vez de mentir.
+
+EL DESPERTAR POR VOZ
+- "no funciona para dar instrucciones". El comando se perdía en silencio
+  cuando la actividad existía pero la página todavía no estaba lista
+  (arranque en frío): evaluateJavascript no ejecuta nada sobre una página a
+  medio cargar. Ahora queda en cola hasta pageReady().
+- PENDIENTE, anotado en KNOWN_ISSUES: con la app abierta el comando puede
+  ejecutarse DOS veces (el servicio lo entrega y el micrófono de la app
+  también lo escucha). El antirrebote solo cubre la vía del servicio.
+
+EL AGENTE, PARA SER AGENTE
+- La memoria del usuario sale de app-ui.js a js/app/memoria.js, con búsqueda
+  por palabras de verdad. El agente la CONSULTA (herramienta nueva `recall`):
+  antes la escribía y no la leía nunca.
+- Herramientas nuevas: recall, manage_task, manage_alarm,
+  create_calendar_event, forget, update_memory.
+- El prompt de decisión lleva PERFIL DEL USUARIO (nombre, tareas pendientes,
+  recuerdos): el modelo sabe quién sos antes de elegir la herramienta.
+- El riesgo de una herramienta se calcula con sus argumentos: leer no pide
+  confirmación, escribir sí.
+- El manifiesto compacto lleva los valores de los enums: el modelo no inventa
+  el vocabulario (antes cada valor inventado costaba una generación entera).
+- Observaciones estructuradas y un turno = una generación (si el resultado es
+  único y corto, el texto de la herramienta ES la respuesta).
+- El agente avisa en qué está: la pastilla dice "Busco en tu memoria" en vez
+  de "Enrutando" clavado.
+
+EL ARNÉS DE EVALUACIÓN (nuevo)
+- tests/evals/: 30 pedidos reales con la herramienta que el agente debería
+  elegir y los argumentos que tiene que producir. Mide acierto de
+  herramienta, pasos hasta el éxito, no-op y latencia, con umbrales que
+  hacen FALLAR el arnés si no se cumplen.
+- Corre sin red en el CI:
+      node --test tests/evals.test.mjs
+- Contra un modelo real (llama.cpp server, Ollama, LM Studio):
+      node tests/evals/run.mjs --url http://127.0.0.1:8080/v1/chat/completions
+- YA PAGÓ: encontró dos bugs que los tests de código no veían
+  (device_action con "espacio" y el cancelamiento de una alarma por título
+  parafraseado). Los dos están arreglados.
+
+LA CAPA JAVA
+- El descargador de modelos: si el SHA-256 NO se puede calcular, la descarga
+  ahora falla y borra el archivo. Antes lo instalaba como si estuviera bien
+  (un modelo corrupto, con el síntoma apareciendo mucho después).
+- Arnés de ejecución real del descargador (KiuDlTaskHarness), con control
+  negativo.
+- El CI declara el JDK del job de tests: los arneses de Java se compilan y se
+  EJECUTAN de verdad, en vez de depender de la imagen del runner. Sin JDK se
+  saltan a la vista, nunca en silencio.
+
+CIFRAS
+- App v2.14.2 (versionCode 93).
+- 539 tests: 539 en verde, 0 en rojo, 0 omitidas (con JDK: los arneses de Java
+  se compilan y se ejecutan de verdad).
+- Auditoría del puente JS↔Java: OK.
+- NO se pudo compilar el APK ni el C++: este ZIP no incluye vendor/llama.cpp
+  ni las .so del motor. Eso se verifica en el CI (que sí las baja).
+
+DOCUMENTACIÓN NUEVA
+- docs/AGENTE_UTIL.md: el diagnóstico de por qué Kiu todavía no era un agente
+  de verdad, lo que se hizo y la hoja de ruta que queda (con lo único que
+  falta: correr el arnés contra un GGUF real y publicar los números).
+
+TANDA 20 (v2.10.0): el error siguiente del CI
+===============================================================================
+OJO, LEÉ ESTO PRIMERO
+- Este ZIP es SOLO CÓDIGO. NO es un APK: no se instala, se compila.
+- Y no se puede compilar desde este ZIP tal cual, porque NO trae las librerías
+  nativas del motor (40 MB, están en .gitignore: app/src/main/jniLibs/ y
+  vendor/llama.cpp). El build falla con:
+      KIU: no hay librerías nativas del motor
+- ESO es lo que pasaba: el build fallaba, se instalaba el APK viejo, la app
+  decía 2.7 y nadie veía el error porque se iba al scrollback de Gradle.
+
+LO QUE TIENES QUE HACER (en orden de probabilidad)
+1) Bajá el APK del RELEASE de GitHub. El CI publica Kiu-APK-release; ahí no
+   dependés de que tu build local funcione. ES LO MÁS SEGURO.
+2) Verificalo ANTES de instalar:
+      ./scripts/verificar-apk.sh el-apk-bajado.apk --esperar 2.9.5
+   Sale con 0 si es el que esperabas, 1 si no. Lee el sello de build de adentro
+   del APK con unzip: no necesita Android SDK, ni aapt, ni apkanalyzer.
+3) Si igual compilás local: tenés que tener las .so. Se recuperan con
+      ./scripts/vendor_llama.sh && ./gradlew :app:assembleDebug
+   y MIRA que termine bien antes de instalar.
+
+NUEVO EN ESTA TANDA
+- ARREGLO: r.resolveInfo.serviceInfo no compila. ResolveInfo ES el tipo: su
+  serviceInfo va directo. El build de la tanda anterior SI funciono (llego a
+  compileDebugJavaWithJavac); este era el error siguiente.
+- De paso se fue android:extractNativeLibs del manifiesto, que AGP marca como
+  "tiene que estar en el archivo de build" y ya estaba. OJO: al sacarlo casi rompo
+  el manifiesto entero, porque puse el comentario entre los atributos del <application>
+  y en XML un comentario NO puede ir adentro de un start-tag. Lo agarro un test.
+- tests/manifesto.test.mjs: valida el manifiesto como XML y se rompe solo si vuelve
+  el atributo.
+- Se puede verificar Java de verdad: bajo un android.jar (API 15) y filtro lo que
+  la API vieja no tiene. Los dos errores del CI no aparecen y no queda ninguno sin
+  explicar. Chequeo parcial, pero convierte "no distingo si falta la clase o si use
+  mal un miembro" en una respuesta.
+- App v2.10.0 (versionCode 48). 255 tests.
+
+TANDA 19 (v2.9.9)
+- ARREGLO DE BUILD, sin cambios de comportamiento. El CI no arrancaba:
+    app/build.gradle.kts:167 Unresolved reference: time
+    app/build.gradle.kts:168 Type mismatch: inferred Serializable but Pair<K,V> expected
+- El primero es EL gotcha de Kotlin DSL: dentro de un .gradle.kts, `java` es la
+  extension de Gradle, no el paquete java.*. Por eso java.time.Instant no resuelve
+  nunca. Arreglo: import java.time.Instant explicito al principio.
+- El segundo: mapOf con valores de tipos distintos (Int, String, String?) hace que
+  Kotlin infiera el comun mas arriba (Serializable) y el Pair deja de casar. Arreglo:
+  declarar Map<String, String> y convertir el codigo con toString().
+- Los dos son el mismo error de fondo: escribir codigo que solo compila en un
+  contexto sin saber cual es.
+- Guardas: sellado.test.mjs mira el archivo real y falla si vuelve el java.time. en
+  linea o el mapOf sin tipo. Y un harness en Kotlin compila y ejecuta el bloque del
+  sello con kotlinc para verificar el JSON que produce.
+- IMPORTANTE: el harness de Kotlin NO reproduce los dos errores, y lo dice. En un
+  .kt normal los dos compilan bien — los fallos son exclusivos de .gradle.kts. Un
+  guard que aparenta cubrir un bug sin cubrirlo da confianza falsa.
+- App v2.9.9 (versionCode 47). 252 tests en verde.
+
+TANDA 18 (v2.9.8)
+- El modelo Vosk (39 MB) se baja DESDE LA APP, en el diagnóstico de voz. Antes la
+  única forma era saber el comando de adb, y sin modelo la palabra de activacion
+  local no arranca sin decir por que.
+- Flujo en tres pasos porque son tres estados que fallan distinto: wwInstall (descarga,
+  con SHA y reanimacion), wwUnzip (descomprimir) y wwUnzipStatus (progreso).
+- OJO CON ESTO, que casi se pierde: el zip oficial trae todo dentro de
+  vosk-model-small-es-0.42/, y el motor busca am/final.mdl en la raiz. Descomprimir
+  tal cual deja el modelo un nivel mas abajo de donde lo busca: 60 MB en disco y la
+  app diciendo "falta el modelo" para siempre. El instalador quita la carpeta raiz.
+- Zip-slip cortado: un nombre con ../ en el zip escribiria fuera de la carpeta de la
+  app. Las entradas sospechosas se saltan y se cuentan.
+- El SHA del modelo queda fijado en el codigo.
+- Se prueba con el ZIP REAL de 39 MB (KIU_VOSK_ZIP), no con mocks.
+- App v2.9.8 (versionCode 46). 250 tests (247 + 3 skip sin JDK/zip).
+
+TANDA 17 (v2.9.7)
+- Backoff ya no se verifica leyéndola con regex: se COMPILA y se EJECUTA. Antes
+  los tests comprobaban que el código dijera "Math.min(maxMs, esperaMs * 2)", no que
+  hiciera lo correcto — un Backoff reescrito a mano con la misma expresión textual y
+  un if mal puesto pasaba igual.
+- tests/java/com/kiu/agent/BackoffHarness.java + tests/java.test.mjs: 11
+  aserciones de comportamiento (crece, tope, -1 para rendirse, reset, base
+  negativa, cero estado de error en la clase).
+- El arnés se prueba a sí mismo: compila un Backoff deliberadamente roto y exige
+  que falle. Sin eso, un arnés que no ejecuta nada pasaría en verde.
+- SIN JDK no pasa: se marca SKIP sin JDK (javac no encontrado). El CI de GitHub
+  ya trae JDK, así que ahí corre siempre.
+- Por esto NO usa JUnit: app/src/test con JUnit exige el SDK de Android, así que no
+  correría en ningún lado donde no lo haya.
+- App v2.9.7 (versionCode 45). 244 tests en verde con JDK (242 + 2 saltados sin él).
+
+TANDA 16 (v2.9.6)
+- BUG 1: una llamada mataba la palabra de activacion para siempre. Cuando
+  AudioRecord.read() daba error (el mic lo toma una llamada u otra app), el codigo
+  hacia continue SOBRE EL MISMO AudioRecord. Uno en estado de error no se
+  recupera: hay que liberar y crear otro. Ahora el read-loop se corta y el loop de
+  afuera lo reconstruye con backoff; si no vuelve, se rinde Y LO DICE, en vez de
+  quedarse mudo fingiendo que escucha.
+- BUG 2: el error quedaba pegajoso. err solo se limpiaba en start(), asi que un
+  fallo transitorio dejaba "microfono ocupado" puesto para toda la sesion aunque
+  despues anduviera bien. Ahora se limpia cuando el micro ABRE de verdad, despues
+  de startRecording().
+- BUG 3: la voz podia no arrancar nunca, en silencio. initTts() se llamaba una sola
+  vez en onCreate; si el motor no estaba listo en ese instante, ttsReady quedaba
+  false PARA TODA LA VIDA de la app, speak() hacia return en la primera linea, y
+  no habia ni toast ni error ni reintento. "Kiu esta pensando" y "Kiu no tiene
+  voz" se veian IGUAL. Ahora reintenta con backoff, cierra el motor anterior en
+  cada intento, y si no arranca lo dice y el motivo sale en el diagnostico.
+- Un bug ME METI YO escribiendo el arreglo del 1: colgué el reset() del backoff de
+  un estado que nadie devolvia, asi que tras 8 micro-fallos en una sesion Kiu se
+  rendia para siempre — el mismo sintoma que estaba arreglando. Lo encontro un
+  test, y hay otro que afirma que el estado sobrante no vuelva.
+- Backoff.java: logica pura, cero imports de Android. La politica de reintentos
+  de todo el audio vive ahi, y por eso se puede razonar y testear.
+- tests/java-estructura.test.mjs: escaner de una pasada que balancea llaves y
+  parentesis de todo el Java. Es lo unico de esa capa que se puede verificar sin
+  compilador.
+- El CI ya corre :app:testDebugUnitTest antes de publicar el APK. Hoy es un no-op
+  que pasa, porque app/src/test sigue vacio; queda el cableado listo.
+- App v2.9.6 (versionCode 44). 240 tests en verde.
+
+LO QUE NO PUEDO VERIFICAR ACA
+- El sandbox donde escribi esto NO tiene JDK: javac no esta instalado. Los fixes
+  de Java de esta tanda no estan compilados, ni probados en un telefono. Los
+  tests que los cubren son de ESTRUCTURA por analisis del fuente: fallan si
+  alguien revierte el arreglo, pero no sustituyen a compilar y probar.
+  Compilá y probá en el telefono antes de confiar en el audio.
+- Para realmente cubrir esa capa hace falta montar app/src/test con JUnit. El
+  cableado del CI ya esta.
+
+TANDA 15 (v2.9.5) cada build escribe assets/build-stamp.json DENTRO del APK
+  (versión, código, commit, fecha, dónde se compiló). Es lo que permite saber
+  qué APK tenés instalado sin herramientas de Android.
+- scripts/verificar-apk.sh: lo lee y te dice cuál es, y falla (exit 1) si no es
+  el que esperabas. Dos casos donde NO dice que todo bien, a propósito:
+    · sin sello + --esperar  ->  falla. Un APK sin sello es viejo o reempaquetado;
+      no poder confirmar no es lo mismo que estar bien.
+    · APK sin .so  ->  avisa. Se puede instalar, no puede generar.
+- La versión se declara UNA sola vez en build.gradle.kts. Estaba en dos lugares
+  (defaultConfig y el sello) y el que se queda viejo sería el sello, que es el
+  que dice qué estás por instalar: mentiría con autoridad.
+- Arreglado el parseo de args del script: usaba `for arg in "$@"`, que congela la
+  lista y hace que el shift no funcione — el valor de --esperar se tomaba como
+  nombre de archivo. Ahora con while+shift.
+- App v2.9.5 (versionCode 43). 227 tests en verde.
+
+CÓMO PROBAR
+- ./scripts/verificar-apk.sh <tu.apk> --esperar 2.9.5
+- Y después de instalar: Ajustes -> Diagnosticar voz. La primera fila es la
+  versión REAL del paquete instalado, leída de PackageManager.
+
+TANDA 14 (v2.9.4)
+- BUG REAL: el modelo local se buscaba en el lugar equivocado. El zip oficial
+  (vosk-model-small-es-0.42) tiene am/final.mdl; el codigo chequeaba
+  <dir>/final.mdl, en la RAIZ. Con el modelo puesto donde dice la documentacion, el
+  chequeo daba false y el error decia "falta el modelo" — mentira: estaba, en su
+  sitio, y la app no lo veía. Se aceptan los DOS layouts (el oficial con am/ y el
+  plano), y el que decide si arranca y el que informa si esta mira lo mismo.
+  Verificado contra https://alphacephei.com/vosk/models
+- BUG REAL: si el recognizer se colgaba, Kiu quedaba mudo PARA SIEMPRE. El bucle se
+  rearma solo desde onResults/onError; si ninguno llega, listening queda en true y
+  cycle() sigue volviendo por el `if (listening) return`. Sin error ni aviso. Ahora
+  hay watchdog: 12 s y destructura y reintenta con backoff.
+- La version del perfil sale de PackageManager (la del paquete REALMENTE
+  instalado), no de una constante escrita a mano en el JS. Con un APK viejo el
+  rotulo no delataba nada: la app instalada decia 2.7 mientras el repo iba 2.9.3.
+  Matiz: la app NO puede auto-detectar que su APK es viejo (el JS y el nativo
+  salen del mismo arbol, siempre coinciden). Lo que SI detecta es una instalacion
+  MEZCLADA, y por CAPACIDAD: este codigo declara que metodos del puente necesita,
+  los prueba, y si falta uno lo dice por nombre.
+- Boton "Diagnosticar voz": las cuatro causas del silencio (APK viejo, sin
+  servicio de reconocimiento, sin modelo local, sin permiso de microfono) se veian
+  IGUAL. Ahora se distinguen, y cada problema dice la GRILLA concreta.
+- verReal() y diagVoz() se movieron de app-ui.js a app/diag-voz.js: modulo chico
+  con una sola dependencia. Adentro del archivo de 4000 lineas NO se podian testear
+  (arrastraba store, DOM y timers) y los tests pasaban sin ejercitar nada.
+- App v2.9.4 (versionCode 42). 219 tests en verde.
+
+LO QUE SIGUE PENDIENTE
+- La palabra de activacion local sigue necesitando el modelo (39 MB, no van en el
+  repo). Con el bug 1 arreglado ahora se lo ve, pero instalarlo sigue siendo manual
+  por adb. Para eso tiene que estar:
+    curl -LO https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip
+    unzip -q vosk-model-small-es-0.42.zip
+    adb shell mkdir -p /sdcard/Android/data/com.kiu.agent/files/models/vosk-es-small
+    adb push vosk-model-small-es-0.42/. \
+      /sdcard/Android/data/com.kiu.agent/files/models/vosk-es-small/
+  OJO: el . tiene que ir con la carpeta adentro (am/, conf/, graph/). El
+ diagnostico te dice si quedo bien puesto.
+- Falta una pantalla en la app para bajarlo. Es la diferencia entre "funciona" y
+  "funciona si sabes el comando de adb".
+
+CÓMO PROBAR
+- Abrí Ajustes -> Diagnosticar voz. Con esto solo ya sabés que version tenes
+  INSTALADA de verdad y cual de las cuatro causas es.
+- Probalo en el telefono, no en el emulador: los servicios de voz del sistema
+  casi nunca estan en un emulador y darias un falso negativo.
+
+TANDA 13 (v2.9.3)
+- La gramatica GBNF ya no es un generador sin destino: hay setGrammar en el nativo
+  y el agente se la pasa antes de pedir la decision. El motor solo puede emitir
+  tokens que encajen, asi que el JSON sale valido sin depender de que el modelo sea
+  bueno AMLando llaves.
+  Se resolvio con un setter aparte y NO cambiando la firma de generate(), que
+  habria roto el puente JS entero (kiuGen) y obligado a tocar los dos lados. El JS
+  pone la gramatica justo antes de pedir la decision; el resto de la app sigue
+  llamando generate(prompt, maxT, temp) sin enterarse.
+- TRES metodos nuevos, y el tercero importa:
+    kiuGenSetGrammar(gbnf)  la aplica la PROXIMA generacion; "" la desactiva
+    kiuGenGrammarPending()  cual espera (diagnostico / tests)
+    kiuGenGrammarOk()       si la ultima se pudo aplicar
+  El tercero es para una trampa: si el motor no la aplica, la generacion sale igual
+  y SIN restringir. Un bucle que cree que esta activa se apoya en un parse que nunca
+  va a venir bien, y el sintoma ("sale JSON roto") apunta a la validacion, que es la
+  innocent.
+- La gramatica se CONSUME (generate() la toma y la borra) y stopGen() la limpia.
+  Sin esto queda pegada y la respuesta de chat que viene despues sale forzada a
+  emitir un {"tool":...}. No se ve como un bug de gramatica: se ve como un bug de
+  chat, en otra pantalla, mas tarde. Hay test para las dos vias.
+- Va al FINAL de la cadena de samplers (es lo que decide si un token se puede
+  emitir) y motor.js manda temp 0 cuando manda gramatica, para no depender de
+  cual de los dos gana el conflicto con el sampler aleatorio.
+- Shim de la firma igual que el de las penalidades: si el vendor no la expone, se
+  omite el sampler y la generacion sigue sin gramatica. Perder una mejora opcional
+  no puede romper el APK.
+- App v2.9.3 (versionCode 41). 206 tests en verde.
+
+PENDIENTE DE ESTA TANDA
+- Que el C++ compile. El SFINAE de kiu_grammar_impl(0, a...) elige el overload
+  int para una llamada directa de 3 argumentos (la firma conocida), pero eso solo
+  lo confirma un compilador. Es lo primero que va a decir ./gradlew :app:assembleDebug.
+
+CÓMO PROBAR
+- ./gradlew :app:assembleDebug
+- Con el agente prendido y un modelo chico: mandale un pedido que llame a una
+  herramienta. Con la gramatica activa el JSON sale al primer intento; mirá si
+  bajan los reintentos respecto de v2.9.2.
+- Para ver si la gramatica se aplico de verdad: kiuGenGrammarOk() tiene que devolver
+  true. Si devuelve false, el motor genero texto sin restringir y el bucle cae al
+  parse + reintento (que igual hace falta: un modelo chico va a fallar el JSON de
+  vez en cuando).
+
+TANDA 12 (v2.9.2)
+- El motor nativo ya NO se compila contra llama.cpp de master. El pin esta en
+  scripts/vendor_llama.sh (v0.7.0 + su SHA) y el CI lo lee de ahi. Antes un commit
+  de upstream podia romper el build sin que cambiara nada del repo, sin forma de
+  volver atras. El script trae el TAG y VERIFICA que el commit sea el esperado: si
+  upstream movio el tag, para con ruido en vez de compilar otro codigo. El CI lo
+  muestra en el resumen del run, asi un fallo de compilacion dice contra que commit
+  fue.
+  * PROBADO: ./scripts/vendor_llama.sh --show  ->  imprime el pin y el estado local
+  * PENDIENTE: correr ./gradlew :app:assembleDebug para confirmar que v0.7.0
+    compila contra el JNI actual. No se pudo verificar aca (no hay NDK).
+- Prefill del agente: -35%. El manifiesto era 435 tokens y era el 80% del costo de
+  una decision (544 tok) en la CPU del telefono. Ahora 259 y 351. Ademas el
+  mensaje del usuario iba DOS veces en el prompt; con historial ya no se repite.
+  Descripciones de parrafo -> disparadores, y un TECHO en los tests: si alguien
+  vuelve a escribir un parrafo ahi, se pone rojo.
+- KiuAgente.grammar(): genera la GBNF desde el mismo esquema que valida y que
+  documenta el prompt. Los ENUM quedan enumerados (device_action no es texto
+  libre) y validate() los revisa tambien, porque la gramatica no siempre esta
+  activa. Generador en JS puro, testeado con un validador de GBNF.
+  OJO: la gramatica hace que el JSON sea VALIDO, no que la herramienta sea la
+  CORRECTA. Para eso siguen la validacion y la observacion que vuelve al bucle.
+- Falta el pegamento JNI (kiuGenGrammar + llama_sampler_init_grammar): ~40 lineas
+  que no se pueden compilar ni probar aca, asi que no las incluye esta tanda.
+- App v2.9.2 (versionCode 40). 199 tests en verde.
+
+CÓMO PROBAR
+- ./scripts/vendor_llama.sh --pull  y después  ./gradlew :app:assembleDebug
+  (el primer build con el pin: si el JNI no compila contra v0.7.0, se shimmea).
+- Con el agente prendido: mandale un pedido largo y mirá que la espera por la
+  decisión no se alargue respecto de v2.9.1.
+
+TANDA 11 (v2.9.1)
+- js/kiu-agente.js NUEVO: registro de herramientas que el MODELO elige.
+  Seis herramientas (alarma, agenda, contactos, llamar, documentos, acción del
+  teléfono), cada una envolviendo algo que ya existía en vez de reimplementarlo.
+- El modelo propone, este archivo decide qué se ejecuta: nombre inexistente,
+  argumento inexistente, obligatorio que falta, tipo que no cierra o argumento
+  gigante -> se rechaza, y el MOTIVO vuelve al modelo para que el segundo intento
+  acierte.
+- args (el esquema) genera a la vez el prompt y la validación: no pueden
+  desalinearse. La gramática GBNF se va a derivar de ahí cuando el nativo la
+  soporte.
+- Enrutado DESPUÉS de skills/cerebro/ReAct (lo conocido no gasta un token) y
+  ANTES de la generación final. Si no hizo nada, el flujo sigue igual.
+- Apagado por defecto, con toggle en Ajustes. Si lo prendés sin modelo cargado,
+  te avisa en vez de fingir que quedó activo.
+- BUG REAL que encontraron los tests: isDone() daba "terminado" cuando el JSON
+  no traía la palabra "listo", así que un modelo que solo devolvía la herramienta
+  (sin entender la instrucción) veía el bucle cortar ANTES de ejecutar nada.
+- App v2.9.1 (versionCode 39). 180 tests en verde (29 nuevos en
+  tests/agente.test.mjs).
+
+CÓMO PROBAR
+- Modelos -> descargá y cargá un modelo. Ajustes -> prendé "Agente con herramientas".
+- Probá con pedidos que los regex no cubren, tipo "dejame un recordatorio para
+  sacar las gallinas" o "decime que hay en mi agenda el jueves".
+- Mirá que no rompe nada: "poné una alarma a las 7" la sigue agarrando el cerebro
+  al instante, sin gastar un token.
+
+LO QUE NO SE HIZO Y POR QUE
+- GBNF en el nativo: vendor_llama.sh clona llama.cpp de master SIN PIN. Tocar el
+  JNI con eso flotando es Gamble; hay que fijar el commit primero.
+- Confirmación antes de actuar: llamar abre el marcador (no llama solo), pero no
+  hay diálogo de confirmación. Es la costura obvia para la próxima.
+- Visión on-device: mtmd + .mmproj son ~300 líneas de C++ en un loop de decode a
+  mano, sin forma de probarlas sin NDK ni llama.cpp vendorizado.
+
+TANDA 10 (v2.9.0)
+- Leer la agenda. Kiu ya sabía escribir eventos pero no leerlos, así que
+  "¿qué tengo mañana?" no tenía respuesta:
+  * MainActivity.calendarList(query, desde, hasta) — mismo molde que contacts(),
+    devuelve JSON o "NEED_PERM". Consulta CalendarContract.Instances (que ya expande
+    la recurrencia), con tope de 40 eventos y 60 días de ventana.
+  * READ_CALENDAR, solo lectura. Para escribir se sigue usando el Intent INSERT del
+    sistema: no se pide WRITE_CALENDAR.
+  * KiuBrain entiende las DOS preguntas distintas: "¿qué tengo mañana?" (por
+    ventana) y "¿tengo dentista mañana?" (por contenido). Lo decide qué palabra
+    sigue al verbo, no una palabra suelta.
+  * El resumen matutino mete los eventos del día (tope 5), y todo el bloque está
+    dentro del if de permiso: a las 8am la app no le pide nada a nadie.
+  * Sin permiso, Kiu DICE que necesita permiso. Devolver una agenda vacía haría
+    creer al usuario que no tiene eventos, que es peor que un error.
+- Arreglo de paso: brain.js mezclaba window.KiuApp y KiuApp pelado. En el WebView
+  son lo mismo, pero el arnés de tests usa {window:{}} (objeto aparte del global),
+  así que brain.test.mjs —con 13 tests— nunca ejercitó ni una rama que use KiuApp:
+  contactos, acciones del dispositivo, y ahora la agenda. El arnés nuevo modela
+  window === global como el navegador.
+- App v2.9.0 (versionCode 38). 151 tests en verde (16 nuevos en
+  tests/calendario.test.mjs).
+
+CÓMO PROBAR
+- Decile "¿qué tengo mañana?", "¿qué tengo el viernes?", "¿tengo dentista mañana?".
+- Ajustes → activa el permiso de agenda la primera vez que lo pidas.
+- Esperá el resumen de la mañana: ahora lista los eventos del día.
+
+LO DE SIEMPRE
+
+
+LO QUE ESTABA ROTO
+- La palabra de activación NO respondía y el modo conversación continua tampoco.
+  Eran el mismo bug: al manifiesto le faltaba el <queries> del servicio de voz del
+  sistema, así que desde Android 11 SpeechRecognizer.isRecognitionAvailable()
+  devolvía false SIEMPRE y ninguna de las dos rutas llegaba a escuchar.
+- La wake word local (Vosk) detectaba «Kiu» y solo encendía un toast: no había
+  forma de decir el pedido. Y era código muerto: la UI nunca llamaba a kiuWWStart.
+- El bucle de la conversación moría al primer turno si lo había abierto la palabra
+  de activación o el fin del TTS en vez del botón del micro.
+- En la pantalla de conversación el bot se dibujaba encima del título: su hueco no
+  tenía caja (las clases que lo dimensionaban eran del avatar viejo, borrado en 2.7.0).
+
+QUÉ CAMBIÓ
+- AndroidManifest.xml: <queries> con android.speech.RecognitionService y
+  android.intent.action.TTS_SERVICE, fuera de <application>.
+- WakeWordEngine: al detectar «Kiu» abre el micrófono del comando; cede el micro
+  (pause/resume) mientras el reconocedor habla; el bucle ya no gira al 100 % de CPU
+  cuando el micro está tomado; y se elige solo si el modelo está instalado.
+- MainActivity: COMMAND_BUSY, wakeHitAndListen(), wakeState() pregunta a los dos
+  motores, y avisa (nexoWakeError) si no hay con qué escuchar en vez de fingir que
+  está despierto. startSpeech() suelta el reconocedor viejo antes de tomar el nuevo.
+- app-ui.js: el rearme del micro ya no depende de _voiceDriven; nexoListenStart
+  marca que el micrófono está ocupado; nuevo hook nexoWakeError.
+- app.css / index.html: cada hueco del bot tiene caja y tamaño declarados en el CSS
+  (única fuente de la medida); se fueron las reglas del robot viejo y logo-mini.
+- scripts/bridge_audit.py ahora ve los 15 eventos Java→JS y avisa si alguno no tiene
+  handler.
+- App v2.8.1 (versionCode 37). 135 tests en verde (20 nuevos en tests/voz.test.mjs).
+
+CÓMO PROBAR
+- Decí «Kiu» con la palabra de activación prendida: ahora Kiu abre el micrófono y
+  entiende el pedido, y sigue escuchando el turno siguiente.
+- Abrí el chat, prendé «Modo conversación» con la voz apagada y hablá: la
+  conversación no se corta después del primer turno.
+- Entrá al chat: el bot de la cabecera se ve de 44 px, en su caja, y cambia de
+  diseño con la tarea (lupa al indexar, engranaje al tocar el teléfono, libro con
+  RAG, ondas al escuchar, altavoz al hablar).
+- Si tenés el modelo Vosk en files/models/vosk-es-small/, Kiu lo usa solo.
+
+LO DE SIEMPRE
+
+NUEVO EN ESTA TANDA
+- Avatar consolidado (una sola vía):
+  * avatar.js (robot viejo de 13 estados, 12,9 KB que nadie cargaba)
+    ELIMINADO. El bot de kiu-avatar.js (37 estados) es el único avatar.
+  * kiu-avatar-boot.js reescrito como inicialización única: monta solo los
+    huecos [data-avatar] y [data-avatar-mini] del HTML, con un reintento a
+    800 ms y refit para pantallas que se abren después. Fuera el loader
+    dinámico de emergencia, el reemplazo de "avatares ajenos" y el
+    MutationObserver de 20 s. La compatibilidad de nombres viejos sigue
+    (KiuAvatar.set/flash/state/pick).
+- RAG en Web Worker (la UI ya no se congela):
+  * js/rag-worker.js NUEVO: núcleo puro del RAG con dos modos, al estilo
+    pdf.js + pdf.worker. En el hilo principal expone KiuRagCore (tok/chunk/
+    tf/BM25 en UN solo lugar); como worker atiende prep (fragmentación de
+    documentos grandes), sync (espejo del índice), drop y search (BM25).
+  * rag.js v3.1 delega la matemática en el núcleo y agrega searchAsync
+    (guardia de 2 s + fallback síncrono), hits() estructurado y ctxFor().
+  * El chat inyecta el contexto de documentos con ctxFor (worker) antes de
+    armar el prompt: kiuReply y apiStream ahora son asíncronos ahí dentro.
+  * BUG REAL corregido: el paso "docs" del ReAct esperaba un array de
+    RAG.search() pero recibía un STRING (citaba caracteres sueltos). Ahora
+    usa RAG.hits() y hay un test que documenta el descontrato.
+- Puente JS↔Java verificado:
+  * scripts/bridge_audit.py (NUEVO) cruza los 84 métodos @JavascriptInterface
+    de MainActivity contra TODO lo que invoca el JS y los 5 eventos push
+    Java→JS. Resultado: contrato OK, cero llamadas fantasma.
+  * BRIDGE_API.md ahora documenta contacts() y addCalendarEvent() (existían
+    en Java y no estaban en el contrato) y la lista completa de eventos.
+  * Heurística general de API en kiu-secure.js: un proveedor NUEVO ya no
+    exige editar la lista de hosts — HTTPS ajeno al origen con ruta tipo API
+    (/v1, /chat/completions, /messages…) va por el proxy de Java igual.
+- Motor nativo:
+  * freeModel() ahora llama llama_backend_free() (pendiente viejo); loadModel
+    lo re-inicializa solo, así que recargar tras liberar sigue funcionando.
+- ProGuard/R8 blindado (app/proguard-rules.pro):
+  * Reglas explícitas para @JavascriptInterface (cualquier clase), métodos
+    native (contrato JNI por nombre) y KiuStream.onToken (el C++ lo busca
+    con FindClass + GetStaticMethodID). Hoy minify está apagado, pero si se
+    activa, el puente no se rompe.
+- CI/CD en orden:
+  * build.yml corregido: el filtro branches: tenía un YAML roto desde la
+    tanda 6. Ahora [main, 'mejoras/*'].
+  * Orden garantizado: tests → get-tools.sh → vendor_llama.sh → APK firmado
+    con Gradle (needs: tests). Los tests corren con el globo
+    tests/*.test.mjs: los nuevos entran solos.
+  * scripts/get-tools.sh (NUEVO): provisiona JDK 17, cmdline-tools, platform
+    34, build-tools, NDK 27.0.12077973 y cmake 3.22.1 de forma idempotente.
+    Mismo flujo en CI que en tu PC.
+- Suite ampliada de 50 → 85 tests (tanda 8):
+  * app-core.test.mjs (16): env, state, catalog, models, motor (plantillas
+    de chat qwen/llama, KB, streaming por push, bóveda de claves).
+  * rag-worker.test.mjs (9): núcleo + protocolo del worker con FakeWorker.
+  * i18n.test.mjs (4), migrate.test.mjs (4): ferry idempotente, payload
+    corrupto, exportación completa de localStorage.
+  * helpers.mjs (NUEVO): arnés de DOM falso compartido entre tests.
+
+DE LAS TANDAS ANTERIORES (incluido)
+- Proyecto Gradle estándar (sin apktool/smali) + motor llama.cpp desde fuente
+  + wake word Vosk local.
+- Avatar de 37 estados en hero/chat/perfil y en la esquina del home.
+- WebView seguro (AssetLoader + ferry), claves en Keystore + KiuApiProxy,
+  streaming por push. LICENSE MIT, releases por tags, red segura.
+- app.js dividido en 6 módulos, RAG v3 (IndexedDB + BM25), i18n es/en,
+  protección térmica 46 °C, SHA-256 en descargas, copia completa vía SAF.
+- Skills instalables declarativos, resumen matutino nativo, bucle ReAct.
+- APK liviano: iconos duplicados fuera (−432 KB), logos WebP (−859 KB),
+  .so fuera de Git.
+
+CÓMO PROBAR
+- Motor nativo (primer paso, obligatorio: este ZIP no trae .so):
+    ./scripts/get-tools.sh        (opcional: instala JDK/SDK/NDK a mano)
+    ./scripts/vendor_llama.sh
+- Compilar:  ./gradlew :app:assembleDebug   (JDK 17 + Android SDK 34 + NDK)
+  (con vendor presente, Gradle compila llama.cpp y deja los .so en
+   app/src/main/jniLibs/<ABI>/)
+- Release:   KIU_PASS=tu-clave ./scripts/build.sh   → dist/Kiu-2.10.0-release.apk
+- Tests:     node --test tests/*.test.mjs   (Node 18+, 255 tests; 252+3 skip sin JDK/zip)
+- Contrato del puente:  python3 scripts/bridge_audit.py
+- RAG sin congelamientos: Ajustes → Documentos, indexá un PDF grande y seguí
+  usando la app mientras indexa (las animaciones no se cortan).
+- Nuevo proveedor de API: poné su URL https://…/v1 en Proveedores; la llamada
+  viaja por el proxy de Java sin tocar el código.
+- Release GitHub: git tag v2.10.0 && git push --tags
+
+NO INCLUIDO
+- vendor/llama.cpp (~200 MB): se restaura con ./scripts/vendor_llama.sh
+- Binarios .so del motor (app/src/main/jniLibs): los genera el build desde
+  fuente o copialos de un build anterior (están fuera de Git a propósito).
+
+Detalles: CHANGELOG.md (tanda 9 · 2.8.1) y (tanda 8), docs/ARCHITECTURE.md (worker + avatar),
+docs/BRIDGE_API.md (contacts/addCalendarEvent + auditoría),
+docs/KNOWN_ISSUES.md, README.md.

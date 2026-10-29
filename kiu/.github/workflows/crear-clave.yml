@@ -1,0 +1,34 @@
+# Crea UNA VEZ la clave de firma de Kiu, para poder actualizar la app sin desinstalar.
+# Se ejecuta a mano: pestaña Actions -> "Crear clave de firma" -> Run workflow.
+# Deja un artefacto "kiu-clave" (dura 1 día) con los dos valores para pegar en Secrets.
+name: Crear clave de firma
+
+on:
+  workflow_dispatch:
+
+jobs:
+  clave:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generar clave
+        run: |
+          PW=$(openssl rand -hex 12)
+          keytool -genkeypair -keystore kiu-release.jks -alias kiu \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$PW" -keypass "$PW" -dname "CN=Kiu"
+          mkdir -p salida
+          {
+            echo "KIU_KEYSTORE_PASSWORD:"
+            echo "$PW"
+            echo
+            echo "KIU_KEYSTORE_BASE64:"
+            base64 -w0 kiu-release.jks
+            echo
+          } > salida/pegar-en-secrets.txt
+
+      - name: Subir (se borra solo en 1 día)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kiu-clave
+          path: salida/pegar-en-secrets.txt
+          retention-days: 1

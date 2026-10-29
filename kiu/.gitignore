@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+app/build/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Native
+.cxx/
+vendor/llama.cpp/
+# Binarios .so precompilados (arm64-v8a): fuera de Git. Gradle los genera en
+# app/src/main/jniLibs/<ABI> al compilar (CMake) o los toma de ahí si existen.
+# Recuperarlos: ./scripts/vendor_llama.sh && ./gradlew :app:assembleDebug
+app/lib/
+app/src/main/jniLibs/
+keystore/
+
+# Salida de scripts/build.sh
+dist/

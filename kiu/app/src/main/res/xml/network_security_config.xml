@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Config de seguridad de red de KIU.
+
+  Por defecto el trafico en claro (HTTP) esta BLOQUEADO: las APIs en la nube
+  van por HTTPS y el motor local corre en el propio proceso, asi que no
+  necesitan nada de esto.
+
+  Si usas Ollama / LM Studio en otro equipo de tu red (HTTP), agregá la IP de
+  esa maquina dentro de <domain-config> de abajo, por ejemplo:
+
+      <domain>192.168.1.20</domain>
+
+  (O descomentá las de ejemplo.) Las IPs se ponen una por una: Android no
+  soporta rangos tipo 192.168.1.0/24 en este archivo.
+
+  Localhost y el emulador ya estan permitidos para pruebas.
+-->
+<network-security-config>
+
+    <!-- Base: HTTPS obligatorio para todo lo demas -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- HTTP permitido solo para servidores locales / de desarrollo -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+
+        <!-- Ejemplos LAN (descomentá y ajustá a tu red):
+        <domain includeSubdomains="false">192.168.1.20</domain>
+        <domain includeSubdomains="false">192.168.0.50</domain>
+        -->
+    </domain-config>
+
+</network-security-config>

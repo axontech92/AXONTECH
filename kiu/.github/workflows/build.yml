@@ -1,0 +1,286 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, 'mejoras/*']
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ---- 1) tests de TODA la carpeta tests/ (node --test, sin dependencias) ----
+  # El globo tests/*.test.mjs toma los tests nuevos automáticamente.
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      # v2.14.2: la suite incluye arneses de Java que se compilan y se EJECUTAN
+      # (tests/java.test.mjs). Sin JDK se saltan a la vista, y un salto se ve
+      # en el log como salto: no como verde. Con el JDK del runner dependiamos
+      # de que la imagen de GitHub lo trajera; ahora queda declarado.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Correr la suite completa
+        run: node --test tests/*.test.mjs
+      - name: Auditar el puente JavaScript ↔ Android
+        run: python3 scripts/bridge_audit.py
+
+  # ---- 2) build Gradle (necesita que los tests estén en verde) ----
+  # Orden exigido por el flujo: tests → herramientas (get-tools.sh) →
+  # dependencia nativa (vendor_llama.sh) → APK firmado con Gradle.
+  # Los .so del motor NO viven en Git: vendor_llama.sh clona llama.cpp y
+  # Gradle lo compila con NDK + CMake dejándolas en app/src/main/jniLibs/<ABI>.
+  build:
+    needs: tests
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # v2.11.12 · FIRMA ESTABLE. Sin los secretos KIU_KEYSTORE_*, cada corrida firmaba con una clave
+      # debug NUEVA (cada runner crea la suya) y Android obligaba a desinstalar para actualizar (y se
+      # perdían permisos y datos). Se guarda la clave debug en la caché de Actions y se reutiliza: la
+      # firma queda igual entre versiones. La solución definitiva sigue siendo cargar los secretos.
+      - name: Reusar la misma clave de firma entre corridas
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: kiu-debug-keystore-v1
+
+      # Herramientas de compilación (idempotente: el runner ya trae SDK, el
+      # script completa platform 34, build-tools, NDK 27.0.12077973 y cmake).
+      - name: Preparar herramientas de compilación (JDK/SDK/NDK/CMake)
+        run: chmod +x scripts/get-tools.sh && ./scripts/get-tools.sh
+        env:
+          KIU_SKIP_JDK: '1'
+
+      - name: Caché de llama.cpp y de la compilación nativa
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor/llama.cpp
+            app/.cxx
+          key: native-${{ runner.os }}-${{ hashFiles('scripts/vendor_llama.sh', 'app/src/main/cpp/**', 'app/build.gradle.kts') }}
+          restore-keys: native-${{ runner.os }}-
+
+      # Motor nativo: deja vendor/llama.cpp en el commit FIJADO de
+      # scripts/vendor_llama.sh y Gradle lo compila con NDK + CMake inyectando
+      # las .so en app/src/main/jniLibs/<ABI>.
+      #
+      # v2.9.2: antes clonaba `master` y el motor era una dependencia flotante
+      # — un commit de upstream podía romper el build sin que cambiara nada del
+      # repo. Ahora el pin está en vendor_llama.sh (una sola fuente de verdad) y
+      # este step lo muestra en el log para que un fallo de compilación diga
+      # CONTRA QUÉ commit fue, y se pueda reproducir.
+      - name: Vendorizar llama.cpp (motor nativo desde fuente, commit fijado)
+        run: |
+          chmod +x scripts/vendor_llama.sh
+          ./scripts/vendor_llama.sh --show
+          ./scripts/vendor_llama.sh
+          {
+            echo "### motor nativo"
+            echo '```'
+            git -C vendor/llama.cpp log -1 --format='%H  %ad' --date=short
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Dar permiso de ejecución al wrapper
+        run: chmod +x gradlew
+
+      # Firma del release: con los secretos KIU_KEYSTORE_BASE64 /
+      # KIU_KEYSTORE_PASSWORD el APK sale firmado con la clave del proyecto;
+      # sin ellos, con la clave debug (solo para probar).
+      - name: Preparar keystore de firma
+        env:
+          KS: ${{ secrets.KIU_KEYSTORE_BASE64 }}
+          PW: ${{ secrets.KIU_KEYSTORE_PASSWORD }}
+        run: |
+          mkdir -p keystore
+          if [ -n "$KS" ] && [ -n "$PW" ]; then
+            echo "$KS" | base64 -d > keystore/kiu-release.jks
+            echo "KIU_PASS=$PW" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Faltan los secretos KIU_KEYSTORE_BASE64 / KIU_KEYSTORE_PASSWORD. El APK release firma con la clave debug: sirve para probar, no para actualizar la app ya instalada."
+          fi
+
+      # v2.11.0: red de seguridad de la firma. Si los secretos están pero el keystore no abre,
+      # el build corta ACÁ con el motivo en claro (y no 8 minutos después con un error de Gradle).
+      # Además deja la huella SHA-256 en el resumen del run: si es la misma que en el build
+      # anterior, la app se actualiza sin desinstalar.
+      - name: Verificar firma
+        if: env.KIU_PASS != ''
+        shell: bash
+        run: |
+          f=keystore/kiu-release.jks
+          alias="${KIU_ALIAS:-kiu}"
+          if [ ! -s "$f" ]; then
+            echo "::error::El keystore quedó vacío: KIU_KEYSTORE_BASE64 está mal pegado. Tiene que ser UNA línea de base64 (base64 -w0 kiu-release.jks), sin espacios ni saltos."
+            exit 1
+          fi
+          if ! out=$(keytool -list -v -keystore "$f" -storepass "$KIU_PASS" 2>&1); then
+            if echo "$out" | grep -qi "password was incorrect\|keystore was tampered"; then
+              echo "::error::La contraseña KIU_KEYSTORE_PASSWORD no abre el keystore. Revisá que sea exactamente la que usaste al crearlo (sin espacios al final)."
+            else
+              echo "::error::El archivo no es un keystore válido: KIU_KEYSTORE_BASE64 está cortado o dañado. Generalo de nuevo con base64 -w0."
+            fi
+            echo "$out" | head -3
+            exit 1
+          fi
+          if ! echo "$out" | grep -qi "Alias name: $alias"; then
+            echo "::error::El keystore no tiene el alias '$alias'. Alias que sí tiene:"
+            echo "$out" | grep -i "Alias name" || true
+            exit 1
+          fi
+          fp=$(echo "$out" | grep -m1 "SHA256:" | sed 's/.*SHA256: *//')
+          echo "Huella SHA-256 de la firma: $fp"
+          {
+            echo "### Firma del APK"
+            echo ""
+            echo "Huella SHA-256: \`$fp\`"
+            echo ""
+            echo "Si es la misma que en el build anterior, la app se actualiza sin desinstalar."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # v2.11.13: aquí antes se repetían los tests de Node (ya corren en el job «tests», del que este
+      # depende) y se lanzaba testDebugUnitTest (sin fuentes en app/src/test: solo configuraba Gradle).
+      # Ambos eran minutos de CI sin aportar nada.
+
+      # v2.11.13 · CACHÉS: Gradle, el clon de llama.cpp y la compilación nativa (CMake). Sin esto cada
+      # corrida bajaba y compilaba TODO desde cero.
+      - name: Caché de Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}-
+      - name: Compilar (solo release firmado, solo arm64)
+        shell: bash
+        run: |
+          # Reintenta la descarga del wrapper de Gradle (fallo puntual de DNS en el runner)
+          for i in 1 2 3; do ./gradlew --version --no-daemon && break || sleep 15; done
+          # v2.11.13: antes «assembleDebug assembleRelease» compilaba llama.cpp (C++) 4 veces: debug y
+          # release × arm64 y x86_64. Los celulares son arm64 (x86_64 es solo para emulador) y el APK de
+          # prueba no hace falta. Ahora 1 sola compilación nativa y UN solo APK por versión.
+          ./gradlew :app:assembleRelease -PkiuAbis=arm64-v8a --no-daemon --stacktrace --console=plain 2>&1 | tee build.log
+
+      # Si falla: saca el error REAL (compilador C++/Gradle) al resumen del run,
+      # para no tener que buscarlo entre cientos de líneas de stack trace.
+      - name: Mostrar el error real
+        if: failure()
+        shell: bash
+        run: |
+          {
+            echo "## Error real de la compilación"
+            echo '```'
+            grep -nE "error:|fatal error|undefined (reference|symbol)|FAILED:|What went wrong|Execution failed|not declared|no matching function" build.log | head -60 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Subir log completo de la compilación
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
+
+      # v2.14.9 · LA FIRMA NO PUEDE CAMBIAR ENTRE VERSIONES.
+      # Si la clave cambia, NADIE puede actualizar: Android rechaza el APK
+      # nuevo encima del viejo ("no se pudo instalar") y el reporte llega
+      # como "la APK está rota". Se compara el certificado del APK nuevo con
+      # el del último release ANTES de publicar: si no coinciden, el build
+      # corta acá, con el motivo a la vista.
+      - name: La firma no puede cambiar entre versiones
+        shell: bash
+        run: |
+          set -uo pipefail
+          nuevo=$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)
+          if [ -z "$nuevo" ]; then echo "::warning::No encontré el APK release para comparar firmas."; exit 0; fi
+          apksigner_bin=$(ls "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | head -1 || true)
+          if [ -z "$apksigner_bin" ]; then echo "::warning::Sin apksigner: no comparo firmas."; exit 0; fi
+          prev_url=$(curl -sS "https://api.github.com/repos/Criptobox/KIU/releases/latest"             | sed -n 's/.*"browser_download_url": *"\([^"]*\.apk\)".*/\1/p' | head -1 || true)
+          if [ -z "$prev_url" ]; then echo "::notice::Primer release: no hay con qué comparar la firma."; exit 0; fi
+          prev=$(mktemp --suffix=.apk)
+          curl -sSL -o "$prev" "$prev_url" || { echo "::warning::No pude bajar el APK anterior."; exit 0; }
+          cert() { "$apksigner_bin" verify --print-certs "$1" 2>/dev/null | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1; }
+          a=$(cert "$nuevo"); b=$(cert "$prev")
+          rm -f "$prev"
+          if [ -z "$a" ] || [ -z "$b" ]; then echo "::warning::No pude leer los certificados."; exit 0; fi
+          if [ "$a" != "$b" ]; then
+            echo "::error::LA FIRMA CAMBIÓ. Este APK no se puede instalar encima del que la gente ya tiene."
+            echo "::error::nuevo: $a"
+            echo "::error::anterior: $b"
+            echo "::error::Firmá este build con la MISMA clave (KIU_KEYSTORE_BASE64 / KIU_KEYSTORE_PASSWORD) o avisá que hay que desinstalar."
+            exit 1
+          fi
+          echo "Firma igual a la del release anterior: se actualiza sin desinstalar."
+          echo "### Firma del APK" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "SHA-256 del certificado: \`$a\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Subir APK release
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kiu-APK-release
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+  # ---- 3) Release: se publica en cada push a main y en cada tag v* ----
+  # Antes solo corría con tags v*, así que al subir a main nunca había Release y
+  # el buscador de la app respondía "todavía no hay versiones publicadas" (404).
+  release:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    needs: [tests, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Leer versión de app/build.gradle.kts
+        id: ver
+        shell: bash
+        run: |
+          v=$(grep -m1 'val kiuVersionName' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          echo "tag=v$v" >> "$GITHUB_OUTPUT"
+          echo "Versión: $v"
+
+      - name: Bajar APK release
+        uses: actions/download-artifact@v4
+        with:
+          name: Kiu-APK-release
+          path: dist
+
+      - name: Huellas SHA-256 del APK
+        run: |
+          cd dist
+          # un solo APK por versión, con nombre claro (la app lo reconoce por «release» en el nombre)
+          mv ./*.apk "Kiu-${{ steps.ver.outputs.tag }}-release.apk"
+          sha256sum *.apk | tee SHA256SUMS.txt
+          { echo '### SHA-256'; echo '```'; cat SHA256SUMS.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Kiu ${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          prerelease: false
+          draft: false
+          files: |
+            dist/*.apk
+            dist/SHA256SUMS.txt

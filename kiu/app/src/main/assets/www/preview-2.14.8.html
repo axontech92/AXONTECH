@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KIU 2.14.8 — la pantalla nueva (con el CSS real de la app)</title>
+<style>
+
+:root{
+  --bg:#070B16; --panel:#0E1526; --panel2:#131C30;
+  --ink:#F2F6FC; --dim:#93A3BA; --dim2:#7C8CA6;
+  --line:rgba(148,170,200,.12); --line2:rgba(148,170,200,.20);
+  --teal:#2DD4BF; --teal2:#5EEAD4; --teal-d:rgba(45,212,191,.12);
+  --violet:#A78BFA; --violet2:#C4B5FD; --violet-d:rgba(167,139,250,.14);
+  --mint:#34D399; --mint-d:rgba(52,211,153,.14);
+  --amber:#FB923C; --amber2:#FDBA74; --amber-d:rgba(251,146,60,.13);
+  --red:#FB7185; --red-d:rgba(251,113,133,.13);
+  --p-brand:#FB923C; --p-ok:#34D399; --p-err:#FB7185;
+  --p-panel:#0E1526; --p-panel2:#131C30;
+  --p-grad:linear-gradient(120deg,#2DD4BF,#60A5FA);
+  --p-ease:cubic-bezier(.22,.9,.3,1);
+  --r-xl:28px; --r-lg:20px; --r-md:15px; --r-sm:12px;
+  --shadow:0 14px 40px rgba(2,6,18,.55);
+}
+body{background:radial-gradient(900px 520px at 15% -8%,rgba(45,212,191,.10),transparent 60%),var(--bg);}
+.pv-wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+.pv-grid{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:start;}
+@media(max-width:900px){.pv-grid{grid-template-columns:1fr}}
+.pv-h{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:700;margin:0 0 10px}
+.pv-t{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;color:var(--ink)}
+.pv-d{color:var(--dim);font-size:14px;line-height:1.6;margin:0 0 22px;max-width:62ch}
+.pv-phone{
+  width:326px;margin:0 auto;border-radius:46px;padding:11px;
+  background:linear-gradient(160deg,#2A3350,#141A2C 40%,#0D1220);
+  box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.07),inset 0 1px 0 rgba(255,255,255,.14);
+}
+.pv-screen{width:100%;border-radius:36px;overflow:hidden;background:var(--bg);position:relative}
+.pv-note{background:rgba(141,166,255,.045);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:16px}
+.pv-note b{display:block;font-size:13.5px;margin-bottom:5px}
+.pv-note span{font-size:12.5px;color:var(--dim);line-height:1.55}
+.pv-old{opacity:.42;filter:saturate(.4)}
+.pv-label{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--dim);margin:0 0 10px;letter-spacing:.04em}
+/* ============================================================
+   KIU · Azul marino profundo — v1.7.4
+   Degradado teal→violeta arriba, estrellas tenues,
+   tarjetas translúcidas de 28 px, barra inferior flotante.
+   ============================================================ */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg:#070B16;
+  --card:rgba(141,166,255,.055);
+  --card2:rgba(141,166,255,.11);
+  --line:rgba(126,158,255,.15);
+  --line2:rgba(126,158,255,.26);
+  --txt:#EEF2FA;
+  --dim:#96A2BC;
+  --dim2:#5E6A85;
+  --teal:#2DD4BF;
+  --blue:#60A5FA;
+  --violet:#A78BFA;
+  --amber:#FBBF24;
+  --green:#34D399;
+  --pink:#F472B6;
+  --acc:#2DD4BF;
+  --acc2:#8B5CF6;
+  --grad:linear-gradient(120deg,#2DD4BF 0%,#60A5FA 55%,#8B5CF6 100%);
+  --danger:#FF5D5D;
+  --ok:#34D399;
+  --warn:#FBBF24;
+  --r-xl:28px; --r-lg:20px; --r-md:15px; --r-sm:12px;
+  --shadow:0 14px 40px rgba(2,6,18,.55);
+}
+
+html,body { height:100%; }
+body {
+  background:var(--bg); color:var(--txt);
+  font-family:-apple-system,'Roboto','Segoe UI',system-ui,sans-serif;
+  letter-spacing:.1px;
+  overscroll-behavior:none; user-select:none; -webkit-user-select:none;
+}
+/* Cielo: degradado teal→violeta arriba */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(72% 34% at 18% -4%, rgba(45,212,191,.17), transparent 66%),
+    radial-gradient(64% 30% at 88% -2%, rgba(139,92,246,.20), transparent 64%),
+    radial-gradient(56% 26% at 50% 6%, rgba(96,165,250,.07), transparent 70%),
+    radial-gradient(60% 36% at 96% 106%, rgba(139,92,246,.10), transparent 62%);
+}
+/* Estrellas tenues */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+  background-image:
+    radial-gradient(1.4px 1.4px at 22px 34px, rgba(255,255,255,.55), transparent 100%),
+    radial-gradient(1px 1px at 118px 84px, rgba(255,255,255,.4), transparent 100%),
+    radial-gradient(1.7px 1.7px at 196px 38px, rgba(180,240,255,.5), transparent 100%),
+    radial-gradient(1px 1px at 268px 122px, rgba(255,255,255,.35), transparent 100%),
+    radial-gradient(1.3px 1.3px at 318px 62px, rgba(214,196,255,.5), transparent 100%),
+    radial-gradient(1px 1px at 74px 158px, rgba(255,255,255,.3), transparent 100%),
+    radial-gradient(1.5px 1.5px at 150px 210px, rgba(255,255,255,.4), transparent 100%),
+    radial-gradient(1px 1px at 242px 258px, rgba(180,240,255,.35), transparent 100%),
+    radial-gradient(1.2px 1.2px at 40px 268px, rgba(214,196,255,.4), transparent 100%),
+    radial-gradient(1px 1px at 330px 200px, rgba(255,255,255,.3), transparent 100%);
+  background-size:360px 300px;
+}
+input,textarea,select { user-select:text; -webkit-user-select:text; font-family:inherit; }
+button { font-family:inherit; color:inherit; background:none; border:none; cursor:pointer; letter-spacing:inherit; }
+.hidden { display:none !important; }
+svg { display:block; }
+
+#app { height:100vh; height:100dvh; display:flex; flex-direction:column; position:relative; overflow:hidden; overflow-x:hidden; z-index:1; width:100%; max-width:100vw; }
+
+/* ============ PANTALLAS ============ */
+.screen {
+  position:absolute; inset:0; bottom:88px;
+  display:none; flex-direction:column; overflow:hidden;
+}
+.screen.active { display:flex; animation:screenIn .3s cubic-bezier(.22,.9,.3,1); }
+@keyframes screenIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+.content {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+  padding:calc(96px + env(safe-area-inset-top,0px)) max(18px, env(safe-area-inset-right,0px)) 34px max(18px, env(safe-area-inset-left,0px));
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.content::-webkit-scrollbar { display:none; }
+
+/* ============ BARRAS SUPERIORES · contenido pasa por debajo con desenfoque ============ */
+.topbar, .chat-header {
+  position:absolute; top:0; left:0; right:0; z-index:8;
+  display:flex; align-items:center; gap:10px;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(18px, env(safe-area-inset-right,0px)) 14px max(18px, env(safe-area-inset-left,0px));
+  /* v2.10.1: el degradado llegaba a transparente a media altura del subtítulo y el
+     contenido que pasaba por debajo se leía mezclado con el título (capturas de
+     Modelos y Ajustes). Ahora es casi opaco hasta el final del texto. */
+  background:linear-gradient(180deg, rgba(7,11,22,.97) 0%, rgba(7,11,22,.95) 82%, rgba(7,11,22,0) 100%);
+  -webkit-backdrop-filter:blur(18px);
+  backdrop-filter:blur(18px);
+  -webkit-mask-image:linear-gradient(180deg,#000 88%,transparent);
+  mask-image:linear-gradient(180deg,#000 88%,transparent);
+}
+.topbar { justify-content:flex-start; }
+.chat-header { justify-content:flex-start; }
+.brand { display:flex; align-items:center; gap:12px; flex:1; min-width:0; }
+.brand-txt { min-width:0; flex:1; }
+.brand-txt h1 { font-size:22px; font-weight:800; letter-spacing:-.4px; white-space:nowrap; }
+.brand-txt p { font-size:12px; color:var(--dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.brand-txt.solo { flex:1; }
+.brand-txt.center { text-align:center; }
+.brand-txt.center h1 { font-size:20px; }
+.topbar-spacer { width:40px; flex-shrink:0; }
+/* v2.8.1: se fue `.logo-mini` / `.logo-mini.big` (el cuadrito con degradado y
+   letra del logo viejo). Los dos huecos que los usaban ahora llevan el bot, y esa
+   clase ganaba en especificidad al `[data-avatar]{width:var(--kav-s)}` y dejaba el
+   hueco con la caja equivocada. El logo de la app es el bot: el host solo
+   reserva espacio (ver "HUECOS DEL BOT" más abajo). */
+/* v2.3: huecos del bot (esquina del home, bloque Acerca de, cabecera del chat).
+   El bot SVG vive en su Shadow DOM, así que acá no se estilan sus partes: el host
+   solo reserva espacio y deja ver el dibujo (el bot es 209/190 de alto, o sea un
+   poco más que la caja cuadrada). El tamaño en px va más abajo, junto a los demás. */
+.kav-mini { overflow:visible; }
+.icon-btn {
+  width:38px; height:38px; border-radius:13px; flex-shrink:0;
+  display:grid; place-items:center;
+  background:var(--card); border:1px solid var(--line);
+  color:var(--dim); transition:background .15s, color .15s, border-color .15s;
+}
+.icon-btn:active { background:var(--card2); color:var(--txt); }
+.icon-btn.on { color:var(--teal); border-color:rgba(45,212,191,.45); background:rgba(45,212,191,.12); }
+.back-btn svg { width:20px; height:20px; }
+.chat-header .brand-txt h1 { font-size:17px; }
+.chat-header .brand-txt p { font-size:11px; }
+
+/* ============ BOTONES ============ */
+.btn-primary {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:13px 20px; border-radius:var(--r-md);
+  font-size:14px; font-weight:700; color:#052722;
+  background:linear-gradient(120deg,#2DD4BF,#3BC9E8);
+  background:linear-gradient(120deg,var(--acc),color-mix(in srgb,var(--acc) 60%,#3BC9E8));
+  box-shadow:0 8px 24px color-mix(in srgb,var(--acc) 30%,transparent);
+  transition:transform .12s, box-shadow .2s;
+}
+.btn-primary:active { transform:scale(.97); }
+.btn-primary.full { width:100%; }
+.btn-ghost {
+  display:flex; align-items:center; justify-content:flex-start; gap:8px;
+  padding:13px 18px; border-radius:var(--r-md);
+  font-size:14px; font-weight:600; color:var(--txt);
+  background:var(--card); border:1px solid var(--line);
+}
+.btn-ghost.full { width:100%; }
+.link-btn { color:var(--teal); font-size:12.5px; font-weight:700; }
+.chip-btn {
+  padding:7px 13px; border-radius:999px;
+  font-size:12px; font-weight:700; color:var(--dim);
+  background:var(--card); border:1px solid var(--line);
+  transition:.15s; white-space:nowrap;
+}
+.chip-btn:active { color:var(--txt); }
+.chip-btn.active { color:#052722; background:var(--teal); border-color:var(--teal); }
+.chip-btn:disabled { opacity:.6; }
+.round-btn {
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
+  display:grid; place-items:center;
+  background:var(--card2); border:1px solid var(--line); color:var(--txt);
+}
+.send-btn {
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
+  display:grid; place-items:center;
+  background:var(--card2); border:1px solid var(--line); color:var(--dim);
+  transition:.15s;
+}
+.send-btn.accent {
+  background:linear-gradient(135deg,#2DD4BF,#38C6F0);
+  background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 60%,#38C6F0));
+  border:none; color:#052722;
+  box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 35%,transparent);
+}
+.send-btn:active { transform:scale(.92); }
+
+/* ============ TARJETAS BASE (28 px, translúcidas, borde azulado) ============ */
+.set-card {
+  background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-xl); padding:6px 16px; margin-bottom:12px;
+}
+.section-row {
+  display:flex; align-items:center; justify-content:space-between;
+  margin:20px 4px 10px;
+}
+.section-row h3 { font-size:16.5px; font-weight:800; letter-spacing:-.2px; }
+.count-badge {
+  font-size:10.5px; font-weight:700; color:var(--dim);
+  background:var(--card); border:1px solid var(--line);
+  padding:4px 10px; border-radius:999px;
+}
+.live-badge {
+  display:flex; align-items:center; gap:6px;
+  font-size:10.5px; font-weight:800; color:var(--teal);
+  background:rgba(45,212,191,.1); border:1px solid rgba(45,212,191,.3);
+  padding:4px 10px; border-radius:999px; letter-spacing:.4px;
+}
+.live-badge i { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulseDot 1.6s ease-in-out infinite; }
+@keyframes pulseDot { 50% { opacity:.35; transform:scale(.8); } }
+
+/* Filas internas de tarjetas */
+.set-row {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:13px 2px;
+}
+.set-row + .set-row { border-top:1px solid rgba(126,158,255,.08); }
+.set-row.col { flex-direction:column; align-items:stretch; gap:10px; }
+.set-row > div { min-width:0; }
+.set-row strong { display:block; font-size:14px; font-weight:700; }
+.set-row span { display:block; font-size:11.5px; color:var(--dim); margin-top:2px; line-height:1.45; }
+.set-row.as-btn { text-align:left; width:100%; }
+.set-row .row-ic { color:var(--dim2); flex-shrink:0; }
+.set-hint { font-size:12px; color:var(--dim); line-height:1.55; padding:4px 6px; }
+.set-hint.small { font-size:11px; color:var(--dim2); }
+.set-hint.centered { text-align:center; padding:10px 14px 0; }
+
+/* Toggle */
+.toggle {
+  width:46px; height:27px; border-radius:999px; flex-shrink:0;
+  background:rgba(255,255,255,.09); border:1px solid var(--line2);
+  position:relative; transition:.2s;
+}
+.toggle::after {
+  content:''; position:absolute; top:2.5px; left:3px;
+  width:20px; height:20px; border-radius:50%;
+  background:#7C87A3; transition:.2s;
+}
+.toggle.on { background:rgba(45,212,191,.22); border-color:rgba(45,212,191,.55); }
+.toggle.on::after { left:20px; background:var(--teal); box-shadow:0 0 10px rgba(45,212,191,.55); }
+
+/* Segmented control */
+.seg {
+  display:flex; gap:4px; background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-md); padding:4px; margin-bottom:12px;
+}
+.seg-btn {
+  flex:1; padding:9px 6px; border-radius:11px;
+  font-size:12.5px; font-weight:700; color:var(--dim);
+  transition:.15s; white-space:nowrap;
+}
+.seg-btn.active {
+  color:#052722; background:linear-gradient(120deg,#2DD4BF,#41C8E4);
+  background:linear-gradient(120deg,var(--acc),color-mix(in srgb,var(--acc) 60%,#41C8E4));
+  box-shadow:0 4px 14px color-mix(in srgb,var(--acc) 30%,transparent);
+}
+#mode-seg .seg-btn.active {
+  background:var(--grad); color:#fff;
+  box-shadow:0 4px 16px rgba(139,92,246,.35);
+}
+
+/* Inputs */
+.api-fields { display:block; margin-bottom:12px; }
+.api-fields span { display:block; font-size:11px; font-weight:700; color:var(--dim); margin-bottom:6px; }
+input[type=text], input[type=url], input[type=password], input[type=tel], input[type=email], input[type=number], input[type=time], input[type=datetime-local], select, textarea {
+  width:100%; padding:12px 14px;
+  background:rgba(7,11,22,.5); color:var(--txt);
+  border:1px solid var(--line); border-radius:var(--r-md);
+  font-size:14px; outline:none; transition:border-color .15s;
+}
+input:focus, select:focus, textarea:focus { border-color:rgba(45,212,191,.5); }
+input::placeholder, textarea::placeholder { color:var(--dim2); }
+textarea { min-height:90px; resize:vertical; }
+select { appearance:none; }
+.tool-input, .tool-textarea { width:100%; }
+.preset-row { display:flex; gap:8px; flex-wrap:wrap; }
+.voice-pick { display:flex; gap:8px; }
+.voice-pick select { flex:1; }
+
+/* Listas */
+.list { display:flex; flex-direction:column; gap:8px; }
+.list-row {
+  display:flex; align-items:center; gap:12px;
+  background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:12px 14px;
+  text-align:left; width:100%;
+}
+.list-ic {
+  width:36px; height:36px; border-radius:12px; flex-shrink:0;
+  display:grid; place-items:center;
+  background:rgba(126,158,255,.1); color:var(--blue);
+}
+.list-ic.cx { background:rgba(255,255,255,.05); }
+.list-txt { min-width:0; flex:1; }
+.list-txt strong { display:block; font-size:13.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.list-txt span { display:block; font-size:11px; color:var(--dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-del {
+  width:32px; height:32px; border-radius:10px; flex-shrink:0;
+  display:grid; place-items:center; color:var(--dim2);
+}
+.row-del:active { color:var(--danger); background:rgba(255,93,93,.1); }
+.cx-acts { display:flex; gap:6px; }
+.mini-act {
+  width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+  background:rgba(96,165,250,.12); color:var(--blue);
+}
+.mini-act.wa { background:rgba(37,211,102,.12); color:#25D366; }
+.mini-act.sms { background:rgba(251,191,36,.12); color:var(--amber); }
+.done-txt strong { text-decoration:line-through; color:var(--dim2); }
+.mem-item-check {
+  width:24px; height:24px; border-radius:8px; flex-shrink:0;
+  border:1.6px solid var(--line2); background:transparent; transition:.15s;
+}
+.mem-item-check.done { background:var(--teal); border-color:var(--teal); position:relative; }
+.mem-item-check.done::after {
+  content:''; position:absolute; left:7px; top:3.5px;
+  width:5px; height:9px; border:solid #052722; border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+.empty-hint { padding:26px 18px; text-align:center; color:var(--dim2); font-size:12.5px; line-height:1.6; }
+
+/* ============ HUECOS DEL BOT (kiu-avatar.js, 37 estados) ============
+   v2.8.1 · ARREGLO: hasta acá estas clases eran del robot viejo de pantalla LED
+   (avatar.js, borrado en la 2.7.0) y el bot nuevo vive en Shadow DOM. El único
+   trabajo que queda del host es RESERVAR SU ESPACIO en el layout — el bot se
+   dibuja solo adentro. Como acá solo se declaraba `--kav-s` (una variable que ya
+   nadie leía), los <div data-avatar> se quedaban en 0x0 dentro de su flex: el bot
+   se pintaba al tamaño de emergencia (64 px) y se comía el título de al lado.
+   Ahora el hueco tiene caja propia y el tamaño en px, y `refit()` del boot usa
+   exactamente estos valores cuando la pantalla todavía está oculta. */
+[data-avatar], [data-avatar-mini] {
+  display: block; position: relative; flex-shrink: 0;
+  width: var(--kav-s); height: var(--kav-s);
+}
+/* el contenido del Shadow DOM nunca debe comerse un toque de la UI */
+[data-avatar] > *, [data-avatar-mini] > * { pointer-events: none; }
+[data-avatar] > .kiu-shadow-host, [data-avatar-mini] > .kiu-shadow-host {
+  display: block; width: 100%; height: 100%; overflow: visible;
+}
+
+/* Tamaño por hueco, y SOLO por atributo: si el tamañoDepends de una clase
+   estética, el host que las junta dos hereda la de la última en el archivo y no
+   la suya (el del chat es `kav-mini kav-big` y con `.kav-mini` al final se
+   quedaba en 40 px en vez de sus 44). `.kav-mini/.kav-big/.kav-hero/.kav-profile`
+   quedan como nombres legibles; el que manda es el id del hueco. */
+[data-avatar-mini]           { --kav-s:40px; }  /* esquina del home + bloque Acerca de */
+#hero-avatar, .kav-hero      { --kav-s:150px; } /* home, dentro de .hero-avatar-wrap (158) */
+#chat-avatar, .kav-big       { --kav-s:44px;  } /* cabecera del chat */
+#profile-avatar, .kav-profile{ --kav-s:54px;  } /* tarjeta de Ajustes */
+
+/* Accesibilidad: texto de estado solo para lectores de pantalla */
+.sr-only { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); border:0; white-space:nowrap; }
+/* Los mensajes del chat se pueden seleccionar y copiar */
+.msg, .msg * { user-select:text; -webkit-user-select:text; }
+.typing-cancel { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); color:inherit; border-radius:999px; padding:4px 12px; font:inherit; font-size:12px; margin-left:8px; pointer-events:auto; }
+.typing-cancel:disabled { opacity:.45; }
+#kiu-elapsed { font-size:12px; color:var(--dim,rgba(255,255,255,.55)); margin-left:10px; letter-spacing:.02em; }
+
+/* Accesibilidad: respetar preferencia de menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.001s !important; transition-duration:.001s !important; }
+}
+/* ============================================================
+   INICIO
+   ============================================================ */
+.hero-card {
+  position:relative; text-align:center;
+  padding:24px 18px 22px; margin-bottom:14px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-xl);
+  overflow:hidden;
+}
+.hero-card::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(60% 55% at 50% 0%, rgba(45,212,191,.10), transparent 70%);
+}
+.hero-avatar-wrap { position:relative; width:158px; height:158px; margin:2px auto 4px; display:grid; place-items:center; }
+.hero-halo {
+  position:absolute; inset:-14px; border-radius:50%; pointer-events:none;
+  background:radial-gradient(closest-side, rgba(45,212,191,.26), rgba(139,92,246,.14) 52%, transparent 74%);
+  filter:blur(3px); animation:halo 4.2s ease-in-out infinite;
+}
+@keyframes halo { 50% { transform:scale(1.08); opacity:.8; } }
+.kav-hero { background:none; border:none; padding:0; cursor:pointer; }
+.kav-hero:active { transform:scale(.94); }
+.hero-hi { font-size:13px; font-weight:700; color:var(--teal); letter-spacing:.3px; position:relative; }
+.hero-title { font-size:22px; font-weight:800; letter-spacing:-.4px; margin-top:4px; position:relative; }
+.hero-pill {
+  position:relative; display:inline-flex; align-items:center; gap:8px;
+  margin-top:14px; padding:11px 18px; border-radius:999px;
+  font-size:12.5px; font-weight:700; color:var(--teal);
+  background:rgba(45,212,191,.09); border:1px solid rgba(45,212,191,.35);
+}
+.hero-pill .ic { width:15px; height:15px; }
+.hero-pill:active { background:rgba(45,212,191,.18); }
+
+/* Motor local / API conectada */
+.motor-card {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-xl);
+  padding:15px 16px; margin-bottom:14px; transition:.15s;
+}
+.motor-card:active { background:var(--card2); }
+.motor-ic {
+  width:44px; height:44px; border-radius:14px; flex-shrink:0;
+  display:grid; place-items:center;
+  background:rgba(45,212,191,.13); color:var(--teal);
+  border:1px solid rgba(45,212,191,.25);
+}
+.status-txt { flex:1; min-width:0; }
+.status-txt strong { display:block; font-size:14.5px; font-weight:800; }
+.motor-meta { display:flex; align-items:center; gap:6px; margin-top:3px; }
+.motor-meta em { font-style:normal; font-size:11.5px; color:var(--dim); }
+.status-dot { width:8px; height:8px; border-radius:50%; background:var(--ok); flex-shrink:0; box-shadow:0 0 8px rgba(52,211,153,.8); }
+.status-dot.api { background:var(--teal); box-shadow:0 0 8px rgba(45,212,191,.8); }
+.motor-right { text-align:right; flex-shrink:0; }
+.motor-right strong { display:block; font-size:12px; font-weight:800; color:var(--teal); }
+.motor-right span { display:block; font-size:10px; color:var(--dim2); margin-top:2px; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Cuadrícula 2×2 */
+.quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:6px; }
+.quick-card {
+  display:flex; flex-direction:column; align-items:flex-start; gap:9px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-xl);
+  padding:16px; text-align:left; transition:.15s;
+}
+.quick-card:active { background:var(--card2); transform:scale(.98); }
+.quick-card strong { font-size:14.5px; font-weight:800; }
+.quick-card span { font-size:11px; color:var(--dim); margin-top:-5px; }
+.qc-ic {
+  width:40px; height:40px; border-radius:13px;
+  display:grid; place-items:center;
+  background:rgba(7,11,22,.55); border:1px solid var(--line);
+}
+.qc-blue { color:var(--blue); background:rgba(96,165,250,.12); border-color:rgba(96,165,250,.28); }
+.qc-teal { color:var(--teal); background:rgba(45,212,191,.12); border-color:rgba(45,212,191,.28); }
+.qc-violet { color:var(--violet); background:rgba(167,139,250,.12); border-color:rgba(167,139,250,.28); }
+.qc-pink { color:var(--pink); background:rgba(244,114,182,.12); border-color:rgba(244,114,182,.28); }
+
+/* Uso de hoy */
+.usage-card { padding:14px 16px; }
+.usage-row { display:flex; align-items:center; gap:10px; padding:7px 0; }
+.usage-row + .usage-row { border-top:1px solid rgba(126,158,255,.07); }
+.usage-row span { width:86px; font-size:12px; color:var(--dim); font-weight:600; flex-shrink:0; }
+.usage-row .bar { flex:1; }
+.usage-row b { width:26px; text-align:right; font-size:12.5px; font-weight:800; }
+
+/* Barras */
+.bar {
+  height:7px; border-radius:999px; flex:1;
+  background:rgba(255,255,255,.08); overflow:hidden; position:relative;
+}
+.bar i {
+  display:block; height:100%; width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#2DD4BF,#60A5FA);
+  transition:width .6s cubic-bezier(.22,.9,.3,1);
+}
+.bar i.warn { background:linear-gradient(90deg,#FBBF24,#FF8A4A); }
+.bar i.bad { background:linear-gradient(90deg,#FF5D5D,#FF8A4A); }
+.bar i.violet { background:linear-gradient(90deg,#A78BFA,#60A5FA); }
+.bar i.green { background:linear-gradient(90deg,#34D399,#2DD4BF); }
+
+/* Estado del sistema en vivo */
+.sys-card { padding:14px 16px 12px; }
+.sys-row { display:flex; align-items:center; gap:12px; padding-bottom:12px; }
+.sys-ic {
+  width:38px; height:38px; border-radius:12px; flex-shrink:0;
+  display:grid; place-items:center;
+}
+.sy-blue { color:var(--blue); background:rgba(96,165,250,.12); }
+.sys-txt { min-width:0; }
+.sys-txt strong { display:block; font-size:13.5px; font-weight:800; }
+.sys-txt span { display:block; font-size:11px; color:var(--dim); margin-top:1px; }
+.sys-line { display:flex; align-items:center; gap:10px; padding:7px 0; }
+.sys-line + .sys-line { border-top:1px solid rgba(126,158,255,.07); }
+.sys-lbl { width:58px; font-size:12px; color:var(--dim); font-weight:600; flex-shrink:0; }
+.sys-line b { width:96px; text-align:right; font-size:11px; font-weight:700; color:var(--txt); flex-shrink:0; white-space:nowrap; }
+.sys-foot { font-size:10.5px; color:var(--dim2); margin-top:10px; padding-top:9px; border-top:1px solid rgba(126,158,255,.07); }
+
+/* Consejo */
+.tip-card {
+  display:flex; gap:12px; align-items:flex-start;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-xl);
+  padding:15px 16px; margin-top:16px;
+}
+.tip-ic { color:var(--amber); flex-shrink:0; width:20px; height:20px; }
+.tip-card strong { font-size:12px; color:var(--amber); display:block; margin-bottom:2px; }
+.tip-card p { font-size:12px; color:var(--dim); line-height:1.55; }
+
+/* ============================================================
+   BARRA INFERIOR FLOTANTE · píldora
+   ============================================================ */
+.bottomnav {
+  position:fixed; z-index:60; left:50%; transform:translateX(-50%);
+  bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  width:min(540px, calc(100% - 24px));
+  display:flex; align-items:center; justify-content:space-around;
+  padding:7px;
+  background:rgba(10,17,34,.82);
+  -webkit-backdrop-filter:blur(24px) saturate(1.5);
+  backdrop-filter:blur(24px) saturate(1.5);
+  border:1px solid var(--line);
+  border-radius:30px;
+  box-shadow:0 18px 46px rgba(2,6,18,.6);
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:8px 2px 7px; border-radius:21px;
+  color:var(--dim2); font-size:10px; font-weight:700;
+  transition:background .2s, color .2s;
+}
+.nav-btn .ic { width:21px; height:21px; }
+.nav-btn.active {
+  color:var(--teal);
+  background:rgba(45,212,191,.14);
+  box-shadow:inset 0 0 0 1px rgba(45,212,191,.25);
+}
+
+/* ============================================================
+   CHAT
+   ============================================================ */
+.chat-messages {
+  flex:1; overflow-y:auto; padding:calc(86px + env(safe-area-inset-top,0px)) 16px 12px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.chat-messages::-webkit-scrollbar { display:none; }
+.msg { display:flex; flex-direction:column; margin-bottom:4px; max-width:86%; }
+.msg.bot { align-self:flex-start; align-items:flex-start; }
+.msg.user { align-self:flex-end; align-items:flex-end; }
+.msg-bubble {
+  padding:12px 15px; font-size:13.5px; line-height:1.55;
+  border-radius:22px; word-wrap:break-word; overflow-wrap:break-word; white-space:pre-wrap;
+}
+.msg.bot .msg-bubble {
+  background:var(--card); border:1px solid var(--line);
+  border-bottom-left-radius:8px;
+}
+.msg.user .msg-bubble {
+  background:linear-gradient(135deg, rgba(45,212,191,.24), rgba(96,165,250,.20));
+  border:1px solid rgba(45,212,191,.35);
+  border-bottom-right-radius:8px;
+}
+.msg-bubble b { font-weight:800; }
+.msg-bubble code {
+  font-family:ui-monospace,Menlo,monospace; font-size:12px;
+  background:rgba(7,11,22,.55); border:1px solid var(--line);
+  padding:1px 6px; border-radius:6px;
+}
+.msg-time { font-size:9.5px; color:var(--dim2); margin:5px 6px 8px; display:flex; align-items:center; }
+.msg-actions { display:flex; gap:2px; margin:-2px 0 8px 0; }
+.act-btn {
+  width:31px; height:31px; border-radius:10px;
+  display:grid; place-items:center;
+  color:var(--dim2); transition:.15s;
+}
+.act-btn:active { background:var(--card2); color:var(--txt); }
+.act-btn.liked { color:var(--teal); }
+.typing { display:flex; gap:4px; padding:14px 16px; }
+.typing i {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--dim); animation:tp 1.1s ease-in-out infinite;
+}
+.typing i:nth-child(2) { animation-delay:.15s; }
+.typing i:nth-child(3) { animation-delay:.3s; }
+@keyframes tp { 40% { transform:translateY(-5px); opacity:.5; } }
+
+/* Indicador de estado flotante ("Listo para empezar", "Pensando…") */
+.chat-state {
+  position:sticky; bottom:6px; align-self:flex-start;
+  display:inline-flex; align-items:center; gap:7px;
+  margin:4px 0 8px 4px; padding:7px 13px;
+  background:rgba(10,17,34,.85); border:1px solid var(--line);
+  border-radius:999px; font-size:11px; font-weight:700; color:var(--dim);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  pointer-events:none; z-index:3;
+}
+.chat-state i { width:7px; height:7px; border-radius:50%; background:var(--ok); box-shadow:0 0 6px rgba(52,211,153,.7); }
+.chat-state.busy { color:var(--violet); border-color:rgba(167,139,250,.35); }
+.chat-state.busy i { background:var(--violet); box-shadow:0 0 6px rgba(167,139,250,.7); animation:pulseDot .9s ease-in-out infinite; }
+.chat-state.voice { color:var(--teal); border-color:rgba(45,212,191,.35); }
+.chat-state.voice i { background:var(--teal); box-shadow:0 0 6px rgba(45,212,191,.7); animation:pulseDot .9s ease-in-out infinite; }
+
+/* Panel plegable de herramientas */
+.tools-panel {
+  position:absolute; z-index:7; left:12px; right:12px;
+  top:calc(64px + env(safe-area-inset-top,0px));
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+  padding:12px;
+  background:rgba(10,17,34,.92);
+  -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px);
+  border:1px solid var(--line2); border-radius:22px;
+  box-shadow:0 20px 44px rgba(2,6,18,.65);
+  animation:panelIn .22s cubic-bezier(.22,.9,.3,1);
+}
+@keyframes panelIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:none; } }
+.tp-btn {
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:9px 2px; border-radius:14px; transition:.15s;
+}
+.tp-btn:active { background:var(--card2); }
+.tp-btn .ti { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:rgba(255,255,255,.05); }
+.tp-btn span { font-size:9.5px; color:var(--dim); font-weight:600; }
+
+.chat-dock {
+  flex-shrink:0; padding:6px 14px calc(12px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(180deg, rgba(7,11,22,0) 0%, rgba(7,11,22,.88) 30%, #070B16 100%);
+}
+.chips-bar { display:flex; gap:8px; overflow-x:auto; padding:6px 2px 10px; scrollbar-width:none; }
+.chips-bar::-webkit-scrollbar { display:none; }
+.chip {
+  flex-shrink:0; padding:9px 15px; border-radius:999px;
+  font-size:12px; font-weight:600; color:var(--dim);
+  background:var(--card); border:1px solid var(--line);
+  transition:.15s;
+}
+.chip:active { color:var(--txt); background:var(--card2); }
+.chat-inputbar {
+  display:flex; align-items:center; gap:8px;
+  background:var(--card); border:1px solid var(--line2);
+  border-radius:999px; padding:6px 6px 6px 6px;
+}
+.chat-inputbar input {
+  flex:1; min-width:0; background:transparent; border:none;
+  padding:9px 4px; font-size:14px; color:var(--txt);
+}
+.chat-inputbar input:focus { outline:none; }
+
+/* Colores de iconos de herramientas */
+.ti-blue { color:var(--blue); background:rgba(96,165,250,.12); }
+.ti-teal { color:var(--teal); background:rgba(45,212,191,.12); }
+.ti-violet { color:var(--violet); background:rgba(167,139,250,.12); }
+.ti-green { color:var(--green); background:rgba(52,211,153,.12); }
+.ti-pink { color:var(--pink); background:rgba(244,114,182,.12); }
+.ti-amber { color:var(--amber); background:rgba(251,191,36,.12); }
+.ti-orange { color:#FF8A4A; background:rgba(255,138,74,.12); }
+.ti-red { color:#FF6B6B; background:rgba(255,107,107,.12); }
+.ti-cyan { color:#67E8F9; background:rgba(103,232,249,.12); }
+.ti-gray { color:#94A3B8; background:rgba(148,163,184,.12); }
+
+/* ============================================================
+   FILTROS CON DEGRADADO EN LOS BORDES
+   ============================================================ */
+.filter-bar { position:relative; margin:12px 0 12px; }
+.filter-bar::before, .filter-bar::after {
+  content:''; position:absolute; top:0; bottom:0; width:36px; z-index:2; pointer-events:none;
+}
+.filter-bar::before { left:-4px; background:linear-gradient(90deg, #070B16 12%, transparent); }
+.filter-bar::after { right:-4px; background:linear-gradient(270deg, #070B16 12%, transparent); }
+.filter-scroll { display:flex; gap:8px; overflow-x:auto; padding:2px; scrollbar-width:none; }
+.filter-scroll::-webkit-scrollbar { display:none; }
+.filter-scroll .chip.active {
+  color:#052722; background:var(--teal); border-color:var(--teal); font-weight:700;
+}
+
+/* Buscador */
+.search-wrap {
+  display:flex; align-items:center; gap:10px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-md);
+  padding:0 14px; margin-top:2px;
+}
+.search-wrap .ic { color:var(--dim2); width:18px; height:18px; flex-shrink:0; }
+.search-wrap input { background:transparent; border:none; padding:13px 0; font-size:13.5px; }
+.search-wrap input:focus { outline:none; border:none; }
+
+/* ============================================================
+   PROVEEDORES (API)
+   ============================================================ */
+.prov-card {
+  background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-xl); margin-bottom:10px; overflow:hidden;
+  transition:border-color .2s;
+}
+.prov-card.open { border-color:var(--line2); background:var(--card2); }
+.prov-head {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px;
+}
+.prov-logo {
+  width:42px; height:42px; border-radius:14px; flex-shrink:0;
+  display:grid; place-items:center;
+  font-weight:800; font-size:16px; color:#fff;
+}
+.prov-name { flex:1; min-width:0; }
+.prov-name strong { display:flex; align-items:center; gap:7px; font-size:14px; font-weight:800; }
+.prov-name span { display:block; font-size:10.5px; color:var(--dim2); margin-top:2px; }
+.badge-free {
+  font-size:8.5px; font-weight:800; letter-spacing:.6px;
+  color:var(--teal); background:rgba(45,212,191,.13);
+  border:1px solid rgba(45,212,191,.35);
+  padding:2px 7px; border-radius:999px;
+}
+.badge-local {
+  font-size:8.5px; font-weight:800; letter-spacing:.6px;
+  color:var(--green); background:rgba(52,211,153,.13);
+  border:1px solid rgba(52,211,153,.35);
+  padding:2px 7px; border-radius:999px;
+}
+.prov-okdot { width:7px; height:7px; border-radius:50%; background:var(--ok); box-shadow:0 0 6px rgba(52,211,153,.8); }
+.prov-body { max-height:0; overflow:hidden; transition:max-height .32s ease; }
+.prov-card.open .prov-body { max-height:640px; }
+.prov-body-in { padding:2px 14px 15px; border-top:1px solid rgba(126,158,255,.08); }
+.prov-actions { display:flex; gap:8px; margin-top:10px; }
+.prov-actions .chip-btn { flex:1; text-align:center; font-size:11px; padding:9px 4px; }
+.prov-status {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; color:var(--dim); margin-top:9px; min-height:16px; font-weight:600;
+}
+.prov-status.ok { color:var(--ok); }
+.prov-status.err { color:var(--danger); }
+.key-wrap { position:relative; }
+.key-wrap input { padding-right:46px; }
+.eye-btn {
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  width:34px; height:34px; border-radius:10px;
+  display:grid; place-items:center; color:var(--dim2);
+}
+.eye-btn.on { color:var(--teal); }
+
+/* ============================================================
+   BIBLIOTECA · herramientas
+   ============================================================ */
+.tools-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:8px; }
+.tool-card {
+  display:flex; flex-direction:column; align-items:center; gap:7px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:14px 6px 12px; transition:.15s;
+}
+.tool-card:active { background:var(--card2); transform:scale(.97); }
+.tool-card strong { font-size:11.5px; font-weight:700; }
+.tool-card span { font-size:9.5px; color:var(--dim2); margin-top:-4px; text-align:center; }
+.tool-ic { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; }
+
+/* ============================================================
+   MEMORIA
+   ============================================================ */
+.mem-hero {
+  display:flex; align-items:center; justify-content:space-between;
+  background:linear-gradient(120deg, rgba(167,139,250,.20), rgba(139,92,246,.12));
+  border:1px solid rgba(167,139,250,.35); border-radius:var(--r-xl);
+  padding:18px; margin-bottom:12px;
+}
+.mem-hero-txt h2 { font-size:19px; font-weight:800; letter-spacing:-.3px; }
+.mem-hero-txt p { font-size:12px; color:var(--dim); margin-top:3px; }
+.mem-hero-ic { color:var(--violet); }
+.mem-stats { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:12px; }
+.mem-stat {
+  display:flex; align-items:center; gap:11px;
+  background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg);
+  padding:13px 14px;
+}
+.mem-stat strong { font-size:20px; font-weight:800; }
+.mem-stat span { font-size:11px; color:var(--dim); display:block; }
+
+/* ============================================================
+   AJUSTES
+   ============================================================ */
+.profile-card {
+  display:flex; align-items:center; gap:14px; width:100%; text-align:left;
+  padding:16px; margin-bottom:6px;
+}
+.profile-txt { flex:1; min-width:0; }
+.profile-txt strong { display:block; font-size:16px; font-weight:800; }
+.profile-txt span { display:block; font-size:11.5px; color:var(--dim); margin-top:2px; }
+.row-card {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:13px 16px; margin-bottom:10px;
+  border-radius:var(--r-xl);
+}
+.row-card:active { background:var(--card2); }
+.row-tile {
+  width:44px; height:44px; border-radius:14px; flex-shrink:0;
+  display:grid; place-items:center;
+}
+.row-txt { flex:1; min-width:0; }
+.row-txt strong { display:block; font-size:14px; font-weight:800; }
+.row-txt span { display:block; font-size:11px; color:var(--dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.row-ic { color:var(--dim2); flex-shrink:0; width:18px; height:18px; }
+#voice-block { margin-bottom:12px; }
+.about-block { text-align:center; padding:26px 20px 12px; color:var(--dim); }
+.about-block strong { display:block; font-size:14px; color:var(--txt); margin-bottom:3px; }
+.about-block span { display:block; font-size:11.5px; }
+.about-block .dim { color:var(--dim2); font-size:10.5px; margin-top:3px; }
+
+/* ============================================================
+   MODALES / TOAST / OVERLAYS
+   ============================================================ */
+.modal-root {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(4,7,15,.72);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  display:flex; align-items:flex-end; justify-content:center;
+  animation:fadeIn .2s;
+}
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+.modal-sheet {
+  width:100%; max-width:560px; max-height:88dvh; overflow-y:auto;
+  background:rgba(13,20,38,.98);
+  border:1px solid var(--line2); border-bottom:none;
+  border-radius:30px 30px 0 0;
+  padding:18px 18px calc(24px + env(safe-area-inset-bottom,0px));
+  animation:sheetUp .3s cubic-bezier(.22,.9,.3,1);
+}
+@keyframes sheetUp { from { transform:translateY(60px); opacity:0; } to { transform:none; opacity:1; } }
+.modal-head {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px;
+}
+.modal-head strong { font-size:17px; font-weight:800; }
+.toast {
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(104px + env(safe-area-inset-bottom,0px)); z-index:120;
+  max-width:86%; text-align:center;
+  background:rgba(13,20,38,.96); color:var(--txt);
+  border:1px solid var(--line2); border-radius:20px;
+  padding:11px 20px; font-size:12.5px; font-weight:600; word-break:break-word;
+  box-shadow:0 14px 34px rgba(2,6,18,.6);
+  animation:toastIn .25s cubic-bezier(.22,.9,.3,1);
+}
+@keyframes toastIn { from { opacity:0; transform:translate(-50%,10px); } to { opacity:1; transform:translate(-50%,0); } }
+.flashlight {
+  position:fixed; inset:0; z-index:200; background:#fff;
+  display:flex; align-items:flex-end; justify-content:center;
+  padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));
+}
+.flashlight button {
+  background:rgba(0,0,0,.75); color:#fff; font-size:14px; font-weight:700;
+  padding:13px 26px; border-radius:999px;
+}
+.voice-pulse {
+  --vp1:#8fe0d3; --vp2:#2a9d8f; --vpg:rgba(45,212,191,.30);
+  position:fixed; inset:0; z-index:150;
+  background:rgba(4,7,15,.94);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  display:flex; flex-direction:column; align-items:center; gap:0;
+  padding:calc(40px + env(safe-area-inset-top,0px)) 24px calc(32px + env(safe-area-inset-bottom,0px));
+  box-sizing:border-box; color:#f1f4fb;
+}
+.voice-pulse[data-st="think"] { --vp1:#c4b0ff; --vp2:#6d4fe0; --vpg:rgba(139,108,255,.32); }
+.voice-pulse[data-st="speak"] { --vp1:#ffb08a; --vp2:#f0603f; --vpg:rgba(255,140,100,.30); }
+.vp-pill { display:flex; align-items:center; gap:8px; font-size:13px; color:#aab3c7; background:#101727; border-radius:20px; padding:7px 14px; }
+.vp-dot { width:8px; height:8px; border-radius:50%; background:var(--vp2); }
+.vp-stage { position:relative; margin-top:30px; width:250px; height:250px; display:flex; align-items:center; justify-content:center; }
+.vp-glow { position:absolute; inset:-40px; background:radial-gradient(circle,var(--vpg) 0%,rgba(6,10,20,0) 68%); transition:background .4s; }
+#vp-avatar { --kav-s:200px; }
+.vp-bars { display:flex; gap:6px; align-items:center; height:40px; margin-top:16px; }
+.vp-bars i {
+  width:8px; height:30px; border-radius:4px;
+  background:var(--vp2); animation:vpb 1.1s ease-in-out infinite; transition:background .4s;
+}
+.vp-bars i:nth-child(1) { animation-delay:0s; height:16px; }
+.vp-bars i:nth-child(2) { animation-delay:.1s; height:28px; }
+.vp-bars i:nth-child(3) { animation-delay:.2s; height:38px; }
+.vp-bars i:nth-child(4) { animation-delay:.3s; height:30px; }
+.vp-bars i:nth-child(5) { animation-delay:.4s; height:36px; }
+.vp-bars i:nth-child(6) { animation-delay:.5s; height:22px; }
+.vp-bars i:nth-child(7) { animation-delay:.6s; height:14px; }
+.voice-pulse[data-st="think"] .vp-bars i { animation:none; height:8px; }
+@keyframes vpb { 50% { transform:scaleY(.35); } }
+.voice-pulse.live[data-st="listen"] .vp-bars i { animation:none; transition:transform .09s linear; }
+.voice-pulse.live[data-st="listen"] .vp-glow { transform:scale(calc(1 + var(--vp-lvl,0) * .14)); transition:transform .12s linear; }
+@media (prefers-reduced-motion:reduce) { .vp-bars i { animation:none; } }
+#vp-text { margin:18px 0 0; font-size:28px; font-weight:700; max-width:90%; text-align:center; }
+.vp-hint { margin-top:6px; font-size:13.5px; color:#9aa4b8; text-align:center; }
+.vp-card { margin-top:16px; width:100%; box-sizing:border-box; background:#0d1424; border:1px solid #1b2540; border-radius:18px; padding:14px 16px; max-height:130px; overflow:hidden; }
+.vp-card.empty { visibility:hidden; }
+.vp-lbl { font-size:11px; letter-spacing:.08em; color:var(--vp1); font-weight:700; }
+.vp-say { margin-top:6px; font-size:16px; line-height:1.4; }
+.vp-spacer { flex:1; }
+.vp-ctl { display:flex; align-items:flex-end; justify-content:center; gap:40px; }
+.vp-c { text-align:center; font-size:12px; color:#9aa4b8; }
+.vp-btn { width:60px; height:60px; border-radius:50%; border:0; background:#141c30; color:#f1f4fb; display:flex; align-items:center; justify-content:center; margin:0 auto 6px; }
+.vp-btn.vp-red { width:76px; height:76px; background:var(--danger,#FF5D5D); color:#fff; }
+
+/* ============================================================
+   HERRAMIENTAS (modales)
+   ============================================================ */
+.calc-screen {
+  background:rgba(7,11,22,.6); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:14px 16px; margin-bottom:12px; text-align:right;
+}
+.cs-hist { font-size:12px; color:var(--dim2); min-height:15px; }
+.cs-cur { font-size:30px; font-weight:800; letter-spacing:-.5px; margin-top:2px; word-break:break-all; }
+.calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.calc-grid button {
+  padding:15px 0; border-radius:14px;
+  font-size:17px; font-weight:700; color:var(--txt);
+  background:var(--card); border:1px solid var(--line);
+}
+.calc-grid button.op { color:var(--teal); }
+.calc-grid button.eq { color:#052722; background:var(--teal); border-color:var(--teal); }
+.timer-display { font-size:52px; font-weight:800; text-align:center; letter-spacing:-1px; margin:8px 0 16px; font-variant-numeric:tabular-nums; }
+.big-num { font-size:64px; font-weight:800; text-align:center; margin:14px 0 22px; letter-spacing:-2px; }
+.pw-out {
+  font-family:ui-monospace,Menlo,monospace; font-size:16px; text-align:center;
+  background:rgba(7,11,22,.6); border:1px solid var(--line);
+  border-radius:var(--r-lg); padding:18px 12px; margin-bottom:12px; word-break:break-all;
+}
+.conv-row { display:flex; gap:10px; align-items:center; }
+.conv-row select { flex:1; }
+.conv-eq { font-size:22px; color:var(--dim2); margin:8px 0; }
+.decide-btn { width:100%; }
+.cmd-list { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.cmd-row {
+  display:flex; justify-content:space-between; gap:14px; align-items:center;
+  background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r-md); padding:11px 14px;
+}
+.cmd-row span { font-size:12.5px; font-weight:700; flex-shrink:0; }
+.cmd-row b { font-size:11px; color:var(--dim); font-weight:600; text-align:right; }
+input[type=range] { width:100%; accent-color:var(--teal); height:26px; }
+
+/* ==================== v1.6.0 ==================== */
+
+/* --- Markdown rico en el chat --- */
+.msg-bubble h4 {
+  font-size:14.5px; font-weight:800; margin:8px 0 2px; letter-spacing:-.2px;
+  color:var(--txt);
+}
+.msg-bubble h4:first-child { margin-top:0; }
+.msg-bubble ul, .msg-bubble ol { margin:4px 0 6px; padding-left:20px; display:block; }
+.msg-bubble li { margin:2px 0; display:list-item; }
+.msg-bubble i { color:var(--dim); }
+.msg-bubble a.msg-link {
+  color:var(--acc); font-weight:700; text-decoration:underline;
+  text-decoration-color:rgba(45,212,191,.45); text-underline-offset:2px;
+}
+.codeblock {
+  position:relative; margin:8px 0;
+  background:rgba(5,8,18,.72); border:1px solid var(--line);
+  border-radius:12px; overflow:hidden;
+}
+.codeblock pre {
+  margin:0; padding:12px 12px 10px; overflow-x:auto;
+  font-family:ui-monospace,Menlo,monospace; font-size:11.5px; line-height:1.55;
+  white-space:pre; color:#D7E4FF;
+}
+.codeblock pre code { background:none; border:none; padding:0; font-size:inherit; }
+.code-copy {
+  position:absolute; top:7px; right:7px;
+  font:700 10px/1 inherit; font-family:inherit;
+  color:var(--dim); background:rgba(20,30,54,.9);
+  border:1px solid var(--line); border-radius:8px;
+  padding:5px 9px; cursor:pointer;
+}
+.code-copy:active { color:var(--acc); border-color:var(--acc); }
+
+/* --- Tamaño de letra del chat --- */
+body.fs-s .msg-bubble { font-size:12.5px; }
+body.fs-m .msg-bubble { font-size:13.5px; }
+body.fs-l .msg-bubble { font-size:16px; line-height:1.6; }
+
+/* --- Estadística semanal (Inicio) --- */
+.week-wrap { margin:14px 0 4px; }
+.week-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.week-head strong { font-size:12.5px; color:var(--txt); }
+.week-head b { font-size:11px; color:var(--dim); font-weight:700; }
+.week-bars { display:flex; gap:7px; align-items:flex-end; height:64px; }
+.wb-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+.wb-col i {
+  display:block; width:100%; max-width:22px; border-radius:7px 7px 3px 3px;
+  background:linear-gradient(180deg, var(--acc), rgba(139,92,246,.55));
+  min-height:3px; transition:height .4s ease;
+}
+.wb-col i.mute { background:rgba(150,162,188,.18); }
+.wb-col i.hoy { box-shadow:0 0 10px rgba(45,212,191,.4); }
+.wb-col span { font-size:9.5px; color:var(--dim2); font-weight:700; }
+
+/* --- Conversaciones: lista modal --- */
+.cvrow { cursor:pointer; }
+.cvrow.active { border-color:rgba(45,212,191,.45); background:rgba(45,212,191,.07); }
+.cvrow.active .list-ic { color:var(--acc); }
+.conv-foot {
+  display:flex; flex-direction:column; gap:10px; margin-top:14px;
+  padding-top:12px; border-top:1px solid var(--line);
+}
+.conv-foot .link-btn { display:flex; align-items:center; gap:7px; font-size:12.5px; }
+.link-btn.danger { color:var(--danger); }
+
+/* --- Apariencia: acentos --- */
+.acc-row { display:flex; gap:9px; justify-content:space-between; }
+.acc-swatch {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:var(--card); border:1.5px solid var(--line);
+  border-radius:16px; padding:11px 4px 9px; cursor:pointer;
+  transition:.15s;
+}
+.acc-swatch i {
+  width:26px; height:26px; border-radius:50%;
+  background:var(--sc); box-shadow:0 3px 10px color-mix(in srgb, var(--sc) 45%, transparent);
+}
+.acc-swatch span { font-size:10px; font-weight:700; color:var(--dim); }
+.acc-swatch.sel { border-color:var(--sc); background:color-mix(in srgb, var(--sc) 10%, transparent); }
+.acc-swatch.sel span { color:var(--txt); }
+
+/* --- Generación (Proveedores) --- */
+.gen-card .seg { margin-top:2px; }
+
+/* --- Motor local v1.6.3: foto en chat + catálogo + servidor --- */
+.status-dot.err { background:var(--danger); box-shadow:0 0 8px rgba(248,113,113,.8); }
+.msg-img {
+  display:block; max-width:210px; max-height:190px; width:auto; height:auto;
+  border-radius:14px; border:1px solid var(--line); margin:0 0 7px;
+  object-fit:cover; background:#0a1020;
+}
+.msg.user .msg-img { margin-left:auto; }
+.photo-bar {
+  display:flex; align-items:center; gap:10px; margin:0 0 8px;
+  background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:8px 10px; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+}
+.photo-bar img {
+  width:44px; height:44px; border-radius:12px; object-fit:cover; flex-shrink:0;
+  border:1px solid var(--line); background:#0a1020;
+}
+.photo-bar .photo-txt { flex:1; min-width:0; display:flex; flex-direction:column; }
+.photo-bar .photo-txt strong { font-size:12.5px; }
+.photo-bar .photo-txt span { font-size:11px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.photo-bar .icon-btn { flex-shrink:0; }
+.loc-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.loc-actions .chip-btn { flex:1; min-width:140px; justify-content:center; }
+.fit-badge {
+  font-style:normal; font-size:10.5px; font-weight:800; padding:4px 9px;
+  border-radius:99px; flex-shrink:0; letter-spacing:.2px;
+}
+.fit-badge.fit-ok { color:#34D399; background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35); }
+.fit-badge.fit-mid { color:#FBBF24; background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3); }
+.fit-badge.fit-no { color:#F87171; background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3); }
+#local-block .set-card { margin-top:8px; }
+#local-block .set-row.col { align-items:stretch; }
+#loc-url, #loc-key, #loc-model, #loc-vismodel {
+  margin-top:8px; background:rgba(10,16,32,.6); border:1px solid var(--line);
+  border-radius:12px; padding:10px 12px; color:var(--txt); font-size:13px; width:100%;
+}
+#local-block .btn-primary { margin-top:10px; }
+#local-block .voice-pick { display:flex; gap:8px; align-items:center; margin-top:8px; }
+#loc-detail, #loc-profiles { margin-top:8px; }
+
+/* --- Interruptor de las tarjetas de proveedor (faltaba: era invisible) --- */
+.prov-head { cursor:pointer; }
+.prov-head .switch {
+  width:46px; height:27px; border-radius:999px; flex-shrink:0;
+  background:rgba(255,255,255,.09); border:1px solid var(--line2);
+  position:relative; transition:.2s; display:block;
+}
+.prov-head .switch::after {
+  content:''; position:absolute; top:2.5px; left:3px;
+  width:20px; height:20px; border-radius:50%;
+  background:#7C87A3; transition:.2s;
+}
+.prov-head .switch.on { background:rgba(45,212,191,.22); border-color:rgba(45,212,191,.55); }
+.prov-head .switch.on::after { left:20px; background:var(--teal); box-shadow:0 0 10px rgba(45,212,191,.55); }
+
+/* ===================== v1.7.0: Modelos · Navegador · Diagnóstico · Colgar ===================== */
+.dl-row { flex-wrap:wrap; }
+.dl-acts { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+.dl-prog { display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; width:100%; }
+.dl-prog .bar { flex:1; min-width:80px; }
+.dl-prog span { font-size:11px; color:var(--dim); white-space:nowrap; }
+.mem-stats { grid-template-columns:repeat(auto-fit, minmax(90px, 1fr)); }
+.mem-stat span { font-size:10px; }
+.mem-stat { min-width:0; }
+#screen-memory .content { overflow-x:hidden; }
+#screen-memory .seg {
+  overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+#screen-memory .seg::-webkit-scrollbar { display:none; }
+#screen-memory .seg-btn {
+  flex:0 0 auto; min-width:max-content; padding:9px 12px;
+}
+.chat-browser { position:absolute; left:0; right:0; top:0; bottom:0; z-index:80; background:var(--bg); display:flex; flex-direction:column; padding:10px; }
+.chat-browser.hidden { display:none; }
+.cb-head { display:flex; gap:6px; align-items:center; margin-bottom:8px; }
+.cb-head input { flex:1; min-width:0; background:rgba(255,255,255,.06); border:1px solid rgba(140,160,255,.14); border-radius:12px; padding:10px 12px; color:var(--tx); font-size:13px; }
+.cb-frame { flex:1; width:100%; border:0; border-radius:16px; background:#fff; }
+.cb-msg { font-size:11px; color:var(--dim); margin:8px 2px 0; }
+.hang-chip { position:absolute; left:50%; transform:translateX(-50%); bottom:108px; z-index:70; background:var(--danger,#FF5D5D); color:#fff; border:0; border-radius:999px; padding:11px 24px; font-weight:800; font-size:14px; box-shadow:0 8px 26px rgba(255,93,93,.45); display:flex; gap:8px; align-items:center; }
+.hang-chip.hidden { display:none; }
+.hang-chip .ic { width:16px; height:16px; }
+.diag-item { padding:10px 0; border-bottom:1px solid rgba(140,160,255,.08); }
+.diag-row { display:flex; gap:10px; align-items:flex-start; }
+.diag-ic { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:13px; flex:0 0 22px; }
+.diag-ic.ok { background:rgba(52,211,153,.15); color:#34D399; }
+.diag-ic.no { background:rgba(255,93,93,.15); color:#FF5D5D; }
+.diag-ic.wa { background:rgba(251,191,36,.18); color:#FBBF24; }
+.diag-txt strong { display:block; font-size:13px; }
+.diag-txt span { font-size:12px; color:var(--dim); }
+.diag-item .chip-btn { margin:8px 0 0 32px; }
+
+/* v1.7.2 · modelos locales */
+.prov-models{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.scan-bar{width:100%;height:6px;border-radius:99px;background:rgba(126,158,255,.16);overflow:hidden;margin:2px 0 4px}
+.scan-bar i{display:block;height:100%;background:#2DD4BF;transition:width .25s}
+.chip-btn.sel{border-color:#14b8a6;color:#5eead4;background:rgba(20,184,166,.12)}
+.phone-card{margin-bottom:12px}
+.phone-card .list{margin:6px 0}
+
+/* ============================================================
+   v2.0 · Rediseño pantalla Modelos (héroe, orquestador mapa,
+   tarjetas grandes, anillo de descarga, badges de compatibilidad)
+   ============================================================ */
+.k2-hero {
+  border-radius:18px; border:1px solid var(--line2);
+  background:linear-gradient(135deg, rgba(45,212,191,.10), rgba(139,92,246,.10));
+  padding:13px; margin:2px 0 4px;
+}
+.k2-hero-top { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.k2-hero-tt { flex:1; min-width:0; }
+.k2-hero-tt strong { display:block; font-size:14px; font-weight:800; letter-spacing:-.2px; }
+.k2-hero-tt span { display:block; font-size:10.5px; color:var(--dim); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.k2-hero-hint { font-size:10.5px; margin-top:9px; line-height:1.55; color:var(--dim); }
+.k2-hero-hint b { color:var(--txt); }
+.k2-tile {
+  display:grid; place-items:center; width:34px; height:34px; border-radius:11px; flex-shrink:0;
+  background:rgba(141,166,255,.10); color:var(--dim);
+}
+.k2-tile .ic, .k2-tile svg { width:17px; height:17px; }
+.k2-tile.big { width:42px; height:42px; border-radius:14px; }
+.k2-tile.big .ic, .k2-tile.big svg { width:19px; height:19px; }
+.tl-teal { background:rgba(45,212,191,.15); color:var(--teal); }
+.tl-violet { background:rgba(139,92,246,.14); color:#C4B5FD; }
+.tl-blue { background:rgba(96,165,250,.13); color:var(--blue); }
+.tl-pink { background:rgba(244,114,182,.13); color:var(--pink); }
+.tl-green { background:rgba(52,211,153,.14); color:var(--green); }
+.tl-amber { background:rgba(251,191,36,.13); color:var(--amber); }
+.k2-badge {
+  display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:3px 8px;
+  font-size:8.8px; font-weight:800; letter-spacing:.04em; white-space:nowrap; font-style:normal; flex-shrink:0;
+}
+.k2-badge.b-g { color:var(--green); background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.3); }
+.k2-badge.b-a { color:var(--amber); background:rgba(251,191,36,.12); border:1px solid rgba(251,191,36,.3); }
+.k2-badge.b-b { color:var(--blue); background:rgba(96,165,250,.12); border:1px solid rgba(96,165,250,.3); }
+.k2-badge.b-v { color:#C4B5FD; background:rgba(139,92,246,.12); border:1px solid rgba(139,92,246,.3); }
+.k2-badge.b-r { color:var(--danger); background:rgba(255,93,93,.10); border:1px solid rgba(255,93,93,.3); }
+.k2-badge.b-t { color:var(--teal); background:rgba(45,212,191,.12); border:1px solid rgba(45,212,191,.3); }
+.k2-ramrow { display:flex; align-items:center; gap:9px; }
+.k2-mbar { height:5px; border-radius:999px; background:rgba(126,158,255,.14); overflow:hidden; flex:1; }
+.k2-mbar i { display:block; height:100%; border-radius:999px; transition:width .5s; }
+.k2-ramlbl { font-size:9.5px; font-weight:800; color:var(--teal); white-space:nowrap; }
+.k2-sec { display:flex; align-items:center; justify-content:space-between; margin:16px 2px 8px; gap:8px; }
+.k2-sec h3 { font-size:15.5px; font-weight:800; letter-spacing:-.2px; }
+.k2-count { font-size:9.5px; font-weight:800; color:var(--dim2); letter-spacing:.04em; white-space:nowrap; }
+.k2-card {
+  background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+}
+.k2-row { display:flex; align-items:center; gap:11px; padding:11px 13px; width:100%; text-align:left; background:none; border:none; color:inherit; font:inherit; cursor:pointer; }
+.k2-row + .k2-row { border-top:1px solid var(--line); }
+.k2-row-mid { flex:1; min-width:0; }
+.k2-row-tt { font-size:12.5px; font-weight:800; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.k2-row-sub { font-size:10px; color:var(--dim); margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.k2-tag { font-size:9px; font-weight:800; letter-spacing:.04em; white-space:nowrap; flex-shrink:0; }
+.k2-tag.t-blue { color:var(--blue); } .k2-tag.t-violet { color:#C4B5FD; }
+.k2-tag.t-pink { color:var(--pink); } .k2-tag.t-teal { color:var(--teal); }
+.k2-tag.t-dim { color:var(--dim2); }
+.k2-adv {
+  display:flex; align-items:center; gap:7px; width:100%; margin-top:8px;
+  background:none; border:none; color:var(--dim2); font-size:11px; font-weight:700; padding:4px 2px; cursor:pointer;
+}
+.k2-adv .ic, .k2-adv svg { width:13px; height:13px; }
+.k2-adv:active { color:var(--teal); }
+.k2-list { display:flex; flex-direction:column; gap:9px; }
+.k2-model {
+  background:var(--card); border:1px solid var(--line); border-radius:18px; padding:12px;
+  display:flex; align-items:center; gap:11px;
+}
+.k2-model.warn { border-color:rgba(251,191,36,.28); background:rgba(251,191,36,.05); }
+.k2-model.err { border-color:rgba(255,93,93,.25); background:rgba(255,93,93,.04); }
+.k2-mid { flex:1; min-width:0; }
+.k2-name { font-size:12.5px; font-weight:800; display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:0; }
+.k2-sub { font-size:10px; color:var(--dim); margin:2px 0 0; line-height:1.5; }
+.k2-sub .re { color:var(--amber); font-weight:700; }
+.k2-sub .spd { color:var(--teal); font-weight:700; }
+.k2-badges { display:flex; gap:5px; margin-top:6px; flex-wrap:wrap; }
+.k2-acts { display:flex; flex-direction:column; gap:6px; align-items:stretch; flex-shrink:0; }
+.k2-pill {
+  font-size:10.5px; font-weight:800; padding:8px 13px; border-radius:999px; white-space:nowrap;
+  background:var(--card2); border:1px solid var(--line2); color:var(--txt); cursor:pointer;
+}
+.k2-pill.solid { background:var(--teal); border-color:var(--teal); color:#05231F; }
+.k2-pill.amber { background:transparent; border-color:rgba(251,191,36,.45); color:var(--amber); }
+.k2-pill:active { opacity:.8; }
+.k2-minibtn {
+  font-size:10px; font-weight:700; padding:6px 10px; border-radius:999px; white-space:nowrap;
+  background:none; border:1px solid var(--line); color:var(--dim); cursor:pointer;
+}
+.k2-minibtn:active { color:var(--danger); border-color:rgba(255,93,93,.4); }
+.k2-iconbtn {
+  display:grid; place-items:center; width:31px; height:31px; border-radius:11px;
+  background:var(--card2); border:1px solid var(--line); color:var(--dim); cursor:pointer;
+}
+.k2-iconbtn .ic, .k2-iconbtn svg { width:13px; height:13px; }
+.k2-iconbtn.danger { color:var(--danger); }
+.k2-iconbtn:active { opacity:.8; }
+.k2-ringwrap { display:grid; place-items:center; width:46px; height:46px; flex-shrink:0; position:relative; }
+.k2-ringwrap b { position:absolute; font-size:9.5px; font-weight:800; color:var(--txt); }
+.k2-lbar { height:5px; border-radius:999px; background:rgba(126,158,255,.14); overflow:hidden; margin-top:7px; }
+.k2-lbar i { display:block; height:100%; background:linear-gradient(90deg,#2DD4BF,#8B5CF6); border-radius:999px; transition:width .4s; }
+.k2-empty { padding:22px 16px; text-align:center; color:var(--dim2); font-size:12px; line-height:1.6; }
+/* chips del filtro estilo píldora */
+#mdl-filters .chip { border-radius:999px; padding:7px 12px; font-size:10.5px; font-weight:800; }
+#mdl-filters .chip.active { background:var(--teal); border-color:var(--teal); color:#05231F; }
+.k2-badge.b-d { color:var(--dim); background:rgba(141,166,255,.08); border:1px solid var(--line); }
+.k2-tile.tl-dim { background:rgba(141,166,255,.08); color:var(--dim2); }
+
+/* v2.10.1: pestañas de Modelos (Teléfono / Nube / Mi red) */
+.mtabs { display:flex; gap:4px; margin:16px 0 12px; padding:4px; border-radius:14px; background:rgba(141,166,255,.06); border:1px solid var(--line); position:sticky; top:0; z-index:5; backdrop-filter:blur(8px); }
+.mtab { flex:1; border:0; background:transparent; color:var(--dim); font-size:13px; font-weight:700; padding:10px 6px; border-radius:10px; cursor:pointer; min-height:40px; }
+.mtab i { font-style:normal; font-weight:600; opacity:.8; }
+.mtab.on { background:var(--teal); color:#05231F; }
+.mpane { display:none; }
+.mpane.on { display:block; }
+
+/* ============================================================
+   KIU · v2.14.2 · CAPA PREMIUM
+   ------------------------------------------------------------
+   Dos superficies, dos trabajos. Esta es la regla de la casa:
+
+     · VIDRIO   → lo que FLOTA y se LEE (estado, resúmenes, modales,
+                  la barra de abajo, la burbuja del bot). Va con blur
+                  de verdad, pero solo en las superficies GRANDES: un
+                  backdrop-filter en once tarjetas repeats en un
+                  WebView de Android baja los frames, y una app pro
+                  que se traba no es pro.
+
+     · RELIEVE  → lo que se TOCA (acciones rápidas, herramientas,
+                  interruptores, botones). Va con sombra dura abajo-
+                  derecha, luz inversa arriba-izquierda y una línea
+                  de luz interior. Sin blur: el mismo efecto, gratis.
+
+   Todo lo que viene abajo AGREGA. No se borra ni se reescribe una
+   regla de arriba: si algo se ve mal, se saca esta capa y la app
+   vuelve a la de siempre.
+   ============================================================ */
+
+:root {
+  /* vidrio */
+  --p-glass:linear-gradient(180deg,rgba(141,166,255,.085),rgba(141,166,255,.028));
+  --p-glass-2:linear-gradient(180deg,rgba(141,166,255,.12),rgba(141,166,255,.045));
+  --p-line:rgba(126,158,255,.19);
+  /* relieve */
+  --p-raise:linear-gradient(180deg,#151D31 0%,#0B1120 100%);
+  --p-raise-line:rgba(126,158,255,.11);
+  --p-dark:0 7px 18px rgba(2,6,18,.55);
+  --p-light:-4px -4px 12px rgba(255,255,255,.035);
+  --p-shine:inset 0 1px 0 rgba(255,255,255,.07);
+  --p-ease:cubic-bezier(.22,.9,.3,1);
+}
+
+/* ============================================================
+   1 · VIDRIO — superficies grandes (con blur de verdad)
+   ============================================================ */
+.hero-card,
+.motor-card,
+.prov-card,
+.tip-card {
+  background:var(--p-glass);
+  border:1px solid var(--p-line);
+  -webkit-backdrop-filter:blur(18px) saturate(1.25);
+  backdrop-filter:blur(18px) saturate(1.25);
+  box-shadow:0 14px 36px rgba(2,6,18,.46), var(--p-shine);
+}
+.modal-sheet {
+  background:rgba(11,18,34,.93);
+  -webkit-backdrop-filter:blur(24px) saturate(1.2);
+  backdrop-filter:blur(24px) saturate(1.2);
+  box-shadow:0 -22px 64px rgba(0,0,0,.62);
+}
+.bottomnav {
+  box-shadow:0 -8px 34px rgba(2,6,18,.62), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.chat-state {
+  background:rgba(12,19,38,.78);
+  border:1px solid var(--p-line);
+  box-shadow:0 8px 22px rgba(2,6,18,.45), var(--p-shine);
+}
+
+/* ============================================================
+   2 · VIDRIO SUAVE — superficies chicas (mismo look, sin blur)
+   ============================================================ */
+.sys-card,
+.usage-card,
+.set-card,
+.mem-stat,
+.search-wrap,
+.prov-body-in {
+  background:var(--p-glass);
+  border-color:var(--p-line);
+  box-shadow:0 8px 24px rgba(2,6,18,.36), var(--p-shine);
+}
+.sys-card, .usage-card, .mem-stat { border:1px solid var(--p-line); }
+
+/* ============================================================
+   3 · RELIEVE — lo que se toca
+   ============================================================ */
+.quick-card,
+.tool-card,
+.row-card,
+.icon-btn,
+.send-btn,
+.chip-btn,
+.chat-inputbar {
+  background:var(--p-raise);
+  border:1px solid var(--p-raise-line);
+  box-shadow:var(--p-dark), var(--p-light), var(--p-shine);
+  transition:transform .18s var(--p-ease), box-shadow .18s var(--p-ease), background .18s;
+}
+.quick-card:hover, .tool-card:hover, .row-card:hover {
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px rgba(2,6,18,.6), var(--p-light), var(--p-shine);
+}
+.quick-card:active, .tool-card:active, .row-card:active, .icon-btn:active, .send-btn:active {
+  transform:translateY(0) scale(.985);
+  /* al presionar, la sombra dura se va y queda la luz: el botón "baja" */
+  box-shadow:var(--p-light), var(--p-shine);
+}
+.quick-card:active, .tool-card:active { background:#0D1424; }
+
+/* los iconos dentro de las tarjetas también son piezas, no pintados */
+.qc-ic, .tool-ic, .sys-ic, .row-tile {
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), 0 4px 12px rgba(2,6,18,.4);
+  border-color:rgba(126,158,255,.14);
+}
+
+/* ============================================================
+   4 · INTERRUPTOR Y SEGMENTOS — piezas físicas
+   ============================================================ */
+.toggle {
+  background:linear-gradient(180deg,#0C1322,#121A2E);
+  border-color:rgba(126,158,255,.13);
+  box-shadow:inset 2px 2px 6px rgba(2,6,18,.7), inset -1px -1px 3px rgba(255,255,255,.045);
+}
+.toggle::after {
+  background:linear-gradient(180deg,#8D99B8,#6A7593);
+  box-shadow:0 2px 6px rgba(2,6,18,.65), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.toggle.on {
+  background:linear-gradient(180deg,rgba(45,212,191,.32),rgba(45,212,191,.16));
+  border-color:rgba(45,212,191,.5);
+}
+.toggle.on::after {
+  background:linear-gradient(180deg,#7DF5E6,#2DD4BF);
+  box-shadow:0 2px 9px rgba(45,212,191,.55), inset 0 1px 0 rgba(255,255,255,.45);
+}
+.seg {
+  background:linear-gradient(180deg,rgba(9,15,30,.9),rgba(9,15,30,.62));
+  border-color:rgba(126,158,255,.1);
+  box-shadow:inset 2px 2px 7px rgba(2,6,18,.6), inset -1px -1px 3px rgba(255,255,255,.03);
+}
+.seg-btn.active {
+  background:var(--p-raise);
+  color:var(--txt);
+  box-shadow:0 5px 14px rgba(2,6,18,.55), var(--p-light), var(--p-shine);
+}
+.nav-btn.active {
+  background:rgba(45,212,191,.12);
+  box-shadow:inset 0 0 0 1px rgba(45,212,191,.26), 0 4px 14px rgba(2,6,18,.4);
+}
+
+/* ============================================================
+   5 · EL CHAT
+   ============================================================ */
+.msg.bot .msg-bubble {
+  background:var(--p-glass);
+  border:1px solid var(--p-line);
+  box-shadow:0 6px 18px rgba(2,6,18,.34), var(--p-shine);
+}
+.msg.user .msg-bubble {
+  background:linear-gradient(135deg,rgba(45,212,191,.26),rgba(96,165,250,.2));
+  border:1px solid rgba(45,212,191,.4);
+  box-shadow:0 8px 22px rgba(2,6,18,.42), inset 0 1px 0 rgba(255,255,255,.13);
+}
+.act-btn {
+  border-radius:11px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+/* ============================================================
+   6 · BOTONES Y PÍLDORAS
+   ============================================================ */
+.btn-primary {
+  box-shadow:0 10px 26px color-mix(in srgb,var(--acc) 32%,transparent),
+             inset 0 1px 0 rgba(255,255,255,.3);
+}
+.btn-primary:active { box-shadow:0 4px 12px color-mix(in srgb,var(--acc) 26%,transparent); }
+.btn-ghost {
+  background:var(--p-raise);
+  border-color:var(--p-raise-line);
+  box-shadow:var(--p-dark), var(--p-light), var(--p-shine);
+}
+.chip {
+  background:var(--p-glass);
+  border-color:var(--p-line);
+  box-shadow:var(--p-shine);
+}
+.chip-btn.active {
+  background:linear-gradient(120deg,var(--acc),color-mix(in srgb,var(--acc) 60%,#41C8E4));
+  color:#052722;
+  box-shadow:0 6px 18px color-mix(in srgb,var(--acc) 34%,transparent), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.hero-pill {
+  background:rgba(45,212,191,.11);
+  border-color:rgba(45,212,191,.38);
+  box-shadow:0 8px 22px rgba(2,6,18,.4), inset 0 1px 0 rgba(255,255,255,.09);
+}
+.send-btn.accent {
+  box-shadow:0 8px 20px color-mix(in srgb,var(--acc) 38%,transparent), inset 0 1px 0 rgba(255,255,255,.32);
+}
+
+/* ============================================================
+   7 · ACCESIBILIDAD — el contraste no se negocia
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .quick-card, .tool-card, .row-card, .icon-btn, .send-btn, .chip-btn, .chat-inputbar {
+    transition:none;
+  }
+  .quick-card:hover, .tool-card:hover, .row-card:hover { transform:none; }
+}
+
+
+/* ============================================================
+   KIU · v2.14.7 · TARJETA DE ERROR Y TOKENS DEL REDISEÑO
+   ------------------------------------------------------------
+   Lo que el rediseño Pro trae y faltaba: un FALLO no es una
+   respuesta del bot, es un problema de la app, y tiene que verse
+   distinto. Antes salía como un párrafo más, mezclado con lo que
+   Kiu dice, y la persona no sabía si Kiu había fallado o si eso
+   era su respuesta.
+
+   La tarjeta lleva: ícono, qué pasó, y la ACCIÓN que lo resuelve.
+   Y no se lee por el TTS: un error leído en voz alta es un error
+   más difícil de entender que un error leído.
+
+   Y los tokens: el gris secundario (#5E6A85) daba 3,6:1 sobre el
+   panel — por debajo del 4,5:1 que pide WCAG AA. O sea: el texto
+   más chico era el menos legible. Sube a #7C8CA6 (5,3:1 / 5,8:1)
+   sin perder la jerarquía. La escala tipográfica tiene un piso de
+   11 px para lo que hay que leer; 9,5 px queda solo para metadatos
+   (la hora de un mensaje). */
+:root {
+  /* el gris secundario, accesible (antes 3,6:1) */
+  --dim2:#7C8CA6;
+  /* escala con piso: nada legible por debajo de 11 px */
+  --fs-xs:11px;      /* metadatos */
+  --fs-sm:12px;      /* chips, etiquetas */
+  --fs-md:13.5px;    /* cuerpo chico */
+  --fs-lg:15px;      /* cuerpo */
+  --fs-xl:17px;      /* títulos de tarjeta */
+  /* superficies del rediseño */
+  --p-panel:#0E1526;
+  --p-panel2:#131C30;
+  --p-brand:#FB923C;   /* naranja: marca y robot */
+  --p-ok:#34D399;      /* menta: lo que salió bien */
+  --p-err:#FB7185;     /* rosa: lo que falló */
+}
+
+/* ---------- la tarjeta de error ---------- */
+.errcard{
+  display:flex; gap:11px; align-items:flex-start;
+  margin:2px 0 6px; padding:13px 14px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(251,113,133,.11), rgba(251,113,133,.045));
+  border:1px solid rgba(251,113,133,.30);
+  box-shadow:0 8px 24px rgba(2,6,18,.40), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.errcard-ic{
+  width:28px; height:28px; border-radius:10px; flex:none;
+  display:grid; place-items:center;
+  background:rgba(251,113,133,.15); border:1px solid rgba(251,113,133,.30);
+  color:var(--p-err);
+}
+.errcard-body{ min-width:0; font-size:var(--fs-md); line-height:1.5; color:var(--txt); }
+.errcard-body b{ font-weight:800; }
+.errcard-act{
+  margin-top:9px; padding:8px 14px; border-radius:11px;
+  font:inherit; font-size:var(--fs-sm); font-weight:700; cursor:pointer;
+  color:#2A0912; background:linear-gradient(135deg,#FDA4AF,#FB7185);
+  border:none; box-shadow:0 4px 12px rgba(251,113,133,.28), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.errcard-act:active{ transform:scale(.97); }
+.errcard-act.ghost{
+  color:var(--txt); background:rgba(141,166,255,.08);
+  border:1px solid var(--line2); box-shadow:none;
+}
+/* la tarjeta de error NO se lee por el TTS: se marca para que la voz la salte */
+.msg-err .msg-bubble{ background:transparent; border:none; padding:0; }
+
+/* ---------- el piso tipográfico, donde importa ---------- */
+.set-row span{ font-size:var(--fs-md); }
+.row-txt span{ font-size:var(--fs-md); }
+.chip{ font-size:var(--fs-sm); }
+.quick-card span, .tool-card span{ font-size:var(--fs-sm); }
+
+
+/* ============================================================
+   KIU · v2.14.8 · LA PANTALLA, POR FIN
+   ------------------------------------------------------------
+   La tarjeta del motor pasa a ser una COLUMNA: la fila de estado, el
+   modelo en monoespaciado (que antes estaba al final de cada
+   respuesta, como ruido) y la RAM como barra comparable.
+
+   Y en el chat, lo que el agente hace se ve como TARJETA y no como
+   un párrafo: "Linterna ✓ · Acción ejecutada". Es el cambio de
+   "Acciones, no logs" del rediseño. */
+.motor-card{
+  display:flex; flex-direction:column; align-items:stretch; gap:0;
+}
+.motor-row{ display:flex; align-items:center; gap:13px; }
+.motor-model{
+  display:block; margin-top:12px; padding-left:2px;
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  font-size:11.5px; letter-spacing:-.01em; color:var(--p-brand);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.motor-ram{ display:flex; align-items:center; gap:10px; margin-top:9px; }
+.motor-ram .bar{ flex:1; height:6px; border-radius:4px; background:rgba(126,158,255,.12); overflow:hidden; }
+.motor-ram .bar i{ display:block; height:100%; border-radius:4px; background:var(--p-grad, linear-gradient(120deg,#2DD4BF,#60A5FA)); transition:width .4s var(--p-ease); }
+.motor-ram em{ font-style:normal; font-size:11px; color:var(--dim); flex:none; }
+
+/* ---------- tarjeta de acción en el chat ---------- */
+.toolcard{
+  display:flex; gap:11px; align-items:flex-start;
+  margin:2px 0 8px; padding:11px 13px;
+  max-width:88%;
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(167,139,250,.10),rgba(167,139,250,.035));
+  border:1px solid rgba(167,139,250,.22);
+  box-shadow:0 6px 18px rgba(2,6,18,.35), inset 0 1px 0 rgba(255,255,255,.05);
+  animation:toolIn .22s cubic-bezier(.22,.9,.3,1);
+}
+@keyframes toolIn{ from{ opacity:0; transform:translateY(6px) } to{ opacity:1; transform:none } }
+.toolcard .ti{
+  width:26px; height:26px; border-radius:9px; flex:none;
+  display:grid; place-items:center;
+  background:rgba(167,139,250,.14); border:1px solid rgba(167,139,250,.26);
+  color:var(--violet);
+}
+.toolcard .ti svg{ width:14px; height:14px; }
+.toolcard .tc{ min-width:0; }
+.toolcard .tc b{ display:block; font-size:13px; font-weight:700; letter-spacing:-.005em; }
+.toolcard .tc b .ok{ color:var(--p-ok); margin-left:5px; }
+.toolcard .tc span{ display:block; font-size:11.5px; color:var(--dim); margin-top:2px; line-height:1.4; }
+.toolcard.haciendo{ opacity:.72; }
+.toolcard.falló{
+  background:linear-gradient(180deg,rgba(251,113,133,.11),rgba(251,113,133,.04));
+  border-color:rgba(251,113,133,.28);
+}
+.toolcard.falló .ti{ background:rgba(251,113,133,.14); border-color:rgba(251,113,133,.28); color:var(--p-err); }
+.toolcard.falló .tc b .ok{ color:var(--p-err); }
+
+</style></head>
+<body>
+<div class="pv-wrap" style="padding:56px 24px 80px">
+  <p class="pv-h">Kiu 2.14.8 · la pantalla, por fin</p>
+  <h1 class="pv-t" style="font-size:clamp(30px,4vw,42px)">Esto es la app con el CSS nuevo.<br>No es un maqueto: es <code style="font-family:ui-monospace,Menlo,monospace;font-size:.8em;color:var(--teal)">app.css</code> de verdad.</h1>
+  <p class="pv-d">Todo lo que ves abajo sale del CSS que va en el APK. Lo que cambia: <b>la tarjeta del motor</b> con el modelo en monoespaciado y la RAM como barra (antes el modelo estaba al final de cada respuesta, como ruido), <b>las acciones del agente como tarjetas</b> en el chat, y <b>la tarjeta de error</b> cuando algo falla.</p>
+
+  <div class="pv-grid">
+    <div>
+      <p class="pv-label">INICIO · LA TARJETA DEL MOTOR</p>
+      <div class="pv-phone"><div class="pv-screen" style="padding:16px 15px">
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px">
+          <div style="width:34px;height:34px;border-radius:12px;background:linear-gradient(180deg,#FF9A55,#E8622C);display:grid;place-items:center;font-size:19px">🤖</div>
+          <div><strong style="font-size:15px">Kiu</strong><span style="display:block;font-size:11.5px;color:var(--dim)">Agente personal · modelo ejecutándose en el teléfono</span></div>
+        </div>
+        <button class="motor-card" id="status-card" data-go="api">
+        <span class="motor-row">
+          <span class="motor-ic ic" data-ic="brain"></span>
+          <div class="status-txt">
+            <strong id="status-title">Motor interno</strong>
+            <span class="motor-meta"><i class="status-dot api"></i><em id="status-meta">Modelo cargado · qwen2.5-0.5b</em></span>
+          </div>
+          <div class="motor-right">
+            <strong id="motor-mode">100% local</strong>
+            <span id="motor-device">Tu teléfono</span>
+          </div>
+        </span>
+        <span class="motor-model" id="motor-model">qwen2.5-0.5b-instruct-q4_k_m.gguf</span>
+        <span class="motor-ram">
+          <span class="bar"><i id="motor-ram-fill" style="width:78%"></i></span>
+          <em id="motor-ram-txt">RAM 8.5/10.9 GB</em>
+        </span>
+      </button>
+        <div style="height:12px"></div>
+        <div class="quick-grid">
+        <button class="quick-card"><span class="qc-ic qc-blue ic" data-ic="chat"></span><strong>Chat</strong><span>Conversá inteligente</span></button>
+        <button class="quick-card"><span class="qc-ic qc-teal ic" data-ic="mic"></span><strong>Voz</strong><span>Hablá conmigo</span></button>
+        <button class="quick-card"><span class="qc-ic qc-violet ic" data-ic="grid"></span><strong>Herramientas</strong><span>Apps y utilidades</span></button>
+        <button class="quick-card"><span class="qc-ic qc-pink ic" data-ic="memory"></span><strong>Memoria</strong><span>Notas y tareas</span></button>
+      </div>
+      </div></div>
+      <div class="pv-note">
+        <b>Qué cambió</b>
+        <span>El modelo <b>deja de ser ruido</b> al final de cada respuesta y pasa a la tarjeta del motor, donde sirve: es la respuesta a «¿qué está corriendo?». La RAM deja de ser un número suelto y pasa a ser una barra comparable. Y el gris secundario ahora da <b>5,3:1</b> (antes 3,6:1): el texto más chico era el menos legible.</span>
+      </div>
+    </div>
+
+    <div>
+      <p class="pv-label">CHAT · LAS ACCIONES COMO TARJETAS</p>
+      <div class="pv-phone"><div class="pv-screen" style="padding:16px 15px;display:flex;flex-direction:column;gap:9px;min-height:520px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <div style="width:34px;height:34px;border-radius:12px;background:linear-gradient(180deg,#FF9A55,#E8622C);display:grid;place-items:center;font-size:18px">🤖</div>
+          <div><strong style="font-size:14px">Kiu</strong><span style="display:block;font-size:10.5px;color:var(--dim)">qwen2.5 · 100% local</span></div>
+        </div>
+        <div class="msg user" style="max-width:86%;align-self:flex-end;background:linear-gradient(135deg,rgba(45,212,191,.24),rgba(96,165,250,.20));border:1px solid rgba(45,212,191,.35);border-radius:15px;padding:10px 13px;font-size:13px">Mirá si tengo algo del dentista y poné una alarma el jueves a las 9</div>
+        <div class="toolcard">
+        <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+        <span class="tc"><b>Alarma<span class="ok">✓</span></b><span>Listo: alarma a las 7.</span></span>
+      </div>
+      <div class="toolcard">
+        <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-1.5Z"/><path d="M8 7h7"/></svg></span>
+        <span class="tc"><b>Memoria<span class="ok">✓</span></b><span>Anotado: el dentista es el jueves.</span></span>
+      </div>
+      <div class="toolcard falló">
+        <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M12 9v4M12 17h.01M10.3 3.9 1.4 1.5a2 2 0 0 1 2 2.9v1.3a2 2 0 0 0 2 2.9 1.4-1.5 2.9-1.4 1.5-2.9Z"/></svg></span>
+        <span class="tc"><b>Alarma<span class="ok">✕</span></b><span>no entendí el horario "7"</span></span>
+      </div>
+        <div class="msg bot" style="max-width:86%;align-self:flex-start;background:rgba(141,166,255,.06);border:1px solid var(--line);border-radius:15px;padding:10px 13px;font-size:13px">Tenías al dentista el <b>jueves a las 10</b>, así que puse la alarma a las 9 para que te dé tiempo.</div>
+        <div class="errcard"><span class="errcard-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 9v4M12 17h.01M10.3 3.9 1.4 1.5a2 2 0 0 1 2 2.9v1.3a2 2 0 0 0 2 2.9 1.4-1.5 2.9-1.4 1.5-2.9Z"/></svg></span><div class="errcard-body"><b>No pude responder</b><br>no hay memoria suficiente para generar con este modelo (quedan 120 MB)<button class="errcard-act">Liberar motor</button></div></div>
+      </div></div>
+      <div class="pv-note">
+        <b>Qué cambió</b>
+        <span>Lo que Kiu <b>hace</b> se ve: una tarjeta por acción, con su ✓ y su resultado. Antes era un párrafo más, mezclado con la respuesta, y no se podía distinguir «Kiu lo hizo» de «Kiu lo dice». Y cuando algo <b>falla</b>, la tarjeta de error trae el botón que lo arregla.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pv-note" style="margin-top:34px">
+    <b>Y el resto del rediseño, en cola</b>
+    <span>Esta tanda es la parte que más se nota. Lo que sigue del rediseño Pro: la línea de tiempo de la <b>Memoria</b> (lo que Kiu sabe de vos, con la fecha y el «corregir/olvidar» al alcance), los <b>estados vacíos que enseñan</b> el comando exacto en vez de mostrar una lista vacía, y las fichas de <b>Modelos</b> con la RAM que van a usar. La paleta ya está: teal = acción, violeta = memoria, menta = lo que salió bien, naranja = la marca y el robot.</span>
+  </div>
+</div>
+</body></html>

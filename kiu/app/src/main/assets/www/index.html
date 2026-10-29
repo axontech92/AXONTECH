@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#070B16">
+<title>Kiu</title>
+<link rel="stylesheet" href="css/app.css">
+<script>
+/* ========= Kiu SafeBoot: captor global de errores (visible, no silencioso) =========
+   Si algo falla al arrancar, en vez de una pantalla negra se muestra el motivo
+   exacto + un boton para reparar. 100% ES5 para WebViews viejos. */
+(function () {
+  var BOOT_MS = 8000;
+  /* Migas de contexto: ayudan a diagnosticar aun cuando Chromium oculta el error */
+  window.kiuBc = [];
+  window.kiuBread = function (m) {
+    try { window.kiuBc.push(String(m).slice(0, 90)); if (window.kiuBc.length > 6) window.kiuBc.shift(); } catch (e) { }
+  };
+  function save(msg) {
+    try { localStorage.setItem('nexo_lasterr', JSON.stringify({ t: Date.now(), m: String(msg).slice(0, 600) })); } catch (e) { }
+  }
+  function show(msg) {
+    try {
+      save(msg);
+      var old = document.getElementById('kiu-errbox'); if (old) old.parentNode.removeChild(old);
+      var d = document.createElement('div');
+      d.id = 'kiu-errbox';
+      d.setAttribute('style', 'position:fixed;left:0;right:0;bottom:0;top:0;z-index:99999;background:#1a0b10;color:#ffb4c0;padding:18px;overflow:auto;font:13px/1.5 monospace;-webkit-user-select:text;user-select:text;');
+      var h = document.createElement('div');
+      h.setAttribute('style', 'font:bold 16px sans-serif;color:#fff;margin-bottom:10px');
+      h.appendChild(document.createTextNode('Kiu \u2014 error detectado'));
+      var p = document.createElement('div');
+      p.setAttribute('style', 'white-space:pre-wrap;word-break:break-word;margin-bottom:14px');
+      p.appendChild(document.createTextNode(String(msg)));
+      var b1 = document.createElement('button');
+      b1.setAttribute('style', 'display:block;width:100%;margin:6px 0;padding:12px;border:0;border-radius:12px;background:#14b8a6;color:#04211f;font:bold 15px sans-serif');
+      b1.appendChild(document.createTextNode('Reiniciar interfaz (conservar datos)'));
+      b1.onclick = function () { try { localStorage.removeItem('nexo_lasterr'); } catch (e) { } location.reload(); };
+      var b2 = document.createElement('button');
+      b2.setAttribute('style', 'display:block;width:100%;margin:6px 0;padding:12px;border:0;border-radius:12px;background:#3b2530;color:#ffb4c0;font:14px sans-serif');
+      b2.appendChild(document.createTextNode('Cerrar y seguir igual'));
+      b2.onclick = function () { if (d.parentNode) d.parentNode.removeChild(d); };
+      d.appendChild(h); d.appendChild(p); d.appendChild(b1); d.appendChild(b2);
+      (document.body || document.documentElement).appendChild(d);
+    } catch (e) { }
+  }
+  function onErr(msg, src, line, col, err) {
+    var where = '';
+    try { where = String(src || '').split('/').pop() + ':' + line + (col ? ':' + col : ''); } catch (e) { }
+    var detail = (err && err.stack) ? String(err.stack).slice(0, 400) : '';
+    var crumbs = '';
+    try { if (window.kiuBc && window.kiuBc.length) crumbs = '\nHaciendo: ' + window.kiuBc.join(' | '); } catch (e) { }
+    show(msg + (where ? '\nEn: ' + where : '') + (detail ? '\n' + detail : '') + crumbs);
+    return false;
+  }
+  window.onerror = onErr;
+  window.addEventListener('error', function (e) {
+    if (e && e.target && e.target.tagName && !e.message) return; /* recursos */
+    onErr(e.message, e.filename, e.lineno, e.colno, e.error);
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason; show('Promise sin capturar: ' + ((r && r.message) ? r.message : r));
+  });
+  window.kiuShowError = show;
+  /* Vigilante de arranque: si app.js no avisa en BOOT_MS, mostrar aviso */
+  setTimeout(function () {
+    if (!window.__kiuBooted) {
+      var last = '';
+      try { var raw = localStorage.getItem('nexo_lasterr'); if (raw) last = (JSON.parse(raw) || {}).m || ''; } catch (e) { }
+      show('La interfaz no termin\u00f3 de arrancar en ' + (BOOT_MS / 1000) + ' s.' + (last ? '\n\u00datltimo error registrado:\n' + last : '\nPosible WebView del sistema muy antiguo o datos da\u00f1ados.\nUs\u00e1 \u00abBorrar datos y reiniciar\u00bb abajo.'));
+    }
+  }, BOOT_MS);
+})();
+</script>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ PANTALLA INICIO ============ -->
+  <section id="screen-home" class="screen active">
+    <header class="topbar">
+      <div class="brand">
+        <!-- v2.3: el bot nuevo de 37 estados vive tambien en la esquina -->
+        <!-- v2.8.1: sin `logo-mini`. Esa clase era el cuadrito con degradado y letra del
+             logo viejo; con el bot adentro estorba (pinta fondo) y además gana en
+             especificidad al `[data-avatar-mini]{width:var(--kav-s)}` y deja el hueco
+             con la caja equivocada. El bot se dibuja solo: el host solo reserva espacio. -->
+        <div class="kav-mini" data-avatar-mini id="brand-avatar" role="img" aria-label="Kiu"></div>
+        <div class="brand-txt">
+          <h1>Kiu</h1>
+          <p id="home-sub" data-i18n="home.sub">Tu agente personal</p>
+        </div>
+      </div>
+      <button class="icon-btn" id="home-settings-btn" aria-label="Ajustes"></button>
+    </header>
+
+    <div class="content">
+      <!-- Robot grande con halo -->
+      <div class="hero-card">
+        <div class="hero-avatar-wrap">
+          <div class="hero-halo"></div>
+          <button class="kav-hero" data-avatar data-state="idle" id="hero-avatar" aria-label="Hablar con Kiu"></button>
+        </div>
+        <p class="hero-hi" id="hero-hi" data-i18n="home.hero.hi">Hola</p>
+        <h2 class="hero-title" data-i18n="home.hero.title">¿En qué te ayudo hoy?</h2>
+        <button class="hero-pill" id="hero-voice">
+          <span class="ic" data-ic="mic"></span><span data-i18n="home.hero.pill">Escucha, piensa, actúa por ti</span>
+        </button>
+      </div>
+
+      <!-- Motor local / API conectada -->
+      <!-- v2.14.8 · la tarjeta del motor, como en el rediseño: una fila de
+           estado, el MODELO en monoespaciado (acá va bien: es donde sirve; antes
+           estaba al final de cada respuesta) y la RAM como barra. -->
+      <button class="motor-card" id="status-card" data-go="api">
+        <span class="motor-row">
+          <span class="motor-ic ic" data-ic="brain"></span>
+          <div class="status-txt">
+            <strong id="status-title" data-i18n="home.status.title">Motor local</strong>
+            <span class="motor-meta"><i class="status-dot" id="status-dot"></i><em id="status-meta" data-i18n="home.status.ready">Listo</em></span>
+          </div>
+          <div class="motor-right">
+            <strong id="motor-mode" data-i18n="home.status.mode">100% local</strong>
+            <span id="motor-device" data-i18n="home.status.device">Tu teléfono</span>
+          </div>
+        </span>
+        <span class="motor-model" id="motor-model">—</span>
+        <span class="motor-ram">
+          <span class="bar"><i id="motor-ram-fill" style="width:0%"></i></span>
+          <em id="motor-ram-txt">RAM —</em>
+        </span>
+      </button>
+
+      <!-- Cuadrícula 2×2 -->
+      <div class="quick-grid">
+        <button class="quick-card" data-go="chat">
+          <span class="qc-ic qc-blue ic" data-ic="chat"></span>
+          <strong data-i18n="quick.chat">Chat</strong><span data-i18n="quick.chat.sub">Conversá inteligente</span>
+        </button>
+        <button class="quick-card" id="quick-voice">
+          <span class="qc-ic qc-teal ic" data-ic="mic"></span>
+          <strong data-i18n="quick.voice">Voz</strong><span data-i18n="quick.voice.sub">Hablá conmigo</span>
+        </button>
+        <button class="quick-card" data-go="biblio">
+          <span class="qc-ic qc-violet ic" data-ic="grid"></span>
+          <strong data-i18n="quick.tools">Herramientas</strong><span data-i18n="quick.tools.sub">Apps y utilidades</span>
+        </button>
+        <button class="quick-card" data-go="memory">
+          <span class="qc-ic qc-pink ic" data-ic="memory"></span>
+          <strong data-i18n="quick.memory">Memoria</strong><span data-i18n="quick.memory.sub">Notas y tareas</span>
+        </button>
+      </div>
+
+      <!-- Uso de hoy: solo se muestra si hubo actividad -->
+      <div id="usage-block" class="hidden">
+        <div class="section-row">
+          <h3 data-i18n="home.usage">Uso de hoy</h3>
+          <span class="count-badge" data-i18n="home.usage.badge">contadores reales</span>
+        </div>
+        <div class="set-card usage-card" id="usage-rows"></div>
+      </div>
+
+      <!-- Estado del sistema en vivo -->
+      <div class="section-row">
+        <h3>Estado del sistema</h3>
+        <span class="live-badge"><i></i>en vivo</span>
+      </div>
+      <div class="set-card sys-card" id="sys-card">
+        <div class="sys-row">
+          <span class="sys-ic sy-blue ic" data-ic="cpu"></span>
+          <div class="sys-txt"><strong>CPU</strong><span id="sys-cpu">Leyendo el teléfono…</span></div>
+        </div>
+        <div class="sys-line"><span class="sys-lbl">RAM</span><div class="bar"><i id="bar-ram"></i></div><b id="val-ram">—</b></div>
+        <div class="sys-line"><span class="sys-lbl">Disco</span><div class="bar"><i id="bar-disk"></i></div><b id="val-disk">—</b></div>
+        <div class="sys-line"><span class="sys-lbl">Batería</span><div class="bar"><i id="bar-bat"></i></div><b id="val-bat">—</b></div>
+        <p class="sys-foot" id="sys-foot"></p>
+      </div>
+
+      <!-- Actividad reciente -->
+      <div class="section-row">
+        <h3>Actividad reciente</h3>
+        <button class="link-btn" id="recent-clear">Limpiar</button>
+      </div>
+      <div id="recent-list" class="list"></div>
+
+      <div class="tip-card">
+        <span class="ic tip-ic" data-ic="bulb"></span>
+        <div><strong>Consejo</strong><p id="tip-text"></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA CHAT ============ -->
+  <section id="screen-chat" class="screen">
+    <header class="chat-header">
+      <div class="kav-mini kav-big" data-avatar data-state="idle" id="chat-avatar"></div>
+      <div class="brand-txt">
+        <h1>Kiu</h1>
+        <p id="chat-status">Listo para empezar</p>
+      </div>
+      <button class="icon-btn" id="chat-conv-list" aria-label="Conversaciones" title="Tus conversaciones"></button>
+      <button class="icon-btn" id="chat-tools-toggle" aria-label="Herramientas" title="Panel de herramientas"></button>
+      <button class="icon-btn" id="chat-conv-toggle" aria-label="Modo conversación" title="Modo conversación (manos libres)"></button>
+      <button class="icon-btn" id="chat-voice-toggle" aria-label="Voz"></button>
+    </header>
+    <div id="tools-panel" class="tools-panel hidden"></div>
+    <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversación con Kiu"></div>
+    <div class="chat-dock">
+      <div id="chips-bar" class="chips-bar"></div>
+      <div id="photo-bar" class="photo-bar hidden">
+        <img id="photo-thumb" alt="Foto adjunta">
+        <div class="photo-txt"><strong>Foto lista</strong><span id="photo-hint">Escribí qué querés saber y enviá</span></div>
+        <button class="icon-btn" id="photo-remove" aria-label="Quitar foto"></button>
+      </div>
+      <div class="chat-inputbar">
+        <button class="round-btn" id="btn-attach" aria-label="Adjuntar"></button>
+        <input id="chat-input" type="text" placeholder="Escribe tu mensaje..." autocomplete="off">
+        <button class="send-btn" id="btn-mic" aria-label="Micrófono"></button>
+        <button class="send-btn accent" id="btn-send" aria-label="Enviar"></button>
+      </div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" class="hidden">
+    <button id="hang-chip" class="hang-chip hidden" aria-label="Colgar"><span class="ic" data-ic="x"></span> Colgar</button>
+    <div id="chat-browser" class="chat-browser hidden">
+      <div class="cb-head">
+        <input id="cb-url" type="url" placeholder="Buscar o escribir dirección…" autocomplete="off">
+        <button class="icon-btn" id="cb-go" aria-label="Ir"><span class="ic" data-ic="chevr"></span></button>
+        <button class="icon-btn" id="cb-out" aria-label="Abrir afuera"><span class="ic" data-ic="share"></span></button>
+        <button class="icon-btn" id="cb-close" aria-label="Cerrar"><span class="ic" data-ic="x"></span></button>
+      </div>
+      <iframe id="cb-frame" class="cb-frame" src="about:blank"></iframe>
+      <p class="cb-msg" id="cb-msg"></p>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA PROVEEDORES (API) ============ -->
+  <!-- ============ PANTALLA BIBLIOTECA ============ -->
+  <section id="screen-biblio" class="screen">
+    <header class="topbar">
+      <div class="brand-txt solo">
+        <h1>Biblioteca</h1>
+        <p>Herramientas y conexiones reales</p>
+      </div>
+    </header>
+    <div class="content">
+      <div class="search-wrap">
+        <span class="ic" data-ic="search"></span>
+        <input id="biblio-search" type="text" placeholder="Buscar en tu biblioteca..." autocomplete="off">
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-scroll" id="biblio-filters">
+          <button class="chip active" data-f="todas">Todas</button>
+          <button class="chip" data-f="cuentas">Cuentas</button>
+          <button class="chip" data-f="notas">Notas</button>
+          <button class="chip" data-f="tiempo">Tiempo</button>
+          <button class="chip" data-f="util">Utilidades</button>
+        </div>
+      </div>
+
+      <div id="tools-grid" class="tools-grid"></div>
+
+      <div class="section-row">
+        <h3>Conexiones</h3>
+        <span class="count-badge" id="cx-count">9 conexiones reales</span>
+      </div>
+      <div id="cx-list" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA MODELOS (descargas + motor interno + orquestador) ============ -->
+  <section id="screen-models" class="screen">
+    <header class="topbar">
+      <button class="icon-btn back-btn" data-go="settings" aria-label="Volver"><span class="ic" data-ic="chevl"></span></button>
+      <div class="brand-txt center">
+        <h1>Modelos</h1>
+        <p>Teléfono, nube y tu red</p>
+      </div>
+      <span class="topbar-spacer"></span>
+    </header>
+    <div class="content">
+      <!-- v2.10.1: arriba, CÓMO responde Kiu (modo + orquestador); abajo, DE DÓNDE salen los modelos (3 pestañas) -->
+      <div class="k2-sec"><h3>Cómo responde Kiu</h3></div>
+      <div class="seg" id="mode-seg">
+        <button class="seg-btn" data-mode="hybrid">Híbrido</button>
+        <button class="seg-btn" data-mode="local">Local</button>
+        <button class="seg-btn" data-mode="api">API</button>
+      </div>
+      <p class="set-hint" id="mode-hint"></p>
+      <!-- v2.0: orquestador compacto (mapa de roles) + ajuste fino plegable -->
+      <div class="k2-sec">
+        <h3>Orquestador · <span id="orch-mode-lbl">Auto decide</span></h3>
+        <button class="toggle" id="tg-orch" aria-label="Orquestador"></button>
+      </div>
+      <div class="k2-card" id="orch-rows"></div>
+      <button class="k2-adv hidden" id="orch-adv-btn"><span class="ic" data-ic="sliders"></span>Ajustar destinos y preferencias</button>
+
+      <!-- Ajuste fino del orquestador (segmentos originales, se abre tocando una fila o el botón) -->
+      <div id="orch-body" class="hidden" style="margin-top:10px">
+        <div class="set-card">
+          <p class="set-hint small" style="margin:2px 0 10px">Asigná qué modelo atiende cada tipo de tarea. En «Auto», Kiu usa primero tu servidor (si está conectado), luego el motor del teléfono con el modelo ya cargado, y al final las APIs. Si un modelo falla, prueba el siguiente.</p>
+          <div class="set-row col">
+            <div><strong>Charla y voz</strong><span>Saludos, dudas rápidas, recordatorios</span></div>
+            <div class="seg" id="orch-fast">
+              <button class="seg-btn" data-rv="auto">Auto</button>
+              <button class="seg-btn" data-rv="kiu">Teléfono</button>
+              <button class="seg-btn" data-rv="loc">Servidor</button>
+              <button class="seg-btn" data-rv="prov:gemini">Gemini</button>
+            </div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Cerebro (razonamiento y código)</strong><span>Explicaciones, análisis, programación</span></div>
+            <div class="seg" id="orch-brain">
+              <button class="seg-btn" data-rv="auto">Auto</button>
+              <button class="seg-btn" data-rv="kiu">Teléfono</button>
+              <button class="seg-btn" data-rv="loc">Servidor</button>
+              <button class="seg-btn" data-rv="prov:deepseek">DeepSeek</button>
+            </div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Fotos (visión)</strong><span>Entender imágenes que mandás al chat</span></div>
+            <div class="seg" id="orch-vision">
+              <button class="seg-btn" data-rv="auto">Auto</button>
+              <button class="seg-btn" data-rv="kiu">Teléfono</button>
+              <button class="seg-btn" data-rv="loc">Servidor</button>
+              <button class="seg-btn" data-rv="prov:gemini">Gemini</button>
+            </div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Modelo rápido preferido (teléfono)</strong><span>Se cambia solo si la tarea lo necesita</span></div>
+            <div class="voice-pick"><select id="orch-kiufast"></select></div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Modelo cerebro preferido (teléfono)</strong><span>Para razonar y código, si está descargado</span></div>
+            <div class="voice-pick"><select id="orch-kiubrain"></select></div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Visión por foto</strong><span>El motor del teléfono <b>no ve</b> las fotos: las manda a tu servidor o a una API. Este ajuste quedó sin efecto.</span></div>
+            <div class="voice-pick"><select id="orch-kiuvis"></select></div>
+          </div>
+          <p class="set-hint small" style="margin:2px 0 0">Con el motor interno solo hay un modelo en memoria: si el orquestador cambia de rol, lo cambia solo (tarda unos segundos la primera vez). <b>El motor del teléfono todavía no «ve» la foto</b>: contesta el texto que la acompaña y deja el modelo cargado; la foto se la manda a Servidor o API, que sí la ven. Por eso Kiu ya no cambia de modelo cuando mandás una imagen.</p>
+        </div>
+      </div>
+
+      <div class="mtabs" id="mtabs" role="tablist">
+        <button class="mtab on" role="tab" data-mt="tel">Teléfono <i id="mt-count-tel"></i></button>
+        <button class="mtab" role="tab" data-mt="nube">Nube <i id="mt-count-nube"></i></button>
+        <button class="mtab" role="tab" data-mt="red">Mi red</button>
+      </div>
+
+      <div class="mpane on" id="mpane-tel">
+        <!-- v2.0: héroe «Tu teléfono» — compatibilidad clara desde el arranque -->
+      <div class="k2-hero" id="dev-card">
+        <div class="k2-hero-top">
+          <span class="k2-tile tl-teal"><span class="ic" data-ic="cpu"></span></span>
+          <div class="k2-hero-tt">
+            <strong>Tu teléfono</strong>
+            <span id="dev-sub">Mirando el teléfono…</span>
+          </div>
+          <i class="k2-badge b-t" id="dev-badge">…</i>
+        </div>
+        <div class="k2-ramrow">
+          <div class="k2-mbar"><i id="dev-ram-fill" style="width:0%;background:var(--teal)"></i></div>
+          <span class="k2-ramlbl" id="dev-ram-lbl"></span>
+        </div>
+        <p class="k2-hero-hint" id="dev-hint"></p>
+        <button class="chip-btn" id="dev-reco" style="margin-top:10px">Recomendarme modelos para mi teléfono</button>
+      </div>
+        <!-- v2.0: Mis modelos — tarjetas grandes con estado real del motor -->
+      <div class="k2-sec">
+        <h3>Mis modelos</h3>
+        <span class="k2-count" id="mdl-count">0 en disco</span>
+      </div>
+      <p class="set-hint small" id="mdl-eng-sub" style="margin:0 2px 8px">Mirando el teléfono…</p>
+      <div id="mdl-mine" class="k2-list"></div>
+      <div class="loc-actions" style="margin-top:8px"><button class="chip-btn" id="mdl-import">Importar GGUF del teléfono</button></div>
+      <p class="set-hint small" id="mdl-imp-status"></p>
+
+      <div class="k2-sec">
+        <h3>Descargar modelos</h3>
+        <span class="k2-count">GGUF · privado</span>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-scroll" id="mdl-filters">
+          <button class="chip active" data-mf="compat">Compatibles</button>
+          <button class="chip" data-mf="texto">Texto</button>
+          <button class="chip" data-mf="vision">Visión</button>
+          <button class="chip" data-mf="todos">Todos</button>
+        </div>
+      </div>
+      <div id="mdl-list" class="k2-list"></div>
+      <p class="set-hint small" id="mdl-foot"></p>
+      <p class="set-hint small centered">Los «EN EL TELÉFONO» corren con el motor interno de Kiu (llama.cpp), sin internet y sin mandar nada afuera. Los «SERVIDOR» (visión y multimodal) son para tu PC u Ollama. También podés asignar un modelo local a «Fotos (visión)» en el Orquestador: contesta el texto de tu mensaje.</p>
+      </div>
+
+      <div class="mpane" id="mpane-nube">
+        <div class="k2-sec"><h3>Proveedores de IA</h3><span class="k2-count" id="api-count">OPCIONAL</span></div>
+        <p class="set-hint small" id="api-sub" style="margin:0 2px 8px">Tocá para conectar Gemini, Groq, OpenAI y más</p>
+        <div class="filter-bar">
+        <div class="filter-scroll" id="prov-filters">
+          <button class="chip active" data-f="todos">Todos</button>
+          <button class="chip" data-f="listos">Listos</button>
+          <button class="chip" data-f="gratis">Gratis</button>
+        </div>
+      </div>
+
+      <div id="prov-list"></div>
+
+      <p class="set-hint small centered">Si un proveedor falla, Kiu lo deja en pausa un rato y sigue con el próximo activo. Las claves van cifradas con el Keystore de Android y jamás salen del teléfono.</p>
+      </div>
+
+      <div class="mpane" id="mpane-red">
+        <div class="k2-sec"><h3>Servidor en tu red</h3><span class="k2-count">OPCIONAL</span></div>
+        <button class="set-card row-card hidden" id="row-local">
+        <span class="row-tile ti-teal ic" data-ic="brain"></span>
+        <div class="row-txt">
+          <strong>Ollama / LM Studio / llama-server</strong>
+          <span id="local-sub">Más potencia usando tu PC como motor</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevd"></span>
+      </button>
+        <div id="local-block">
+        <div class="set-card">
+          <div class="set-row">
+            <div><strong>Estado del servidor</strong><span id="local-sub2">Servidor en tu red o teléfono · privado</span></div>
+            <i class="status-dot" id="loc-dot"></i>
+          </div>
+          <p class="set-hint small" id="loc-status" style="margin:0 0 10px">Sin conectar · todo queda en tu red</p>
+          <label class="api-fields"><span>Dirección del servidor</span>
+            <input type="url" id="loc-url" placeholder="http://192.168.1.10:1234/v1" autocomplete="off">
+          </label>
+          <div class="loc-actions">
+            <button class="chip-btn" id="loc-pc">IP de mi PC</button>
+            <button class="chip-btn" id="loc-tel">Ollama en este teléfono</button>
+          </div>
+          <div class="loc-actions">
+            <button class="chip-btn" id="loc-connect">Conectar</button>
+          </div>
+          <p class="set-hint small" id="loc-err" style="color:#f87171"></p>
+          <div class="set-row col">
+            <div><strong>Modelo para charlar</strong><span>Se elige solo según el perfil de abajo</span></div>
+            <div class="voice-pick"><select id="loc-model"></select></div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Modelo de visión (fotos)</strong><span>Debe ser un modelo VL de tu servidor</span></div>
+            <div class="voice-pick"><select id="loc-vismodel"></select></div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Perfil del servidor</strong><span id="loc-prof-sub">Qwen rápido</span></div>
+            <div class="seg" id="loc-profiles">
+              <button class="seg-btn" data-prof="qwen">Qwen rápido</button>
+              <button class="seg-btn" data-prof="deep">Razonar</button>
+              <button class="seg-btn" data-prof="libre">Libre</button>
+            </div>
+          </div>
+          <div class="loc-actions">
+            <button class="chip-btn" id="loc-test">Probar perfil</button>
+            <button class="chip-btn" id="loc-vistest">Probar visión</button>
+            <button class="chip-btn" id="loc-help">Guía</button>
+          </div>
+          <div class="set-row col">
+            <div><strong>Largo de las respuestas</strong><span id="loc-ram">Datos reales en la app del teléfono</span></div>
+            <div class="seg" id="loc-detail">
+              <button class="seg-btn" data-tok="350">Cortas</button>
+              <button class="seg-btn active" data-tok="700">Medias</button>
+              <button class="seg-btn" data-tok="1200">Largas</button>
+            </div>
+          </div>
+          <div class="loc-actions">
+            <button class="chip-btn" id="loc-catalog">Ver catálogo de modelos</button>
+            <button class="chip-btn" id="loc-free">Liberar RAM</button>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- ============ PANTALLA MEMORIA ============ -->
+  <section id="screen-memory" class="screen">
+    <header class="topbar">
+      <div class="brand-txt solo">
+        <h1>Memoria</h1>
+        <p>Tus recuerdos, notas y preferencias</p>
+      </div>
+      <button class="icon-btn" id="mem-add" aria-label="Agregar"></button>
+    </header>
+    <div class="content">
+      <div class="mem-hero">
+        <div class="mem-hero-txt">
+          <h2>Memoria</h2>
+          <p>Todo lo que Kiu sabe de vos</p>
+        </div>
+        <span class="mem-hero-ic ic" data-ic="memory"></span>
+      </div>
+      <div class="mem-stats">
+        <div class="mem-stat"><strong id="st-rec">0</strong><span>Recuerdos</span></div>
+        <div class="mem-stat"><strong id="st-tar">0</strong><span>Tareas</span></div>
+        <div class="mem-stat"><strong id="st-not">0</strong><span>Notas</span></div>
+        <div class="mem-stat"><strong id="st-ala">0</strong><span>Alarmas</span></div>
+        <div class="mem-stat"><strong id="st-apr">0</strong><span>Aprendido</span></div>
+      </div>
+      <div id="rag-card"></div>
+      <div class="seg" id="mem-tabs">
+        <button class="seg-btn active" data-tab="recuerdos">Recuerdos</button>
+        <button class="seg-btn" data-tab="tareas">Tareas</button>
+        <button class="seg-btn" data-tab="notas">Notas</button>
+        <button class="seg-btn" data-tab="alarmas">Alarmas</button>
+        <button class="seg-btn" data-tab="prefs">Gustos</button>
+      </div>
+      <div id="mem-list" class="list"></div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA AJUSTES ============ -->
+  <section id="screen-settings" class="screen">
+    <header class="topbar">
+      <div class="brand-txt solo">
+        <h1>Ajustes</h1>
+        <p>Personalizá tu experiencia</p>
+      </div>
+    </header>
+    <div class="content">
+
+      <!-- Perfil -->
+      <button class="set-card profile-card" id="profile-card">
+        <div class="kav-profile" data-avatar data-state="idle" id="profile-avatar"></div>
+        <div class="profile-txt">
+          <strong id="profile-name">Tu nombre</strong>
+          <span id="profile-sub">Kiu · Agente personal</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <div class="section-row"><h3>General</h3></div>
+
+      <button class="set-card row-card" data-go="models">
+        <span class="row-tile ti-teal ic" data-ic="brain"></span>
+        <div class="row-txt">
+          <strong>Modelos y cerebro</strong>
+          <span id="brain-sub">Leyendo el teléfono…</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <button class="set-card row-card" id="row-voice">
+        <span class="row-tile ti-violet ic" data-ic="headset"></span>
+        <div class="row-txt">
+          <strong>Voz</strong>
+          <span>Voces y configuración</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevd"></span>
+      </button>
+
+      <div id="voice-block" class="hidden">
+        <div class="set-card">
+          <div class="set-row">
+            <div><strong>Saludo al entrar</strong><span id="greet-sub">Kiu te saluda por voz según la hora</span></div>
+            <button class="toggle" id="tg-greet" aria-label="Saludo al entrar"></button>
+          </div>
+          <div class="set-row">
+            <div><strong>Enlaces dentro del chat</strong><span>Las webs se abren en el navegador de Kiu, sin salir</span></div>
+            <button class="toggle" id="tg-links" aria-label="Enlaces dentro del chat"></button>
+          </div>
+          <div class="set-row">
+            <div><strong>Responder en voz alta</strong><span>Kiu lee sus respuestas</span></div>
+            <button class="toggle" id="tg-voice" aria-label="Voz"></button>
+          </div>
+          <div class="set-row">
+            <div><strong>Despertar por voz</strong><span>Decí «Kiu» y te escucha, incluso con la app cerrada</span></div>
+            <button class="toggle" id="tg-wake" aria-label="Despertar por voz"></button>
+          </div>
+          <p class="set-hint small" style="margin:-6px 0 4px">Si deja de escuchar con la app cerrada, permití el inicio automático de Kiu en Ajustes del teléfono.</p>
+          <div class="set-row">
+            <div><strong>Modo conversación</strong><span>Kiu sigue escuchando después de responder: manos libres</span></div>
+            <button class="toggle" id="tg-conv" aria-label="Modo conversación"></button>
+          </div>
+          <!-- v2.9.1: el agente. Apagado por defecto porque gasta una generación
+               extra por mensaje; la fila dice qué es para que la decisión sea
+               informada y no un misterio. -->
+          <div class="set-row">
+            <div><strong>Agente con herramientas</strong><span>Que el modelo elija la herramienta (alarma, agenda, documentos) en vez de acertar con los patrones de siempre. Si el modelo no está en memoria, lo carga solo</span></div>
+            <button class="toggle" id="tg-agent" aria-label="Agente con herramientas"></button>
+          </div>
+          <!-- v2.13.2: confirmación de acciones con efecto del agente -->
+          <div class="set-row">
+            <div><strong>Confirmar antes de actuar</strong><span>El agente pregunta «¿Lo hago?» antes de llamar, mandar un SMS, anotar o programar una alarma</span></div>
+            <button class="toggle" id="tg-agent-confirm" aria-label="Confirmar antes de actuar"></button>
+          </div>
+          <div class="set-row">
+            <div><strong data-i18n="set.thermal">Protección térmica</strong><span data-i18n="set.thermal.sub">Corta la generación del motor si el teléfono pasa de 46°</span></div>
+            <button class="toggle" id="tg-thermal" aria-label="Protección térmica"></button>
+          </div>
+          <!-- v2.14.6: el pie "(motor interno · modelo · tok/s)" al final de cada
+               respuesta era ruido. Apagado por defecto; se enciende acá. -->
+          <div class="set-row">
+            <div><strong>Detalles del motor en el chat</strong><span>Al final de cada respuesta, qué modelo respondió y a qué velocidad</span></div>
+            <button class="toggle" id="tg-detalles" aria-label="Detalles del motor en el chat"></button>
+          </div>
+          <button class="set-row as-btn" id="btn-vcmds">
+            <div><strong>Comandos de voz</strong><span>Mirá todo lo que podés pedirle hablando</span></div>
+            <span class="ic row-ic" data-ic="mic"></span>
+          </button>
+          <div class="set-row col">
+            <div><strong>Voz de Kiu</strong><span>Elegí la que mejor suene · las «de red» son más humanas</span></div>
+            <div class="voice-pick">
+              <select id="voice-select"></select>
+              <button class="chip-btn" id="btn-voice-test">Probar</button>
+            </div>
+          </div>
+          <div class="set-row col">
+            <div><strong>Tono de voz</strong><span id="pitch-label">Natural (1.00)</span></div>
+            <input type="range" id="pitch-slider" min="0.8" max="1.3" step="0.05" value="1">
+          </div>
+          <div class="set-row col">
+            <div><strong>Velocidad de habla</strong><span id="rate-label">Normal (1.0x)</span></div>
+            <input type="range" id="rate-slider" min="0.5" max="1.5" step="0.1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <button class="set-card row-card" id="row-persona">
+        <span class="row-tile ti-violet ic" data-ic="spark"></span>
+        <div class="row-txt">
+          <strong>Personalidad de Kiu</strong>
+          <span id="persona-sub">Normal · ajustá cómo te habla</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <button class="set-card row-card" id="row-appearance">
+        <span class="row-tile ti-pink ic" data-ic="palette"></span>
+        <div class="row-txt">
+          <strong>Apariencia</strong>
+          <span>Color de acento y tamaño de letra</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <button class="set-card row-card" id="row-skills">
+        <span class="row-tile ti-blue ic" data-ic="spark"></span>
+        <div class="row-txt">
+          <strong>Skills</strong>
+          <span id="skills-sub">Instalables: enseñale frases nuevas a Kiu</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <button class="set-card row-card" id="row-morning">
+        <span class="row-tile ti-pink ic" data-ic="alarm"></span>
+        <div class="row-txt">
+          <strong>Resumen matutino</strong>
+          <span id="morning-sub">Apagado · tu día en una notificación</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <button class="set-card row-card" id="row-backup">
+        <span class="row-tile ti-pink ic" data-ic="cloudup"></span>
+        <div class="row-txt">
+          <strong>Copias de seguridad</strong>
+          <span>Exportar y restaurar copia de datos</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <button class="set-card row-card" id="row-security">
+        <span class="row-tile ti-green ic" data-ic="shield"></span>
+        <div class="row-txt">
+          <strong>Seguridad</strong>
+          <span>Privacidad, permisos y borrado</span>
+        </div>
+        <span class="row-ic ic" data-ic="chevr"></span>
+      </button>
+
+      <div class="section-row"><h3>Respuestas</h3></div>
+      <div class="set-card gen-card">
+        <div class="set-row col">
+          <div><strong>Creatividad</strong><span id="gen-temp-lbl">Equilibrada (0,7)</span></div>
+          <input type="range" id="gen-temp" min="0" max="1.2" step="0.05" value="0.7">
+        </div>
+        <div class="set-row col">
+          <div><strong>Largo de las respuestas</strong><span>Los tres valores valen para todos tus proveedores</span></div>
+          <div class="seg" id="gen-len">
+            <button class="seg-btn" data-tok="350">Cortas</button>
+            <button class="seg-btn active" data-tok="700">Medias</button>
+            <button class="seg-btn" data-tok="1200">Largas</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-row"><h3>Diagnóstico</h3></div>
+      <button class="btn-ghost full" id="btn-diag" style="justify-content:center;margin:2px 0 14px"><span class="ic" data-ic="shield"></span> Revisar mi configuración</button>
+      <button class="btn-ghost full" id="btn-diag-voz" style="justify-content:center;margin:2px 0 14px"><span class="ic" data-ic="mic"></span> Diagnosticar voz</button>
+      <button class="btn-ghost full" id="btn-asist-voz" style="justify-content:center;margin:2px 0 14px"><span class="ic" data-ic="mic"></span> Asistente de voz (paso a paso)</button>
+      <div id="diag-voz-box"></div>
+
+      <div class="section-row"><h3>Actualizaciones</h3></div>
+      <button class="btn-ghost full" id="btn-estado" style="justify-content:center;margin:2px 0 8px"><span class="ic" data-ic="check"></span> Estado y diagnóstico</button>
+      <button class="btn-ghost full" id="btn-upd" style="justify-content:center;margin:2px 0 8px"><span class="ic" data-ic="cloudup"></span> Buscar versión nueva</button>
+      <div class="set-row">
+        <div><strong>Avisarme de versiones nuevas</strong><span>Consulta GitHub cada pocas horas y avisa con una notificación. Se puede apagar</span></div>
+        <button class="toggle" id="tg-upd" aria-label="Avisarme de versiones nuevas"></button>
+      </div>
+      <div class="set-row">
+        <div><strong>Poder interrumpir a Kiu</strong><span>Mientras habla, decí «Kiu» o «basta» y se calla. Si se corta su voz, apagalo</span></div>
+        <button class="toggle" id="tg-barge" aria-label="Poder interrumpir a Kiu"></button>
+      </div>
+
+      <div class="section-row" id="alarm-section"><h3>Alarmas</h3></div>
+      <div class="set-card" id="alarm-card">
+        <div class="set-row">
+          <div><strong>Alarmas exactas</strong><span id="exact-status">Suenan a la hora exacta aunque la app esté cerrada</span></div>
+          <button class="chip-btn" id="btn-exact">Permitir</button>
+        </div>
+        <div class="set-row">
+          <div><strong>Prueba de alarma</strong><span>Suena una alarma en 10 segundos</span></div>
+          <button class="chip-btn" id="btn-test-alarm">Probar</button>
+        </div>
+      </div>
+
+      <div class="about-block">
+        <!-- v2.3: bot nuevo también en el bloque Acerca de -->
+        <div class="kav-mini" data-avatar-mini id="about-avatar" role="img" aria-label="Kiu"></div>
+        <strong id="about-ver">Kiu</strong>
+        <span>Agente personal · Motor interno + orquestador multi-modelo + APIs</span>
+        <span class="dim">Motor local desde fuente · Wake word offline · WebView seguro (AssetLoader) · Claves en el Keystore · Streaming por push · Skills instalables · Resumen matutino · Bucle ReAct</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NAV INFERIOR FLOTANTE ============ -->
+  <nav class="bottomnav" id="bottomnav">
+    <button class="nav-btn active" data-go="home"><span class="ic" data-ic="home"></span><span data-i18n="nav.home">Inicio</span></button>
+    <button class="nav-btn" data-go="chat"><span class="ic" data-ic="chat"></span><span data-i18n="nav.chat">Chat</span></button>
+    <button class="nav-btn" data-go="models"><span class="ic" data-ic="brain"></span><span data-i18n="nav.models">Modelos</span></button>
+    <button class="nav-btn" data-go="memory"><span class="ic" data-ic="memory"></span><span data-i18n="nav.memory">Memoria</span></button>
+    <button class="nav-btn" data-go="settings"><span class="ic" data-ic="gear"></span><span data-i18n="nav.settings">Ajustes</span></button>
+  </nav>
+
+  <!-- Capas superpuestas -->
+  <div id="modal-root" class="modal-root hidden"></div>
+  <div id="flashlight" class="flashlight hidden">
+    <button id="flashlight-off" data-i18n="common.off">Apagar</button>
+  </div>
+  <div id="toast" class="toast hidden"></div>
+  <div id="voice-pulse" class="voice-pulse hidden" data-st="listen">
+    <div class="vp-pill"><span class="vp-dot"></span>En llamada con Kiu</div>
+    <div class="vp-stage"><div class="vp-glow"></div><div id="vp-avatar" data-avatar></div></div>
+    <p id="vp-text">Te escucho…</p>
+    <span id="vp-hint" class="vp-hint">Hablá ahora · Kiu corta solo al terminar</span>
+    <div class="vp-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div id="vp-card" class="vp-card empty"><div id="vp-lbl" class="vp-lbl"></div><div id="vp-say" class="vp-say"></div></div>
+    <div class="vp-spacer"></div>
+    <div class="vp-ctl">
+      <div class="vp-c"><button id="vp-write" class="vp-btn" aria-label="Escribir en vez de hablar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg></button><span>Escribir</span></div>
+      <div class="vp-c"><button id="vp-hang" class="vp-btn vp-red" aria-label="Colgar"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14c5-5 13-5 18 0l-2 3.5-3.5-1.5v-2.5c-2-.8-5-.8-7 0V16L5 17.5z"/></svg></button><span>Colgar</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/kiu-migrate.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/brain.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/react.js"></script>
+<script src="js/tools.js"></script>
+<!-- v2.9.1: el registro de herramientas que el MODELO elige. Va después de
+     react.js/tools.js porque los referencia por nombre al ejecutar, no al cargar. -->
+<script src="js/app/harness2-compose.js"></script>
+<script src="js/kiu-agente.js"></script>
+<script src="js/kiu-estados.js"></script>
+<script src="js/kiu-avatar.js"></script>
+<script src="js/kiu-avatar-boot.js"></script>
+<script src="js/local-embeddings.js"></script>
+<script src="js/rag-worker.js"></script>
+<script src="js/rag.js"></script>
+<script src="js/kiu-secure.js"></script>
+<script src="js/app/env.js"></script>
+<script src="js/app/memoria.js"></script>
+<script src="js/app/state.js"></script>
+<script src="js/app/catalog.js"></script>
+<script src="js/app/models.js"></script>
+<script src="js/app/motor.js"></script>
+<script src="js/app/diag-voz.js"></script>
+<script src="js/app/app-ui.js"></script>
+</body>
+</html>
