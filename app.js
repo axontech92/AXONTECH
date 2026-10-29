@@ -3071,6 +3071,11 @@ function _processSBQueue() {
     if (method === 'remove') {
       const docId = path.includes('/') ? path.split('/').pop() : null;
       if (!docId) {
+        // v145: una orden EN COLA jamás borra una tabla entera. Una cola puede traer
+        // envíos de hace meses (lo que pasó con v16.0); el "borrar todo" del admin
+        // llama a _sbRestDeleteAll directamente, sin pasar por aquí.
+        console.warn('[v145] borrado de colección entera desde la cola bloqueado:', collName);
+        return Promise.resolve();
         // v30 FIX: No docId means "delete ALL rows in this collection"
         // ANTES: return Promise.resolve() — era un no-op, así los "borrar todos los vales"
         // nunca se borraban de Supabase y volvían al actualizar.
@@ -3313,7 +3318,7 @@ function _processSBQueue() {
           Object.keys(value).forEach(k => _valesPrevSlimJson.delete(`${g}/${k}`));
         }
       } catch(e3) {}
-      try { if (typeof showToast === 'function') showToast('⚠️ Un cambio no pudo enviarse a la nube (' + path + '). Se reintentará al reabrir la app.'); } catch(e4) {}
+      try { if (typeof showToast === 'function') showToast('⚠️ El servidor rechazó un cambio (' + path + '). No se reintentará: revisa ese dato.'); } catch(e4) {}
       _sbProcessing = false;
       _currentWritePath = null;  // v31: clear in-flight path
       _persistQueue();
@@ -3560,6 +3565,25 @@ try {
   });
 } catch (e) {}
 
+// v145: purga de una sola vez. Los teléfonos que abrieron v16.0 tienen en la cola
+// los envíos viejos que esa versión sacó de axon_failed_writes, mezclados con los
+// buenos y sin forma de distinguirlos. Se vacía la cola salvo las órdenes de vale
+// (vale_eventos: son de hoy, llevan id y el servidor no las repite). Lo que se
+// pierda se recupera solo: los vales del gestor sin subir (synced:false) los vuelve
+// a encolar _ensurePendingValesEnqueued, y los cambios del admin sin confirmar los
+// reenvía la autorreparación de axon_vales_sucios.
+try {
+  if (!localStorage.getItem('axon_purga_v145')) {
+    const _antes = JSON.parse(localStorage.getItem('axon_pending_writes') || '[]') || [];
+    const _quedan = _antes.filter(it => it && it.path === 'vale_eventos');
+    localStorage.setItem('axon_pending_writes', JSON.stringify(_quedan));
+    const _fall = localStorage.getItem('axon_failed_writes');
+    if (_fall) { localStorage.setItem('axon_failed_writes_archivo', _fall); localStorage.removeItem('axon_failed_writes'); }
+    localStorage.setItem('axon_purga_v145', new Date().toISOString());
+    console.warn(`[v145] cola purgada: ${_antes.length - _quedan.length} envío(s) descartado(s), ${_quedan.length} orden(es) de vale conservada(s)`);
+  }
+} catch (e) {}
+
 // On startup: re-enqueue persisted writes
 try {
   const pending = JSON.parse(localStorage.getItem('axon_pending_writes') || '[]');
@@ -3573,20 +3597,12 @@ try {
   }
 } catch(e) {}
 
-// Al abrir, los envíos que el servidor rechazó (axon_failed_writes) vuelven a la
-// cola con los intentos a cero: antes nada los leía. Si siguen siendo rechazados,
-// vuelven a la lista y se avisa de nuevo (ver el catch de _processSBQueue).
-try {
-  const _fallidos = JSON.parse(localStorage.getItem('axon_failed_writes') || '[]');
-  if (Array.isArray(_fallidos) && _fallidos.length) {
-    _fallidos.forEach(f => { if (f && f.path) _sbWriteQueue.push({ path: f.path, value: f.value, method: f.method || 'update', retries: 0 }); });
-    // Se guarda la cola ya con ellos ANTES de vaciar la lista (sin pasar por
-    // _persistQueue, que aún no puede tocar el indicador de sync en este punto).
-    localStorage.setItem('axon_pending_writes', JSON.stringify(_sbWriteQueue.map(({path, value, method, retries}) => ({path, value, method, retries}))));
-    localStorage.removeItem('axon_failed_writes');
-    setTimeout(_processSBQueue, 2500);
-  }
-} catch(e) {}
+// v145 · ERROR GRAVE CORREGIDO: v16.0 reenviaba al abrir la app todo lo que había
+// en axon_failed_writes. Esa lista guarda hasta 100 envíos rechazados de MESES
+// atrás (subidas de vales viejos, borrados, catálogo, config…), y al reenviarlos
+// resucitaron vales ya borrados y se pisaron datos actuales. Un envío rechazado
+// NO se vuelve a mandar nunca de forma automática: se archiva y punto.
+// (La purga de una sola vez de la cola contaminada está más arriba, antes de cargarla.)
 
 // ── Sync indicator (online/offline/pending) ──
 let _onlineStatus = navigator.onLine;
