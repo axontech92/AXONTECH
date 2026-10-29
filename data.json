@@ -1373,7 +1373,7 @@
       "name": "Probador/ tester  digital de baterías",
       "catId": 50,
       "photo": "photos/img_1781365019871.webp",
-      "stock": 5,
+      "stock": 4,
       "imagen": "photos/img_1781365019871.webp",
       "nombre": "Probador/ tester  digital de baterías",
       "precio": "$20",
@@ -1633,7 +1633,7 @@
       "name": "Cargador inteligente VEVOR de 6,12 y24V 35A",
       "catId": 20,
       "photo": "photos/p-1786160284390-28622650.webp",
-      "stock": 32,
+      "stock": 31,
       "imagen": "photos/p-1786160284390-28622650.webp",
       "nombre": "Cargador inteligente VEVOR de 6,12 y24V 35A",
       "precio": "$125",
@@ -2100,7 +2100,7 @@
       "name": "Cargador VEVOR 6v, 12v y 24v,  30A",
       "catId": 20,
       "photo": "photos/p-1787375387767-495c7dd5.webp",
-      "stock": 17,
+      "stock": 15,
       "imagen": "photos/p-1787375387767-495c7dd5.webp",
       "nombre": "Cargador VEVOR 6v, 12v y 24v,  30A",
       "precio": "$115",
@@ -2237,7 +2237,7 @@
       "name": "Pesa / báscula digital inteligente",
       "catId": 130,
       "photo": "photos/p-1788152657796-9215b5a4.webp",
-      "stock": 9,
+      "stock": 8,
       "imagen": "photos/p-1788152657796-9215b5a4.webp",
       "nombre": "Pesa / báscula digital inteligente",
       "precio": "25 USD",
@@ -2466,7 +2466,7 @@
       "name": "Base para paneles",
       "catId": 20,
       "photo": "photos/p-1790958942707-a5598934.webp",
-      "stock": 24,
+      "stock": 23,
       "imagen": "photos/p-1790958942707-a5598934.webp",
       "nombre": "Base para paneles",
       "precio": "65",
@@ -2502,7 +2502,7 @@
       "name": "Binoculares Vision Nocturna",
       "catId": 90,
       "photo": "photos/p-1790963079882-0eb05a5d.webp",
-      "stock": 10,
+      "stock": 8,
       "imagen": "photos/p-1790963079882-0eb05a5d.webp",
       "nombre": "Binoculares Vision Nocturna",
       "precio": "55",
@@ -2593,5 +2593,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-27T15:46:47.560Z"
+  "timestamp": "2026-10-29T15:34:18.300Z"
 }
