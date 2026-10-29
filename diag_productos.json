@@ -1,0 +1,870 @@
+[
+{
+"id": 1777923552923,
+"updated_at": "2026-10-29T06:36:35.064078+00:00",
+"stock": "0",
+"precio": "$80 USD",
+"name": "CARGADOR INTELIGENTE 20A"
+},
+{
+"id": 1777924118004,
+"updated_at": "2026-10-29T06:36:35.064476+00:00",
+"stock": "11",
+"precio": "$180",
+"name": "Inversor Tataliken de 24V 4000W"
+},
+{
+"id": 1777924173211,
+"updated_at": "2026-10-29T06:36:35.064615+00:00",
+"stock": "0",
+"precio": "$130 USD",
+"name": "ROUTER WIFI 6"
+},
+{
+"id": 1777924248270,
+"updated_at": "2026-10-29T06:36:35.064772+00:00",
+"stock": "0",
+"precio": "$80 USD",
+"name": "ENRUTADOR WIFI WAVLINK AC1200"
+},
+{
+"id": 1777924315386,
+"updated_at": "2026-10-29T06:36:35.064861+00:00",
+"stock": "0",
+"precio": "$25 USD",
+"name": "REPETIDOR WIFI 5"
+},
+{
+"id": 1778102214012,
+"updated_at": "2026-10-29T06:36:35.064931+00:00",
+"stock": "0",
+"precio": "$30",
+"name": "Switch dE 8 puertos"
+},
+{
+"id": 1778102507659,
+"updated_at": "2026-10-29T06:36:35.048036+00:00",
+"stock": "0",
+"precio": "$25 USD",
+"name": "PESA / BÁSCULA INTELIGENTE DIGITAL."
+},
+{
+"id": 1778102582909,
+"updated_at": "2026-10-29T06:36:35.048036+00:00",
+"stock": "10",
+"precio": "$75",
+"name": "Antorcha para soldadura TIG:"
+},
+{
+"id": 1778103783319,
+"updated_at": "2026-10-29T06:36:35.067996+00:00",
+"stock": "11",
+"precio": "$85",
+"name": "Bateria LUBRIM de 75A"
+},
+{
+"id": 1778103856933,
+"updated_at": "2026-10-29T06:36:35.068101+00:00",
+"stock": "0",
+"precio": "$25",
+"name": "Pistola de masaje recargable"
+},
+{
+"id": 1778104115783,
+"updated_at": "2026-10-29T06:36:35.068193+00:00",
+"stock": "0",
+"precio": "$270 USD",
+"name": "BATERÍA MUST TIPO LIFEPO4"
+},
+{
+"id": 1778104191957,
+"updated_at": "2026-10-29T06:36:35.06827+00:00",
+"stock": "0",
+"precio": "$65 USD",
+"name": "CARGADOR INTELIGENTE DE 15 AMPERES:"
+},
+{
+"id": 1778104287395,
+"updated_at": "2026-10-29T06:53:18.330899+00:00",
+"stock": "3",
+"precio": "$130",
+"name": "Router KUWIFI de linea de 1.150MBPS"
+},
+{
+"id": 1778104423316,
+"updated_at": "2026-10-29T06:36:35.080009+00:00",
+"stock": "0",
+"precio": "$50 USD",
+"name": "CARGADOR 10 AMPERES"
+},
+{
+"id": 1778104512761,
+"updated_at": "2026-10-29T06:36:35.080169+00:00",
+"stock": "0",
+"precio": "$260",
+"name": "Controlador solar PowMr MM100 PRO de 100A"
+},
+{
+"id": 1778104599386,
+"updated_at": "2026-10-29T06:36:35.080253+00:00",
+"stock": "0",
+"precio": "$550 USD",
+"name": "INVERSOR SOLAR HIBRIDO INTELIGENTE MPPT DE 3.6KW"
+},
+{
+"id": 1778104662477,
+"updated_at": "2026-10-29T06:36:35.08041+00:00",
+"stock": "0",
+"precio": "$900 USD",
+"name": "INVERSOR DE ONDA SINUSOIDAL PURA FUERA DE LA RED"
+},
+{
+"id": 1778104735789,
+"updated_at": "2026-10-29T06:36:35.080484+00:00",
+"stock": "0",
+"precio": "$130 USD",
+"name": "ESTE ROUTER KUWFI OFRECE UNA VELOCIDAD DE TRANSMISIÓN WIFI DE 150 MBPS"
+},
+{
+"id": 1778104850733,
+"updated_at": "2026-10-29T06:36:35.080701+00:00",
+"stock": "0",
+"precio": "$70 USD",
+"name": "✅️CONTROLADOR DE CARGA SOLAR MPPT - 100A"
+},
+{
+"id": 1778104924836,
+"updated_at": "2026-10-29T06:36:35.080816+00:00",
+"stock": "22",
+"precio": "$700 USD",
+"name": "ESTACION DE CARGA PORTÁTIL"
+},
+{
+"id": 1778104985977,
+"updated_at": "2026-10-29T06:36:35.080954+00:00",
+"stock": "0",
+"precio": "$695 USD",
+"name": "BLUETTI AC 180P"
+},
+{
+"id": 1778213413973,
+"updated_at": "2026-10-29T06:36:35.081034+00:00",
+"stock": "5",
+"precio": "$150",
+"name": "Forros de asientos de lujo para autos"
+},
+{
+"id": 1778336613589,
+"updated_at": "2026-10-29T06:36:35.081153+00:00",
+"stock": "0",
+"precio": "$35 USD",
+"name": "PISTOLA DE MASAJE PROFESIONAL"
+},
+{
+"id": 1778336689684,
+"updated_at": "2026-10-29T06:36:35.081207+00:00",
+"stock": "0",
+"precio": "$20 USD",
+"name": "SWITCH DE 5 PUERTOS"
+},
+{
+"id": 1778336789459,
+"updated_at": "2026-10-29T06:36:35.081232+00:00",
+"stock": "0",
+"precio": "$80 USD",
+"name": "AC1200 WIFI ROUTER"
+},
+{
+"id": 1778336859697,
+"updated_at": "2026-10-29T06:36:35.081325+00:00",
+"stock": "0",
+"precio": "$20",
+"name": "Toldo para sombra"
+},
+{
+"id": 1778383966832,
+"updated_at": "2026-10-29T06:36:35.081436+00:00",
+"stock": "0",
+"precio": "$170 USD",
+"name": "SISTEMA DE ALARMA"
+},
+{
+"id": 1778384078432,
+"updated_at": "2026-10-29T06:36:35.081505+00:00",
+"stock": "0",
+"precio": "$25 USD",
+"name": "CÁMARAS DE SEGURIDAD (V380 PRO )"
+},
+{
+"id": 1778384158283,
+"updated_at": "2026-10-29T06:36:35.081546+00:00",
+"stock": "5",
+"precio": "$60",
+"name": "Cerradura inteligente"
+},
+{
+"id": 1778384314795,
+"updated_at": "2026-10-29T06:36:35.081575+00:00",
+"stock": "0",
+"precio": "$230",
+"name": "KIT de 4 camaras Zosi (sin disco duro)"
+},
+{
+"id": 1778384428890,
+"updated_at": "2026-10-29T06:36:35.081639+00:00",
+"stock": "0",
+"precio": "$15 USD",
+"name": "PORTACELULARES"
+},
+{
+"id": 1778384507302,
+"updated_at": "2026-10-29T06:36:35.081741+00:00",
+"stock": "16",
+"precio": "$30",
+"name": "Linterna de cabeza superpotente"
+},
+{
+"id": 1778384646214,
+"updated_at": "2026-10-29T06:36:35.081802+00:00",
+"stock": "0",
+"precio": "$20",
+"name": "Adaptador poe UBIQUITI de 0.3A"
+},
+{
+"id": 1778384769262,
+"updated_at": "2026-10-29T06:36:35.081871+00:00",
+"stock": "0",
+"precio": "$30",
+"name": "Ventilador para carro de 3 cabezales"
+},
+{
+"id": 1778384840618,
+"updated_at": "2026-10-29T06:36:35.0819+00:00",
+"stock": "8",
+"precio": "$25 USD",
+"name": "Timbre inteligente"
+},
+{
+"id": 1778547214210,
+"updated_at": "2026-10-29T06:36:35.08194+00:00",
+"stock": "0",
+"precio": "$70 USD",
+"name": "GAMESIR X5 LITE"
+},
+{
+"id": 1778636088295,
+"updated_at": "2026-10-29T06:36:35.082066+00:00",
+"stock": "0",
+"precio": "$280 USD",
+"name": "KIT DE 4 CÁMARAS ZOSI ( CON SU DISCO DURO )"
+},
+{
+"id": 1778820912552,
+"updated_at": "2026-10-29T06:36:35.082196+00:00",
+"stock": "0",
+"precio": "$100 USD",
+"name": "CASA DE CAMPAÑA LIGERA"
+},
+{
+"id": 1778820983383,
+"updated_at": "2026-10-29T06:36:35.082232+00:00",
+"stock": "0",
+"precio": "$35 USD",
+"name": "LINTERNA MARCA REGISTRADA \"HECLOUD\""
+},
+{
+"id": 1778907260915,
+"updated_at": "2026-10-29T06:36:35.082302+00:00",
+"stock": "5",
+"precio": "$125",
+"name": "Calentador electrico de 220V"
+},
+{
+"id": 1779205929131,
+"updated_at": "2026-10-29T06:36:35.082396+00:00",
+"stock": "0",
+"precio": "$90 USD",
+"name": "CARGADORES INTELIGENTES DE 25A"
+},
+{
+"id": 1779208523952,
+"updated_at": "2026-10-29T06:36:35.082433+00:00",
+"stock": "0",
+"precio": "$180 USD",
+"name": "CONTROLADOR SOLAR DE 60 AMP POWMR M60 ULTRA"
+},
+{
+"id": 1779562612951,
+"updated_at": "2026-10-29T06:36:35.082511+00:00",
+"stock": "0",
+"precio": "$220 USD",
+"name": "CONTROLADOR SOLAR POWMR M100 PRO de 80A"
+},
+{
+"id": 1780344659047,
+"updated_at": "2026-10-29T06:53:18.331811+00:00",
+"stock": "6",
+"precio": "$45",
+"name": "ZOSI - Camara de seguridad CCTV"
+},
+{
+"id": 1780510681519,
+"updated_at": "2026-10-29T06:36:35.090215+00:00",
+"stock": "0",
+"precio": "$110 USD",
+"name": "ROUTER TENDA RX2 PRO - WIFI 6 DUAL - BAND GIGABIT"
+},
+{
+"id": 1780542909435,
+"updated_at": "2026-10-29T06:36:35.090303+00:00",
+"stock": "5",
+"precio": "$420",
+"name": "Sistema de seguridad ZOSI de 8 camaras con disco duro de 1TB"
+},
+{
+"id": 1780543090267,
+"updated_at": "2026-10-29T06:36:35.090454+00:00",
+"stock": "0",
+"precio": "$10",
+"name": "AUDÍFONOS ERGONÓMICOS"
+},
+{
+"id": 1780873638627,
+"updated_at": "2026-10-29T06:36:35.090487+00:00",
+"stock": "0",
+"precio": "$110 USD",
+"name": "ROUTER FENVI AX3000 Wi-Fi 6"
+},
+{
+"id": 1780873821409,
+"updated_at": "2026-10-29T06:36:35.090522+00:00",
+"stock": "0",
+"precio": "$80 USD",
+"name": "FENVI AC1200"
+},
+{
+"id": 1780887557334,
+"updated_at": "2026-10-29T06:53:18.33263+00:00",
+"stock": "3",
+"precio": "$10",
+"name": "Gorro de buseo"
+},
+{
+"id": 1780887747583,
+"updated_at": "2026-10-29T06:36:35.093818+00:00",
+"stock": "0",
+"precio": "$20 USD",
+"name": "Altavoz Bluetooth Portátil RGB"
+},
+{
+"id": 1780887971522,
+"updated_at": "2026-10-29T06:36:35.093971+00:00",
+"stock": "0",
+"precio": "$40 USD",
+"name": "BEAT BOOM F10! 🎶🔥"
+},
+{
+"id": 1781111210796,
+"updated_at": "2026-10-29T06:36:35.094118+00:00",
+"stock": "0",
+"precio": "$100 USD",
+"name": "CARGADOR INTELIGENTE 30A"
+},
+{
+"id": 1781364821851,
+"updated_at": "2026-10-29T06:36:35.048036+00:00",
+"stock": "0",
+"precio": "$170 USD",
+"name": "INVERSOR 12V"
+},
+{
+"id": 1781365019871,
+"updated_at": "2026-10-29T06:36:35.094827+00:00",
+"stock": "15",
+"precio": "$20",
+"name": "Probador/ tester  digital de baterías"
+},
+{
+"id": 1781365135486,
+"updated_at": "2026-10-29T06:36:35.094919+00:00",
+"stock": "11",
+"precio": "$35",
+"name": "Ventilador de techo"
+},
+{
+"id": 1781377297283,
+"updated_at": "2026-10-29T06:36:35.095064+00:00",
+"stock": "18",
+"precio": "$25",
+"name": "Creatina Monohidratada Luckycare® (5000 mg)"
+},
+{
+"id": 1784726857748,
+"updated_at": "2026-10-29T06:36:35.095145+00:00",
+"stock": "32",
+"precio": "$30",
+"name": "Repetidor Wi-Fi TP-Link RE205 AC750 Reacondicionado"
+},
+{
+"id": 1784727083369,
+"updated_at": "2026-10-29T06:36:35.048036+00:00",
+"stock": "0",
+"precio": "140 USD",
+"name": "NanoStation AC loco SIN POE"
+},
+{
+"id": 1785076318779,
+"updated_at": "2026-10-29T06:36:35.096443+00:00",
+"stock": "0",
+"precio": "$145",
+"name": "Cargador inteligente de 12v(35A) y 24v(15A) configurable"
+},
+{
+"id": 1785077900654,
+"updated_at": "2026-10-29T06:36:35.096488+00:00",
+"stock": "21",
+"precio": "$130",
+"name": "Router Tenda AX12 pro AX3000"
+},
+{
+"id": 1785077980600,
+"updated_at": "2026-10-29T06:36:35.096563+00:00",
+"stock": "0",
+"precio": "$70",
+"name": "Router Wavlink AC1200 pequeño"
+},
+{
+"id": 1785078905092,
+"updated_at": "2026-10-29T06:36:35.096672+00:00",
+"stock": "4",
+"precio": "$50",
+"name": "Audifonos Gaming NUBWO"
+},
+{
+"id": 1785078992522,
+"updated_at": "2026-10-29T06:36:35.096704+00:00",
+"stock": "7",
+"precio": "$150",
+"name": "Router ASUS AX1800"
+},
+{
+"id": 1785079048458,
+"updated_at": "2026-10-29T06:36:35.048036+00:00",
+"stock": "0",
+"precio": "150",
+"name": "Router TP link ax3000"
+},
+{
+"id": 1785079145272,
+"updated_at": "2026-10-29T06:36:35.096832+00:00",
+"stock": "16",
+"precio": "$80",
+"name": "Controlador 100amp"
+},
+{
+"id": 1785079217591,
+"updated_at": "2026-10-29T06:36:35.09693+00:00",
+"stock": "0",
+"precio": "90",
+"name": "Controlador 150amp"
+},
+{
+"id": 1785079428055,
+"updated_at": "2026-10-29T06:36:35.097112+00:00",
+"stock": "0",
+"precio": "$70",
+"name": "Transfer 3 polos 220v"
+},
+{
+"id": 1785079508918,
+"updated_at": "2026-10-29T06:36:35.097156+00:00",
+"stock": "0",
+"precio": "$65",
+"name": "Transfer 2 polos 110v"
+},
+{
+"id": 1785079567810,
+"updated_at": "2026-10-29T06:36:35.097246+00:00",
+"stock": "0",
+"precio": "$100",
+"name": "Camara de Panel"
+},
+{
+"id": 1785079709511,
+"updated_at": "2026-10-29T06:36:35.09735+00:00",
+"stock": "2",
+"precio": "$130",
+"name": "Mikrotik Router Board 750gr"
+},
+{
+"id": 1786160284390,
+"updated_at": "2026-10-29T06:36:35.097386+00:00",
+"stock": "6",
+"precio": "$145",
+"name": "Cargador inteligente VEVOR de 6,12 y24V 35A"
+},
+{
+"id": 1786160676965,
+"updated_at": "2026-10-29T06:36:35.097459+00:00",
+"stock": "24",
+"precio": "$20",
+"name": "Hamaca con mosquitero"
+},
+{
+"id": 1786161303797,
+"updated_at": "2026-10-29T06:36:35.097492+00:00",
+"stock": "18",
+"precio": "$40",
+"name": "Compresor/Inflador de neumáticos"
+},
+{
+"id": 1786207539390,
+"updated_at": "2026-10-29T06:36:35.097532+00:00",
+"stock": "0",
+"precio": "$80",
+"name": "Tplink Archer AX1450 Doble Banda"
+},
+{
+"id": 1786214838717,
+"updated_at": "2026-10-29T06:36:35.097579+00:00",
+"stock": "4",
+"precio": "$65",
+"name": "Cargador COREBOX 12v 15A"
+},
+{
+"id": 1786509014605,
+"updated_at": "2026-10-29T06:36:35.097691+00:00",
+"stock": "3",
+"precio": "$180",
+"name": "Inversor Tataliken de 12V 4000W"
+},
+{
+"id": 1786509303890,
+"updated_at": "2026-10-29T06:36:35.09773+00:00",
+"stock": "5",
+"precio": "$250",
+"name": "Ubiquiti Unifi AC Mesh"
+},
+{
+"id": 1786509419466,
+"updated_at": "2026-10-29T06:36:35.09777+00:00",
+"stock": "2",
+"precio": "$260",
+"name": "Mikrotik hap ax3"
+},
+{
+"id": 1786509569058,
+"updated_at": "2026-10-29T06:36:35.097868+00:00",
+"stock": "17",
+"precio": "$160",
+"name": "Nanostation loco m5"
+},
+{
+"id": 1786509644554,
+"updated_at": "2026-10-29T06:36:35.097946+00:00",
+"stock": "0",
+"precio": "$240",
+"name": "Mikrotik lhg 5ax"
+},
+{
+"id": 1786509734474,
+"updated_at": "2026-10-29T06:36:35.098072+00:00",
+"stock": "5",
+"precio": "$220",
+"name": "Mikrotik SXT SA 5 ac"
+},
+{
+"id": 1786509790425,
+"updated_at": "2026-10-29T06:36:35.098156+00:00",
+"stock": "9",
+"precio": "$230",
+"name": "Nanostation m2"
+},
+{
+"id": 1786510034029,
+"updated_at": "2026-10-29T06:36:35.098198+00:00",
+"stock": "18",
+"precio": "$150",
+"name": "Mikrotik SXTsq 5 lite"
+},
+{
+"id": 1786510211408,
+"updated_at": "2026-10-29T06:36:35.098239+00:00",
+"stock": "0",
+"precio": "$230",
+"name": "Nanostation m5"
+},
+{
+"id": 1786594651216,
+"updated_at": "2026-10-29T06:36:35.098279+00:00",
+"stock": "10",
+"precio": "$20",
+"name": "Breker digital ajustable"
+},
+{
+"id": 1786596117205,
+"updated_at": "2026-10-29T06:36:35.098354+00:00",
+"stock": "3",
+"precio": "$260",
+"name": "Controlador solar de 120A Y&H"
+},
+{
+"id": 1786816725748,
+"updated_at": "2026-10-24T02:44:30.926817+00:00",
+"stock": "0",
+"precio": "$4",
+"name": "Panel de Césped Artificial 25cm x 25cm"
+},
+{
+"id": 1786858003270,
+"updated_at": "2026-09-14T13:08:28.794772+00:00",
+"stock": "0",
+"precio": "$120",
+"name": "Router Tp link archer ax21 AX1800"
+},
+{
+"id": 1786858233037,
+"updated_at": "2026-10-05T15:38:42.336476+00:00",
+"stock": "0",
+"precio": "$150",
+"name": "Nanostation m2 loco"
+},
+{
+"id": 1786858727482,
+"updated_at": "2026-09-14T13:08:31.079861+00:00",
+"stock": "0",
+"precio": "380",
+"name": "Mikrotik mANTBox 15s"
+},
+{
+"id": 1786893425174,
+"updated_at": "2026-10-24T02:43:00.747523+00:00",
+"stock": "0",
+"precio": "$25",
+"name": "Camara de vigilancia IP inalambrica"
+},
+{
+"id": 1786953872887,
+"updated_at": "2026-09-02T16:54:31.142099+00:00",
+"stock": "0",
+"precio": "$275",
+"name": "Maquina de soldar YESWELDER FLUX-140 FLEX (incluye accesorios)"
+},
+{
+"id": 1787089756274,
+"updated_at": "2026-10-26T17:55:52.540668+00:00",
+"stock": "23",
+"precio": "$90",
+"name": "Controlador solar mppt de 48/60/72 V y 1200 W"
+},
+{
+"id": 1787114047916,
+"updated_at": "2026-10-24T04:20:31.132514+00:00",
+"stock": "2",
+"precio": "$275",
+"name": "Planta de soldar Bielmeier FLUXMAX 140 (3 en 1)"
+},
+{
+"id": 1787114204179,
+"updated_at": "2026-10-12T16:10:43.008068+00:00",
+"stock": "0",
+"precio": "$70",
+"name": "Router TP-Link Archer C54 Reacondicionado"
+},
+{
+"id": 1787265463792,
+"updated_at": "2026-10-24T02:40:38.051783+00:00",
+"stock": "0",
+"precio": "$110",
+"name": "Mikrotik SXT sq lite 2"
+},
+{
+"id": 1787349543585,
+"updated_at": "2026-10-24T02:40:43.86585+00:00",
+"stock": "0",
+"precio": "280 cup",
+"name": "Cable de red categoría 6"
+},
+{
+"id": 1787375387767,
+"updated_at": "2026-10-28T20:05:41.25157+00:00",
+"stock": "15",
+"precio": "$115",
+"name": "Cargador VEVOR 6v, 12v y 24v,  30A"
+},
+{
+"id": 1787375561622,
+"updated_at": "2026-09-14T13:08:42.787767+00:00",
+"stock": "0",
+"precio": "$150",
+"name": "Tp Link Archer ax55, ax3000"
+},
+{
+"id": 1787930017841,
+"updated_at": "2026-09-21T23:27:10.180034+00:00",
+"stock": "0",
+"precio": "$140",
+"name": "Ubiquiti Litebeam m5"
+},
+{
+"id": 1787952316385,
+"updated_at": "2026-10-24T17:54:47.648399+00:00",
+"stock": "0",
+"precio": "$38",
+"name": "Toldo malla para sombra marrón 2×7m"
+},
+{
+"id": 1787962342861,
+"updated_at": "2026-09-08T00:18:37.609211+00:00",
+"stock": "0",
+"precio": "$38",
+"name": "Toldo malla para sombra verde obscuro 2x7m"
+},
+{
+"id": 1788015580929,
+"updated_at": "2026-10-02T19:47:58.764515+00:00",
+"stock": "0",
+"precio": "140 USD",
+"name": "MikroTik hEX S (2025) – E60iUGS"
+},
+{
+"id": 1788025891931,
+"updated_at": "2026-09-22T20:42:29.940274+00:00",
+"stock": "0",
+"precio": "180 USD",
+"name": "Sistema de Alarma"
+},
+{
+"id": 1788124513018,
+"updated_at": "2026-09-29T16:54:13.94887+00:00",
+"stock": "0",
+"precio": "$160",
+"name": "mikrotik sxt sq 5ax"
+},
+{
+"id": 1788152657796,
+"updated_at": "2026-10-27T18:35:39.77391+00:00",
+"stock": "8",
+"precio": "25 USD",
+"name": "Pesa / báscula digital inteligente"
+},
+{
+"id": 1788155221143,
+"updated_at": "2026-09-24T16:43:26.852408+00:00",
+"stock": "19",
+"precio": "$28",
+"name": "Conectores MC4 en  \"Y\" para paneles solares"
+},
+{
+"id": 1788155775988,
+"updated_at": "2026-10-02T14:28:32.855838+00:00",
+"stock": "0",
+"precio": "$13",
+"name": "Conectores MC4 (10 pares)"
+},
+{
+"id": 1788278326719,
+"updated_at": "2026-10-01T13:13:08.587066+00:00",
+"stock": "0",
+"precio": "140 USD",
+"name": "NanoStation 5AC Loco"
+},
+{
+"id": 1788329740120,
+"updated_at": "2026-09-15T21:35:31.572519+00:00",
+"stock": "0",
+"precio": "$110",
+"name": "Router Tp-link Archer A6"
+},
+{
+"id": 1788560867958,
+"updated_at": "2026-10-02T18:28:53.326726+00:00",
+"stock": "0",
+"precio": "$200",
+"name": "📡 TP-Link Archer BE230"
+},
+{
+"id": 1788809267605,
+"updated_at": "2026-10-24T04:21:49.919882+00:00",
+"stock": "7",
+"precio": "75 usd",
+"name": "Soundcore Select 3"
+},
+{
+"id": 1789945684800,
+"updated_at": "2026-10-05T15:38:42.647559+00:00",
+"stock": "0",
+"precio": "110",
+"name": "Hex Poe Lite(RB750gr2)"
+},
+{
+"id": 1789945881104,
+"updated_at": "2026-10-03T15:58:12.692493+00:00",
+"stock": "0",
+"precio": "320",
+"name": "Mikrotik Cheteau pro ax(H53UiG-5HaxQ2HaxQ"
+},
+{
+"id": 1790083590722,
+"updated_at": "2026-09-23T22:07:42.935778+00:00",
+"stock": "0",
+"precio": "180",
+"name": "Litebeam 5ac gen 2"
+},
+{
+"id": 1790529394586,
+"updated_at": "2026-10-24T02:40:52.980175+00:00",
+"stock": "0",
+"precio": "200 cup",
+"name": "Puntas de cable de red"
+},
+{
+"id": 1790612424343,
+"updated_at": "2026-09-28T18:34:30.513048+00:00",
+"stock": "0",
+"precio": "120",
+"name": "5 ac loco version US"
+},
+{
+"id": 1790637721439,
+"updated_at": "2026-09-28T23:24:17.148014+00:00",
+"stock": "0",
+"precio": "250",
+"name": "Lite ap GPS"
+},
+{
+"id": 1790958942707,
+"updated_at": "2026-10-28T20:16:18.47766+00:00",
+"stock": "23",
+"precio": "65",
+"name": "Base para paneles"
+},
+{
+"id": 1790959980548,
+"updated_at": "2026-10-15T14:04:49.304722+00:00",
+"stock": "0",
+"precio": "45",
+"name": "Repetidor TP-Link TL-WA801N / TL-WA801ND [Reacondicionado]"
+},
+{
+"id": 1790963079882,
+"updated_at": "2026-10-24T04:22:40.869467+00:00",
+"stock": "10",
+"precio": "55",
+"name": "Binoculares Vision Nocturna"
+},
+{
+"id": 1792810400472,
+"updated_at": "2026-10-24T04:16:50.622106+00:00",
+"stock": "8",
+"precio": "70",
+"name": "Bateria LUBRIM de 60A"
+},
+{
+"id": 1792811595295,
+"updated_at": "2026-10-24T04:16:29.796847+00:00",
+"stock": "2",
+"precio": "30",
+"name": "Cámara de reversa"
+}
+]
