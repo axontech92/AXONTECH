@@ -140,23 +140,23 @@
   <div id="adminStockPanel" class="admin-panel">
     <!-- v134: ventas de productos que ya no están en el catálogo, para volver a vincularlas -->
     <div id="ventasBorradasBox" style="display:none;margin-bottom:12px;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="lbl" style="margin-top:0;" id="stockPanelTitle">Todos los productos</div><span id="stockCatToggle"></span></div>
+    <!-- v159: barra de arriba ordenada. Mismos botones y funciones que antes:
+         el principal junto al título, las herramientas en una cuadrícula de
+         botones iguales y "Nueva categoría" dentro de Gestionar categorías. -->
+    <div class="tb">
+      <div class="tb-head">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;"><div class="lbl" style="margin:0;" id="stockPanelTitle">Todos los productos</div><span id="stockCatToggle"></span></div>
+        <button class="btn btn-green tb-main" onclick="openAddProductModal()">＋ Nuevo producto</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <input type="text" id="newCatInput" placeholder="Nueva categoría…" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;width:160px;">
-        <button class="btn btn-blue btn-sm" onclick="addCategoria()">＋ Categoría</button>
-        <button class="btn btn-ghost btn-sm" id="catManagerToggle" onclick="toggleCatManager()">🗂️ Gestionar</button>
+      <div class="tb-tools">
+        <button class="btn btn-ghost" id="catManagerToggle" onclick="toggleCatManager()">🗂️ Categorías</button>
         <!-- v119: lo que se dio de baja por daño o pérdida. El botón 📉 de cada
              producto es el que registra; aquí se ve todo junto y se deshace. -->
-        <button class="btn btn-ghost btn-sm" onclick="openMermasModal()" title="Mercancía dada de baja por daño, pérdida o vencimiento">📉 Mermas</button>
-        <button class="btn btn-orange btn-sm" onclick="optimizeProductPhotos()" title="Convertir todas las fotos JPEG/PNG a WebP y borrar las originales">🖼️ Optimizar imágenes</button>
+        <button class="btn btn-ghost" onclick="openMermasModal()" title="Mercancía dada de baja por daño, pérdida o vencimiento">📉 Mermas</button>
+        <button class="btn btn-ghost" onclick="optimizeProductPhotos()" title="Convertir todas las fotos JPEG/PNG a WebP y borrar las originales">🖼️ Optimizar fotos</button>
         <!-- v106: saca a GitHub las fotos que quedaron guardadas dentro del
-             producto. Son las que hacen que el catálogo entero pese de más en
-             cada bajada. Ver _subirFotoAGitHub() en app.js. -->
-        <button class="btn btn-ghost btn-sm" onclick="migrarFotosAGitHub()" title="Mover a GitHub las fotos guardadas dentro de la base de datos (baja el consumo de Supabase)">☁️ Aligerar catálogo</button>
-        <button class="btn btn-green btn-sm" onclick="openAddProductModal()">＋ Nuevo producto</button>
+             producto. Ver _subirFotoAGitHub() en app.js. -->
+        <button class="btn btn-ghost" onclick="migrarFotosAGitHub()" title="Mover a GitHub las fotos guardadas dentro de la base de datos (baja el consumo de Supabase)">☁️ Aligerar catálogo</button>
       </div>
     </div>
 
@@ -171,9 +171,13 @@
     </div>
     <div id="stockBuscadorInfo" style="display:none;font-size:11px;color:var(--text-muted);margin:-4px 0 8px;"></div>
 
-    <div id="categoriasList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+    <div id="categoriasList" class="tb-chips"></div>
 
     <div id="catManagerPanel" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div class="tb-addcat">
+        <input type="text" id="newCatInput" placeholder="Nueva categoría…" style="flex:1;min-width:0;">
+        <button class="btn btn-blue" onclick="addCategoria()">＋ Categoría</button>
+      </div>
       <div class="lbl" style="margin-top:0;">🗂️ Categorías existentes</div>
       <div id="catManagerList"></div>
     </div>
@@ -183,20 +187,23 @@
 
   <!-- ════════ CATALOG PANEL ════════ -->
   <div id="adminCatalogPanel" class="admin-panel">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-      <div class="lbl" style="margin-top:0;">🛍️ Catálogo público</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+    <!-- v159: compartir arriba, publicar debajo; mismos botones que antes -->
+    <div class="tb">
+      <div class="tb-head"><div class="lbl" style="margin:0;">🛍️ Catálogo público</div></div>
+      <div class="tb-dos">
         <!-- v84: compartir sin tener que publicar de nuevo. El enlace es fijo. -->
-        <button class="btn btn-green btn-sm" onclick="compartirCatalogoWhatsApp()">📲 Enviar por WhatsApp</button>
-        <button class="btn btn-ghost btn-sm" onclick="copiarLinkCatalogo()" title="Copiar el enlace del catálogo">🔗 Copiar enlace</button>
-        <button class="btn btn-blue btn-sm" onclick="shareCatalogWeb()">🔗 Generar / Publicar</button>
-        <button class="btn btn-ghost btn-sm" onclick="publishCatalogNow()">☁️ Publicar ya</button>
-        <button class="btn btn-ghost btn-sm" onclick="testGitHubPages()">🧪 Probar GitHub</button>
-        <button class="btn btn-green btn-sm" onclick="generateCatalogPDF()">📄 PDF Catálogo</button>
+        <button class="btn btn-green" onclick="compartirCatalogoWhatsApp()">📲 WhatsApp</button>
+        <button class="btn btn-ghost" onclick="copiarLinkCatalogo()" title="Copiar el enlace del catálogo">🔗 Copiar enlace</button>
+      </div>
+      <div class="tb-tools">
+        <button class="btn btn-ghost" onclick="publishCatalogNow()">☁️ Publicar ya</button>
+        <button class="btn btn-ghost" onclick="shareCatalogWeb()">🔗 Generar / Publicar</button>
+        <button class="btn btn-ghost" onclick="generateCatalogPDF()">📄 PDF</button>
+        <button class="btn btn-ghost" onclick="testGitHubPages()">🧪 Probar GitHub</button>
       </div>
     </div>
     <input type="search" id="catalogAdminSearch" placeholder="Buscar producto..." oninput="renderAdminCatalog()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:12px;width:100%;max-width:300px;margin-bottom:8px;">
-    <div id="catalogAdminCatTabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+    <div id="catalogAdminCatTabs" class="tb-chips"></div>
     <div id="catalogAdminGrid"></div>
     <div id="ghSyncStatus" style="margin-top:14px;font-size:11px;"></div>
   </div>

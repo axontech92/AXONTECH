@@ -2215,3 +2215,27 @@ body[data-page="admin"] .ax2-aviso{border-radius:14px !important;}
 }
 /* v157 · la caja de búsqueda de "Ganancia" ya tiene borde: el campo de dentro, no */
 body[data-page="admin"] .ax2-search-box input{border:none !important;background:transparent !important;min-height:0 !important;box-shadow:none !important;}
+
+/* ══ v159 · barras de arriba de Stock y Catálogo ══ */
+.tb{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
+.tb-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.tb-head .lbl{margin:0 !important;}
+.tb-main{border-radius:12px !important;padding:10px 14px !important;font-size:13px !important;white-space:nowrap;flex-shrink:0;}
+.tb-tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.tb-dos{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.tb-tools .btn,.tb-dos .btn{min-height:44px;border-radius:12px !important;font-size:12.5px !important;padding:8px 10px !important;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tb-tools .btn-ghost{background:var(--g-card,var(--surface));border:1.5px solid var(--border) !important;color:var(--text);}
+.tb-addcat{display:flex;gap:8px;margin-bottom:12px;}
+/* Filtros de categoría: una sola línea que se desliza de lado */
+.tb-chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;padding-bottom:2px;}
+.tb-chips::-webkit-scrollbar{display:none;}
+.tb-chips > *{flex-shrink:0;white-space:nowrap;}
+@media (max-width:640px){
+  .tb-tools{grid-template-columns:repeat(2,minmax(0,1fr));}
+  /* que la última pastilla no quede cortada contra el borde sin pista */
+  .tb-chips{margin-right:calc(-1 * max(14px, env(safe-area-inset-right, 0px)));padding-right:14px;}
+}
+body[data-page="admin"] #catalogAdminSearch{width:100% !important;max-width:none !important;box-sizing:border-box;margin-bottom:10px;}
+.tb-dos .btn-ghost{background:var(--g-card,var(--surface));border:1.5px solid var(--border) !important;color:var(--text);}
