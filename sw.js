@@ -34,7 +34,10 @@ self.addEventListener('install', e => {
       // ANTES: allSettled permitía instalar el SW con cache incompleto
       // si algún asset fallaba. Ahora, si un asset falla, la instalación
       // falla y el SW viejo sigue controlando → app estable.
-      return Promise.all(STATIC.map(url => fetch(url).then(r => {
+      // v156: cache:'reload' — se baja del servidor, no de la caché HTTP del
+      // navegador. Si no, una versión nueva podía instalarse con el app.js o el
+      // admin.html de la anterior (GitHub Pages los deja 10 min en caché).
+      return Promise.all(STATIC.map(url => fetch(url, { cache: 'reload' }).then(r => {
         if (!r.ok) throw new Error(`Failed to fetch ${url}: ${r.status}`);
         return c.put(url, r);
       })));
@@ -68,8 +71,15 @@ self.addEventListener('fetch', e => {
 
   // For navigation requests: network-first with offline fallback
   if (e.request.mode === 'navigate') {
+    // v156: la página se COMPRUEBA siempre con el servidor (cache:'no-cache').
+    // Antes, al reabrir la app, el navegador servía su copia de admin.html o
+    // index.html de hasta 10 min atrás y la app "volvía" a la versión anterior
+    // justo después de actualizar. Un Request en modo navigate no admite otras
+    // opciones, así que se pide por su URL; si eso falla, como antes.
     e.respondWith(
-      fetch(e.request)
+      fetch(e.request.url, { cache: 'no-cache', credentials: 'same-origin', redirect: 'follow' })
+        .then(r => (r && r.redirected) ? fetch(e.request) : r)   // una respuesta redirigida no sirve para navegar
+        .catch(() => fetch(e.request))
         .then(res => {
           if (res && res.status === 200) {
             const resClone = res.clone();
