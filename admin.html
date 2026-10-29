@@ -614,6 +614,7 @@
     <div class="lbl">💾 Backup / Reset</div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
       <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-green btn-sm" id="btnCopiaNube" onclick="descargarCopiaNube()">☁️ Descargar copia de la nube</button>
         <button class="btn btn-blue btn-sm" onclick="exportData()">📥 Exportar datos (JSON)</button>
         <label class="btn btn-ghost btn-sm" style="cursor:pointer;">
           📤 Importar JSON
@@ -621,6 +622,7 @@
         </label>
         <button class="btn btn-ghost btn-sm" onclick="loadDemo()">🎮 Cargar datos demo</button>
       </div>
+      <p style="font-size:11px;color:var(--text-muted);margin:8px 0 0;">☁️ <b>Copia de la nube</b>: baja TODO lo que hay en Supabase (vales, productos, gestores, configuración…). Hazla antes de tocar algo delicado y guarda el archivo en un sitio privado.<br><span id="ultimaCopiaNube"></span></p>
       <hr style="border:none;border-top:1px dashed var(--border);margin:12px 0;">
       <p style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:8px;">⚠️ Zona peligrosa — estas acciones no se pueden deshacer:</p>
       <div style="display:flex;gap:6px;flex-wrap:wrap;">

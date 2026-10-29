@@ -17292,6 +17292,98 @@ function renderGestorRanking() {
 // ══════════════════════════════════════════
 //  GITHUB SYNC
 // ══════════════════════════════════════════
+// ── v150: copia COMPLETA de la nube, cuando el admin quiera ────────────────
+// exportData() copia lo que hay en ESTE teléfono, que puede estar incompleto o
+// atrasado. Esto baja las tablas tal cual están en Supabase —vales, productos,
+// categorías, gestores, mensajeros y todos los documentos (config, costos,
+// dueños, mermas, avisos, lápidas…)— y lo guarda en un archivo. Nació el 29/10:
+// Supabase gratis no guarda copias, y una copia de antes de tocar nada habría
+// devuelto todos los vales. Antes de una operación delicada: descargar primero.
+const _COPIA_TABLAS = ['vales', 'productos', 'categorias', 'gestores', 'mensajeros', 'meta', 'backups'];
+async function _bajarTablaEntera(tabla) {
+  const filas = [];
+  for (let desde = 0; ; desde += 1000) {
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 120000);   // red lenta: hasta 2 min por tramo
+    let res;
+    try {
+      res = await fetch(`${_SB_REST}/${tabla}?select=*&order=${tabla === 'meta' || tabla === 'backups' ? 'name' : 'id'}.asc`, {
+        headers: { ..._SB_AUTH_HDRS, 'Range-Unit': 'items', 'Range': `${desde}-${desde + 999}` }, signal: ctl.signal });
+    } finally { clearTimeout(t); }
+    if (res.status === 404) return null;               // la tabla no existe en este proyecto
+    if (!res.ok) throw new Error(`${tabla}: ${res.status}`);
+    const lote = await res.json();
+    filas.push(...lote);
+    if (lote.length < 1000) return filas;
+  }
+}
+async function descargarCopiaNube() {
+  const btn = document.getElementById('btnCopiaNube');
+  if (btn) { btn.disabled = true; btn.dataset.txt = btn.textContent; btn.textContent = '⏳ Descargando…'; }
+  try {
+    showToast('Descargando copia completa de la nube…');
+    const copia = { tipo: 'copia-nube-axontech', version: (typeof VERSION_STR !== 'undefined' ? VERSION_STR : ''),
+                    creada: new Date().toISOString(), tablas: {}, cuentas: {} };
+    for (const t of _COPIA_TABLAS) {
+      const filas = await _bajarTablaEntera(t);
+      if (filas === null) continue;
+      copia.tablas[t] = filas;
+      copia.cuentas[t] = filas.length;
+    }
+    // Lo que este teléfono aún no ha subido también va: es justo lo que se
+    // perdería si algo sale mal.
+    try {
+      copia.telefono = {
+        pendientes: JSON.parse(localStorage.getItem('axon_pending_writes') || '[]'),
+        sinConfirmar: JSON.parse(localStorage.getItem('axon_vales_sucios') || '{}'),
+        valesLocales: (getVales() || []).length
+      };
+    } catch (e) {}
+    const f = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const nombre = `axontech-copia-nube-${f.getFullYear()}-${pad(f.getMonth() + 1)}-${pad(f.getDate())}-${pad(f.getHours())}${pad(f.getMinutes())}.json`;
+    const blob = new Blob([JSON.stringify(copia)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombre;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    try { localStorage.setItem('axon_ultima_copia_nube', copia.creada); } catch (e) {}
+    _pintarUltimaCopiaNube();
+    _logAudit('copia_nube', Object.entries(copia.cuentas).map(([k, n]) => k + ':' + n).join(' '));
+    showToast(`✓ Copia descargada: ${copia.cuentas.vales || 0} vales, ${copia.cuentas.productos || 0} productos`);
+    return true;
+  } catch (e) {
+    showToast('⚠️ No se pudo descargar la copia: ' + (e && e.message || e) + '. Revisa la conexión y vuelve a intentarlo.');
+    return false;
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = btn.dataset.txt || '☁️ Descargar copia de la nube'; }
+  }
+}
+function _pintarUltimaCopiaNube() {
+  const el = document.getElementById('ultimaCopiaNube');
+  if (!el) return;
+  let ts = null; try { ts = localStorage.getItem('axon_ultima_copia_nube'); } catch (e) {}
+  if (!ts) { el.textContent = 'Todavía no has descargado ninguna copia en este dispositivo.'; return; }
+  const d = new Date(ts);
+  const horas = (Date.now() - d.getTime()) / 3600000;
+  el.textContent = 'Última copia en este dispositivo: ' + d.toLocaleString('es-ES') +
+    (horas > 24 ? ' — hace más de un día, conviene hacer otra.' : '');
+}
+if (IS_ADMIN) setTimeout(() => { try { _pintarUltimaCopiaNube(); } catch (e) {} }, 1500);
+
+// Antes de una acción delicada se exige una copia reciente (30 min). Si no la
+// hay, se baja primero y SOLO si sale bien se sigue. Devuelve true si la acción
+// puede continuar ya.
+function _copiaAntesDe(accion, seguir) {
+  let ts = 0; try { ts = Date.parse(localStorage.getItem('axon_ultima_copia_nube') || '') || 0; } catch (e) {}
+  if (Date.now() - ts < 30 * 60000) return true;
+  showConfirmAction('Primero, una copia',
+    `Vas a <b>${accion}</b>. Antes se descarga una copia completa de la nube para poder volver atrás si algo sale mal.`,
+    'Descargar copia y seguir', 'btn-blue', async () => { if (await descargarCopiaNube()) seguir(); });
+  return false;
+}
+
 function exportData() {
   const cfg=getConfig();
   const data={
@@ -17319,8 +17411,9 @@ function exportData() {
   URL.revokeObjectURL(url);
   showToast('Datos exportados ✓ (sin token GitHub por seguridad)');
 }
-function importData(input) {
+function importData(input, _conCopia) {
   const file=input.files[0];if(!file)return;
+  if (!_conCopia && !_copiaAntesDe('importar un archivo (reemplaza los datos)', () => importData(input, true))) return;
   if(!confirm(`¿Importar datos desde \"${file.name}\"?\nEsto reemplazará todos los datos locales actuales.`)){input.value='';return;}
   const reader=new FileReader();
   reader.onload=e=>{
@@ -17770,7 +17863,8 @@ async function syncToGitHub(silent) {
     if(!silent)showToast('Error de conexión con GitHub');
   }
 }
-async function loadFromGitHub() {
+async function loadFromGitHub(_conCopia) {
+  if (!_conCopia && !_copiaAntesDe('restaurar desde GitHub (reemplaza productos, gestores y más)', () => loadFromGitHub(true))) return;
   const cfg=getConfig();
   if(!ghToken()||!cfg.ghRepo||!cfg.ghPath){showToast('Configura GitHub primero');return;}
   if(!confirm('¿Restaurar datos desde GitHub?\nEsto reemplazará todos los datos locales.'))return;
@@ -17819,7 +17913,8 @@ async function maybeAutoSync() {
   _autoSyncTimer = setTimeout(() => { syncToGitHub(true).catch(()=>{}); }, 60000);
 }
 
-function factoryResetVales() {
+function factoryResetVales(_conCopia) {
+  if (!_conCopia && !_copiaAntesDe('borrar TODOS los vales', () => factoryResetVales(true))) return;
   showConfirmAction('¿BORRAR TODOS LOS VALES?', 'Esta acción no se puede deshacer y vaciará el historial.', 'Sí, borrar todo', 'btn-red', () => {
     // v32: Track ALL current vale IDs as being deleted
     const currentVales = getVales();
@@ -17868,7 +17963,8 @@ function changePassCfg() {
 // ══════════════════════════════════════════
 //  RESET GESTORES DATA — clear vales + notifs for fresh app start
 // ══════════════════════════════════════════
-function clearGestoresData() {
+function clearGestoresData(_conCopia) {
+  if (!_conCopia && !_copiaAntesDe('limpiar vales y avisos', () => clearGestoresData(true))) return;
   const vales = getVales();
   const notifs = getNotifs();
   const gestores = getGestores();
