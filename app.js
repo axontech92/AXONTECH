@@ -13721,7 +13721,10 @@ function _crearVentaDirecta(pid, qty, cobradoTxt, nota) {
   const ahoraTs = new Date().toISOString();
   const cobrado = String(cobradoTxt || '').trim() || String(p.precio || '').trim();
   const vale = {
-    id: Date.now(), valeNum: getNextValeNum(), gestorId: 'admin', ts: ahoraTs,
+    // v147: gestorId 0 (la Tienda), no 'admin'. La columna gestor_id de la nube es
+    // un número: con 'admin' Supabase rechazaba la venta (400) y NUNCA llegaba a la
+    // nube. Lo que la marca como directa es ventaDirecta:true.
+    id: Date.now(), valeNum: getNextValeNum(), gestorId: 0, ts: ahoraTs,
     ventaDirecta: true,
     cliente: VENTA_DIRECTA_CLIENTE, telefono: '', direccion: 'Tienda Física',
     mensajeria: '', articulo: p.name + ' x' + qty,
@@ -18896,6 +18899,17 @@ function closeConfirmAction() {
   document.getElementById('confirmActionModal').classList.remove('show');
   confirmActionCb = null;
 }
+
+// v147: las ventas directas guardadas con gestorId 'admin' nunca pudieron subir
+// (ver _crearVentaDirecta). Se pasan a 0 EN EL MISMO objeto —así el diff no ve un
+// borrado de 'admin/id'— y saveVales las sube.
+if (IS_ADMIN) setTimeout(() => {
+  try {
+    const all = getVales(); let n = 0;
+    all.forEach(v => { if (v && v.gestorId === 'admin') { v.gestorId = 0; v.ventaDirecta = true; n++; } });
+    if (n) { saveVales(all.slice()); console.log(`[v147] ${n} venta(s) directa(s) pasadas a la Tienda para subirlas`); }
+  } catch (e) {}
+}, 4000);
 
 // ── v146: ofrecer recuperar vales que este teléfono tenía y la nube perdió ────
 // Se espera a que haya una bajada completa POSTERIOR a abrir la app (si no, la
