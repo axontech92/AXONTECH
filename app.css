@@ -1897,3 +1897,43 @@ body.dark .pwa-help-note{color:#94a3b8;}
 .admin-panel{min-width:0;max-width:100%;}
 #statsGananciaTabla, #adminDirectasPanel table{overflow-x:auto;max-width:100%;}
 #statsGananciaTabla{display:block;}
+
+/* ── v151: formulario del vale más claro en el móvil ─────────────────────── */
+.vf-sec{font-size:13px;font-weight:800;color:var(--blue-dk);margin:14px 0 2px;padding-bottom:6px;border-bottom:2px solid var(--blue-lt);}
+.vf-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.vf-grid2 .vf-emoji{display:none;}
+.vf-total-row input{font-size:18px !important;font-weight:800;color:var(--blue-dk);border-color:var(--blue) !important;background:var(--blue-lt) !important;}
+.vf-info{margin-top:4px;}
+.vf-info summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--text-muted);padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;list-style:none;}
+.vf-info summary::-webkit-details-marker{display:none;}
+.vf-info summary span{font-weight:500;}
+.vf-info[open] summary{border-radius:9px 9px 0 0;border-bottom:none;}
+.vf-info[open] .vf-fixed{border-radius:0 0 9px 9px;}
+.vf-sticky{display:none;}
+@media (max-width:640px){
+  /* Sin la columna de rombos: los campos ocupan todo el ancho */
+  .vale-form-body .vf-emoji{display:none;}
+  .vale-form-body .vf-row{gap:0;}
+  .vf-label{font-size:12px;text-transform:none;letter-spacing:0;font-weight:700;}
+  /* 16 px: por debajo de eso el teléfono hace zoom al tocar el campo */
+  .vf-row input,.vf-row textarea,.vf-row select{font-size:16px;}
+  .vf-grid2 input{min-width:0;}
+  .vf-sticky{
+    display:flex;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:600;
+    background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(0,0,0,.08);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  }
+  .vf-sticky-info{flex:1;min-width:0;}
+  .vf-sticky-total{font-size:15px;font-weight:800;color:var(--blue-dk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .vf-sticky-falta{font-size:11px;color:var(--orange);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .vf-sticky .btn{padding:12px 18px;font-size:15px;border-radius:12px;}
+  .vf-sticky .btn.vf-incompleto{background:var(--gray-300);color:var(--gray-600);}
+  body.vf-sticky-on{padding-bottom:84px;}
+  /* El indicador de guardado va dentro de la barra: flotando tapaba campos */
+  body.vf-sticky-on #syncIndicator{display:none !important;}
+  .vf-sticky-sync{font-size:10px;font-weight:700;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .vf-sticky-sync.pending{color:var(--orange);}
+  .vf-sticky-sync.offline{color:var(--red);}
+  .vf-sticky-sync.online{color:var(--green);}
+}
+body.dark .vf-sticky{background:var(--surface);}

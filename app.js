@@ -11907,6 +11907,43 @@ function _onFormInputImmediate() {
     else pc.style.display='none';
   }
 }
+// ── v151: barra fija de envío en el móvil ──────────────────────────────────
+// En el móvil el botón de enviar quedaba al final de un formulario muy largo.
+// La barra enseña el total y lo que falta, y "Enviar" hace lo mismo que el botón
+// de siempre (sendValeBtn); si falta algo, lleva al primer campo vacío.
+const _VF_NOMBRE_CAMPO = { 'vf-cliente': 'cliente', 'vf-telefono': 'teléfono', 'vf-direccion': 'dirección', 'vf-articulo': 'productos', 'vf-total': 'total' };
+function _vfStickyActualizar() {
+  const bar = document.getElementById('vfStickyBtn');
+  if (!bar) return;
+  const w = document.getElementById('valeFormWrapper');
+  const visible = !!(w && w.offsetParent !== null && activeGestorId);
+  document.body.classList.toggle('vf-sticky-on', visible);
+  if (!visible) return;
+  const faltan = REQUIRED.filter(id => !fVal(id).length).map(id => _VF_NOMBRE_CAMPO[id] || id);
+  const total = fVal('vf-total');
+  document.getElementById('vfStickyTotal').textContent = 'Total: ' + (total || '—');
+  document.getElementById('vfStickyFalta').textContent = faltan.length ? 'Falta: ' + faltan.join(', ') : '✓ Listo para enviar';
+  document.getElementById('vfStickyFalta').style.color = faltan.length ? '' : 'var(--green)';
+  const btn = document.getElementById('sendValeBtn');
+  bar.classList.toggle('vf-incompleto', !btn || btn.disabled);
+  // Copia del indicador de guardado (que en el móvil se oculta mientras está la barra)
+  const ind = document.getElementById('syncIndicator'), lbl = document.getElementById('syncLabel'), sy = document.getElementById('vfStickySync');
+  if (sy && lbl) { sy.textContent = '● ' + lbl.textContent; sy.className = 'vf-sticky-sync ' + ((ind && ind.className) || ''); }
+}
+function _vfStickyEnviar() {
+  const btn = document.getElementById('sendValeBtn');
+  if (btn && !btn.disabled) { btn.click(); return; }
+  const id = REQUIRED.find(x => !fVal(x).length);
+  if (id === 'vf-articulo') {
+    const cta = document.querySelector('.catalog-cta');
+    if (cta) { cta.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  }
+  const el = id && document.getElementById(id);
+  if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { try { el.focus(); } catch (e) {} }, 350); }
+  else if (!activeGestorId) showToast('Selecciona tu nombre primero');
+}
+if (!IS_ADMIN) setInterval(() => { try { _vfStickyActualizar(); } catch (e) {} }, 800);
+
 function buildValeText() {
   const g=gestorOf(activeGestorId);
   const prodLines=currentValeProductos.length

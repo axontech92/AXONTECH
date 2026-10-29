@@ -151,7 +151,7 @@
         </div>
       </div>
 
-      <hr class="vf-sep">
+      <div class="vf-sec">👤 Cliente</div>
 
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
@@ -193,10 +193,12 @@
         <span class="vf-emoji">📍</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Ubicación (Google Maps)</span></div>
-          <input type="text" id="vf-ubicacion" placeholder="Pega aquí el link de la ubicación compartida" oninput="onFormInput()" style="font-size:11px;">
+          <input type="text" id="vf-ubicacion" placeholder="Pega aquí el link de la ubicación compartida" oninput="onFormInput()">
         </div>
       </div>
 
+
+      <div class="vf-sec">🚚 Entrega</div>
 
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
@@ -225,6 +227,8 @@
         </div>
       </div>
 
+      <div class="vf-sec">📦 Productos</div>
+
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
@@ -244,6 +248,9 @@
         </div>
       </div>
 
+      <div class="vf-sec">💵 Pago</div>
+
+      <div class="vf-grid2">
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
@@ -259,6 +266,7 @@
           <input type="text" id="vf-precioMN" placeholder="Del catálogo" oninput="onFormInput()">
         </div>
       </div>
+      </div>
 
       <div class="vf-row">
         <span class="vf-emoji">🔸</span>
@@ -268,7 +276,7 @@
         </div>
       </div>
 
-      <div class="vf-row">
+      <div class="vf-row vf-total-row">
         <span class="vf-emoji">🔸</span>
         <div class="vf-inner">
           <div class="vf-label"><span>Total a pagar <span class="vf-req">*</span></span></div>
@@ -278,6 +286,8 @@
 
       <!-- v131: notas del gestor para el admin: lo que no cabe en ningún campo
            ("llamar antes de ir", "paga la mamá", "portero sin timbre"). -->
+      <div class="vf-sec">📝 Notas</div>
+
       <div class="vf-row">
         <span class="vf-emoji">📝</span>
         <div class="vf-inner">
@@ -352,6 +362,8 @@
 
       <hr class="vf-sep">
 
+      <details class="vf-info">
+      <summary>ℹ️ Dirección y condiciones de la tienda <span>(van en el vale)</span></summary>
       <div class="vf-fixed">
         <b>🧭 Dirección de la tienda:</b><br>
         * Amistad #311 % San Rafael y San José, Centro Habana.<br><br>
@@ -361,6 +373,7 @@
         * Los pagos en MN deben ser con denominación de 50 en adelante.<br>
         * Solo se aceptan billetes en buen estado (ni rotos ni manchados)
       </div>
+      </details>
     </div>
 
     <!-- Preview -->
@@ -376,6 +389,15 @@
         <button class="btn btn-full btn-sm" style="background:#F59E0B;color:white;" onclick="openTicketModal()">🎫 Generar Ticket de Recogida</button>
       </div>
 
+    </div>
+    <!-- v151: barra fija abajo en el móvil: total + Enviar, sin bajar hasta el final -->
+    <div id="vfSticky" class="vf-sticky">
+      <div class="vf-sticky-info">
+        <div id="vfStickyTotal" class="vf-sticky-total">Total: —</div>
+        <div id="vfStickyFalta" class="vf-sticky-falta"></div>
+        <div id="vfStickySync" class="vf-sticky-sync"></div>
+      </div>
+      <button type="button" class="btn btn-blue" id="vfStickyBtn" onclick="_vfStickyEnviar()">📤 Enviar</button>
     </div>
     </div><!-- /valeFormWrapper -->
 
