@@ -11,6 +11,7 @@
 
 #include <jni.h>
 #include <algorithm>
+#include <exception>
 #include <string>
 #include <vector>
 #include <mutex>
@@ -609,24 +610,18 @@ Java_com_kiu_agent_KiuNative_generate(JNIEnv* env, jclass, jstring prompt, jint 
     // Se llama a traves de kiu_penalties(): si el llama.cpp vendorizado cambia la firma, el build NO se rompe
     // (compila igual y solo se omite la penalizacion). Firma conocida: (last_n, repeat, freq, present).
     if (llama_sampler* pen = kiu_penalties(64, 1.10f, 0.0f, 0.0f)) llama_sampler_chain_add(smpl, pen);
-    if (temperature <= 0.0f) {
-        llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
-    } else {
-        llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.05f, 1));
-        llama_sampler_chain_add(smpl, llama_sampler_init_temp(temperature));
-        llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
-    }
-
-    // v2.9.2: la gramatica va SIEMPRE al final de la cadena. Es lo que decide si
-    // el motor descarta un token: lo que no encaje con la gramatica no se puede
-    // emitir. Si fuera antes, los samplers de arriba verian tokens que despues
-    // se rechazan y el resultado seria incoherente.
+    // v2.19.3 · LA GRAMATICA VA ANTES DEL SELECTOR, NO DESPUES. (Era un bug que cerraba la app.)
     //
-    // OJO: si viniera temp > 0 habria un sampler de_dist ALEATORIO antes. El
-    // de abajo (la gramatica) va ultimo y es el que decide, asi que el resultado
-    // igual quedaria restringido: la gramatica acota el conjunto, la temperatura
-    // elige dentro. Aun asi, motor.js manda temp=0 cuando manda gramatica, para
-    // no depender de cual de los dos gana el conflicto.
+    // llama_sampler_sample() aplica la cadena y despues toma cur_p.data[cur_p.selected] y se lo
+    // pasa a accept(). El sampler de gramatica solo pone -INFINITY a los tokens que no encajan;
+    // NO cambia `selected`. Con la gramatica al final, greedy/dist ya habian elegido un token
+    // ANTES de que la gramatica lo vetara: si ese token no encajaba (lo normal en el primer
+    // token de un modelo chico que quiere decir "Claro, ..." en vez de "{"), accept() lanza
+    // std::runtime_error("Unexpected empty grammar stack after accepting piece") y como nadie
+    // lo atrapa en JNI el proceso muere: la app se cierra sin mensaje.
+    // Verificado en el fuente de llama.cpp v0.7.0 (llama-sampler.cpp: llama_sampler_sample y
+    // greedy_apply; llama-grammar.cpp: llama_grammar_accept_token). Orden correcto:
+    // penalizaciones -> gramatica -> selector (greedy | min_p+temp+dist).
     std::string gbnf;
     {
         std::lock_guard<std::mutex> glk(g_gram_mtx);
@@ -638,7 +633,8 @@ Java_com_kiu_agent_KiuNative_generate(JNIEnv* env, jclass, jstring prompt, jint 
         if (gv == nullptr) {
             set_err("no pude obtener el vocabulario para la gramatica");
         } else {
-            llama_sampler* gs = kiu_grammar(gv, gbnf.c_str(), "root");
+            llama_sampler* gs = nullptr;
+            try { gs = kiu_grammar(gv, gbnf.c_str(), "root"); } catch (...) { gs = nullptr; }   // v2.19.3: nunca dejar escapar una excepcion por JNI
             if (gs != nullptr) {
                 llama_sampler_chain_add(smpl, gs);
             } else {
@@ -651,6 +647,14 @@ Java_com_kiu_agent_KiuNative_generate(JNIEnv* env, jclass, jstring prompt, jint 
                 g_grammar_ok = false;
             }
         }
+    }
+
+    if (temperature <= 0.0f) {
+        llama_sampler_chain_add(smpl, llama_sampler_init_greedy());
+    } else {
+        llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.05f, 1));
+        llama_sampler_chain_add(smpl, llama_sampler_init_temp(temperature));
+        llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
     }
 
     llama_batch_ext* batch = llama_batch_ext_init(g_ctx);
@@ -734,7 +738,20 @@ Java_com_kiu_agent_KiuNative_generate(JNIEnv* env, jclass, jstring prompt, jint 
                 }
             }
 
-            llama_token id = llama_sampler_sample(smpl, g_ctx, -1);
+            // v2.19.3 · red de seguridad: una excepcion de C++ que cruce JNI mata el proceso entero.
+            // Aca se convierte en un error normal de generacion (el JS ya sabe mostrarlo).
+            llama_token id = LLAMA_TOKEN_NULL;
+            try {
+                id = llama_sampler_sample(smpl, g_ctx, -1);
+            } catch (const std::exception& ex) {
+                set_err(std::string("fallo el muestreo: ") + ex.what());
+                ok = false;
+                break;
+            } catch (...) {
+                set_err("fallo el muestreo (excepcion desconocida)");
+                ok = false;
+                break;
+            }
             if (llama_vocab_is_eog(vocab, id)) break;
 
             char piece[192];

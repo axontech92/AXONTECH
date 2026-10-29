@@ -755,15 +755,19 @@ test('la gramática se CONSUME: no queda pegada a la generación siguiente', () 
     'y stopGen() también la limpia: si se cancela, no queda esperando');
 });
 
-test('la gramática va al FINAL de la cadena de samplers', () => {
+test('la gramática va ANTES del selector de la cadena de samplers (v2.19.3)', () => {
+  /* Hasta 2.19.2 este test exigía lo CONTRARIO ("al final") y fijaba un bug que cerraba la app:
+     greedy/dist eligen el token antes de que la gramática lo vete, y accept() lanza si no encaja.
+     Ver tests/motor-gramatica-v2193.test.mjs y el comentario en kiullama_jni.cpp. */
   const cpp = readFileSync(path.join(here, '..', 'app', 'src', 'main', 'cpp', 'kiullama_jni.cpp'), 'utf8');
   const start = cpp.indexOf('// sampler: greedy');
   const bloque = cpp.slice(start, cpp.indexOf('llama_batch_ext_init(g_ctx)', start));
-  const iUltimo = bloque.lastIndexOf('llama_sampler_chain_add(smpl, gs)');
-  assert.ok(iUltimo > -1, 'no agrega el sampler de gramática a la cadena');
-  const iAnteriores = bloque.lastIndexOf('llama_sampler_chain_add(smpl, llama_sampler_init_dist');
-  assert.ok(iUltimo > iAnteriores,
-    'la gramática tiene que ir después de los demás: es la que decide si el token se puede emitir');
+  const iGram = bloque.indexOf('llama_sampler_chain_add(smpl, gs)');
+  assert.ok(iGram > -1, 'no agrega el sampler de gramática a la cadena');
+  const iGreedy = bloque.indexOf('llama_sampler_chain_add(smpl, llama_sampler_init_greedy');
+  const iDist = bloque.indexOf('llama_sampler_chain_add(smpl, llama_sampler_init_dist');
+  assert.ok(iGram < iGreedy && iGram < iDist,
+    'la gramática tiene que ir ANTES de greedy y de dist: el selector solo puede elegir entre tokens permitidos');
 });
 
 test('si el motor no soporta la firma, el build NO se rompe', () => {

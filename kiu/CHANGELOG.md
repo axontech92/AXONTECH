@@ -1,3 +1,13 @@
+## [2.19.3] - 2026-10-29
+
+**LA CAUSA DEL CIERRE DE LA APP: LA GRAMÁTICA ESTABA EN EL LUGAR EQUIVOCADO DE LA CADENA DE MUESTREO.**
+
+- **Bug (motor nativo, `kiullama_jni.cpp`):** la cadena era `penalizaciones → greedy → gramática`. `llama_sampler_sample()` aplica la cadena y después toma `data[selected]` y llama a `accept()`. `greedy` fija `selected`; la gramática solo pone `-INFINITY` a los tokens que no encajan y **no** cambia `selected`. Si el token elegido no encajaba (lo normal en el primer token de un modelo chico que quiere decir «Claro, …» en vez de «{»), `accept()` lanza `std::runtime_error("Unexpected empty grammar stack…")`; nadie lo atrapaba en JNI, y una excepción que cruza JNI mata el proceso: **la app se cierra sin mensaje**. Verificado leyendo llama.cpp v0.7.0 (`llama-sampler.cpp`, `llama-grammar.cpp`), el que fija `vendor_llama.sh`.
+- **Arreglo:** el orden ahora es `penalizaciones → gramática → selector (greedy | min_p+temp+dist)`; así el selector solo ve tokens permitidos. Además `llama_sampler_sample()` y la creación del sampler de gramática van dentro de `try/catch`: si algo vuelve a lanzar una excepción, la generación termina con un error normal en vez de cerrar la app.
+- Esto afectaba a **todo** el camino del agente con gramática (no solo a «Probar agente»), desde que 2.14.5 empezó a mandarla siempre.
+- No se pudo compilar el NDK aquí: el cambio es mecánico (mover un bloque y envolver dos llamadas) pero **hay que probarlo en el teléfono**. `tests/motor-gramatica-v2193.test.mjs` es un test de forma que fija el orden y las protecciones.
+- Versión 2.19.3 (código 105).
+
 ## [2.19.2] - 2026-10-29
 
 **LA VERSIÓN, A LA VISTA Y A PRUEBA DE OLVIDOS.**
