@@ -10018,7 +10018,7 @@ function renderValeDetail(destinoId) {
   const _r = _rebajaVale(v);
   const _cob = _aCobrarVale(v);
   // Con rebaja, el total del vale ya sale (tachado) en el recuadro de la rebaja.
-  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', _r ? '' : v.total], ['Vuelto que hay que llevar', v.vuelto]]
+  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', _r ? '' : v.total], ['Vuelto que hay que llevar', (_cob.txt || _cob.nota) ? '' : v.vuelto]]
     .filter(([, val]) => String(val || '').trim());
   const rebajaHTML = _r ? `<div class="vd-rebaja">
       <div class="vd-rebaja-t">🏷️ Este vale lleva rebaja</div>
@@ -10030,11 +10030,12 @@ function renderValeDetail(destinoId) {
       ${v.status !== 'cancelled' ? `<button type="button" class="vd-mini" style="margin-top:8px;" onclick="openRebajaAdminModal(${_id})">🏷️ Cambiar la rebaja del negocio</button>` : ''}
     </div>` : '';
   const cobrarHTML = (_cob.txt || _cob.nota) ? `<div id="valeACobrar">
-      <div class="vd-total"><span>Cobrar al cliente</span><b id="valeACobrarMonto">${escapeHTML(_cob.txt || '—')}</b></div>
+      <div class="vd-total"><span>COBRAR AL CLIENTE</span><b id="valeACobrarMonto">${escapeHTML(_cob.txt || '—')}</b></div>
       ${_cob.sueltaTxt ? `<div style="text-align:right;"><span id="valeACobrarSuelta" style="font-size:15px;font-weight:800;color:var(--orange);">− ${escapeHTML(_cob.sueltaTxt)}</span></div>` : ''}
       ${_cob.rebajado ? `<div class="vd-suave" style="font-size:11px;">Ya lleva la rebaja restada del precio del vale.</div>` : ''}
       ${_cob.nota ? `<div style="margin-top:4px;font-size:11.5px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_cob.nota)}</div>` : ''}
-    </div>` : `<div class="vd-total"><span>Cobrar al cliente</span>${_faltaTxt('Sin total')}</div>${_completar ? `<div style="text-align:right;margin-top:4px;">${_completar}</div>` : ''}`;
+      ${String(v.vuelto || '').trim() ? `<div style="margin-top:5px;font-size:12px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b style="color:var(--text);">${escapeHTML(v.vuelto)}</b></div>` : ''}
+    </div>` : `<div class="vd-total"><span>COBRAR AL CLIENTE</span>${_faltaTxt('Sin total')}</div>${_completar ? `<div style="text-align:right;margin-top:4px;">${_completar}</div>` : ''}`;
   const _com = String(v.comisionGestor || '').trim();
   const dineroHTML = `<div class="vd-card">
     <div class="vd-sec">💵 Dinero</div>

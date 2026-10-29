@@ -2286,7 +2286,7 @@ body[data-page="admin"] #catalogAdminSearch{width:100% !important;max-width:none
 .vd-art{font-size:13.5px;font-weight:600;white-space:pre-wrap;word-break:break-word}
 .vd-card #valeNotasGestor{margin-top:10px !important}
 .vd-total{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.vd-total > span{font-size:12px;font-weight:700;color:var(--text-muted);white-space:nowrap}
+.vd-total > span{font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--text-muted);white-space:nowrap}
 .vd-total b{font-size:24px;font-weight:900;color:var(--green);font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-align:right;line-height:1.15}
 .vd-desg{margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12.5px;color:var(--text-muted);font-variant-numeric:tabular-nums}
 .vd-r{text-align:right;color:var(--text);font-weight:700}
