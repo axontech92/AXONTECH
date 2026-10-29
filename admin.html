@@ -1042,6 +1042,15 @@
     <div class="modal-title">🛵 Asignar a mensajero</div>
     <div class="modal-sub" id="shareModalSub">Vale</div>
     <select id="mensajeroSelect" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;margin-bottom:10px;"></select>
+    <!-- v161: el vuelto que la tienda le da al mensajero para el cambio del cliente -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:800;">💱 ¿Le das vuelto? <span style="font-weight:600;color:var(--text-muted);">(opcional)</span></div>
+      <div style="font-size:10.5px;color:var(--text-muted);margin:2px 0 7px;">Lo que se lleva de la tienda para el cambio. Se suma a lo que te tiene que traer.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--text-muted);"><input id="shareVueltoUSD" type="number" inputmode="decimal" min="0" step="any" placeholder="0" oninput="updateSharePreview()" style="flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 9px;font-size:13px;font-weight:700;color:var(--text);">USD</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--text-muted);"><input id="shareVueltoMN" type="number" inputmode="decimal" min="0" step="any" placeholder="0" oninput="updateSharePreview()" style="flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 9px;font-size:13px;font-weight:700;color:var(--text);">MN</label>
+      </div>
+    </div>
     <div class="lbl" style="margin:6px 0;">Vista previa del mensaje:</div>
     <pre id="shareValePreview" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;white-space:pre-wrap;font-family:'Courier New',monospace;max-height:240px;overflow-y:auto;margin-bottom:10px;"></pre>
     <!-- v85: "Asignar" a secas. Los otros dos botones asignan y además copian el

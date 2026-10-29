@@ -8048,6 +8048,98 @@ const _mensajeroDebeCobro = v =>
   !!v && v.mensajeroId != null &&
   (v.cobroMensajeroPend === true || v.status === 'pending_payment' || v.status === 'delivered');
 
+// ── v161: el vuelto que la tienda le da al mensajero ────────────────────────
+// A veces el mensajero sale con dinero de la tienda para poder darle el cambio
+// al cliente. Ese dinero no estaba apuntado en ningún sitio: al volver, nadie
+// sabía cuánto tenía que traer. Se guarda en el vale (vueltoMensajero, en USD
+// y/o MN) y se suma a lo que el mensajero tiene que entregar.
+//
+//   debe traer = lo que pagó el cliente (sin Zelle, que va directo a la cuenta)
+//              + el vuelto que se le dio
+//              − el cambio que le dio al cliente, si pagó de más
+//
+// Es un campo del admin: el gestor no lo manda, y upsert_vale_from_gestor hace
+// existing || p_data, así que una edición del gestor no lo borra.
+function _vueltoMensajero(v) {
+  const x = (v && v.vueltoMensajero) || {};
+  return { usd: Math.round(_num0(x.usd) * 100) / 100, mn: Math.round(_num0(x.mn)) };
+}
+function _fmtTraer(usd, eur, mn) {
+  const p = [];
+  if (usd > 0) p.push('$' + (Math.round(usd * 100) / 100).toFixed(2).replace(/\.00$/, '') + ' USD');
+  if (eur > 0) p.push('€' + (Math.round(eur * 100) / 100).toFixed(2).replace(/\.00$/, ''));
+  if (mn > 0) p.push(Math.round(mn).toLocaleString('es-ES') + ' MN');
+  return p.length ? p.join(' + ') : '—';
+}
+function _debeTraerMensajero(v) {
+  if (!v || v.mensajeroId == null || v.unidoA != null) return null;
+  const p = pagoDeVale(v), vu = _vueltoMensajero(v);
+  let usd = _num0(p.usd) + vu.usd, eur = _num0(p.eur), mn = _num0(p.mn) + vu.mn;
+  // Si el cliente pagó de más, el mensajero le dio el cambio: de su vuelto en
+  // MN si llevaba, si no en dólares.
+  let cambio = '';
+  const cu = cuadrePago(v, p);
+  if (cu && cu.dif >= 0.5) {
+    if (vu.mn > 0 && cu.difMN && p.tasaMN) {
+      // Lo que no alcance con los MN que llevaba, lo dio en dólares.
+      const enMN = Math.min(cu.difMN, mn);
+      const restoUSD = Math.round(((cu.difMN - enMN) / p.tasaMN) * 100) / 100;
+      mn -= enMN; usd -= restoUSD;
+      cambio = enMN.toLocaleString('es-ES') + ' MN' + (restoUSD > 0 ? ' + $' + restoUSD + ' USD' : '');
+    } else { usd -= cu.dif; cambio = '$' + cu.dif.toFixed(2).replace(/\.00$/, '') + ' USD'; }
+  }
+  usd = Math.max(0, Math.round(usd * 100) / 100); mn = Math.max(0, Math.round(mn));
+  return { usd, eur, mn, zelle: _num0(p.zelle), vuelto: vu, cambio, txt: _fmtTraer(usd, eur, mn) };
+}
+// Lo que un mensajero te debe en total, sin mezclar monedas.
+function _deudaMensajero(mId) {
+  const t = { usd: 0, eur: 0, mn: 0, n: 0 };
+  getVales().forEach(v => {
+    if (!v || v.mensajeroId !== mId || !_mensajeroDebeCobro(v)) return;
+    const d = _debeTraerMensajero(v); if (!d) return;
+    t.usd += d.usd; t.eur += d.eur; t.mn += d.mn; t.n++;
+  });
+  t.txt = _fmtTraer(t.usd, t.eur, t.mn);
+  return t;
+}
+function _textoVueltoMensajero(v) {
+  const vu = _vueltoMensajero(v);
+  return (vu.usd > 0 || vu.mn > 0) ? _fmtTraer(vu.usd, 0, vu.mn) : '';
+}
+// Cambiar el vuelto desde el vale ya asignado.
+function editarVueltoMensajero(id) {
+  const v = getVales().find(x => x.id === id); if (!v) return;
+  const vu = _vueltoMensajero(v);
+  const inp = (idc, val, mon) => `<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;">
+      <input id="${idc}" type="number" inputmode="decimal" min="0" step="any" value="${val || ''}" placeholder="0"
+        style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px;font-weight:700;color:var(--text);">
+      <span style="width:34px;font-weight:700;color:var(--text-muted);">${mon}</span></label>`;
+  showConfirmAction('💱 Vuelto que le diste al mensajero',
+    `Lo que se llevó de la tienda para dar el cambio. Se suma a lo que te tiene que traer.${inp('vueltoMenUSD', vu.usd, 'USD')}${inp('vueltoMenMN', vu.mn, 'MN')}`,
+    'Guardar', 'btn-blue', () => {
+      const usd = _num0((document.getElementById('vueltoMenUSD') || {}).value);
+      const mn = _num0((document.getElementById('vueltoMenMN') || {}).value);
+      _guardarVueltoMensajero(id, usd, mn);
+      renderValeDetail(); renderMensajeros(); renderMensajeroVales();
+      showToast((usd > 0 || mn > 0) ? 'Vuelto apuntado ✓' : 'Vuelto quitado ✓');
+    });
+}
+// v161: la cifra exacta que tiene que traer, para contar delante de él.
+function _lineaDebeTraer(v) {
+  const d = _debeTraerMensajero(v); if (!d) return '';
+  const extra = [];
+  if (d.vuelto.usd > 0 || d.vuelto.mn > 0) extra.push('incluye el vuelto que le diste (' + _fmtTraer(d.vuelto.usd, 0, d.vuelto.mn) + ')');
+  if (d.cambio) extra.push('menos ' + d.cambio + ' de cambio al cliente');
+  if (d.zelle > 0) extra.push('$' + d.zelle + ' por Zelle no pasan por él');
+  return `<div style="margin-top:8px;font-size:15px;font-weight:800;color:var(--green);">Te tiene que traer: ${escapeHTML(d.txt)}</div>`
+    + (extra.length ? `<div style="font-size:11px;color:var(--text-muted);">${escapeHTML(extra.join(' · '))}</div>` : '');
+}
+function _guardarVueltoMensajero(id, usd, mn) {
+  usd = Math.round(_num0(usd) * 100) / 100; mn = Math.round(_num0(mn));
+  patchVale(id, { vueltoMensajero: (usd > 0 || mn > 0) ? { usd, mn, ts: new Date().toISOString() } : null });
+  maybeAutoSync();
+}
+
 // Al cerrar una venta que llevaba mensajero hay que saber dónde está ese
 // dinero. Se marca la deuda PRIMERO y luego se pregunta, no al revés: el
 // confirmador solo tiene un botón, así que ignorar el aviso —o cerrarlo sin
@@ -8063,7 +8155,7 @@ function _marcarCobroMensajeroYPreguntar(id) {
   const nombre = (m && m.name) ? m.name : 'el mensajero';
   renderMensajeros(); renderMensajeroVales(); updateMensajeroBadge();
   showConfirmAction(`¿${escapeHTML(nombre)} ya te entregó el dinero?`,
-    `${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}<br><span style="font-size:11px;color:var(--text-muted);">Si no, queda apuntado como pendiente en su ficha.</span>`,
+    `${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}${_lineaDebeTraer(v)}<br><span style="font-size:11px;color:var(--text-muted);">Si no, queda apuntado como pendiente en su ficha.</span>`,
     'Sí, ya lo tengo', 'btn-green', () => mensajeroEntregoDinero(id, true));
 }
 
@@ -8074,7 +8166,7 @@ function mensajeroEntregoDinero(id, skipConfirm) {
   if (!v) return;
   if (!skipConfirm) {
     showConfirmAction('¿El mensajero te entregó el dinero?',
-      `${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}`,
+      `${escapeHTML(v.cliente||'')} · ${escapeHTML(v.total||'')}${_lineaDebeTraer(v)}`,
       'Sí, lo recibí', 'btn-green', () => mensajeroEntregoDinero(id, true));
     return;
   }
@@ -8118,6 +8210,9 @@ function renderMensajeroVales() {
     if(nPorEntregar) partes.push(`${nPorEntregar} por entregar`);
     if(nPorCobrar) partes.push(`${nPorCobrar} por cobrar`);
     if(!partes.length) partes.push('Sin entregas activas');
+    // v161: lo que te debe en total, vueltos incluidos.
+    const _deu=_deudaMensajero(activeMensajeroId);
+    if(_deu.n) partes.push('te debe '+_deu.txt);
     _sub.textContent=partes.join(' · ')+((_m&&_m.phone)?' · 📱 '+_m.phone:'');
   }
   let html='';
@@ -8156,7 +8251,9 @@ function renderMensajeroVales() {
           <div class="mv-head"><span class="mv-time">${timeStr(porEntregar?v.ts:(v.deliveredTs||v.ts))}</span>${chapa}</div>
           <div class="mv-info"><b>${escapeHTML(v.cliente||'—')}</b> · ${escapeHTML(v.telefono||'—')}</div>
           <div style="font-size:11px;color:var(--gray-400);">📍 ${escapeHTML(v.direccion||'Sin dirección')}</div>
-          <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${escapeHTML(_aCobrarVale(v).txt||'—')}${v.vuelto?` · Vuelto: ${escapeHTML(v.vuelto)}`:''}</div>
+          <div style="font-size:12px;font-weight:700;margin-top:3px;">💰 ${escapeHTML(_aCobrarVale(v).txt||'—')}${v.vuelto&&!_textoVueltoMensajero(v)?` · Vuelto: ${escapeHTML(v.vuelto)}`:''}</div>
+          ${_textoVueltoMensajero(v)?`<div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:2px;">💱 Le diste de vuelto: ${escapeHTML(_textoVueltoMensajero(v))}</div>`:''}
+          ${!porEntregar&&_mensajeroDebeCobro(v)&&_debeTraerMensajero(v)?`<div style="font-size:12px;font-weight:800;color:var(--green);margin-top:2px;">🛵 Te tiene que traer: ${escapeHTML(_debeTraerMensajero(v).txt)}</div>`:''}
           ${g?`<div style="font-size:11px;color:var(--gray-400);">Gestor: ${escapeHTML(g.name)}</div>`:''}
           <div style="font-size:11px;color:var(--gray-600);margin-top:3px;">📦 ${escapeHTML(v.articulo||'—')}</div>
           ${acciones}
@@ -9255,6 +9352,12 @@ function openShareModal(valeId) {
   const sel=document.getElementById('mensajeroSelect');
   sel.innerHTML=mensajeros.map(m=>`<option value="${m.id}">${escapeHTML(m.name)}</option>`).join('');
   if(v.mensajeroId)sel.value=v.mensajeroId;
+  // v161: el vuelto que se le da. Si ya se apuntó, ese; si no, se propone el
+  // que puso el gestor en el vale ("Vuelto"), para solo confirmarlo.
+  const _vu=v.vueltoMensajero?_vueltoMensajero(v):_montoMonedas(v.vuelto);
+  const _iu=document.getElementById('shareVueltoUSD'),_im=document.getElementById('shareVueltoMN');
+  if(_iu) _iu.value=_vu.usd>0?_vu.usd:'';
+  if(_im) _im.value=_vu.mn>0?Math.round(_vu.mn):'';
   updateSharePreview();sel.onchange=updateSharePreview;
   document.getElementById('shareModal').classList.add('show');
 }
@@ -9984,9 +10087,14 @@ function renderValeDetail(destinoId) {
   } else {
     mensHTML = `<div class="vd-mens"><span class="vd-suave">Sin mensajero</span></div>`;
   }
+  // v161: el vuelto que se le dio, y el botón para apuntarlo o cambiarlo.
+  const _vuTxt = _textoVueltoMensajero(v);
+  const _puedeVuelto = m && v.status !== 'cancelled' && !v.cobroMensajeroTs && v.unidoA == null;
+  const vueltoMenHTML = m && (_vuTxt || _puedeVuelto) ? `<div class="vd-dato"><span>💱</span><span class="vd-v">${_vuTxt ? `Le diste <b>${escapeHTML(_vuTxt)}</b> de vuelto` : '<span class="vd-suave">Sin vuelto de la tienda</span>'}</span>${_puedeVuelto ? `<button type="button" class="vd-mini" onclick="editarVueltoMensajero(${_id})">${_vuTxt ? 'Cambiar' : '＋ Vuelto'}</button>` : ''}</div>` : '';
   const mensajeroCardHTML = `<div class="vd-card">
     <div class="vd-sec">🛵 Mensajero</div>
     ${mensHTML}
+    ${vueltoMenHTML}
     ${v.mensajeria ? `<div class="vd-dato"><span>🚚</span><span class="vd-v">${escapeHTML(v.mensajeria)}</span></div>` : ''}
   </div>`;
 
@@ -10018,7 +10126,7 @@ function renderValeDetail(destinoId) {
   const _r = _rebajaVale(v);
   const _cob = _aCobrarVale(v);
   // Con rebaja, el total del vale ya sale (tachado) en el recuadro de la rebaja.
-  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', _r ? '' : v.total], ['Vuelto que hay que llevar', (_cob.txt || _cob.nota) ? '' : v.vuelto]]
+  const _desg = [['Precio USD', v.precioUSD], ['Precio MN', v.precioMN], ['Total del vale', _r ? '' : v.total], ['Vuelto que hay que llevar', (_cob.txt || _cob.nota || _textoVueltoMensajero(v)) ? '' : v.vuelto]]
     .filter(([, val]) => String(val || '').trim());
   const rebajaHTML = _r ? `<div class="vd-rebaja">
       <div class="vd-rebaja-t">🏷️ Este vale lleva rebaja</div>
@@ -10034,12 +10142,22 @@ function renderValeDetail(destinoId) {
       ${_cob.sueltaTxt ? `<div style="text-align:right;"><span id="valeACobrarSuelta" style="font-size:15px;font-weight:800;color:var(--orange);">− ${escapeHTML(_cob.sueltaTxt)}</span></div>` : ''}
       ${_cob.rebajado ? `<div class="vd-suave" style="font-size:11px;">Ya lleva la rebaja restada del precio del vale.</div>` : ''}
       ${_cob.nota ? `<div style="margin-top:4px;font-size:11.5px;color:var(--orange);font-weight:600;">⚠️ ${escapeHTML(_cob.nota)}</div>` : ''}
-      ${String(v.vuelto || '').trim() ? `<div style="margin-top:5px;font-size:12px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b style="color:var(--text);">${escapeHTML(v.vuelto)}</b></div>` : ''}
+      ${String(v.vuelto || '').trim() && !_textoVueltoMensajero(v) ? `<div style="margin-top:5px;font-size:12px;color:var(--text-muted);">💱 Vuelto que hay que llevar: <b style="color:var(--text);">${escapeHTML(v.vuelto)}</b></div>` : ''}
     </div>` : `<div class="vd-total"><span>COBRAR AL CLIENTE</span>${_faltaTxt('Sin total')}</div>${_completar ? `<div style="text-align:right;margin-top:4px;">${_completar}</div>` : ''}`;
   const _com = String(v.comisionGestor || '').trim();
+  // v161: lo que el mensajero tiene que traer, mientras no lo haya traído.
+  const _traer = (m && (v.status === 'assigned' || _mensajeroDebeCobro(v))) ? _debeTraerMensajero(v) : null;
+  const traerHTML = _traer ? `<div class="vd-traer">
+      <div class="vd-total"><span>🛵 ${escapeHTML(m.name)} te tiene que traer</span><b>${escapeHTML(_traer.txt)}</b></div>
+      ${[(_traer.vuelto.usd > 0 || _traer.vuelto.mn > 0) ? 'Incluye el vuelto que le diste (' + _fmtTraer(_traer.vuelto.usd, 0, _traer.vuelto.mn) + ')' : '',
+         _traer.cambio ? 'Menos ' + _traer.cambio + ' de cambio que le dio al cliente' : '',
+         _traer.zelle > 0 ? '$' + _traer.zelle + ' por Zelle van directo a tu cuenta' : '']
+        .filter(Boolean).map(t => `<div class="vd-suave" style="font-size:11.5px;">${escapeHTML(t)}</div>`).join('')}
+    </div>` : '';
   const dineroHTML = `<div class="vd-card">
     <div class="vd-sec">💵 Dinero</div>
     ${cobrarHTML}
+    ${traerHTML}
     ${_desg.length ? `<div class="vd-desg">${_desg.map(([k, val]) => `<span>${k}</span><span class="vd-r">${escapeHTML(String(val))}</span>`).join('')}</div>` : ''}
     ${rebajaHTML}
     ${(_com || pts > 0) ? `<div class="vd-com">
@@ -10564,7 +10682,14 @@ function saveEditVale() {
 function updateSharePreview() {
   const v=getVales().find(x=>x.id===shareTargetId);if(!v)return;
   const m=mensajeroOf(parseInt(document.getElementById('mensajeroSelect').value));
-  document.getElementById('shareValePreview').textContent=buildShareText(v,m);
+  const vu=_leerVueltoShare();
+  document.getElementById('shareValePreview').textContent=buildShareText(vu?{...v,vueltoMensajero:vu}:{...v,vueltoMensajero:null},m);
+}
+// v161: lo escrito en "¿Le das vuelto?" de la ventana de asignar.
+function _leerVueltoShare() {
+  const usd=_num0((document.getElementById('shareVueltoUSD')||{}).value);
+  const mn=Math.round(_num0((document.getElementById('shareVueltoMN')||{}).value));
+  return (usd>0||mn>0)?{usd:Math.round(usd*100)/100,mn}:null;
 }
 function buildShareText(v,m) {
   const g=gestorOf(v.gestorId);
@@ -10587,7 +10712,9 @@ function buildShareText(v,m) {
     `🔸 Artículo y cantidad: ${_arts}`,
     // v122: el vuelto es dinero que el mensajero tiene que llevar encima. No
     // estaba en este texto, así que salía a la calle sin saberlo.
-    ...(String(v.vuelto||'').trim() ? [`🔸 Vuelto: ${v.vuelto}`] : []),
+    ...(String(v.vuelto||'').trim() && !_textoVueltoMensajero(v) ? [`🔸 Vuelto: ${v.vuelto}`] : []),
+    // v161: el vuelto que le da la tienda, para que sepa que lo tiene que devolver.
+    ...(_textoVueltoMensajero(v) ? [`🔸 Vuelto que te doy (se devuelve): ${_textoVueltoMensajero(v)}`] : []),
     // v79: el mensajero cobra lo que dice este texto, así que tiene que llevar
     // la rebaja del gestor. Antes iba el precio de lista y cobraba de más.
     ...(function(){
@@ -10624,10 +10751,14 @@ function asignarMensajeroSinMas() {
   if (!mId || isNaN(mId)) { showToast('Elige un mensajero'); return; }
   const m = mensajeroOf(mId);
   const vAsign = getVales().find(x => x.id === shareTargetId);
+  _guardarVueltoMensajero(shareTargetId, (_leerVueltoShare()||{}).usd, (_leerVueltoShare()||{}).mn);
   patchVale(shareTargetId, {status:'assigned', mensajeroId:mId});
   if (vAsign) addNotif('vale_assigned', vAsign.cliente||'Tu cliente', null, m?m.name:'', vAsign.gestorId, 'vale_assigned:'+shareTargetId);
+  // closeShareModal() pone shareTargetId a null: se guarda antes, o el vale
+  // recién asignado se cerraba en vez de quedarse abierto.
+  const _idAsign = shareTargetId;
   closeShareModal();
-  selectedValeId = shareTargetId;
+  selectedValeId = _idAsign;
   renderAdminGestores(); renderValeDetail(); renderMyVales();
   renderConfirmados(); renderPendienteCobro();
   updateMensajeroBadge();
@@ -10642,9 +10773,11 @@ function copyAndAssign() {
   const text=document.getElementById('shareValePreview').textContent;
   navigator.clipboard.writeText(text).catch(()=>{});
   const vAsign=getVales().find(x=>x.id===shareTargetId);
+  _guardarVueltoMensajero(shareTargetId,(_leerVueltoShare()||{}).usd,(_leerVueltoShare()||{}).mn);
   patchVale(shareTargetId,{status:'assigned',mensajeroId:mId});
   if(vAsign) addNotif('vale_assigned',vAsign.cliente||'Tu cliente',null,m?m.name:'',vAsign.gestorId,'vale_assigned:'+shareTargetId);
-  closeShareModal();selectedValeId=shareTargetId;
+  const _idAsign=shareTargetId;
+  closeShareModal();selectedValeId=_idAsign;
   renderAdminGestores();renderValeDetail();renderMyVales();
   renderConfirmados();renderPendienteCobro();
   updateMensajeroBadge();

@@ -2352,3 +2352,8 @@ body[data-page="admin"] #catalogAdminSearch{width:100% !important;max-width:none
   .vd-acc{order:1;position:static;margin:0 0 10px;box-shadow:none}
   .vd-cuerpo{order:2}
 }
+
+/* v161: lo que el mensajero tiene que traer (vuelto incluido) */
+.vd-traer{margin-top:10px;padding:9px 11px;border-radius:11px;background:rgba(0,109,138,.07);border:1px solid rgba(0,109,138,.25)}
+.vd-traer .vd-total > span{white-space:normal;color:var(--blue)}
+.vd-traer .vd-total b{font-size:18px;color:var(--blue)}
