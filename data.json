@@ -2470,7 +2470,7 @@
       "name": "Base para paneles",
       "catId": 20,
       "photo": "photos/p-1790958942707-a5598934.webp",
-      "stock": 23,
+      "stock": 24,
       "imagen": "photos/p-1790958942707-a5598934.webp",
       "nombre": "Base para paneles",
       "precio": "65",
@@ -2597,5 +2597,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-10-30T19:03:03.116Z"
+  "timestamp": "2026-10-31T20:32:06.627Z"
 }
