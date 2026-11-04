@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./app.css?v=231">
+  <link rel="stylesheet" href="./app.css?v=232">
   <style>
     /* Splash screen inline — se quita desde app.js init() o tras 8s. */
     #axon-splash{position:fixed;inset:0;background:linear-gradient(135deg,#003a4d 0%,#006d8a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity .4s ease;}
@@ -62,7 +62,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v17.7</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v17.8</span>
   </div>
   <span id="adminBadge"></span>
   <span id="inboxCountBadge" style="display:none;background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;"></span>
@@ -510,6 +510,18 @@
         <label style="font-size:12px;font-weight:600;width:130px;">Catálogo público:</label>
         <input type="text" id="catalogPhoneInput" placeholder="Ej: 5355551234" style="flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;">
         <button class="btn btn-blue btn-sm" onclick="saveCatalogPhone()">Guardar</button>
+      </div>
+    </div>
+
+    <div class="lbl">🧭 Dirección de la tienda en el vale</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.5;">Es el apartado «Dirección de la tienda» que sale en el vale y en el ticket que recibe el cliente. Lo que guardes aquí lo ven todos los gestores. Una línea por renglón. Si lo dejas vacío y guardas, el apartado desaparece del vale.</div>
+      <textarea id="valeDirTiendaInput" rows="3" placeholder="Ej: Amistad #311 % San Rafael y San José, Centro Habana." style="width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;color:var(--text);resize:vertical;font-family:inherit;"></textarea>
+      <div id="valeDirTiendaEstado" style="font-size:11px;color:var(--text-muted);margin:6px 0 8px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-blue btn-sm" onclick="guardarDirTiendaVale()">Guardar</button>
+        <button class="btn btn-ghost btn-sm" onclick="guardarDirTiendaVale(true)">🚫 Quitar del vale</button>
+        <button class="btn btn-ghost btn-sm" onclick="restaurarDirTiendaVale()">↩ Dejar la de siempre</button>
       </div>
     </div>
 
@@ -1830,7 +1842,7 @@
   </div>
 </div>
 
-<script src="./app.js?v=231"></script>
+<script src="./app.js?v=232"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

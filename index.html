@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="AXONTECH">
   <link rel="apple-touch-icon" href="./iconos/icon-192.png">
-  <link rel="stylesheet" href="./app.css?v=231">
+  <link rel="stylesheet" href="./app.css?v=232">
   <style>
     /* Splash screen inline — no depende de app.css.
        Se muestra INMEDIATAMENTE al cargar el HTML, antes de que app.js termine.
@@ -58,7 +58,7 @@
     <span id="versionBadge"
           onclick="checkVersion(true)"
           title="Versión actual · Toca para buscar actualizaciones"
-          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v17.7</span>
+          style="margin-left:8px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.45);color:#86efac;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:all .15s;white-space:nowrap;user-select:none;">v17.8</span>
   </div>
   <span id="headerGestorName"></span>
   <div class="header-right">
@@ -377,8 +377,8 @@
       <details class="vf-info">
       <summary>ℹ️ Dirección y condiciones de la tienda <span>(van en el vale)</span></summary>
       <div class="vf-fixed">
-        <b>🧭 Dirección de la tienda:</b><br>
-        * Amistad #311 % San Rafael y San José, Centro Habana.<br><br>
+        <span id="vf-dirTienda"><b>🧭 Dirección de la tienda:</b><br>
+        * Amistad #311 % San Rafael y San José, Centro Habana.<br><br></span>
         <b>🚨 ATENCIÓN 🚨</b><br>
         • Horarios de atención: 9:00am - 7:00pm.<br>
         * Solo aceptamos hasta cinco billetes de 1 USD por compra.<br>
@@ -778,7 +778,7 @@
           📍 Muestre esta pantalla en el mostrador para que le entreguen su pedido rápidamente y se asigne la venta a su promotor.
         </div>
       </div>
-      <div class="t-foot" style="text-align: center; padding: 15px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600;">
+      <div class="t-foot" id="tk-dirTienda" style="text-align: center; padding: 15px; font-size: 10px; color: #9ca3af; border-top: 1px solid #e5e7eb; background: #f9fafb; font-weight: 600;">
         Amistad #311 % San Rafael y San José, Centro Habana.
       </div>
     </div>
@@ -852,7 +852,7 @@
   </div>
 </div>
 
-<script src="./app.js?v=231"></script>
+<script src="./app.js?v=232"></script>
 <script>
 // Close modals by clicking backdrop
 document.querySelectorAll('.modal-bg').forEach(bg => {

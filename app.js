@@ -23,7 +23,7 @@ try {
 //  Sistema de versiones reiniciado a v3. El badge superior muestra esta versión.
 //  checkVersion() consulta version.json periódicamente; si detecta una versión
 //  mayor, muestra el banner "Nueva versión disponible" con botón Recargar.
-const APP_VERSION = 231;
+const APP_VERSION = 232;
 // v62: la etiqueta que se ENSEÑA va aparte del número que se COMPARA.
 // APP_VERSION es el contador de publicaciones y tiene que seguir subiendo sin
 // saltos: checkVersion() decide que hay actualización con `remoto > local`, así
@@ -34,7 +34,7 @@ const APP_VERSION = 231;
 // _PUBLIC_VERSION_STR es solo cosmética y la inyecta build.py: avanza 1.0, 1.1,
 // … 1.9, 2.0 mientras el contador va 62, 63, 64. Si faltara, se cae al número
 // interno para que el badge nunca aparezca vacío.
-let _PUBLIC_VERSION_STR = 'v17.7';
+let _PUBLIC_VERSION_STR = 'v17.8';
 const VERSION_STR = _PUBLIC_VERSION_STR || ('v' + APP_VERSION);
 
 // Estado del chequeo de versión
@@ -96,7 +96,7 @@ function _isNewerVersion(remote, local) {
 // Hash local de la build actual (se inyecta automáticamente desde build.py vía
 // version.json cacheado en el SW; si no está disponible, queda null y solo se
 // compara por número de versión).
-let _LOCAL_BUILD_HASH = '4d53b710487688a5';
+let _LOCAL_BUILD_HASH = '92ca783395d08d1e';
 
 // Verifica contra version.json si hay una versión más nueva disponible.
 // `manual=true` fuerza mostrar un toast incluso si no hay novedades (caso del tap en el badge).
@@ -2470,6 +2470,7 @@ async function _doRestPoll() {
               // refreshUI() solo redibuja cuando cambian los VALES, y un cambio
               // de config a secas no lo despertaba.
               if (typeof renderTasaBadge === 'function') { try { renderTasaBadge(); renderTasaModal(); } catch(e) {} }
+              try { _pintarDirTiendaForm(); cargarDirTiendaUI(); } catch(e) {}
             }
             else if(node==='notifs'){
               // v43: merge local + remoto en vez de reemplazo ciego (evita pérdida
@@ -4498,6 +4499,40 @@ const saveConfig    = v  => {
   });
   if (Object.keys(parche).length) setSB('config', parche, 'update');
 };
+
+// ── Dirección de la tienda en el vale del cliente ───────────────────────────
+// Antes estaba escrita a mano en cada texto del vale. Ahora vive en el config
+// sincronizado (clave `valeDirTienda`), así que se cambia una vez desde
+// Config y todos los teléfonos la ven igual.
+//   · sin la clave        → la de siempre (DIR_TIENDA_DEFECTO)
+//   · clave con texto     → ese texto (una línea por renglón)
+//   · clave vacía ('')    → el apartado desaparece del vale por completo
+const DIR_TIENDA_DEFECTO = 'Amistad #311 % San Rafael y San José, Centro Habana.';
+function dirTiendaVale() {
+  const cfg = getConfig() || {};
+  if (typeof cfg.valeDirTienda === 'string') return cfg.valeDirTienda.trim();
+  return DIR_TIENDA_DEFECTO;
+}
+// Líneas listas para meter en el vale: título + una línea "* …" por renglón +
+// línea en blanco. Si el apartado está quitado, no devuelve nada.
+function _bloqueDirTiendaVale() {
+  const d = dirTiendaVale();
+  if (!d) return [];
+  const lineas = d.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    .map(l => /^[*•]\s/.test(l) ? l : '* ' + l);
+  return ['🧭Dirección de la tienda:', ...lineas, ''];
+}
+// Repinta el recuadro informativo del formulario del gestor (index.html).
+function _pintarDirTiendaForm() {
+  const el = document.getElementById('vf-dirTienda');
+  if (!el) return;
+  const d = dirTiendaVale();
+  if (!d) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = '';
+  el.innerHTML = '<b>🧭 Dirección de la tienda:</b><br>' +
+    d.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+      .map(l => escapeHTML(/^[*•]\s/.test(l) ? l : '* ' + l)).join('<br>') + '<br><br>';
+}
 
 // GitHub token helper — el token NUNCA se sincroniza a Supabase.
 // Vive solo en localStorage del dispositivo admin para evitar que gestores
@@ -6929,6 +6964,7 @@ function activateAdminMode() {
   const cfg = getConfig();
   const ph = document.getElementById('adminPhoneInput'); if (ph && cfg.adminPhone) ph.value = cfg.adminPhone;
   const cph = document.getElementById('catalogPhoneInput'); if (cph && cfg.catalogPhone) cph.value = cfg.catalogPhone;
+  cargarDirTiendaUI();
   const today = new Date().toISOString().slice(0, 10);
   const sf = document.getElementById('statsDateFrom'); if (sf) sf.value = today;
   const st = document.getElementById('statsDateTo'); if (st) st.value = today;
@@ -6966,7 +7002,7 @@ function adminTab(tab) {
   if(tab==='gestores'&&gestoresTabDirty){renderAdminGestoresList();renderComisiones();gestoresTabDirty=false;}
   if(tab==='stats'&&statsTabDirty){renderStats();statsTabDirty=false;}
   if(tab==='mensajeros'){renderMensajeroSelector();renderPendingCobroSection();renderMensajeroVales();}
-  if(tab==='config'){loadGhConfigUI();}
+  if(tab==='config'){loadGhConfigUI();cargarDirTiendaUI();}
   if(tab==='duenos'){renderDuenos();}
   if(tab==='historial'){renderHistorial();}
   if(tab==='estafa'){renderEstafaList();}
@@ -11967,6 +12003,7 @@ function _bloquearCampo(id, bloquear, titulo) {
   else el.removeAttribute('title');
 }
 function _aplicarCamposAuto() {
+  try { _pintarDirTiendaForm(); } catch(e) {}
   // v78: artículo y precios se bloquean SIEMPRE, no solo cuando ya hay productos
   // elegidos. Todo lo que se vende está en el catálogo, y tanto el artículo como
   // su precio salen de ahí: dejar escribir era una vía abierta a que el vale
@@ -12286,7 +12323,7 @@ function buildValeText() {
     })(), '',
     `*Garantía: ${fVal('vf-garantia')}`,
     `*Fecha y hora de Venta: ${fVal('vf-fecha')||nowDateTime()}`, '',
-    '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
+    ..._bloqueDirTiendaVale(),
     '🚨ATENCIÓN🚨','•   Horarios de atención al cliente:','    9:00am - 7:00pm.',
     '* Solo aceptamos hasta cinco billetes de 1 USD por compra.',
     '* Los pagos en MN deben ser con denominación de 50 en adelante.',
@@ -12329,7 +12366,7 @@ function regenerateValeText(v) {
     })(), '',
     `*Garantía: ${v.garantia||''}`,
     `*Fecha y hora de Venta: ${ts}`, '',
-    '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
+    ..._bloqueDirTiendaVale(),
     '🚨ATENCIÓN🚨','•   Horarios de atención al cliente:','    9:00am - 7:00pm.',
     '* Solo aceptamos hasta cinco billetes de 1 USD por compra.',
     '* Los pagos en MN deben ser con denominación de 50 en adelante.',
@@ -12386,6 +12423,14 @@ function openTicketModal(afterSend) {
     _rowReb.style.display = _rt ? 'flex' : 'none';
     const _celda = document.getElementById('tk-rebaja');
     if (_celda && _rt) _celda.textContent = '− ' + _rt.rebajaTxt;
+  }
+
+  // Pie del ticket: la dirección que haya en Config (o nada, si se quitó).
+  const _tkDir = document.getElementById('tk-dirTienda');
+  if (_tkDir) {
+    const _d = dirTiendaVale();
+    _tkDir.textContent = _d;
+    _tkDir.style.display = _d ? '' : 'none';
   }
 
   // Mostrar banner verde SOLO si el modal se abre después de enviar un vale.
@@ -12499,10 +12544,7 @@ function copyTicketText() {
 ${prodLines}
 ${(()=>{const _r=_rebajaFormulario();if(!_r)return '';return `💵 *Precio:* ${fVal('vf-total')}\n🤝 *Rebaja:* −${_r.rebajaTxt}\n`;})()}💰 *Total a pagar:* ${_totalACobrarFormulario() || '—'}
 -----------------------------------
-📍 *Dirección de Tienda:*
-Amistad #311 % San Rafael y San José, Centro Habana.
-
-⚠️ *Importante:* Por favor, muestre este mensaje en el mostrador al llegar a la tienda para que le entreguen su pedido rápidamente y se le asigne la venta a su promotor.`;
+${dirTiendaVale() ? `📍 *Dirección de Tienda:*\n${dirTiendaVale()}\n\n` : ''}⚠️ *Importante:* Por favor, muestre este mensaje en el mostrador al llegar a la tienda para que le entreguen su pedido rápidamente y se le asigne la venta a su promotor.`;
 
   navigator.clipboard.writeText(text).then(() => showToast('¡Texto del Ticket copiado! ✓')).catch(() => showToast('Error al copiar'));
 }
@@ -12519,6 +12561,36 @@ function shareToAdminWA() {
 function saveAdminPhone() {
   const phone=document.getElementById('adminPhoneInput').value.trim();
   const cfg=getConfig();cfg.adminPhone=phone;saveConfig(cfg);showToast('Número guardado ✓');
+}
+// ── Config: dirección de la tienda en el vale ──
+function cargarDirTiendaUI() {
+  const inp = document.getElementById('valeDirTiendaInput');
+  const est = document.getElementById('valeDirTiendaEstado');
+  if (!inp && !est) return;
+  const cfg = getConfig() || {};
+  const quitada = typeof cfg.valeDirTienda === 'string' && !cfg.valeDirTienda.trim();
+  // No pisar lo que el admin está escribiendo en este momento.
+  if (inp && document.activeElement !== inp) inp.value = quitada ? '' : dirTiendaVale();
+  if (est) est.textContent = quitada
+    ? '🚫 Ahora mismo NO sale ninguna dirección en el vale.'
+    : (typeof cfg.valeDirTienda === 'string' ? '✓ Se usa la dirección que guardaste.' : 'Se usa la dirección de siempre.');
+}
+function guardarDirTiendaVale(quitar) {
+  const inp = document.getElementById('valeDirTiendaInput');
+  const txt = quitar ? '' : String(inp ? inp.value : '').trim();
+  const cfg = getConfig() || {};
+  saveConfig({ ...cfg, valeDirTienda: txt });   // copia: ver saveConfig, que compara con lo anterior
+  if (quitar && inp) inp.value = '';
+  cargarDirTiendaUI(); _pintarDirTiendaForm();
+  showToast(txt ? 'Dirección guardada para todos ✓' : 'Dirección quitada del vale ✓');
+}
+function restaurarDirTiendaVale() {
+  const cfg = { ...(getConfig() || {}) };
+  delete cfg.valeDirTienda;                     // null en la nube = clave quitada
+  saveConfig(cfg);
+  const inp = document.getElementById('valeDirTiendaInput'); if (inp) inp.value = DIR_TIENDA_DEFECTO;
+  cargarDirTiendaUI(); _pintarDirTiendaForm();
+  showToast('Dirección de siempre restaurada ✓');
 }
 function saveCatalogPhone() {
   const phone=document.getElementById('catalogPhoneInput').value.trim();
@@ -16320,7 +16392,7 @@ function buildDemoVale(v) {
               `🔸 Total a pagar: ${_r.aCobrarTxt || (v.total + ' menos ' + _r.rebajaTxt)}`];
     })(),'',
     `*Garantía: ${v.garantia}`,`*Fecha y hora de Venta: ${new Date(v.ts).toLocaleString('es-ES')}`,'',
-    '🧭Dirección de la tienda:','* Amistad #311 % San Rafael y San José, Centro Habana.','',
+    ..._bloqueDirTiendaVale(),
     '🚨ATENCIÓN🚨','•   Horarios de atención: 9:00am - 7:00pm.'].join('\n');
 }
 
@@ -19997,7 +20069,7 @@ function buildAdminValeText() {
     `🔸 Total a pagar: ${avVal('av-total')}`, '',
     `*Garantía: ${avVal('av-garantia')}`,
     `*Fecha y hora de Venta: ${nowDateTime()}`, '',
-    '🧭Dirección de la tienda:', '* Amistad #311 % San Rafael y San José, Centro Habana.', '',
+    ..._bloqueDirTiendaVale(),
     '🚨ATENCIÓN🚨', '•   Horarios de atención al cliente:', '    9:00am - 7:00pm.',
     '* Solo aceptamos hasta cinco billetes de 1 USD por compra.',
     '* Los pagos en MN deben ser con denominación de 50 en adelante.',
