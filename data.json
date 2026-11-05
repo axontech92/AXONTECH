@@ -610,7 +610,7 @@
       "name": "Bateria LUBRIM de 75A",
       "catId": 20,
       "photo": "photos/img_1778103783319.webp",
-      "stock": 8,
+      "stock": 7,
       "imagen": "photos/img_1778103783319.webp",
       "nombre": "Bateria LUBRIM de 75A",
       "precio": "$85",
@@ -1637,7 +1637,7 @@
       "name": "Cargador inteligente VEVOR de 6,12 y24V 35A",
       "catId": 20,
       "photo": "photos/p-1786160284390-28622650.webp",
-      "stock": 31,
+      "stock": 30,
       "imagen": "photos/p-1786160284390-28622650.webp",
       "nombre": "Cargador inteligente VEVOR de 6,12 y24V 35A",
       "precio": "$125",
@@ -2020,7 +2020,7 @@
       "name": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "catId": 20,
       "photo": "photos/p-1787089756274-f04ab9a3.webp",
-      "stock": 23,
+      "stock": 32,
       "imagen": "photos/p-1787089756274-f04ab9a3.webp",
       "nombre": "Controlador solar mppt de 48/60/72 V y 1200 W",
       "precio": "$90",
@@ -2183,7 +2183,7 @@
       "descripcion": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "description": "Toldo tipo malla para sombra con anillas para su colocación. Ideal para patios, terrazas, piscinas o negocios al aire libre",
       "precioActual": 40,
-      "comisionMoneda": "USD"
+      "comisionMoneda": "MN"
     },
     {
       "id": 1788015580929,
@@ -2506,7 +2506,7 @@
       "name": "Binoculares Vision Nocturna",
       "catId": 90,
       "photo": "photos/p-1790963079882-0eb05a5d.webp",
-      "stock": 6,
+      "stock": 5,
       "imagen": "photos/p-1790963079882-0eb05a5d.webp",
       "nombre": "Binoculares Vision Nocturna",
       "precio": "55",
@@ -2542,7 +2542,7 @@
       "name": "Cámara de reversa",
       "catId": 50,
       "photo": "photos/p-1792811595295-add27c26.webp",
-      "stock": 2,
+      "stock": 14,
       "imagen": "photos/p-1792811595295-add27c26.webp",
       "nombre": "Cámara de reversa",
       "precio": "30",
@@ -2597,5 +2597,5 @@
       "name": "Gym"
     }
   ],
-  "timestamp": "2026-11-02T23:26:14.862Z"
+  "timestamp": "2026-11-05T15:46:41.729Z"
 }
